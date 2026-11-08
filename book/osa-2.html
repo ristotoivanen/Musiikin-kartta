@@ -9,25 +9,13 @@
   <style>
     .diagram { margin: 1rem 0 1.35rem; }
     .diagram figcaption { margin-bottom: .55rem; font-weight: 700; }
-    .shape-grid, .form-map { display: grid; gap: .6rem; }
-    .shape-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .shape-card, .form-map li {
+    .form-map { display: grid; gap: .6rem; }
+    .form-map li {
       background: var(--panel);
       border: 1px solid var(--line);
       border-radius: .6rem;
       padding: .55rem;
     }
-    .shape-card { text-align: center; }
-    .shape-card h4 { margin: 0; font-size: 1.12rem; }
-    .shape-card svg { display: block; width: min(100%, 8.5rem); margin: .2rem auto; }
-    .shape-card code { color: var(--muted); }
-    .shape-gridlines { fill: none; stroke: #a098b1; stroke-width: 1.5; }
-    .shape-nut { stroke: var(--text); stroke-width: 3; }
-    .shape-symbols, .shape-strings, .shape-fingers { text-anchor: middle; }
-    .shape-symbols { fill: var(--text); font-size: 15px; }
-    .shape-strings { fill: var(--muted); font-size: 12px; }
-    .shape-dots { fill: var(--accent); }
-    .shape-fingers { fill: var(--bg); font-size: 12px; font-weight: 750; }
     .form-map { grid-template-columns: repeat(5, minmax(0, 1fr)); list-style: none; padding: 0; margin: 0; }
     .form-map li { border-top: 3px solid var(--accent); }
     .form-map .chorus { border-top-color: var(--gold); }
@@ -43,7 +31,7 @@
     .bar-chart td { font-weight: 700; text-align: center; }
     .bar-chart th[scope="col"]:not(:first-child) { text-align: center; }
     @media (max-width: 550px) {
-      .shape-grid, .form-map { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .form-map { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
   </style>
 </head>
@@ -75,6 +63,7 @@
           <li><a href="#savellajin-tunnistaminen">Sävellajin tunnistaminen</a></li>
           <li><a href="#transponointi">Transponointi</a></li>
         </ol>
+        <p class="contents-extra"><a href="#harjoitusrutiini">Harjoitusrutiini</a></p>
       </nav>
 
       <article>
@@ -96,59 +85,10 @@
           <p>Tässä harjoituksessa yksi tahti on neljä iskua. Laske ääneen <span class="sequence">1, 2, 3, 4</span>. Soita taulukon sointu ykkösellä ja anna sen soida neloseen asti. Seuraavalla ykkösellä vaihda seuraavaan sointuun. Kun vaihdot osuvat kohdalleen, voit soittaa alasvedon jokaisella iskulla.</p>
 
           <h3>Neljä otetta kitaralle</h3>
-          <p>Kaavioissa paksuin E-kieli on vasemmalla ja ohuin e-kieli oikealla. Paksu vaakaviiva on satula, ja sen alta alkaa ensimmäinen nauha. <strong>○</strong> tarkoittaa vapaata kieltä ja <strong>×</strong> kieltä, jonka jätät soittamatta. Pisteen numero kertoo sormen. Etusormi on 1, keskisormi 2 ja nimetön 3.</p>
+          <p>Kaaviot luetaan kuten <a href="osa-1.html#kitaran-merkinnat">luvussa 1</a>. Paksuin E-kieli on vasemmalla ja ohuin e-kieli oikealla, ja paksu vaakaviiva on satula. <strong>○</strong> tarkoittaa vapaata kieltä ja <strong>×</strong> kieltä, jonka jätät soittamatta. Pisteen alla oleva numero kertoo sormen: etusormi 1, keskisormi 2 ja nimetön 3. Kultainen piste tai rengas on soinnun perussävel.</p>
           <figure class="diagram">
             <figcaption>Avoimet otteet G, Em, C ja D</figcaption>
-            <div class="shape-grid">
-              <div class="shape-card">
-                <h4>G</h4>
-                <svg viewBox="0 0 136 136" role="img" aria-label="G. Paksulta E-kieleltä ohuelle nauhat 3, 2, vapaa, vapaa, vapaa, 3. Sormet 2, 1 ja 3.">
-                  <path class="shape-gridlines" d="M18 33v78 M38 33v78 M58 33v78 M78 33v78 M98 33v78 M118 33v78 M18 59h100 M18 85h100 M18 111h100"/>
-                  <path class="shape-nut" d="M18 33h100"/>
-                  <text class="shape-symbols" y="21"><tspan x="58">○</tspan><tspan x="78">○</tspan><tspan x="98">○</tspan></text>
-                  <g class="shape-dots"><circle cx="18" cy="98" r="8"/><circle cx="38" cy="72" r="8"/><circle cx="118" cy="98" r="8"/></g>
-                  <text class="shape-fingers"><tspan x="18" y="102">2</tspan><tspan x="38" y="76">1</tspan><tspan x="118" y="102">3</tspan></text>
-                  <text class="shape-strings" y="129"><tspan x="18">E</tspan><tspan x="38">A</tspan><tspan x="58">D</tspan><tspan x="78">G</tspan><tspan x="98">B</tspan><tspan x="118">e</tspan></text>
-                </svg>
-                <code>320003</code>
-              </div>
-              <div class="shape-card">
-                <h4>Em</h4>
-                <svg viewBox="0 0 136 136" role="img" aria-label="Em. Paksulta E-kieleltä ohuelle nauhat vapaa, 2, 2, vapaa, vapaa, vapaa. Sormet 2 ja 3.">
-                  <path class="shape-gridlines" d="M18 33v78 M38 33v78 M58 33v78 M78 33v78 M98 33v78 M118 33v78 M18 59h100 M18 85h100 M18 111h100"/>
-                  <path class="shape-nut" d="M18 33h100"/>
-                  <text class="shape-symbols" y="21"><tspan x="18">○</tspan><tspan x="78">○</tspan><tspan x="98">○</tspan><tspan x="118">○</tspan></text>
-                  <g class="shape-dots"><circle cx="38" cy="72" r="8"/><circle cx="58" cy="72" r="8"/></g>
-                  <text class="shape-fingers" y="76"><tspan x="38">2</tspan><tspan x="58">3</tspan></text>
-                  <text class="shape-strings" y="129"><tspan x="18">E</tspan><tspan x="38">A</tspan><tspan x="58">D</tspan><tspan x="78">G</tspan><tspan x="98">B</tspan><tspan x="118">e</tspan></text>
-                </svg>
-                <code>022000</code>
-              </div>
-              <div class="shape-card">
-                <h4>C</h4>
-                <svg viewBox="0 0 136 136" role="img" aria-label="C. Jätä paksu E soittamatta. A-kieleltä ohuelle nauhat 3, 2, vapaa, 1, vapaa. Sormet 3, 2 ja 1.">
-                  <path class="shape-gridlines" d="M18 33v78 M38 33v78 M58 33v78 M78 33v78 M98 33v78 M118 33v78 M18 59h100 M18 85h100 M18 111h100"/>
-                  <path class="shape-nut" d="M18 33h100"/>
-                  <text class="shape-symbols" y="21"><tspan x="18">×</tspan><tspan x="78">○</tspan><tspan x="118">○</tspan></text>
-                  <g class="shape-dots"><circle cx="38" cy="98" r="8"/><circle cx="58" cy="72" r="8"/><circle cx="98" cy="46" r="8"/></g>
-                  <text class="shape-fingers"><tspan x="38" y="102">3</tspan><tspan x="58" y="76">2</tspan><tspan x="98" y="50">1</tspan></text>
-                  <text class="shape-strings" y="129"><tspan x="18">E</tspan><tspan x="38">A</tspan><tspan x="58">D</tspan><tspan x="78">G</tspan><tspan x="98">B</tspan><tspan x="118">e</tspan></text>
-                </svg>
-                <code>x32010</code>
-              </div>
-              <div class="shape-card">
-                <h4>D</h4>
-                <svg viewBox="0 0 136 136" role="img" aria-label="D. Jätä paksu E ja A soittamatta. D-kieleltä ohuelle nauhat vapaa, 2, 3, 2. Sormet 1, 3 ja 2.">
-                  <path class="shape-gridlines" d="M18 33v78 M38 33v78 M58 33v78 M78 33v78 M98 33v78 M118 33v78 M18 59h100 M18 85h100 M18 111h100"/>
-                  <path class="shape-nut" d="M18 33h100"/>
-                  <text class="shape-symbols" y="21"><tspan x="18">×</tspan><tspan x="38">×</tspan><tspan x="58">○</tspan></text>
-                  <g class="shape-dots"><circle cx="78" cy="72" r="8"/><circle cx="98" cy="98" r="8"/><circle cx="118" cy="72" r="8"/></g>
-                  <text class="shape-fingers"><tspan x="78" y="76">1</tspan><tspan x="98" y="102">3</tspan><tspan x="118" y="76">2</tspan></text>
-                  <text class="shape-strings" y="129"><tspan x="18">E</tspan><tspan x="38">A</tspan><tspan x="58">D</tspan><tspan x="78">G</tspan><tspan x="98">B</tspan><tspan x="118">e</tspan></text>
-                </svg>
-                <code>xx0232</code>
-              </div>
-            </div>
+            <div class="chord-diagrams"><figure class="chord-diagram"><figcaption>G</figcaption><svg viewBox="0 0 108 124" role="img" aria-label="G: paksu E-kieli 3. nauha keskisormella (perussävel), A-kieli 2. nauha etusormella, D-kieli vapaana, G-kieli vapaana (perussävel), B-kieli vapaana, ohut e-kieli 3. nauha nimettömällä (perussävel)."><line class="nut" x1="24" y1="30" x2="94" y2="30"/><line class="fret" x1="24" y1="48" x2="94" y2="48"/><line class="fret" x1="24" y1="66" x2="94" y2="66"/><line class="fret" x1="24" y1="84" x2="94" y2="84"/><line class="fret" x1="24" y1="102" x2="94" y2="102"/><line class="string" x1="24" y1="30" x2="24" y2="102"/><line class="string" x1="38" y1="30" x2="38" y2="102"/><line class="string" x1="52" y1="30" x2="52" y2="102"/><line class="string" x1="66" y1="30" x2="66" y2="102"/><line class="string" x1="80" y1="30" x2="80" y2="102"/><line class="string" x1="94" y1="30" x2="94" y2="102"/><circle class="root" cx="24" cy="75" r="6.5"/><text class="finger" x="24" y="118">2</text><circle class="tone" cx="38" cy="57" r="6.5"/><text class="finger" x="38" y="118">1</text><circle class="open" cx="52" cy="18" r="4.5"/><circle class="open root-open" cx="66" cy="18" r="4.5"/><circle class="open" cx="80" cy="18" r="4.5"/><circle class="root" cx="94" cy="75" r="6.5"/><text class="finger" x="94" y="118">3</text></svg><code>320003</code></figure><figure class="chord-diagram"><figcaption>Em</figcaption><svg viewBox="0 0 108 124" role="img" aria-label="Em: paksu E-kieli vapaana (perussävel), A-kieli 2. nauha keskisormella, D-kieli 2. nauha nimettömällä (perussävel), G-kieli vapaana, B-kieli vapaana, ohut e-kieli vapaana (perussävel)."><line class="nut" x1="24" y1="30" x2="94" y2="30"/><line class="fret" x1="24" y1="48" x2="94" y2="48"/><line class="fret" x1="24" y1="66" x2="94" y2="66"/><line class="fret" x1="24" y1="84" x2="94" y2="84"/><line class="fret" x1="24" y1="102" x2="94" y2="102"/><line class="string" x1="24" y1="30" x2="24" y2="102"/><line class="string" x1="38" y1="30" x2="38" y2="102"/><line class="string" x1="52" y1="30" x2="52" y2="102"/><line class="string" x1="66" y1="30" x2="66" y2="102"/><line class="string" x1="80" y1="30" x2="80" y2="102"/><line class="string" x1="94" y1="30" x2="94" y2="102"/><circle class="open root-open" cx="24" cy="18" r="4.5"/><circle class="tone" cx="38" cy="57" r="6.5"/><text class="finger" x="38" y="118">2</text><circle class="root" cx="52" cy="57" r="6.5"/><text class="finger" x="52" y="118">3</text><circle class="open" cx="66" cy="18" r="4.5"/><circle class="open" cx="80" cy="18" r="4.5"/><circle class="open root-open" cx="94" cy="18" r="4.5"/></svg><code>022000</code></figure><figure class="chord-diagram"><figcaption>C</figcaption><svg viewBox="0 0 108 124" role="img" aria-label="C: paksu E-kieli soittamatta, A-kieli 3. nauha nimettömällä (perussävel), D-kieli 2. nauha keskisormella, G-kieli vapaana, B-kieli 1. nauha etusormella (perussävel), ohut e-kieli vapaana."><line class="nut" x1="24" y1="30" x2="94" y2="30"/><line class="fret" x1="24" y1="48" x2="94" y2="48"/><line class="fret" x1="24" y1="66" x2="94" y2="66"/><line class="fret" x1="24" y1="84" x2="94" y2="84"/><line class="fret" x1="24" y1="102" x2="94" y2="102"/><line class="string" x1="24" y1="30" x2="24" y2="102"/><line class="string" x1="38" y1="30" x2="38" y2="102"/><line class="string" x1="52" y1="30" x2="52" y2="102"/><line class="string" x1="66" y1="30" x2="66" y2="102"/><line class="string" x1="80" y1="30" x2="80" y2="102"/><line class="string" x1="94" y1="30" x2="94" y2="102"/><text class="marker" x="24" y="22">×</text><circle class="root" cx="38" cy="75" r="6.5"/><text class="finger" x="38" y="118">3</text><circle class="tone" cx="52" cy="57" r="6.5"/><text class="finger" x="52" y="118">2</text><circle class="open" cx="66" cy="18" r="4.5"/><circle class="root" cx="80" cy="39" r="6.5"/><text class="finger" x="80" y="118">1</text><circle class="open" cx="94" cy="18" r="4.5"/></svg><code>x32010</code></figure><figure class="chord-diagram"><figcaption>D</figcaption><svg viewBox="0 0 108 124" role="img" aria-label="D: paksu E-kieli soittamatta, A-kieli soittamatta, D-kieli vapaana (perussävel), G-kieli 2. nauha etusormella, B-kieli 3. nauha nimettömällä (perussävel), ohut e-kieli 2. nauha keskisormella."><line class="nut" x1="24" y1="30" x2="94" y2="30"/><line class="fret" x1="24" y1="48" x2="94" y2="48"/><line class="fret" x1="24" y1="66" x2="94" y2="66"/><line class="fret" x1="24" y1="84" x2="94" y2="84"/><line class="fret" x1="24" y1="102" x2="94" y2="102"/><line class="string" x1="24" y1="30" x2="24" y2="102"/><line class="string" x1="38" y1="30" x2="38" y2="102"/><line class="string" x1="52" y1="30" x2="52" y2="102"/><line class="string" x1="66" y1="30" x2="66" y2="102"/><line class="string" x1="80" y1="30" x2="80" y2="102"/><line class="string" x1="94" y1="30" x2="94" y2="102"/><text class="marker" x="24" y="22">×</text><text class="marker" x="38" y="22">×</text><circle class="open root-open" cx="52" cy="18" r="4.5"/><circle class="tone" cx="66" cy="57" r="6.5"/><text class="finger" x="66" y="118">1</text><circle class="root" cx="80" cy="75" r="6.5"/><text class="finger" x="80" y="118">3</text><circle class="tone" cx="94" cy="57" r="6.5"/><text class="finger" x="94" y="118">2</text></svg><code>xx0232</code></figure></div>
           </figure>
           <p>Otteiden alla on sama tieto numeroina paksuimmasta kielestä ohuimpaan. Niissä numero kertoo nauhan ja <code>0</code> vapaan kielen. G ja Em alkavat paksulta E-kieleltä. C:ssä aloita A-kieleltä ja D:ssä D-kieleltä. Kokeile soittaa kunkin otteen kielet ensin yksi kerrallaan, jotta kuulet, soivatko ne puhtaasti.</p>
 
@@ -224,7 +164,8 @@
             <p>Etsi D:n edellinen ja seuraava naapuri. Soita niillä sama I–IV–V–I kuin luvun 7 G-duuriesimerkissä.</p>
             <details>
               <summary>Katso vastaus</summary>
-              <p>D–G–A–D. A-otteen nauhat ovat paksusta ohuimpaan <code>x02220</code>. Aloita A-kieleltä.</p>
+              <p>D–G–A–D. A-otteessa aloita A-kieleltä.</p>
+              <div class="chord-diagrams"><figure class="chord-diagram"><figcaption>A</figcaption><svg viewBox="0 0 108 124" role="img" aria-label="A: paksu E-kieli soittamatta, A-kieli vapaana (perussävel), D-kieli 2. nauha etusormella, G-kieli 2. nauha keskisormella (perussävel), B-kieli 2. nauha nimettömällä, ohut e-kieli vapaana."><line class="nut" x1="24" y1="30" x2="94" y2="30"/><line class="fret" x1="24" y1="48" x2="94" y2="48"/><line class="fret" x1="24" y1="66" x2="94" y2="66"/><line class="fret" x1="24" y1="84" x2="94" y2="84"/><line class="fret" x1="24" y1="102" x2="94" y2="102"/><line class="string" x1="24" y1="30" x2="24" y2="102"/><line class="string" x1="38" y1="30" x2="38" y2="102"/><line class="string" x1="52" y1="30" x2="52" y2="102"/><line class="string" x1="66" y1="30" x2="66" y2="102"/><line class="string" x1="80" y1="30" x2="80" y2="102"/><line class="string" x1="94" y1="30" x2="94" y2="102"/><text class="marker" x="24" y="22">×</text><circle class="open root-open" cx="38" cy="18" r="4.5"/><circle class="tone" cx="52" cy="57" r="6.5"/><text class="finger" x="52" y="118">1</text><circle class="root" cx="66" cy="57" r="6.5"/><text class="finger" x="66" y="118">2</text><circle class="tone" cx="80" cy="57" r="6.5"/><text class="finger" x="80" y="118">3</text><circle class="open" cx="94" cy="18" r="4.5"/></svg><code>x02220</code></figure></div>
             </details>
           </aside>
         </section>
@@ -258,7 +199,8 @@
               <p>Ensimmäinen on <span class="sequence">G–Em–C–D–G</span>, ja viimeinen pitkä sävel on G. Toinen on <span class="sequence">Em–C–G–D–Em</span>, ja viimeinen pitkä sävel on E. Ensimmäinen palaa G-duuriin, toinen e-molliin.</p>
             </details>
           </aside>
-          <p>Jos haluat kuulla paluun e-molliin selvemmin, kokeile <span class="sequence">B7–Em</span>. B7:ssä on D♯, joka voi nousta puoliaskelen E:hen. B7-otteen merkintä on <code>x21202</code>. Soita A-kieleltä alkaen.</p>
+          <p>Jos haluat kuulla paluun e-molliin selvemmin, kokeile <span class="sequence">B7–Em</span>. B7:ssä on D♯, joka voi nousta puoliaskelen E:hen. Soita B7 A-kieleltä alkaen.</p>
+          <div class="chord-diagrams"><figure class="chord-diagram"><figcaption>B7</figcaption><svg viewBox="0 0 108 124" role="img" aria-label="B7: paksu E-kieli soittamatta, A-kieli 2. nauha keskisormella (perussävel), D-kieli 1. nauha etusormella, G-kieli 2. nauha nimettömällä, B-kieli vapaana (perussävel), ohut e-kieli 2. nauha pikkusormella."><line class="nut" x1="24" y1="30" x2="94" y2="30"/><line class="fret" x1="24" y1="48" x2="94" y2="48"/><line class="fret" x1="24" y1="66" x2="94" y2="66"/><line class="fret" x1="24" y1="84" x2="94" y2="84"/><line class="fret" x1="24" y1="102" x2="94" y2="102"/><line class="string" x1="24" y1="30" x2="24" y2="102"/><line class="string" x1="38" y1="30" x2="38" y2="102"/><line class="string" x1="52" y1="30" x2="52" y2="102"/><line class="string" x1="66" y1="30" x2="66" y2="102"/><line class="string" x1="80" y1="30" x2="80" y2="102"/><line class="string" x1="94" y1="30" x2="94" y2="102"/><text class="marker" x="24" y="22">×</text><circle class="root" cx="38" cy="57" r="6.5"/><text class="finger" x="38" y="118">2</text><circle class="tone" cx="52" cy="39" r="6.5"/><text class="finger" x="52" y="118">1</text><circle class="tone" cx="66" cy="57" r="6.5"/><text class="finger" x="66" y="118">3</text><circle class="open root-open" cx="80" cy="18" r="4.5"/><circle class="tone" cx="94" cy="57" r="6.5"/><text class="finger" x="94" y="118">4</text></svg><code>x21202</code></figure></div>
         </section>
 
         <section class="chapter" id="transponointi">
@@ -294,6 +236,7 @@
           </ol>
           <div class="note">
             <p><strong>Kerro muille soiva sävellaji.</strong> Kun soitat G-otteita kapo toisella nauhalla, sano basson tai pianon soittajalle, että kappale on A-duurissa. Jos soitat itse ilman kapoa, käytä A-duurin sarakkeen sointuja. F♯m:n kolmisoinnun saat myös kolmelta ohuimmalta kieleltä otteella <code>xxx222</code>.</p>
+            <div class="chord-diagrams"><figure class="chord-diagram"><figcaption>F♯m</figcaption><svg viewBox="0 0 108 124" role="img" aria-label="F♯m: paksu E-kieli soittamatta, A-kieli soittamatta, D-kieli soittamatta, G-kieli 2. nauha etusormella, B-kieli 2. nauha etusormella, ohut e-kieli 2. nauha etusormella (perussävel)."><line class="nut" x1="24" y1="30" x2="94" y2="30"/><line class="fret" x1="24" y1="48" x2="94" y2="48"/><line class="fret" x1="24" y1="66" x2="94" y2="66"/><line class="fret" x1="24" y1="84" x2="94" y2="84"/><line class="fret" x1="24" y1="102" x2="94" y2="102"/><line class="string" x1="24" y1="30" x2="24" y2="102"/><line class="string" x1="38" y1="30" x2="38" y2="102"/><line class="string" x1="52" y1="30" x2="52" y2="102"/><line class="string" x1="66" y1="30" x2="66" y2="102"/><line class="string" x1="80" y1="30" x2="80" y2="102"/><line class="string" x1="94" y1="30" x2="94" y2="102"/><rect class="barre" x="59.5" y="50.5" width="41" height="13" rx="6.5"/><text class="marker" x="24" y="22">×</text><text class="marker" x="38" y="22">×</text><text class="marker" x="52" y="22">×</text><text class="finger" x="66" y="118">1</text><text class="finger" x="80" y="118">1</text><circle class="root" cx="94" cy="57" r="6.5"/><text class="finger" x="94" y="118">1</text></svg><code>xxx222</code></figure></div>
           </div>
           <aside class="practice">
             <h3>Harjoitus · Sovita sävellaji laulajalle</h3>
@@ -304,6 +247,18 @@
             </details>
           </aside>
         </section>
+
+        <aside class="practice routine" id="harjoitusrutiini" aria-labelledby="rutiini-otsikko">
+          <h2 id="rutiini-otsikko">Harjoitusrutiini · 15 minuuttia päivässä</h2>
+          <p>Toista tätä viikon ajan. Soita hitaasti: vaihto ykkösellä on tärkeämpää kuin tempo.</p>
+          <ol>
+              <li><strong>3 min · Vaihdot.</strong> Soita <a href="#sointukierrot">luvun 7</a> G–Em–C–D ja laske ääneen 1, 2, 3, 4. Vaihda sointua aina ykkösellä.</li>
+              <li><strong>5 min · Soita mukana.</strong> Soita <a href="#valot-ikkunassa">Valot ikkunassa</a> äänitteen mukana ja seuraa kappaleen karttaa.</li>
+              <li><strong>3 min · Kvinttiympyrä.</strong> Soita <a href="#kvinttiympyra">luvun 8</a> I–IV–V–I ensin G-duurissa ja sitten D-duurissa.</li>
+              <li><strong>4 min · Sävellaji laulajalle.</strong> Soita kertosäe kapo 2. nauhalla ja ilman kapoa. Hyräile mukana ja valitse äänellesi sopivin sävellaji (<a href="#transponointi">luku 10</a>).</li>
+          </ol>
+          <p><strong>Siirry eteenpäin, kun</strong> soitat Valot ikkunassa -kappaleen alusta loppuun äänitteen mukana pysähtymättä.</p>
+        </aside>
 
         <aside class="sources" aria-labelledby="lisalukeminen">
           <h2 id="lisalukeminen">Lisälukemista</h2>

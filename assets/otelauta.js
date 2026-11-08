@@ -273,50 +273,44 @@ const fretboard = (() => {
     return best && { frets: best.frets, barre: best.barre };
   }
 
+  // Sama kaaviotyyli kuin oppaan sivuilla (tools/kaaviot/sointukaavio.py, .chord-svg tiedostossa otelauta.css).
   function renderChordDiagram(rootPC, { frets, barre }, name) {
-    const LEFT = 18, TOP = 22, GAP = 11, ROW = 15, ROWS = 4;
+    const LEFT = 24, GAP = 14, TOP = 30, ROW = 18, ROWS = 4;
     const lowToHigh = [...OPEN_PITCHES].reverse();
     const fretted = frets.filter(fret => fret > 0);
-    const high = Math.max(0, ...fretted);
-    const base = high <= ROWS ? 1 : Math.min(...fretted);
+    const nearNut = !fretted.length || (Math.max(...fretted) <= ROWS && (frets.includes(0) || Math.min(...fretted) === 1));
+    const base = nearNut ? 1 : Math.min(...fretted);
     const x = string => LEFT + string * GAP;
     const y = fret => TOP + (fret - base) * ROW + ROW / 2;
     const bottom = TOP + ROWS * ROW;
-    const width = x(5) + 12;
-    let s = '<svg viewBox="0 0 ' + width + ' ' + (bottom + 6) + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' +
+    let s = '<svg class="chord-svg" viewBox="0 0 108 ' + (bottom + 8) + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' +
       name + '-ote paksusta kielestä ohueen: ' + frets.map(fret => fret ?? 'x').join(' ') + '">';
     for (let row = 0; row <= ROWS; row++) {
-      const nut = row === 0 && base === 1;
-      s += '<line x1="' + x(0) + '" y1="' + (TOP + row * ROW) + '" x2="' + x(5) + '" y2="' + (TOP + row * ROW) +
-        '" stroke="' + (nut ? '#d8cbb6' : '#6f6385') + '" stroke-width="' + (nut ? 3 : 1) + '"/>';
+      s += '<line class="' + (row === 0 && base === 1 ? 'nut' : 'fret') + '" x1="' + x(0) + '" y1="' + (TOP + row * ROW) +
+        '" x2="' + x(5) + '" y2="' + (TOP + row * ROW) + '"/>';
     }
     frets.forEach((_, string) => {
-      s += '<line x1="' + x(string) + '" y1="' + TOP + '" x2="' + x(string) + '" y2="' + bottom + '" stroke="#a89fc4" stroke-width="1"/>';
+      s += '<line class="string" x1="' + x(string) + '" y1="' + TOP + '" x2="' + x(string) + '" y2="' + bottom + '"/>';
     });
-    if (base > 1) {
-      s += '<text x="' + (LEFT - 7) + '" y="' + (y(base) + 4) + '" font-size="10" fill="#a89fc4" text-anchor="end">' + base + '</text>';
-    }
+    if (base > 1) s += '<text class="fret-label" x="' + (LEFT - 9) + '" y="' + (y(base) + 4) + '">' + base + '</text>';
     if (barre) {
-      s += '<rect x="' + (x(barre.from) - 5) + '" y="' + (y(barre.fret) - 5) + '" width="' + ((barre.to - barre.from) * GAP + 10) +
-        '" height="10" rx="5" fill="#6d4aff"/>';
+      s += '<rect class="barre" x="' + (x(barre.from) - 6.5) + '" y="' + (y(barre.fret) - 6.5) + '" width="' +
+        ((barre.to - barre.from) * GAP + 13) + '" height="13" rx="6.5"/>';
     }
     frets.forEach((fret, string) => {
       if (fret === null) {
-        s += '<text x="' + x(string) + '" y="' + (TOP - 6) + '" font-size="10" fill="#efeaff" text-anchor="middle">×</text>';
+        s += '<text class="marker" x="' + x(string) + '" y="22">×</text>';
         return;
       }
       const isRoot = (lowToHigh[string] + fret) % 12 === rootPC;
       if (fret === 0) {
-        s += '<circle cx="' + x(string) + '" cy="' + (TOP - 9) + '" r="3.2" fill="none" stroke="' + (isRoot ? '#fff' : '#a89fc4') +
-          '" stroke-width="' + (isRoot ? 1.6 : 1.1) + '"/>';
+        s += '<circle class="open' + (isRoot ? ' root-open' : '') + '" cx="' + x(string) + '" cy="18" r="4.5"/>';
         return;
       }
-      if (barre && fret === barre.fret && !isRoot) return;
-      s += '<circle cx="' + x(string) + '" cy="' + y(fret) + '" r="5" fill="' + (isRoot ? '#4b2fd6' : '#6d4aff') +
-        '" stroke="' + (isRoot ? '#fff' : '#1a1430') + '" stroke-width="' + (isRoot ? 1.6 : 1) + '"/>';
+      if (barre && fret === barre.fret && string >= barre.from && string <= barre.to && !isRoot) return;
+      s += '<circle class="' + (isRoot ? 'root' : 'tone') + '" cx="' + x(string) + '" cy="' + y(fret) + '" r="6.5"/>';
     });
-    s += '</svg>';
-    return s;
+    return s + '</svg>';
   }
 
   function selectionFromURL(defaultRoot, defaultScale) {

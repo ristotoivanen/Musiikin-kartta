@@ -92,6 +92,11 @@ p { margin-block: .75rem; }
 .note p:last-child, .practice p:last-child, details p:last-child { margin-bottom: 0; }
 .practice h3 { margin: 0 0 .55rem; font-size: 1.05rem; }
 .practice ol { padding-left: 1.35rem; margin-block: .4rem; }
+/* Osan lopun harjoitusrutiini. */
+.routine { margin-top: 3rem; border-inline-start-color: var(--accent); }
+.routine h2 { margin: 0 0 .5rem; font-size: 1.25rem; }
+.routine ol li { margin-block: .35rem; }
+.contents .contents-extra { margin: .6rem 0 0; padding-top: .5rem; border-top: 1px solid var(--line); }
 /* Luvun avaus: kuuntele tai soita ennen selitystä. */
 .try-first {
   margin: 0 0 1.5rem;
@@ -124,6 +129,32 @@ thead th { background: var(--panel); }
   color: var(--bg);
   font-weight: 750;
 }
+/* Sointukaaviot: tools/kaaviot/sointukaavio.py piirtää kaikki samalla tyylillä. */
+.shape-set { margin: 1rem 0; }
+.shape-label { margin: 0 0 .4rem; color: var(--muted); font-size: .9rem; font-weight: 600; }
+.chord-diagrams { display: flex; flex-wrap: wrap; gap: .6rem; }
+.chord-diagram {
+  margin: 0;
+  padding: .45rem .5rem .2rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: .5rem;
+  text-align: center;
+}
+.chord-diagram figcaption { color: var(--accent); font-weight: 700; }
+.chord-diagram svg { display: block; width: 6.75rem; height: auto; }
+.chord-diagram text { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; text-anchor: middle; }
+.chord-diagram .fret, .chord-diagram .string { stroke: var(--muted); stroke-width: 1; }
+.chord-diagram .nut { stroke: var(--text); stroke-width: 3; }
+.chord-diagram .fret-label { fill: var(--muted); font-size: 11px; text-anchor: end; }
+.chord-diagram .marker { fill: var(--muted); font-size: 12px; }
+.chord-diagram .open { fill: none; stroke: var(--muted); stroke-width: 1.2; }
+.chord-diagram .root-open { stroke: var(--gold); stroke-width: 1.8; }
+.chord-diagram .tone, .chord-diagram .barre { fill: var(--accent); }
+.chord-diagram .root { fill: var(--gold); }
+.chord-diagram .finger { fill: var(--muted); font-size: 11px; }
+.chord-diagram code { display: block; margin: .05rem 0 .15rem; color: var(--muted); font-size: .78rem; }
+.note .chord-diagrams, .practice .chord-diagrams, details .chord-diagrams, .try-first .chord-diagrams, .diagram .chord-diagrams { margin: .75rem 0; }
 /* Sanasto */
 .glossary { margin: 0; }
 .glossary dt { margin-top: 1.1rem; font-weight: 700; color: var(--text); }
@@ -195,7 +226,8 @@ thead th { background: var(--panel); }
 
   /* Pidä otsikot ja kuvat ehjinä. */
   h2, h3, .chapter-number, .part-number, caption, figcaption, .shape-label, summary, .glossary dt, .glossary-letter { break-after: avoid; }
-  table, figure, .note, .try-first, .shape-set, .shape-grid, .chord-diagram, .tab, svg { break-inside: avoid; }
+  table, figure, .note, .shape-set, .chord-diagram, .tab, svg { break-inside: avoid; }
+  .try-first > p { break-after: avoid; }
   .try-first .listen { border-inline-start: 0; }
   p, li { orphans: 3; widows: 3; }
 

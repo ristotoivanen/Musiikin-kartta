@@ -104,3 +104,14 @@ footer {
   .group-label { width: 100%; }
   button, select, .box-toggle { min-height: 44px; }
 }
+
+/* Sointukaaviot: sama tyyli kuin oppaan sivuilla (book/reader.css, .chord-diagram). */
+.chord-svg text { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; text-anchor: middle; }
+.chord-svg .fret, .chord-svg .string { stroke: var(--muted); stroke-width: 1; }
+.chord-svg .nut { stroke: var(--text); stroke-width: 3; }
+.chord-svg .fret-label { fill: var(--muted); font-size: 11px; text-anchor: end; }
+.chord-svg .marker { fill: var(--muted); font-size: 12px; }
+.chord-svg .open { fill: none; stroke: var(--muted); stroke-width: 1.2; }
+.chord-svg .root-open { stroke: var(--gold); stroke-width: 1.8; }
+.chord-svg .tone, .chord-svg .barre { fill: var(--lavender); }
+.chord-svg .root { fill: var(--gold); }
