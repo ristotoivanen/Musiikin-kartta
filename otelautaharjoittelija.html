@@ -5,111 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Harjoittele asteikoita, moodeja ja sormitusbokseja kitaran otelaudalla.">
 <title>Otelautaharjoittelija – Musiikin kartta</title>
-<style>
-  :root {
-    --purple: #6d4aff;
-    --purple-dark: #4b2fd6;
-    --lavender: #b5a3ff;
-    --gold: #f0a13c;
-    --box: #75e5c6;
-    --bg: #16121f;
-    --panel: #221b31;
-    --text: #efeaff;
-    --muted: #a89fc4;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    padding: 0 0 60px;
-    background: var(--bg);
-    color: var(--text);
-    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-    line-height: 1.55;
-  }
-  a { color: var(--lavender); text-underline-offset: .18em; }
-  .site-header { border-bottom: 1px solid #2d2444; }
-  .site-nav, main { max-width: 980px; margin: 0 auto; }
-  .site-nav {
-    padding: 14px 18px;
-    display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 18px;
-  }
-  .brand { color: var(--text); font-weight: 750; text-decoration: none; }
-  .brand span { color: var(--lavender); }
-  main { padding: 32px 18px 0; }
-  h1 { margin: 0 0 12px; font-size: clamp(26px, 5vw, 38px); line-height: 1.2; }
-  .tools-note { color: var(--muted); font-size: 14px; max-width: 720px; }
-  /* Harjoittelijan tyylit */
-  .controls { margin: 18px 0 14px; }
-  .advanced-options { margin-top: 14px; border: 1px solid #453854; border-radius: 8px; }
-  .advanced-options summary {
-    min-height: 44px; padding: 10px 12px; cursor: pointer;
-    background: var(--panel); color: var(--lavender);
-    font-size: 14px; font-weight: 700; border-radius: 7px;
-  }
-  .advanced-options summary:hover { background: #2d2444; }
-  .advanced-options[open] summary { border-bottom: 1px solid #453854; border-radius: 7px 7px 0 0; }
-  .advanced-close, .advanced-options[open] .advanced-open { display: none; }
-  .advanced-options[open] .advanced-close { display: inline; }
-  .advanced-caption { margin-left: 6px; color: var(--muted); font-weight: 400; }
-  .advanced-fields { padding: 12px; }
-  .advanced-fields .tools-note:last-child { margin-bottom: 0; }
-  .group { margin-bottom: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-  .group-label { font-size: 13px; font-weight: 600; color: var(--muted); width: 220px; }
-  #roots { display: flex; flex-wrap: wrap; gap: 6px; }
-  button, select {
-    background: var(--panel); color: var(--text);
-    border: 1px solid #71638c; border-radius: 8px;
-    min-height: 38px; padding: 7px 12px; font: inherit; font-size: 14px; cursor: pointer;
-  }
-  button:hover { background: #2d2444; }
-  select { max-width: 100%; }
-  button[aria-pressed="true"] { background: var(--purple-dark); border-color: var(--lavender); font-weight: 700; }
-  #roots button[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: #1a1430; }
-  [data-box="1"] { --box-color: var(--box); }
-  [data-box="2"] { --box-color: #85c6ff; }
-  [data-box="3"] { --box-color: #ff9fc7; }
-  [data-box="4"] { --box-color: #f7d27b; }
-  [data-box="5"] { --box-color: #c9b0ff; }
-  [data-box="6"] { --box-color: #ffa77c; }
-  [data-box="7"] { --box-color: #c4ed83; }
-  .box-options { display: flex; flex: 1; min-width: 0; flex-wrap: wrap; gap: 6px; }
-  .group[hidden], .box-options[hidden] { display: none; }
-  .box-toggle {
-    display: inline-flex; align-items: center; gap: 6px;
-    min-height: 38px; padding: 6px 8px; border: 1px solid #71638c;
-    border-radius: 8px; color: var(--box-color); font-size: 14px; cursor: pointer;
-  }
-  .box-toggle input { margin: 0; accent-color: var(--box-color); }
-  .box-toggle:has(input:checked:not(:disabled)) { background: var(--panel); border-color: var(--box-color); }
-  .box-filter { --box-color: var(--lavender); }
-  .box-filter:has(input:disabled) { color: var(--muted); cursor: default; }
-  :focus-visible { outline: 2px solid var(--box); outline-offset: 2px; }
-  #info {
-    background: var(--panel); border-radius: 10px;
-    padding: 12px 16px; margin-bottom: 16px; font-size: 14px; max-width: 800px;
-  }
-  #info .scale-name { font-size: 17px; font-weight: 700; display: block; margin-bottom: 2px; }
-  #info .added { color: var(--gold); font-weight: 600; }
-  #info .hint { color: var(--muted); font-size: 12.5px; display: block; margin-top: 4px; }
-  #info .box-summary { display: flex; flex-wrap: wrap; gap: 2px 14px; margin-top: 4px; }
-  #info .box-range { color: var(--box-color); }
-  .scroll-hint { margin: 0 0 6px; }
-  #board { overflow-x: auto; }
-  #board svg { width: 100%; height: auto; display: block; }
-  .box-band { fill: var(--box-color); fill-opacity: .13; stroke: var(--box-color); stroke-width: 1.5; }
-  .box-partial .box-band { stroke-dasharray: 4 3; }
-  .box-number { fill: var(--box-color); font-size: 14px; font-weight: 700; text-anchor: middle; }
-  .legend { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 12px; font-size: 13px; color: var(--muted); }
-  .swatch { display: inline-block; width: 14px; height: 14px; border-radius: 50%; margin-right: 6px; vertical-align: -2px; }
-  footer {
-    margin-top: 60px; padding-top: 20px; border-top: 1px solid #2d2444;
-    text-align: center; color: var(--muted); font-size: 13px;
-  }
-  @media (max-width: 716px) {
-    .group-label { width: 100%; }
-    button, select, .box-toggle { min-height: 44px; }
-  }
-</style>
+<link rel="stylesheet" href="assets/otelauta.css">
 </head>
 <body>
 
@@ -190,6 +86,7 @@
   </div>
 
   <div id="info" aria-live="polite" aria-atomic="true"></div>
+  <p class="tools-note"><a id="backing-link" href="harjoitustaustat.html">Soita valitun asteikon taustan mukana</a></p>
   <p class="tools-note scroll-hint" id="scroll-hint" hidden>Näet lisää nauhoja vierittämällä otelautaa sivusuunnassa.</p>
   <div id="board" role="region" aria-label="Kitaran otelauta" tabindex="0"></div>
 
@@ -205,20 +102,15 @@
   lähdekoodi: <a href="https://github.com/ristotoivanen/Musiikin-kartta">GitHub</a>
 </footer>
 
+<script src="assets/otelauta.js"></script>
 <script>
 (function () {
-  const CHROM = ['C','C♯','D','E♭','E','F','F♯','G','A♭','A','B♭','B'];
-  const LETTERS = 'CDEFGAB';
-  const NATURAL_PITCHES = [0, 2, 4, 5, 7, 9, 11];
-  const OPEN_PITCHES = [64, 59, 55, 50, 45, 40]; // MIDI-sävelkorkeudet ohuimmalta kieleltä paksuimmalle.
+  const { CHROM, OPEN_PITCHES, PENT_MAJ, SCALES, noteName, scaleNotes,
+    selectionFromURL, selectionHref, renderBoard } = fretboard;
   const LOW_E = OPEN_PITCHES.at(-1);
-  const STRING_NAMES = ['e', 'B', 'G', 'D', 'A', 'E'];
   const PENTATONIC_FRETS = 15;
   const THREE_NOTE_FRETS = 17;
   const DIATONIC_DEGREES = 7;
-
-  const PENT_MIN = [[0,'1'],[3,'♭3'],[5,'4'],[7,'5'],[10,'♭7']];
-  const PENT_MAJ = [[0,'1'],[2,'2'],[4,'3'],[7,'5'],[9,'6']];
 
   // A-mollipentatonisen vakioboksit ohuimmalta kieleltä paksuimmalle.
   const MINOR_BOXES = [
@@ -229,30 +121,9 @@
     [[15, 17], [15, 17], [14, 17], [14, 17], [15, 17], [15, 17]],
   ];
 
-  const SCALES = {
-    mp:        { name: 'mollipentatoninen', base: PENT_MIN, add: [],
-                 hint: 'Kokeile samaa boksia doorisessa, fryygisessä tai aiolisessa moodissa.' },
-    dorian:    { name: 'doorinen', base: PENT_MIN, add: [[2,'2'],[9,'6']],
-                 hint: 'Lisäsävelet: 2. aste ja luonnollinen 6. aste – jazzia ja funkia.' },
-    phrygian:  { name: 'fryyginen', base: PENT_MIN, add: [[1,'♭2'],[8,'♭6']],
-                 hint: 'Alennettu 2. ja 6. aste antavat moodille tumman sävyn.' },
-    aeolian:   { name: 'aiolinen', base: PENT_MIN, add: [[2,'2'],[8,'♭6']],
-                 hint: 'Aiolinen on luonnollinen molli.' },
-    locrian:   { name: 'lokrinen', base: [[0,'1'],[3,'♭3'],[5,'4'],[10,'♭7']],
-                 add: [[1,'♭2'],[6,'♭5'],[8,'♭6']],
-                 hint: 'Mollipentatoninen boksi toimii vertailukohtana. Lokrinen käyttää puhtaan kvintin tilalla alennettua kvinttiä.' },
-    majp:      { name: 'duuripentatoninen', base: PENT_MAJ, add: [],
-                 hint: 'Kirkas boksi – lisää 2 säveltä, niin syntyy duurimoodi.' },
-    ionian:    { name: 'jooninen', base: PENT_MAJ, add: [[5,'4'],[11,'7']],
-                 hint: 'Lisäsävelet: 4. ja 7. aste – tavallinen duuri.' },
-    lydian:    { name: 'lyydinen', base: PENT_MAJ, add: [[6,'♯4'],[11,'7']],
-                 hint: 'Korotettu 4. aste antaa moodille leijuvan sävyn.' },
-    mixolydian:{ name: 'miksolyydinen', base: PENT_MAJ, add: [[5,'4'],[10,'♭7']],
-                 hint: 'Alennettu 7. aste on tuttu bluesista ja rockista.' }
-  };
-
-  let rootPC = 7, scaleId = 'mp';
+  let { rootPC, scaleId } = selectionFromURL(7, 'mp');
   const board = document.getElementById('board');
+  const backingLink = document.getElementById('backing-link');
   const fretCountSelect = document.getElementById('fret-count');
   const scrollHint = document.getElementById('scroll-hint');
   const boxSystem = document.getElementById('box-system');
@@ -261,22 +132,6 @@
   const boxHelp = document.getElementById('box-help');
   const pentatonicBoxes = document.getElementById('pentatonic-boxes');
   const threeNoteBoxes = document.getElementById('three-note-boxes');
-
-  const OPEN_LEFT = 26, NUT_X = 72;
-  const PAD_T = 30, FW = 54, SS = 34, R = 11;
-  const openCenter = (OPEN_LEFT + NUT_X) / 2;
-  const height = PAD_T + (OPEN_PITCHES.length - 1) * SS + 30;
-  const wireX = fret => NUT_X + fret * FW;
-  const cellCX = fret => fret === 0 ? openCenter : wireX(fret) - FW / 2;
-  const stringY = i => PAD_T + i * SS;
-
-  function noteName(root, interval, degree) {
-    const index = LETTERS.indexOf(CHROM[root][0]) + Number(degree.slice(-1)) - 1;
-    const letter = index % LETTERS.length;
-    const naturalPitch = NATURAL_PITCHES[letter] + 12 * Math.floor(index / LETTERS.length);
-    const accidental = root + interval - naturalPitch;
-    return LETTERS[letter] + (accidental < 0 ? '♭' : '♯').repeat(Math.abs(accidental));
-  }
 
   function getPentatonicBox(index, major) {
     // Rinnakkaisduurin toonika on mollipohjan toinen sävel.
@@ -376,7 +231,7 @@
   function render(revealNumber) {
     const sc = SCALES[scaleId];
     const rootName = CHROM[rootPC];
-    const allIv = [...sc.base, ...sc.add].sort((a, b) => a[0] - b[0]);
+    const allIv = scaleNotes(sc);
     const intervals = allIv.map(([interval]) => interval);
     const threeNotes = boxSystem.value === '3nps';
     const unavailable = threeNotes && intervals.length !== DIATONIC_DEGREES;
@@ -408,87 +263,14 @@
       help += ' Valitse boksi, jos haluat rajata näkyvät sävelet sen sisälle.';
     }
     if (boxHelp.textContent !== help) boxHelp.textContent = help;
-    const fretboardEnd = wireX(fretCount);
-    const bridgeX = fretboardEnd + 48;
-    const width = bridgeX + 28;
-    const minWidth = automatic ? 680 : Math.ceil(width * 0.64);
-    const neckTop = PAD_T - 14;
-    const neckBottom = stringY(OPEN_PITCHES.length - 1) + 14;
-    const neckHeight = neckBottom - neckTop;
-    const ivMap = {};
-    sc.base.forEach(([iv, deg]) => ivMap[(rootPC + iv) % 12] = { deg, added: false });
-    sc.add.forEach(([iv, deg]) => ivMap[(rootPC + iv) % 12] = { deg, added: true });
-
     const names = allIv.map(([iv, deg]) => noteName(rootPC, iv, deg));
     const addedPairs = sc.add.map(([iv, deg]) => noteName(rootPC, iv, deg) + ' (' + deg + ')');
 
     rootButtons.forEach((button, pc) => button.setAttribute('aria-pressed', pc === rootPC));
     scaleButtons.forEach(button => button.setAttribute('aria-pressed', button.dataset.scale === scaleId));
 
-    let s = '<svg viewBox="0 0 ' + width + ' ' + height + '" style="min-width:' + minWidth + 'px" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' +
-      rootName + ' ' + sc.name + '. ' + fretCount + ' nauhaa. Vapaat kielet satulan vasemmalla puolella.">';
-    s += '<rect x="' + OPEN_LEFT + '" y="' + neckTop + '" width="' + (NUT_X - OPEN_LEFT) + '" height="' + neckHeight + '" rx="6" fill="#2a2338"/>';
-    s += '<rect x="' + NUT_X + '" y="' + neckTop + '" width="' + (fretboardEnd - NUT_X) + '" height="' + neckHeight + '" fill="#231a12"/>';
-    s += '<rect x="' + fretboardEnd + '" y="' + neckTop + '" width="' + (width - fretboardEnd - 4) + '" height="' + neckHeight + '" rx="8" fill="#32251e"/>';
-    for (let f = 1; f <= fretCount; f++)
-      s += '<line x1="' + wireX(f) + '" y1="' + neckTop + '" x2="' + wireX(f) + '" y2="' + neckBottom + '" stroke="#6f5b47" stroke-width="2"/>';
-    s += '<rect x="' + (NUT_X - 3) + '" y="' + neckTop + '" width="6" height="' + neckHeight + '" rx="2" fill="#d8cbb6"/>';
-    s += '<rect x="' + (bridgeX - 11) + '" y="' + (neckTop + 3) + '" width="22" height="' + (neckHeight - 6) + '" rx="7" fill="#49434f" stroke="#a49b9d"/>';
-    s += '<rect x="' + (bridgeX - 4) + '" y="' + (neckTop + 7) + '" width="3" height="' + (neckHeight - 14) + '" rx="1.5" fill="#d8cbb6"/>';
-    const midY = (neckTop + neckBottom) / 2;
-    [3, 5, 7, 9, 15, 17, 19, 21].filter(f => f <= fretCount).forEach(f =>
-      s += '<circle cx="' + cellCX(f) + '" cy="' + midY + '" r="5.5" fill="#7a6550"/>');
-    for (let fret = 12; fret <= fretCount; fret += 12) {
-      s += '<circle cx="' + cellCX(fret) + '" cy="' + (midY - SS) + '" r="5.5" fill="#7a6550"/>';
-      s += '<circle cx="' + cellCX(fret) + '" cy="' + (midY + SS) + '" r="5.5" fill="#7a6550"/>';
-    }
-    s += '<text x="' + openCenter + '" y="' + (height - 6) + '" font-size="12" fill="#a89fc4" text-anchor="middle">Vapaa</text>';
-    s += '<text x="' + NUT_X + '" y="12" font-size="12" fill="#a89fc4" text-anchor="middle">Satula</text>';
-    s += '<text x="' + bridgeX + '" y="' + (height - 6) + '" font-size="12" fill="#a89fc4" text-anchor="middle">Talla</text>';
-    for (let f = 1; f <= fretCount; f++)
-      s += '<text x="' + cellCX(f) + '" y="' + (height - 6) + '" font-size="11" fill="#a89fc4" text-anchor="middle">' + f + '</text>';
-    boxes.forEach(({ number, positions }) => {
-      positions.forEach(position => {
-        const classes = position.partial ? 'box-highlight box-partial' : 'box-highlight';
-        s += '<g class="' + classes + '" data-box="' + number + '" aria-hidden="true">';
-        const topFrets = position.strings.find(frets => frets.length);
-        const labelX = (cellCX(topFrets[0]) + cellCX(topFrets.at(-1))) / 2;
-        s += '<text class="box-number" x="' + labelX + '" y="12">' + number + '</text>';
-        position.strings.forEach((frets, i) => {
-          if (!frets.length) return;
-          const left = cellCX(frets[0]) - 16;
-          const bandWidth = cellCX(frets.at(-1)) - cellCX(frets[0]) + 32;
-          s += '<rect class="box-band" x="' + left + '" y="' + (stringY(i) - 14) + '" width="' + bandWidth + '" height="28" rx="14"/>';
-        });
-        s += '</g>';
-      });
-    });
-    OPEN_PITCHES.forEach((_, i) => {
-      const th = 1 + (i * 0.45);
-      const y = stringY(i);
-      s += '<line x1="' + (OPEN_LEFT + 4) + '" y1="' + y + '" x2="' + (NUT_X - 4) + '" y2="' + y + '" stroke="#8b809d" stroke-dasharray="3 3"/>';
-      s += '<line x1="' + NUT_X + '" y1="' + y + '" x2="' + (bridgeX + 5) + '" y2="' + y + '" stroke="#b9b9c4" stroke-width="' + th.toFixed(2) + '"/>';
-      s += '<circle cx="' + (bridgeX + 5) + '" cy="' + y + '" r="3" fill="#211c26" stroke="#b9b9c4"/>';
-      s += '<text x="13" y="' + (y + 4) + '" font-size="14" fill="#efeaff" text-anchor="middle">' + STRING_NAMES[i] + '</text>';
-    });
-    OPEN_PITCHES.forEach((openPitch, si) => {
-      for (let f = 0; f <= fretCount; f++) {
-        const pc = (openPitch + f) % 12;
-        if (!(pc in ivMap)) continue;
-        if (onlyBoxNotes && !boxPositions.some(({ strings }) => {
-          const frets = strings[si];
-          return frets.length > 0 && f >= frets[0] && f <= frets.at(-1);
-        })) continue;
-        const info = ivMap[pc];
-        const isRoot = info.deg === '1';
-        const fill = info.added ? '#f0a13c' : (isRoot ? '#4b2fd6' : '#6d4aff');
-        const textColor = info.added ? '#1a1430' : '#fff';
-        s += '<circle cx="' + cellCX(f) + '" cy="' + stringY(si) + '" r="' + R + '" fill="' + fill + '" stroke="' + (isRoot ? '#fff' : '#1a1430') + '" stroke-width="' + (isRoot ? 2.5 : 1) + '"/>';
-        s += '<text x="' + cellCX(f) + '" y="' + (stringY(si) + 3.5) + '" font-size="' + (info.deg.length > 1 ? 9.5 : 11) + '" font-weight="700" fill="' + textColor + '" text-anchor="middle">' + info.deg + '</text>';
-      }
-    });
-    s += '</svg>';
-    board.innerHTML = s;
+    backingLink.href = selectionHref('harjoitustaustat.html', rootPC, scaleId);
+    board.innerHTML = renderBoard(rootPC, sc, fretCount, { boxes, onlyBoxNotes, automatic });
     updateScrollHint();
     const boxToReveal = revealNumber ?? (boxes.length === 1 ? boxes[0].number : null);
     if (boxToReveal !== null) revealBox(boxToReveal);

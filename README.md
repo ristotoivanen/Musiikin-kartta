@@ -20,6 +20,8 @@ Musiikin kartta on avoin suomenkielinen verkko-opas musiikin teoriaan ja kitaran
 
 Valitse toonikka sekä pentatoninen asteikko tai moodi ja katso, mistä sävelet löytyvät kitaran otelaudalta. Lisäasetuksissa voi valita nauhamäärän ja näytettävät sormitusboksit. Seitsemänsävelisille moodeille on myös 3NPS-sormitukset, joissa soitetaan kolme säveltä kieltä kohti.
 
+[Harjoitustaustat](harjoitustaustat.html) yhdistää otelaudan tyylinmukaisiin komppeihin. Kullekin seitsemälle moodille ja kahdelle pentatoniselle asteikolle on oma toistuva säestys, jonka voi soittaa kaikista 12 toonikasta. Selain tuottaa äänen valitulla tempolla.
+
 ## Paikallinen käyttö
 
 Avaa kloonatun repon `index.html` selaimessa. Oppaan sivut ovat [book-kansiossa](book/) ja kuunteluesimerkit [assets/audio-kansiossa](assets/audio/).
