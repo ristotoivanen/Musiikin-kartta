@@ -116,6 +116,7 @@
   <div class="legend" id="chord-legend" hidden>
     <span><span class="swatch" style="background:#4b2fd6; border:2px solid #fff"></span>Soinnun perussävel (1)</span>
     <span><span class="swatch" style="background:#6d4aff"></span>Terssi (3 tai ♭3) ja kvintti (5 tai ♭5)</span>
+    <span id="muted-legend"><span class="swatch muted-swatch" aria-hidden="true">×</span>Kieltä ei soiteta</span>
   </div>
 </main>
 
@@ -153,6 +154,7 @@
   const gripSelect = document.getElementById('grip-select');
   const scaleLegend = document.getElementById('scale-legend');
   const chordLegend = document.getElementById('chord-legend');
+  const mutedLegend = document.getElementById('muted-legend');
 
   function formatBoxRange({ start, end, partial }) {
     let range = 'nauhat ' + start + '–' + end;
@@ -198,6 +200,7 @@
     );
     gripSelect.value = gripIndex;
     const grip = grips[gripIndex]?.strings;
+    mutedLegend.hidden = !grip;
     board.innerHTML = renderBoard(chord.root, chord, fretCount, {
       automatic, grip, label: chord.name + (grip ? ', kolmen kielen sointuote' : ', kaikki sointusävelet')
     });
@@ -207,7 +210,7 @@
       '<span class="scale-name">' + chord.name + '</span>' +
       'Sointusävelet: <b>' + chord.notes.join(' – ') + '</b>' +
       '<span class="hint">' + (grip
-        ? 'Soita vain pisteillä merkityt kielet. Kokeile samaa sointua myös toisesta kohdasta otelautaa.'
+        ? 'Soita pisteillä merkityt kielet ja jätä ×-merkityt soittamatta. Kokeile samaa sointua myös toisesta kohdasta otelautaa.'
         : 'Pisteiden numerot ovat asteita soinnun perussävelestä. Valitse sointuote, jos haluat soittaa kolme säveltä kerralla.'
       ) + '</span>';
   }

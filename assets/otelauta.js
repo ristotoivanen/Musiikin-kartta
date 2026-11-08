@@ -17,6 +17,7 @@ const fretboard = (() => {
   ];
 
   const STRING_NAMES = ['e', 'B', 'G', 'D', 'A', 'E'];
+  const SPOKEN_STRING_NAMES = ['ohut e', 'B', 'G', 'D', 'A', 'paksu E'];
 
   const PENT_MIN = [[0,'1'],[3,'♭3'],[5,'4'],[7,'5'],[10,'♭7']];
   const PENT_MAJ = [[0,'1'],[2,'2'],[4,'3'],[7,'5'],[9,'6']];
@@ -254,8 +255,14 @@ const fretboard = (() => {
     sc.base.forEach(([iv, deg]) => ivMap[(rootPC + iv) % 12] = { deg, added: false });
     sc.add.forEach(([iv, deg]) => ivMap[(rootPC + iv) % 12] = { deg, added: true });
 
+    // Sointuotteessa kielet, joilla ei ole säveltä, jätetään soittamatta.
+    const muted = OPEN_PITCHES.map((_, i) => Boolean(grip) && grip[i] === null);
+    const mutedNames = SPOKEN_STRING_NAMES.filter((_, i) => muted[i]).reverse();
+    const description = label + '. ' + fretCount + ' nauhaa. Vapaat kielet satulan vasemmalla puolella.' +
+      (mutedNames.length ? ' Soittamatta jäävät kielet: ' + mutedNames.join(', ') + '.' : '');
+
     let s = '<svg viewBox="0 0 ' + width + ' ' + height + '" style="min-width:' + minWidth + 'px" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' +
-      label + '. ' + fretCount + ' nauhaa. Vapaat kielet satulan vasemmalla puolella.">';
+      description + '">';
     s += '<rect x="' + OPEN_LEFT + '" y="' + neckTop + '" width="' + (NUT_X - OPEN_LEFT) + '" height="' + neckHeight + '" rx="6" fill="#2a2338"/>';
     s += '<rect x="' + NUT_X + '" y="' + neckTop + '" width="' + (fretboardEnd - NUT_X) + '" height="' + neckHeight + '" fill="#231a12"/>';
     s += '<rect x="' + fretboardEnd + '" y="' + neckTop + '" width="' + (width - fretboardEnd - 4) + '" height="' + neckHeight + '" rx="8" fill="#32251e"/>';
@@ -295,9 +302,15 @@ const fretboard = (() => {
     OPEN_PITCHES.forEach((_, i) => {
       const th = 1 + (i * 0.45);
       const y = stringY(i);
-      s += '<line x1="' + (OPEN_LEFT + 4) + '" y1="' + y + '" x2="' + (NUT_X - 4) + '" y2="' + y + '" stroke="#8b809d" stroke-dasharray="3 3"/>';
+      if (muted[i]) {
+        s += '<text class="muted-mark" x="' + openCenter + '" y="' + (y + 6) + '" font-size="18" font-weight="700" fill="#efeaff" text-anchor="middle">×</text>';
+      } else {
+        s += '<line x1="' + (OPEN_LEFT + 4) + '" y1="' + y + '" x2="' + (NUT_X - 4) + '" y2="' + y + '" stroke="#8b809d" stroke-dasharray="3 3"/>';
+      }
+      s += '<g' + (muted[i] ? ' opacity=".35"' : '') + '>';
       s += '<line x1="' + NUT_X + '" y1="' + y + '" x2="' + (bridgeX + 5) + '" y2="' + y + '" stroke="#b9b9c4" stroke-width="' + th.toFixed(2) + '"/>';
       s += '<circle cx="' + (bridgeX + 5) + '" cy="' + y + '" r="3" fill="#211c26" stroke="#b9b9c4"/>';
+      s += '</g>';
       s += '<text x="13" y="' + (y + 4) + '" font-size="14" fill="#efeaff" text-anchor="middle">' + STRING_NAMES[i] + '</text>';
     });
     if (grip) s += '<g class="grip-notes">';
