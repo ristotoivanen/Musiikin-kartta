@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Musiikin kartan ensimmäinen osa. Opi kuulemaan ja soittamaan sävelet, intervallit, asteikot ja sointujen tehtävät.">
+  <title>Miten musiikki toimii – Musiikin kartta</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #16121f;
+      --panel: #221b31;
+      --text: #efeaff;
+      --muted: #beb5d3;
+      --accent: #b5a3ff;
+      --gold: #f0a13c;
+      --line: #453854;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 1rem/1.7 system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    a { color: var(--accent); text-underline-offset: .18em; }
+    a:hover { color: var(--text); }
+    :focus-visible { outline: 2px solid #75e5c6; outline-offset: 3px; }
+    [id] { scroll-margin-top: 1.25rem; }
+    .frame { width: min(100% - 2rem, 64rem); margin-inline: auto; }
+    .site-nav, .site-footer {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: .5rem 1.5rem;
+      padding-block: 1rem;
+    }
+    .site-nav .brand { color: var(--text); font-weight: 750; text-decoration: none; }
+    .site-nav .brand span { color: var(--accent); }
+    .hero {
+      background: linear-gradient(140deg, #2a2044, var(--bg) 74%);
+      border-block: 1px solid var(--line);
+      padding-block: clamp(2.5rem, 6vw, 5.25rem);
+    }
+    .part-number, .chapter-number {
+      margin: 0 0 .4rem;
+      color: var(--gold);
+      font-size: .83rem;
+      font-weight: 750;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3 { line-height: 1.2; }
+    h1 { margin: 0; max-width: 19ch; font-size: clamp(2.4rem, 7vw, 4.3rem); }
+    h2 { margin: 0 0 1rem; font-size: clamp(1.7rem, 4vw, 2.25rem); }
+    h3 { margin: 1.75rem 0 .65rem; font-size: 1.2rem; }
+    p { margin-block: .75rem; }
+    .lead { max-width: 56ch; color: var(--muted); font-size: 1.14rem; }
+    .primary-link {
+      display: inline-block;
+      margin-top: .6rem;
+      padding: .52rem .9rem;
+      border-radius: .5rem;
+      background: #4b2fd6;
+      color: var(--text);
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .primary-link:hover { background: #5a3de7; }
+    .reading-layout {
+      display: grid;
+      grid-template-columns: minmax(11rem, 14rem) minmax(0, 44rem);
+      align-items: start;
+      gap: 2rem clamp(1.5rem, 4vw, 3.5rem);
+      padding-block: 2rem 3rem;
+    }
+    .contents {
+      position: sticky;
+      top: 1rem;
+      padding: .9rem 1.1rem;
+      border: 1px solid var(--line);
+      border-radius: .75rem;
+      background: var(--panel);
+    }
+    .contents h2 { font-size: 1.07rem; margin: .15rem 0 .55rem; }
+    .contents ol { margin: 0; padding-left: 1.35rem; }
+    .contents a { display: block; padding-block: .24rem; }
+    .chapter + .chapter { margin-top: 3.5rem; padding-top: 2rem; border-top: 1px solid var(--line); }
+    .sequence { font-weight: 700; }
+    .note, .listen, .practice {
+      margin: 1.1rem 0;
+      padding: .85rem 1rem;
+      background: var(--panel);
+      border-radius: .65rem;
+    }
+    .note, .practice { border-inline-start: .22rem solid var(--gold); }
+    .listen { border: 1px solid var(--line); }
+    .listen strong { display: block; }
+    .listen audio { display: block; width: min(100%, 25rem); margin-top: .65rem; }
+    .note p:last-child, .practice p:last-child, details p:last-child { margin-bottom: 0; }
+    .practice h3 { margin: 0 0 .55rem; font-size: 1.05rem; }
+    .practice ol { padding-left: 1.35rem; margin-block: .4rem; }
+    summary { color: var(--accent); cursor: pointer; padding-block: .2rem; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .96rem; }
+    caption { text-align: left; font-weight: 700; margin-bottom: .35rem; }
+    th, td { padding: .42rem .6rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    thead th { background: var(--panel); }
+    .sources { border-top: 1px solid var(--line); padding-top: 1.25rem; margin-top: 2rem; color: var(--muted); }
+    .sources h2 { font-size: 1.15rem; }
+    .sources ul { padding-left: 1.35rem; }
+    .site-footer { border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
+    @media (max-width: 760px) {
+      .reading-layout { grid-template-columns: minmax(0, 1fr); }
+      .contents { position: static; }
+    }
+    @media (max-width: 380px) {
+      th, td { padding-inline: .3rem; font-size: .875rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="site-nav frame" aria-label="Sivusto">
+      <a class="brand" href="../index.html">Musiikin <span>kartta</span></a>
+      <a href="../otelautaharjoittelija.html">Otelautaharjoittelija</a>
+    </nav>
+  </header>
+
+  <main>
+    <header class="hero">
+      <div class="frame">
+        <p class="part-number">Osa I · Harmonian perusteet</p>
+        <h1>Miten musiikki toimii</h1>
+        <p class="lead">Miksi jokin sävel tuntuu päättävän melodian? Miksi yhden sormen siirtäminen kitaralla voi muuttaa koko soinnun? Kuuden luvun aikana kokeilet näitä ilmiöitä korvalla ja löydät niille nimet.</p>
+        <a class="primary-link" href="#musiikki-on-kieli">Aloita lukeminen</a>
+      </div>
+    </header>
+
+    <div class="reading-layout frame">
+      <nav class="contents" id="luvut" aria-labelledby="lukulista">
+        <h2 id="lukulista">Tässä osassa</h2>
+        <ol>
+          <li><a href="#musiikki-on-kieli">Musiikki on kieli</a></li>
+          <li><a href="#savelet-ja-intervallit">Sävelet ja intervallit</a></li>
+          <li><a href="#asteikot">Asteikot</a></li>
+          <li><a href="#harmoninen-kentta">Harmoninen kenttä</a></li>
+          <li><a href="#roomalaiset-numerot">Roomalaiset numerot</a></li>
+          <li><a href="#sointujen-tehtavat">Sointujen tehtävät</a></li>
+        </ol>
+      </nav>
+
+      <article>
+        <section class="chapter" id="musiikki-on-kieli">
+          <p class="chapter-number">Luku 1</p>
+          <h2>Musiikki on kieli</h2>
+          <p>Olet ehkä huomannut hyräillessäsi, että jotkin melodian kohdat tuntuvat pyytävän jatkoa. Toisissa kohdissa voit lopettaa, ja sävellys tuntuu hetkeksi valmiilta. Tätä eroa voi tutkia, vaikka et vielä tunnistaisi yhtään sointua nimeltä.</p>
+          <p>Kun kuuntelet kappaletta, voit siirtää huomiosi kolmeen asiaan. <strong>Rytmi</strong> kertoo, milloin äänet tulevat ja kuinka kauan ne kestävät. <strong>Melodia</strong> on sävelten kulku, jonka voit hyräillä. <strong>Harmonia</strong> syntyy sävelten yhteissoinnista ja siitä, miten soinnut seuraavat toisiaan. Basso vaikuttaa siihen, miten kuulet yhteissoinnin.</p>
+          <p>Musiikkia voi verrata puheeseen. Lyhyttä, yhtenäiseltä tuntuvaa musiikillista jaksoa kutsutaan <strong>fraasiksi</strong>. Sen loppu voi tuntua avoimelta kuin kysymys tai levolliselta kuin lauseen piste. Tauko auttaa huomaamaan fraasin rajan. Sävel ja sointu vaikuttavat siihen, miltä tauko tuntuu.</p>
+
+          <h3>Kuule kotisävel</h3>
+          <p>Sävellajin keskussäveltä kutsutaan <strong>toonikaksi</strong>. Voit ajatella sitä kotisävelenä, johon melodia voi palata. C-duurissa kotisävel on C. Kun säestys pitää C-duurisoinnun taustalla, päättyminen C:hen voi tuntua vahvemmalta paluulta kuin pysähtyminen G:hen, vaikka G kuuluu samaan sointuun.</p>
+          <figure class="listen">
+            <figcaption id="fraasi-kuvaus"><strong>Kuuntele kaksi fraasin loppua</strong> Ensin C–D–E–G, sitten sama kulku jatkuu ylempään C:hen. Molemmilla on sama C-duurisointu taustalla.</figcaption>
+            <audio controls preload="none" aria-labelledby="fraasi-kuvaus" src="../assets/audio/osa-1/fraasin-loppu.wav">
+              <a href="../assets/audio/osa-1/fraasin-loppu.wav">Avaa ääniesimerkki</a>
+            </audio>
+          </figure>
+          <aside class="practice">
+            <h3>Harjoitus · Täydennä fraasi</h3>
+            <p>Pysäytä ääniesimerkki ensimmäisen fraasin jälkeen. Hyräile sävel, johon haluaisit palata, ja vertaa sitä toisen fraasin viimeiseen säveleen. Kitaralla löydät C–D–E–G:n A-kielen nauhoilta 3, 5, 7 ja 10. Hyräile G:n jälkeen C ja tarkista se A-kielen 3. nauhalta.</p>
+          </aside>
+        </section>
+
+        <section class="chapter" id="savelet-ja-intervallit">
+          <p class="chapter-number">Luku 2</p>
+          <h2>Sävelet ja intervallit</h2>
+          <p>Yksi nauhaväli kitaralla on <strong>puolisävelaskel</strong>. Kun siirrät sormea kaksi nauhaa samalla kielellä, kuljet kokosävelaskeleen. A-kielen 3. nauhalla soi C. Neljännellä soi C♯ eli D♭ ja viidennellä D. C♯ ja D♭ ovat tällä otelaudalla sama sävelkorkeus kahdella nimellä. Asteikko kertoo, kumpi nimi sopii yhteyteen.</p>
+          <div class="note">
+            <p><strong>Sävelnimet tässä kirjassa.</strong> Käytämme samoja nimiä kuin otelautaharjoittelijassa. B on luonnollinen sävel ja B♭ sen alennus. Suomalaisissa nuoteissa voit kohdata merkintätavan, jossa näiden sävelten nimet ovat H ja B.</p>
+          </div>
+
+          <p><strong>Intervalli</strong> on kahden sävelen välinen etäisyys. Kuuntele sävelet ensin peräkkäin ja sitten yhdessä. Intervallin numero saadaan laskemalla sävelnimet lähtösävel mukaan lukien. C:stä E:hen on terssi, koska C–D–E sisältää kolme sävelnimeä. C–E♭ on myös terssi, mutta siinä on yksi puolisävelaskel vähemmän.</p>
+          <table>
+            <caption>Intervalliesimerkkejä C:stä ylöspäin</caption>
+            <thead><tr><th scope="col">Intervalli</th><th scope="col">Puolisävelaskelia</th><th scope="col">Sävelet</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Suuri sekunti</th><td>2</td><td>C–D</td></tr>
+              <tr><th scope="row">Pieni terssi</th><td>3</td><td>C–E♭</td></tr>
+              <tr><th scope="row">Suuri terssi</th><td>4</td><td>C–E</td></tr>
+              <tr><th scope="row">Puhdas kvartti</th><td>5</td><td>C–F</td></tr>
+              <tr><th scope="row">Puhdas kvintti</th><td>7</td><td>C–G</td></tr>
+              <tr><th scope="row">Puhdas oktaavi</th><td>12</td><td>C–C</td></tr>
+            </tbody>
+          </table>
+          <p>Oktaavin päässä sävelen nimi toistuu. Kitaralla löydät saman kielen oktaavin 12 nauhaa ylempää. C:n yläpuolinen C soi siis A-kielen 15. nauhalla, kun lähtö-C on 3. nauhalla.</p>
+
+          <h3>Terssi muuttaa soinnun</h3>
+          <p><strong>Kolmisoinnun</strong> sävelet voi järjestää perussäveleksi, terssiksi ja kvintiksi. C-duurisoinnussa ne ovat C, E ja G. C-mollisoinnussa C ja G pysyvät, mutta terssi laskee E♭:hen. Juuri tämä puolisävelaskel erottaa nämä kaksi sointua. Kitaralla sama sävel voi soida useammalla kielellä tai eri oktaaveissa, joten otteessa voi soida useampi kuin kolme kieltä.</p>
+          <figure class="listen">
+            <figcaption id="terssi-kuvaus"><strong>Kuuntele duuri ja molli samalla perussävelellä</strong> Ensin C–E–G, sitten C–E♭–G. Kumpikin soitetaan ensin sävel kerrallaan ja sitten yhtä aikaa.</figcaption>
+            <audio controls preload="none" aria-labelledby="terssi-kuvaus" src="../assets/audio/osa-1/duuri-ja-molli.wav">
+              <a href="../assets/audio/osa-1/duuri-ja-molli.wav">Avaa ääniesimerkki</a>
+            </audio>
+          </figure>
+          <aside class="practice">
+            <h3>Harjoitus · Siirrä yhtä sormea</h3>
+            <p>Soita A-kielen 3. nauha (C), D-kielen 2. nauha (E) ja vapaa G-kieli. Toista, mutta vaihda D-kielellä 1. nauhalle (E♭). Kuuntele ero ensin sävel kerrallaan ja sitten antamalla kolmen kielen soida yhdessä.</p>
+          </aside>
+        </section>
+
+        <section class="chapter" id="asteikot">
+          <p class="chapter-number">Luku 3</p>
+          <h2>Asteikot</h2>
+          <p><strong>Asteikko</strong> järjestää sävelet peräkkäin kotisävelestä sen oktaaviin. Jokaisella sävelellä on <strong>aste</strong>, joka kertoo sen paikan. C-duurissa C on 1. aste, E on 3. ja G on 5. Duurin ja luonnollisen mollin erotat siitä, missä kohdissa sävelten väli on kokoaskel ja missä puoliaskel.</p>
+          <p>Duuriasteikon askelkuvio on <span class="sequence">koko, koko, puoli, koko, koko, koko, puoli</span>. C-duurissa lyhyet välit ovat E–F ja B–C. Aloita sama kuvio G:stä, niin saat G-duurin. Sen 7. aste on F♯, sillä F♯:stä on G:hen puolisävelaskel.</p>
+          <table>
+            <caption>Kolme asteikkoa rinnakkain</caption>
+            <thead><tr><th scope="col">Asteikko</th><th scope="col">Sävelet kotisävelestä oktaaviin</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">C-duuri</th><td>C – D – E – F – G – A – B – C</td></tr>
+              <tr><th scope="row">Luonnollinen c-molli</th><td>C – D – E♭ – F – G – A♭ – B♭ – C</td></tr>
+              <tr><th scope="row">Luonnollinen a-molli</th><td>A – B – C – D – E – F – G – A</td></tr>
+            </tbody>
+          </table>
+          <p>Luonnollisen mollin askelkuvio on <span class="sequence">koko, puoli, koko, koko, puoli, koko, koko</span>. Sen 3., 6. ja 7. aste ovat puoliaskelta alempana kuin saman toonikan duurissa. C-duurilla ja c-mollilla on sama kotisävel ja eri säveljoukko. C-duurilla ja luonnollisella a-mollilla puolestaan on sama säveljoukko ja eri kotisävel. C-duuria ja a-mollia kutsutaan <strong>rinnakkaissävellajeiksi</strong>. Kuuntelussa kotisävelen paljastavat yhdessä melodian painotukset, basso ja sointujen liike.</p>
+          <p><strong>Pentatoninen asteikko</strong> sisältää viisi eri säveltä. C-duuripentatonisen sävelet ovat C, D, E, G ja A. Kun lisäät F:n ja B:n, saat C-duuriasteikon. Samat lisäsävelet näkyvät kultaisina otelautaharjoittelijassa, kun valitset C:n ja joonisen moodin. <a href="../otelautaharjoittelija.html">Avaa otelautaharjoittelija</a>.</p>
+          <figure class="listen">
+            <figcaption id="asteikko-kuvaus"><strong>Kuuntele C-duuri ja luonnollinen c-molli</strong> Molemmat nousevat C:stä seuraavaan C:hen. Kiinnitä huomiota erityisesti kolmanteen säveleen.</figcaption>
+            <audio controls preload="none" aria-labelledby="asteikko-kuvaus" src="../assets/audio/osa-1/asteikot.wav">
+              <a href="../assets/audio/osa-1/asteikot.wav">Avaa ääniesimerkki</a>
+            </audio>
+          </figure>
+          <aside class="practice">
+            <h3>Harjoitus · Etsi puoliaskelten paikat</h3>
+            <p>Soita C-duuri A-kielen nauhoilta 3, 5, 7, 8, 10, 12, 14 ja 15. Soita sen jälkeen c-molli nauhoilta 3, 5, 6, 8, 10, 11, 13 ja 15. Millä asteilla puoliaskeleet ovat kummassakin?</p>
+            <details>
+              <summary>Katso vastaus</summary>
+              <p>C-duurissa puoliaskeleet ovat 3. ja 4. asteen sekä 7. asteen ja oktaavin välissä (E–F ja B–C). Luonnollisessa c-mollissa puoliaskeleet ovat 2. ja 3. asteen sekä 5. ja 6. asteen välissä (D–E♭ ja G–A♭).</p>
+            </details>
+          </aside>
+        </section>
+
+        <section class="chapter" id="harmoninen-kentta">
+          <p class="chapter-number">Luku 4</p>
+          <h2>Harmoninen kenttä</h2>
+          <p>Asteikosta saa sointuja käyttämällä joka toista säveltä. Aloita C:stä, jätä D väliin ja ota E. Jätä F väliin ja ota G. Saat C-duurisoinnun. Aloita seuraavaksi D:stä ja tee sama. Sävelet D, F ja A muodostavat d-mollisoinnun (Dm). Kummassakin poimit asteikosta sävelet samoin, mutta terssin koko muuttuu.</p>
+          <p>Kun teet kolmisoinnun asteikon jokaiselta asteelta, saat asteikon <strong>harmonisen kentän</strong>. Sen sointuja kutsutaan diatonisiksi, koska ne rakentuvat tässä valitun asteikon omista sävelistä. Seitsemännen asteen Bdim on vähennetty sointu. B:n ja F:n väliin jää kuusi puolisävelaskelta, joten kvintti on puoliaskelta pienempi kuin C-duurisoinnussa.</p>
+          <table>
+            <caption>C-duurin kolmisoinnut</caption>
+            <thead><tr><th scope="col">Aste</th><th scope="col">Sointu</th><th scope="col">Sävelet</th><th scope="col">Laatu</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">1</th><td>C</td><td>C – E – G</td><td>duuri</td></tr>
+              <tr><th scope="row">2</th><td>Dm</td><td>D – F – A</td><td>molli</td></tr>
+              <tr><th scope="row">3</th><td>Em</td><td>E – G – B</td><td>molli</td></tr>
+              <tr><th scope="row">4</th><td>F</td><td>F – A – C</td><td>duuri</td></tr>
+              <tr><th scope="row">5</th><td>G</td><td>G – B – D</td><td>duuri</td></tr>
+              <tr><th scope="row">6</th><td>Am</td><td>A – C – E</td><td>molli</td></tr>
+              <tr><th scope="row">7</th><td>Bdim</td><td>B – D – F</td><td>vähennetty</td></tr>
+            </tbody>
+          </table>
+          <p>Duurissa sointujen laadut tulevat aina samassa järjestyksessä, koska askelkuvio pysyy samana. Luonnollisessa a-mollissa saat samat kolmisoinnut eri järjestykseen. Siellä 1. aste on Am ja 5. aste Em. Käytännössä a-mollissa esiintyy usein myös E-duuri tai E7. Niiden G♯:n tehtävään palataan luvussa 6.</p>
+          <aside class="practice">
+            <h3>Harjoitus · Rakenna kolme sointua G-duurista</h3>
+            <p>Kirjoita G-duurin sävelet G–A–B–C–D–E–F♯. Ota 1., 2. ja 5. asteelta alkaviin sointuihin aina joka toinen sävel. Kun pääset listan loppuun, jatka alusta.</p>
+            <details>
+              <summary>Katso vastaus</summary>
+              <p>1. aste on G (G–B–D), 2. aste Am (A–C–E) ja 5. aste D (D–F♯–A). Huomaa F♯ D-duurisoinnun terssinä.</p>
+            </details>
+          </aside>
+        </section>
+
+        <section class="chapter" id="roomalaiset-numerot">
+          <p class="chapter-number">Luku 5</p>
+          <h2>Roomalaiset numerot</h2>
+          <p>Sointumerkki <strong>G</strong> kertoo, että soitat G-duurisoinnun. Roomalainen numero kertoo, missä suhteessa sointu on sävellajiin. C-duurissa G on <strong>V</strong>, koska G on C-duuriasteikon 5. sävel. G-duurissa sama sointu on <strong>I</strong>. Numeroa varten sinun täytyy tietää sävellaji, jota vasten sointu luetaan.</p>
+          <p>Roomalaiset numerot kirjoitetaan duurikolmisoinnuille isoilla kirjaimilla ja mollikolmisoinnuille pienillä. Vähennetyn soinnun perässä on pieni ympyrä. C-duurin kenttä kirjoitetaan <span class="sequence">I – ii – iii – IV – V – vi – vii°</span>. Merkintä <strong>V7</strong> tarkoittaa viidennen asteen dominanttiseptimisointua, kuten G7 C-duurissa.</p>
+          <table>
+            <caption>Sama kierto kahdessa sävellajissa</caption>
+            <thead><tr><th scope="col">Aste</th><th scope="col">C-duurissa</th><th scope="col">G-duurissa</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">I</th><td>C</td><td>G</td></tr>
+              <tr><th scope="row">V</th><td>G</td><td>D</td></tr>
+              <tr><th scope="row">vi</th><td>Am</td><td>Em</td></tr>
+              <tr><th scope="row">IV</th><td>F</td><td>C</td></tr>
+            </tbody>
+          </table>
+          <p>Siirtäminen toiseen sävellajiin on <strong>transponointia</strong>. Kummassakin kierrossa perussävelet kulkevat asteilla 1, 5, 6 ja 4, ja vain kolmas sointu on molli. Siksi voit tunnistaa saman kierroksen, vaikka yksittäisten sointujen nimet vaihtuvat.</p>
+          <p>Basso voi soittaa myös muuta säveltä kuin soinnun perussäveltä. Merkinnässä <strong>G/B</strong> sointu on G-duuri ja bassossa soi B. C-duurissa kyseessä on edelleen viidennen asteen sointu. Numero seuraa soinnun perussäveltä.</p>
+          <aside class="practice">
+            <h3>Harjoitus · Siirrä kierto D-duuriin</h3>
+            <p>D-duurin sävelet ovat D–E–F♯–G–A–B–C♯. Etsi asteet 1, 5, 6 ja 4. Soita niille I–V–vi–IV, neljä tasaista iskua sointua kohti.</p>
+            <details>
+              <summary>Katso vastaus</summary>
+              <p>D – A – Bm – G. Vertaa kiertoa C-duurin esimerkkiin. Etsi korvalla kohta, jossa duuri vaihtuu molliin.</p>
+            </details>
+          </aside>
+        </section>
+
+        <section class="chapter" id="sointujen-tehtavat">
+          <p class="chapter-number">Luku 6</p>
+          <h2>Sointujen tehtävät</h2>
+          <p>Roomalainen numero kertoo soinnun paikan. <strong>Harmoninen tehtävä</strong> kuvaa, mitä sointu tekee siinä kohdassa fraasia. Kokeile kiertoa <span class="sequence">C – F – G7 – C</span>. Ensimmäinen C asettaa kodin, F vie siitä pois, G7 luo odotuksen ja viimeinen C tarjoaa paluun.</p>
+          <table>
+            <caption>Kolme tehtävää tässä kierrossa</caption>
+            <thead><tr><th scope="col">Tehtävä</th><th scope="col">Sointu</th><th scope="col">Mitä voit kuulla</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Toonika</th><td>C (I)</td><td>Fraasin kotisointu.</td></tr>
+              <tr><th scope="row">Subdominantti</th><td>F (IV)</td><td>Vie pois toonikalta ja valmistaa tässä dominanttia.</td></tr>
+              <tr><th scope="row">Dominantti</th><td>G7 (V7)</td><td>Synnyttää odotuksen, joka purkautuu toonikaan.</td></tr>
+            </tbody>
+          </table>
+          <p>G7 sisältää G-duurikolmisoinnun sävelet G, B ja D sekä septimin F. Kuuntele erityisesti <strong>B:tä</strong> ja <strong>F:ää</strong>. B on C-duurin johtosävel, joka voi nousta puoliaskelen C:hen. F voi laskea puoliaskelen E:hen. Kun soitat B–C:n ja F–E:n erikseen, kuulet kaksi pientä liikettä ison sointuvaihdon sisällä.</p>
+          <p>A-mollissa sama ajatus kuuluu kierrossa <span class="sequence">Am – Dm – E7 – Am</span>. Luonnollisen a-mollin G korotetaan E7-soinnussa G♯:ksi. Se voi nousta puoliaskelen A:han. Samalla E7:n D voi laskea C:hen. Näin dominantin vetovoima syntyy myös mollissa.</p>
+          <p>Fraasia päättävää kulkua kutsutaan <strong>kadenssiksi</strong>. Dominantilta toonikaan palaava G7–C on yksi tavallinen päätös. Voit kokeilla myös Dm–G7–C. Dm valmistelee dominanttia samoin kuin F edellisessä kierrossa.</p>
+          <p>Sointujen tehtävät riippuvat siitä, mitä ympärillä tapahtuu. Esimerkiksi G7 voi mennä myös Am:ään. Kokeile sitä viimeisen C:n tilalla. B voi edelleen nousta C:hen, joka kuuluu myös Am-sointuun, mutta fraasin loppu saa toisen värin. Toistuvissa kierroissa taas melodian loppu tai basson painotus voi kertoa kodista yhtä paljon kuin yksittäinen sointuvaihdos.</p>
+          <figure class="listen">
+            <figcaption id="soinnut-kuvaus"><strong>Kuuntele paluu duurissa ja mollissa</strong> Ensin C–F–G7–C. Lyhyen tauon jälkeen Am–Dm–E7–Am. Molemmissa viimeistä edellinen sointu ohjaa kotiin.</figcaption>
+            <audio controls preload="none" aria-labelledby="soinnut-kuvaus" src="../assets/audio/osa-1/sointujen-tehtavat.wav">
+              <a href="../assets/audio/osa-1/sointujen-tehtavat.wav">Avaa ääniesimerkki</a>
+            </audio>
+          </figure>
+          <aside class="practice">
+            <h3>Harjoitus · Laula paluu ennen kuin soitat sen</h3>
+            <ol>
+              <li>Soita C–F–G7–C. Anna kunkin soinnun soida neljä iskua.</li>
+              <li>Toista ja pysähdy G7:ään. Hyräile C ennen kuin soitat kotisoinnun.</li>
+              <li>Kokeile samaa kierrolla Am–Dm–E7–Am ja hyräile lopuksi A.</li>
+            </ol>
+            <p>Kun löydät paluusävelen korvalla, kokeile soittaa sama tehtävä G-duurissa. Etsi ensin asteet I, IV ja V G-duuriasteikosta.</p>
+            <details>
+              <summary>Katso G-duurin soinnut</summary>
+              <p>G – C – D7 – G. D7:n F♯ voi nousta puoliaskelen G:hen.</p>
+            </details>
+          </aside>
+        </section>
+
+        <aside class="sources" aria-labelledby="lisalukeminen">
+          <h2 id="lisalukeminen">Lisälukemista</h2>
+          <p>Ääniesimerkit on tehty tätä opasta varten synteettisillä soittoäänillä.</p>
+          <ul>
+            <li><a href="https://www.oomc.fi/arkisto/musiikin-verkko-opinnot/melodia/nuottien-nimet-oktaavialat-ja-nuottiavaimet/">Open Online Music Campus · Nuottien nimet ja oktaavialat</a></li>
+            <li><a href="https://viva.pressbooks.pub/openmusictheory/part/fundamentals/">Open Music Theory · Sävelet, intervallit ja asteikot</a></li>
+            <li><a href="https://viva.pressbooks.pub/openmusictheory/chapter/roman-numerals/">Open Music Theory · Roomalaiset numerot</a></li>
+            <li><a href="https://viva.pressbooks.pub/openmusictheory/chapter/intro-to-harmony/">Open Music Theory · Harmonia ja fraasin loput</a></li>
+          </ul>
+        </aside>
+      </article>
+    </div>
+  </main>
+
+  <footer class="site-footer frame">
+    <a href="../index.html">Musiikin kartan etusivulle</a>
+    <a href="#luvut">Palaa lukuluetteloon</a>
+  </footer>
+</body>
+</html>
