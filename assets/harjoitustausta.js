@@ -177,7 +177,10 @@ const backingTrack = (() => {
                drive: 14, tone: 3800, double: .8, send: .12, out: .06, strum: .006,
                mute: { damping: .9, release: .015, ring: 0 } },
     harp:    { source: 'string', damping: .9985, brightness: .75, ring: 1.4, release: .6, level: .32,
-               tone: 7000, pan: .2, send: 1 }
+               tone: 7000, pan: .2, send: 1 },
+    // Kirjan esimerkkien melodiakitara erottuu säestyksestä kirkkaampana ja keskellä.
+    lead:    { source: 'string', damping: .9975, brightness: .72, ring: .2, release: .12, level: .55,
+               tone: 6500, pan: 0, send: .4 }
   };
 
   const bassVoices = {
@@ -317,19 +320,10 @@ const backingTrack = (() => {
 
   const hz = midi => 440 * 2 ** ((midi - 69) / 12);
 
-  function renderLoop(rootPC, score, bpm, { parts = ['drums', 'bass', 'chords'], normalize = true } = {}) {
-    const { bars, groove } = score;
-    const sampleRate = 44100;
-    const barLength = 240 / bpm;
-    const stepLength = barLength / groove.steps;
-    const loopLength = bars.length * barLength;
-    const end = loopLength + tail;
-    const context = new OfflineAudioContext(2, Math.ceil(end * sampleRate), sampleRate);
-    const random = seeded(7);
-    const vary = (amount = .12) => 1 + (random() - .5) * amount;
-    // Pieni ajoitusvaihtelu tekee kompista inhimillisemmän.
-    const human = (time, amount = .008) => Math.max(0, time + (random() - .5) * amount);
-
+  // Soittimet, efektit ja rummut yhteen OfflineAudioContextiin. Sekä harjoitustaustat
+  // että kirjan ääniesimerkit käyttävät samoja soittimia.
+  function createStudio(context, { room = 1.6, reverb: wet = .12, end, random, soft = false }) {
+    const sampleRate = context.sampleRate;
     const master = context.createDynamicsCompressor();
     master.threshold.value = -20;
     master.knee.value = 10;
@@ -339,9 +333,9 @@ const backingTrack = (() => {
     master.connect(context.destination);
 
     const reverb = context.createConvolver();
-    reverb.buffer = impulse(groove.room);
+    reverb.buffer = impulse(room);
     const reverbReturn = context.createGain();
-    reverbReturn.gain.value = groove.reverb;
+    reverbReturn.gain.value = wet;
     reverb.connect(reverbReturn).connect(master);
 
     const noise = context.createBuffer(1, 3 * sampleRate, sampleRate);
@@ -523,7 +517,6 @@ const backingTrack = (() => {
     function kick(time, velocity) {
       const oscillator = context.createOscillator();
       const gain = context.createGain();
-      const soft = groove.soft;
       oscillator.frequency.setValueAtTime(soft ? 90 : 150, time);
       oscillator.frequency.exponentialRampToValueAtTime(soft ? 50 : 46, time + .07);
       gain.gain.setValueAtTime(0, time);
@@ -567,6 +560,49 @@ const backingTrack = (() => {
       burst(cymbals, time, { length: 1.7, level: .32, highpass: 4500 });
     }
 
+    // Lähtöiskun kapulaklikki; ensimmäinen isku korostetaan korkeammalla sävelellä.
+    function click(time, velocity = 1, accent = false) {
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      oscillator.frequency.value = accent ? 1760 : 1320;
+      gain.gain.setValueAtTime(0, time);
+      gain.gain.linearRampToValueAtTime(.22 * velocity, time + .001);
+      gain.gain.setTargetAtTime(0, time + .001, .012);
+      oscillator.connect(gain).connect(drums);
+      oscillator.start(time);
+      oscillator.stop(time + .1);
+      burst(drums, time, { length: .03, level: .5 * velocity, bandpass: 2600, q: 1.2 });
+    }
+
+    function bassChannel(voice, drive = 1) {
+      return channel({
+        send: voice.send ?? 0,
+        chain: [gainNode(drive), shaper(1.5), filter('lowpass', voice.tone ?? 2800), filter('highpass', 32)]
+      });
+    }
+
+    return {
+      channel, gainNode, filter, shaper, voiceChannel, voiceOutputs, bassChannel, playTone,
+      kick, snare, brush, hat, ride, crash, click
+    };
+  }
+
+  function renderLoop(rootPC, score, bpm, { parts = ['drums', 'bass', 'chords'], normalize = true } = {}) {
+    const { bars, groove } = score;
+    const sampleRate = 44100;
+    const barLength = 240 / bpm;
+    const stepLength = barLength / groove.steps;
+    const loopLength = bars.length * barLength;
+    const end = loopLength + tail;
+    const context = new OfflineAudioContext(2, Math.ceil(end * sampleRate), sampleRate);
+    const random = seeded(7);
+    const vary = (amount = .12) => 1 + (random() - .5) * amount;
+    // Pieni ajoitusvaihtelu tekee kompista inhimillisemmän.
+    const human = (time, amount = .008) => Math.max(0, time + (random() - .5) * amount);
+
+
+    const { gainNode, shaper, filter, channel, voiceOutputs, playTone, kick, snare, brush, hat, ride, crash } =
+      createStudio(context, { room: groove.room, reverb: groove.reverb, end, random, soft: groove.soft });
     const chordVoice = chordVoices[groove.chordVoice];
     const chordOutputs = voiceOutputs(chordVoice);
     const arpVoice = groove.arp && chordVoices[groove.arp.voice];
@@ -666,5 +702,56 @@ const backingTrack = (() => {
     return loop;
   }
 
-  return { presets, makeScore, renderLoop };
+  // Kirjan ääniesimerkit: tapahtumat sekunteina. Esimerkki ei toistu luuppina, joten sen
+  // loppuun jätetään häntä, ja voimakkuus tasataan samaan tasoon kuin harjoitustaustoissa.
+  function renderScore({ events, duration, room = 1.5, reverb = .14, sampleRate = 44100, seed = 7 }) {
+    const context = new OfflineAudioContext(2, Math.ceil(duration * sampleRate), sampleRate);
+    const studio = createStudio(context, { room, reverb, end: duration, random: seeded(seed) });
+    const voiceFor = name => chordVoices[name] ?? bassVoices[name];
+    const outputs = new Map();
+    function output(name, pan) {
+      const key = name + '|' + (pan ?? '');
+      if (!outputs.has(key)) {
+        const voice = voiceFor(name);
+        outputs.set(key, bassVoices[name] ? studio.bassChannel(voice, 1.6) : studio.voiceChannel(voice, pan ?? voice.pan ?? 0));
+      }
+      return outputs.get(key);
+    }
+    events.forEach(event => {
+      if (event.drum) studio[event.drum](event.time, event.velocity ?? 1, event.accent);
+      else studio.playTone(output(event.voice, event.pan), voiceFor(event.voice), event.midi, event.time, event.length, event.velocity ?? 1);
+    });
+    return context.startRendering().then(finishBuffer);
+  }
+
+  // Mittaa voimakkuus vain kuuluvista kohdista, jotta tauot eivät nosta hiljaisen esimerkin tasoa liikaa.
+  function finishBuffer(rendered) {
+    const channels = Array.from({ length: rendered.numberOfChannels }, (_, c) => rendered.getChannelData(c));
+    const block = Math.round(rendered.sampleRate * .05);
+    const powers = [];
+    let peak = 0;
+    for (let start = 0; start < rendered.length; start += block) {
+      let sum = 0;
+      let count = 0;
+      channels.forEach(data => {
+        for (let i = start; i < Math.min(start + block, data.length); i++) {
+          sum += data[i] * data[i];
+          peak = Math.max(peak, Math.abs(data[i]));
+          count++;
+        }
+      });
+      powers.push(sum / count);
+    }
+    const loudest = Math.max(...powers);
+    const rms = Math.sqrt(average(powers.filter(power => power > loudest * 1e-4)));
+    const gain = Math.min(targetRMS / rms, peakLimit / peak);
+    const fade = Math.round(rendered.sampleRate * .05);
+    channels.forEach(data => data.forEach((value, i) => {
+      const left = data.length - i;
+      data[i] = value * gain * (left < fade ? left / fade : 1);
+    }));
+    return rendered;
+  }
+
+  return { presets, makeScore, renderLoop, renderScore };
 })();
