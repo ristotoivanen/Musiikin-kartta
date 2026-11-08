@@ -40,6 +40,19 @@
   .tools-note { color: var(--muted); font-size: 14px; max-width: 720px; }
   /* Harjoittelijan tyylit */
   .controls { margin: 18px 0 14px; }
+  .advanced-options { margin-top: 14px; border: 1px solid #453854; border-radius: 8px; }
+  .advanced-options summary {
+    min-height: 44px; padding: 10px 12px; cursor: pointer;
+    background: var(--panel); color: var(--lavender);
+    font-size: 14px; font-weight: 700; border-radius: 7px;
+  }
+  .advanced-options summary:hover { background: #2d2444; }
+  .advanced-options[open] summary { border-bottom: 1px solid #453854; border-radius: 7px 7px 0 0; }
+  .advanced-close, .advanced-options[open] .advanced-open { display: none; }
+  .advanced-options[open] .advanced-close { display: inline; }
+  .advanced-caption { margin-left: 6px; color: var(--muted); font-weight: 400; }
+  .advanced-fields { padding: 12px; }
+  .advanced-fields .tools-note:last-child { margin-bottom: 0; }
   .group { margin-bottom: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
   .group-label { font-size: 13px; font-weight: 600; color: var(--muted); width: 220px; }
   #roots { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -110,8 +123,7 @@
 <main id="harjoittelija">
   <h1>Otelautaharjoittelija</h1>
   <p class="tools-note">
-    Valitse toonikka ja asteikko. Violetit pisteet ovat pentatonisen pohjan säveliä ja kultaiset
-    moodin lisäsäveliä. Numero kertoo sävelen asteen suhteessa toonikkaan. Toonikka on 1.
+    Valitse toonikka ja asteikko. Pisteen numero kertoo sävelen asteen suhteessa toonikkaan.
   </p>
 
   <div class="controls">
@@ -134,37 +146,46 @@
       <button data-scale="lydian">Lyydinen</button>
       <button data-scale="mixolydian">Miksolyydinen</button>
     </div>
-    <div class="group">
-      <label class="group-label" for="fret-count">Nauhojen määrä</label>
-      <select id="fret-count">
-        <option value="auto">Automaattinen (15 tai 17 nauhaa)</option>
-        <option value="12">12 nauhaa · yksi oktaavi</option>
-        <option value="19">19 nauhaa · klassinen kitara</option>
-        <option value="20">20 nauhaa · teräskielinen akustinen</option>
-        <option value="22">22 nauhaa · sähkökitara</option>
-        <option value="24">24 nauhaa · kaksi oktaavia</option>
-      </select>
-    </div>
-    <div class="group">
-      <label class="group-label" for="box-system">Sormitustapa</label>
-      <select id="box-system" aria-describedby="box-help">
-        <option value="pentatonic">Pentatoniset boksit</option>
-        <option value="3nps">3 säveltä per kieli (3NPS)</option>
-      </select>
-    </div>
-    <div class="group" id="box-controls" role="group" aria-labelledby="box-label">
-      <span class="group-label" id="box-label">Näytettävät sormitusboksit</span>
-      <div class="box-options" id="pentatonic-boxes"></div>
-      <div class="box-options" id="three-note-boxes" hidden></div>
-    </div>
-    <div class="group">
-      <span class="group-label">Sävelpisteet</span>
-      <label class="box-toggle box-filter">
-        <input type="checkbox" id="box-notes-only" aria-describedby="box-help" disabled>
-        Näytä vain valittujen boksien sävelet
-      </label>
-    </div>
-    <p class="tools-note" id="box-help" aria-live="polite"></p>
+    <details class="advanced-options">
+      <summary>
+        <span class="advanced-open">Osaan jo perusteet <span class="advanced-caption">Näytä lisäasetukset</span></span>
+        <span class="advanced-close">Takaisin perusteisiin</span>
+      </summary>
+      <div class="advanced-fields">
+        <div class="group">
+          <label class="group-label" for="fret-count">Nauhojen määrä</label>
+          <select id="fret-count">
+            <option value="auto">Automaattinen (15 tai 17 nauhaa)</option>
+            <option value="12">12 nauhaa · yksi oktaavi</option>
+            <option value="19">19 nauhaa · klassinen kitara</option>
+            <option value="20">20 nauhaa · teräskielinen akustinen</option>
+            <option value="22">22 nauhaa · sähkökitara</option>
+            <option value="24">24 nauhaa · kaksi oktaavia</option>
+          </select>
+        </div>
+        <div class="group">
+          <label class="group-label" for="box-system">Sormitustapa</label>
+          <select id="box-system" aria-describedby="box-help">
+            <option value="pentatonic">Pentatoniset boksit</option>
+            <option value="3nps">3 säveltä per kieli (3NPS)</option>
+          </select>
+        </div>
+        <div class="group" id="box-controls" role="group" aria-labelledby="box-label">
+          <span class="group-label" id="box-label">Näytettävät sormitusboksit</span>
+          <div class="box-options" id="pentatonic-boxes"></div>
+          <div class="box-options" id="three-note-boxes" hidden></div>
+        </div>
+        <div class="group">
+          <span class="group-label">Sävelpisteet</span>
+          <label class="box-toggle box-filter">
+            <input type="checkbox" id="box-notes-only" aria-describedby="box-help" disabled>
+            Näytä vain valittujen boksien sävelet
+          </label>
+        </div>
+        <p class="tools-note" id="box-help" aria-live="polite"></p>
+        <p class="tools-note"><strong>Kokeile.</strong> Valitse pentatoniset boksit ja soita G-mollipentatoninen boksista 1. Vaihda G-dooriseen ja etsi kaksi uutta säveltä, A ja E.</p>
+      </div>
+    </details>
   </div>
 
   <div id="info" aria-live="polite" aria-atomic="true"></div>
@@ -176,7 +197,6 @@
     <span><span class="swatch" style="background:#4b2fd6; border:2px solid #fff"></span>Toonikka (1)</span>
     <span><span class="swatch" style="background:#f0a13c"></span>Moodin lisäsävel</span>
   </div>
-  <p class="tools-note"><strong>Kokeile.</strong> Valitse pentatoniset boksit ja soita G-mollipentatoninen boksista 1. Vaihda G-dooriseen ja etsi kaksi uutta säveltä, A ja E.</p>
 </main>
 
 <footer>
@@ -481,7 +501,8 @@
       'Sävelet: <b>' + names.join(' – ') + '</b>' +
       (addedPairs.length ? ' &nbsp;·&nbsp; Lisäsävelet: <span class="added">' + addedPairs.join(', ') + '</span>' : '') +
       '<span class="hint">' + sc.hint + '</span>' +
-      (boxRanges.length ? '<span class="box-summary">' + boxRanges.join(' ') + '</span>' : '');
+      (boxRanges.length ? '<span class="box-summary">' + boxRanges.join(' ') + '</span>' : '') +
+      (onlyBoxNotes ? '<span class="hint">Otelaudalla näkyvät vain valittujen boksien sävelet.</span>' : '');
   }
 
   const rootsEl = document.getElementById('roots');
