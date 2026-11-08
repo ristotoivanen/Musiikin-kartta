@@ -9,7 +9,7 @@
 6. Sointujen tehtävät
 
 ## Osa II – Näe kappaleiden rakenne
-7. Yleisimmät sointukierrrot
+7. Yleisimmät sointukierrot
 8. Kvinttiympyrä
 9. Sävellajin tunnistaminen
 10. Transponointi

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Musiikin kartan toinen osa. Opettele kappaleen rakenne, sointukierrot, kvinttiympyrä, sävellaji ja transponointi neljällä avoimella kitaraotteella.">
+  <title>Näe kappaleiden rakenne – Musiikin kartta</title>
+  <link rel="stylesheet" href="reader.css">
+  <style>
+    .diagram { margin: 1rem 0 1.35rem; }
+    .diagram figcaption { margin-bottom: .55rem; font-weight: 700; }
+    .shape-grid, .form-map { display: grid; gap: .6rem; }
+    .shape-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .shape-card, .form-map li {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: .6rem;
+      padding: .55rem;
+    }
+    .shape-card { text-align: center; }
+    .shape-card h4 { margin: 0; font-size: 1.12rem; }
+    .shape-card svg { display: block; width: min(100%, 8.5rem); margin: .2rem auto; }
+    .shape-card code { color: var(--muted); }
+    .shape-gridlines { fill: none; stroke: #a098b1; stroke-width: 1.5; }
+    .shape-nut { stroke: var(--text); stroke-width: 3; }
+    .shape-symbols, .shape-strings, .shape-fingers { text-anchor: middle; }
+    .shape-symbols { fill: var(--text); font-size: 15px; }
+    .shape-strings { fill: var(--muted); font-size: 12px; }
+    .shape-dots { fill: var(--accent); }
+    .shape-fingers { fill: var(--bg); font-size: 12px; font-weight: 750; }
+    .form-map { grid-template-columns: repeat(5, minmax(0, 1fr)); list-style: none; padding: 0; margin: 0; }
+    .form-map li { border-top: 3px solid var(--accent); }
+    .form-map .chorus { border-top-color: var(--gold); }
+    .form-map .ending { border-top-color: #75e5c6; }
+    .form-map strong, .form-map span { display: block; }
+    .form-map span { color: var(--muted); font-size: .88rem; }
+    .fifths-wheel { display: block; width: min(100%, 24rem); height: auto; margin: .4rem auto; }
+    .fifths-rim { fill: none; stroke: #71638c; stroke-width: 2; }
+    .fifths-highlight { fill: var(--panel); stroke: var(--gold); stroke-width: 2; }
+    .fifths-tonic { fill: #4b2fd6; stroke: var(--accent); stroke-width: 2; }
+    .fifths-keys { fill: var(--text); font-size: 23px; font-weight: 700; text-anchor: middle; dominant-baseline: central; }
+    .fifths-center { fill: var(--muted); font-size: 17px; text-anchor: middle; }
+    .bar-chart td { font-weight: 700; text-align: center; }
+    .bar-chart th[scope="col"]:not(:first-child) { text-align: center; }
+    @media (max-width: 550px) {
+      .shape-grid, .form-map { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="site-nav frame" aria-label="Sivusto">
+      <a class="brand" href="../index.html">Musiikin <span>kartta</span></a>
+      <a href="../otelautaharjoittelija.html">Otelautaharjoittelija</a>
+    </nav>
+  </header>
+
+  <main>
+    <header class="hero">
+      <div class="frame">
+        <p class="part-number">Osa II · Säkeistöt ja kertosäkeet</p>
+        <h1>Näe kappaleiden rakenne</h1>
+        <p class="lead">Opettele neljä avointa kitaraotetta ja soita niillä lyhyt kappale. Kun kuulet, missä säkeistö vaihtuu kertosäkeeseen ja mihin säveleen kappale palaa, osaat myös siirtää sen laulajalle sopivaan sävellajiin.</p>
+        <a class="primary-link" href="#sointukierrot">Aloita lukeminen</a>
+      </div>
+    </header>
+
+    <div class="reading-layout frame">
+      <nav class="contents" id="luvut" aria-labelledby="lukulista">
+        <h2 id="lukulista">Tässä osassa</h2>
+        <ol start="7">
+          <li><a href="#sointukierrot">Yleisimmät sointukierrot</a></li>
+          <li><a href="#kvinttiympyra">Kvinttiympyrä</a></li>
+          <li><a href="#savellajin-tunnistaminen">Sävellajin tunnistaminen</a></li>
+          <li><a href="#transponointi">Transponointi</a></li>
+        </ol>
+      </nav>
+
+      <article>
+        <section class="chapter" id="sointukierrot">
+          <p class="chapter-number">Luku 7</p>
+          <h2>Yleisimmät sointukierrot</h2>
+          <p>Kun soitat kappaletta kitaralla, sinun pitää tietää sekä seuraava ote että se, milloin siihen vaihdetaan. <strong>Sointukierto</strong> on toistuva sointujen järjestys. <strong>Kappaleen rakenne</strong> kertoo, missä järjestyksessä esimerkiksi säkeistö ja kertosäe tulevat. Harjoitellaan kumpaakin samalla pienellä kappaleella.</p>
+          <p>Tässä harjoituksessa yksi tahti on neljä iskua. Laske ääneen <span class="sequence">1, 2, 3, 4</span>. Soita taulukon sointu ykkösellä ja anna sen soida neloseen asti. Seuraavalla ykkösellä vaihda seuraavaan sointuun. Kun vaihdot osuvat kohdalleen, voit soittaa alasvedon jokaisella iskulla.</p>
+
+          <h3>Neljä otetta kitaralle</h3>
+          <p>Kaavioissa paksuin E-kieli on vasemmalla ja ohuin e-kieli oikealla. Paksu vaakaviiva on satula, ja sen alta alkaa ensimmäinen nauha. <strong>○</strong> tarkoittaa vapaata kieltä ja <strong>×</strong> kieltä, jonka jätät soittamatta. Pisteen numero kertoo sormen. Etusormi on 1, keskisormi 2 ja nimetön 3.</p>
+          <figure class="diagram">
+            <figcaption>Avoimet otteet G, Em, C ja D</figcaption>
+            <div class="shape-grid">
+              <div class="shape-card">
+                <h4>G</h4>
+                <svg viewBox="0 0 136 136" role="img" aria-label="G. Paksulta E-kieleltä ohuelle nauhat 3, 2, vapaa, vapaa, vapaa, 3. Sormet 2, 1 ja 3.">
+                  <path class="shape-gridlines" d="M18 33v78 M38 33v78 M58 33v78 M78 33v78 M98 33v78 M118 33v78 M18 59h100 M18 85h100 M18 111h100"/>
+                  <path class="shape-nut" d="M18 33h100"/>
+                  <text class="shape-symbols" y="21"><tspan x="58">○</tspan><tspan x="78">○</tspan><tspan x="98">○</tspan></text>
+                  <g class="shape-dots"><circle cx="18" cy="98" r="8"/><circle cx="38" cy="72" r="8"/><circle cx="118" cy="98" r="8"/></g>
+                  <text class="shape-fingers"><tspan x="18" y="102">2</tspan><tspan x="38" y="76">1</tspan><tspan x="118" y="102">3</tspan></text>
+                  <text class="shape-strings" y="129"><tspan x="18">E</tspan><tspan x="38">A</tspan><tspan x="58">D</tspan><tspan x="78">G</tspan><tspan x="98">B</tspan><tspan x="118">e</tspan></text>
+                </svg>
+                <code>320003</code>
+              </div>
+              <div class="shape-card">
+                <h4>Em</h4>
+                <svg viewBox="0 0 136 136" role="img" aria-label="Em. Paksulta E-kieleltä ohuelle nauhat vapaa, 2, 2, vapaa, vapaa, vapaa. Sormet 2 ja 3.">
+                  <path class="shape-gridlines" d="M18 33v78 M38 33v78 M58 33v78 M78 33v78 M98 33v78 M118 33v78 M18 59h100 M18 85h100 M18 111h100"/>
+                  <path class="shape-nut" d="M18 33h100"/>
+                  <text class="shape-symbols" y="21"><tspan x="18">○</tspan><tspan x="78">○</tspan><tspan x="98">○</tspan><tspan x="118">○</tspan></text>
+                  <g class="shape-dots"><circle cx="38" cy="72" r="8"/><circle cx="58" cy="72" r="8"/></g>
+                  <text class="shape-fingers" y="76"><tspan x="38">2</tspan><tspan x="58">3</tspan></text>
+                  <text class="shape-strings" y="129"><tspan x="18">E</tspan><tspan x="38">A</tspan><tspan x="58">D</tspan><tspan x="78">G</tspan><tspan x="98">B</tspan><tspan x="118">e</tspan></text>
+                </svg>
+                <code>022000</code>
+              </div>
+              <div class="shape-card">
+                <h4>C</h4>
+                <svg viewBox="0 0 136 136" role="img" aria-label="C. Jätä paksu E soittamatta. A-kieleltä ohuelle nauhat 3, 2, vapaa, 1, vapaa. Sormet 3, 2 ja 1.">
+                  <path class="shape-gridlines" d="M18 33v78 M38 33v78 M58 33v78 M78 33v78 M98 33v78 M118 33v78 M18 59h100 M18 85h100 M18 111h100"/>
+                  <path class="shape-nut" d="M18 33h100"/>
+                  <text class="shape-symbols" y="21"><tspan x="18">×</tspan><tspan x="78">○</tspan><tspan x="118">○</tspan></text>
+                  <g class="shape-dots"><circle cx="38" cy="98" r="8"/><circle cx="58" cy="72" r="8"/><circle cx="98" cy="46" r="8"/></g>
+                  <text class="shape-fingers"><tspan x="38" y="102">3</tspan><tspan x="58" y="76">2</tspan><tspan x="98" y="50">1</tspan></text>
+                  <text class="shape-strings" y="129"><tspan x="18">E</tspan><tspan x="38">A</tspan><tspan x="58">D</tspan><tspan x="78">G</tspan><tspan x="98">B</tspan><tspan x="118">e</tspan></text>
+                </svg>
+                <code>x32010</code>
+              </div>
+              <div class="shape-card">
+                <h4>D</h4>
+                <svg viewBox="0 0 136 136" role="img" aria-label="D. Jätä paksu E ja A soittamatta. D-kieleltä ohuelle nauhat vapaa, 2, 3, 2. Sormet 1, 3 ja 2.">
+                  <path class="shape-gridlines" d="M18 33v78 M38 33v78 M58 33v78 M78 33v78 M98 33v78 M118 33v78 M18 59h100 M18 85h100 M18 111h100"/>
+                  <path class="shape-nut" d="M18 33h100"/>
+                  <text class="shape-symbols" y="21"><tspan x="18">×</tspan><tspan x="38">×</tspan><tspan x="58">○</tspan></text>
+                  <g class="shape-dots"><circle cx="78" cy="72" r="8"/><circle cx="98" cy="98" r="8"/><circle cx="118" cy="72" r="8"/></g>
+                  <text class="shape-fingers"><tspan x="78" y="76">1</tspan><tspan x="98" y="102">3</tspan><tspan x="118" y="76">2</tspan></text>
+                  <text class="shape-strings" y="129"><tspan x="18">E</tspan><tspan x="38">A</tspan><tspan x="58">D</tspan><tspan x="78">G</tspan><tspan x="98">B</tspan><tspan x="118">e</tspan></text>
+                </svg>
+                <code>xx0232</code>
+              </div>
+            </div>
+          </figure>
+          <p>Otteiden alla on sama tieto numeroina paksuimmasta kielestä ohuimpaan. Niissä numero kertoo nauhan ja <code>0</code> vapaan kielen. G ja Em alkavat paksulta E-kieleltä. C:ssä aloita A-kieleltä ja D:ssä D-kieleltä. Kokeile soittaa kunkin otteen kielet ensin yksi kerrallaan, jotta kuulet, soivatko ne puhtaasti.</p>
+
+          <h3>Soita Valot ikkunassa</h3>
+          <p>Merkitään säkeistöä kirjaimella A ja kertosäettä kirjaimella B. Lauletussa kappaleessa säkeistön sanat usein vaihtuvat ja kertosäkeen sanat tai tunnistettava melodia palaavat. Tässä soittoesimerkissä kuulet A:ssa kielet yksitellen ja B:ssä täyteläisemmät soinnut sekä toistuvan melodian.</p>
+          <figure class="diagram">
+            <figcaption>Valot ikkunassa · kappaleen kartta</figcaption>
+            <ol class="form-map">
+              <li><strong>A · Säkeistö 1</strong><span>Tahdit 1–4</span></li>
+              <li class="chorus"><strong>B · Kertosäe</strong><span>Tahdit 5–8</span></li>
+              <li><strong>A · Säkeistö 2</strong><span>Tahdit 9–12</span></li>
+              <li class="chorus"><strong>B · Kertosäe</strong><span>Tahdit 13–16</span></li>
+              <li class="ending"><strong>Loppu</strong><span>Tahdit 17–18</span></li>
+            </ol>
+          </figure>
+          <table class="bar-chart">
+            <caption>Yksi sointu per tahti</caption>
+            <thead><tr><th scope="col">Osa</th><th scope="col">1.</th><th scope="col">2.</th><th scope="col">3.</th><th scope="col">4.</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">A · Säkeistö</th><td>G</td><td>Em</td><td>C</td><td>D</td></tr>
+              <tr><th scope="row">B · Kertosäe</th><td>G</td><td>D</td><td>Em</td><td>C</td></tr>
+            </tbody>
+          </table>
+          <p>Soita kartan mukaan A–B–A–B. Päätä kappale kahteen tahtiin <span class="sequence">D – G</span>. Jos kappaleessa on lisäksi intro tai väliosa, lisää karttaan niille oma rivi tai laatikko. Sama sointukierto voi jatkua osasta toiseen. Etsi silloin vaihdos esimerkiksi melodiasta tai siitä, miten säestys tihenee.</p>
+          <figure class="listen">
+            <figcaption id="kappale-kuvaus"><strong>Soita mukana · Valot ikkunassa</strong> Kuulet ensin neljä lähtöiskua (88 iskua minuutissa). Soita ensimmäinen G seuraavalla ykkösellä ja seuraa karttaa. Riittää, että soitat sointuja: melodia soi äänitteessä erikseen.</figcaption>
+            <audio controls preload="none" aria-labelledby="kappale-kuvaus" src="../assets/audio/osa-2/valot-ikkunassa.wav">
+              <a href="../assets/audio/osa-2/valot-ikkunassa.wav">Avaa ääniesimerkki</a>
+            </audio>
+          </figure>
+          <p>Kokeile, miltä säkeistön viimeinen sointu D kuulostaa, jos pysähdyt siihen. Soita sen perään G ja kuuntele uudestaan. D:stä tekee mieli jatkaa, mutta G:hen voi jäädä. Siksi sama D–G-vaihto sopii sekä seuraavan osan alkuun että koko kappaleen loppuun.</p>
+          <p>G-duurissa A käyttää asteita <span class="sequence">I–vi–IV–V</span> ja B asteita <span class="sequence">I–V–vi–IV</span>. Samat neljä sointua saavat erilaisen kulun, kun vaihdat niiden järjestystä. Yksi toinen helposti kokeiltava kierto on <span class="sequence">I–IV–V–I</span> eli G–C–D–G. Siinä paluu G:hen kuuluu heti. <a href="osa-1.html#roomalaiset-numerot">Kertaa roomalaiset numerot I osasta</a>.</p>
+          <aside class="practice">
+            <h3>Harjoitus · Soita ensin basso</h3>
+            <p>Soita säkeistön ensimmäisellä iskulla pelkkä perussävel. G on paksun E-kielen 3. nauhalla, E on samalla kielellä vapaana, C on A-kielen 3. nauhalla ja D on vapaa D-kieli. Kun saat vaihdot ykköselle, lisää kokonaiset otteet.</p>
+          </aside>
+        </section>
+
+        <section class="chapter" id="kvinttiympyra">
+          <p class="chapter-number">Luku 8</p>
+          <h2>Kvinttiympyrä</h2>
+          <p>Kvinttiympyrä asettaa sävellajit järjestykseen siten, että myötäpäivään seuraava sävel on puhtaan kvintin ylempänä. Kitaralla kvintti on samalla kielellä seitsemän nauhan matka. Kokeile paksun E-kielen 3. nauhan G:stä 10. nauhan D:hen. Sama D soi myös A-kielen 5. nauhalla, joten saat sen lähempääkin.</p>
+          <figure class="diagram">
+            <figcaption>Duurisävellajit kvinttiympyrässä</figcaption>
+            <svg class="fifths-wheel" viewBox="0 0 400 400" role="img" aria-labelledby="ympyra-otsikko ympyra-kuvaus">
+              <title id="ympyra-otsikko">Kvinttiympyrä ja G-duurin naapurit</title>
+              <desc id="ympyra-kuvaus">Ylhäältä myötäpäivään C, G, D, A, E, B, F-ylennys tai G-alennus, D-alennus, A-alennus, E-alennus, B-alennus ja F. G:n naapurit C ja D on korostettu.</desc>
+              <circle class="fifths-rim" cx="200" cy="200" r="123"/>
+              <circle class="fifths-highlight" cx="200" cy="47" r="22"/>
+              <circle class="fifths-tonic" cx="277" cy="67" r="22"/>
+              <circle class="fifths-highlight" cx="333" cy="124" r="22"/>
+              <g class="fifths-keys">
+                <text x="200" y="47">C</text><text x="277" y="67">G</text><text x="333" y="124">D</text>
+                <text x="353" y="200">A</text><text x="333" y="277">E</text><text x="277" y="333">B</text>
+                <text x="200" y="353">F♯/G♭</text><text x="124" y="333">D♭</text><text x="67" y="277">A♭</text>
+                <text x="47" y="200">E♭</text><text x="67" y="124">B♭</text><text x="124" y="67">F</text>
+              </g>
+              <text class="fifths-center" x="200" y="187">G ja sen naapurit</text>
+              <text class="fifths-keys" x="200" y="222">C · G · D</text>
+            </svg>
+          </figure>
+          <p>Kun katsot G:tä ympyrässä, edellinen sävel C on G-duurin IV asteen soinnun perussävel. Seuraava D on V asteen soinnun perussävel. G itse on I. Kolme vierekkäistä nimeä antavat siis kolme duurisointua, joilla pääset pitkälle kitarasäestyksessä.</p>
+          <table>
+            <caption>Kuusi sointua G-duurin ympärillä</caption>
+            <thead><tr><th scope="col">C:n kohdalla</th><th scope="col">G:n kohdalla</th><th scope="col">D:n kohdalla</th></tr></thead>
+            <tbody>
+              <tr><td>C (IV)</td><td>G (I)</td><td>D (V)</td></tr>
+              <tr><td>Am (ii)</td><td>Em (vi)</td><td>Bm (iii)</td></tr>
+            </tbody>
+          </table>
+          <p>Taulukon toisella rivillä ovat yläpuolisten duurien rinnakkaismollit. Esimerkiksi G-duuri ja luonnollinen e-molli käyttävät samoja säveliä. Harjoituskappaleen säkeistö siirtyy G:stä juuri Em:ään. Kvinttiympyrä auttaa myös nuottien lukemisessa: C-duurin etumerkinnässä ei ole ylennyksiä tai alennuksia, G-duurissa on F♯ ja D-duurissa lisäksi C♯.</p>
+          <aside class="practice">
+            <h3>Harjoitus · Siirrä keskelle D</h3>
+            <p>Etsi D:n edellinen ja seuraava naapuri. Soita niillä sama I–IV–V–I kuin luvun 7 G-duuriesimerkissä.</p>
+            <details>
+              <summary>Katso vastaus</summary>
+              <p>D–G–A–D. A-otteen nauhat ovat paksusta ohuimpaan <code>x02220</code>. Aloita A-kieleltä.</p>
+            </details>
+          </aside>
+        </section>
+
+        <section class="chapter" id="savellajin-tunnistaminen">
+          <p class="chapter-number">Luku 9</p>
+          <h2>Sävellajin tunnistaminen</h2>
+          <p>Sävellajin etsiminen alkaa kotisävelestä. Kun kuuntelet kappaleen loppua tai fraasin taukoa, hyräile sävel, johon musiikki voisi jäädä lepäämään. Etsi sama sävel kitaralta. Sen jälkeen voit kokeilla, kumpi säestää sitä luontevammin, duuri- vai mollisointu.</p>
+          <ol>
+            <li><strong>Kuuntele paluukohta.</strong> Etsi paikka, jossa melodia tai sointukulku tuntuu päättyvän. Ensimmäinen ja viimeinen sointu antavat vihjeitä.</li>
+            <li><strong>Hyräile ja etsi sävel.</strong> Kokeile esimerkissämme G:tä paksun E-kielen 3. nauhalta ja E:tä samalta kieleltä vapaana. Voit laulaa samannimisen sävelen sinulle sopivasta oktaavista.</li>
+            <li><strong>Tarkista sointukulku.</strong> Harjoituskappale päättyy D–G. Soita D-otteen ohuinta kieltä (2. nauha, F♯) ja sitten G-otteen ohuinta kieltä (3. nauha, G). Kuulet puoliaskelen nousun kotisäveleen. Soita sitten molemmat soinnut kokonaan.</li>
+          </ol>
+          <p>Samat soinnut voivat antaa erilaisen vaikutelman. Esimerkiksi G-duurissa ja luonnollisessa e-mollissa ovat samat seitsemän säveltä. Siksi G, Em, C ja D sopivat kumpaankin. Kuuntele, mihin säveleen basso ja melodia palaavat ja mikä sointu saa musiikin tuntumaan päättyneeltä.</p>
+          <figure class="listen">
+            <figcaption id="kotisavel-kuvaus"><strong>Kuuntele kaksi eri paluuta</strong> Kummassakin katkelmassa soivat samat neljä sointua. Hyräile kummankin viimeinen pitkä melodiasävel ja vertaa sitä kitaran G:hen ja E:hen.</figcaption>
+            <audio controls preload="none" aria-labelledby="kotisavel-kuvaus" src="../assets/audio/osa-2/kaksi-kotisavelta.wav">
+              <a href="../assets/audio/osa-2/kaksi-kotisavelta.wav">Avaa ääniesimerkki</a>
+            </audio>
+          </figure>
+          <aside class="practice">
+            <h3>Harjoitus · Vaihda kotisäveltä</h3>
+            <p>Soita molemmat katkelmat ja anna viimeisen soinnun soida hetki pidempään. Kumpi kuulostaa G-duurilta ja kumpi e-mollilta?</p>
+            <details>
+              <summary>Katso soinnut ja vastaus</summary>
+              <p>Ensimmäinen on <span class="sequence">G–Em–C–D–G</span>, ja viimeinen pitkä sävel on G. Toinen on <span class="sequence">Em–C–G–D–Em</span>, ja viimeinen pitkä sävel on E. Ensimmäinen palaa G-duuriin, toinen e-molliin.</p>
+            </details>
+          </aside>
+          <p>Jos haluat kuulla paluun e-molliin selvemmin, kokeile <span class="sequence">B7–Em</span>. B7:ssä on D♯, joka voi nousta puoliaskelen E:hen. B7-otteen merkintä on <code>x21202</code>. Soita A-kieleltä alkaen.</p>
+        </section>
+
+        <section class="chapter" id="transponointi">
+          <p class="chapter-number">Luku 10</p>
+          <h2>Transponointi</h2>
+          <p><strong>Transponointi</strong> siirtää kappaleen kaikki sävelet ja soinnut yhtä monta puolisävelaskelta ylös tai alas. Rytmi ja sointujen suhteet säilyvät. Kun G-duurista siirrytään A-duuriin, matka on kaksi nauhaa ylöspäin. Kertosäe pysyy kiertona I–V–vi–IV.</p>
+          <table class="bar-chart">
+            <caption>Valot ikkunassa G-duurissa ja A-duurissa</caption>
+            <thead><tr><th scope="col">Osa</th><th scope="col">G-duuri</th><th scope="col">A-duuri</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Säkeistö</th><td>G – Em – C – D</td><td>A – F♯m – D – E</td></tr>
+              <tr><th scope="row">Kertosäe</th><td>G – D – Em – C</td><td>A – E – F♯m – D</td></tr>
+              <tr><th scope="row">Loppu</th><td>D – G</td><td>E – A</td></tr>
+            </tbody>
+          </table>
+
+          <h3>Soita samat otteet kapolla</h3>
+          <ol>
+            <li>Soita ensin kertosäe ilman kapoa otteilla <span class="sequence">G–D–Em–C</span>.</li>
+            <li>Kiinnitä kapo kaikkien kielten yli toiselle nauhalle, juuri nauharaudan taakse satulan puolelle. Laske otteiden nauhat nyt kaposta alkaen.</li>
+            <li>Soita samat otteet uudelleen. G-ote soi nyt A:na, D-ote E:nä, Em-ote F♯m:nä ja C-ote D:nä.</li>
+          </ol>
+          <div class="note">
+            <p><strong>Kerro muille soiva sävellaji.</strong> Kun soitat G-otteita kapo toisella nauhalla, sano basson tai pianon soittajalle, että kappale on A-duurissa. Jos soitat itse ilman kapoa, käytä A-duurin sarakkeen sointuja. F♯m:n kolmisoinnun saat myös kolmelta ohuimmalta kieleltä otteella <code>xxx222</code>.</p>
+          </div>
+          <figure class="listen">
+            <figcaption id="kapo-kuvaus"><strong>Kuuntele kertosäe kahdessa sävellajissa</strong> Ensin G-duuri ilman kapoa, sitten A-duuri samoilla otteilla kaksi nauhaa ylempänä. Sointujen vaihtopaikat pysyvät samoina.</figcaption>
+            <audio controls preload="none" aria-labelledby="kapo-kuvaus" src="../assets/audio/osa-2/kertosae-kapolla.wav">
+              <a href="../assets/audio/osa-2/kertosae-kapolla.wav">Avaa ääniesimerkki</a>
+            </audio>
+          </figure>
+          <aside class="practice">
+            <h3>Harjoitus · Sovita sävellaji laulajalle</h3>
+            <p>Hyräile kertosäkeen melodian mukana ensin ilman kapoa ja sitten kapo toisella nauhalla. Kummassa korkeimmat sävelet tuntuvat helpommilta? Kokeile myös kapoa ensimmäisellä nauhalla. Otteet pysyvät samoina, joten voit keskittyä siihen, miltä laulukorkeus tuntuu.</p>
+            <details>
+              <summary>Katso, mikä sävellaji soi ensimmäisellä nauhalla</summary>
+              <p>G-ote nousee puoliaskelen A♭:ään. Sävellaji on A♭-duuri ja kertosäkeen soinnut ovat A♭–E♭–Fm–D♭.</p>
+            </details>
+          </aside>
+        </section>
+
+        <aside class="sources" aria-labelledby="lisalukeminen">
+          <h2 id="lisalukeminen">Lisälukemista</h2>
+          <p>Valot ikkunassa ja kuunteluesimerkit on tehty tätä opasta varten synteettisillä, kitaramaisilla soittoäänillä.</p>
+          <ul>
+            <li><a href="https://www.fender.com/articles/chords/how-to-read-a-chord-chart">Fender · Kitaran sointukaavion lukeminen</a></li>
+            <li><a href="https://viva.pressbooks.pub/openmusictheory/chapter/verse-chorus-form/">Open Music Theory · Säkeistö ja kertosäe</a></li>
+            <li><a href="https://viva.pressbooks.pub/openmusictheory/chapter/4-chord-schemas/">Open Music Theory · Neljän soinnun kierrot</a></li>
+            <li><a href="https://viva.pressbooks.pub/openmusictheory/chapter/major-scales/">Open Music Theory · Kvinttiympyrä ja etumerkit</a></li>
+            <li><a href="https://www.fender.com/articles/parts-and-accessories/what-is-a-capo">Fender · Kapotaston käyttö</a></li>
+          </ul>
+        </aside>
+      </article>
+    </div>
+  </main>
+
+  <footer class="site-footer frame">
+    <a href="../index.html">Musiikin kartan etusivulle</a>
+    <a href="#luvut">Palaa lukuluetteloon</a>
+    <a href="osa-1.html">Edellinen osa · Miten musiikki toimii</a>
+  </footer>
+</body>
+</html>
