@@ -17,7 +17,7 @@
 ## Osa III – Kitara työkaluna
 11. Otelauta
 12. CAGED
-13. Septimisoinnut kitaralla
+13. Septimisoinnut
 14. Pentatoniikka
 15. Moodit käytännössä
 
