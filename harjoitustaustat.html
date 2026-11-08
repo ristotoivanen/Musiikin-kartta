@@ -36,6 +36,7 @@
   .backing-boxes { margin: 0 0 12px; }
   .focus-note { fill: none; stroke: var(--box); stroke-width: 2; }
   .focus-swatch { border: 2px solid var(--box); }
+  .box-swatch { border-radius: 5px; border: 1.5px solid var(--box-color); background: rgba(117, 229, 198, .13); }
   @media (max-width: 520px) {
     main { padding-top: 22px; }
     .backing-controls { display: grid; grid-template-columns: minmax(0, 1fr); }
@@ -118,6 +119,7 @@
     <span><span class="swatch" style="background:#4b2fd6; border:2px solid #fff"></span>Toonikka (1)</span>
     <span><span class="swatch" style="background:#f0a13c"></span>Moodin lisäsävel</span>
     <span><span class="swatch focus-swatch"></span>Harjoituksen sävel</span>
+    <span><span class="swatch box-swatch" data-box="1"></span>Sormitusboksi</span>
   </div>
   <p class="tools-note" id="style-context"></p>
   <p class="tools-note"><strong class="backing-cue">Kokeile</strong> <span id="playing-cue"></span></p>
@@ -135,7 +137,7 @@
 <script>
 (function () {
   const { CHROM, SCALES, noteName, scaleNotes, selectionFromURL, selectionHref, renderBoard,
-    BOX_FRETS, defaultBoxSystem, fingeringBoxes, boxOptions, revealPositions } = fretboard;
+    BOX_FRETS, syncBoxSystem, fingeringBoxes, boxOptions, revealPositions } = fretboard;
   const { presets, makeScore, renderLoop } = backingTrack;
   const root = document.getElementById('backing-root');
   const scale = document.getElementById('backing-scale');
@@ -167,6 +169,7 @@
   let audio;
   let master;
   let playback;
+  let preferredSystem = null;
 
   function updateTempo() {
     tempoValue.value = tempo.value + ' BPM';
@@ -237,12 +240,6 @@
     scrollHint.hidden = board.scrollWidth <= board.clientWidth;
   }
 
-  function setDefaultBoxSystem() {
-    const system = defaultBoxSystem(SCALES[scale.value]);
-    boxSystem.querySelector('[value="3nps"]').disabled = system !== '3nps';
-    boxSystem.value = system;
-  }
-
   function updateBoard(revealNumber) {
     const system = boxSystem.value;
     const threeNotes = system === '3nps';
@@ -288,10 +285,13 @@
   scale.addEventListener('change', () => {
     tempo.value = presets[scale.value].bpm;
     updateTempo();
-    setDefaultBoxSystem();
+    syncBoxSystem(boxSystem, SCALES[scale.value], preferredSystem);
     updateSelection();
   });
-  boxSystem.addEventListener('change', () => updateBoard());
+  boxSystem.addEventListener('change', () => {
+    preferredSystem = boxSystem.value;
+    updateBoard();
+  });
   boxControls.addEventListener('change', ({ target }) => {
     updateBoard(target.checked ? Number(target.value) : undefined);
   });
@@ -304,9 +304,9 @@
   new ResizeObserver(updateScrollHint).observe(board);
 
   tempo.value = presets[scaleId].bpm;
-  pentatonicBoxes.innerHTML = boxOptions('pentatonic');
-  threeNoteBoxes.innerHTML = boxOptions('3nps');
-  setDefaultBoxSystem();
+  pentatonicBoxes.innerHTML = boxOptions('pentatonic', true);
+  threeNoteBoxes.innerHTML = boxOptions('3nps', true);
+  syncBoxSystem(boxSystem, SCALES[scaleId], preferredSystem);
   updateTempo();
   updateVolume();
   updateSelection();

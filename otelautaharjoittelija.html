@@ -128,8 +128,10 @@
 <script>
 (function () {
   const { CHROM, SCALES, noteName, scaleNotes, scaleTriads, triadGrips, selectionFromURL, selectionHref,
-    renderBoard, BOX_FRETS, defaultBoxSystem, fingeringBoxes, boxOptions, revealPositions } = fretboard;
+    renderBoard, BOX_FRETS, supportsThreeNoteBoxes, syncBoxSystem, fingeringBoxes, boxOptions,
+    revealPositions } = fretboard;
   let { rootPC, scaleId } = selectionFromURL(7, 'mp');
+  let preferredSystem = null;
   let showChords = false;
   let chords, chordIndex = 0, gripIndex = 0;
   const board = document.getElementById('board');
@@ -161,10 +163,6 @@
 
   function updateScrollHint() {
     scrollHint.hidden = board.scrollWidth <= board.clientWidth;
-  }
-
-  function setDefaultBoxSystem() {
-    boxSystem.value = defaultBoxSystem(SCALES[scaleId]);
   }
 
   function updateChordChoices() {
@@ -231,10 +229,8 @@
     const allIv = scaleNotes(sc);
     const system = boxSystem.value;
     const threeNotes = system === '3nps';
-    const unavailable = threeNotes && defaultBoxSystem(sc) !== '3nps';
     const automatic = fretCountSelect.value === 'auto';
-    const autoFretCount = BOX_FRETS[unavailable ? 'pentatonic' : system];
-    const fretCount = automatic ? autoFretCount : Number(fretCountSelect.value);
+    const fretCount = automatic ? BOX_FRETS[system] : Number(fretCountSelect.value);
 
     rootButtons.forEach((button, pc) => button.setAttribute('aria-pressed', pc === rootPC));
     scaleButtons.forEach(button => button.setAttribute('aria-pressed', button.dataset.scale === scaleId));
@@ -246,20 +242,19 @@
 
     pentatonicBoxes.hidden = threeNotes;
     threeNoteBoxes.hidden = !threeNotes;
-    boxControls.hidden = unavailable;
-    let help = 'Voit näyttää useita bokseja kerralla. Boksi 1 alkaa toonikalta paksuimmalla E-kielellä.';
-    if (unavailable) {
-      help = 'Valitse seitsemänsävelinen moodi, esimerkiksi doorinen tai jooninen, niin saat 3NPS-boksit näkyviin.';
-    } else if (threeNotes) {
-      help = 'Soita kolme peräkkäistä asteikon säveltä jokaiselta kieleltä. Boksi 1 alkaa toonikalta paksuimmalla E-kielellä, muut asteikon seuraavilta säveliltä.';
-    }
+    let help = threeNotes
+      ? 'Soita kolme peräkkäistä asteikon säveltä jokaiselta kieleltä. Boksi 1 alkaa toonikalta paksuimmalla E-kielellä, muut asteikon seuraavilta säveliltä.'
+      : 'Voit näyttää useita bokseja kerralla. Boksi 1 alkaa toonikalta paksuimmalla E-kielellä.';
     const activeOptions = threeNotes ? threeNoteBoxes : pentatonicBoxes;
-    const numbers = unavailable ? [] : [...activeOptions.querySelectorAll('input:checked')].map(input => Number(input.value));
+    const numbers = [...activeOptions.querySelectorAll('input:checked')].map(input => Number(input.value));
     const boxes = fingeringBoxes(rootPC, sc, system, numbers, automatic ? undefined : fretCount);
     boxNotesOnly.disabled = !boxes.some(box => box.positions.length);
     const onlyBoxNotes = boxNotesOnly.checked && !boxNotesOnly.disabled;
-    if (boxNotesOnly.disabled && !unavailable) {
+    if (boxNotesOnly.disabled) {
       help += ' Valitse boksi, jos haluat rajata näkyvät sävelet sen sisälle.';
+    }
+    if (!supportsThreeNoteBoxes(sc)) {
+      help += ' 3NPS-sormitus on käytössä seitsemänsävelisissä moodeissa, esimerkiksi doorisessa tai joonisessa.';
     }
     if (boxHelp.textContent !== help) boxHelp.textContent = help;
     const names = allIv.map(([iv, deg]) => noteName(rootPC, iv, deg));
@@ -303,7 +298,7 @@
     button.addEventListener('click', () => {
       if (scaleId === button.dataset.scale) return;
       scaleId = button.dataset.scale;
-      setDefaultBoxSystem();
+      syncBoxSystem(boxSystem, SCALES[scaleId], preferredSystem);
       updateChordChoices();
       render();
     });
@@ -311,7 +306,7 @@
 
   pentatonicBoxes.innerHTML = boxOptions('pentatonic');
   threeNoteBoxes.innerHTML = boxOptions('3nps');
-  setDefaultBoxSystem();
+  syncBoxSystem(boxSystem, SCALES[scaleId], preferredSystem);
   scaleView.addEventListener('click', () => setView(false));
   chordView.addEventListener('click', () => setView(true));
   gripSelect.addEventListener('change', () => {
@@ -319,7 +314,10 @@
     render();
   });
   fretCountSelect.addEventListener('change', () => render());
-  boxSystem.addEventListener('change', () => render());
+  boxSystem.addEventListener('change', () => {
+    preferredSystem = boxSystem.value;
+    render();
+  });
   boxNotesOnly.addEventListener('change', () => render());
   boxControls.addEventListener('change', ({ target }) => {
     render(target.checked ? Number(target.value) : undefined);

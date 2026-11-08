@@ -122,8 +122,16 @@ const fretboard = (() => {
     return complete.length ? complete : positions;
   }
 
-  function defaultBoxSystem(scale) {
-    return scaleNotes(scale).length === DIATONIC_DEGREES ? '3nps' : 'pentatonic';
+  function supportsThreeNoteBoxes(scale) {
+    return scaleNotes(scale).length === DIATONIC_DEGREES;
+  }
+
+  // Pidä käyttäjän valitsema sormitustapa, jos se sopii asteikkoon.
+  // Ilman omaa valintaa moodit näytetään 3NPS-sormituksina.
+  function syncBoxSystem(select, scale, preferred) {
+    const supported = supportsThreeNoteBoxes(scale);
+    select.querySelector('[value="3nps"]').disabled = !supported;
+    select.value = supported ? preferred ?? '3nps' : 'pentatonic';
   }
 
   function fingeringBoxes(rootPC, scale, system, numbers, fretCount) {
@@ -155,12 +163,12 @@ const fretboard = (() => {
     if (Number.isFinite(nearest)) board.scrollLeft += nearest;
   }
 
-  function boxOptions(system) {
+  function boxOptions(system, checkFirst = false) {
     const count = system === '3nps' ? DIATONIC_DEGREES : MINOR_BOXES.length;
     return Array.from({ length: count }, (_, index) => {
       const number = index + 1;
       return '<label class="box-toggle" data-box="' + number + '"><input type="checkbox" value="' +
-        number + '"' + (index === 0 ? ' checked' : '') + '> Boksi ' + number + '</label>';
+        number + '"' + (checkFirst && index === 0 ? ' checked' : '') + '> Boksi ' + number + '</label>';
     }).join('');
   }
 
@@ -321,6 +329,6 @@ const fretboard = (() => {
   return {
     CHROM, OPEN_PITCHES, PENT_MAJ, SCALES, noteName, scaleNotes, scaleTriads, triadGrips,
     selectionFromURL, selectionHref, renderBoard,
-    BOX_FRETS, defaultBoxSystem, fingeringBoxes, boxOptions, revealPositions
+    BOX_FRETS, supportsThreeNoteBoxes, syncBoxSystem, fingeringBoxes, boxOptions, revealPositions
   };
 })();
