@@ -28,13 +28,14 @@
   }
   a { color: var(--lavender); text-underline-offset: .18em; }
   .site-header { border-bottom: 1px solid #2d2444; }
+  .site-nav, main { max-width: 980px; margin: 0 auto; }
   .site-nav {
-    max-width: 900px; margin: 0 auto; padding: 14px 18px;
+    padding: 14px 18px;
     display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 18px;
   }
   .brand { color: var(--text); font-weight: 750; text-decoration: none; }
   .brand span { color: var(--lavender); }
-  main { max-width: 900px; margin: 0 auto; padding: 32px 18px 0; }
+  main { padding: 32px 18px 0; }
   h1 { margin: 0 0 12px; font-size: clamp(26px, 5vw, 38px); line-height: 1.2; }
   .tools-note { color: var(--muted); font-size: 14px; max-width: 720px; }
   /* Harjoittelijan tyylit */
@@ -48,6 +49,7 @@
     min-height: 38px; padding: 7px 12px; font: inherit; font-size: 14px; cursor: pointer;
   }
   button:hover { background: #2d2444; }
+  select { max-width: 100%; }
   button[aria-pressed="true"] { background: var(--purple-dark); border-color: var(--lavender); font-weight: 700; }
   #roots button[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: #1a1430; }
   [data-box="1"] { --box-color: var(--box); }
@@ -76,10 +78,11 @@
   #info .hint { color: var(--muted); font-size: 12.5px; display: block; margin-top: 4px; }
   #info .box-summary { display: flex; flex-wrap: wrap; gap: 2px 14px; margin-top: 4px; }
   #info .box-range { color: var(--box-color); }
-  .scroll-hint { display: none; margin: 0 0 6px; }
+  .scroll-hint { margin: 0 0 6px; }
   #board { overflow-x: auto; }
-  #board svg { max-width: 100%; height: auto; display: block; min-width: 680px; }
+  #board svg { width: 100%; height: auto; display: block; }
   .box-band { fill: var(--box-color); fill-opacity: .13; stroke: var(--box-color); stroke-width: 1.5; }
+  .box-partial .box-band { stroke-dasharray: 4 3; }
   .box-number { fill: var(--box-color); font-size: 14px; font-weight: 700; text-anchor: middle; }
   .legend { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 12px; font-size: 13px; color: var(--muted); }
   .swatch { display: inline-block; width: 14px; height: 14px; border-radius: 50%; margin-right: 6px; vertical-align: -2px; }
@@ -88,7 +91,6 @@
     text-align: center; color: var(--muted); font-size: 13px;
   }
   @media (max-width: 716px) {
-    .scroll-hint { display: block; }
     .group-label { width: 100%; }
     button, select, .box-toggle { min-height: 44px; }
   }
@@ -131,6 +133,17 @@
       <button data-scale="mixolydian">Miksolyydinen</button>
     </div>
     <div class="group">
+      <label class="group-label" for="fret-count">Nauhojen määrä</label>
+      <select id="fret-count">
+        <option value="auto">Automaattinen (15 tai 17 nauhaa)</option>
+        <option value="12">12 nauhaa · yksi oktaavi</option>
+        <option value="19">19 nauhaa · klassinen kitara</option>
+        <option value="20">20 nauhaa · teräskielinen akustinen</option>
+        <option value="22">22 nauhaa · sähkökitara</option>
+        <option value="24">24 nauhaa · kaksi oktaavia</option>
+      </select>
+    </div>
+    <div class="group">
       <label class="group-label" for="box-system">Sormitustapa</label>
       <select id="box-system" aria-describedby="box-help">
         <option value="pentatonic">Pentatoniset boksit</option>
@@ -146,7 +159,7 @@
   </div>
 
   <div id="info" aria-live="polite" aria-atomic="true"></div>
-  <p class="tools-note scroll-hint">Näet lisää nauhoja vierittämällä otelautaa sivusuunnassa.</p>
+  <p class="tools-note scroll-hint" id="scroll-hint" hidden>Näet lisää nauhoja vierittämällä otelautaa sivusuunnassa.</p>
   <div id="board" role="region" aria-label="Kitaran otelauta" tabindex="0"></div>
 
   <div class="legend">
@@ -210,6 +223,8 @@
 
   let rootPC = 7, scaleId = 'mp';
   const board = document.getElementById('board');
+  const fretCountSelect = document.getElementById('fret-count');
+  const scrollHint = document.getElementById('scroll-hint');
   const boxSystem = document.getElementById('box-system');
   const boxControls = document.getElementById('box-controls');
   const boxHelp = document.getElementById('box-help');
@@ -271,6 +286,54 @@
     };
   }
 
+  function getVisibleBoxPositions(box, fretCount) {
+    const positions = [];
+    const firstShift = Math.ceil(-box.end / 12) * 12;
+    for (let shift = firstShift; box.start + shift <= fretCount; shift += 12) {
+      const strings = box.strings.map(frets => frets
+        .map(fret => fret + shift)
+        .filter(fret => fret >= 0 && fret <= fretCount));
+      const visibleFrets = strings.flat();
+      positions.push({
+        strings,
+        start: Math.min(...visibleFrets),
+        end: Math.max(...visibleFrets),
+        partial: box.start + shift < 0 || box.end + shift > fretCount
+      });
+    }
+    // Näytä reunoille jäävät osat, jos kokonainen boksi ei mahdu näkymään.
+    const complete = positions.filter(position => !position.partial);
+    return complete.length ? complete : positions;
+  }
+
+  function formatBoxRange({ start, end, partial }) {
+    let range = 'nauhat ' + start + '–' + end;
+    if (start === end) range = 'nauha ' + start;
+    if (start === 0) range = end === 0 ? 'vapaat kielet' : 'vapaista kielistä nauhalle ' + end;
+    return range + (partial ? ' (osa)' : '');
+  }
+
+  function updateScrollHint() {
+    scrollHint.hidden = board.scrollWidth <= board.clientWidth;
+  }
+
+  function revealBox(number) {
+    const viewport = board.getBoundingClientRect();
+    const highlights = board.querySelectorAll('.box-highlight[data-box="' + number + '"]');
+    let nearest = Infinity;
+    highlights.forEach(highlight => {
+      const bounds = highlight.getBoundingClientRect();
+      let offset = 0;
+      if (bounds.left < viewport.left) {
+        offset = bounds.left - viewport.left - 8;
+      } else if (bounds.right > viewport.right) {
+        offset = bounds.right - viewport.right + 8;
+      }
+      if (Math.abs(offset) < Math.abs(nearest)) nearest = offset;
+    });
+    if (Number.isFinite(nearest)) board.scrollLeft += nearest;
+  }
+
   function boxOptions(count) {
     return Array.from({ length: count }, (_, index) => {
       const number = index + 1;
@@ -286,6 +349,9 @@
     const intervals = allIv.map(([interval]) => interval);
     const threeNotes = boxSystem.value === '3nps';
     const unavailable = threeNotes && intervals.length !== DIATONIC_DEGREES;
+    const automatic = fretCountSelect.value === 'auto';
+    const autoFretCount = threeNotes && !unavailable ? THREE_NOTE_FRETS : PENTATONIC_FRETS;
+    const fretCount = automatic ? autoFretCount : Number(fretCountSelect.value);
     pentatonicBoxes.hidden = threeNotes;
     threeNoteBoxes.hidden = !threeNotes;
     boxControls.hidden = unavailable;
@@ -302,12 +368,13 @@
       const number = Number(input.value);
       const index = number - 1;
       const box = threeNotes ? getThreeNoteBox(index, intervals) : getPentatonicBox(index, sc.base === PENT_MAJ);
-      return { number, ...box };
+      const positions = automatic ? [box] : getVisibleBoxPositions(box, fretCount);
+      return { number, positions };
     });
-    const fretCount = threeNotes && !unavailable ? THREE_NOTE_FRETS : PENTATONIC_FRETS;
     const fretboardEnd = wireX(fretCount);
     const bridgeX = fretboardEnd + 48;
     const width = bridgeX + 28;
+    const minWidth = automatic ? 680 : Math.ceil(width * 0.64);
     const neckTop = PAD_T - 14;
     const neckBottom = stringY(OPEN_PITCHES.length - 1) + 14;
     const neckHeight = neckBottom - neckTop;
@@ -321,8 +388,8 @@
     rootButtons.forEach((button, pc) => button.setAttribute('aria-pressed', pc === rootPC));
     scaleButtons.forEach(button => button.setAttribute('aria-pressed', button.dataset.scale === scaleId));
 
-    let s = '<svg viewBox="0 0 ' + width + ' ' + height + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' +
-      rootName + ' ' + sc.name + '. Vapaat kielet satulan vasemmalla puolella.">';
+    let s = '<svg viewBox="0 0 ' + width + ' ' + height + '" style="min-width:' + minWidth + 'px" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' +
+      rootName + ' ' + sc.name + '. ' + fretCount + ' nauhaa. Vapaat kielet satulan vasemmalla puolella.">';
     s += '<rect x="' + OPEN_LEFT + '" y="' + neckTop + '" width="' + (NUT_X - OPEN_LEFT) + '" height="' + neckHeight + '" rx="6" fill="#2a2338"/>';
     s += '<rect x="' + NUT_X + '" y="' + neckTop + '" width="' + (fretboardEnd - NUT_X) + '" height="' + neckHeight + '" fill="#231a12"/>';
     s += '<rect x="' + fretboardEnd + '" y="' + neckTop + '" width="' + (width - fretboardEnd - 4) + '" height="' + neckHeight + '" rx="8" fill="#32251e"/>';
@@ -332,26 +399,32 @@
     s += '<rect x="' + (bridgeX - 11) + '" y="' + (neckTop + 3) + '" width="22" height="' + (neckHeight - 6) + '" rx="7" fill="#49434f" stroke="#a49b9d"/>';
     s += '<rect x="' + (bridgeX - 4) + '" y="' + (neckTop + 7) + '" width="3" height="' + (neckHeight - 14) + '" rx="1.5" fill="#d8cbb6"/>';
     const midY = (neckTop + neckBottom) / 2;
-    [3, 5, 7, 9, 15, 17].filter(f => f <= fretCount).forEach(f =>
+    [3, 5, 7, 9, 15, 17, 19, 21].filter(f => f <= fretCount).forEach(f =>
       s += '<circle cx="' + cellCX(f) + '" cy="' + midY + '" r="5.5" fill="#7a6550"/>');
-    s += '<circle cx="' + cellCX(12) + '" cy="' + (midY - SS) + '" r="5.5" fill="#7a6550"/>';
-    s += '<circle cx="' + cellCX(12) + '" cy="' + (midY + SS) + '" r="5.5" fill="#7a6550"/>';
+    for (let fret = 12; fret <= fretCount; fret += 12) {
+      s += '<circle cx="' + cellCX(fret) + '" cy="' + (midY - SS) + '" r="5.5" fill="#7a6550"/>';
+      s += '<circle cx="' + cellCX(fret) + '" cy="' + (midY + SS) + '" r="5.5" fill="#7a6550"/>';
+    }
     s += '<text x="' + openCenter + '" y="' + (height - 6) + '" font-size="12" fill="#a89fc4" text-anchor="middle">Vapaa</text>';
     s += '<text x="' + NUT_X + '" y="12" font-size="12" fill="#a89fc4" text-anchor="middle">Satula</text>';
     s += '<text x="' + bridgeX + '" y="' + (height - 6) + '" font-size="12" fill="#a89fc4" text-anchor="middle">Talla</text>';
     for (let f = 1; f <= fretCount; f++)
       s += '<text x="' + cellCX(f) + '" y="' + (height - 6) + '" font-size="11" fill="#a89fc4" text-anchor="middle">' + f + '</text>';
-    boxes.forEach(box => {
-      s += '<g class="box-highlight" data-box="' + box.number + '" aria-hidden="true">';
-      const topFrets = box.strings[0];
-      const labelX = (cellCX(topFrets[0]) + cellCX(topFrets.at(-1))) / 2;
-      s += '<text class="box-number" x="' + labelX + '" y="12">' + box.number + '</text>';
-      box.strings.forEach((frets, i) => {
-        const left = cellCX(frets[0]) - 16;
-        const bandWidth = cellCX(frets.at(-1)) - cellCX(frets[0]) + 32;
-        s += '<rect class="box-band" x="' + left + '" y="' + (stringY(i) - 14) + '" width="' + bandWidth + '" height="28" rx="14"/>';
+    boxes.forEach(({ number, positions }) => {
+      positions.forEach(position => {
+        const classes = position.partial ? 'box-highlight box-partial' : 'box-highlight';
+        s += '<g class="' + classes + '" data-box="' + number + '" aria-hidden="true">';
+        const topFrets = position.strings.find(frets => frets.length);
+        const labelX = (cellCX(topFrets[0]) + cellCX(topFrets.at(-1))) / 2;
+        s += '<text class="box-number" x="' + labelX + '" y="12">' + number + '</text>';
+        position.strings.forEach((frets, i) => {
+          if (!frets.length) return;
+          const left = cellCX(frets[0]) - 16;
+          const bandWidth = cellCX(frets.at(-1)) - cellCX(frets[0]) + 32;
+          s += '<rect class="box-band" x="' + left + '" y="' + (stringY(i) - 14) + '" width="' + bandWidth + '" height="28" rx="14"/>';
+        });
+        s += '</g>';
       });
-      s += '</g>';
     });
     OPEN_PITCHES.forEach((_, i) => {
       const th = 1 + (i * 0.45);
@@ -375,18 +448,13 @@
     });
     s += '</svg>';
     board.innerHTML = s;
+    updateScrollHint();
     const boxToReveal = revealNumber ?? (boxes.length === 1 ? boxes[0].number : null);
-    if (boxToReveal !== null) {
-      const highlight = board.querySelector('.box-highlight[data-box="' + boxToReveal + '"]').getBoundingClientRect();
-      const viewport = board.getBoundingClientRect();
-      if (highlight.left < viewport.left || highlight.right > viewport.right) {
-        board.scrollLeft += highlight.left - viewport.left - 8;
-      }
-    }
+    if (boxToReveal !== null) revealBox(boxToReveal);
 
-    const boxRanges = boxes.map(box => {
-      const range = box.start === 0 ? 'vapaista kielistä nauhalle ' + box.end : 'nauhat ' + box.start + '–' + box.end;
-      return '<span class="box-range" data-box="' + box.number + '">Boksi ' + box.number + ' · ' + range + '</span>';
+    const boxRanges = boxes.map(({ number, positions }) => {
+      const ranges = positions.map(formatBoxRange).join(', ');
+      return '<span class="box-range" data-box="' + number + '">Boksi ' + number + ' · ' + ranges + '</span>';
     });
     document.getElementById('info').innerHTML =
       '<span class="scale-name">' + rootName + '-' + sc.name + '</span>' +
@@ -418,10 +486,12 @@
 
   pentatonicBoxes.innerHTML = boxOptions(MINOR_BOXES.length);
   threeNoteBoxes.innerHTML = boxOptions(DIATONIC_DEGREES);
+  fretCountSelect.addEventListener('change', () => render());
   boxSystem.addEventListener('change', () => render());
   boxControls.addEventListener('change', ({ target }) => {
     render(target.checked ? Number(target.value) : undefined);
   });
+  new ResizeObserver(updateScrollHint).observe(board);
   render();
 })();
 </script>
