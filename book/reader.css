@@ -108,3 +108,68 @@ thead th { background: var(--panel); }
 @media (max-width: 380px) {
   th, td { padding-inline: .3rem; font-size: .875rem; }
 }
+
+/* Tulostus: vaalea paperiversio. Kaaviot käyttävät samoja väri-
+   muuttujia, joten muuttujien vaihto riittää useimmille kuville. */
+@page {
+  size: A4;
+  margin: 16mm 16mm 18mm;
+  @bottom-right { content: counter(page); font: 8pt system-ui, sans-serif; color: #6b6478; }
+}
+@media print {
+  :root {
+    color-scheme: light;
+    --bg: #fff;
+    --panel: #fff;
+    --text: #1b1726;
+    --muted: #575067;
+    --accent: #4a33c4;
+    --gold: #b36a00;
+    --line: #cbc4d8;
+    font-size: 10pt;
+  }
+  body { background: #fff; line-height: 1.5; }
+  .site-nav, .site-footer, .primary-link, .contents, audio { display: none; }
+  .frame { width: auto; margin: 0; }
+  .hero { background: none; border: 0; padding-block: 0 .5rem; }
+  .reading-layout { display: block; padding: 0; }
+  h1 { font-size: 26pt; }
+  h2 { font-size: 16pt; }
+  h3 { font-size: 12pt; }
+  .lead { font-size: 11.5pt; }
+  .chapter + .chapter { margin-top: 2rem; padding-top: 1rem; }
+  a { color: var(--accent); text-decoration: none; }
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    color: var(--muted);
+    font-size: .85em;
+    overflow-wrap: anywhere;
+  }
+  thead th { border-bottom: 1.5px solid var(--text); }
+
+  /* Kuunteluesimerkki: soittimen tilalle viittaus verkkoversioon. */
+  .listen { border-inline-start: .22rem solid var(--accent); }
+  .listen figcaption::after {
+    content: "Ääniesimerkki on oppaan verkkoversiossa.";
+    display: block;
+    margin-top: .3rem;
+    color: var(--muted);
+    font-size: .9em;
+  }
+
+  /* Vastaukset ja lisätehtävät näkyviin. */
+  details { margin-top: .6rem; padding-top: .4rem; border-top: 1px dashed var(--line); }
+  details:not([open])::details-content { content-visibility: visible; }
+  summary { list-style: none; color: var(--muted); font-size: .9em; font-weight: 700; cursor: auto; }
+  summary::-webkit-details-marker { display: none; }
+
+  /* Pidä otsikot ja kuvat ehjinä. */
+  h2, h3, .chapter-number, .part-number, caption, figcaption, .shape-label, summary { break-after: avoid; }
+  table, figure, .note, .shape-set, .shape-grid, .chord-diagram, .tab, svg { break-inside: avoid; }
+  p, li { orphans: 3; widows: 3; }
+
+  /* Sivukohtaisten kaavioiden kiinteät värit. */
+  svg .fifths-tonic { fill: #e4ddff; }
+  .form-map li.ending { border-top-color: #1f8f73; }
+  .fret-map .tonic { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

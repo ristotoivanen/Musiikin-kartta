@@ -1,3 +1,3 @@
 # Kuvat
 
-Tähän kansioon tulevat kirjan kuvat, infografiikat ja kaaviot.
+Tähän kansioon tulevat oppaan kuvat, infografiikat ja kaaviot.

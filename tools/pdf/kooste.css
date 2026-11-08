@@ -1,0 +1,71 @@
+/* Koko oppaan PDF-kooste. rakenna-pdf.py lisää tämän reader.css:n ja
+   osien omien tyylien jälkeen. Tulostuksen perusasetukset ovat
+   reader.css:n @media print -lohkossa. */
+
+@page {
+  @bottom-left { content: "Musiikin kartta"; font: 8pt system-ui, sans-serif; color: #6b6478; }
+}
+@page :first {
+  @bottom-left { content: none; }
+  @bottom-right { content: none; }
+}
+
+/* Kansi */
+.cover {
+  display: flex;
+  flex-direction: column;
+  min-height: 255mm;
+  padding-top: 55mm;
+  break-after: page;
+}
+.cover .kicker {
+  margin: 0 0 .6rem;
+  color: var(--gold);
+  font-size: 10pt;
+  font-weight: 750;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+.cover h1 { max-width: none; font-size: 46pt; }
+.cover h1 span { color: var(--accent); }
+.cover .tagline { max-width: 30em; color: var(--muted); font-size: 14pt; line-height: 1.4; }
+.cover-meta {
+  margin-top: auto;
+  padding-top: .8rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+}
+.cover-meta p { margin-block: .25rem; }
+.cover a::after { content: none; }
+
+/* Sisällysluettelo */
+.book-toc { break-after: page; }
+.book-toc h1 { margin-bottom: 1.2rem; font-size: 22pt; }
+.toc-parts, .toc-chapters { margin: 0; padding: 0; list-style: none; }
+.toc-parts > li { margin-top: 1rem; break-inside: avoid; }
+.toc-row { display: flex; align-items: baseline; gap: .45rem; padding-block: .12rem; }
+.toc-row a { color: var(--text); }
+.toc-row .dots { flex: 1; border-bottom: 1px dotted var(--line); }
+.toc-page { min-width: 1.6rem; text-align: right; font-variant-numeric: tabular-nums; }
+.toc-part > .toc-row { font-size: 11.5pt; font-weight: 700; }
+.toc-part-label { color: var(--gold); }
+.toc-chapters { margin-top: .2rem; }
+.toc-chapters .toc-row { padding-left: 1.2rem; }
+.toc-num { display: inline-block; min-width: 1.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.toc-note {
+  margin-top: 2rem;
+  padding-top: .8rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 9.5pt;
+}
+
+/* Osat ja liitteet alkavat omalta sivultaan. */
+.part { break-before: page; }
+.part > .hero { margin-bottom: .5rem; }
+
+/* Kuunteluesimerkeissä on rakennusvaiheessa lisätty linkki, joten
+   reader.css:n yleistä huomautusta ei tarvita. */
+.listen figcaption::after { content: none; }
+.listen-link { margin: .35rem 0 0; color: var(--muted); font-size: .9em; }
+.listen-link a::after { content: none; }
