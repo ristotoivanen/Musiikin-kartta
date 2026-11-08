@@ -34,6 +34,16 @@
   .backing-chords { color: var(--lavender); font-weight: 700; }
   .backing-cue { color: var(--gold); }
   .backing-boxes { margin: 0 0 12px; }
+  .backing-chords .is-playing { color: var(--gold); }
+  .chord-charts { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chord-chart {
+    margin: 0; padding: 6px 8px 4px; text-align: center;
+    border: 1px solid #453854; border-radius: 8px;
+  }
+  .chord-chart figcaption { color: var(--lavender); font-size: 14px; font-weight: 700; }
+  .chord-chart svg { display: block; width: 104px; height: auto; }
+  .chord-chart.is-playing { background: #2d2444; border-color: var(--gold); }
+  .chord-chart.is-playing figcaption { color: var(--gold); }
   .focus-note { fill: none; stroke: var(--box); stroke-width: 2; }
   .focus-swatch { border: 2px solid var(--box); }
   .box-swatch { border-radius: 5px; border: 1.5px solid var(--box-color); background: rgba(117, 229, 198, .13); }
@@ -91,6 +101,14 @@
   </section>
 
   <details class="advanced-options backing-boxes">
+    <summary>Sointujen otteet <span class="advanced-caption" id="chord-summary"></span></summary>
+    <div class="advanced-fields">
+      <div class="chord-charts" id="chord-charts"></div>
+      <p class="tools-note">Otteet luetaan paksusta E-kielestä ohueen e-kieleen. Valkoreunainen piste on soinnun perussävel, × jätetään soittamatta ja ○ soitetaan vapaana. Kauttaviivasoinnussa basso soittaa viivan jälkeisen sävelen. Soiva sointu korostuu, kun tausta on käynnissä.</p>
+    </div>
+  </details>
+
+  <details class="advanced-options backing-boxes">
     <summary>Sormitusboksit <span class="advanced-caption" id="box-summary"></span></summary>
     <div class="advanced-fields">
       <div class="group">
@@ -137,7 +155,8 @@
 <script>
 (function () {
   const { CHROM, SCALES, noteName, scaleNotes, selectionFromURL, selectionHref, renderBoard,
-    BOX_FRETS, syncBoxSystem, fingeringBoxes, boxOptions, revealPositions } = fretboard;
+    BOX_FRETS, syncBoxSystem, fingeringBoxes, boxOptions, revealPositions,
+    chordGrip, renderChordDiagram } = fretboard;
   const { presets, makeScore, renderLoop } = backingTrack;
   const root = document.getElementById('backing-root');
   const scale = document.getElementById('backing-scale');
@@ -156,6 +175,9 @@
   const boxNotesOnly = document.getElementById('box-notes-only');
   const pentatonicBoxes = document.getElementById('pentatonic-boxes');
   const threeNoteBoxes = document.getElementById('three-note-boxes');
+  const chordLoop = document.getElementById('chord-loop');
+  const chordSummary = document.getElementById('chord-summary');
+  const chordCharts = document.getElementById('chord-charts');
   const { rootPC, scaleId } = selectionFromURL(9, 'dorian');
 
   CHROM.forEach((name, index) => root.add(new Option(name, index)));
@@ -193,6 +215,52 @@
     }
     play.textContent = 'Soita tausta';
     status.textContent = '';
+    highlightBar(-1);
+  }
+
+  function highlightBar(index) {
+    [...chordLoop.children].forEach((bar, i) => bar.classList.toggle('is-playing', i === index));
+    const name = score?.bars[index]?.name;
+    [...chordCharts.children].forEach(chart => chart.classList.toggle('is-playing', chart.dataset.chord === name));
+  }
+
+  // Seuraa toistokohtaa ja korosta tahti, joka on parhaillaan soimassa.
+  function followBars(request, duration, barCount) {
+    const started = audio.currentTime + (audio.outputLatency || 0);
+    let current = -1;
+    const tick = () => {
+      if (playback !== request) return;
+      const elapsed = Math.max(0, audio.currentTime - started) % duration;
+      const index = Math.floor(elapsed / (duration / barCount));
+      if (index !== current) {
+        current = index;
+        highlightBar(index);
+      }
+      requestAnimationFrame(tick);
+    };
+    tick();
+  }
+
+  function renderChords(selectedRoot) {
+    chordLoop.replaceChildren('| ', ...score.bars.flatMap((bar, index) => {
+      const span = document.createElement('span');
+      span.textContent = bar.name;
+      return index ? [' | ', span] : [span];
+    }), ' |');
+    const chords = [...new Map(score.bars.map(bar => [bar.name, bar])).values()];
+    chordSummary.textContent = chords.map(({ name }) => name).join(' · ');
+    chordCharts.replaceChildren(...chords.map(bar => {
+      const chart = document.createElement('figure');
+      const caption = document.createElement('figcaption');
+      const chordRoot = (selectedRoot + bar.root) % 12;
+      const grip = chordGrip(chordRoot, bar.quality);
+      chart.className = 'chord-chart';
+      chart.dataset.chord = bar.name;
+      caption.textContent = bar.name;
+      chart.append(caption);
+      if (grip) chart.insertAdjacentHTML('beforeend', renderChordDiagram(chordRoot, grip, bar.chord));
+      return chart;
+    }));
   }
 
   async function startPlayback() {
@@ -229,6 +297,7 @@
       request.source = source;
       request.gain = gain;
       status.textContent = 'Tausta soi toistolla.';
+      followBars(request, buffer.duration, selectedScore.bars.length);
     } catch {
       if (playback !== request) return;
       stopPlayback();
@@ -273,7 +342,7 @@
     document.getElementById('selection-name').textContent = CHROM[selectedRoot] + '-' + sc.name;
     document.getElementById('style-name').textContent = preset.style;
     document.getElementById('style-context').textContent = preset.context;
-    document.getElementById('chord-loop').textContent = score.bars.map(bar => bar.name).join(' – ');
+    renderChords(selectedRoot);
     document.getElementById('scale-notes').textContent = noteNames.join(' – ');
     document.getElementById('playing-cue').textContent = preset.cue + ' Etsi otelaudalta ' + cueNote + ' (' + preset.degree + ').';
     trainerLink.href = selectionHref('otelautaharjoittelija.html', selectedRoot, selectedScale);

@@ -1,195 +1,669 @@
 const backingTrack = (() => {
+  // Jokaisen moodin tausta edustaa musiikkisuuntaa, jossa moodi on tyypillinen.
+  // Tahti merkitään asteella ja sointutyypillä: 5 voimasointu, 7 septimisointu ja
+  // 9 nonisointu. Pelkkä aste on kolmisointu. Pentatonisten asteikkojen soinnut
+  // rakennetaan seitsemänsävelisestä emoasteikosta.
   const presets = {
     mp: {
-      style: 'Molliblues', bpm: 84, groove: 'shuffle', bars: [1, 1, 1, 1], seventh: true,
-      context: 'Mollipentatoninen on blues- ja rocksoolojen perusasteikko. Tässä yksi molliseptimisointu jättää tilaa lyhyille fraaseille.',
+      style: 'Molliblues', bpm: 74, groove: 'minorBlues', harmony: 'aeolian',
+      bars: ['1:7', '1:7', '1:7', '1:7', '4:7', '4:7', '1:7', '1:7', '5:7', '4:7', '1:7', '5:7'],
+      context: 'Mollipentatoninen on bluesin ja rockin sooloasteikko. Tausta on hidas 12 tahdin molliblues, jossa urut soittavat toonikan sekä neljännen ja viidennen asteen molliseptimisointuja.',
       degree: '♭3', cue: 'Soita pieni fraasi alennetulta kolmannelta asteelta toonikaan.'
     },
     dorian: {
-      style: 'Funk', bpm: 100, groove: 'funk', bars: [1, 1, 4, 1],
-      context: 'Doorista kuulee funkissa ja modaalisessa jazzissa. Synkopoitu komppi vaihtaa mollitoonikasta neljännen asteen duurisointuun.',
+      style: 'Funk', bpm: 100, groove: 'funk',
+      bars: ['1:7', '4:9', '1:7', '4:9'],
+      context: 'Doorinen on funkin ja modaalisen jazzin moodi. Komppi vuorottelee molliseptimisoinnun ja neljännen asteen nonisoinnun välillä samaan tapaan kuin Santanan Oye Como Vassa.',
       degree: '6', cue: 'Kuuntele luonnollista kuudetta astetta neljännen asteen soinnun aikana.'
     },
     phrygian: {
-      style: 'Metalliriffi', bpm: 110, groove: 'metal', bars: [1, 1, 2, 1],
-      context: 'Fryygisen alennettu toinen aste on tuttu metalliriffeistä. Sointu liikahtaa puolisävelaskelen toonikan yläpuolelle ja palaa takaisin.',
+      style: 'Metalliriffi', bpm: 112, groove: 'metal',
+      bars: ['1:5', '1:5', '2:5', '1:5'],
+      context: 'Fryygisen alennettu toinen aste on metallin tavaramerkki. Laukkaava riffi soi voimasoinnuilla toonikalla ja nousee välillä puolisävelaskeleen ylöspäin.',
       degree: '♭2', cue: 'Vuorottele alennettua toista astetta ja toonikaa.'
     },
     aeolian: {
-      style: 'Mollirock', bpm: 92, groove: 'rock', bars: [1, 6, 7, 1],
-      context: 'Aiolinen eli luonnollinen molli on yleinen rockissa ja popissa. Tässä mollisointua seuraavat alennetun kuudennen ja seitsemännen asteen duurisoinnut.',
+      style: 'Mollirock', bpm: 92, groove: 'rock',
+      bars: ['1', '6', '7', '1'],
+      context: 'Aiolinen eli luonnollinen molli on rockin ja popin perusmolli. Kahdeksasosia soittava särökitara kulkee mollitoonikasta alennetun kuudennen ja seitsemännen asteen duurisointuihin.',
       degree: '♭6', cue: 'Soita alennettu kuudes aste toisen tahdin alussa.'
     },
     locrian: {
-      style: 'Jännitteinen riffi', bpm: 78, groove: 'riff', bars: [1, 1, 2, 1], pedal: true, seventh: true,
-      context: 'Lokrinen on kokonaisen kappaleen pohjana harvinainen. Jazzissa sitä voi kokeilla m7♭5-soinnun päällä. Tässä basso pitää toonikan paikallaan.',
+      style: 'Jännitteinen riffi', bpm: 84, groove: 'riff', pedal: true,
+      bars: ['1:5', '1:5', '2:5', '1:5'],
+      context: 'Lokrinen on kokonaisen kappaleen pohjana harvinainen, mutta sen tritonus kuuluu raskaan metallin riffeissä. Basso pitää toonikan paikallaan, kun kitara soittaa alennetun kvintin ja alennetun toisen asteen voimasointuja.',
       degree: '♭5', cue: 'Kuuntele alennetun kvintin jännite toonikaa vasten.'
     },
     majp: {
-      style: 'Country', bpm: 104, groove: 'country', bars: [1, 1, 1, 1],
-      context: 'Duuripentatoninen on tavallinen countryssä ja duurisävyisessä bluesissa. Basson ja sointujen vuorottelu antaa tilaa melodialle.',
+      style: 'Country', bpm: 108, groove: 'country', harmony: 'ionian',
+      bars: ['1', '1', '4', '4', '1', '1', '5', '5'],
+      context: 'Duuripentatoninen on countryn ja duurisävyisen bluesin melodia-asteikko. Basso vuorottelee perussävelen ja kvintin välillä, ja kierto kulkee toonikasta neljännen ja viidennen asteen sointuihin.',
       degree: '6', cue: 'Kokeile päättää fraasi kuudennelta asteelta kvintille.'
     },
     ionian: {
-      style: 'Duuripop', bpm: 104, groove: 'pop', bars: [1, 4, 5, 1],
-      context: 'Jooninen on tavallinen duuriasteikko. Pop-kompissa neljäs ja viides sointu johdattavat takaisin toonikaan.',
-      degree: '7', cue: 'Soita seitsemänneltä asteelta toonikaan kahden viimeisen tahdin vaihteessa.'
+      style: 'Duuripop', bpm: 100, groove: 'pop',
+      bars: ['1', '5', '6', '4'],
+      context: 'Jooninen on tavallinen duuriasteikko. Kierto I–V–vi–IV on popin tunnetuimpia, ja sen kuulee esimerkiksi Beatlesin Let It Bessä.',
+      degree: '7', cue: 'Soita seitsemäs aste toisen tahdin soinnun aikana ja nouse siitä toonikaan.'
     },
     lydian: {
-      style: 'Elokuvamainen säestys', bpm: 76, groove: 'pad', bars: [1, 2, 1, 2], pedal: true,
-      context: 'Lyydinen sopii elokuvamaisiin, leijuviin sävyihin. Toisen asteen duurisointu soi toonikkabasson yllä.',
+      style: 'Elokuvamusiikki', bpm: 76, groove: 'film', pedal: true,
+      bars: ['1:7', '2', '1:7', '2'],
+      context: 'Lyydinen sopii elokuvamaisiin, leijuviin sävyihin, ja sen kuulee esimerkiksi Simpsonien tunnusmusiikissa. Harppu soittaa murtosointuja, ja toisen asteen duurisointu soi toonikkabasson yllä.',
       degree: '♯4', cue: 'Kokeile pitää korotettua neljättä astetta pitkänä basson päällä.'
     },
     mixolydian: {
-      style: 'Bluesrock', bpm: 96, groove: 'shuffle', bars: [1, 7, 4, 1],
-      context: 'Miksolyydisen alennettu seitsemäs aste kuuluu monissa rockin sointukierroissa. Tässä sen duurisoinnusta palataan neljännen asteen kautta toonikaan.',
+      style: 'Klassinen rock', bpm: 100, groove: 'classicRock',
+      bars: ['1', '7', '4', '1'],
+      context: 'Miksolyydisen alennettu seitsemäs aste kuuluu rockin tutuimpiin sointukiertoihin. Kierto toonikasta alennetun seitsemännen ja neljännen asteen kautta takaisin on sama kuin Lynyrd Skynyrdin Sweet Home Alabamassa.',
       degree: '♭7', cue: 'Soita alennettu seitsemäs aste toisen tahdin alussa.'
     }
   };
 
-  // Iskut lasketaan tahdin alusta. Basson toinen luku valitsee soinnun sävelen.
+  // Kuviot luetaan tahdin alusta askel kerrallaan. Suorassa kompissa askel on
+  // kuudestoistaosa, shufflessa kahdeksasosatrioli.
+  // Soinnut ja basso: X korostettu, x tavallinen ja m vaimennettu lyönti,
+  // - jatkaa edellistä ja . on tauko. Basson merkit valitsevat soinnun sävelen:
+  // R perussävel, 3 terssi, 5 kvintti, 7 septimi ja O oktaavi.
+  // Rummut: X korostettu, x tavallinen, g haamulyönti ja o avoin hi-hat.
   const grooves = {
-    shuffle: { voice: 'keys', length: .48, chords: [0, 1.67, 2, 3.67],
-      bass: [[0, 0], [1, 2], [2, 1], [3, 2]], kicks: [0, 2], hatStep: 2 / 3 },
-    funk: { voice: 'pluck', length: .19, chords: [0, .75, 1.5, 2.75, 3.5],
-      bass: [[0, 0], [.75, 0], [1.5, 2], [2, 0], [3.25, 1]], kicks: [0, 1.5, 2.75], hatStep: .5 },
-    metal: { voice: 'grit', length: .24, chords: [0, .5, 1.5, 2, 2.5, 3.25],
-      bass: [[0, 0], [.5, 0], [1.5, 0], [2, 0], [2.5, 0], [3.25, 0]], kicks: [0, .5, 2, 2.5], hatStep: .5 },
-    rock: { voice: 'grit', length: 1.2, chords: [0, 1.5, 2.5],
-      bass: [[0, 0], [1, 0], [2, 2], [3, 0]], kicks: [0, 2, 2.5], hatStep: .5 },
-    riff: { voice: 'grit', length: .38, chords: [0, .75, 2, 3.5],
-      bass: [[0, 0], [.75, 0], [2, 0], [3.5, 0]], kicks: [0, .75, 2], hatStep: 1 },
-    country: { voice: 'pluck', length: .48, chords: [1, 1.5, 3, 3.5],
-      bass: [[0, 0], [2, 2]], kicks: [0, 2], hatStep: .5 },
-    pop: { voice: 'keys', length: .68, chords: [0, 1, 2, 2.5, 3.5],
-      bass: [[0, 0], [1, 0], [2, 2], [3, 0]], kicks: [0, 1, 2, 3], hatStep: .5 },
-    pad: { voice: 'pad', length: 3.98, chords: [0],
-      bass: [[0, 0], [2, 0]], kicks: [0], hatStep: 2, soft: true }
+    minorBlues: {
+      steps: 12, chordVoice: 'organ', center: 62, bassVoice: 'upright', reverb: .2, room: 2,
+      cymbal: 'ride',
+      chords: 'x-----x-----',
+      bass:   'R-R5-57-75-5',
+      kick:   'x.....x.....',
+      snare:  '...x.....x..',
+      hat:    'x.xx.xx.xx.x',
+      fill:   '...x.....gxx'
+    },
+    funk: {
+      steps: 16, chordVoice: 'scratch', center: 67, bassVoice: 'electric', reverb: .08, room: 1,
+      chords: 'X..x..x...x.x.x.',
+      bass:   'R-.R..O.R-5..7O.',
+      kick:   'x..x......x..x..',
+      snare:  '....X..g.g..X..g',
+      hat:    'xxxxxxxxxxxxxxox',
+      fill:   '....X..g.g..XgXX'
+    },
+    metal: {
+      steps: 16, chordVoice: 'heavy', bassVoice: 'electric', bassDrive: 3, reverb: .06, room: 1.2,
+      crash: true,
+      chords: 'X-mmm-mmm-mmm-mm',
+      bass:   'R-RRR-RRR-RRR-RR',
+      kick:   'x.xxx.xxx.xxx.xx',
+      snare:  '....X.......X...',
+      hat:    'x.x.x.x.x.x.x.x.',
+      fill:   '....X.......XXXX'
+    },
+    rock: {
+      steps: 16, chordVoice: 'crunch', center: 60, bassVoice: 'electric', reverb: .1, room: 1.6,
+      crash: true,
+      chords: 'X-x-x-x-X-x-x-x-',
+      bass:   'R-R-R-R-R-R-R-R-',
+      kick:   'x.......x.x.....',
+      snare:  '....X.......X...',
+      hat:    'x.x.x.x.x.x.x.x.',
+      fill:   '....X.......X.XX'
+    },
+    riff: {
+      steps: 16, chordVoice: 'heavy', bassVoice: 'electric', bassDrive: 3, reverb: .1, room: 1.6,
+      crash: true,
+      chords: 'X-----m.m.X---m.',
+      bass:   'R-----R.R.R---R.',
+      kick:   'x.....x.x.x.....',
+      snare:  '........X.......',
+      hat:    'x...x...x...x...',
+      fill:   '........X...XXXX'
+    },
+    country: {
+      steps: 16, chordVoice: 'clean', center: 60, bassVoice: 'upright', reverb: .12, room: 1.5,
+      brushes: true,
+      chords: '....x-x-....x-x-',
+      bass:   'R-------5-------',
+      kick:   'x.......x.......',
+      snare:  'ggggXgggggggXggg',
+      hat:    '',
+      fill:   'ggggXgggggggXgXX'
+    },
+    pop: {
+      steps: 16, chordVoice: 'piano', center: 64, bassVoice: 'electric', reverb: .16, room: 1.8,
+      chords: 'X-x-x-x-X-x-x-x-',
+      bass:   'R---R---R-R-R---',
+      kick:   'x.......x.x.....',
+      snare:  '....X.......X...',
+      hat:    'x.x.x.x.x.x.x.x.',
+      fill:   '....X.......X.XX'
+    },
+    film: {
+      steps: 16, chordVoice: 'pad', center: 60, bassVoice: 'bowed', reverb: .4, room: 3.2,
+      soft: true,
+      chords: 'x---------------',
+      arp: { voice: 'harp', center: 74, order: [0, 1, 2, 3, 4, 3, 2, 1], pattern: 'x.x.x.x.x.x.x.x.' },
+      bass:   'R---------------',
+      kick:   'x.......x.......',
+      snare:  '',
+      hat:    ''
+    },
+    classicRock: {
+      steps: 16, chordVoice: 'crunch', center: 60, bassVoice: 'electric', reverb: .12, room: 1.6,
+      crash: true,
+      chords: 'X-x-x-xx-x-x-x-x',
+      bass:   'R-R-R-RR-R-R-R-R',
+      kick:   'x.....x.x.......',
+      snare:  '....X.......X...',
+      hat:    'x.x.x.x.x.x.x.x.',
+      fill:   '....X.......X.XX'
+    }
   };
 
+  const sawPartials = count => Array.from({ length: count }, (_, index) => 1 / (index + 1));
+
+  // Kielisoittimet syntetisoidaan Karplus–Strong-menetelmällä, muut oskillaattoreilla.
+  const chordVoices = {
+    organ:   { source: 'wave', partials: [1, .8, .55, .4, 0, .25, 0, .2], attack: .015, release: .07,
+               level: .09, tremolo: true, tone: 4200, send: .5 },
+    piano:   { source: 'wave', partials: [1, .42, .28, .16, .1, .07, .04, .03], attack: .003, sustain: .2,
+               decay: 1.1, release: .2, level: .12, bright: [5200, 1700, .35], send: .45, strum: .004 },
+    pad:     { source: 'saw', detune: [-7, 7], attack: .7, release: 1.3, level: .035, tone: 1500,
+               send: 1, spread: .45 },
+    clean:   { source: 'string', damping: .996, brightness: .55, ring: .3, release: .07, level: .42,
+               tone: 5000, pan: .3, send: .35, strum: .012 },
+    scratch: { source: 'string', damping: .93, brightness: .5, ring: .02, release: .025, level: .85,
+               tone: 4200, pan: -.3, send: .12, strum: .006 },
+    crunch:  { source: 'string', damping: .997, brightness: .6, ring: .12, release: .05, level: .5,
+               drive: 4, tone: 4600, double: .7, send: .2, out: .05, strum: .01 },
+    heavy:   { source: 'string', damping: .998, brightness: .65, ring: .1, release: .04, level: .6,
+               drive: 14, tone: 3800, double: .8, send: .12, out: .06, strum: .006,
+               mute: { damping: .9, release: .015, ring: 0 } },
+    harp:    { source: 'string', damping: .9985, brightness: .75, ring: 1.4, release: .6, level: .32,
+               tone: 7000, pan: .2, send: 1 }
+  };
+
+  const bassVoices = {
+    electric: { source: 'wave', partials: sawPartials(10), attack: .004, sustain: .55, decay: .7,
+                release: .05, level: .3, bright: [1700, 520, .1] },
+    upright:  { source: 'wave', partials: [1, .55, .32, .18, .1, .05], attack: .01, sustain: .25,
+                decay: .55, release: .09, level: .28, bright: [1100, 450, .08] },
+    bowed:    { source: 'saw', detune: [-5, 5], attack: .45, release: .9, level: .1, tone: 520, send: .4 }
+  };
+
+  const drumLevels = { X: 1, x: .78, g: .22, o: .7 };
+  const chordLevels = { X: 1, x: .82, m: .72 };
+  const targetRMS = .13;   // noin −18 dBFS
+  const peakLimit = .89;   // noin −1 dBFS
+  const tail = 3;          // Luupin yli soivat äänet taitetaan luupin alkuun.
+
+  function chordSuffix(pitches, type) {
+    if (type === '5') return pitches[1] === 6 ? '5♭5' : '5';
+    const [, third, fifth, seventh, ninth] = pitches;
+    const minor = third === 3;
+    if (type === 'triad') return fifth === 6 ? '°' : minor ? 'm' : '';
+    let symbol = minor ? 'm7' : '7';
+    if (fifth === 6) symbol = 'm7♭5';
+    else if (seventh === 11) symbol = minor ? 'm(maj7)' : 'maj7';
+    if (type === '9') symbol = ninth === 14 ? symbol.replace('7', '9') : symbol + '(♭9)';
+    return symbol;
+  }
+
   function makeScore(rootPC, scaleId) {
-    const { SCALES, scaleNotes, noteName, CHROM } = fretboard;
+    const { SCALES, scaleNotes, noteName } = fretboard;
     const preset = presets[scaleId];
-    const notes = scaleNotes(SCALES[scaleId]);
-    const interval = degree => notes.find(([, label]) => label === degree)[0];
-    const bars = preset.bars.map(degree => {
-      const [root, label] = notes[degree - 1];
-      const pitches = notes.length === 5
-        ? [0, interval(scaleId === 'mp' ? '♭3' : '3'), 7]
-        : [0, 2, 4].map(step => (notes[(degree - 1 + step) % 7][0] - root + 12) % 12);
-      const diminished = pitches[2] === 6;
-      let suffix = pitches[1] === 3 ? 'm' : '';
-      if (diminished) suffix = '°';
-      if (preset.seventh && degree === 1) {
-        pitches.push(interval('♭7'));
-        suffix = diminished ? 'm7♭5' : 'm7';
-      }
-      const name = noteName(rootPC, root, label) + suffix;
-      return {
-        pitches,
-        root,
-        bass: preset.pedal ? 0 : root,
-        name: preset.pedal && root ? name + '/' + CHROM[rootPC] : name
+    const notes = scaleNotes(SCALES[preset.harmony ?? scaleId]);
+    const tonic = noteName(rootPC, 0, '1');
+    const bars = preset.bars.map(symbol => {
+      const [degree, type = 'triad'] = symbol.split(':');
+      const index = Number(degree) - 1;
+      const [root, label] = notes[index];
+      // Pinoa terssejä moodin omista sävelistä.
+      const step = count => {
+        const position = index + count;
+        return notes[position % notes.length][0] + 12 * Math.floor(position / notes.length) - root;
       };
+      const pitches = type === '5' ? [0, step(4), 12] : [0, step(2), step(4)];
+      if (type === '7' || type === '9') pitches.push(step(6));
+      if (type === '9') pitches.push(step(8));
+      const bass = preset.pedal ? 0 : root;
+      const quality = chordSuffix(pitches, type);
+      const chord = noteName(rootPC, root, label) + quality;
+      return { root, type, pitches, bass, quality, chord, name: bass === root ? chord : chord + '/' + tonic };
     });
     return { bars, groove: grooves[preset.groove] };
   }
 
-  const voices = {
-    bass:  { harmonics: [1, .34, .12],         attack: .008, level: .23 },
-    keys:  { harmonics: [1, .32, .18, .12],    attack: .008, level: .079 },
-    pluck: { harmonics: [1, .46, .24, .12],    attack: .004, level: .090 },
-    grit:  { harmonics: [1, .5, .35, .2, .1], attack: .008, level: .076, sustain: .35 },
-    pad:   { harmonics: [1, .19, .07],         attack: .125, level: .070, sustain: .72 }
-  };
+  function hits(pattern = '') {
+    const result = [];
+    for (let step = 0; step < pattern.length; step++) {
+      const char = pattern[step];
+      if (char === '.' || char === '-') continue;
+      let length = 1;
+      while (pattern[step + length] === '-') length++;
+      result.push({ step, length, char });
+    }
+    return result;
+  }
 
-  function renderLoop(rootPC, score, bpm) {
-    const beat = 60 / bpm;
-    const barLength = 4 * beat;
-    const sampleRate = 44100;
-    const context = new OfflineAudioContext(1, Math.round(score.bars.length * barLength * sampleRate), sampleRate);
-    const mix = context.createGain();
-    mix.gain.value = .78;
-    mix.connect(context.destination);
-    const waves = Object.fromEntries(Object.entries(voices).map(([name, { harmonics }]) => [
-      name, context.createPeriodicWave(new Float32Array(harmonics.length + 1), new Float32Array([0, ...harmonics]))
-    ]));
-    const noise = context.createBuffer(1, Math.ceil(.15 * sampleRate), sampleRate);
-    const samples = noise.getChannelData(0);
-    for (let i = 0; i < samples.length; i++) samples[i] = 2 * Math.random() - 1;
+  const average = notes => notes.reduce((sum, note) => sum + note, 0) / notes.length;
 
-    function shape(source, time, length, level, attack, sustain) {
-      const gain = context.createGain();
-      const end = time + length;
-      gain.gain.value = 0;
-      gain.gain.setValueAtTime(0, time);
-      gain.gain.linearRampToValueAtTime(level, time + Math.min(attack, length / 3));
-      if (sustain) {
-        gain.gain.exponentialRampToValueAtTime(level * sustain, end - Math.min(.22, length / 2));
+  function shapes(classes) {
+    return classes.flatMap((_, rotation) => {
+      const closed = [...classes.slice(rotation), ...classes.slice(0, rotation).map(note => note + 12)];
+      if (closed.length < 4) return [closed];
+      const drop = [...closed];
+      drop[drop.length - 2] -= 12;
+      return [closed, drop.sort((a, b) => a - b)];
+    });
+  }
+
+  function movement(from, to) {
+    const nearest = (notes, note) => Math.min(...notes.map(other => Math.abs(other - note)));
+    return to.reduce((sum, note) => sum + nearest(from, note), 0) +
+      from.reduce((sum, note) => sum + nearest(to, note), 0);
+  }
+
+  // Valitse jokaiselle soinnulle käännös, joka liikkuu edellisestä mahdollisimman vähän.
+  function voiceChords(bars, rootPC, center) {
+    let previous = null;
+    return bars.map(({ root, type, pitches }) => {
+      const chordRoot = (rootPC + root) % 12;
+      if (type === '5') {
+        const low = 40 + (chordRoot - 4 + 12) % 12; // E2–E♭3 kuten kitaran matalilla kielillä
+        return pitches.map(pitch => low + pitch);
       }
-      gain.gain.exponentialRampToValueAtTime(.0001, end);
-      source.connect(gain).connect(mix);
-      source.start(time);
-      source.stop(end);
+      const tones = type === '9' ? pitches.filter((_, index) => index !== 2) : pitches;
+      const classes = [...new Set(tones.map(pitch => (chordRoot + pitch) % 12))].sort((a, b) => a - b);
+      let best = null;
+      let bestCost = Infinity;
+      for (const shape of shapes(classes)) {
+        const octave = 12 * Math.round((center - average(shape)) / 12);
+        for (const shift of [octave - 12, octave, octave + 12]) {
+          const notes = shape.map(note => note + shift);
+          const cost = Math.abs(average(notes) - center) * .5 + (previous ? movement(previous, notes) : 0);
+          if (cost < bestCost) {
+            best = notes;
+            bestCost = cost;
+          }
+        }
+      }
+      previous = best;
+      return best;
+    });
+  }
+
+  function bassPitch(char, bar) {
+    if (char === 'O') return 12;
+    if (char === 'R' || bar.bass !== bar.root) return 0;
+    if (bar.type === '5') return char === '5' ? bar.pitches[1] : 0;
+    return bar.pitches[{ 3: 1, 5: 2, 7: 3 }[char]] ?? 0;
+  }
+
+  function seeded(seed) {
+    return () => {
+      seed = seed + 0x6D2B79F5 | 0;
+      let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  function saturation(amount) {
+    const curve = new Float32Array(1024);
+    for (let i = 0; i < curve.length; i++) {
+      const x = i / (curve.length - 1) * 2 - 1;
+      curve[i] = Math.tanh(amount * x) / Math.tanh(amount);
+    }
+    return curve;
+  }
+
+  const hz = midi => 440 * 2 ** ((midi - 69) / 12);
+
+  function renderLoop(rootPC, score, bpm, { parts = ['drums', 'bass', 'chords'], normalize = true } = {}) {
+    const { bars, groove } = score;
+    const sampleRate = 44100;
+    const barLength = 240 / bpm;
+    const stepLength = barLength / groove.steps;
+    const loopLength = bars.length * barLength;
+    const end = loopLength + tail;
+    const context = new OfflineAudioContext(2, Math.ceil(end * sampleRate), sampleRate);
+    const random = seeded(7);
+    const vary = (amount = .12) => 1 + (random() - .5) * amount;
+    // Pieni ajoitusvaihtelu tekee kompista inhimillisemmän.
+    const human = (time, amount = .008) => Math.max(0, time + (random() - .5) * amount);
+
+    const master = context.createDynamicsCompressor();
+    master.threshold.value = -20;
+    master.knee.value = 10;
+    master.ratio.value = 3.5;
+    master.attack.value = .006;
+    master.release.value = .18;
+    master.connect(context.destination);
+
+    const reverb = context.createConvolver();
+    reverb.buffer = impulse(groove.room);
+    const reverbReturn = context.createGain();
+    reverbReturn.gain.value = groove.reverb;
+    reverb.connect(reverbReturn).connect(master);
+
+    const noise = context.createBuffer(1, 3 * sampleRate, sampleRate);
+    noise.getChannelData(0).forEach((_, i, data) => { data[i] = random() * 2 - 1; });
+
+    function impulse(seconds) {
+      const length = Math.round(seconds * sampleRate);
+      const buffer = context.createBuffer(2, length, sampleRate);
+      for (let channel = 0; channel < 2; channel++) {
+        const data = buffer.getChannelData(channel);
+        let smooth = 0;
+        for (let i = 0; i < length; i++) {
+          const time = i / sampleRate;
+          smooth += .35 * (random() * 2 - 1 - smooth);
+          data[i] = time < .012 ? 0 : smooth * Math.exp(-6.9 * time / seconds);
+        }
+      }
+      return buffer;
     }
 
-    function tone(midi, time, length, name, accent = 1) {
-      const voice = voices[name];
-      const osc = context.createOscillator();
-      osc.setPeriodicWave(waves[name]);
-      osc.frequency.value = 440 * 2 ** ((midi - 69) / 12);
-      shape(osc, time, length, voice.level * accent, voice.attack, voice.sustain);
+    function filter(type, frequency, q) {
+      const node = context.createBiquadFilter();
+      node.type = type;
+      node.frequency.value = frequency;
+      if (q !== undefined) node.Q.value = q;
+      return node;
     }
 
-    function kick(time, soft) {
-      const osc = context.createOscillator();
-      osc.frequency.setValueAtTime(125, time);
-      osc.frequency.exponentialRampToValueAtTime(45, time + .075);
-      shape(osc, time, .17, soft ? .16 : .37, .004);
+    function gainNode(value) {
+      const node = context.createGain();
+      node.gain.value = value;
+      return node;
     }
 
-    function percussion(time, snare, level) {
+    function shaper(amount) {
+      const node = context.createWaveShaper();
+      node.curve = saturation(amount);
+      node.oversample = '4x';
+      return node;
+    }
+
+    function channel({ pan = 0, send = 0, level = 1, chain = [] } = {}) {
+      const input = gainNode(level);
+      const panner = context.createStereoPanner();
+      panner.pan.value = pan;
+      [input, ...chain, panner].reduce((from, to) => from.connect(to));
+      panner.connect(master);
+      if (send) panner.connect(gainNode(send)).connect(reverb);
+      return input;
+    }
+
+    function tremolo() {
+      const node = gainNode(.82);
+      const lfo = context.createOscillator();
+      lfo.frequency.value = 6.1;
+      lfo.connect(gainNode(.18)).connect(node.gain);
+      lfo.start(0);
+      lfo.stop(end);
+      return node;
+    }
+
+    function voiceChannel(voice, pan) {
+      const chain = [];
+      if (voice.drive) chain.push(gainNode(voice.drive), shaper(3), filter('highpass', 90));
+      if (voice.tremolo) chain.push(tremolo());
+      if (voice.tone) chain.push(filter('lowpass', voice.tone));
+      return channel({ pan, send: voice.send ?? 0, level: voice.out ?? 1, chain });
+    }
+
+    function voiceOutputs(voice) {
+      if (voice.double) return [-voice.double, voice.double].map(pan => voiceChannel(voice, pan));
+      if (voice.spread) return [-voice.spread, voice.spread].map(pan => voiceChannel(voice, pan));
+      return [voiceChannel(voice, voice.pan ?? 0)];
+    }
+
+    const waves = new Map();
+    function waveFor(partials) {
+      if (!waves.has(partials)) {
+        waves.set(partials, context.createPeriodicWave(
+          new Float32Array(partials.length + 1), new Float32Array([0, ...partials])));
+      }
+      return waves.get(partials);
+    }
+
+    function pluck(midi, seconds, { damping, brightness }) {
+      const frequency = hz(midi);
+      const period = Math.max(2, Math.round(sampleRate / frequency - .5));
+      const length = Math.max(1, Math.ceil(seconds * sampleRate));
+      const buffer = context.createBuffer(1, length, sampleRate);
+      const data = buffer.getChannelData(0);
+      const line = new Float32Array(period);
+      let smooth = 0;
+      for (let i = 0; i < period; i++) {
+        smooth += brightness * (random() * 2 - 1 - smooth);
+        line[i] = smooth;
+      }
+      const mean = average(line);
+      const peak = Math.max(...line.map(value => Math.abs(value - mean))) || 1;
+      line.forEach((value, i) => { line[i] = (value - mean) / peak; });
+      let previous = 0;
+      for (let i = 0, index = 0; i < length; i++) {
+        const value = line[index];
+        data[i] = value;
+        line[index] = damping * .5 * (value + previous);
+        previous = value;
+        index = index + 1 === period ? 0 : index + 1;
+      }
+      // Viivelinja on puoli näytettä pitempi kuin kokonaisluku; korjaa vire toistonopeudella.
+      return { buffer, rate: frequency * (period + .5) / sampleRate };
+    }
+
+    function envelope(time, length, voice, velocity) {
+      const gain = context.createGain();
+      const level = voice.level * velocity;
+      const attack = Math.min(voice.attack ?? .002, length / 2);
+      gain.gain.setValueAtTime(0, time);
+      gain.gain.linearRampToValueAtTime(level, time + attack);
+      if (voice.sustain !== undefined) gain.gain.setTargetAtTime(level * voice.sustain, time + attack, voice.decay / 3);
+      gain.gain.setTargetAtTime(0, time + length, voice.release / 3);
+      return gain;
+    }
+
+    function playTone(destination, voice, midi, time, written, velocity) {
+      // Kielisoittimen sävel saa soida hetken kirjoitettua pidempään.
+      const length = written + (voice.ring ?? 0);
+      const stop = time + length + voice.release * 2;
+      const gain = envelope(time, length, voice, velocity);
+      gain.connect(destination);
+      let input = gain;
+      if (voice.bright) {
+        const [from, to, seconds] = voice.bright;
+        input = filter('lowpass', from);
+        input.frequency.setValueAtTime(from, time);
+        input.frequency.setTargetAtTime(to, time, seconds);
+        input.connect(gain);
+      }
+      if (voice.source === 'string') {
+        const { buffer, rate } = pluck(midi, length + voice.release * 2, voice);
+        const source = context.createBufferSource();
+        source.buffer = buffer;
+        source.playbackRate.value = rate;
+        source.connect(input);
+        source.start(time);
+        source.stop(stop);
+        return;
+      }
+      (voice.detune ?? [0]).forEach(cents => {
+        const oscillator = context.createOscillator();
+        if (voice.source === 'saw') oscillator.type = 'sawtooth';
+        else oscillator.setPeriodicWave(waveFor(voice.partials));
+        oscillator.frequency.value = hz(midi);
+        oscillator.detune.value = cents;
+        oscillator.connect(input);
+        oscillator.start(time);
+        oscillator.stop(stop);
+      });
+    }
+
+    function burst(destination, time, { length, level, highpass, bandpass, q = .8, attack = .001 }) {
       const source = context.createBufferSource();
       source.buffer = noise;
-      const filter = context.createBiquadFilter();
-      filter.type = 'highpass';
-      filter.frequency.value = snare ? 1250 : 6400;
+      let node = source;
+      if (highpass) node = node.connect(filter('highpass', highpass));
+      if (bandpass) node = node.connect(filter('bandpass', bandpass, q));
       const gain = context.createGain();
-      const length = snare ? .1 : .055;
-      gain.gain.value = 0;
       gain.gain.setValueAtTime(0, time);
-      gain.gain.linearRampToValueAtTime(level, time + .002);
-      gain.gain.exponentialRampToValueAtTime(.0001, time + length);
-      source.connect(filter).connect(gain).connect(mix);
-      source.start(time);
-      source.stop(time + length);
+      gain.gain.linearRampToValueAtTime(level, time + attack);
+      gain.gain.setTargetAtTime(0, time + attack, length / 4);
+      node.connect(gain).connect(destination);
+      const duration = length * 1.5 + attack;
+      source.start(time, random() * (noise.duration - duration));
+      source.stop(time + duration);
     }
 
-    const { groove, bars } = score;
-    bars.forEach(({ pitches, root, bass }, index) => {
-      const start = index * barLength;
-      const chordMidi = 48 + (rootPC + root) % 12;
-      const bassMidi = 28 + (rootPC + bass + 8) % 12; // E1–E♭2
-      groove.chords.forEach((at, hit) => {
-        pitches.forEach((pitch, string) => {
-          const spread = groove.voice === 'pad' ? 0 : string * .011;
-          const length = Math.min(groove.length, 4 - at) * beat - spread;
-          tone(chordMidi + pitch, start + at * beat + spread, length, groove.voice, hit % 2 === 0 ? 1 : .76);
-        });
-      });
-      groove.bass.forEach(([at, chordTone], i) => {
-        const next = groove.bass[i + 1]?.[0] ?? 4;
-        const length = Math.min(next - at, groove.soft ? 1.85 : .72) * beat;
-        tone(bassMidi + pitches[chordTone], start + at * beat, length, 'bass');
-      });
-      groove.kicks.forEach(at => kick(start + at * beat, groove.soft));
-      if (!groove.soft) [1, 3].forEach(at => percussion(start + at * beat, true, .18));
-      if (!groove.soft && index === bars.length - 1) percussion(start + 3.75 * beat, true, .07);
-      const hats = groove.hatStep === 2 / 3 ? [0, 2 / 3, 1, 5 / 3, 2, 8 / 3, 3, 11 / 3]
-        : Array.from({ length: 4 / groove.hatStep }, (_, i) => i * groove.hatStep);
-      hats.forEach((at, i) => percussion(start + at * beat, false, groove.soft ? .03 : (i % 2 === 0 ? .095 : .05)));
+    const drums = channel({ send: .18 });
+    const hats = channel({ pan: .25, send: .08 });
+    const cymbals = channel({ pan: -.3, send: .3 });
+
+    function kick(time, velocity) {
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      const soft = groove.soft;
+      oscillator.frequency.setValueAtTime(soft ? 90 : 150, time);
+      oscillator.frequency.exponentialRampToValueAtTime(soft ? 50 : 46, time + .07);
+      gain.gain.setValueAtTime(0, time);
+      gain.gain.linearRampToValueAtTime(velocity * (soft ? .5 : .95), time + .003);
+      gain.gain.setTargetAtTime(0, time + .003, soft ? .14 : .085);
+      oscillator.connect(gain).connect(drums);
+      oscillator.start(time);
+      oscillator.stop(time + .7);
+      // Napsahdus erottuu myös pienistä kaiuttimista.
+      if (!soft) burst(drums, time, { length: .012, level: .3 * velocity, bandpass: 3200, q: .7 });
+    }
+
+    function snare(time, velocity) {
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      oscillator.type = 'triangle';
+      oscillator.frequency.setValueAtTime(200, time);
+      oscillator.frequency.exponentialRampToValueAtTime(165, time + .05);
+      gain.gain.setValueAtTime(0, time);
+      gain.gain.linearRampToValueAtTime(.55 * velocity, time + .002);
+      gain.gain.setTargetAtTime(0, time + .002, .035);
+      oscillator.connect(gain).connect(drums);
+      oscillator.start(time);
+      oscillator.stop(time + .3);
+      burst(drums, time, { length: .17, level: .72 * velocity, highpass: 1400, bandpass: 4200, q: .5 });
+    }
+
+    function brush(time, velocity) {
+      burst(drums, time, { length: .1 + .1 * velocity, level: .55 * velocity, bandpass: 2600, q: .9, attack: .008 });
+    }
+
+    function hat(time, velocity, open) {
+      burst(hats, time, { length: open ? .32 : .05, level: .32 * velocity, highpass: 7600 });
+    }
+
+    function ride(time, velocity) {
+      burst(cymbals, time, { length: .45, level: .17 * velocity, highpass: 5500, bandpass: 8500, q: .6 });
+    }
+
+    function crash(time) {
+      burst(cymbals, time, { length: 1.7, level: .32, highpass: 4500 });
+    }
+
+    const chordVoice = chordVoices[groove.chordVoice];
+    const chordOutputs = voiceOutputs(chordVoice);
+    const arpVoice = groove.arp && chordVoices[groove.arp.voice];
+    const arpOutput = arpVoice && voiceOutputs(arpVoice)[0];
+    const bassVoice = bassVoices[groove.bassVoice];
+    const bassOutput = channel({
+      send: bassVoice.send ?? 0,
+      chain: [gainNode(groove.bassDrive ?? 1), shaper(1.5), filter('lowpass', bassVoice.tone ?? 2800), filter('highpass', 32)]
     });
-    return context.startRendering();
+    const voicings = voiceChords(bars, rootPC, groove.center ?? 60);
+    const beatSteps = groove.steps / 4;
+
+    bars.forEach((bar, index) => {
+      const start = index * barLength;
+      const at = step => start + step * stepLength;
+
+      if (parts.includes('drums')) {
+        if (groove.crash && index === 0) crash(start);
+        hits(groove.kick).forEach(({ step, char }) => kick(human(at(step), .004), drumLevels[char] * vary()));
+        const last = index === bars.length - 1;
+        hits(last && groove.fill ? groove.fill : groove.snare).forEach(({ step, char }) => {
+          (groove.brushes ? brush : snare)(human(at(step)), drumLevels[char] * vary());
+        });
+        hits(groove.hat).forEach(({ step, char }) => {
+          const accent = step % beatSteps === 0 ? 1 : .68;
+          const level = drumLevels[char] * accent * vary();
+          if (groove.cymbal === 'ride') ride(human(at(step)), level);
+          else hat(human(at(step)), level, char === 'o');
+        });
+      }
+
+      if (parts.includes('bass')) {
+        const low = 28 + (rootPC + bar.bass + 8) % 12; // E1–E♭2
+        hits(groove.bass).forEach(({ step, length, char }) => {
+          const duration = Math.max(length * stepLength - .02, .05);
+          playTone(bassOutput, bassVoice, low + bassPitch(char, bar), human(at(step), .004), duration, vary(.1));
+        });
+      }
+
+      if (parts.includes('chords')) {
+        const notes = voicings[index];
+        hits(groove.chords).forEach(({ step, length, char }) => {
+          const voice = char === 'm' && chordVoice.mute ? { ...chordVoice, ...chordVoice.mute } : chordVoice;
+          const strum = voice.strum ?? 0;
+          // Iskut lyödään alaspäin, välit ylöspäin kuten kitaralla.
+          const down = (step * 2 / beatSteps) % 2 === 0;
+          const order = down ? notes : [...notes].reverse();
+          const duration = Math.max(length * stepLength - .015, .04);
+          const velocity = chordLevels[char] ?? 1;
+          chordOutputs.forEach((output, take) => {
+            const offset = chordVoice.double ? take * .011 : 0;
+            order.forEach((midi, i) => {
+              if (chordVoice.spread && i % 2 !== take) return;
+              const time = human(at(step) + offset + i * strum, .004);
+              playTone(output, voice, midi, time, duration - i * strum, velocity * vary(.1));
+            });
+          });
+        });
+
+        if (arpVoice) {
+          const shift = 12 * Math.round((groove.arp.center - average(notes)) / 12);
+          const ladder = [...notes, ...notes.map(note => note + 12)].map(note => note + shift);
+          hits(groove.arp.pattern).forEach(({ step, length }, i) => {
+            const midi = ladder[groove.arp.order[i % groove.arp.order.length] % ladder.length];
+            playTone(arpOutput, arpVoice, midi, human(at(step), .004), length * stepLength, .75 + .25 * random());
+          });
+        }
+      }
+    });
+
+    return context.startRendering().then(rendered => loopBuffer(rendered, loopLength, normalize));
+  }
+
+  // Taita luupin yli soivat hännät alkuun, jotta toisto on saumaton, ja tasaa voimakkuus.
+  function loopBuffer(rendered, loopLength, normalize) {
+    const length = Math.round(loopLength * rendered.sampleRate);
+    const channels = [];
+    let peak = 0;
+    let power = 0;
+    for (let c = 0; c < rendered.numberOfChannels; c++) {
+      const source = rendered.getChannelData(c);
+      const data = source.slice(0, length);
+      for (let i = length; i < source.length; i++) data[i % length] += source[i];
+      for (const value of data) {
+        peak = Math.max(peak, Math.abs(value));
+        power += value * value;
+      }
+      channels.push(data);
+    }
+    const rms = Math.sqrt(power / (length * channels.length));
+    const gain = normalize && rms > 0 ? Math.min(targetRMS / rms, peakLimit / peak) : 1;
+    const loop = new AudioBuffer({ length, numberOfChannels: channels.length, sampleRate: rendered.sampleRate });
+    channels.forEach((data, c) => {
+      if (gain !== 1) data.forEach((value, i) => { data[i] = value * gain; });
+      loop.copyToChannel(data, c);
+    });
+    return loop;
   }
 
   return { presets, makeScore, renderLoop };

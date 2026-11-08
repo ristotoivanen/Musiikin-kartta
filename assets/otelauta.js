@@ -225,6 +225,100 @@ const fretboard = (() => {
     return grips.sort((a, b) => a.high - b.high || a.low - b.low);
   }
 
+  // Perusotteet luetaan paksusta E-kielestä ohueen e-kieleen. null jätetään soittamatta.
+  const OPEN_CHORDS = {
+    '0:': [null, 3, 2, 0, 1, 0],        '2:': [null, null, 0, 2, 3, 2],
+    '4:': [0, 2, 2, 1, 0, 0],           '7:': [3, 2, 0, 0, 0, 3],
+    '9:': [null, 0, 2, 2, 2, 0],        '2:m': [null, null, 0, 2, 3, 1],
+    '4:m': [0, 2, 2, 0, 0, 0],          '9:m': [null, 0, 2, 2, 1, 0],
+    '0:7': [null, 3, 2, 3, 1, 0],       '2:7': [null, null, 0, 2, 1, 2],
+    '4:7': [0, 2, 0, 1, 0, 0],          '7:7': [3, 2, 0, 0, 0, 1],
+    '9:7': [null, 0, 2, 0, 2, 0],       '11:7': [null, 2, 1, 2, 0, 2],
+    '2:m7': [null, null, 0, 2, 1, 1],   '4:m7': [0, 2, 0, 0, 0, 0],
+    '9:m7': [null, 0, 2, 0, 1, 0],      '0:maj7': [null, 3, 2, 0, 0, 0],
+    '2:maj7': [null, null, 0, 2, 2, 2], '4:maj7': [0, 2, 1, 1, 0, 0],
+    '5:maj7': [null, null, 3, 2, 1, 0], '7:maj7': [3, 2, 0, 0, 0, 2],
+    '9:maj7': [null, 0, 2, 1, 2, 0],    '2:5': [null, null, 0, 2, 3, null],
+  };
+
+  // Siirrettävät otteet perussävelen nauhasta: E-kielen ja A-kielen perussävel.
+  const MOVABLE_CHORDS = [
+    { string: 0, openPC: 4, shapes: {
+      '': [0, 2, 2, 1, 0, 0], m: [0, 2, 2, 0, 0, 0], '7': [0, 2, 0, 1, 0, 0], m7: [0, 2, 0, 0, 0, 0],
+      maj7: [0, null, 1, 1, 0, null], '9': [0, 2, 0, 1, 0, 2], 'm7♭5': [0, null, 0, 0, -1, null],
+      '°': [0, 1, 2, 0, null, null], '5': [0, 2, 2, null, null, null], '5♭5': [0, 1, 2, null, null, null],
+    } },
+    { string: 1, openPC: 9, shapes: {
+      '': [null, 0, 2, 2, 2, 0], m: [null, 0, 2, 2, 1, 0], '7': [null, 0, 2, 0, 2, 0], m7: [null, 0, 2, 0, 1, 0],
+      maj7: [null, 0, 2, 1, 2, 0], '9': [null, 0, -1, 0, 0, 0], 'm7♭5': [null, 0, 1, 0, 1, null],
+      '°': [null, 0, 1, 2, 1, null], '5': [null, 0, 2, 2, null, null], '5♭5': [null, 0, 1, 2, null, null],
+    } },
+  ];
+
+  // Valitse avosointu, jos sellainen on, muuten matalin siirrettävä ote.
+  function chordGrip(rootPC, quality) {
+    const open = OPEN_CHORDS[rootPC + ':' + quality];
+    if (open) return { frets: open, barre: null };
+    let best = null;
+    MOVABLE_CHORDS.forEach(({ string, openPC, shapes }) => {
+      const shape = shapes[quality];
+      if (!shape) return;
+      let fret = (rootPC - openPC + 12) % 12;
+      if (fret + Math.min(...shape.filter(offset => offset !== null)) < 0) fret += 12;
+      if (best && best.fret <= fret) return;
+      const frets = shape.map(offset => offset === null ? null : fret + offset);
+      const barre = fret > 0 && shape.at(-1) === 0 ? { fret, from: string, to: shape.length - 1 } : null;
+      best = { fret, frets, barre };
+    });
+    return best && { frets: best.frets, barre: best.barre };
+  }
+
+  function renderChordDiagram(rootPC, { frets, barre }, name) {
+    const LEFT = 18, TOP = 22, GAP = 11, ROW = 15, ROWS = 4;
+    const lowToHigh = [...OPEN_PITCHES].reverse();
+    const fretted = frets.filter(fret => fret > 0);
+    const high = Math.max(0, ...fretted);
+    const base = high <= ROWS ? 1 : Math.min(...fretted);
+    const x = string => LEFT + string * GAP;
+    const y = fret => TOP + (fret - base) * ROW + ROW / 2;
+    const bottom = TOP + ROWS * ROW;
+    const width = x(5) + 12;
+    let s = '<svg viewBox="0 0 ' + width + ' ' + (bottom + 6) + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' +
+      name + '-ote paksusta kielestä ohueen: ' + frets.map(fret => fret ?? 'x').join(' ') + '">';
+    for (let row = 0; row <= ROWS; row++) {
+      const nut = row === 0 && base === 1;
+      s += '<line x1="' + x(0) + '" y1="' + (TOP + row * ROW) + '" x2="' + x(5) + '" y2="' + (TOP + row * ROW) +
+        '" stroke="' + (nut ? '#d8cbb6' : '#6f6385') + '" stroke-width="' + (nut ? 3 : 1) + '"/>';
+    }
+    frets.forEach((_, string) => {
+      s += '<line x1="' + x(string) + '" y1="' + TOP + '" x2="' + x(string) + '" y2="' + bottom + '" stroke="#a89fc4" stroke-width="1"/>';
+    });
+    if (base > 1) {
+      s += '<text x="' + (LEFT - 7) + '" y="' + (y(base) + 4) + '" font-size="10" fill="#a89fc4" text-anchor="end">' + base + '</text>';
+    }
+    if (barre) {
+      s += '<rect x="' + (x(barre.from) - 5) + '" y="' + (y(barre.fret) - 5) + '" width="' + ((barre.to - barre.from) * GAP + 10) +
+        '" height="10" rx="5" fill="#6d4aff"/>';
+    }
+    frets.forEach((fret, string) => {
+      if (fret === null) {
+        s += '<text x="' + x(string) + '" y="' + (TOP - 6) + '" font-size="10" fill="#efeaff" text-anchor="middle">×</text>';
+        return;
+      }
+      const isRoot = (lowToHigh[string] + fret) % 12 === rootPC;
+      if (fret === 0) {
+        s += '<circle cx="' + x(string) + '" cy="' + (TOP - 9) + '" r="3.2" fill="none" stroke="' + (isRoot ? '#fff' : '#a89fc4') +
+          '" stroke-width="' + (isRoot ? 1.6 : 1.1) + '"/>';
+        return;
+      }
+      if (barre && fret === barre.fret && !isRoot) return;
+      s += '<circle cx="' + x(string) + '" cy="' + y(fret) + '" r="5" fill="' + (isRoot ? '#4b2fd6' : '#6d4aff') +
+        '" stroke="' + (isRoot ? '#fff' : '#1a1430') + '" stroke-width="' + (isRoot ? 1.6 : 1) + '"/>';
+    });
+    s += '</svg>';
+    return s;
+  }
+
   function selectionFromURL(defaultRoot, defaultScale) {
     const params = new URLSearchParams(location.search);
     const root = CHROM.indexOf(params.get('toonikka'));
@@ -341,6 +435,7 @@ const fretboard = (() => {
 
   return {
     CHROM, OPEN_PITCHES, PENT_MAJ, SCALES, noteName, scaleNotes, scaleTriads, triadGrips,
+    chordGrip, renderChordDiagram,
     selectionFromURL, selectionHref, renderBoard,
     BOX_FRETS, supportsThreeNoteBoxes, syncBoxSystem, fingeringBoxes, boxOptions, revealPositions
   };
