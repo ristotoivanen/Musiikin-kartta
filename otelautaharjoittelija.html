@@ -67,7 +67,9 @@
     border-radius: 8px; color: var(--box-color); font-size: 14px; cursor: pointer;
   }
   .box-toggle input { margin: 0; accent-color: var(--box-color); }
-  .box-toggle:has(input:checked) { background: var(--panel); border-color: var(--box-color); }
+  .box-toggle:has(input:checked:not(:disabled)) { background: var(--panel); border-color: var(--box-color); }
+  .box-filter { --box-color: var(--lavender); }
+  .box-filter:has(input:disabled) { color: var(--muted); cursor: default; }
   :focus-visible { outline: 2px solid var(--box); outline-offset: 2px; }
   #info {
     background: var(--panel); border-radius: 10px;
@@ -155,6 +157,13 @@
       <div class="box-options" id="pentatonic-boxes"></div>
       <div class="box-options" id="three-note-boxes" hidden></div>
     </div>
+    <div class="group">
+      <span class="group-label">Sävelpisteet</span>
+      <label class="box-toggle box-filter">
+        <input type="checkbox" id="box-notes-only" aria-describedby="box-help" disabled>
+        Näytä vain valittujen boksien sävelet
+      </label>
+    </div>
     <p class="tools-note" id="box-help" aria-live="polite"></p>
   </div>
 
@@ -227,6 +236,7 @@
   const scrollHint = document.getElementById('scroll-hint');
   const boxSystem = document.getElementById('box-system');
   const boxControls = document.getElementById('box-controls');
+  const boxNotesOnly = document.getElementById('box-notes-only');
   const boxHelp = document.getElementById('box-help');
   const pentatonicBoxes = document.getElementById('pentatonic-boxes');
   const threeNoteBoxes = document.getElementById('three-note-boxes');
@@ -361,7 +371,6 @@
     } else if (threeNotes) {
       help = 'Soita kolme peräkkäistä asteikon säveltä jokaiselta kieleltä. Boksi 1 alkaa toonikalta paksuimmalla E-kielellä, muut asteikon seuraavilta säveliltä.';
     }
-    if (boxHelp.textContent !== help) boxHelp.textContent = help;
     const activeOptions = threeNotes ? threeNoteBoxes : pentatonicBoxes;
     const selected = unavailable ? [] : [...activeOptions.querySelectorAll('input:checked')];
     const boxes = selected.map(input => {
@@ -371,6 +380,13 @@
       const positions = automatic ? [box] : getVisibleBoxPositions(box, fretCount);
       return { number, positions };
     });
+    const boxPositions = boxes.flatMap(box => box.positions);
+    boxNotesOnly.disabled = boxPositions.length === 0;
+    const onlyBoxNotes = boxNotesOnly.checked && !boxNotesOnly.disabled;
+    if (boxNotesOnly.disabled && !unavailable) {
+      help += ' Valitse boksi, jos haluat rajata näkyvät sävelet sen sisälle.';
+    }
+    if (boxHelp.textContent !== help) boxHelp.textContent = help;
     const fretboardEnd = wireX(fretCount);
     const bridgeX = fretboardEnd + 48;
     const width = bridgeX + 28;
@@ -438,6 +454,10 @@
       for (let f = 0; f <= fretCount; f++) {
         const pc = (openPitch + f) % 12;
         if (!(pc in ivMap)) continue;
+        if (onlyBoxNotes && !boxPositions.some(({ strings }) => {
+          const frets = strings[si];
+          return frets.length > 0 && f >= frets[0] && f <= frets.at(-1);
+        })) continue;
         const info = ivMap[pc];
         const isRoot = info.deg === '1';
         const fill = info.added ? '#f0a13c' : (isRoot ? '#4b2fd6' : '#6d4aff');
@@ -488,6 +508,7 @@
   threeNoteBoxes.innerHTML = boxOptions(DIATONIC_DEGREES);
   fretCountSelect.addEventListener('change', () => render());
   boxSystem.addEventListener('change', () => render());
+  boxNotesOnly.addEventListener('change', () => render());
   boxControls.addEventListener('change', ({ target }) => {
     render(target.checked ? Number(target.value) : undefined);
   });
