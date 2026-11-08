@@ -92,6 +92,16 @@ p { margin-block: .75rem; }
 .note p:last-child, .practice p:last-child, details p:last-child { margin-bottom: 0; }
 .practice h3 { margin: 0 0 .55rem; font-size: 1.05rem; }
 .practice ol { padding-left: 1.35rem; margin-block: .4rem; }
+/* Luvun avaus: kuuntele tai soita ennen selitystä. */
+.try-first {
+  margin: 0 0 1.5rem;
+  padding: .85rem 1rem;
+  background: var(--panel);
+  border-radius: .65rem;
+  border-inline-start: .22rem solid var(--accent);
+}
+.try-first > p { margin: 0; }
+.try-first .listen { margin: .75rem 0 0; padding: .75rem 0 0; border: 0; border-top: 1px solid var(--line); border-radius: 0; }
 summary { color: var(--accent); cursor: pointer; padding-block: .2rem; }
 table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .96rem; }
 caption { text-align: left; font-weight: 700; margin-bottom: .35rem; }
@@ -185,7 +195,8 @@ thead th { background: var(--panel); }
 
   /* Pidä otsikot ja kuvat ehjinä. */
   h2, h3, .chapter-number, .part-number, caption, figcaption, .shape-label, summary, .glossary dt, .glossary-letter { break-after: avoid; }
-  table, figure, .note, .shape-set, .shape-grid, .chord-diagram, .tab, svg { break-inside: avoid; }
+  table, figure, .note, .try-first, .shape-set, .shape-grid, .chord-diagram, .tab, svg { break-inside: avoid; }
+  .try-first .listen { border-inline-start: 0; }
   p, li { orphans: 3; widows: 3; }
 
   /* Sivukohtaisten kaavioiden kiinteät värit. */

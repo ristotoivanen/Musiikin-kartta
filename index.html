@@ -60,6 +60,9 @@
   .part-link:hover { background: #2d2444; border-color: var(--lavender); }
   .part-link .part-action { display: block; margin-top: 10px; color: var(--lavender); font-weight: 700; }
   .tools-note { color: var(--muted); font-size: 14px; max-width: 720px; }
+  .part .part-outcome { display: block; margin-top: 10px; color: var(--text); font-size: 13.5px; }
+  .part .part-meta { display: block; margin-top: 8px; font-size: 12.5px; }
+  .path p { margin: 10px 0 0; font-size: 14px; }
   footer {
     margin-top: 60px; padding-top: 20px; border-top: 1px solid #2d2444;
     text-align: center; color: var(--muted); font-size: 13px;
@@ -81,32 +84,63 @@
 <main>
 
 <section>
+  <h2>Mistä aloitan?</h2>
+  <div class="parts">
+    <div class="part path">
+      <b>Aloitan alusta</b>
+      <span>En vielä osaa kitaraotteita.</span>
+      <p>Lue osat järjestyksessä. Luvussa 1 selitetään kitaran merkinnät, ja <a href="book/osa-2.html#sointukierrot">luvussa 7</a> opit neljä ensimmäistä otetta. Opettele ne osan I rinnalla.</p>
+    </div>
+    <div class="part path">
+      <b>Osaan avoimet otteet</b>
+      <span>Soitan esimerkiksi G:n, C:n, D:n ja Em:n.</span>
+      <p>Silmäile osan I alku ja keskity lukuihin <a href="book/osa-1.html#roomalaiset-numerot">5</a> ja <a href="book/osa-1.html#sointujen-tehtavat">6</a>. Jatka sitten osiin II ja III.</p>
+    </div>
+    <div class="part path">
+      <b>Osaan barré-otteet</b>
+      <span>Haluan hahmottaa otelaudan ja soittaa korvakuulolta.</span>
+      <p>Kertaa <a href="book/osa-3.html#numerokartta">numerokartta</a> ja jatka <a href="book/osa-3.html#caged">CAGEDista</a>. Osia IV ja V voit lukea rinnakkain.</p>
+    </div>
+  </div>
+</section>
+
+<section>
   <h2>Oppaan osat</h2>
   <p class="tools-note">Koko opas on myös <a href="pdf/musiikin-kartta.pdf">tulostettavana PDF:nä</a>. Siinä on lukujen sisällysluettelo, ja ääniesimerkkien kohdalla on linkki verkkoversioon. Oppaan termit on selitetty <a href="book/sanasto.html">sanastossa</a>.</p>
   <div class="parts">
     <a class="part part-link" href="book/osa-1.html">
       <b><span class="num" aria-hidden="true">I</span> Miten musiikki toimii</b>
       <span>Harmonian perusteet: sävelet, intervallit, soinnut ja asteikot.</span>
+      <span class="part-outcome">Osan jälkeen kuulet, miksi melodia palaa kotiin, ja tunnet soinnut roomalaisina numeroina.</span>
+      <span class="part-meta">Lukuaika noin 15 min · 6 harjoitusta · 4 ääniesimerkkiä</span>
       <span class="part-action">Lue osa I <span aria-hidden="true">→</span></span>
     </a>
     <a class="part part-link" href="book/osa-2.html">
       <b><span class="num" aria-hidden="true">II</span> Näe kappaleiden rakenne</b>
       <span>Säkeistöt, kertosäkeet ja harmonian kulku kappaleen selkärankana.</span>
+      <span class="part-outcome">Osan jälkeen soitat kokonaisen kappaleen neljällä otteella ja siirrät sen kapolla laulajalle sopivaksi.</span>
+      <span class="part-meta">Lukuaika noin 10 min · 4 harjoitusta · 3 ääniesimerkkiä</span>
       <span class="part-action">Lue osa II <span aria-hidden="true">→</span></span>
     </a>
     <a class="part part-link" href="book/osa-3.html">
       <b><span class="num" aria-hidden="true">III</span> Kitara työkaluna</b>
       <span>Otelauta hahmottamisen karttana – barré-soinnut, septimisoinnut, pentatoniset pohjat ja moodit.</span>
+      <span class="part-outcome">Osan jälkeen soitat barré- ja septimisointuja missä sävellajissa tahansa ja melodioita pentatonisella boksilla.</span>
+      <span class="part-meta">Lukuaika noin 20 min · 10 harjoitusta · 6 ääniesimerkkiä. Puhtaisiin barré-otteisiin menee usein muutama viikko.</span>
       <span class="part-action">Lue osa III <span aria-hidden="true">→</span></span>
     </a>
     <a class="part part-link" href="book/osa-4.html">
       <b><span class="num" aria-hidden="true">IV</span> Korvakuulo</b>
       <span>Kuuntele, tunnista ja toista – soittaminen ilman nuotteja.</span>
+      <span class="part-outcome">Osan jälkeen selvität korvalla basson, duurin ja mollin, septimin ja lyhyen kappaleen soinnut.</span>
+      <span class="part-meta">Lukuaika noin 10 min · 6 harjoitusta · 6 ääniesimerkkiä</span>
       <span class="part-action">Lue osa IV <span aria-hidden="true">→</span></span>
     </a>
     <a class="part part-link" href="book/osa-5.html">
       <b><span class="num" aria-hidden="true">V</span> Soveltaminen</b>
       <span>Improvisaatio, sovittaminen ja oma ilmaisu.</span>
+      <span class="part-outcome">Osan jälkeen improvisoit taustan päälle ja teet oman kappaleen alusta äänitteeksi asti.</span>
+      <span class="part-meta">Lukuaika noin 10 min · 4 harjoitusta · 3 ääniesimerkkiä</span>
       <span class="part-action">Lue osa V <span aria-hidden="true">→</span></span>
     </a>
   </div>
