@@ -28,4 +28,5 @@
 
 ## Osa V – Soveltaminen
 19. Improvisointi
-20. Oman musiikin tekeminen
+20. Sovittaminen
+21. Oman kappaleen tekeminen ja oma ilmaisu
