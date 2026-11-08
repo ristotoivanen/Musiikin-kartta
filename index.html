@@ -8,7 +8,9 @@
   :root {
     --purple: #6d4aff;
     --purple-dark: #4b2fd6;
+    --lavender: #b5a3ff;
     --gold: #f0a13c;
+    --box: #75e5c6;
     --bg: #16121f;
     --panel: #221b31;
     --text: #efeaff;
@@ -30,13 +32,19 @@
     border-bottom: 1px solid #2d2444;
   }
   header h1 { font-size: 34px; margin: 0 0 8px; letter-spacing: .5px; }
-  header h1 span { color: var(--purple); }
+  header h1 span { color: var(--lavender); }
   header p.tagline { color: var(--muted); max-width: 620px; margin: 0 auto; font-size: 16px; }
+  a { color: var(--lavender); }
+  .jump-link {
+    display: inline-block; margin-top: 18px; padding: 9px 16px;
+    background: var(--purple-dark); color: var(--text);
+    border-radius: 8px; font-weight: 700; text-decoration: none;
+  }
   main { max-width: 900px; margin: 0 auto; padding: 0 18px; }
   section { margin-top: 44px; }
   h2 { font-size: 22px; margin: 0 0 14px; }
   h2::after { content:""; display:block; width:56px; height:3px; background: var(--purple); border-radius:2px; margin-top:8px; }
-  .parts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+  .parts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 14px; }
   .part {
     background: var(--panel);
     border: 1px solid #2d2444;
@@ -45,21 +53,38 @@
   }
   .part b { display:block; margin-bottom: 4px; font-size: 15px; }
   .part span { color: var(--muted); font-size: 13.5px; }
-  .part .num { color: var(--purple); font-weight: 700; margin-right: 6px; }
+  .part .num { color: var(--lavender); font-weight: 700; margin-right: 6px; }
   .tools-note { color: var(--muted); font-size: 14px; max-width: 720px; }
   /* Harjoittelijan tyylit */
   .controls { margin: 18px 0 14px; }
   .group { margin-bottom: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
   .group-label { font-size: 13px; font-weight: 600; color: var(--muted); width: 220px; }
-  button {
+  #roots { display: flex; flex-wrap: wrap; gap: 6px; }
+  button, select {
     background: var(--panel); color: var(--text);
-    border: 1px solid #3a2f56; border-radius: 8px;
-    padding: 7px 13px; font-size: 13px; cursor: pointer;
-    transition: background .15s, border-color .15s;
+    border: 1px solid #71638c; border-radius: 8px;
+    min-height: 38px; padding: 7px 12px; font: inherit; font-size: 14px; cursor: pointer;
   }
   button:hover { background: #2d2444; }
-  button.active { background: var(--purple); border-color: var(--purple-dark); font-weight: 700; }
-  button.root-btn.active { background: var(--gold); border-color: #c97e1e; color: #1a1430; }
+  button[aria-pressed="true"] { background: var(--purple-dark); border-color: var(--lavender); font-weight: 700; }
+  #roots button[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: #1a1430; }
+  [data-box="1"] { --box-color: var(--box); }
+  [data-box="2"] { --box-color: #85c6ff; }
+  [data-box="3"] { --box-color: #ff9fc7; }
+  [data-box="4"] { --box-color: #f7d27b; }
+  [data-box="5"] { --box-color: #c9b0ff; }
+  [data-box="6"] { --box-color: #ffa77c; }
+  [data-box="7"] { --box-color: #c4ed83; }
+  .box-options { display: flex; flex: 1; min-width: 0; flex-wrap: wrap; gap: 6px; }
+  .group[hidden], .box-options[hidden] { display: none; }
+  .box-toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    min-height: 38px; padding: 6px 8px; border: 1px solid #71638c;
+    border-radius: 8px; color: var(--box-color); font-size: 14px; cursor: pointer;
+  }
+  .box-toggle input { margin: 0; accent-color: var(--box-color); }
+  .box-toggle:has(input:checked) { background: var(--panel); border-color: var(--box-color); }
+  :focus-visible { outline: 2px solid var(--box); outline-offset: 2px; }
   #info {
     background: var(--panel); border-radius: 10px;
     padding: 12px 16px; margin-bottom: 16px; font-size: 14px; max-width: 800px;
@@ -67,15 +92,24 @@
   #info .scale-name { font-size: 17px; font-weight: 700; display: block; margin-bottom: 2px; }
   #info .added { color: var(--gold); font-weight: 600; }
   #info .hint { color: var(--muted); font-size: 12.5px; display: block; margin-top: 4px; }
+  #info .box-summary { display: flex; flex-wrap: wrap; gap: 2px 14px; margin-top: 4px; }
+  #info .box-range { color: var(--box-color); }
+  .scroll-hint { display: none; margin: 0 0 6px; }
   #board { overflow-x: auto; }
-  svg { max-width: 100%; height: auto; display: block; min-width: 680px; }
+  #board svg { max-width: 100%; height: auto; display: block; min-width: 680px; }
+  .box-band { fill: var(--box-color); fill-opacity: .13; stroke: var(--box-color); stroke-width: 1.5; }
+  .box-number { fill: var(--box-color); font-size: 14px; font-weight: 700; text-anchor: middle; }
   .legend { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 12px; font-size: 13px; color: var(--muted); }
   .swatch { display: inline-block; width: 14px; height: 14px; border-radius: 50%; margin-right: 6px; vertical-align: -2px; }
   footer {
     margin-top: 60px; padding-top: 20px; border-top: 1px solid #2d2444;
     text-align: center; color: var(--muted); font-size: 13px;
   }
-  footer a { color: var(--purple); text-decoration: none; }
+  @media (max-width: 716px) {
+    .scroll-hint { display: block; }
+    .group-label { width: 100%; }
+    button, select, .box-toggle { min-height: 44px; }
+  }
 </style>
 </head>
 <body>
@@ -83,12 +117,14 @@
 <header>
   <h1>Musiikin <span>kartta</span></h1>
   <p class="tagline">Avoin suomenkielinen opas musiikin harmoniasta, korvakuulolta soittamisesta ja kitaran hahmottamisesta.</p>
+  <a class="jump-link" href="#harjoittelija">Kokeile otelautaa</a>
 </header>
 
 <main>
 
 <section>
   <h2>Kirjan osat</h2>
+  <p class="tools-note">Opas on kirjoitusvaiheessa. Katso <a href="book/SISALLYSLUETTELO.md">kirjan sisällysluettelo</a>.</p>
   <div class="parts">
     <div class="part"><b><span class="num">I</span>Miten musiikki toimii</b><span>Harmonian perusteet: sävelet, intervallit, soinnut ja asteikot.</span></div>
     <div class="part"><b><span class="num">II</span>Näe kappaleiden rakenne</b><span>Säkeistöt, kertosäkeet ja harmonian kulku kappaleen selkärankana.</span></div>
@@ -98,44 +134,58 @@
   </div>
 </section>
 
-<section>
+<section id="harjoittelija">
   <h2>Työkalu: Otelautaharjoittelija</h2>
   <p class="tools-note">
-    Harjoittele pentatonisia pohjia ja moodeja suoraan selaimessa. Valitse toonikka ja asteikko –
-    violetit pisteet ovat pentatonisen pohjan sävelet, kultaiset pisteet moodin lisäsävelet.
-    Numero pisteessä kertoo sävelen asteen suhteessa toonikkaan (R = toonikka).
+    Valitse toonikka ja asteikko. Violetit pisteet ovat pentatonisen pohjan säveliä ja kultaiset
+    moodin lisäsäveliä. Numero kertoo sävelen asteen suhteessa toonikkaan. Toonikka on 1.
   </p>
 
   <div class="controls">
     <div class="group">
-      <span class="group-label">Toonikka (juurisävel):</span>
-      <span id="roots"></span>
+      <span class="group-label" id="root-label">Toonikka (juurisävel)</span>
+      <span id="roots" role="group" aria-labelledby="root-label"></span>
     </div>
-    <div class="group">
-      <span class="group-label">Mollipentatoninen pohja:</span>
-      <button data-scale="mp" class="active">Mollipentatoninen</button>
+    <div class="group" role="group" aria-labelledby="minor-label">
+      <span class="group-label" id="minor-label">Mollipentatoninen pohja</span>
+      <button data-scale="mp">Mollipentatoninen</button>
       <button data-scale="dorian">Doorinen</button>
       <button data-scale="phrygian">Fryyginen</button>
       <button data-scale="aeolian">Aiolinen</button>
       <button data-scale="locrian">Lokrinen</button>
     </div>
-    <div class="group">
-      <span class="group-label">Duuripentatoninen pohja:</span>
+    <div class="group" role="group" aria-labelledby="major-label">
+      <span class="group-label" id="major-label">Duuripentatoninen pohja</span>
       <button data-scale="majp">Duuripentatoninen</button>
       <button data-scale="ionian">Jooninen</button>
       <button data-scale="lydian">Lyydinen</button>
       <button data-scale="mixolydian">Miksolyydinen</button>
     </div>
+    <div class="group">
+      <label class="group-label" for="box-system">Sormitustapa</label>
+      <select id="box-system" aria-describedby="box-help">
+        <option value="pentatonic">Pentatoniset boksit</option>
+        <option value="3nps">3 säveltä per kieli (3NPS)</option>
+      </select>
+    </div>
+    <div class="group" id="box-controls" role="group" aria-labelledby="box-label">
+      <span class="group-label" id="box-label">Näytettävät sormitusboksit</span>
+      <div class="box-options" id="pentatonic-boxes"></div>
+      <div class="box-options" id="three-note-boxes" hidden></div>
+    </div>
+    <p class="tools-note" id="box-help" aria-live="polite"></p>
   </div>
 
-  <div id="info"></div>
-  <div id="board"></div>
+  <div id="info" aria-live="polite" aria-atomic="true"></div>
+  <p class="tools-note scroll-hint">Näet lisää nauhoja vierittämällä otelautaa sivusuunnassa.</p>
+  <div id="board" role="region" aria-label="Kitaran otelauta" tabindex="0"></div>
 
   <div class="legend">
     <span><span class="swatch" style="background:#6d4aff"></span>Pentatoninen pohjasävel</span>
-    <span><span class="swatch" style="background:#4b2fd6"></span>Toonikka (R)</span>
+    <span><span class="swatch" style="background:#4b2fd6; border:2px solid #fff"></span>Toonikka (1)</span>
     <span><span class="swatch" style="background:#f0a13c"></span>Moodin lisäsävel</span>
   </div>
+  <p class="tools-note"><strong>Kokeile.</strong> Valitse pentatoniset boksit ja soita G-mollipentatoninen boksista 1. Vaihda G-dooriseen ja etsi kaksi uutta säveltä, A ja E.</p>
 </section>
 
 </main>
@@ -147,116 +197,264 @@
 
 <script>
 (function () {
-  const CHROM   = ['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
-  const STRINGS = [4, 11, 7, 2, 9, 4]; // e, B, G, D, A, E
-  const FRETS   = 15;
+  const CHROM = ['C','C♯','D','E♭','E','F','F♯','G','A♭','A','B♭','B'];
+  const LETTERS = 'CDEFGAB';
+  const NATURAL_PITCHES = [0, 2, 4, 5, 7, 9, 11];
+  const OPEN_PITCHES = [64, 59, 55, 50, 45, 40]; // MIDI-sävelkorkeudet ohuimmalta kieleltä paksuimmalle.
+  const LOW_E = OPEN_PITCHES.at(-1);
+  const STRING_NAMES = ['e', 'B', 'G', 'D', 'A', 'E'];
+  const PENTATONIC_FRETS = 15;
+  const THREE_NOTE_FRETS = 17;
+  const DIATONIC_DEGREES = 7;
 
-  const PENT_MIN = [[0,'1'],[3,'b3'],[5,'4'],[7,'5'],[10,'b7']];
+  const PENT_MIN = [[0,'1'],[3,'♭3'],[5,'4'],[7,'5'],[10,'♭7']];
   const PENT_MAJ = [[0,'1'],[2,'2'],[4,'3'],[7,'5'],[9,'6']];
+
+  // A-mollipentatonisen vakioboksit ohuimmalta kieleltä paksuimmalle.
+  const MINOR_BOXES = [
+    [[5, 8], [5, 8], [5, 7], [5, 7], [5, 7], [5, 8]],
+    [[8, 10], [8, 10], [7, 9], [7, 10], [7, 10], [8, 10]],
+    [[10, 12], [10, 13], [9, 12], [10, 12], [10, 12], [10, 12]],
+    [[12, 15], [13, 15], [12, 14], [12, 14], [12, 15], [12, 15]],
+    [[15, 17], [15, 17], [14, 17], [14, 17], [15, 17], [15, 17]],
+  ];
 
   const SCALES = {
     mp:        { name: 'mollipentatoninen', base: PENT_MIN, add: [],
-                 hint: 'Tuttu boksi – improvisaation turvapohja. Lisää 2 säveltä, niin syntyy mollimoodi.' },
+                 hint: 'Kokeile samaa boksia doorisessa, fryygisessä tai aiolisessa moodissa.' },
     dorian:    { name: 'doorinen', base: PENT_MIN, add: [[2,'2'],[9,'6']],
                  hint: 'Lisäsävelet: 2. aste ja luonnollinen 6. aste – jazzia ja funkia.' },
-    phrygian:  { name: 'fryyginen', base: PENT_MIN, add: [[1,'b2'],[8,'b6']],
-                 hint: 'Lisäsävelet: b2 ja b6 – tumma, "espanjalainen" sävy.' },
-    aeolian:   { name: 'aiolinen', base: PENT_MIN, add: [[2,'2'],[8,'b6']],
-                 hint: 'Lisäsävelet: 2. aste ja b6 – luonnollinen molli.' },
-    locrian:   { name: 'lokrinen', base: [[0,'1'],[3,'b3'],[5,'4'],[10,'b7']],
-                 add: [[1,'b2'],[6,'b5'],[8,'b6']],
-                 hint: 'Poikkeus: 5. aste alennettu (b5) – 3 lisäsäveltä, epävakaa luonne.' },
+    phrygian:  { name: 'fryyginen', base: PENT_MIN, add: [[1,'♭2'],[8,'♭6']],
+                 hint: 'Alennettu 2. ja 6. aste antavat moodille tumman sävyn.' },
+    aeolian:   { name: 'aiolinen', base: PENT_MIN, add: [[2,'2'],[8,'♭6']],
+                 hint: 'Aiolinen on luonnollinen molli.' },
+    locrian:   { name: 'lokrinen', base: [[0,'1'],[3,'♭3'],[5,'4'],[10,'♭7']],
+                 add: [[1,'♭2'],[6,'♭5'],[8,'♭6']],
+                 hint: 'Mollipentatoninen boksi toimii vertailukohtana. Lokrinen käyttää puhtaan kvintin tilalla alennettua kvinttiä.' },
     majp:      { name: 'duuripentatoninen', base: PENT_MAJ, add: [],
                  hint: 'Kirkas boksi – lisää 2 säveltä, niin syntyy duurimoodi.' },
     ionian:    { name: 'jooninen', base: PENT_MAJ, add: [[5,'4'],[11,'7']],
                  hint: 'Lisäsävelet: 4. ja 7. aste – tavallinen duuri.' },
-    lydian:    { name: 'lyydinen', base: PENT_MAJ, add: [[6,'#4'],[11,'7']],
-                 hint: 'Lisäsävelet: #4 ja 7. aste – leijuva, kirkas sävy.' },
-    mixolydian:{ name: 'miksolyydinen', base: PENT_MAJ, add: [[5,'4'],[10,'b7']],
-                 hint: 'Lisäsävelet: 4. aste ja b7 – blues-rock-duuri.' }
+    lydian:    { name: 'lyydinen', base: PENT_MAJ, add: [[6,'♯4'],[11,'7']],
+                 hint: 'Korotettu 4. aste antaa moodille leijuvan sävyn.' },
+    mixolydian:{ name: 'miksolyydinen', base: PENT_MAJ, add: [[5,'4'],[10,'♭7']],
+                 hint: 'Alennettu 7. aste on tuttu bluesista ja rockista.' }
   };
 
   let rootPC = 7, scaleId = 'mp';
+  const board = document.getElementById('board');
+  const boxSystem = document.getElementById('box-system');
+  const boxControls = document.getElementById('box-controls');
+  const boxHelp = document.getElementById('box-help');
+  const pentatonicBoxes = document.getElementById('pentatonic-boxes');
+  const threeNoteBoxes = document.getElementById('three-note-boxes');
 
-  const PAD_L = 26, PAD_T = 30, FW0 = 46, FW = 54, SS = 34, R = 11;
-  const width  = PAD_L + FW0 + FRETS * FW + 20;
-  const height = PAD_T + (STRINGS.length - 1) * SS + 30;
-  const wireX  = f => PAD_L + FW0 + (f - 1) * FW;
-  const cellCX = f => (f === 0 ? PAD_L + FW0 / 2 : wireX(f) + FW / 2);
+  const OPEN_LEFT = 26, NUT_X = 72;
+  const PAD_T = 30, FW = 54, SS = 34, R = 11;
+  const openCenter = (OPEN_LEFT + NUT_X) / 2;
+  const height = PAD_T + (OPEN_PITCHES.length - 1) * SS + 30;
+  const wireX = fret => NUT_X + fret * FW;
+  const cellCX = fret => fret === 0 ? openCenter : wireX(fret) - FW / 2;
   const stringY = i => PAD_T + i * SS;
 
-  function render() {
+  function noteName(root, interval, degree) {
+    const index = LETTERS.indexOf(CHROM[root][0]) + Number(degree.slice(-1)) - 1;
+    const letter = index % LETTERS.length;
+    const naturalPitch = NATURAL_PITCHES[letter] + 12 * Math.floor(index / LETTERS.length);
+    const accidental = root + interval - naturalPitch;
+    return LETTERS[letter] + (accidental < 0 ? '♭' : '♯').repeat(Math.abs(accidental));
+  }
+
+  function getPentatonicBox(index, major) {
+    // Rinnakkaisduurin toonika on mollipohjan toinen sävel.
+    const shapeIndex = index + (major ? 1 : 0);
+    const shape = MINOR_BOXES[shapeIndex % MINOR_BOXES.length];
+    const first = Math.min(...shape.map(([low]) => low));
+    const last = Math.max(...shape.map(([, high]) => high));
+    const rootFret = (rootPC - (LOW_E % 12) + 12) % 12;
+    const referenceRootFret = major ? 8 : 5; // C tai A paksuimmalla E-kielellä
+    let shift = rootFret - referenceRootFret + 12 * Math.floor(shapeIndex / MINOR_BOXES.length);
+    // Siirrä kokonainen boksi tarvittaessa oktaavia ylös tai alas.
+    if (first + shift < 0) shift += 12;
+    if (last + shift > PENTATONIC_FRETS) shift -= 12;
+    return {
+      strings: shape.map(pair => pair.map(fret => fret + shift)),
+      start: first + shift,
+      end: last + shift
+    };
+  }
+
+  function getThreeNoteBox(index, intervals) {
+    const firstInterval = intervals[index];
+    const firstFret = (rootPC + firstInterval - (LOW_E % 12) + 12) % 12;
+    const tonicPitch = LOW_E + firstFret - firstInterval;
+    const strings = OPEN_PITCHES.map((openPitch, string) => {
+      // Kulje asteikkoa paksuimmalta kieleltä ylöspäin, kolme säveltä kerrallaan.
+      const firstStep = index + (OPEN_PITCHES.length - 1 - string) * 3;
+      return [firstStep, firstStep + 1, firstStep + 2].map(step => {
+        const octave = Math.floor(step / intervals.length);
+        const interval = intervals[step % intervals.length];
+        return tonicPitch + interval + 12 * octave - openPitch;
+      });
+    });
+    return {
+      strings,
+      start: Math.min(...strings.map(frets => frets[0])),
+      end: Math.max(...strings.map(frets => frets.at(-1)))
+    };
+  }
+
+  function boxOptions(count) {
+    return Array.from({ length: count }, (_, index) => {
+      const number = index + 1;
+      return '<label class="box-toggle" data-box="' + number + '"><input type="checkbox" value="' +
+        number + '"> Boksi ' + number + '</label>';
+    }).join('');
+  }
+
+  function render(revealNumber) {
     const sc = SCALES[scaleId];
     const rootName = CHROM[rootPC];
+    const allIv = [...sc.base, ...sc.add].sort((a, b) => a[0] - b[0]);
+    const intervals = allIv.map(([interval]) => interval);
+    const threeNotes = boxSystem.value === '3nps';
+    const unavailable = threeNotes && intervals.length !== DIATONIC_DEGREES;
+    pentatonicBoxes.hidden = threeNotes;
+    threeNoteBoxes.hidden = !threeNotes;
+    boxControls.hidden = unavailable;
+    let help = 'Voit näyttää useita bokseja kerralla. Boksi 1 alkaa toonikalta paksuimmalla E-kielellä.';
+    if (unavailable) {
+      help = 'Valitse seitsemänsävelinen moodi, esimerkiksi doorinen tai jooninen, niin saat 3NPS-boksit näkyviin.';
+    } else if (threeNotes) {
+      help = 'Soita kolme peräkkäistä asteikon säveltä jokaiselta kieleltä. Boksi 1 alkaa toonikalta paksuimmalla E-kielellä, muut asteikon seuraavilta säveliltä.';
+    }
+    if (boxHelp.textContent !== help) boxHelp.textContent = help;
+    const activeOptions = threeNotes ? threeNoteBoxes : pentatonicBoxes;
+    const selected = unavailable ? [] : [...activeOptions.querySelectorAll('input:checked')];
+    const boxes = selected.map(input => {
+      const number = Number(input.value);
+      const index = number - 1;
+      const box = threeNotes ? getThreeNoteBox(index, intervals) : getPentatonicBox(index, sc.base === PENT_MAJ);
+      return { number, ...box };
+    });
+    const fretCount = threeNotes && !unavailable ? THREE_NOTE_FRETS : PENTATONIC_FRETS;
+    const fretboardEnd = wireX(fretCount);
+    const bridgeX = fretboardEnd + 48;
+    const width = bridgeX + 28;
+    const neckTop = PAD_T - 14;
+    const neckBottom = stringY(OPEN_PITCHES.length - 1) + 14;
+    const neckHeight = neckBottom - neckTop;
     const ivMap = {};
     sc.base.forEach(([iv, deg]) => ivMap[(rootPC + iv) % 12] = { deg, added: false });
     sc.add.forEach(([iv, deg]) => ivMap[(rootPC + iv) % 12] = { deg, added: true });
 
-    const allIv = [...sc.base, ...sc.add].sort((a, b) => a[0] - b[0]);
-    const names = allIv.map(([iv]) => CHROM[(rootPC + iv) % 12]);
-    const addedPairs = sc.add.map(([iv, deg]) => CHROM[(rootPC + iv) % 12] + ' (' + deg + ')');
+    const names = allIv.map(([iv, deg]) => noteName(rootPC, iv, deg));
+    const addedPairs = sc.add.map(([iv, deg]) => noteName(rootPC, iv, deg) + ' (' + deg + ')');
 
-    let s = '<svg viewBox="0 0 ' + width + ' ' + height + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' + rootName + ' ' + sc.name + '">';
-    s += '<rect x="' + PAD_L + '" y="' + (PAD_T - 14) + '" width="' + (width - PAD_L - 10) + '" height="' + ((STRINGS.length - 1) * SS + 28) + '" rx="8" fill="#231a12"/>';
-    for (let f = 1; f <= FRETS; f++)
-      s += '<line x1="' + wireX(f) + '" y1="' + (PAD_T - 14) + '" x2="' + wireX(f) + '" y2="' + (PAD_T + (STRINGS.length - 1) * SS + 14) + '" stroke="#5c4a38" stroke-width="2"/>';
-    s += '<rect x="' + PAD_L + '" y="' + (PAD_T - 14) + '" width="7" height="' + ((STRINGS.length - 1) * SS + 28) + '" fill="#d8cbb6"/>';
-    const midY = PAD_T + ((STRINGS.length - 1) * SS) / 2;
-    [3, 5, 7, 9, 15].forEach(f =>
+    rootButtons.forEach((button, pc) => button.setAttribute('aria-pressed', pc === rootPC));
+    scaleButtons.forEach(button => button.setAttribute('aria-pressed', button.dataset.scale === scaleId));
+
+    let s = '<svg viewBox="0 0 ' + width + ' ' + height + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' +
+      rootName + ' ' + sc.name + '. Vapaat kielet satulan vasemmalla puolella.">';
+    s += '<rect x="' + OPEN_LEFT + '" y="' + neckTop + '" width="' + (NUT_X - OPEN_LEFT) + '" height="' + neckHeight + '" rx="6" fill="#2a2338"/>';
+    s += '<rect x="' + NUT_X + '" y="' + neckTop + '" width="' + (fretboardEnd - NUT_X) + '" height="' + neckHeight + '" fill="#231a12"/>';
+    s += '<rect x="' + fretboardEnd + '" y="' + neckTop + '" width="' + (width - fretboardEnd - 4) + '" height="' + neckHeight + '" rx="8" fill="#32251e"/>';
+    for (let f = 1; f <= fretCount; f++)
+      s += '<line x1="' + wireX(f) + '" y1="' + neckTop + '" x2="' + wireX(f) + '" y2="' + neckBottom + '" stroke="#6f5b47" stroke-width="2"/>';
+    s += '<rect x="' + (NUT_X - 3) + '" y="' + neckTop + '" width="6" height="' + neckHeight + '" rx="2" fill="#d8cbb6"/>';
+    s += '<rect x="' + (bridgeX - 11) + '" y="' + (neckTop + 3) + '" width="22" height="' + (neckHeight - 6) + '" rx="7" fill="#49434f" stroke="#a49b9d"/>';
+    s += '<rect x="' + (bridgeX - 4) + '" y="' + (neckTop + 7) + '" width="3" height="' + (neckHeight - 14) + '" rx="1.5" fill="#d8cbb6"/>';
+    const midY = (neckTop + neckBottom) / 2;
+    [3, 5, 7, 9, 15, 17].filter(f => f <= fretCount).forEach(f =>
       s += '<circle cx="' + cellCX(f) + '" cy="' + midY + '" r="5.5" fill="#7a6550"/>');
-    s += '<circle cx="' + (cellCX(12) - 11) + '" cy="' + midY + '" r="5.5" fill="#7a6550"/>';
-    s += '<circle cx="' + (cellCX(12) + 11) + '" cy="' + midY + '" r="5.5" fill="#7a6550"/>';
-    for (let f = 0; f <= FRETS; f += 3)
+    s += '<circle cx="' + cellCX(12) + '" cy="' + (midY - SS) + '" r="5.5" fill="#7a6550"/>';
+    s += '<circle cx="' + cellCX(12) + '" cy="' + (midY + SS) + '" r="5.5" fill="#7a6550"/>';
+    s += '<text x="' + openCenter + '" y="' + (height - 6) + '" font-size="12" fill="#a89fc4" text-anchor="middle">Vapaa</text>';
+    s += '<text x="' + NUT_X + '" y="12" font-size="12" fill="#a89fc4" text-anchor="middle">Satula</text>';
+    s += '<text x="' + bridgeX + '" y="' + (height - 6) + '" font-size="12" fill="#a89fc4" text-anchor="middle">Talla</text>';
+    for (let f = 1; f <= fretCount; f++)
       s += '<text x="' + cellCX(f) + '" y="' + (height - 6) + '" font-size="11" fill="#a89fc4" text-anchor="middle">' + f + '</text>';
-    STRINGS.forEach((_, i) => {
-      const th = 1 + (i * 0.45);
-      s += '<line x1="' + PAD_L + '" y1="' + stringY(i) + '" x2="' + (width - 12) + '" y2="' + stringY(i) + '" stroke="#b9b9c4" stroke-width="' + th.toFixed(2) + '"/>';
+    boxes.forEach(box => {
+      s += '<g class="box-highlight" data-box="' + box.number + '" aria-hidden="true">';
+      const topFrets = box.strings[0];
+      const labelX = (cellCX(topFrets[0]) + cellCX(topFrets.at(-1))) / 2;
+      s += '<text class="box-number" x="' + labelX + '" y="12">' + box.number + '</text>';
+      box.strings.forEach((frets, i) => {
+        const left = cellCX(frets[0]) - 16;
+        const bandWidth = cellCX(frets.at(-1)) - cellCX(frets[0]) + 32;
+        s += '<rect class="box-band" x="' + left + '" y="' + (stringY(i) - 14) + '" width="' + bandWidth + '" height="28" rx="14"/>';
+      });
+      s += '</g>';
     });
-    STRINGS.forEach((openPc, si) => {
-      for (let f = 0; f <= FRETS; f++) {
-        const pc = (openPc + f) % 12;
+    OPEN_PITCHES.forEach((_, i) => {
+      const th = 1 + (i * 0.45);
+      const y = stringY(i);
+      s += '<line x1="' + (OPEN_LEFT + 4) + '" y1="' + y + '" x2="' + (NUT_X - 4) + '" y2="' + y + '" stroke="#8b809d" stroke-dasharray="3 3"/>';
+      s += '<line x1="' + NUT_X + '" y1="' + y + '" x2="' + (bridgeX + 5) + '" y2="' + y + '" stroke="#b9b9c4" stroke-width="' + th.toFixed(2) + '"/>';
+      s += '<circle cx="' + (bridgeX + 5) + '" cy="' + y + '" r="3" fill="#211c26" stroke="#b9b9c4"/>';
+      s += '<text x="13" y="' + (y + 4) + '" font-size="14" fill="#efeaff" text-anchor="middle">' + STRING_NAMES[i] + '</text>';
+    });
+    OPEN_PITCHES.forEach((openPitch, si) => {
+      for (let f = 0; f <= fretCount; f++) {
+        const pc = (openPitch + f) % 12;
         if (!(pc in ivMap)) continue;
         const info = ivMap[pc];
         const isRoot = info.deg === '1';
         const fill = info.added ? '#f0a13c' : (isRoot ? '#4b2fd6' : '#6d4aff');
+        const textColor = info.added ? '#1a1430' : '#fff';
         s += '<circle cx="' + cellCX(f) + '" cy="' + stringY(si) + '" r="' + R + '" fill="' + fill + '" stroke="' + (isRoot ? '#fff' : '#1a1430') + '" stroke-width="' + (isRoot ? 2.5 : 1) + '"/>';
-        s += '<text x="' + cellCX(f) + '" y="' + (stringY(si) + 3.2) + '" font-size="' + (info.deg.length > 1 ? 8 : 9.5) + '" font-weight="700" fill="#fff" text-anchor="middle">' + info.deg + '</text>';
+        s += '<text x="' + cellCX(f) + '" y="' + (stringY(si) + 3.5) + '" font-size="' + (info.deg.length > 1 ? 9.5 : 11) + '" font-weight="700" fill="' + textColor + '" text-anchor="middle">' + info.deg + '</text>';
       }
     });
     s += '</svg>';
-    document.getElementById('board').innerHTML = s;
+    board.innerHTML = s;
+    const boxToReveal = revealNumber ?? (boxes.length === 1 ? boxes[0].number : null);
+    if (boxToReveal !== null) {
+      const highlight = board.querySelector('.box-highlight[data-box="' + boxToReveal + '"]').getBoundingClientRect();
+      const viewport = board.getBoundingClientRect();
+      if (highlight.left < viewport.left || highlight.right > viewport.right) {
+        board.scrollLeft += highlight.left - viewport.left - 8;
+      }
+    }
 
+    const boxRanges = boxes.map(box => {
+      const range = box.start === 0 ? 'vapaista kielistä nauhalle ' + box.end : 'nauhat ' + box.start + '–' + box.end;
+      return '<span class="box-range" data-box="' + box.number + '">Boksi ' + box.number + ' · ' + range + '</span>';
+    });
     document.getElementById('info').innerHTML =
       '<span class="scale-name">' + rootName + '-' + sc.name + '</span>' +
       'Sävelet: <b>' + names.join(' – ') + '</b>' +
-      (addedPairs.length ? ' &nbsp;·&nbsp; Lisäsävelet: <span class="added">' + addedPairs.join(' ja ') + '</span>' : '') +
-      (sc.hint ? '<span class="hint">' + sc.hint + '</span>' : '');
+      (addedPairs.length ? ' &nbsp;·&nbsp; Lisäsävelet: <span class="added">' + addedPairs.join(', ') + '</span>' : '') +
+      '<span class="hint">' + sc.hint + '</span>' +
+      (boxRanges.length ? '<span class="box-summary">' + boxRanges.join(' ') + '</span>' : '');
   }
 
   const rootsEl = document.getElementById('roots');
-  CHROM.forEach((n, pc) => {
-    const b = document.createElement('button');
-    b.className = 'root-btn';
-    b.textContent = n;
-    b.addEventListener('click', () => {
+  const rootButtons = CHROM.map((name, pc) => {
+    const button = document.createElement('button');
+    button.textContent = name;
+    button.addEventListener('click', () => {
       rootPC = pc;
-      rootsEl.querySelectorAll('button').forEach(x => x.classList.remove('active'));
-      b.classList.add('active');
       render();
     });
-    if (pc === rootPC) b.classList.add('active');
-    rootsEl.appendChild(b);
+    rootsEl.appendChild(button);
+    return button;
   });
 
-  document.querySelectorAll('[data-scale]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('[data-scale]').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      scaleId = btn.dataset.scale;
+  const scaleButtons = document.querySelectorAll('[data-scale]');
+  scaleButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      scaleId = button.dataset.scale;
       render();
     });
   });
 
+  pentatonicBoxes.innerHTML = boxOptions(MINOR_BOXES.length);
+  threeNoteBoxes.innerHTML = boxOptions(DIATONIC_DEGREES);
+  boxSystem.addEventListener('change', () => render());
+  boxControls.addEventListener('change', ({ target }) => {
+    render(target.checked ? Number(target.value) : undefined);
+  });
   render();
 })();
 </script>
