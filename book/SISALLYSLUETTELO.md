@@ -17,17 +17,18 @@
 ## Osa III – Kitara työkaluna
 11. Otelauta
 12. CAGED
-13. Septimisoinnut
-14. Pentatoniikka
-15. Moodit käytännössä
+13. Barré-soinnut ja numerokartta
+14. Septimisoinnut
+15. Pentatoniikka
+16. Moodit käytännössä
 
 ## Osa IV – Korvakuulo
-16. Intervallien tunnistaminen
-17. Bassolinjan kuuleminen
-18. Sointujen tunnistaminen
-19. Kappaleen purkaminen ilman nuotteja
+17. Intervallien tunnistaminen
+18. Bassolinjan kuuleminen
+19. Sointujen tunnistaminen
+20. Kappaleen purkaminen ilman nuotteja
 
 ## Osa V – Soveltaminen
-20. Improvisointi
-21. Sovittaminen
-22. Oman kappaleen tekeminen ja oma ilmaisu
+21. Improvisointi
+22. Sovittaminen
+23. Oman kappaleen tekeminen ja oma ilmaisu

@@ -269,6 +269,23 @@ const aanet = (() => {
       }
     },
     {
+      file: 'osa-3/barre-numerokartta',
+      build() {
+        const s = new Score({ bpm: 88 });
+        // I–V–vi–IV barré-otteilla: ensin G-duuri, sitten sama kuvio kaksi nauhaa ylempänä.
+        const keys = [
+          ['3 5 5 4 3 3', 'x 5 7 7 7 5', 'x 7 9 9 8 7', 'x 3 5 5 5 3'],
+          ['5 7 7 6 5 5', 'x 7 9 9 9 7', 'x 9 11 11 10 9', 'x 5 7 7 7 5']
+        ];
+        keys.flat().forEach((shape, bar) => {
+          const last = bar === 7;
+          s.strum(bar * 4, shape, last ? 5 : 2, { pan: 0, velocity: .78 });
+          if (!last) s.strum(bar * 4 + 2, shape, 2, { pan: 0, velocity: .64, up: true });
+        });
+        return s;
+      }
+    },
+    {
       file: 'osa-3/samat-viisi-savelta',
       build() {
         const s = new Score({ bpm: 84 });

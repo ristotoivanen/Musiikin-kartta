@@ -14,7 +14,7 @@ Tarvitset macOS:n, koska palvelin muuntaa äänet `afconvert`-työkalulla.
 
 1. Käynnistä palvelin repon juuresta: `python3 tools/aanet/palvelin.py`
 2. Avaa selaimessa `http://127.0.0.1:8766/tools/aanet/`
-3. Kuuntele muuttamasi esimerkki **Kuuntele**-painikkeella ja paina lopuksi **Tallenna kaikki**.
+3. Kuuntele muuttamasi esimerkki **Kuuntele**-painikkeella. Tallenna se rivin **Tallenna**-painikkeella, tai kaikki kerralla painikkeella **Tallenna kaikki**.
 
 Palvelin tekee jokaisesta esimerkistä AAC-tiedoston (`.m4a`, 128 kbit/s, stereo) ja varalle mono-WAV-tiedoston (24 kHz). Kirjan sivut käyttävät molempia `<source>`-elementeillä.
 

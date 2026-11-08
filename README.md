@@ -10,7 +10,7 @@ Musiikin kartta on avoin suomenkielinen verkko-opas musiikin teoriaan ja kitaran
 | --- | --- |
 | [I · Miten musiikki toimii](https://rinnepelto.com/book/osa-1) | Sävelet, intervallit, asteikot ja sointujen tehtävät. |
 | [II · Näe kappaleiden rakenne](https://rinnepelto.com/book/osa-2) | Säkeistöt, kertosäkeet, sointukierrot ja sävellajin vaihtaminen. |
-| [III · Kitara työkaluna](https://rinnepelto.com/book/osa-3) | Otelauta, CAGED, septimisoinnut, pentatoniikka ja moodit. |
+| [III · Kitara työkaluna](https://rinnepelto.com/book/osa-3) | Otelauta, CAGED, barré-soinnut, septimisoinnut, pentatoniikka ja moodit. |
 | [IV · Korvakuulo](https://rinnepelto.com/book/osa-4) | Sävelvälien, basson ja sointujen tunnistaminen kuuntelemalla. |
 | [V · Soveltaminen](https://rinnepelto.com/book/osa-5) | Improvisointi, sovittaminen ja oma kahdeksan tahdin kappale. |
 

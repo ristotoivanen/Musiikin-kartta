@@ -54,7 +54,7 @@
   const rows = aanet.examples.map(example => {
     const row = document.createElement('div');
     row.className = 'row';
-    row.innerHTML = '<code></code><button type="button">Kuuntele</button><span class="state"></span>';
+    row.innerHTML = '<code></code><button type="button">Kuuntele</button><button type="button" class="save">Tallenna</button><span class="state"></span>';
     row.querySelector('code').textContent = example.file;
     const state = row.querySelector('.state');
     const render = async () => {
@@ -63,6 +63,10 @@
       state.textContent = buffer.duration.toFixed(1) + ' s';
       return buffer;
     };
+    row.querySelector('.save').addEventListener('click', async () => {
+      const response = await fetch('/tallenna/' + example.file + '.wav', { method: 'PUT', body: wav(await render()) });
+      state.textContent += response.ok ? ' · tallennettu' : ' · tallennus epäonnistui (' + response.status + ')';
+    });
     row.querySelector('button').addEventListener('click', async () => {
       const blob = wav(await render());
       row.querySelector('audio')?.remove();
