@@ -48,6 +48,7 @@ h1 { margin: 0 0 12px; font-size: clamp(26px, 5vw, 38px); line-height: 1.2; }
 .group { margin-bottom: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .group-label { font-size: 13px; font-weight: 600; color: var(--muted); width: 220px; }
 #roots { display: flex; flex-wrap: wrap; gap: 6px; }
+.chord-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
 button, select {
   background: var(--panel); color: var(--text);
   border: 1px solid #71638c; border-radius: 8px;
@@ -92,6 +93,7 @@ button[aria-pressed="true"] { background: var(--purple-dark); border-color: var(
 .box-partial .box-band { stroke-dasharray: 4 3; }
 .box-number { fill: var(--box-color); font-size: 14px; font-weight: 700; text-anchor: middle; }
 .legend { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 12px; font-size: 13px; color: var(--muted); }
+.legend[hidden] { display: none; }
 .swatch { display: inline-block; width: 14px; height: 14px; border-radius: 50%; margin-right: 6px; vertical-align: -2px; }
 footer {
   margin-top: 60px; padding-top: 20px; border-top: 1px solid #2d2444;

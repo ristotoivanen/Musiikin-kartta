@@ -33,6 +33,7 @@
   .backing-detail { margin: 4px 0; }
   .backing-chords { color: var(--lavender); font-weight: 700; }
   .backing-cue { color: var(--gold); }
+  .backing-boxes { margin: 0 0 12px; }
   .focus-note { fill: none; stroke: var(--box); stroke-width: 2; }
   .focus-swatch { border: 2px solid var(--box); }
   @media (max-width: 520px) {
@@ -88,6 +89,28 @@
     <p class="backing-detail"><strong>Sävelet</strong> <span id="scale-notes"></span></p>
   </section>
 
+  <details class="advanced-options backing-boxes">
+    <summary>Sormitusboksit <span class="advanced-caption" id="box-summary"></span></summary>
+    <div class="advanced-fields">
+      <div class="group">
+        <label class="group-label" for="box-system">Sormitustapa</label>
+        <select id="box-system">
+          <option value="pentatonic">Pentatoniset boksit</option>
+          <option value="3nps">3 säveltä per kieli (3NPS)</option>
+        </select>
+      </div>
+      <div class="group" id="box-controls" role="group" aria-labelledby="box-label">
+        <span class="group-label" id="box-label">Näytettävät sormitusboksit</span>
+        <div class="box-options" id="pentatonic-boxes"></div>
+        <div class="box-options" id="three-note-boxes" hidden></div>
+      </div>
+      <label class="box-toggle box-filter">
+        <input type="checkbox" id="box-notes-only" disabled>
+        Näytä vain valittujen boksien sävelet
+      </label>
+    </div>
+  </details>
+
   <p class="tools-note scroll-hint" id="scroll-hint" hidden>Näet lisää nauhoja vierittämällä otelautaa sivusuunnassa.</p>
   <div id="board" role="region" aria-label="Kitaran otelauta" tabindex="0"></div>
   <div class="legend">
@@ -111,7 +134,8 @@
 <script src="assets/harjoitustausta.js"></script>
 <script>
 (function () {
-  const { CHROM, SCALES, noteName, scaleNotes, selectionFromURL, selectionHref, renderBoard } = fretboard;
+  const { CHROM, SCALES, noteName, scaleNotes, selectionFromURL, selectionHref, renderBoard,
+    BOX_FRETS, defaultBoxSystem, fingeringBoxes, boxOptions, revealPositions } = fretboard;
   const { presets, makeScore, renderLoop } = backingTrack;
   const root = document.getElementById('backing-root');
   const scale = document.getElementById('backing-scale');
@@ -124,6 +148,12 @@
   const board = document.getElementById('board');
   const scrollHint = document.getElementById('scroll-hint');
   const trainerLink = document.getElementById('trainer-link');
+  const boxSystem = document.getElementById('box-system');
+  const boxControls = document.getElementById('box-controls');
+  const boxSummary = document.getElementById('box-summary');
+  const boxNotesOnly = document.getElementById('box-notes-only');
+  const pentatonicBoxes = document.getElementById('pentatonic-boxes');
+  const threeNoteBoxes = document.getElementById('three-note-boxes');
   const { rootPC, scaleId } = selectionFromURL(9, 'dorian');
 
   CHROM.forEach((name, index) => root.add(new Option(name, index)));
@@ -207,6 +237,33 @@
     scrollHint.hidden = board.scrollWidth <= board.clientWidth;
   }
 
+  function setDefaultBoxSystem() {
+    const system = defaultBoxSystem(SCALES[scale.value]);
+    boxSystem.querySelector('[value="3nps"]').disabled = system !== '3nps';
+    boxSystem.value = system;
+  }
+
+  function updateBoard(revealNumber) {
+    const system = boxSystem.value;
+    const threeNotes = system === '3nps';
+    pentatonicBoxes.hidden = threeNotes;
+    threeNoteBoxes.hidden = !threeNotes;
+    const activeOptions = threeNotes ? threeNoteBoxes : pentatonicBoxes;
+    const numbers = [...activeOptions.querySelectorAll('input:checked')].map(input => Number(input.value));
+    const selectedRoot = Number(root.value);
+    const sc = SCALES[scale.value];
+    const boxes = fingeringBoxes(selectedRoot, sc, system, numbers);
+    const systemName = threeNotes ? '3NPS' : 'Pentatoniset';
+    boxSummary.textContent = numbers.length ? systemName + ' · ' + numbers.join(', ') : systemName;
+    boxNotesOnly.disabled = !boxes.length;
+    board.innerHTML = renderBoard(selectedRoot, sc, BOX_FRETS[system], {
+      boxes, onlyBoxNotes: boxNotesOnly.checked && !boxNotesOnly.disabled, focusDegree: presets[scale.value].degree
+    });
+    updateScrollHint();
+    const boxToReveal = revealNumber ?? (numbers.length === 1 ? numbers[0] : null);
+    if (boxToReveal !== null) revealPositions(board, '.box-highlight[data-box="' + boxToReveal + '"]');
+  }
+
   function updateSelection() {
     const selectedRoot = Number(root.value);
     const selectedScale = scale.value;
@@ -223,8 +280,7 @@
     document.getElementById('scale-notes').textContent = noteNames.join(' – ');
     document.getElementById('playing-cue').textContent = preset.cue + ' Etsi otelaudalta ' + cueNote + ' (' + preset.degree + ').';
     trainerLink.href = selectionHref('otelautaharjoittelija.html', selectedRoot, selectedScale);
-    board.innerHTML = renderBoard(selectedRoot, sc, 15, { focusDegree: preset.degree });
-    updateScrollHint();
+    updateBoard();
     if (playback) startPlayback();
   }
 
@@ -232,8 +288,14 @@
   scale.addEventListener('change', () => {
     tempo.value = presets[scale.value].bpm;
     updateTempo();
+    setDefaultBoxSystem();
     updateSelection();
   });
+  boxSystem.addEventListener('change', () => updateBoard());
+  boxControls.addEventListener('change', ({ target }) => {
+    updateBoard(target.checked ? Number(target.value) : undefined);
+  });
+  boxNotesOnly.addEventListener('change', () => updateBoard());
   tempo.addEventListener('input', updateTempo);
   tempo.addEventListener('change', () => { if (playback) startPlayback(); });
   volume.addEventListener('input', updateVolume);
@@ -242,6 +304,9 @@
   new ResizeObserver(updateScrollHint).observe(board);
 
   tempo.value = presets[scaleId].bpm;
+  pentatonicBoxes.innerHTML = boxOptions('pentatonic');
+  threeNoteBoxes.innerHTML = boxOptions('3nps');
+  setDefaultBoxSystem();
   updateTempo();
   updateVolume();
   updateSelection();

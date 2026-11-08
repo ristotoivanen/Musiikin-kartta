@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Harjoittele asteikoita, moodeja ja sormitusbokseja kitaran otelaudalla.">
+<meta name="description" content="Harjoittele asteikoita, moodeja, sointuja ja sormitusbokseja kitaran otelaudalla.">
 <title>Otelautaharjoittelija – Musiikin kartta</title>
 <link rel="stylesheet" href="assets/otelauta.css">
 </head>
@@ -19,7 +19,7 @@
 <main id="harjoittelija">
   <h1>Otelautaharjoittelija</h1>
   <p class="tools-note">
-    Valitse toonikka ja asteikko. Pisteen numero kertoo sävelen asteen suhteessa toonikkaan.
+    Valitse toonikka ja asteikko. Asteikkonäkymässä pisteen numero kertoo sävelen asteen suhteessa toonikkaan.
   </p>
 
   <div class="controls">
@@ -43,6 +43,22 @@
       <button data-scale="mixolydian">Miksolyydinen</button>
     </div>
     <p class="tools-note"><a href="book/osa-3.html#pentatoniikka">Mitä pentatoniikka on?</a> · <a href="book/osa-3.html#moodit">Mitä moodit ovat?</a></p>
+    <div class="group" role="group" aria-labelledby="view-label">
+      <span class="group-label" id="view-label">Otelaudan näkymä</span>
+      <button type="button" id="scale-view" aria-pressed="true">Asteikko</button>
+      <button type="button" id="chord-view" aria-pressed="false">Soinnut</button>
+    </div>
+    <div id="chord-options" hidden>
+      <div class="group">
+        <span class="group-label" id="chord-label">Asteikon kolmisoinnut</span>
+        <span class="chord-buttons" id="chord-buttons" role="group" aria-labelledby="chord-label"></span>
+      </div>
+      <div class="group">
+        <label class="group-label" for="grip-select">Sointuote</label>
+        <select id="grip-select" aria-describedby="grip-help"></select>
+      </div>
+      <p class="tools-note" id="grip-help">Otteet luetaan paksusta E-kielestä ohueen e-kieleen. <b>x</b> jätetään soittamatta, <b>0</b> soitetaan vapaana.</p>
+    </div>
     <details class="advanced-options">
       <summary>
         <span class="advanced-open">Osaan jo perusteet <span class="advanced-caption">Näytä lisäasetukset</span></span>
@@ -60,27 +76,29 @@
             <option value="24">24 nauhaa · kaksi oktaavia</option>
           </select>
         </div>
-        <div class="group">
-          <label class="group-label" for="box-system">Sormitustapa</label>
-          <select id="box-system" aria-describedby="box-help">
-            <option value="pentatonic">Pentatoniset boksit</option>
-            <option value="3nps">3 säveltä per kieli (3NPS)</option>
-          </select>
+        <div id="scale-options">
+          <div class="group">
+            <label class="group-label" for="box-system">Sormitustapa</label>
+            <select id="box-system" aria-describedby="box-help">
+              <option value="pentatonic">Pentatoniset boksit</option>
+              <option value="3nps">3 säveltä per kieli (3NPS)</option>
+            </select>
+          </div>
+          <div class="group" id="box-controls" role="group" aria-labelledby="box-label">
+            <span class="group-label" id="box-label">Näytettävät sormitusboksit</span>
+            <div class="box-options" id="pentatonic-boxes"></div>
+            <div class="box-options" id="three-note-boxes" hidden></div>
+          </div>
+          <div class="group">
+            <span class="group-label">Sävelpisteet</span>
+            <label class="box-toggle box-filter">
+              <input type="checkbox" id="box-notes-only" aria-describedby="box-help" disabled>
+              Näytä vain valittujen boksien sävelet
+            </label>
+          </div>
+          <p class="tools-note" id="box-help" aria-live="polite"></p>
+          <p class="tools-note"><strong>Kokeile.</strong> Soita G-mollipentatoninen boksista 1. Vaihda G-dooriseen ja valitse sormitustavaksi pentatoniset boksit. Etsi samasta boksista kaksi uutta säveltä, A ja E.</p>
         </div>
-        <div class="group" id="box-controls" role="group" aria-labelledby="box-label">
-          <span class="group-label" id="box-label">Näytettävät sormitusboksit</span>
-          <div class="box-options" id="pentatonic-boxes"></div>
-          <div class="box-options" id="three-note-boxes" hidden></div>
-        </div>
-        <div class="group">
-          <span class="group-label">Sävelpisteet</span>
-          <label class="box-toggle box-filter">
-            <input type="checkbox" id="box-notes-only" aria-describedby="box-help" disabled>
-            Näytä vain valittujen boksien sävelet
-          </label>
-        </div>
-        <p class="tools-note" id="box-help" aria-live="polite"></p>
-        <p class="tools-note"><strong>Kokeile.</strong> Valitse pentatoniset boksit ja soita G-mollipentatoninen boksista 1. Vaihda G-dooriseen ja etsi kaksi uutta säveltä, A ja E.</p>
       </div>
     </details>
   </div>
@@ -90,10 +108,14 @@
   <p class="tools-note scroll-hint" id="scroll-hint" hidden>Näet lisää nauhoja vierittämällä otelautaa sivusuunnassa.</p>
   <div id="board" role="region" aria-label="Kitaran otelauta" tabindex="0"></div>
 
-  <div class="legend">
+  <div class="legend" id="scale-legend">
     <span><span class="swatch" style="background:#6d4aff"></span>Pentatoninen pohjasävel</span>
     <span><span class="swatch" style="background:#4b2fd6; border:2px solid #fff"></span>Toonikka (1)</span>
     <span><span class="swatch" style="background:#f0a13c"></span>Moodin lisäsävel</span>
+  </div>
+  <div class="legend" id="chord-legend" hidden>
+    <span><span class="swatch" style="background:#4b2fd6; border:2px solid #fff"></span>Soinnun perussävel (1)</span>
+    <span><span class="swatch" style="background:#6d4aff"></span>Terssi (3 tai ♭3) ja kvintti (5 tai ♭5)</span>
   </div>
 </main>
 
@@ -105,24 +127,13 @@
 <script src="assets/otelauta.js"></script>
 <script>
 (function () {
-  const { CHROM, OPEN_PITCHES, PENT_MAJ, SCALES, noteName, scaleNotes,
-    selectionFromURL, selectionHref, renderBoard } = fretboard;
-  const LOW_E = OPEN_PITCHES.at(-1);
-  const PENTATONIC_FRETS = 15;
-  const THREE_NOTE_FRETS = 17;
-  const DIATONIC_DEGREES = 7;
-
-  // A-mollipentatonisen vakioboksit ohuimmalta kieleltä paksuimmalle.
-  const MINOR_BOXES = [
-    [[5, 8], [5, 8], [5, 7], [5, 7], [5, 7], [5, 8]],
-    [[8, 10], [8, 10], [7, 9], [7, 10], [7, 10], [8, 10]],
-    [[10, 12], [10, 13], [9, 12], [10, 12], [10, 12], [10, 12]],
-    [[12, 15], [13, 15], [12, 14], [12, 14], [12, 15], [12, 15]],
-    [[15, 17], [15, 17], [14, 17], [14, 17], [15, 17], [15, 17]],
-  ];
-
+  const { CHROM, SCALES, noteName, scaleNotes, scaleTriads, triadGrips, selectionFromURL, selectionHref,
+    renderBoard, BOX_FRETS, defaultBoxSystem, fingeringBoxes, boxOptions, revealPositions } = fretboard;
   let { rootPC, scaleId } = selectionFromURL(7, 'mp');
+  let showChords = false;
+  let chords, chordIndex = 0, gripIndex = 0;
   const board = document.getElementById('board');
+  const info = document.getElementById('info');
   const backingLink = document.getElementById('backing-link');
   const fretCountSelect = document.getElementById('fret-count');
   const scrollHint = document.getElementById('scroll-hint');
@@ -132,65 +143,14 @@
   const boxHelp = document.getElementById('box-help');
   const pentatonicBoxes = document.getElementById('pentatonic-boxes');
   const threeNoteBoxes = document.getElementById('three-note-boxes');
-
-  function getPentatonicBox(index, major) {
-    // Rinnakkaisduurin toonika on mollipohjan toinen sävel.
-    const shapeIndex = index + (major ? 1 : 0);
-    const shape = MINOR_BOXES[shapeIndex % MINOR_BOXES.length];
-    const first = Math.min(...shape.map(([low]) => low));
-    const last = Math.max(...shape.map(([, high]) => high));
-    const rootFret = (rootPC - (LOW_E % 12) + 12) % 12;
-    const referenceRootFret = major ? 8 : 5; // C tai A paksuimmalla E-kielellä
-    let shift = rootFret - referenceRootFret + 12 * Math.floor(shapeIndex / MINOR_BOXES.length);
-    // Siirrä kokonainen boksi tarvittaessa oktaavia ylös tai alas.
-    if (first + shift < 0) shift += 12;
-    if (last + shift > PENTATONIC_FRETS) shift -= 12;
-    return {
-      strings: shape.map(pair => pair.map(fret => fret + shift)),
-      start: first + shift,
-      end: last + shift
-    };
-  }
-
-  function getThreeNoteBox(index, intervals) {
-    const firstInterval = intervals[index];
-    const firstFret = (rootPC + firstInterval - (LOW_E % 12) + 12) % 12;
-    const tonicPitch = LOW_E + firstFret - firstInterval;
-    const strings = OPEN_PITCHES.map((openPitch, string) => {
-      // Kulje asteikkoa paksuimmalta kieleltä ylöspäin, kolme säveltä kerrallaan.
-      const firstStep = index + (OPEN_PITCHES.length - 1 - string) * 3;
-      return [firstStep, firstStep + 1, firstStep + 2].map(step => {
-        const octave = Math.floor(step / intervals.length);
-        const interval = intervals[step % intervals.length];
-        return tonicPitch + interval + 12 * octave - openPitch;
-      });
-    });
-    return {
-      strings,
-      start: Math.min(...strings.map(frets => frets[0])),
-      end: Math.max(...strings.map(frets => frets.at(-1)))
-    };
-  }
-
-  function getVisibleBoxPositions(box, fretCount) {
-    const positions = [];
-    const firstShift = Math.ceil(-box.end / 12) * 12;
-    for (let shift = firstShift; box.start + shift <= fretCount; shift += 12) {
-      const strings = box.strings.map(frets => frets
-        .map(fret => fret + shift)
-        .filter(fret => fret >= 0 && fret <= fretCount));
-      const visibleFrets = strings.flat();
-      positions.push({
-        strings,
-        start: Math.min(...visibleFrets),
-        end: Math.max(...visibleFrets),
-        partial: box.start + shift < 0 || box.end + shift > fretCount
-      });
-    }
-    // Näytä reunoille jäävät osat, jos kokonainen boksi ei mahdu näkymään.
-    const complete = positions.filter(position => !position.partial);
-    return complete.length ? complete : positions;
-  }
+  const scaleView = document.getElementById('scale-view');
+  const chordView = document.getElementById('chord-view');
+  const chordOptions = document.getElementById('chord-options');
+  const scaleOptions = document.getElementById('scale-options');
+  const chordButtons = document.getElementById('chord-buttons');
+  const gripSelect = document.getElementById('grip-select');
+  const scaleLegend = document.getElementById('scale-legend');
+  const chordLegend = document.getElementById('chord-legend');
 
   function formatBoxRange({ start, end, partial }) {
     let range = 'nauhat ' + start + '–' + end;
@@ -203,41 +163,87 @@
     scrollHint.hidden = board.scrollWidth <= board.clientWidth;
   }
 
-  function revealBox(number) {
-    const viewport = board.getBoundingClientRect();
-    const highlights = board.querySelectorAll('.box-highlight[data-box="' + number + '"]');
-    let nearest = Infinity;
-    highlights.forEach(highlight => {
-      const bounds = highlight.getBoundingClientRect();
-      let offset = 0;
-      if (bounds.left < viewport.left) {
-        offset = bounds.left - viewport.left - 8;
-      } else if (bounds.right > viewport.right) {
-        offset = bounds.right - viewport.right + 8;
-      }
-      if (Math.abs(offset) < Math.abs(nearest)) nearest = offset;
-    });
-    if (Number.isFinite(nearest)) board.scrollLeft += nearest;
+  function setDefaultBoxSystem() {
+    boxSystem.value = defaultBoxSystem(SCALES[scaleId]);
   }
 
-  function boxOptions(count) {
-    return Array.from({ length: count }, (_, index) => {
-      const number = index + 1;
-      return '<label class="box-toggle" data-box="' + number + '"><input type="checkbox" value="' +
-        number + '"> Boksi ' + number + '</label>';
-    }).join('');
+  function updateChordChoices() {
+    chords = scaleTriads(rootPC, SCALES[scaleId]);
+    chordIndex = 0;
+    gripIndex = 0;
+    chordButtons.replaceChildren(...chords.map(({ name }, index) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = name;
+      button.addEventListener('click', () => {
+        if (chordIndex === index) return;
+        chordIndex = index;
+        gripIndex = 0;
+        render();
+      });
+      return button;
+    }));
+  }
+
+  function renderChord(fretCount, automatic) {
+    const chord = chords[chordIndex];
+    [...chordButtons.children].forEach((button, index) => {
+      button.setAttribute('aria-pressed', chordIndex === index);
+    });
+    const grips = triadGrips(chord, fretCount);
+    if (gripIndex >= grips.length) gripIndex = grips.length ? 0 : -1;
+    gripSelect.replaceChildren(
+      ...grips.map(({ strings }, index) =>
+        new Option('Ote ' + (index + 1) + ' · ' + [...strings].reverse().map(fret => fret ?? 'x').join(' '), index)
+      ),
+      new Option('Kaikki sointusävelet', -1)
+    );
+    gripSelect.value = gripIndex;
+    const grip = grips[gripIndex]?.strings;
+    board.innerHTML = renderBoard(chord.root, chord, fretCount, {
+      automatic, grip, label: chord.name + (grip ? ', kolmen kielen sointuote' : ', kaikki sointusävelet')
+    });
+    updateScrollHint();
+    if (grip) revealPositions(board, '.grip-notes');
+    info.innerHTML =
+      '<span class="scale-name">' + chord.name + '</span>' +
+      'Sointusävelet: <b>' + chord.notes.join(' – ') + '</b>' +
+      '<span class="hint">' + (grip
+        ? 'Soita vain pisteillä merkityt kielet. Kokeile samaa sointua myös toisesta kohdasta otelautaa.'
+        : 'Pisteiden numerot ovat asteita soinnun perussävelestä. Valitse sointuote, jos haluat soittaa kolme säveltä kerralla.'
+      ) + '</span>';
+  }
+
+  function setView(chordsVisible) {
+    showChords = chordsVisible;
+    scaleView.setAttribute('aria-pressed', !showChords);
+    chordView.setAttribute('aria-pressed', showChords);
+    chordOptions.hidden = !showChords;
+    chordLegend.hidden = !showChords;
+    scaleOptions.hidden = showChords;
+    scaleLegend.hidden = showChords;
+    render();
   }
 
   function render(revealNumber) {
     const sc = SCALES[scaleId];
     const rootName = CHROM[rootPC];
     const allIv = scaleNotes(sc);
-    const intervals = allIv.map(([interval]) => interval);
-    const threeNotes = boxSystem.value === '3nps';
-    const unavailable = threeNotes && intervals.length !== DIATONIC_DEGREES;
+    const system = boxSystem.value;
+    const threeNotes = system === '3nps';
+    const unavailable = threeNotes && defaultBoxSystem(sc) !== '3nps';
     const automatic = fretCountSelect.value === 'auto';
-    const autoFretCount = threeNotes && !unavailable ? THREE_NOTE_FRETS : PENTATONIC_FRETS;
+    const autoFretCount = BOX_FRETS[unavailable ? 'pentatonic' : system];
     const fretCount = automatic ? autoFretCount : Number(fretCountSelect.value);
+
+    rootButtons.forEach((button, pc) => button.setAttribute('aria-pressed', pc === rootPC));
+    scaleButtons.forEach(button => button.setAttribute('aria-pressed', button.dataset.scale === scaleId));
+    backingLink.href = selectionHref('harjoitustaustat.html', rootPC, scaleId);
+    if (showChords) {
+      renderChord(fretCount, automatic);
+      return;
+    }
+
     pentatonicBoxes.hidden = threeNotes;
     threeNoteBoxes.hidden = !threeNotes;
     boxControls.hidden = unavailable;
@@ -248,16 +254,9 @@
       help = 'Soita kolme peräkkäistä asteikon säveltä jokaiselta kieleltä. Boksi 1 alkaa toonikalta paksuimmalla E-kielellä, muut asteikon seuraavilta säveliltä.';
     }
     const activeOptions = threeNotes ? threeNoteBoxes : pentatonicBoxes;
-    const selected = unavailable ? [] : [...activeOptions.querySelectorAll('input:checked')];
-    const boxes = selected.map(input => {
-      const number = Number(input.value);
-      const index = number - 1;
-      const box = threeNotes ? getThreeNoteBox(index, intervals) : getPentatonicBox(index, sc.base === PENT_MAJ);
-      const positions = automatic ? [box] : getVisibleBoxPositions(box, fretCount);
-      return { number, positions };
-    });
-    const boxPositions = boxes.flatMap(box => box.positions);
-    boxNotesOnly.disabled = boxPositions.length === 0;
+    const numbers = unavailable ? [] : [...activeOptions.querySelectorAll('input:checked')].map(input => Number(input.value));
+    const boxes = fingeringBoxes(rootPC, sc, system, numbers, automatic ? undefined : fretCount);
+    boxNotesOnly.disabled = !boxes.some(box => box.positions.length);
     const onlyBoxNotes = boxNotesOnly.checked && !boxNotesOnly.disabled;
     if (boxNotesOnly.disabled && !unavailable) {
       help += ' Valitse boksi, jos haluat rajata näkyvät sävelet sen sisälle.';
@@ -266,25 +265,22 @@
     const names = allIv.map(([iv, deg]) => noteName(rootPC, iv, deg));
     const addedPairs = sc.add.map(([iv, deg]) => noteName(rootPC, iv, deg) + ' (' + deg + ')');
 
-    rootButtons.forEach((button, pc) => button.setAttribute('aria-pressed', pc === rootPC));
-    scaleButtons.forEach(button => button.setAttribute('aria-pressed', button.dataset.scale === scaleId));
-
-    backingLink.href = selectionHref('harjoitustaustat.html', rootPC, scaleId);
     board.innerHTML = renderBoard(rootPC, sc, fretCount, { boxes, onlyBoxNotes, automatic });
     updateScrollHint();
     const boxToReveal = revealNumber ?? (boxes.length === 1 ? boxes[0].number : null);
-    if (boxToReveal !== null) revealBox(boxToReveal);
+    if (boxToReveal !== null) revealPositions(board, '.box-highlight[data-box="' + boxToReveal + '"]');
 
     const boxRanges = boxes.map(({ number, positions }) => {
       const ranges = positions.map(formatBoxRange).join(', ');
       return '<span class="box-range" data-box="' + number + '">Boksi ' + number + ' · ' + ranges + '</span>';
     });
-    document.getElementById('info').innerHTML =
+    const boxSystemName = threeNotes ? '3NPS' : 'Pentatoniset boksit';
+    info.innerHTML =
       '<span class="scale-name">' + rootName + '-' + sc.name + '</span>' +
       'Sävelet: <b>' + names.join(' – ') + '</b>' +
       (addedPairs.length ? ' &nbsp;·&nbsp; Lisäsävelet: <span class="added">' + addedPairs.join(', ') + '</span>' : '') +
       '<span class="hint">' + sc.hint + '</span>' +
-      (boxRanges.length ? '<span class="box-summary">' + boxRanges.join(' ') + '</span>' : '') +
+      (boxRanges.length ? '<span class="box-summary"><span>' + boxSystemName + '</span>' + boxRanges.join(' ') + '</span>' : '') +
       (onlyBoxNotes ? '<span class="hint">Otelaudalla näkyvät vain valittujen boksien sävelet.</span>' : '');
   }
 
@@ -293,7 +289,9 @@
     const button = document.createElement('button');
     button.textContent = name;
     button.addEventListener('click', () => {
+      if (rootPC === pc) return;
       rootPC = pc;
+      updateChordChoices();
       render();
     });
     rootsEl.appendChild(button);
@@ -303,13 +301,23 @@
   const scaleButtons = document.querySelectorAll('[data-scale]');
   scaleButtons.forEach(button => {
     button.addEventListener('click', () => {
+      if (scaleId === button.dataset.scale) return;
       scaleId = button.dataset.scale;
+      setDefaultBoxSystem();
+      updateChordChoices();
       render();
     });
   });
 
-  pentatonicBoxes.innerHTML = boxOptions(MINOR_BOXES.length);
-  threeNoteBoxes.innerHTML = boxOptions(DIATONIC_DEGREES);
+  pentatonicBoxes.innerHTML = boxOptions('pentatonic');
+  threeNoteBoxes.innerHTML = boxOptions('3nps');
+  setDefaultBoxSystem();
+  scaleView.addEventListener('click', () => setView(false));
+  chordView.addEventListener('click', () => setView(true));
+  gripSelect.addEventListener('change', () => {
+    gripIndex = Number(gripSelect.value);
+    render();
+  });
   fretCountSelect.addEventListener('change', () => render());
   boxSystem.addEventListener('change', () => render());
   boxNotesOnly.addEventListener('change', () => render());
@@ -317,6 +325,7 @@
     render(target.checked ? Number(target.value) : undefined);
   });
   new ResizeObserver(updateScrollHint).observe(board);
+  updateChordChoices();
   render();
 })();
 </script>
