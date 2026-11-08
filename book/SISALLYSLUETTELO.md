@@ -9,15 +9,15 @@
 6. Sointujen tehtävät
 
 ## Osa II – Näe kappaleiden rakenne
-7. Yleisimmät sointukierrot
+7. Sointukierrot ja kappaleen rakenne
 8. Kvinttiympyrä
 9. Sävellajin tunnistaminen
 10. Transponointi
 
 ## Osa III – Kitara työkaluna
 11. Otelauta
-12. CAGED
-13. Barré-soinnut ja numerokartta
+12. Barré-soinnut ja numerokartta
+13. CAGED
 14. Septimisoinnut
 15. Pentatoniikka
 16. Moodit käytännössä
@@ -32,3 +32,7 @@
 21. Improvisointi
 22. Sovittaminen
 23. Oman kappaleen tekeminen ja oma ilmaisu
+
+## Liitteet
+- Sanasto
+- Mistä H-sävelen nimi tuli?

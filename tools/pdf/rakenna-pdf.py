@@ -33,7 +33,7 @@ HERE = Path(__file__).resolve().parent
 DEFAULT_OUT = ROOT / 'pdf' / 'musiikin-kartta.pdf'
 SITE = 'https://rinnepelto.com'
 PARTS = ['osa-1', 'osa-2', 'osa-3', 'osa-4', 'osa-5']
-APPENDICES = ['h-savelnimen-alkupera']
+APPENDICES = ['sanasto', 'h-savelnimen-alkupera']
 DOCS = PARTS + APPENDICES
 
 

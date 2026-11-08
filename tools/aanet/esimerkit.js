@@ -367,6 +367,16 @@ const aanet = (() => {
       }
     },
     {
+      file: 'osa-4/soiko-septimi',
+      build() {
+        const s = new Score({ bpm: 84 });
+        // Vertailupari G ja G7, tauon jälkeen C7, C ja Cmaj7 E-kielen otteella (vain D-kieli vaihtuu).
+        [['G', 0], ['G7', 3], ['8 x 8 9 8 x', 7.5], ['8 x 10 9 8 x', 10.5], ['8 x 9 9 8 x', 13.5]]
+          .forEach(([chord, beat], i, all) => s.strum(beat, chord, i === all.length - 1 ? 4 : 2, { pan: 0, velocity: .8 }));
+        return s;
+      }
+    },
+    {
       file: 'osa-4/paluumatka',
       build() {
         const s = new Score({ bpm: 84 });
