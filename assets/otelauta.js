@@ -435,3 +435,6 @@ const fretboard = (() => {
     BOX_FRETS, supportsThreeNoteBoxes, syncBoxSystem, fingeringBoxes, boxOptions, revealPositions
   };
 })();
+
+// Sama laskenta myös React-harjoittelijalle. Vanhat sivut käyttävät yhä fretboard-vakiota.
+globalThis.MusicMapFretboard = fretboard;
