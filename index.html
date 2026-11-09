@@ -63,6 +63,8 @@
   .part .part-outcome { display: block; margin-top: 10px; color: var(--text); font-size: 13.5px; }
   .part .part-meta { display: block; margin-top: 8px; font-size: 12.5px; }
   .path p { margin: 10px 0 0; font-size: 14px; }
+  .part .part-progress { display: block; margin-top: 8px; color: #79e0ab; font-size: 12.5px; font-weight: 700; }
+  .continue { margin: 16px 0 0; font-weight: 700; }
   footer {
     margin-top: 60px; padding-top: 20px; border-top: 1px solid #2d2444;
     text-align: center; color: var(--muted); font-size: 13px;
@@ -106,7 +108,7 @@
 
 <section>
   <h2>Oppaan osat</h2>
-  <p class="tools-note">Koko opas on myös <a href="pdf/musiikin-kartta.pdf">tulostettavana PDF:nä</a>. Siinä on lukujen sisällysluettelo, ja ääniesimerkkien kohdalla on linkki verkkoversioon. Oppaan termit on selitetty <a href="book/sanasto.html">sanastossa</a>. Jokaisen osan lopussa on 15–20 minuutin päivittäinen harjoitusrutiini.</p>
+  <p class="tools-note">Koko opas on myös <a href="pdf/musiikin-kartta.pdf">tulostettavana PDF:nä</a>. Siinä on lukujen sisällysluettelo, ja ääniesimerkkien kohdalla on linkki verkkoversioon. Oppaan termit on selitetty <a href="book/sanasto.html">sanastossa</a>. Jokaisen osan lopussa on 15–20 minuutin päivittäinen harjoitusrutiini. Voit merkitä luvut tehdyiksi, ja tämä sivu näyttää, mihin jäit. Merkinnät tallentuvat vain tähän selaimeen.</p>
   <div class="parts">
     <a class="part part-link" href="book/osa-1.html">
       <b><span class="num" aria-hidden="true">I</span> Miten musiikki toimii</b>
@@ -126,21 +128,21 @@
       <b><span class="num" aria-hidden="true">III</span> Kitara työkaluna</b>
       <span>Otelauta hahmottamisen karttana – barré-soinnut, septimisoinnut, pentatoniset pohjat ja moodit.</span>
       <span class="part-outcome">Osan jälkeen soitat barré- ja septimisointuja missä sävellajissa tahansa ja melodioita pentatonisella boksilla.</span>
-      <span class="part-meta">Lukuaika noin 20 min · 10 harjoitusta · 6 ääniesimerkkiä. Puhtaisiin barré-otteisiin menee usein muutama viikko.</span>
+      <span class="part-meta">Lukuaika noin 25 min · 10 harjoitusta · 6 ääniesimerkkiä. Puhtaisiin barré-otteisiin menee usein muutama viikko.</span>
       <span class="part-action">Lue osa III <span aria-hidden="true">→</span></span>
     </a>
     <a class="part part-link" href="book/osa-4.html">
       <b><span class="num" aria-hidden="true">IV</span> Korvakuulo</b>
       <span>Kuuntele, tunnista ja toista – soittaminen ilman nuotteja.</span>
       <span class="part-outcome">Osan jälkeen selvität korvalla basson, duurin ja mollin, septimin ja lyhyen kappaleen soinnut.</span>
-      <span class="part-meta">Lukuaika noin 10 min · 6 harjoitusta · 6 ääniesimerkkiä</span>
+      <span class="part-meta">Lukuaika noin 10 min · 9 harjoitusta, joista 3 tarkistuu heti · 6 ääniesimerkkiä</span>
       <span class="part-action">Lue osa IV <span aria-hidden="true">→</span></span>
     </a>
     <a class="part part-link" href="book/osa-5.html">
       <b><span class="num" aria-hidden="true">V</span> Soveltaminen</b>
       <span>Improvisaatio, sovittaminen ja oma ilmaisu.</span>
       <span class="part-outcome">Osan jälkeen improvisoit taustan päälle ja teet oman kappaleen alusta äänitteeksi asti.</span>
-      <span class="part-meta">Lukuaika noin 10 min · 4 harjoitusta · 3 ääniesimerkkiä</span>
+      <span class="part-meta">Lukuaika noin 10 min · 4 harjoitusta · 7 ääniesimerkkiä</span>
       <span class="part-action">Lue osa V <span aria-hidden="true">→</span></span>
     </a>
   </div>
@@ -163,5 +165,6 @@
   window.addEventListener('hashchange', followOldTrainerLink);
   followOldTrainerLink();
 </script>
+<script src="assets/edistyminen.js"></script>
 </body>
 </html>

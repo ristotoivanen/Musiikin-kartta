@@ -94,10 +94,10 @@ const aanet = (() => {
     score.pick(start + 3.5, shape, upper, .5, { velocity: .6 });
   }
 
-  function lightDrums(score, bar) {
+  function lightDrums(score, bar, level = 1) {
     const start = bar * 4;
-    score.drum(start, 'kick', .5).drum(start + 2, 'kick', .42);
-    for (let i = 0; i < 8; i++) score.drum(start + i / 2, 'hat', i % 2 ? .22 : .35);
+    score.drum(start, 'kick', .5 * level).drum(start + 2, 'kick', .42 * level);
+    for (let i = 0; i < 8; i++) score.drum(start + i / 2, 'hat', (i % 2 ? .22 : .35) * level);
   }
 
   // Valot ikkunassa -kappaleen kertosäkeen melodia G-duurissa (tahdin iskut 0–3).
@@ -140,6 +140,57 @@ const aanet = (() => {
       [3, 4, 5].forEach((string, i) => score.pick(at + 1 + i, chord, string, 3 - i, { velocity: .62 }));
       score.melody(at, RETURN_A[bar]);
     });
+  }
+
+  // Luvun 23 esimerkkikappale neljässä vaiheessa: luonnos, B-osa, septimisoinnut ja sovitus.
+  // Melodia käyttää E-mollipentatonisen säveliä kuten luvun 21 harjoitukset.
+  const SKETCH_Q = [[0, 'E4', 1], [2, 'G4', 1], [3, 'A4', 1]];
+  const SKETCH_A = [[0, 'G4', 1], [2, 'E4', 2]];
+  const SKETCH_A2 = [[0, 'A4', 1], [1, 'G4', 1], [2, 'E4', 2]];
+  const SKETCH_END = [[2, 'E4', 4]];
+  const SONG_B = [
+    [[0, 'B4', 1], [1, 'D5', 1], [2, 'B4', 2]],
+    [[0, 'A4', 1], [1, 'B4', 1], [2, 'G4', 2]],
+    [[0, 'A4', 2], [2, 'D5', 1], [3, 'B4', 1]],
+    [[0, 'G4', 4]]
+  ];
+  const SONG_BASS = { Em: 'E2', C: 'C3', Cmaj7: 'C3', G: 'G2', D: 'D3', D7: 'D3' };
+  const SEVENTHS = { Cmaj7: 'x 3 2 0 0 0', D7: 'x x 0 2 1 2' };
+
+  function songStage(stage) {
+    const s = new Score({ bpm: 84 });
+    const start = s.countIn(4);
+    const sevenths = stage >= 3;
+    const aChords = sevenths ? ['Em', 'Cmaj7', 'Em', 'Cmaj7'] : ['Em', 'C', 'Em', 'C'];
+    const bChords = sevenths ? ['G', 'Cmaj7', 'D7', 'G'] : ['G', 'C', 'D', 'G'];
+    const bars = stage === 1
+      ? [...aChords, ...aChords].map((chord, i) =>
+          [chord, [SKETCH_Q, SKETCH_A, SKETCH_Q, SKETCH_A2, SKETCH_Q, SKETCH_A, SKETCH_Q, SKETCH_END][i], 'A'])
+      : [...aChords.map((chord, i) => [chord, [SKETCH_Q, SKETCH_A, SKETCH_Q, SKETCH_A2][i], 'A']),
+         ...bChords.map((chord, i) => [chord, SONG_B[i], 'B'])];
+    bars.forEach(([chord, melody, part], bar) => {
+      const at = start + bar * 4;
+      const shape = SEVENTHS[chord] ?? chord;
+      const last = bar === bars.length - 1;
+      if (stage === 4 && part === 'A') {
+        // A-osa näppäillen: bassokieli ykkösellä, sitten D-, G- ja B-kieli.
+        s.pick(at, shape, chord === 'Em' ? 0 : 1, 4, { velocity: .8 });
+        [2, 3, 4].forEach((string, i) => s.pick(at + 1 + i, shape, string, 3 - i, { velocity: .58 }));
+      } else if (stage === 4) {
+        // B-osa kompaten: sointu joka iskulla, basso ja kevyet rummut. Komppi soi hiljaa ja
+        // melodia vahvemmin, jotta melodia kuuluu kompin yli yhtä selvästi kuin vaiheissa 1–3.
+        s.bass(at, SONG_BASS[chord], last ? 4 : 3.9, { velocity: .36 });
+        if (last) s.strum(at, shape, 4, { velocity: .43 });
+        else {
+          for (let beat = 0; beat < 4; beat++) s.strum(at + beat, shape, 1, { velocity: beat ? .34 : .41 });
+          lightDrums(s, at / 4, .6);
+        }
+      } else {
+        s.strum(at, shape, 2, { velocity: .66 }).strum(at + 2, shape, last ? 2.5 : 2, { velocity: .56 });
+      }
+      s.melody(at, melody, stage === 4 && part === 'B' ? { velocity: 1.2 } : undefined);
+    });
+    return s;
   }
 
   const examples = [
@@ -426,7 +477,11 @@ const aanet = (() => {
         });
         return s;
       }
-    }
+    },
+    { file: 'osa-5/kappale-1-luonnos', build: () => songStage(1) },
+    { file: 'osa-5/kappale-2-b-osa', build: () => songStage(2) },
+    { file: 'osa-5/kappale-3-septimit', build: () => songStage(3) },
+    { file: 'osa-5/kappale-4-sovitus', build: () => songStage(4) }
   ];
 
   return { examples, midi };

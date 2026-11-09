@@ -115,3 +115,13 @@ footer {
 .chord-svg .root-open { stroke: var(--gold); stroke-width: 1.8; }
 .chord-svg .tone, .chord-svg .barre { fill: var(--lavender); }
 .chord-svg .root { fill: var(--gold); }
+
+/* Asteiden värit samoin kuin oppaassa (book/reader.css): toonika lämmin, subdominantti vihreä, dominantti sininen. */
+.chord-buttons button[data-aste] { border-bottom-width: 3px; }
+.chord-buttons button[data-aste="1"] { border-bottom-color: #f0a13c; }
+.chord-buttons button[data-aste="2"] { border-bottom-color: #3fcbb5; }
+.chord-buttons button[data-aste="3"] { border-bottom-color: #ff9fc0; }
+.chord-buttons button[data-aste="4"] { border-bottom-color: #6fd08c; }
+.chord-buttons button[data-aste="5"] { border-bottom-color: #6aa9ff; }
+.chord-buttons button[data-aste="6"] { border-bottom-color: #ff8a73; }
+.chord-buttons button[data-aste="7"] { border-bottom-color: #a596ff; }

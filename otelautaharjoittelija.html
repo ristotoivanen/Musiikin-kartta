@@ -171,10 +171,11 @@
     chords = scaleTriads(rootPC, SCALES[scaleId]);
     chordIndex = 0;
     gripIndex = 0;
-    chordButtons.replaceChildren(...chords.map(({ name }, index) => {
+    chordButtons.replaceChildren(...chords.map(({ name, degree }, index) => {
       const button = document.createElement('button');
       button.type = 'button';
       button.textContent = name;
+      if (degree >= 1 && degree <= 7) button.dataset.aste = degree;
       button.addEventListener('click', () => {
         if (chordIndex === index) return;
         chordIndex = index;

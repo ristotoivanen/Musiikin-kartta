@@ -7,6 +7,10 @@
   --accent: #b5a3ff;
   --gold: #f0a13c;
   --line: #453854;
+  /* Asteiden värit sointujen tehtävien mukaan: toonika lämmin, subdominantti vihreä, dominantti sininen. */
+  --aste-1: #f0a13c; --aste-6: #ff8a73; --aste-3: #ff9fc0;
+  --aste-4: #6fd08c; --aste-2: #3fcbb5;
+  --aste-5: #6aa9ff; --aste-7: #a596ff;
 }
 * { box-sizing: border-box; }
 body {
@@ -92,6 +96,48 @@ p { margin-block: .75rem; }
 .note p:last-child, .practice p:last-child, details p:last-child { margin-bottom: 0; }
 .practice h3 { margin: 0 0 .55rem; font-size: 1.05rem; }
 .practice ol { padding-left: 1.35rem; margin-block: .4rem; }
+/* Asteen numero väreineen (luku 5). */
+.aste {
+  display: inline-block; min-width: 1.6em; padding: 0 .3em; border-radius: .35em;
+  font-weight: 750; line-height: 1.35; text-align: center; color: var(--c);
+  background: color-mix(in srgb, var(--c) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--c) 50%, transparent);
+}
+.aste-1 { --c: var(--aste-1); } .aste-2 { --c: var(--aste-2); } .aste-3 { --c: var(--aste-3); } .aste-4 { --c: var(--aste-4); }
+.aste-5 { --c: var(--aste-5); } .aste-6 { --c: var(--aste-6); } .aste-7 { --c: var(--aste-7); }
+.et-answers button[data-aste] { border-bottom: 3px solid var(--c); }
+/* Korvaharjoitukset (assets/korvatreeni.js). */
+.ear-trainer { margin: 1.1rem 0; padding: .85rem 1rem; background: var(--panel); border: 1px solid var(--line); border-inline-start: .22rem solid var(--gold); border-radius: .65rem; }
+.ear-trainer h3 { margin: 0 0 .55rem; font-size: 1.05rem; }
+.ear-trainer > p:last-child { margin-bottom: 0; }
+.et-bar { display: flex; flex-wrap: wrap; gap: .5rem .75rem; align-items: center; margin-top: .75rem; }
+.et-bar select, .et-bar button, .et-answers button {
+  font: inherit; color: var(--text); background: var(--bg);
+  border: 1px solid var(--line); border-radius: .45rem; padding: .35rem .75rem; cursor: pointer;
+}
+.et-bar .et-new { background: #4b2fd6; border-color: #6d4aff; font-weight: 700; }
+.et-bar button:disabled { opacity: .5; cursor: default; }
+.et-level, .et-score { color: var(--muted); font-size: .9rem; }
+.et-prompt { margin: .75rem 0 0; }
+.et-answers { display: flex; flex-wrap: wrap; gap: .45rem; margin: .6rem 0 .3rem; }
+.et-answers button { min-width: 3.2rem; font-weight: 700; }
+.et-answers button:disabled { cursor: default; }
+.et-answers button.is-correct { border-color: #3fbf7f; background: #1d3b2c; }
+.et-answers button.is-wrong { border-color: #e06666; opacity: .55; text-decoration: line-through; }
+.et-feedback { min-height: 1.5em; margin: .2rem 0; }
+.et-feedback.is-correct { color: #79e0ab; }
+.et-feedback.is-wrong { color: #ffaaaa; }
+.et-fallback { color: var(--muted); font-style: italic; }
+/* Edistymisen merkintä (assets/edistyminen.js). */
+.done-row { margin: 1.4rem 0 0; }
+.done-toggle {
+  font: inherit; font-size: .9rem; color: var(--text); background: var(--panel);
+  border: 1px solid var(--line); border-radius: .45rem; padding: .35rem .85rem; cursor: pointer;
+}
+.done-toggle[aria-pressed="true"] { border-color: #3fbf7f; color: #79e0ab; }
+.contents li.is-done > a::after { content: " ✓"; color: #79e0ab; }
+.contents .progress-note { margin: .5rem 0 0; color: var(--muted); font-size: .85rem; }
+.contents .progress-note:empty { display: none; }
 /* Osan lopun harjoitusrutiini. */
 .routine { margin-top: 3rem; border-inline-start-color: var(--accent); }
 .routine h2 { margin: 0 0 .5rem; font-size: 1.25rem; }
@@ -187,6 +233,9 @@ thead th { background: var(--panel); }
     --accent: #4a33c4;
     --gold: #b36a00;
     --line: #cbc4d8;
+    --aste-1: #b36a00; --aste-6: #c2412d; --aste-3: #b8436e;
+    --aste-4: #1f8a45; --aste-2: #0f7f70;
+    --aste-5: #2a5fc0; --aste-7: #5a46c8;
     font-size: 10pt;
   }
   body { background: #fff; line-height: 1.5; }
@@ -226,7 +275,7 @@ thead th { background: var(--panel); }
 
   /* Pidä otsikot ja kuvat ehjinä. */
   h2, h3, .chapter-number, .part-number, caption, figcaption, .shape-label, summary, .glossary dt, .glossary-letter { break-after: avoid; }
-  table, figure, .note, .shape-set, .chord-diagram, .tab, svg { break-inside: avoid; }
+  table, figure, .note, .shape-set, .chord-diagram, .tab, svg, .ear-trainer { break-inside: avoid; }
   .try-first > p { break-after: avoid; }
   .try-first .listen { border-inline-start: 0; }
   p, li { orphans: 3; widows: 3; }

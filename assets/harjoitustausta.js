@@ -704,7 +704,7 @@ const backingTrack = (() => {
 
   // Kirjan ääniesimerkit: tapahtumat sekunteina. Esimerkki ei toistu luuppina, joten sen
   // loppuun jätetään häntä, ja voimakkuus tasataan samaan tasoon kuin harjoitustaustoissa.
-  function renderScore({ events, duration, room = 1.5, reverb = .14, sampleRate = 44100, seed = 7 }) {
+  function renderScore({ events, duration, room = 1.5, reverb = .14, sampleRate = 44100, seed = 7, gain }) {
     const context = new OfflineAudioContext(2, Math.ceil(duration * sampleRate), sampleRate);
     const studio = createStudio(context, { room, reverb, end: duration, random: seeded(seed) });
     const voiceFor = name => chordVoices[name] ?? bassVoices[name];
@@ -721,11 +721,14 @@ const backingTrack = (() => {
       if (event.drum) studio[event.drum](event.time, event.velocity ?? 1, event.accent);
       else studio.playTone(output(event.voice, event.pan), voiceFor(event.voice), event.midi, event.time, event.length, event.velocity ?? 1);
     });
-    return context.startRendering().then(finishBuffer);
+    return context.startRendering().then(rendered => finishBuffer(rendered, gain));
   }
 
   // Mittaa voimakkuus vain kuuluvista kohdista, jotta tauot eivät nosta hiljaisen esimerkin tasoa liikaa.
-  function finishBuffer(rendered) {
+  // Jos kerroin annetaan, tasoa ei mitata, vaan käytetään aiemman renderöinnin kerrointa. Näin
+  // esimerkiksi korvaharjoituksen kysymys ja ratkaisu soivat samalla voimakkuudella. Käytetty
+  // kerroin tallentuu palautetun puskurin gain-ominaisuuteen.
+  function finishBuffer(rendered, fixedGain) {
     const channels = Array.from({ length: rendered.numberOfChannels }, (_, c) => rendered.getChannelData(c));
     const block = Math.round(rendered.sampleRate * .05);
     const powers = [];
@@ -744,12 +747,13 @@ const backingTrack = (() => {
     }
     const loudest = Math.max(...powers);
     const rms = Math.sqrt(average(powers.filter(power => power > loudest * 1e-4)));
-    const gain = Math.min(targetRMS / rms, peakLimit / peak);
+    const gain = Math.min(fixedGain ?? targetRMS / rms, peakLimit / peak);
     const fade = Math.round(rendered.sampleRate * .05);
     channels.forEach(data => data.forEach((value, i) => {
       const left = data.length - i;
       data[i] = value * gain * (left < fade ? left / fade : 1);
     }));
+    rendered.gain = gain;
     return rendered;
   }
 

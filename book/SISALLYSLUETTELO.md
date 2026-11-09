@@ -23,7 +23,7 @@
 16. Moodit käytännössä
 
 ## Osa IV – Korvakuulo
-17. Intervallien tunnistaminen
+17. Asteet ja intervallit korvalla
 18. Bassolinjan kuuleminen
 19. Sointujen tunnistaminen
 20. Kappaleen purkaminen ilman nuotteja

@@ -181,11 +181,12 @@ const fretboard = (() => {
       { suffix: 'm', base: [[0, '1'], [3, '♭3'], [7, '5']] },
       { suffix: '°', base: [[0, '1'], [3, '♭3'], [6, '♭5']] },
     ];
-    return notes.flatMap(([interval]) => forms.flatMap(({ suffix, base }) => {
+    return notes.flatMap(([interval, degree]) => forms.flatMap(({ suffix, base }) => {
       const members = base.map(([step]) => names.get((interval + step) % 12));
       if (!members.every(Boolean)) return [];
       return {
         root: (rootPC + interval) % 12,
+        degree: Number(String(degree).replace(/\D/g, '')),
         name: members[0] + suffix,
         notes: members,
         base,
