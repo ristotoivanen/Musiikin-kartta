@@ -31,4 +31,48 @@ Valitse toonikka sekä pentatoninen asteikko tai moodi ja katso, mistä sävelet
 
 Avaa kloonatun repon `index.html` selaimessa. Oppaan sivut ovat [book-kansiossa](book/) ja kuunteluesimerkit [assets/audio-kansiossa](assets/audio/).
 
+## Interaktiivinen kitaraharjoittelu
+
+[Kitaraharjoittelija](kitaraharjoittelija.html) yhdistää otelaudan sävelet,
+pentatoniikan ja moodit, sointusävelet, CAGED-duurimuodot sekä korvaharjoittelun.
+Vastaa otelautaruudukolla tai soita yksi sävel kerrallaan mikrofoniin / äänikorttiin.
+Mikrofoni tunnistaa sävelkorkeutta, eikä sen perusteella voida varmistaa käytettyä
+kieltä tai nauhaa. Ääntä ei tallenneta eikä lähetetä palvelimelle.
+
+Tulokset tallentuvat paikallisesti selaimeen. Oppaan vanhat lukumerkinnät säilyvät.
+Harjoittelijan käyttö tarvitsee HTTP-palvelimen; mikrofonikäyttö tarvitsee
+localhost-osoitteen tai HTTPS:n. Valmiit build-tiedostot ovat repossa, joten
+paikalliseen kokeiluun riittää:
+
+```bash
+python3 -m http.server 8000 --bind 127.0.0.1
+# Avaa http://127.0.0.1:8000/kitaraharjoittelija.html
+```
+
+Kehitys tarvitsee Node.js 22.16+ (tai yhteensopivan uudemman LTS:n) ja npm:n:
+
+```bash
+npm ci
+npm run dev
+# Avaa http://127.0.0.1:5173/kitaraharjoittelija.html
+```
+
+```bash
+npm run check       # ESLint, yksikkötestit, TypeScript ja staattinen tuotantobuild
+npm run test:e2e    # työpöytä + puhelin, paikallinen HTTP-palvelin käynnistyy itse
+PRACTICE_TEST_DEV=1 npm run test:e2e # samat selaintestit Viten lähdekoodipalvelimella
+npm audit          # myös kehitysriippuvuuksien tarkistus
+```
+
+E2E-testit käyttävät Macille asennettua Chromea, jos se löytyy. Muissa ympäristöissä
+asenna testiselain komennolla `npx playwright install chromium` tai anna
+`PLAYWRIGHT_CHROME_EXECUTABLE`-ympäristömuuttujassa oman Chromiumin polku.
+Puhelintesti on Chromiumin laite-emulointi, ei fyysisellä iPhonella tehty Safari-testi.
+
+`npm run build` päivittää `assets/harjoittelija/`-hakemiston JavaScriptin, CSS:n,
+lähdekartan ja lisenssi-ilmoitukset. Julkaisussa tarvitaan koko nykyinen staattinen
+sivusto sekä nämä tuotokset. Tavalliset lukusivut eivät lataa React-harjoittelijaa.
+Build ei julkaise sivustoa. [Käyttöohje ja kehitysraportti](reviews/fretecho-kehityskatselmus.md)
+kuvaavat asetukset, URL-parametrit, testitulokset ja jatkotestauksen.
+
 Ohjelmiston lisenssitiedot ovat [LICENSE-tiedostossa](LICENSE).
