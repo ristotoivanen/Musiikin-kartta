@@ -17,7 +17,7 @@ PDF tallentuu tiedostoon `pdf/musiikin-kartta.pdf`. Skripti tarvitsee Pythonin (
 - Kokoaa kannen, sisällysluettelon, osat 1–11 ja liitteiksi sanaston ja H-sävelnimen tutkielman.
 - Vaihtaa ääniesimerkkien soittimet linkeiksi, jotka avaavat saman esimerkin verkkoversiosta.
 - Avaa harjoitusten vastaukset näkyviin.
-- Muuttaa osien väliset linkit PDF:n sisäisiksi. Linkit otelautaharjoittelijaan ja harjoitustaustoihin osoittavat osoitteeseen rinnepelto.com.
+- Muuttaa osien väliset linkit PDF:n sisäisiksi. Linkit otelauta- ja kitaraharjoittelijaan sekä harjoitustaustoihin osoittavat osoitteeseen rinnepelto.com.
 - Tulostaa PDF:n kahdesti, jotta sisällysluetteloon saadaan oikeat sivunumerot.
 
 Sisällysluettelo luetaan sivujen `<section class="chapter">`- ja `<p class="chapter-number">`-merkinnöistä, joten uusi luku tulee mukaan automaattisesti. Uusi osa tai liite lisätään skriptin listoihin `PARTS` ja `APPENDICES`.

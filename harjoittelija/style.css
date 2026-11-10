@@ -1,0 +1,64 @@
+:root { color-scheme: dark; }
+.practice-main { max-width: 1100px; }
+.intro { max-width: 740px; margin-bottom: 28px; }
+.eyebrow { color: var(--lavender); font-size: 12px; letter-spacing: .16em; font-weight: 700; }
+.intro > p:last-child { color: var(--muted); font-size: 18px; }
+.settings { border: 1px solid #71638c; border-radius: 12px; padding: 16px; min-width: 0; }
+legend { font-weight: 700; padding: 0 6px; }
+.settings-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,230px),1fr)); gap: 14px; margin-bottom: 14px; }
+.field { display: flex; flex-direction: column; gap: 5px; font-size: 14px; }
+.field > label { color: var(--muted); }
+.field input:not([type="range"]) { background: var(--panel); color: var(--text); border: 1px solid #71638c; padding: 9px; border-radius: 8px; font: inherit; }
+button, select { min-height: 44px; }
+button:disabled, fieldset:disabled { opacity: .6; cursor: default; }
+details { margin: 16px 0; }
+summary { min-height: 44px; padding: 9px 0; cursor: pointer; font-weight: 650; }
+.check-row, .action-row, .answer-choices { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 12px 0; }
+.check-row label { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; }
+input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--purple); }
+.settings fieldset { border: 0; padding: 0; }
+.session-panel, .progress-panel { margin: 28px 0; padding: clamp(14px,3vw,24px); border: 1px solid #71638c; border-radius: 14px; background: var(--panel); }
+.session-top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
+h2 { font-size: 21px; margin: 0 0 10px; }
+.session-top > span { color: var(--muted); font-size: 14px; }
+.question { font-size: clamp(21px,3vw,29px); font-weight: 650; line-height: 1.4; max-width: 800px; min-height: 2.8em; }
+.primary { background: var(--purple-dark); color: white; border-color: var(--lavender); font-weight: 700; }
+.practice-main button[aria-pressed="true"] { color: white; }
+.feedback { border-left: 3px solid var(--box); padding: 8px 12px; min-height: 3.5em; }
+.error { border-left: 3px solid var(--gold); padding: 8px 12px; }
+.mic-status { color: var(--muted); font-size: 13px; }
+.mic-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); display: inline-block; margin-right: 7px; }
+.mic-dot.on { background: var(--box); }
+.candidate { border: 1px solid var(--gold); border-radius: 8px; padding: 12px; }
+.candidate button { margin: 4px; }
+.answer-choices button { min-width: 56px; font-size: 18px; }
+.fret-scroll { max-width: 100%; overflow-x: auto; padding-bottom: 8px; }
+.practice-board { border-collapse: separate; border-spacing: 3px; font-size: 13px; text-align: center; }
+.practice-board caption { text-align: left; color: var(--muted); margin: 8px 0; }
+.practice-board th { font-weight: 500; color: var(--muted); }
+.practice-board thead th:first-child { position: sticky; left: 0; background: var(--panel); z-index: 2; }
+.practice-board tbody th { position: sticky; left: 0; background: var(--panel); min-width: 85px; z-index: 1; text-align: left; }
+.practice-board td { border-radius: 5px; }
+.practice-board td button { min-width: 44px; padding: 5px; width: 100%; background: var(--bg); font-size: 14px; }
+.practice-board .target button { color: #16121f; background: var(--box); border-color: var(--box); font-weight: 750; }
+.practice-board .context-note button { color: white; background: var(--purple-dark); }
+.practice-board td > span { display: inline-block; min-width: 40px; padding: 10px 5px; }
+.practice-board .unseen { background: var(--bg); }
+.practice-board .few { outline: 1px dashed var(--muted); }
+.practice-board .strong { background: #17664f; color: white; }
+.practice-board .growing { background: #5234ad; color: white; }
+.practice-board .weak { background: #88491e; color: white; }
+.privacy { border-top: 1px solid #71638c; padding-top: 12px; }
+@media (prefers-color-scheme: light) {
+  :root { color-scheme: light; --bg: #faf8ff; --panel: #f0ebfa; --text: #241b38; --muted: #605574; --lavender: #5533c3; --box: #83ddc3; }
+  .site-header { border-color: #d7cce8; }
+  .primary { color: white; }
+  button:hover { background: #e4dcf3; }
+  .primary:hover { background: #38209f; }
+  .practice-board .target button { color: #16121f; }
+}
+@media (max-width: 600px) {
+  .settings, .session-panel, .progress-panel { padding: 12px; }
+  .practice-main { padding: 22px 12px 0; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }

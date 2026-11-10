@@ -74,6 +74,7 @@
     window.addEventListener('hashchange', followMovedAnchor);
     setupPart(current);
   } else if (document.querySelector('.parts')) {
+    setupPracticeSummary();
     setupIndex();
   }
 
@@ -83,6 +84,24 @@
     if (!id || document.getElementById(id)) return;
     const home = PARTS.find(part => part.chapters.some(([chapter]) => chapter === id) || part.anchors.includes(id));
     if (home && home !== current) location.replace(home.slug + '.html#' + id);
+  }
+
+  // Harjoittelija on itsenäinen: etusivu lukee vain pienen yhteenvedon.
+  // Lukumerkinnät ja harjoitustulokset tallennetaan eri avaimiin.
+  function setupPracticeSummary() {
+    try {
+      const data = JSON.parse(localStorage.getItem('musiikin-kartta:harjoittelu') || 'null');
+      if (data?.version !== 2 || !Array.isArray(data.sessions) || !data.sessions.length) return;
+      const last = data.sessions.at(-1);
+      if (!Number.isFinite(last.count) || last.count < 0) return;
+      const p = document.createElement('p');
+      p.className = 'continue';
+      const link = document.createElement('a');
+      link.href = 'kitaraharjoittelija.html';
+      link.textContent = 'Jatka kitaraharjoittelua · viimeksi ' + last.count + ' vastattua kysymystä';
+      p.append(link);
+      document.querySelector('.hero-actions')?.after(p);
+    } catch { /* Harjoitustallennuksen puute ei estä lukemista. */ }
   }
 
   function setupPart(part) {
