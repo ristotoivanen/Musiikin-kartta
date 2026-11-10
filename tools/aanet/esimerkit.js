@@ -38,8 +38,8 @@ const aanet = (() => {
       return this;
     }
 
-    note(beat, name, beats, { voice = 'lead', velocity = .9, pan } = {}) {
-      return this.push({ time: beat * this.beat, midi: midi(name), length: beats * this.beat, voice, velocity, pan });
+    note(beat, name, beats, { voice = 'lead', velocity = .9, pan, transpose = 0 } = {}) {
+      return this.push({ time: beat * this.beat, midi: midi(name) + transpose, length: beats * this.beat, voice, velocity, pan });
     }
 
     bass(beat, name, beats, options = {}) {
@@ -100,18 +100,64 @@ const aanet = (() => {
     for (let i = 0; i < 8; i++) score.drum(start + i / 2, 'hat', (i % 2 ? .22 : .35) * level);
   }
 
-  // Valot ikkunassa -kappaleen kertosäkeen melodia G-duurissa (tahdin iskut 0–3).
-  const CHORUS = [
-    [[0, 'G4', 1], [1, 'A4', 1], [2, 'B4', 1], [3, 'D5', 1]],
-    [[0, 'F♯4', 2], [2, 'A4', 1], [3, 'D5', 1]],
-    [[0, 'B4', 1], [1, 'G4', 1], [2, 'E4', 1], [3, 'G4', 1]],
-    [[1, 'E4', 2], [3, 'E4', 1]]
-  ];
+  // Kolme cowboyta -harjoitustausta G-duurissa. Soinnut, tahtimäärät ja tempo seuraavat levyä:
+  // säkeistön neljän tahdin rivi soi kahdesti, ja kertosäkeen viimeinen tahti kääntyy G:stä D:hen.
+  // Taustassa on vain säestys. Alkuperäisen kappaleen melodia ja sanat eivät kuulu siihen.
+  const COWBOY_VERSE = ['G', 'G', 'Am', 'D', 'G', 'G', 'Am', 'D'];
+  const COWBOY_CHORUS = ['G', 'C', 'G', 'G', 'D', 'C', 'G', 'G D'];
+  const COWBOY_BASS = { G: 'G1', Am: 'A1', C: 'C2', D: 'D2' };
 
-  function transpose(name, steps) {
-    const value = midi(name) + steps;
-    const names = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
-    return names[value % 12] + (Math.floor(value / 12) - 1);
+  // Puolen tahdin komppi: bassokielet ykkösellä, koko sointu kakkosella ja sen perään
+  // kaksi kuudestoistaosaa ohuilta kieliltä, alas ja ylös.
+  function cowboyStrum(score, at, shape, { capo = 0, level = 1 } = {}) {
+    const strings = frets(shape).flatMap((fret, string) => fret === null ? [] : [string]);
+    // Pieni voimakkuuden vaihtelu, jotta jokainen lyönti ei soi täsmälleen samanlaisena.
+    const vary = step => 1 + .07 * Math.sin((at + step) * 2.4);
+    const hit = (step, beats, velocity, options) =>
+      score.strum(at + step, shape, beats, { capo, velocity: velocity * level * vary(step), ...options });
+    hit(0, 1, .74, { strings: strings.slice(0, 4) });
+    hit(1, .5, .62);
+    hit(1.5, .25, .46, { strings: strings.slice(-4), spread: .008 });
+    hit(1.75, .25, .38, { strings: strings.slice(-3), up: true, spread: .006 });
+  }
+
+  // Soittaa tahdit kitaralla, bassolla ja rummuilla ja palauttaa seuraavan tahdin numeron.
+  // Tahdissa voi olla kaksi sointua ('G D'), jolloin kumpikin soi kaksi iskua.
+  function cowboyBars(score, bar, bars, { capo = 0, level = 1, crash = false } = {}) {
+    const bass = (beat, name, beats, velocity) =>
+      score.bass(beat, name, beats, { velocity: velocity * level, transpose: capo });
+    bars.forEach((name, i) => {
+      const at = (bar + i) * 4;
+      const chords = name.split(' ');
+      [0, 1].forEach(half => {
+        const chord = chords[half] ?? chords[0];
+        const start = at + half * 2;
+        cowboyStrum(score, start, chord, { capo, level });
+        // Basso nousee G:stä C:hen sävelillä A ja B, muuten se toistaa perussäveltä.
+        if (half === 1 && chord === 'G' && bars[i + 1] === 'C') {
+          bass(start, 'G1', 1, .46);
+          bass(start + 1, 'A1', .5, .42);
+          bass(start + 1.5, 'B1', .5, .42);
+        } else {
+          bass(start, COWBOY_BASS[chord], 1.4, .46);
+          bass(start + 1.5, COWBOY_BASS[chord], .5, .38);
+        }
+      });
+      // Suora komppi: bassorumpu 1, 2& ja 3, virveli 2 ja 4, hi-hat kahdeksasosina.
+      if (crash && i === 0) score.drum(at, 'crash');
+      [[0, .52], [1.5, .38], [2, .48]].forEach(([beat, velocity]) => score.drum(at + beat, 'kick', velocity * level));
+      [1, 3].forEach(beat => score.drum(at + beat, 'snare', .38 * level));
+      for (let step = 0; step < 8; step++) score.drum(at + step / 2, 'hat', (step % 2 ? .17 : .27) * level);
+    });
+    return bar + bars.length;
+  }
+
+  // Loppusointu: G soi pitkään basson ja bassorummun kanssa.
+  function cowboyEnd(score, bar, { capo = 0, beats = 6 } = {}) {
+    const at = bar * 4;
+    score.strum(at, 'G', beats, { capo, velocity: .8 });
+    score.bass(at, 'G1', beats - 1, { velocity: .46, transpose: capo });
+    score.drum(at, 'kick', .52);
   }
 
   // Paluumatkan melodia: A-osassa sävelet tulevat kakkosella ja kolmosen jälkeen.
@@ -241,26 +287,17 @@ const aanet = (() => {
       }
     },
     {
-      file: 'osa-2/valot-ikkunassa',
+      file: 'osa-2/kolme-cowboyta',
       build() {
-        const s = new Score({ bpm: 88 });
+        // Säkeistö ja kertosäe kahdesti, kumpikin kahdeksan tahtia. Sama komppi soi koko ajan
+        // kuten levyllä. Kertosäe alkaa symbaalin iskulla ja soi hieman säkeistöä voimakkaammin.
+        const s = new Score({ bpm: 84 });
         let bar = s.countIn(4) / 4;
-        const verse = () => ['G', 'Em', 'C', 'D'].forEach(chord => {
-          const at = bar++ * 4;
-          s.pick(at, chord, { G: 0, Em: 0, C: 1, D: 2 }[chord], 4, { velocity: .8 });
-          [3, 4, 5].forEach((string, i) => s.pick(at + 1 + i, chord, string, 3 - i, { velocity: .62 }));
-        });
-        const chorus = () => ['G', 'D', 'Em', 'C'].forEach((chord, i) => {
-          const at = bar++ * 4;
-          s.strum(at, chord, 2, { velocity: .78 }).strum(at + 2, chord, 2, { velocity: .66 });
-          s.melody(at, CHORUS[i]);
-        });
-        verse(); chorus(); verse(); chorus();
-        const end = bar * 4;
-        s.strum(end, 'D', 2, { velocity: .78 }).strum(end + 2, 'D', 2, { velocity: .66 });
-        s.melody(end, [[0, 'F♯4', 1], [1, 'A4', 1], [2, 'D5', 2]]);
-        s.strum(end + 4, 'G', 6, { velocity: .8 });
-        s.note(end + 4, 'G4', 6);
+        for (let round = 0; round < 2; round++) {
+          bar = cowboyBars(s, bar, COWBOY_VERSE, { level: .86 });
+          bar = cowboyBars(s, bar, COWBOY_CHORUS, { crash: true });
+        }
+        cowboyEnd(s, bar);
         return s;
       }
     },
@@ -289,12 +326,13 @@ const aanet = (() => {
     {
       file: 'osa-2/kertosae-kapolla',
       build() {
-        const s = new Score({ bpm: 88 });
-        [0, 2].forEach((capo, round) => ['G', 'D', 'Em', 'C'].forEach((chord, i) => {
-          const at = (round * 4 + i) * 4;
-          s.strum(at, chord, 2, { capo, velocity: .78 }).strum(at + 2, chord, i === 3 && round === 1 ? 5 : 2, { capo, velocity: .66 });
-          CHORUS[i].forEach(([beat, name, beats]) => s.note(at + beat, transpose(name, capo), beats));
-        }));
+        // Kolme cowboyta -kertosäe ja paluu G:hen ensin ilman kapoa, sitten samat otteet kapo 2. nauhalla.
+        const s = new Score({ bpm: 84 });
+        let bar = 0;
+        [0, 2].forEach(capo => {
+          bar = cowboyBars(s, bar, COWBOY_CHORUS, { capo });
+          cowboyEnd(s, bar++, { capo, beats: capo ? 6 : 4 });
+        });
         return s;
       }
     },
