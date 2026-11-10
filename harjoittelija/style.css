@@ -36,6 +36,7 @@ h2 { font-size: 21px; margin: 0 0 10px; }
 .practice-board { border-collapse: separate; border-spacing: 3px; font-size: 13px; text-align: center; }
 .practice-board caption { text-align: left; color: var(--muted); margin: 8px 0; }
 .practice-board th { font-weight: 500; color: var(--muted); }
+.practice-board thead th:first-child { position: sticky; left: 0; background: var(--panel); z-index: 2; }
 .practice-board tbody th { position: sticky; left: 0; background: var(--panel); min-width: 85px; z-index: 1; text-align: left; }
 .practice-board td { border-radius: 5px; }
 .practice-board td button { min-width: 44px; padding: 5px; width: 100%; background: var(--bg); font-size: 14px; }

@@ -1,5 +1,9 @@
 import { test,expect, type Page } from '@playwright/test';
 const key='musiikin-kartta:harjoittelu';
+test.beforeEach(async({page})=>{
+  page.on('pageerror',error=>console.error('Selainvirhe:',error.message));
+  page.on('console',message=>{if(message.type()==='error' && message.text().includes('Harjoittelijan lataus'))console.error(message.text());});
+});
 test('kymmenen kysymystä, tauko, tulokset ja uudelleenlataus',async({page})=>{
   const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
   await page.addInitScript(()=>localStorage.setItem('musiikin-kartta:tehdyt','["osa-3#otelauta"]'));
@@ -83,11 +87,11 @@ test('vanhat sivut ja PDF-linkit eivät lataa harjoitusmoottoria',async({page})=
 });
 async function mockedMic(page:Page, fail=false){
   await page.addInitScript(({fail})=>{
-    const state={opens:0,stops:0,frequency:0};Object.assign(window,{micTest:state});
+    const state={opens:0,stops:0,frequency:0,ended:null as null|(()=>void)};Object.assign(window,{micTest:state});
     Object.defineProperty(navigator.mediaDevices,'getUserMedia',{value:async()=>{
       state.opens++;
       if(fail) throw new DOMException('denied','NotAllowedError');
-      const track={stop:()=>state.stops++,addEventListener:()=>{}};
+      const track={stop:()=>state.stops++,addEventListener:(event:string,callback:()=>void)=>{if(event==='ended')state.ended=callback;}};
       return {getTracks:()=>[track]};
     }});
     Object.defineProperty(window,'AudioContext',{value:class {
@@ -145,6 +149,23 @@ test('valmiiden näkymien kuvakaappaukset',async({page},info)=>{
   await page.screenshot({path:`/private/tmp/mk-trainer-${info.project.name}-dark.png`,fullPage:true});
   await page.emulateMedia({colorScheme:'light'});
   await page.screenshot({path:`/private/tmp/mk-trainer-${info.project.name}-light.png`,fullPage:true});
+});
+test('äänilaitteen katoaminen tauottaa harjoituksen ja vapauttaa virran',async({page})=>{
+  await mockedMic(page);await page.goto('/kitaraharjoittelija.html?vastaus=mic');
+  await page.getByRole('button',{name:'Aloita harjoitus',exact:true}).click();
+  await expect(page.getByText('Mikrofoni käytössä',{exact:false})).toBeVisible();
+  await page.evaluate(()=>(window as unknown as {micTest:{ended:()=>void}}).micTest.ended());
+  await expect(page.getByRole('alert')).toContainText('Äänitulo katosi');
+  await expect(page.getByRole('button',{name:'Jatka harjoitusta'})).toBeVisible();
+  expect(await page.evaluate(()=>(window as unknown as {micTest:{stops:number}}).micTest.stops)).toBe(1);
+});
+test('kalibrointi sulkee mikrofonin ja tallentaa äänikynnyksen',async({page})=>{
+  await mockedMic(page);await page.goto('/kitaraharjoittelija.html');
+  await page.getByRole('button',{name:'Kalibroi hiljaisuuden äänikynnys'}).click();
+  await expect(page.getByRole('status').first()).toContainText('Kalibrointi valmis',{timeout:10000});
+  await expect(page.getByText('Mikrofoni suljettu',{exact:false})).toBeVisible();
+  const data=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)!),key);
+  expect(data.settings.minRms).toBe(.003);expect(data.recent).toHaveLength(0);
 });
 test('mikrofoni alkaa vain käyttäjän toiminnosta ja päättyy tauolla sekä poistuttaessa',async({page})=>{
   await mockedMic(page);await page.goto('/kitaraharjoittelija.html');

@@ -162,8 +162,11 @@ function App() {
     let disposed = false;
     void listInputDevices().then(list => { if (!disposed) setDevices(list); }).catch(() => {});
     const hidden = () => { if (document.hidden) { closeAudio(); engine.current?.pause(); draw(); } };
-    const leaving = () => { mic.current.stop(); player.current.stop(); operation.current++; engine.current?.pause(); };
-    const returning = () => { setBusy(false); setPlaying(false); setMicOn(false); draw(); };
+    const leaving = () => {
+      mic.current.stop(); player.current.stop(); operation.current++; engine.current?.pause();
+      calibratingRef.current=false; clearTimeout(calibrationTimer.current); cancelAnimationFrame(calibrationRaf.current);
+    };
+    const returning = () => { setBusy(false); setPlaying(false); setMicOn(false); setCalibrating(false); draw(); };
     document.addEventListener('visibilitychange',hidden); window.addEventListener('pagehide',leaving);
     window.addEventListener('pageshow',returning);
     return () => { disposed = true; leaving(); clearTimeout(calibrationTimer.current); cancelAnimationFrame(calibrationRaf.current); document.removeEventListener('visibilitychange',hidden); window.removeEventListener('pagehide',leaving); window.removeEventListener('pageshow',returning); };
