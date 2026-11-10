@@ -8,6 +8,7 @@ export interface MicStream {
 }
 
 export async function openMic(deviceId?: string): Promise<MicStream> {
+  if (!navigator.mediaDevices?.getUserMedia) throw new Error('Mikrofoni tarvitsee HTTPS-yhteyden tai localhost-osoitteen ja sitä tukevan selaimen.');
   const constraints: MediaStreamConstraints = {
     audio: {
       deviceId: deviceId ? { exact: deviceId } : undefined,
@@ -20,17 +21,27 @@ export async function openMic(deviceId?: string): Promise<MicStream> {
   };
   const stream = await navigator.mediaDevices.getUserMedia(constraints);
   // Safari prefixes removed years ago; Chrome works with the standard ctor.
-  const context = new AudioContext({ sampleRate: 44100 });
-  const source = context.createMediaStreamSource(stream);
+  let context: AudioContext | undefined;
+  try {
+    context = new AudioContext();
+    await context.resume();
+    const source = context.createMediaStreamSource(stream);
+    const activeContext = context;
   return {
     context,
     source,
     stream,
     stop: () => {
       stream.getTracks().forEach((t) => t.stop());
-      context.close().catch(() => {});
+      source.disconnect();
+      activeContext.close().catch(() => {});
     },
   };
+  } catch (error) {
+    stream.getTracks().forEach(t => t.stop());
+    await context?.close().catch(() => {});
+    throw error;
+  }
 }
 
 export async function listInputDevices(): Promise<MediaDeviceInfo[]> {

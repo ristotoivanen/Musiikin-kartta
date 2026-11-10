@@ -2,7 +2,7 @@
 // Emits "stable note" events when successive frames agree on the same MIDI note.
 
 import { PitchDetector as Pitchy } from 'pitchy';
-import { nearestMidi } from '../music/notes';
+import { nearestMidi } from './notes';
 import type { MicStream } from './micInput';
 
 export interface PitchFrame {
@@ -24,6 +24,8 @@ export interface PitchDetectorOptions {
   minClarity?: number;
   minRms?: number;
   stabilityFrames?: number;
+  stabilityMs?: number;
+  centsTolerance?: number;
   minFreq?: number;
   maxFreq?: number;
   onFrame?: (f: PitchFrame | null) => void;
@@ -35,10 +37,11 @@ export class PitchLoop {
   private detector: Pitchy<Float32Array>;
   private buffer: Float32Array<ArrayBuffer>;
   private rafId: number | null = null;
-  private consecutive: { midi: number; count: number } | null = null;
+  private consecutive: { midi: number; count: number; since: number } | null = null;
   private lastEmittedMidi: number | null = null;
   private running = false;
   private paused = false;
+  private gate = new StabilityGate();
 
   constructor(private mic: MicStream, private opts: PitchDetectorOptions = {}) {
     const fftSize = opts.fftSize ?? 8192;
@@ -70,6 +73,8 @@ export class PitchLoop {
     this.rafId = null;
     this.consecutive = null;
     this.lastEmittedMidi = null;
+    this.gate.reset();
+    this.analyser.disconnect();
   }
 
   /** Stop processing frames without tearing down the audio graph. */
@@ -79,6 +84,7 @@ export class PitchLoop {
     this.lastEmittedMidi = null;
     // Clear the detected display so tones/speech don't leak info.
     this.opts.onFrame?.(null);
+    this.gate.reset();
   }
 
   /** Resume processing. Clears any residual state so the next note is fresh. */
@@ -86,6 +92,7 @@ export class PitchLoop {
     this.paused = false;
     this.consecutive = null;
     this.lastEmittedMidi = null;
+    this.gate.reset();
   }
 
   /** Allow the UI to read current RMS for a mic meter. */
@@ -105,8 +112,10 @@ export class PitchLoop {
       minClarity = 0.9,
       minRms = 0.01,
       stabilityFrames = 3,
-      minFreq = 25,
-      maxFreq = 600,
+      stabilityMs = 240,
+      centsTolerance = 35,
+      minFreq = 70,
+      maxFreq = 1450,
       onFrame,
       onStableNote,
     } = this.opts;
@@ -118,6 +127,7 @@ export class PitchLoop {
       this.consecutive = null;
       this.lastEmittedMidi = null;
       onFrame?.(null);
+      this.gate.feed(null, performance.now(), stabilityMs);
       return;
     }
 
@@ -134,6 +144,7 @@ export class PitchLoop {
     ) {
       this.consecutive = null;
       onFrame?.(null);
+      this.gate.feed(null, performance.now(), stabilityMs);
       return;
     }
 
@@ -142,24 +153,48 @@ export class PitchLoop {
     onFrame?.(frame);
 
     // Reject if far off a semitone center — implies unstable transient.
-    if (Math.abs(cents) > 45) {
+    if (Math.abs(cents) > centsTolerance) {
       this.consecutive = null;
+      this.gate.feed(null, performance.now(), stabilityMs);
       return;
     }
 
     if (this.consecutive && this.consecutive.midi === midi) {
       this.consecutive.count += 1;
     } else {
-      this.consecutive = { midi, count: 1 };
+      this.consecutive = { midi, count: 1, since: performance.now() };
     }
 
     if (
       this.consecutive.count >= stabilityFrames &&
-      this.lastEmittedMidi !== midi
+      this.gate.feed(midi, performance.now(), stabilityMs) !== null
     ) {
       this.lastEmittedMidi = midi;
       onStableNote?.({ midi, frequency, timestamp: performance.now() });
     }
+  }
+}
+
+// Adaptation: require elapsed stability time, then silence before another answer.
+// A single held tone must never answer multiple questions or create repeated errors.
+export class StabilityGate {
+  private current: { midi: number; since: number } | null = null;
+  private emitted = false;
+  private silentSince: number | null = null;
+  reset() { this.current = null; this.emitted = true; this.silentSince = null; }
+  feed(midi: number | null, now: number, stableMs: number): number | null {
+    if (midi === null) {
+      this.current = null;
+      this.silentSince ??= now;
+      if (now - this.silentSince >= 140) this.emitted = false;
+      return null;
+    }
+    this.silentSince = null;
+    if (this.emitted) return null;
+    if (!this.current || this.current.midi !== midi) this.current = { midi, since: now };
+    if (now - this.current.since < stableMs) return null;
+    this.emitted = true;
+    return midi;
   }
 }
 
