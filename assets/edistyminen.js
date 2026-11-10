@@ -34,8 +34,27 @@
   }
 
   const page = location.pathname.match(/(osa-[1-5])(?:\.html)?\/?$/);
+  if (document.querySelector('.parts')) setupPracticeSummary();
   if (page) setupPart(PARTS.find(part => part.slug === page[1]));
   else if (document.querySelector('.parts')) setupIndex();
+
+  // Harjoittelija on itsenäinen: etusivu lukee vain pienen yhteenvedon.
+  // Oppaan vanhaa KEY-avainta ei muuteta eikä Reactia ladata lukusivuille.
+  function setupPracticeSummary() {
+    try {
+      const data = JSON.parse(localStorage.getItem('musiikin-kartta:harjoittelu') || 'null');
+      if (data?.version !== 2 || !Array.isArray(data.sessions) || !data.sessions.length) return;
+      const last = data.sessions.at(-1);
+      if (!Number.isFinite(last.count) || last.count < 0) return;
+      const p = document.createElement('p');
+      p.className = 'continue';
+      const link = document.createElement('a');
+      link.href = 'kitaraharjoittelija.html';
+      link.textContent = 'Jatka kitaraharjoittelua · viimeksi ' + last.count + ' vastattua kysymystä';
+      p.append(link);
+      document.querySelector('.hero-actions')?.after(p);
+    } catch { /* Harjoitustallennuksen puute ei estä lukemista. */ }
+  }
 
   function setupPart(part) {
     if (!part) return;

@@ -54,10 +54,14 @@ export function sanitize(raw: Partial<Settings>): Settings {
 export function fromURL(search: string, initial: Settings): Settings {
   const p = new URLSearchParams(search);
   const raw: Partial<Settings> = { ...initial };
-  for (const [url, key] of [['tila','mode'],['asteikko','scale'],['tarkistus','check'],['muoto','shape'],['sointu','chord'],['jarjestys','order']] as const)
+  for (const [url, key] of [['tila','mode'],['asteikko','scale'],['tarkistus','check'],['muoto','shape'],['sointu','chord'],['jarjestys','order'],['vastaus','input'],['vihjeet','hints'],['tehtava','activity'],['sointuaste','chordTone'],['suunta','direction']] as const)
     if (p.has(url)) Object.assign(raw, { [key]: p.get(url) });
   for (const [url,key] of [['alku','min'],['loppu','max'],['boksi','box'],['kierros','rounds']] as const)
     if (p.has(url)) raw[key] = Number(p.get(url));
+  if (p.has('kielet')) raw.strings = p.get('kielet')!.split(',').map(n => Number(n)-1);
+  if (p.has('intervallit')) raw.intervals = p.get('intervallit')!.split(',').map(Number);
+  for (const [url,key] of [['kromaattinen','accidentals'],['alennukset','flats'],['kertaus','weak']] as const)
+    if (p.has(url)) raw[key] = p.get(url) === '1';
   if (p.has('toonikka')) {
     const token = p.get('toonikka')!.replace('#','♯').replace('b','♭');
     const names = ['C','D♭','D','E♭','E','F','G♭','G','A♭','A','B♭','B'];
@@ -69,5 +73,10 @@ export function fromURL(search: string, initial: Settings): Settings {
 export function settingsURL(s: Settings): string {
   return 'kitaraharjoittelija.html?' + new URLSearchParams({ tila: s.mode, toonikka: music.CHROM[s.root], asteikko: s.scale,
     alku: String(s.min), loppu: String(s.max), boksi: String(s.box), kierros: String(s.rounds),
-    tarkistus: s.check, muoto: s.shape, sointu: s.chord, jarjestys: s.order });
+    tarkistus: s.check, muoto: s.shape, sointu: s.chord, jarjestys: s.order,
+    vastaus: s.input, vihjeet: s.hints, tehtava: s.activity, sointuaste: s.chordTone,
+    suunta: s.direction, kielet: s.strings.map(i=>i+1).join(','), intervallit: s.intervals.join(','),
+    kromaattinen: s.accidentals ? '1':'0', alennukset: s.flats ? '1':'0', kertaus: s.weak ? '1':'0' });
 }
+export const answerInput = (s: Settings) => s.mode === 'ear-note' ? 'note' : ['scale','chord'].includes(s.mode) && s.activity === 'degree' ? 'degree' : s.input;
+export const answerCheck = (s: Settings) => ['note','degree'].includes(answerInput(s)) ? 'class' : s.check;

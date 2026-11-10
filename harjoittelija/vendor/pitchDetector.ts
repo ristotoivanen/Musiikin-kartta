@@ -179,7 +179,7 @@ export class PitchLoop {
 // A single held tone must never answer multiple questions or create repeated errors.
 export class StabilityGate {
   private current: { midi: number; since: number } | null = null;
-  private emitted = false;
+  private emitted = true;
   private silentSince: number | null = null;
   reset() { this.current = null; this.emitted = true; this.silentSince = null; }
   feed(midi: number | null, now: number, stableMs: number): number | null {

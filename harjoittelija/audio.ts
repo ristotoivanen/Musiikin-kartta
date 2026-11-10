@@ -25,6 +25,9 @@ export class Microphone {
       mic.stream.getTracks().forEach(track => track.addEventListener('ended', () => {
         if (this.mic === mic) { this.stop(); ended(); }
       }, { once: true }));
+      mic.context.addEventListener?.('statechange', () => {
+        if (this.mic === mic && mic.context.state !== 'running') { this.stop(); ended(); }
+      });
       this.loop.start(); return true;
     } catch (error) { this.stop(); throw error; }
   }

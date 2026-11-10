@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { PracticeEngine, generate, matches, pool, weightedPick } from '../harjoittelija/engine';
-import { defaults, fromURL, sanitize, type Settings } from '../harjoittelija/settings';
+import { defaults, fromURL, sanitize, settingsURL, type Settings } from '../harjoittelija/settings';
 import { CHORDS, music, pc } from '../harjoittelija/music';
 describe('kysymysten muodostus', () => {
   it('kieli-, nauha- ja luonnollisten sävelten rajaus', () => {
@@ -55,6 +55,10 @@ describe('kysymysten muodostus', () => {
     expect(fromURL('?tila=bad&asteikko=__proto__&alku=NaN',defaults)).toMatchObject({mode:'notes',scale:'mp',min:0});
     expect(sanitize({strings:[],min:20,max:-2})).toMatchObject({strings:[0,1,2,3,4,5],min:20,max:20});
   });
+  it('jaettu linkki säilyttää kaikki harjoituksen musiikilliset valinnat',()=>{
+    const s:Settings={...defaults,mode:'interval',strings:[1,5],min:3,max:24,hints:'off',input:'mic',intervals:[1,6,12],direction:'down',check:'pitch',accidentals:true,flats:true,weak:false};
+    expect(fromURL(settingsURL(s).split('?')[1],defaults)).toEqual(s);
+  });
 });
 describe('tilasiirtymät ja vastausten luotettavuus', () => {
   it('sävelluokka hyväksyy oktaavin, sävelkorkeus vaatii oikean oktaavin', () => {
@@ -87,6 +91,12 @@ describe('tilasiirtymät ja vastausten luotettavuus', () => {
     const e=new PracticeEngine(settings,()=>({}),()=>{},()=>0,()=>0); e.start();
     const alternative=pool(settings).filter(p=>pc(p.midi)===pc(e.question!.midi)).at(-1)!;
     expect(e.answer(alternative.midi,'board',alternative)).toBe('correct');
+  });
+  it('sävelluokan otelautavastaus voi käyttää samaa kieltä toisessa oktaavissa ja tilastoi valitun kohdan',()=>{
+    const settings:Settings={...defaults,strings:[5],min:0,max:12};
+    const e=new PracticeEngine(settings,()=>({}),()=>{},()=>0,()=>0);e.start();
+    const other={...e.question!.position,fret:12,midi:52};
+    expect(e.answer(other.midi,'board',other)).toBe('correct');expect(e.results[0].item).toBe('notes:5:12');
   });
   it('10, 20 ja vapaat kierrokset sekä keskeytys', () => {
     for(const rounds of [10,20,0]) {

@@ -5,13 +5,13 @@ import { openMic,type MicStream } from '../harjoittelija/vendor/micInput';
 afterEach(()=>vi.unstubAllGlobals());
 describe('mikrofonin luotettavuus ja elinkaari',()=>{
   it('vaatii vakaan sävelen ja vapautuksen ennen uutta vastausta',()=>{
-    const gate=new StabilityGate();
+    const gate=new StabilityGate(); gate.feed(null,-200,240); gate.feed(null,-1,240);
     expect(gate.feed(40,0,240)).toBeNull();expect(gate.feed(40,100,240)).toBeNull();expect(gate.feed(40,240,240)).toBe(40);
     expect(gate.feed(40,1000,240)).toBeNull();expect(gate.feed(41,1500,240)).toBeNull();
     gate.feed(null,1600,240);gate.feed(null,1800,240);gate.feed(41,2000,240);expect(gate.feed(41,2250,240)).toBe(41);
   });
   it('epävakaa sävel ei muodosta vastausta',()=>{
-    const gate=new StabilityGate();
+    const gate=new StabilityGate(); gate.feed(null,-200,240); gate.feed(null,-1,240);
     for(let time=0;time<1000;time+=40) expect(gate.feed(time%80?40:52,time,240)).toBeNull();
   });
   it('tauolta jatkaminen vaatii uuden alukkeen',()=>{

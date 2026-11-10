@@ -1,5 +1,5 @@
 import { CHORDS, INTERVALS, cagedPositions, music, note, pc, positionKey, positions, type Position } from './music';
-import type { Settings } from './settings';
+import { answerCheck, answerInput, type Settings } from './settings';
 import { statKey, weight, type Result, type Stat } from './storage';
 export type Question = {
   position: Position; midi: number; item: string; prompt: string; degree?: string;
@@ -35,7 +35,7 @@ export function itemFor(s: Settings, p: Position, interval?: number, direction?:
   if (s.mode === 'chord') return `chord:${s.root}:${s.chord}:${pc(p.midi - s.root)}:${s.activity}`;
   if (s.mode === 'scale') return `scale:${s.root}:${s.scale}:${positionKey(p)}:${s.activity}`;
   if (s.mode === 'caged') return `caged:${s.root}:${s.shape}:${positionKey(p)}`;
-  return `${s.mode}:${positionKey(p)}`;
+  return s.mode === 'ear-note' ? `ear-note:${pc(p.midi)}` : `${s.mode}:${positionKey(p)}`;
 }
 export function generate(s: Settings, index: number, stats: Record<string,Stat> = {}, previous?: Question, random = Math.random): Question {
   let eligible = pool(s);
@@ -48,7 +48,7 @@ export function generate(s: Settings, index: number, stats: Record<string,Stat> 
     const candidates = s.intervals.flatMap(iv => eligible.flatMap(p => eligible
       .filter(target => target.midi === p.midi + (direction === 'down' ? -iv : iv))
       .map(target => ({ iv, reference: p.midi, target }))));
-    const choice = weightedPick(candidates, candidates.map(c => s.weak ? weight(stats[statKey({ input: s.input, check: s.check, hint: false, item: itemFor(s,c.target,c.iv,direction) })]) : 1), random);
+    const choice = weightedPick(candidates, candidates.map(c => s.weak ? weight(stats[statKey({ input: answerInput(s), check: answerCheck(s), hint: false, item: itemFor(s,c.target,c.iv,direction) })]) : 1), random);
     interval = choice.iv; reference = choice.reference; eligible = [choice.target];
   }
   const tones = s.mode === 'scale' ? music.scaleNotes(music.SCALES[s.scale]) : CHORDS[s.mode === 'caged' ? 'maj' : s.chord].tones;
@@ -63,7 +63,7 @@ export function generate(s: Settings, index: number, stats: Record<string,Stat> 
     target = weightedPick(ordered, ordered.map((_,i) => i === index % ordered.length ? 1 : 0), random);
   } else {
     if (eligible.length > 1) eligible = eligible.filter(p => positionKey(p) !== (previous && positionKey(previous.position)));
-    target = weightedPick(eligible, eligible.map(p => s.weak ? weight(stats[statKey({ input: s.input, check: s.check, hint: false, item: itemFor(s,p) })]) : 1), random);
+    target = weightedPick(eligible, eligible.map(p => s.weak ? weight(stats[statKey({ input: answerInput(s), check: answerCheck(s), hint: false, item: itemFor(s,p) })]) : 1), random);
   }
   const iv = pc(target.midi - s.root);
   const degree = tones.find(([i]) => i === iv)?.[1];
@@ -112,18 +112,18 @@ export class PracticeEngine {
     if (this.phase !== 'active' || !this.question) return 'ignored';
     const q = this.question;
     const correct = input === 'degree' ? value === q.interval :
-      input === 'board' && this.settings.mode === 'notes' ? !!position && positionKey(position) === positionKey(q.position) :
+      input === 'board' && this.settings.mode === 'notes' ? !!position && position.string === q.position.string && matches(q.midi,value,this.settings.check) :
       input === 'board' && this.settings.mode === 'caged' ? !!position && pool(this.settings).some(p => positionKey(p) === positionKey(position)) && matches(q.midi,value,this.settings.check) :
       matches(q.midi,value,input === 'note' ? 'class' : this.settings.check);
     if (!correct) {
       if (input === 'mic') return 'candidate';
       this.errors++; return 'wrong';
     }
-    const result: Result = { id: `${this.id}:${this.index}`, item: q.item, mode: this.settings.mode,
+    const result: Result = { id: `${this.id}:${this.index}`, item: input === 'board' && position && this.settings.mode !== 'interval' ? itemFor(this.settings,position) : q.item, mode: this.settings.mode,
       input: q.choices === 'position' ? this.settings.input : q.choices,
-      check: q.choices === 'note' ? 'class' : this.settings.check,
+      check: answerCheck(this.settings),
       expected: q.midi, played: value, first: this.errors === 0, errors: this.errors,
-      ms: Math.max(0,this.now()-this.started), hint: this.hinted, at: Date.now(), position: positionKey(q.position) };
+      ms: Math.max(0,this.now()-this.started), hint: this.hinted, at: Date.now(), position: positionKey(input === 'board' && position ? position : q.position) };
     this.results.push(result); this.record(result); this.phase = 'feedback'; return 'correct';
   }
   confirmWrong() { if (this.phase === 'active') this.errors++; }
