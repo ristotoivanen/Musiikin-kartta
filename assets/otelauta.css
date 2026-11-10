@@ -96,6 +96,30 @@ button[aria-pressed="true"] { background: var(--purple-dark); border-color: var(
 .legend[hidden] { display: none; }
 .swatch { display: inline-block; width: 14px; height: 14px; border-radius: 50%; margin-right: 6px; vertical-align: -2px; }
 .muted-swatch { color: var(--text); font-size: 17px; font-weight: 700; line-height: 14px; text-align: center; }
+/* Oktaaviharjoitus (assets/oktaavit.js). */
+.octave-panel {
+  background: var(--panel); border-radius: 10px;
+  padding: 14px 16px; margin-bottom: 16px; max-width: 800px;
+}
+.octave-panel h2 { margin: 0 0 6px; font-size: 19px; }
+.octave-panel p { margin: 0 0 10px; font-size: 15px; }
+.octave-panel .group { margin-bottom: 12px; }
+.octave-panel .tools-note { margin-bottom: 0; }
+.octave-feedback { min-height: 1.55em; font-weight: 600; }
+.octave-feedback.is-correct { color: #79e0ab; }
+.octave-feedback.is-wrong { color: #ffb4a8; }
+.fret-target { cursor: pointer; outline-offset: -2px; }
+.fret-target:hover { fill: #fff; fill-opacity: .1; }
+.octave-note { pointer-events: none; }
+.octave-note circle { stroke: #1a1430; stroke-width: 1; }
+.octave-note text { fill: #1a1430; }
+.octave-same circle { fill: var(--purple-dark); stroke: #fff; stroke-width: 2.5; }
+.octave-same text { fill: #fff; }
+.octave-up circle { fill: var(--gold); }
+.octave-up2 circle { fill: var(--box); }
+.octave-up3 circle { fill: #ff9fc7; }
+.octave-miss circle { fill: #16121f; stroke: #ffb4a8; stroke-width: 1.5; stroke-dasharray: 3 2; }
+.octave-miss text { fill: #ffd9d2; }
 footer {
   margin-top: 60px; padding-top: 20px; border-top: 1px solid #2d2444;
   text-align: center; color: var(--muted); font-size: 13px;

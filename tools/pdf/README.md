@@ -14,7 +14,7 @@ PDF tallentuu tiedostoon `pdf/musiikin-kartta.pdf`. Skripti tarvitsee Pythonin (
 
 ## Mitä skripti tekee
 
-- Kokoaa kannen, sisällysluettelon, osat I–V ja liitteeksi H-sävelnimen tutkielman.
+- Kokoaa kannen, sisällysluettelon, osat 1–11 ja liitteiksi sanaston ja H-sävelnimen tutkielman.
 - Vaihtaa ääniesimerkkien soittimet linkeiksi, jotka avaavat saman esimerkin verkkoversiosta.
 - Avaa harjoitusten vastaukset näkyviin.
 - Muuttaa osien väliset linkit PDF:n sisäisiksi. Linkit otelautaharjoittelijaan ja harjoitustaustoihin osoittavat osoitteeseen rinnepelto.com.
@@ -27,4 +27,4 @@ Sisällysluettelo luetaan sivujen `<section class="chapter">`- ja `<p class="cha
 - `book/reader.css` sisältää `@media print` -lohkon. Sen ansiosta myös yksittäinen osa tulostuu selaimesta vaaleana paperiversiona.
 - `kooste.css` sisältää vain koosteen omat osat: kannen, sisällysluettelon, sivujen alatunnisteen ja osien sivunvaihdot.
 
-Osien omat `<style>`-lohkot kootaan samaan tiedostoon. Käytä siksi eri osissa eri luokkanimiä, jos tyylit eroavat.
+Osien yhteiset kaaviotyylit ovat tiedostossa `book/reader.css`. Jos osalla on oma `<style>`-lohko, se kootaan samaan tiedostoon. Käytä siksi eri osissa eri luokkanimiä, jos tyylit eroavat.

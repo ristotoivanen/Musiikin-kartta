@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Oppaan sointukaaviot yhdestä paikasta.
 
-Piirtää sointukaavion SVG-muodossa samalla tyylillä kuin osan III barré- ja
+Piirtää sointukaavion SVG-muodossa samalla tyylillä kuin osan 6 barré- ja
 septimisointujen kaaviot. Tyylit ovat tiedostossa book/reader.css
 (.chord-diagram). Kaavion voi tulostaa komentoriviltä ja liittää sivulle:
 

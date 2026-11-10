@@ -241,7 +241,37 @@ const aanet = (() => {
 
   const examples = [
     {
-      file: 'osa-1/fraasin-loppu',
+      file: 'osa-1/pulssi-ja-komppi',
+      build() {
+        // Luvun 1 rytmiharjoitus: kaksi tahtia pulssia, kaksi tahtia kahdeksasosia, neljä tahtia
+        // alas–ylös-komppia G:llä ja lopuksi kahdesti tahti, jossa G vaihtuu D:hen kolmosella.
+        // Naksutus jatkuu loppuun asti, jotta ykkönen erottuu.
+        const s = new Score({ bpm: 84 });
+        const pulse = (bar, level = 1) => {
+          for (let beat = 0; beat < 4; beat++) s.drum(bar * 4 + beat, 'click', level, beat === 0);
+        };
+        const eighths = bar => {
+          for (let beat = 0; beat < 4; beat++) s.drum(bar * 4 + beat + .5, 'hat', .3);
+        };
+        // Alasveto iskulla kaikilta kieliltä, ylösveto iskujen välissä kolmelta ohuimmalta kieleltä.
+        const downUp = (at, shape) => {
+          const strings = frets(shape).flatMap((fret, string) => fret === null ? [] : [string]);
+          s.strum(at, shape, 1, { velocity: .7 });
+          s.strum(at + .5, shape, .5, { velocity: .42, up: true, strings: strings.slice(-3), spread: .008 });
+        };
+        for (let bar = 0; bar < 10; bar++) {
+          pulse(bar, bar < 4 ? 1 : .6);
+          if (bar >= 2) eighths(bar);
+          if (bar < 4) continue;
+          for (let beat = 0; beat < 4; beat++) downUp(bar * 4 + beat, bar >= 8 && beat >= 2 ? 'D' : 'G');
+        }
+        s.drum(40, 'click', .6, true);
+        s.strum(40, 'G', 4, { velocity: .8 });
+        return s;
+      }
+    },
+    {
+      file: 'osa-2/fraasin-loppu',
       build() {
         const s = new Score({ bpm: 120 });
         s.strum(0, 'C', 6.5, { velocity: .5 });
@@ -252,7 +282,7 @@ const aanet = (() => {
       }
     },
     {
-      file: 'osa-1/duuri-ja-molli',
+      file: 'osa-2/duuri-ja-molli',
       build() {
         const s = new Score({ bpm: 140 });
         // A-kielen 3. nauha (C), D-kielen 2. tai 1. nauha (E tai E♭) ja vapaa G-kieli.
@@ -264,7 +294,7 @@ const aanet = (() => {
       }
     },
     {
-      file: 'osa-1/asteikot',
+      file: 'osa-2/asteikot',
       build() {
         const s = new Score({ bpm: 144 });
         const major = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5'];
@@ -276,7 +306,7 @@ const aanet = (() => {
       }
     },
     {
-      file: 'osa-1/sointujen-tehtavat',
+      file: 'osa-3/sointujen-tehtavat',
       build() {
         const s = new Score({ bpm: 100 });
         [['C', 0], ['F', 2], ['G7', 4], ['C', 6], ['Am', 11], ['Dm', 13], ['E7', 15], ['Am', 17]].forEach(([chord, beat]) => {
@@ -287,7 +317,7 @@ const aanet = (() => {
       }
     },
     {
-      file: 'osa-2/kolme-cowboyta',
+      file: 'osa-1/kolme-cowboyta',
       build() {
         // Säkeistö ja kertosäe kahdesti, kumpikin kahdeksan tahtia. Sama komppi soi koko ajan
         // kuten levyllä. Kertosäe alkaa symbaalin iskulla ja soi hieman säkeistöä voimakkaammin.
@@ -302,7 +332,7 @@ const aanet = (() => {
       }
     },
     {
-      file: 'osa-2/kaksi-kotisavelta',
+      file: 'osa-4/kaksi-kotisavelta',
       build() {
         const s = new Score({ bpm: 88 });
         const excerpt = (start, chords, melody) => chords.forEach((chord, bar) => {
@@ -324,7 +354,7 @@ const aanet = (() => {
       }
     },
     {
-      file: 'osa-2/kertosae-kapolla',
+      file: 'osa-4/kertosae-kapolla',
       build() {
         // Kolme cowboyta -kertosäe ja paluu G:hen ensin ilman kapoa, sitten samat otteet kapo 2. nauhalla.
         const s = new Score({ bpm: 84 });
@@ -337,7 +367,7 @@ const aanet = (() => {
       }
     },
     {
-      file: 'osa-3/septimisoinnut',
+      file: 'osa-10/septimisoinnut',
       build() {
         const s = new Score({ bpm: 72 });
         ['x 3 5 4 5 x', 'x 5 7 5 6 x', 'x 7 9 7 8 x', 'x 8 10 9 10 x', '3 x 3 4 3 x', '5 x 5 5 5 x', '7 x 7 7 6 x', '8 x 9 9 8 x']
@@ -346,7 +376,7 @@ const aanet = (() => {
       }
     },
     {
-      file: 'osa-3/yksi-savel-kerrallaan',
+      file: 'osa-10/yksi-savel-kerrallaan',
       build() {
         const s = new Score({ bpm: 80 });
         ['8 x 9 9 8 x', '8 x 8 9 8 x', '8 x 8 8 8 x', '8 x 8 8 7 x'].forEach((shape, i) => {
@@ -358,7 +388,7 @@ const aanet = (() => {
       }
     },
     {
-      file: 'osa-3/barre-numerokartta',
+      file: 'osa-6/barre-numerokartta',
       build() {
         const s = new Score({ bpm: 88 });
         // I–V–vi–IV barré-otteilla: ensin G-duuri, sitten sama kuvio kaksi nauhaa ylempänä.
@@ -375,7 +405,7 @@ const aanet = (() => {
       }
     },
     {
-      file: 'osa-3/samat-viisi-savelta',
+      file: 'osa-8/samat-viisi-savelta',
       build() {
         const s = new Score({ bpm: 84 });
         const tune = [
@@ -390,7 +420,7 @@ const aanet = (() => {
       }
     },
     {
-      file: 'osa-3/am-harjoitustausta',
+      file: 'osa-8/am-harjoitustausta',
       build() {
         const s = new Score({ bpm: 84 });
         const start = s.countIn(4) / 4;
@@ -402,7 +432,7 @@ const aanet = (() => {
       }
     },
     {
-      file: 'osa-3/aiolinen-ja-doorinen',
+      file: 'osa-11/aiolinen-ja-doorinen',
       build() {
         const s = new Score({ bpm: 84 });
         for (let bar = 0; bar < 5; bar++) minorPattern(s, bar, 'Am');
@@ -414,7 +444,7 @@ const aanet = (() => {
       }
     },
     {
-      file: 'osa-4/vertaa-intervalleja',
+      file: 'osa-7/vertaa-intervalleja',
       build() {
         const s = new Score({ bpm: 80 });
         ['E3', 'F♯3', 'A3'].forEach((name, i) => {
@@ -424,7 +454,7 @@ const aanet = (() => {
       }
     },
     {
-      file: 'osa-4/intervalliharjoitus',
+      file: 'osa-7/intervalliharjoitus',
       build() {
         const s = new Score({ bpm: 80 });
         ['D4', 'A3', 'B3'].forEach((name, i) => {
@@ -434,7 +464,7 @@ const aanet = (() => {
       }
     },
     {
-      file: 'osa-4/kuuntele-basso',
+      file: 'osa-7/kuuntele-basso',
       build() {
         const s = new Score({ bpm: 84 });
         const chords = ['Em', 'C', 'G', 'D'];
@@ -448,7 +478,7 @@ const aanet = (() => {
       }
     },
     {
-      file: 'osa-4/duuri-vai-molli',
+      file: 'osa-7/duuri-vai-molli',
       build() {
         const s = new Score({ bpm: 84 });
         [['D', 0], ['Dm', 3], ['Am', 7.5], ['A', 10.5]].forEach(([chord, beat]) => s.strum(beat, chord, 2, { pan: 0, velocity: .8 }));
@@ -456,7 +486,7 @@ const aanet = (() => {
       }
     },
     {
-      file: 'osa-4/soiko-septimi',
+      file: 'osa-10/soiko-septimi',
       build() {
         const s = new Score({ bpm: 84 });
         // Vertailupari G ja G7, tauon jälkeen C7, C ja Cmaj7 E-kielen otteella (vain D-kieli vaihtuu).
@@ -466,7 +496,7 @@ const aanet = (() => {
       }
     },
     {
-      file: 'osa-4/paluumatka',
+      file: 'osa-7/paluumatka',
       build() {
         const s = new Score({ bpm: 84 });
         const start = s.countIn(4);
@@ -485,7 +515,7 @@ const aanet = (() => {
       }
     },
     {
-      file: 'osa-5/em-c-tausta',
+      file: 'osa-8/em-c-tausta',
       build() {
         const s = new Score({ bpm: 84 });
         const start = s.countIn(4) / 4;
@@ -498,7 +528,7 @@ const aanet = (() => {
       }
     },
     {
-      file: 'osa-5/paluumatka-nappaily',
+      file: 'osa-9/paluumatka-nappaily',
       build() {
         const s = new Score({ bpm: 84 });
         returnPicking(s, 0);
@@ -506,7 +536,7 @@ const aanet = (() => {
       }
     },
     {
-      file: 'osa-5/paluumatka-komppi',
+      file: 'osa-9/paluumatka-komppi',
       build() {
         const s = new Score({ bpm: 84 });
         RETURN_A_CHORDS.forEach((chord, bar) => {
@@ -516,11 +546,15 @@ const aanet = (() => {
         return s;
       }
     },
-    { file: 'osa-5/kappale-1-luonnos', build: () => songStage(1) },
-    { file: 'osa-5/kappale-2-b-osa', build: () => songStage(2) },
-    { file: 'osa-5/kappale-3-septimit', build: () => songStage(3) },
-    { file: 'osa-5/kappale-4-sovitus', build: () => songStage(4) }
+    { file: 'osa-9/kappale-1-luonnos', build: () => songStage(1) },
+    { file: 'osa-9/kappale-2-b-osa', build: () => songStage(2) },
+    { file: 'osa-9/kappale-3-septimit', build: () => songStage(3) },
+    { file: 'osa-9/kappale-4-sovitus', build: () => songStage(4) }
   ];
+
+  // Generaattori luettelee esimerkit osien järjestyksessä.
+  const partNumber = example => Number(example.file.match(/^osa-(\d+)\//)[1]);
+  examples.sort((a, b) => partNumber(a) - partNumber(b));
 
   return { examples, midi };
 })();

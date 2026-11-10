@@ -1,6 +1,6 @@
 # Kuunteluesimerkit ja harjoitustaustat
 
-Kunkin osan ääniesimerkit ovat omassa kansiossaan hakemistossa `audio/`. Esimerkiksi `audio/osa-4/` sisältää Korvakuulo-osan kuunteluharjoitukset ja Paluumatkan.
+Kunkin osan ääniesimerkit ovat omassa kansiossaan hakemistossa `audio/`. Esimerkiksi `audio/osa-7/` sisältää osan 7 kuunteluharjoitukset ja Paluumatkan.
 
 Jokaisesta esimerkistä on kaksi tiedostoa. Oppaan sivut soittavat ensisijaisesti kevyen AAC-version (`.m4a`), ja mono-WAV (`.wav`) on varalla selaimille, jotka eivät tue AAC:tä.
 

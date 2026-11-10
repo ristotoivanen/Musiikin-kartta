@@ -9,7 +9,7 @@ PDF tallentuu tiedostoon pdf/musiikin-kartta.pdf. Skripti tarvitsee
 Chromen tai Chromiumin. Polun voi antaa CHROME-ympäristömuuttujalla.
 
 Lähteenä ovat book-kansion HTML-sivut sellaisinaan. Skripti
-  * kokoaa kannen, sisällysluettelon, osat I–V ja liitteet,
+  * kokoaa kannen, sisällysluettelon, osat 1–11 ja liitteet,
   * vaihtaa ääniesimerkkien soittimet linkeiksi verkkoversioon,
   * avaa vastaukset (<details>) näkyviin,
   * muuttaa osien väliset linkit PDF:n sisäisiksi ja muut linkit
@@ -32,7 +32,7 @@ BOOK = ROOT / 'book'
 HERE = Path(__file__).resolve().parent
 DEFAULT_OUT = ROOT / 'pdf' / 'musiikin-kartta.pdf'
 SITE = 'https://rinnepelto.com'
-PARTS = ['osa-1', 'osa-2', 'osa-3', 'osa-4', 'osa-5']
+PARTS = [f'osa-{n}' for n in range(1, 12)]
 APPENDICES = ['sanasto', 'h-savelnimen-alkupera']
 DOCS = PARTS + APPENDICES
 

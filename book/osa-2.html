@@ -3,37 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Musiikin kartan toinen osa. Opettele kappaleen rakenne, sointukierrot, kvinttiympyrä, sävellaji ja transponointi neljällä avoimella kitaraotteella.">
-  <title>Näe kappaleiden rakenne – Musiikin kartta</title>
+  <meta name="description" content="Musiikin kartan toinen osa. Kuule kotisävel, mittaa sävelten välit ja rakenna niistä duuri- ja molliasteikko.">
+  <title>Sävelet ja kotisävel – Musiikin kartta</title>
   <link rel="stylesheet" href="reader.css">
-  <style>
-    .diagram { margin: 1rem 0 1.35rem; }
-    .diagram figcaption { margin-bottom: .55rem; font-weight: 700; }
-    .form-map { display: grid; gap: .6rem; }
-    .form-map li {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: .6rem;
-      padding: .55rem;
-    }
-    .form-map { grid-template-columns: repeat(5, minmax(0, 1fr)); list-style: none; padding: 0; margin: 0; }
-    .form-map li { border-top: 3px solid var(--accent); }
-    .form-map .chorus { border-top-color: var(--gold); }
-    .form-map .ending { border-top-color: #75e5c6; }
-    .form-map strong, .form-map span { display: block; }
-    .form-map span { color: var(--muted); font-size: .88rem; }
-    .fifths-wheel { display: block; width: min(100%, 24rem); height: auto; margin: .4rem auto; }
-    .fifths-rim { fill: none; stroke: #71638c; stroke-width: 2; }
-    .fifths-highlight { fill: var(--panel); stroke: var(--gold); stroke-width: 2; }
-    .fifths-tonic { fill: #4b2fd6; stroke: var(--accent); stroke-width: 2; }
-    .fifths-keys { fill: var(--text); font-size: 23px; font-weight: 700; text-anchor: middle; dominant-baseline: central; }
-    .fifths-center { fill: var(--muted); font-size: 17px; text-anchor: middle; }
-    .bar-chart td { font-weight: 700; text-align: center; }
-    .bar-chart th[scope="col"]:not(:first-child) { text-align: center; }
-    @media (max-width: 550px) {
-      .form-map { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-  </style>
 </head>
 <body>
   <header>
@@ -47,237 +19,149 @@
   <main>
     <header class="hero">
       <div class="frame">
-        <p class="part-number">Osa II · Säkeistöt ja kertosäkeet</p>
-        <h1>Näe kappaleiden rakenne</h1>
-        <p class="lead">Opettele viisi avointa kitaraotetta ja soita neljällä niistä tuttu kappale. Kun kuulet, missä säkeistö vaihtuu kertosäkeeseen ja mihin säveleen kappale palaa, osaat myös siirtää sen laulajalle sopivaan sävellajiin.</p>
-        <a class="primary-link" href="#sointukierrot">Aloita lukeminen</a>
+        <p class="part-number">Osa 2 · Melodian rakennusaineet</p>
+        <h1>Sävelet ja kotisävel</h1>
+        <p class="lead">Miksi jokin sävel tuntuu päättävän melodian? Miksi yhden sormen siirtäminen muuttaa duurin molliksi? Kolmen luvun aikana kuulet kotisävelen, mittaat sävelten välit ja rakennat niistä asteikot.</p>
+        <a class="primary-link" href="#musiikki-on-kieli">Aloita kuuntelemalla</a>
       </div>
     </header>
 
     <div class="reading-layout frame">
       <nav class="contents" id="luvut" aria-labelledby="lukulista">
         <h2 id="lukulista">Tässä osassa</h2>
-        <ol start="7">
-          <li><a href="#sointukierrot">Sointukierrot ja kappaleen rakenne</a></li>
-          <li><a href="#kvinttiympyra">Kvinttiympyrä</a></li>
-          <li><a href="#savellajin-tunnistaminen">Sävellajin tunnistaminen</a></li>
-          <li><a href="#transponointi">Transponointi</a></li>
+        <ol start="3">
+          <li><a href="#musiikki-on-kieli">Musiikki on kieli</a></li>
+          <li><a href="#savelet-ja-intervallit">Sävelet ja intervallit</a></li>
+          <li><a href="#asteikot">Asteikot</a></li>
         </ol>
         <p class="contents-extra"><a href="#harjoitusrutiini">Harjoitusrutiini</a></p>
       </nav>
 
       <article>
-        <section class="chapter" id="sointukierrot">
-          <p class="chapter-number">Luku 7</p>
-          <h2>Sointukierrot ja kappaleen rakenne</h2>
+        <section class="chapter" id="musiikki-on-kieli">
+          <p class="chapter-number">Luku 3</p>
+          <h2>Musiikki on kieli</h2>
           <div class="try-first">
-            <p><strong>Kuuntele ensin.</strong> Kuuntele J. Karjalaisen ja Mustien Lasien kappale ”Kolme cowboyta” kerran ennen kuin luet eteenpäin. Missä kohdassa soinnut alkavat kulkea eri järjestyksessä? Luvun lopussa soitat kappaleen itse.</p>
-            <figure class="listen" id="kolme-cowboyta">
-              <figcaption id="kappale-kuvaus"><strong>Kolme cowboyta · harjoitustausta</strong> Kuulet ensin neljä lähtöiskua (84 iskua minuutissa, sama tempo kuin levyllä). Kun otteet ja kappaleen kartta ovat tuttuja, soita mukana: ensimmäinen G tulee seuraavalla ykkösellä. Taustassa soivat kitara, basso ja rummut. Melodiaa ja sanoja siinä ei ole, joten hyräile melodia itse tai kuuntele se alkuperäisestä äänitteestä.</figcaption>
-              <audio controls preload="none" aria-labelledby="kappale-kuvaus">
-                <source src="../assets/audio/osa-2/kolme-cowboyta.m4a" type="audio/mp4">
-                <source src="../assets/audio/osa-2/kolme-cowboyta.wav" type="audio/wav">
-                <a href="../assets/audio/osa-2/kolme-cowboyta.m4a">Avaa ääniesimerkki</a>
+            <p><strong>Kuuntele ensin.</strong> Kuuntele kaksi lyhyttä melodiaa saman soinnun päällä. Kumpi jää kesken ja kumpi tuntuu valmiilta? Tämä luku kertoo, mistä ero syntyy.</p>
+            <figure class="listen">
+              <figcaption id="fraasi-kuvaus"><strong>Kaksi loppua</strong> Ensin C–D–E–G, sitten sama kulku jatkuu ylempään C:hen. Molemmilla on sama C-duurisointu taustalla.</figcaption>
+              <audio controls preload="none" aria-labelledby="fraasi-kuvaus">
+                <source src="../assets/audio/osa-2/fraasin-loppu.m4a" type="audio/mp4">
+                <source src="../assets/audio/osa-2/fraasin-loppu.wav" type="audio/wav">
+                <a href="../assets/audio/osa-2/fraasin-loppu.m4a">Avaa ääniesimerkki</a>
               </audio>
             </figure>
           </div>
-          <p>Kun soitat kappaletta kitaralla, sinun pitää tietää sekä seuraava ote että se, milloin siihen vaihdetaan. <strong>Sointukierto</strong> on toistuva sointujen järjestys. <strong>Kappaleen rakenne</strong> kertoo, missä järjestyksessä esimerkiksi säkeistö ja kertosäe tulevat. Harjoitellaan kumpaakin tutulla kappaleella, jossa riittää neljä otetta.</p>
-          <p>Tässä harjoituksessa yksi tahti on neljä iskua. Laske ääneen <span class="sequence">1, 2, 3, 4</span>. Soita taulukon sointu ykkösellä ja anna sen soida neloseen asti. Seuraavalla ykkösellä vaihda seuraavaan sointuun. Kun vaihdot osuvat kohdalleen, voit soittaa alasvedon jokaisella iskulla.</p>
+          <p>Olet ehkä huomannut hyräillessäsi, että jotkin melodian kohdat tuntuvat pyytävän jatkoa. Toisissa kohdissa voit lopettaa, ja sävellys tuntuu hetkeksi valmiilta. Tätä eroa voi tutkia, vaikka et vielä tunnistaisi yhtään sointua nimeltä.</p>
+          <p>Kun kuuntelet kappaletta, voit siirtää huomiosi kolmeen asiaan. <strong>Rytmi</strong> kertoo, milloin äänet tulevat ja kuinka kauan ne kestävät. Sitä harjoittelit <a href="osa-1.html#pulssi-ja-komppi">osassa 1</a>. <strong>Melodia</strong> on sävelten kulku, jonka voit hyräillä. <strong>Harmonia</strong> syntyy sävelten yhteissoinnista ja siitä, miten soinnut seuraavat toisiaan. Basso vaikuttaa siihen, miten kuulet yhteissoinnin.</p>
+          <p>Musiikkia voi verrata puheeseen. Lyhyttä, yhtenäiseltä tuntuvaa musiikillista jaksoa kutsutaan <strong>fraasiksi</strong>. Sen loppu voi tuntua avoimelta kuin kysymys tai levolliselta kuin lauseen piste. Tauko auttaa huomaamaan fraasin rajan. Sävel ja sointu vaikuttavat siihen, miltä tauko tuntuu.</p>
 
-          <h3>Neljä otetta kitaralle</h3>
-          <p>Kaaviot luetaan kuten <a href="osa-1.html#kitaran-merkinnat">luvussa 1</a>. Paksuin E-kieli on vasemmalla ja ohuin e-kieli oikealla, ja paksu vaakaviiva on satula. <strong>○</strong> tarkoittaa vapaata kieltä ja <strong>×</strong> kieltä, jonka jätät soittamatta. Pisteen alla oleva numero kertoo sormen: etusormi 1, keskisormi 2 ja nimetön 3. Kultainen piste tai rengas on soinnun perussävel.</p>
-          <figure class="diagram">
-            <figcaption>Avoimet otteet G, Am, C ja D</figcaption>
-            <div class="chord-diagrams"><figure class="chord-diagram"><figcaption>G</figcaption><svg viewBox="0 0 108 124" role="img" aria-label="G: paksu E-kieli 3. nauha keskisormella (perussävel), A-kieli 2. nauha etusormella, D-kieli vapaana, G-kieli vapaana (perussävel), B-kieli vapaana, ohut e-kieli 3. nauha nimettömällä (perussävel)."><line class="nut" x1="24" y1="30" x2="94" y2="30"/><line class="fret" x1="24" y1="48" x2="94" y2="48"/><line class="fret" x1="24" y1="66" x2="94" y2="66"/><line class="fret" x1="24" y1="84" x2="94" y2="84"/><line class="fret" x1="24" y1="102" x2="94" y2="102"/><line class="string" x1="24" y1="30" x2="24" y2="102"/><line class="string" x1="38" y1="30" x2="38" y2="102"/><line class="string" x1="52" y1="30" x2="52" y2="102"/><line class="string" x1="66" y1="30" x2="66" y2="102"/><line class="string" x1="80" y1="30" x2="80" y2="102"/><line class="string" x1="94" y1="30" x2="94" y2="102"/><circle class="root" cx="24" cy="75" r="6.5"/><text class="finger" x="24" y="118">2</text><circle class="tone" cx="38" cy="57" r="6.5"/><text class="finger" x="38" y="118">1</text><circle class="open" cx="52" cy="18" r="4.5"/><circle class="open root-open" cx="66" cy="18" r="4.5"/><circle class="open" cx="80" cy="18" r="4.5"/><circle class="root" cx="94" cy="75" r="6.5"/><text class="finger" x="94" y="118">3</text></svg><code>320003</code></figure><figure class="chord-diagram"><figcaption>Am</figcaption><svg viewBox="0 0 108 124" role="img" aria-label="Am: paksu E-kieli soittamatta, A-kieli vapaana (perussävel), D-kieli 2. nauha keskisormella, G-kieli 2. nauha nimettömällä (perussävel), B-kieli 1. nauha etusormella, ohut e-kieli vapaana."><line class="nut" x1="24" y1="30" x2="94" y2="30"/><line class="fret" x1="24" y1="48" x2="94" y2="48"/><line class="fret" x1="24" y1="66" x2="94" y2="66"/><line class="fret" x1="24" y1="84" x2="94" y2="84"/><line class="fret" x1="24" y1="102" x2="94" y2="102"/><line class="string" x1="24" y1="30" x2="24" y2="102"/><line class="string" x1="38" y1="30" x2="38" y2="102"/><line class="string" x1="52" y1="30" x2="52" y2="102"/><line class="string" x1="66" y1="30" x2="66" y2="102"/><line class="string" x1="80" y1="30" x2="80" y2="102"/><line class="string" x1="94" y1="30" x2="94" y2="102"/><text class="marker" x="24" y="22">×</text><circle class="open root-open" cx="38" cy="18" r="4.5"/><circle class="tone" cx="52" cy="57" r="6.5"/><text class="finger" x="52" y="118">2</text><circle class="root" cx="66" cy="57" r="6.5"/><text class="finger" x="66" y="118">3</text><circle class="tone" cx="80" cy="39" r="6.5"/><text class="finger" x="80" y="118">1</text><circle class="open" cx="94" cy="18" r="4.5"/></svg><code>x02210</code></figure><figure class="chord-diagram"><figcaption>C</figcaption><svg viewBox="0 0 108 124" role="img" aria-label="C: paksu E-kieli soittamatta, A-kieli 3. nauha nimettömällä (perussävel), D-kieli 2. nauha keskisormella, G-kieli vapaana, B-kieli 1. nauha etusormella (perussävel), ohut e-kieli vapaana."><line class="nut" x1="24" y1="30" x2="94" y2="30"/><line class="fret" x1="24" y1="48" x2="94" y2="48"/><line class="fret" x1="24" y1="66" x2="94" y2="66"/><line class="fret" x1="24" y1="84" x2="94" y2="84"/><line class="fret" x1="24" y1="102" x2="94" y2="102"/><line class="string" x1="24" y1="30" x2="24" y2="102"/><line class="string" x1="38" y1="30" x2="38" y2="102"/><line class="string" x1="52" y1="30" x2="52" y2="102"/><line class="string" x1="66" y1="30" x2="66" y2="102"/><line class="string" x1="80" y1="30" x2="80" y2="102"/><line class="string" x1="94" y1="30" x2="94" y2="102"/><text class="marker" x="24" y="22">×</text><circle class="root" cx="38" cy="75" r="6.5"/><text class="finger" x="38" y="118">3</text><circle class="tone" cx="52" cy="57" r="6.5"/><text class="finger" x="52" y="118">2</text><circle class="open" cx="66" cy="18" r="4.5"/><circle class="root" cx="80" cy="39" r="6.5"/><text class="finger" x="80" y="118">1</text><circle class="open" cx="94" cy="18" r="4.5"/></svg><code>x32010</code></figure><figure class="chord-diagram"><figcaption>D</figcaption><svg viewBox="0 0 108 124" role="img" aria-label="D: paksu E-kieli soittamatta, A-kieli soittamatta, D-kieli vapaana (perussävel), G-kieli 2. nauha etusormella, B-kieli 3. nauha nimettömällä (perussävel), ohut e-kieli 2. nauha keskisormella."><line class="nut" x1="24" y1="30" x2="94" y2="30"/><line class="fret" x1="24" y1="48" x2="94" y2="48"/><line class="fret" x1="24" y1="66" x2="94" y2="66"/><line class="fret" x1="24" y1="84" x2="94" y2="84"/><line class="fret" x1="24" y1="102" x2="94" y2="102"/><line class="string" x1="24" y1="30" x2="24" y2="102"/><line class="string" x1="38" y1="30" x2="38" y2="102"/><line class="string" x1="52" y1="30" x2="52" y2="102"/><line class="string" x1="66" y1="30" x2="66" y2="102"/><line class="string" x1="80" y1="30" x2="80" y2="102"/><line class="string" x1="94" y1="30" x2="94" y2="102"/><text class="marker" x="24" y="22">×</text><text class="marker" x="38" y="22">×</text><circle class="open root-open" cx="52" cy="18" r="4.5"/><circle class="tone" cx="66" cy="57" r="6.5"/><text class="finger" x="66" y="118">1</text><circle class="root" cx="80" cy="75" r="6.5"/><text class="finger" x="80" y="118">3</text><circle class="tone" cx="94" cy="57" r="6.5"/><text class="finger" x="94" y="118">2</text></svg><code>xx0232</code></figure></div>
-          </figure>
-          <p>Otteiden alla on sama tieto numeroina paksuimmasta kielestä ohuimpaan. Niissä numero kertoo nauhan ja <code>0</code> vapaan kielen. G alkaa paksulta E-kieleltä. Am:ssä ja C:ssä aloita A-kieleltä ja D:ssä D-kieleltä. Am ja C ovat lähes sama ote: vain nimetön siirtyy G-kielen 2. nauhalta A-kielen 3. nauhalle. Kokeile soittaa kunkin otteen kielet ensin yksi kerrallaan, jotta kuulet, soivatko ne puhtaasti.</p>
-
-          <h3>Soita Kolme cowboyta</h3>
-          <p>Merkitään säkeistöä kirjaimella A ja kertosäettä kirjaimella B. Lauletussa kappaleessa säkeistön sanat usein vaihtuvat ja kertosäkeen sanat tai tunnistettava melodia palaavat. Harjoitustaustassa sama komppi jatkuu koko kappaleen ajan. Kertosäkeen tunnistat siitä, että se alkaa symbaalin iskulla ja soinnut kulkevat eri järjestyksessä.</p>
-          <figure class="diagram">
-            <figcaption>Kolme cowboyta · harjoitustaustan kartta</figcaption>
-            <ol class="form-map">
-              <li><strong>A · Säkeistö 1</strong><span>Tahdit 1–8</span></li>
-              <li class="chorus"><strong>B · Kertosäe</strong><span>Tahdit 9–16</span></li>
-              <li><strong>A · Säkeistö 2</strong><span>Tahdit 17–24</span></li>
-              <li class="chorus"><strong>B · Kertosäe</strong><span>Tahdit 25–32</span></li>
-              <li class="ending"><strong>Loppu</strong><span>Tahti 33</span></li>
-            </ol>
-          </figure>
-          <table class="bar-chart">
-            <caption>Yksi sointu per tahti, säkeistön rivi kahdesti</caption>
-            <thead><tr><th scope="col">Osa</th><th scope="col">1.</th><th scope="col">2.</th><th scope="col">3.</th><th scope="col">4.</th></tr></thead>
-            <tbody>
-              <tr><th scope="row">A · Säkeistö</th><td>G</td><td>G</td><td>Am</td><td>D</td></tr>
-              <tr><th scope="row">B · Kertosäe, alku</th><td>G</td><td>C</td><td>G</td><td>G</td></tr>
-              <tr><th scope="row">B · Kertosäe, loppu</th><td>D</td><td>C</td><td>G</td><td>G&nbsp;·&nbsp;D</td></tr>
-            </tbody>
-          </table>
-          <p>Soita kartan mukaan A–B–A–B. Säkeistössä soitat saman neljän tahdin rivin kahdesti. Kertosäkeen viimeisessä tahdissa on kaksi sointua: G soi iskuilla 1 ja 2 ja D iskuilla 3 ja 4. Kertosäe päättyy siis D:hen, joten päätä kappale vielä yhteen G:hen ja anna sen soida. Jos kappaleessa on lisäksi intro tai väliosa, lisää karttaan niille oma rivi tai laatikko. Sama sointukierto voi jatkua osasta toiseen. Etsi silloin vaihdos esimerkiksi melodiasta tai siitä, miten säestys tihenee.</p>
-          <p>Kun otteet sujuvat, soita mukana <a href="#kolme-cowboyta">luvun alun harjoitustaustan</a> kanssa ja hyräile melodiaa. Kokeile sitten alkuperäistä äänitettä. Se on G-duurissa ja samassa tempossa, joten otteet ja vaihtojen paikat ovat samat. Levyllä on lisäksi intro, useampi säkeistö ja pitkä loppu, ja osat voivat olla eri pituisia kuin harjoitustaustassa. Kuuntele siksi ensin, missä osat vaihtuvat, ja seuraa sitten karttaa. Kartan soinnut ja tahtimäärät perustuvat transkriptioon, eikä niitä ole tarkistettu levyltä korvalla. Jos jokin kohta riitelee levyn kanssa, luota korvaasi.</p>
-          <p>Kokeile, miltä kertosäkeen viimeinen sointu D kuulostaa, jos pysähdyt siihen. Soita sen perään G ja kuuntele uudestaan. D:stä tekee mieli jatkaa, mutta G:hen voi jäädä. Siksi säkeistön rivi ja kertosäe päättyvät D:hen: se vie luontevasti seuraavan rivin alkuun. Sama D–G-vaihto päättää koko kappaleen.</p>
-          <p>G-duurissa säkeistön rivi käyttää asteita <span class="sequence"><span class="aste aste-1">I</span>–<span class="aste aste-1">I</span>–<span class="aste aste-2">ii</span>–<span class="aste aste-5">V</span></span>. Kertosäe alkaa asteilla <span class="sequence"><span class="aste aste-1">I</span>–<span class="aste aste-4">IV</span>–<span class="aste aste-1">I</span>–<span class="aste aste-1">I</span></span> ja jatkuu <span class="sequence"><span class="aste aste-5">V</span>–<span class="aste aste-4">IV</span>–<span class="aste aste-1">I</span></span>. Am on G-duurin ii-asteen mollisointu. Kumpikin osa lähtee G:stä ja päätyy D:hen. Säkeistö kulkee sinne Am:n kautta, kertosäe käy matkalla kahdesti C:ssä. <a href="osa-1.html#roomalaiset-numerot">Kertaa roomalaiset numerot I osasta</a>.</p>
-          <p>Kertosäkeen kolme duurisointua I, IV ja V ovat tuttuja monista kappaleista. Ne kuuluvat esimerkiksi Ritchie Valensin kappaleessa ”La Bamba” (C–F–G). Toinen yleinen neljäs sointu on vi-asteen molli, jolla saat kierron I–vi–IV–V. Se kulkee esimerkiksi Ben E. Kingin kappaleessa ”Stand by Me” (A–F♯m–D–E). G-duurin vi-asteen sointu on Em, ja sen ote tulee vastaan <a href="#savellajin-tunnistaminen">luvussa 9</a>.</p>
+          <h3>Kuule kotisävel</h3>
+          <p>Sävellajin keskussäveltä kutsutaan <strong>toonikaksi</strong>. Voit ajatella sitä kotisävelenä, johon melodia voi palata. C-duurissa kotisävel on C. Kun säestys pitää C-duurisoinnun taustalla, päättyminen C:hen voi tuntua vahvemmalta paluulta kuin pysähtyminen G:hen, vaikka G kuuluu samaan sointuun. Luvun alun esimerkissä ensimmäinen melodia pysähtyy G:hen ja toinen palaa C:hen.</p>
           <aside class="practice">
-            <h3>Harjoitus · Soita ensin basso</h3>
-            <p>Soita jokaisen tahdin ensimmäisellä iskulla pelkkä perussävel. G on paksun E-kielen 3. nauhalla, A on vapaa A-kieli, C on A-kielen 3. nauhalla ja D on vapaa D-kieli. Harjoitustaustan basso soittaa samat sävelet. Kun saat vaihdot ykköselle, lisää kokonaiset otteet.</p>
+            <h3>Harjoitus · Täydennä fraasi</h3>
+            <p>Pysäytä luvun alun ääniesimerkki ensimmäisen fraasin jälkeen. Hyräile sävel, johon haluaisit palata, ja vertaa sitä toisen fraasin viimeiseen säveleen. Kitaralla löydät C–D–E–G:n A-kielen nauhoilta 3, 5, 7 ja 10. Hyräile G:n jälkeen C ja tarkista se A-kielen 3. nauhalta.</p>
           </aside>
         </section>
 
-        <section class="chapter" id="kvinttiympyra">
-          <p class="chapter-number">Luku 8</p>
-          <h2>Kvinttiympyrä</h2>
+        <section class="chapter" id="savelet-ja-intervallit">
+          <p class="chapter-number">Luku 4</p>
+          <h2>Sävelet ja intervallit</h2>
           <div class="try-first">
-            <p><strong>Soita ensin.</strong> Soita ”Kolme cowboyta” -kappaleen kolme duurisointua peräkkäin: G <code>320003</code>, C <code>x32010</code>, D <code>xx0232</code> ja takaisin G:hen. Ne sopivat hyvin yhteen. Tässä luvussa näet, että niiden nimet ovat kvinttiympyrässä vierekkäin.</p>
+            <p><strong>Kuuntele ensin.</strong> Kuuntele kaksi kolmen sävelen sointua. Niissä on vain yksi eri sävel, ja se on vain puoliaskelen päässä. Kumpi kuulostaa valoisammalta?</p>
+            <figure class="listen">
+              <figcaption id="terssi-kuvaus"><strong>Kuuntele duuri ja molli samalla perussävelellä</strong> Ensin C–E–G, sitten C–E♭–G. Kumpikin soitetaan ensin sävel kerrallaan ja sitten yhtä aikaa.</figcaption>
+              <audio controls preload="none" aria-labelledby="terssi-kuvaus">
+                <source src="../assets/audio/osa-2/duuri-ja-molli.m4a" type="audio/mp4">
+                <source src="../assets/audio/osa-2/duuri-ja-molli.wav" type="audio/wav">
+                <a href="../assets/audio/osa-2/duuri-ja-molli.m4a">Avaa ääniesimerkki</a>
+              </audio>
+            </figure>
           </div>
-          <p>Kvinttiympyrä asettaa sävellajit järjestykseen siten, että myötäpäivään seuraava sävel on puhtaan kvintin ylempänä. Kitaralla kvintti on samalla kielellä seitsemän nauhan matka. Kokeile paksun E-kielen 3. nauhan G:stä 10. nauhan D:hen. Sama D soi myös A-kielen 5. nauhalla, joten saat sen lähempääkin.</p>
-          <figure class="diagram">
-            <figcaption>Duurisävellajit kvinttiympyrässä</figcaption>
-            <svg class="fifths-wheel" viewBox="0 0 400 400" role="img" aria-labelledby="ympyra-otsikko ympyra-kuvaus">
-              <title id="ympyra-otsikko">Kvinttiympyrä ja G-duurin naapurit</title>
-              <desc id="ympyra-kuvaus">Ylhäältä myötäpäivään C, G, D, A, E, B, F-ylennys tai G-alennus, D-alennus, A-alennus, E-alennus, B-alennus ja F. G:n naapurit C ja D on korostettu.</desc>
-              <circle class="fifths-rim" cx="200" cy="200" r="123"/>
-              <circle class="fifths-highlight" cx="200" cy="47" r="22"/>
-              <circle class="fifths-tonic" cx="277" cy="67" r="22"/>
-              <circle class="fifths-highlight" cx="333" cy="124" r="22"/>
-              <g class="fifths-keys">
-                <text x="200" y="47">C</text><text x="277" y="67">G</text><text x="333" y="124">D</text>
-                <text x="353" y="200">A</text><text x="333" y="277">E</text><text x="277" y="333">B</text>
-                <text x="200" y="353">F♯/G♭</text><text x="124" y="333">D♭</text><text x="67" y="277">A♭</text>
-                <text x="47" y="200">E♭</text><text x="67" y="124">B♭</text><text x="124" y="67">F</text>
-              </g>
-              <text class="fifths-center" x="200" y="187">G ja sen naapurit</text>
-              <text class="fifths-keys" x="200" y="222">C · G · D</text>
-            </svg>
-          </figure>
-          <p>Kun katsot G:tä ympyrässä, edellinen sävel C on G-duurin IV asteen soinnun perussävel. Seuraava D on V asteen soinnun perussävel. G itse on I. Kolme vierekkäistä nimeä antavat siis kolme duurisointua, joilla pääset pitkälle kitarasäestyksessä.</p>
+          <p>Yksi nauhaväli kitaralla on <strong>puolisävelaskel</strong>. Kun siirrät sormea kaksi nauhaa samalla kielellä, kuljet kokosävelaskeleen. A-kielen 3. nauhalla soi C. Neljännellä soi C♯ eli D♭ ja viidennellä D. C♯ ja D♭ ovat tällä otelaudalla sama sävelkorkeus kahdella nimellä. Asteikko kertoo, kumpi nimi sopii yhteyteen.</p>
+          <div class="note" id="h-savelnimi">
+            <p><strong>Sävelnimet tässä oppaassa.</strong> Käytämme samoja nimiä kuin otelautaharjoittelija ja englanninkieliset sointuohjeet. B on luonnollinen sävel ja B♭ sen alennus. Merkki ♭ kertoo suoraan, että sävel on alennettu. Perinteisissä suomalaisissa ja saksalaisissa nuoteissa näiden sävelten nimet ovat H ja B. <a href="h-savelnimen-alkupera.html">Lue, mistä H-nimi tuli</a>.</p>
+          </div>
+
+          <p><strong>Intervalli</strong> on kahden sävelen välinen etäisyys. Kuuntele sävelet ensin peräkkäin ja sitten yhdessä. Intervallin numero saadaan laskemalla sävelnimet lähtösävel mukaan lukien. C:stä E:hen on terssi, koska C–D–E sisältää kolme sävelnimeä. C–E♭ on myös terssi, mutta siinä on yksi puolisävelaskel vähemmän.</p>
           <table>
-            <caption>Kuusi sointua G-duurin ympärillä</caption>
-            <thead><tr><th scope="col">C:n kohdalla</th><th scope="col">G:n kohdalla</th><th scope="col">D:n kohdalla</th></tr></thead>
+            <caption>Intervalliesimerkkejä C:stä ylöspäin</caption>
+            <thead><tr><th scope="col">Intervalli</th><th scope="col">Puolisävelaskelia</th><th scope="col">Sävelet</th></tr></thead>
             <tbody>
-              <tr><td>C <span class="aste aste-4">IV</span></td><td>G <span class="aste aste-1">I</span></td><td>D <span class="aste aste-5">V</span></td></tr>
-              <tr><td>Am <span class="aste aste-2">ii</span></td><td>Em <span class="aste aste-6">vi</span></td><td>Bm <span class="aste aste-3">iii</span></td></tr>
+              <tr><th scope="row">Suuri sekunti</th><td>2</td><td>C–D</td></tr>
+              <tr><th scope="row">Pieni terssi</th><td>3</td><td>C–E♭</td></tr>
+              <tr><th scope="row">Suuri terssi</th><td>4</td><td>C–E</td></tr>
+              <tr><th scope="row">Puhdas kvartti</th><td>5</td><td>C–F</td></tr>
+              <tr><th scope="row">Puhdas kvintti</th><td>7</td><td>C–G</td></tr>
+              <tr><th scope="row">Puhdas oktaavi</th><td>12</td><td>C–C</td></tr>
             </tbody>
           </table>
-          <p>Taulukon toisella rivillä ovat yläpuolisten duurien rinnakkaismollit. Esimerkiksi G-duuri ja luonnollinen e-molli käyttävät samoja säveliä. Luvun 7 kappaleen Am on C:n rinnakkaismolli. G-duurin rinnakkaismollin soinnun Em opit luvussa 9. Kvinttiympyrä auttaa myös nuottien lukemisessa: C-duurin etumerkinnässä ei ole ylennyksiä tai alennuksia, G-duurissa on F♯ ja D-duurissa lisäksi C♯.</p>
+          <p>Oktaavin päässä sävelen nimi toistuu. Kitaralla löydät saman kielen oktaavin 12 nauhaa ylempää. C:n yläpuolinen C soi siis A-kielen 15. nauhalla, kun lähtö-C on 3. nauhalla.</p>
+
+          <h3>Terssi muuttaa soinnun</h3>
+          <p><strong>Kolmisoinnun</strong> sävelet voi järjestää perussäveleksi, terssiksi ja kvintiksi. C-duurisoinnussa ne ovat C, E ja G. C-mollisoinnussa C ja G pysyvät, mutta terssi laskee E♭:hen. Juuri tämä puolisävelaskel erottaa nämä kaksi sointua, ja sen kuulit luvun alun esimerkissä. Kitaralla sama sävel voi soida useammalla kielellä tai eri oktaaveissa, joten otteessa voi soida useampi kuin kolme kieltä.</p>
           <aside class="practice">
-            <h3>Harjoitus · Siirrä keskelle D</h3>
-            <p>Etsi D:n edellinen ja seuraava naapuri. Soita niillä D-duurissa sama I–IV–V–I, jonka soitit luvun alussa G-duurissa.</p>
+            <h3>Harjoitus · Siirrä yhtä sormea</h3>
+            <p>Soita A-kielen 3. nauha (C), D-kielen 2. nauha (E) ja vapaa G-kieli. Toista, mutta vaihda D-kielellä 1. nauhalle (E♭). Kuuntele ero ensin sävel kerrallaan ja sitten antamalla kolmen kielen soida yhdessä.</p>
+          </aside>
+        </section>
+
+        <section class="chapter" id="asteikot">
+          <p class="chapter-number">Luku 5</p>
+          <h2>Asteikot</h2>
+          <div class="try-first">
+            <p><strong>Kuuntele ensin.</strong> Kuuntele kaksi asteikkoa, jotka alkavat samasta C:stä ja päättyvät samaan C:hen.</p>
+            <figure class="listen">
+              <figcaption id="asteikko-kuvaus"><strong>Kuuntele C-duuri ja luonnollinen c-molli</strong> Molemmat nousevat C:stä seuraavaan C:hen. Missä kohdassa ne alkavat kuulostaa erilaisilta?</figcaption>
+              <audio controls preload="none" aria-labelledby="asteikko-kuvaus">
+                <source src="../assets/audio/osa-2/asteikot.m4a" type="audio/mp4">
+                <source src="../assets/audio/osa-2/asteikot.wav" type="audio/wav">
+                <a href="../assets/audio/osa-2/asteikot.m4a">Avaa ääniesimerkki</a>
+              </audio>
+            </figure>
+          </div>
+          <p><strong>Asteikko</strong> järjestää sävelet peräkkäin kotisävelestä sen oktaaviin. Jokaisella sävelellä on <strong>aste</strong>, joka kertoo sen paikan. C-duurissa C on 1. aste, E on 3. ja G on 5. Duurin ja luonnollisen mollin erotat siitä, missä kohdissa sävelten väli on kokoaskel ja missä puoliaskel.</p>
+          <p>Duuriasteikon askelkuvio on <span class="sequence">koko, koko, puoli, koko, koko, koko, puoli</span>. C-duurissa lyhyet välit ovat E–F ja B–C. Aloita sama kuvio G:stä, niin saat G-duurin. Sen 7. aste on F♯, sillä F♯:stä on G:hen puolisävelaskel.</p>
+          <table>
+            <caption>Kolme asteikkoa rinnakkain</caption>
+            <thead><tr><th scope="col">Asteikko</th><th scope="col">Sävelet kotisävelestä oktaaviin</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">C-duuri</th><td>C – D – E – F – G – A – B – C</td></tr>
+              <tr><th scope="row">Luonnollinen c-molli</th><td>C – D – E♭ – F – G – A♭ – B♭ – C</td></tr>
+              <tr><th scope="row">Luonnollinen a-molli</th><td>A – B – C – D – E – F – G – A</td></tr>
+            </tbody>
+          </table>
+          <p>Luonnollisen mollin askelkuvio on <span class="sequence">koko, puoli, koko, koko, puoli, koko, koko</span>. Sen 3., 6. ja 7. aste ovat puoliaskelta alempana kuin saman toonikan duurissa. Luvun alun esimerkissä ero kuului jo kolmannessa sävelessä: duurissa soi E ja mollissa E♭. C-duurilla ja c-mollilla on sama kotisävel ja eri säveljoukko. C-duurilla ja luonnollisella a-mollilla puolestaan on sama säveljoukko ja eri kotisävel. C-duuria ja a-mollia kutsutaan <strong>rinnakkaissävellajeiksi</strong>. Kuuntelussa kotisävelen paljastavat yhdessä melodian painotukset, basso ja sointujen liike.</p>
+          <p><strong>Pentatoninen asteikko</strong> sisältää viisi eri säveltä. C-duuripentatonisen sävelet ovat C, D, E, G ja A. Kun lisäät F:n ja B:n, saat C-duuriasteikon. Samat lisäsävelet näkyvät kultaisina <a href="../otelautaharjoittelija.html">otelautaharjoittelijassa</a>, kun valitset C:n ja joonisen moodin. <a href="osa-8.html#pentatoniikka">Kokeile pentatoniikkaa osassa 8</a>. Moodeihin palataan <a href="osa-11.html#moodit">syventävässä osassa 11</a>.</p>
+          <aside class="practice">
+            <h3>Harjoitus · Etsi puoliaskelten paikat</h3>
+            <p>Soita C-duuri A-kielen nauhoilta 3, 5, 7, 8, 10, 12, 14 ja 15. Soita sen jälkeen c-molli nauhoilta 3, 5, 6, 8, 10, 11, 13 ja 15. Millä asteilla puoliaskeleet ovat kummassakin?</p>
             <details>
               <summary>Katso vastaus</summary>
-              <p>D–G–A–D. A-otteessa aloita A-kieleltä. Samat kolme sointua kuulet esimerkiksi Creedence Clearwater Revivalin kappaleessa ”Bad Moon Rising” (D–A–G).</p>
-              <div class="chord-diagrams"><figure class="chord-diagram"><figcaption>A</figcaption><svg viewBox="0 0 108 124" role="img" aria-label="A: paksu E-kieli soittamatta, A-kieli vapaana (perussävel), D-kieli 2. nauha etusormella, G-kieli 2. nauha keskisormella (perussävel), B-kieli 2. nauha nimettömällä, ohut e-kieli vapaana."><line class="nut" x1="24" y1="30" x2="94" y2="30"/><line class="fret" x1="24" y1="48" x2="94" y2="48"/><line class="fret" x1="24" y1="66" x2="94" y2="66"/><line class="fret" x1="24" y1="84" x2="94" y2="84"/><line class="fret" x1="24" y1="102" x2="94" y2="102"/><line class="string" x1="24" y1="30" x2="24" y2="102"/><line class="string" x1="38" y1="30" x2="38" y2="102"/><line class="string" x1="52" y1="30" x2="52" y2="102"/><line class="string" x1="66" y1="30" x2="66" y2="102"/><line class="string" x1="80" y1="30" x2="80" y2="102"/><line class="string" x1="94" y1="30" x2="94" y2="102"/><text class="marker" x="24" y="22">×</text><circle class="open root-open" cx="38" cy="18" r="4.5"/><circle class="tone" cx="52" cy="57" r="6.5"/><text class="finger" x="52" y="118">1</text><circle class="root" cx="66" cy="57" r="6.5"/><text class="finger" x="66" y="118">2</text><circle class="tone" cx="80" cy="57" r="6.5"/><text class="finger" x="80" y="118">3</text><circle class="open" cx="94" cy="18" r="4.5"/></svg><code>x02220</code></figure></div>
-            </details>
-          </aside>
-        </section>
-
-        <section class="chapter" id="savellajin-tunnistaminen">
-          <p class="chapter-number">Luku 9</p>
-          <h2>Sävellajin tunnistaminen</h2>
-          <div class="try-first">
-            <p><strong>Kuuntele ensin.</strong> Kuuntele kaksi katkelmaa ja hyräile kummankin viimeinen pitkä sävel. Ovatko sävelet samat?</p>
-            <figure class="listen">
-              <figcaption id="kotisavel-kuvaus"><strong>Kuuntele kaksi eri paluuta</strong> Kummassakin katkelmassa soivat samat neljä sointua. Hyräile kummankin viimeinen pitkä melodiasävel ja vertaa sitä kitaran G:hen ja E:hen.</figcaption>
-              <audio controls preload="none" aria-labelledby="kotisavel-kuvaus">
-                <source src="../assets/audio/osa-2/kaksi-kotisavelta.m4a" type="audio/mp4">
-                <source src="../assets/audio/osa-2/kaksi-kotisavelta.wav" type="audio/wav">
-                <a href="../assets/audio/osa-2/kaksi-kotisavelta.m4a">Avaa ääniesimerkki</a>
-              </audio>
-            </figure>
-          </div>
-          <p>Sävellajin etsiminen alkaa kotisävelestä. Kun kuuntelet kappaleen loppua tai fraasin taukoa, hyräile sävel, johon musiikki voisi jäädä lepäämään. Etsi sama sävel kitaralta. Sen jälkeen voit kokeilla, kumpi säestää sitä luontevammin, duuri- vai mollisointu.</p>
-          <ol>
-            <li><strong>Kuuntele paluukohta.</strong> Etsi paikka, jossa melodia tai sointukulku tuntuu päättyvän. Ensimmäinen ja viimeinen sointu antavat vihjeitä.</li>
-            <li><strong>Hyräile ja etsi sävel.</strong> Kokeile esimerkissämme G:tä paksun E-kielen 3. nauhalta ja E:tä samalta kieleltä vapaana. Voit laulaa samannimisen sävelen sinulle sopivasta oktaavista.</li>
-            <li><strong>Tarkista sointukulku.</strong> ”Kolme cowboyta” päättyy D–G. Soita D-otteen ohuinta kieltä (2. nauha, F♯) ja sitten G-otteen ohuinta kieltä (3. nauha, G). Kuulet puoliaskelen nousun kotisäveleen. Soita sitten molemmat soinnut kokonaan.</li>
-          </ol>
-          <p>Samat soinnut voivat antaa erilaisen vaikutelman. Esimerkiksi G-duurissa ja luonnollisessa e-mollissa ovat samat seitsemän säveltä. Siksi G, Em, C ja D sopivat kumpaankin. Kuuntele, mihin säveleen basso ja melodia palaavat ja mikä sointu saa musiikin tuntumaan päättyneeltä.</p>
-          <p>Tarvitset tähän uuden otteen. <strong>Em</strong> on G-duurin vi-asteen sointu ja e-mollin kotisointu. Siinä painat kaksi kieltä 2. nauhalta, ja kaikki kuusi kieltä soivat. Kokeile vaihtoa G–Em: keskisormi siirtyy paksulta E-kieleltä A-kielelle, ja nimetön D-kielelle.</p>
-          <div class="chord-diagrams"><figure class="chord-diagram"><figcaption>Em</figcaption><svg viewBox="0 0 108 124" role="img" aria-label="Em: paksu E-kieli vapaana (perussävel), A-kieli 2. nauha keskisormella, D-kieli 2. nauha nimettömällä (perussävel), G-kieli vapaana, B-kieli vapaana, ohut e-kieli vapaana (perussävel)."><line class="nut" x1="24" y1="30" x2="94" y2="30"/><line class="fret" x1="24" y1="48" x2="94" y2="48"/><line class="fret" x1="24" y1="66" x2="94" y2="66"/><line class="fret" x1="24" y1="84" x2="94" y2="84"/><line class="fret" x1="24" y1="102" x2="94" y2="102"/><line class="string" x1="24" y1="30" x2="24" y2="102"/><line class="string" x1="38" y1="30" x2="38" y2="102"/><line class="string" x1="52" y1="30" x2="52" y2="102"/><line class="string" x1="66" y1="30" x2="66" y2="102"/><line class="string" x1="80" y1="30" x2="80" y2="102"/><line class="string" x1="94" y1="30" x2="94" y2="102"/><circle class="open root-open" cx="24" cy="18" r="4.5"/><circle class="tone" cx="38" cy="57" r="6.5"/><text class="finger" x="38" y="118">2</text><circle class="root" cx="52" cy="57" r="6.5"/><text class="finger" x="52" y="118">3</text><circle class="open" cx="66" cy="18" r="4.5"/><circle class="open" cx="80" cy="18" r="4.5"/><circle class="open root-open" cx="94" cy="18" r="4.5"/></svg><code>022000</code></figure></div>
-          <p>Kuuntele vertailun vuoksi kaksi tuttua kappaletta. Mamban ”Mitä yhdestä särkyneestä sydämestä” ja Juha Tapion ”Tykkään susta niin että halkeen” käyttävät samoja neljää sointua G, D, Em ja C. Mamban kertosäe päättyy D–G ja palaa G:hen. Tapion säkeistö palaa Em:ään.</p>
-          <aside class="practice">
-            <h3>Harjoitus · Vaihda kotisäveltä</h3>
-            <p>Soita molemmat katkelmat ja anna viimeisen soinnun soida hetki pidempään. Kumpi kuulostaa G-duurilta ja kumpi e-mollilta?</p>
-            <details>
-              <summary>Katso soinnut ja vastaus</summary>
-              <p>Ensimmäinen on <span class="sequence">G–Em–C–D–G</span>, ja viimeinen pitkä sävel on G. Toinen on <span class="sequence">Em–C–G–D–Em</span>, ja viimeinen pitkä sävel on E. Ensimmäinen palaa G-duuriin, toinen e-molliin.</p>
-            </details>
-          </aside>
-          <p>Jos haluat kuulla paluun e-molliin selvemmin, kokeile <span class="sequence">B7–Em</span>. B7:ssä on D♯, joka voi nousta puoliaskelen E:hen. Soita B7 A-kieleltä alkaen.</p>
-          <div class="chord-diagrams"><figure class="chord-diagram"><figcaption>B7</figcaption><svg viewBox="0 0 108 124" role="img" aria-label="B7: paksu E-kieli soittamatta, A-kieli 2. nauha keskisormella (perussävel), D-kieli 1. nauha etusormella, G-kieli 2. nauha nimettömällä, B-kieli vapaana (perussävel), ohut e-kieli 2. nauha pikkusormella."><line class="nut" x1="24" y1="30" x2="94" y2="30"/><line class="fret" x1="24" y1="48" x2="94" y2="48"/><line class="fret" x1="24" y1="66" x2="94" y2="66"/><line class="fret" x1="24" y1="84" x2="94" y2="84"/><line class="fret" x1="24" y1="102" x2="94" y2="102"/><line class="string" x1="24" y1="30" x2="24" y2="102"/><line class="string" x1="38" y1="30" x2="38" y2="102"/><line class="string" x1="52" y1="30" x2="52" y2="102"/><line class="string" x1="66" y1="30" x2="66" y2="102"/><line class="string" x1="80" y1="30" x2="80" y2="102"/><line class="string" x1="94" y1="30" x2="94" y2="102"/><text class="marker" x="24" y="22">×</text><circle class="root" cx="38" cy="57" r="6.5"/><text class="finger" x="38" y="118">2</text><circle class="tone" cx="52" cy="39" r="6.5"/><text class="finger" x="52" y="118">1</text><circle class="tone" cx="66" cy="57" r="6.5"/><text class="finger" x="66" y="118">3</text><circle class="open root-open" cx="80" cy="18" r="4.5"/><circle class="tone" cx="94" cy="57" r="6.5"/><text class="finger" x="94" y="118">4</text></svg><code>x21202</code></figure></div>
-        </section>
-
-        <section class="chapter" id="transponointi">
-          <p class="chapter-number">Luku 10</p>
-          <h2>Transponointi</h2>
-          <div class="try-first">
-            <p><strong>Kuuntele ensin.</strong> Kuuntele ”Kolme cowboyta” -kappaleen kertosäe kahdesti ja hyräile melodiaa mukana. Kumpi versio sopii paremmin äänellesi?</p>
-            <figure class="listen">
-              <figcaption id="kapo-kuvaus"><strong>Kuuntele kertosäe kahdessa sävellajissa</strong> Ensin G-duuri ilman kapoa, sitten A-duuri samoilla otteilla kaksi nauhaa ylempänä. Sointujen vaihtopaikat pysyvät samoina. Taustassa ei ole melodiaa, joten hyräile se itse.</figcaption>
-              <audio controls preload="none" aria-labelledby="kapo-kuvaus">
-                <source src="../assets/audio/osa-2/kertosae-kapolla.m4a" type="audio/mp4">
-                <source src="../assets/audio/osa-2/kertosae-kapolla.wav" type="audio/wav">
-                <a href="../assets/audio/osa-2/kertosae-kapolla.m4a">Avaa ääniesimerkki</a>
-              </audio>
-            </figure>
-          </div>
-          <p><strong>Transponointi</strong> siirtää kappaleen kaikki sävelet ja soinnut yhtä monta puolisävelaskelta ylös tai alas. Rytmi ja sointujen suhteet säilyvät. Kun G-duurista siirrytään A-duuriin, matka on kaksi nauhaa ylöspäin. Kertosäe alkaa kummassakin sävellajissa asteilla I–IV–I–I.</p>
-          <table class="bar-chart">
-            <caption>Kolme cowboyta G-duurissa ja A-duurissa</caption>
-            <thead><tr><th scope="col">Osa</th><th scope="col">G-duuri</th><th scope="col">A-duuri</th></tr></thead>
-            <tbody>
-              <tr><th scope="row">Säkeistö</th><td>G – G – Am – D</td><td>A – A – Bm – E</td></tr>
-              <tr><th scope="row">Kertosäe, alku</th><td>G – C – G – G</td><td>A – D – A – A</td></tr>
-              <tr><th scope="row">Kertosäe, loppu</th><td>D – C – G – G&nbsp;·&nbsp;D</td><td>E – D – A – A&nbsp;·&nbsp;E</td></tr>
-              <tr><th scope="row">Loppu</th><td>G</td><td>A</td></tr>
-            </tbody>
-          </table>
-          <p>Alkuperäinen äänite on G-duurissa, joten levyn mukana soitat ilman kapoa. Kapo auttaa, kun haluat laulaa itse ja G-duuri tuntuu äänellesi liian matalalta.</p>
-          <p>Kapolla soitetaan myös monen levytyksen mukana. Esimerkiksi John Denverin ”Take Me Home, Country Roads” on A-duurissa. Kapo 2. nauhalla sen säkeistö kulkee G-otteilla <span class="sequence">G–Em–D–C</span>, ja soiva sävellaji on sama A-duuri kuin taulukon oikeassa sarakkeessa.</p>
-
-          <h3>Soita samat otteet kapolla</h3>
-          <ol>
-            <li>Soita ensin kertosäe ilman kapoa <a href="#sointukierrot">luvun 7</a> taulukon otteilla G, C ja D.</li>
-            <li>Kiinnitä kapo kaikkien kielten yli toiselle nauhalle, juuri nauharaudan taakse satulan puolelle. Laske otteiden nauhat nyt kaposta alkaen.</li>
-            <li>Soita samat otteet uudelleen. G-ote soi nyt A:na, C-ote D:nä ja D-ote E:nä. Säkeistön Am-ote soi Bm:nä.</li>
-          </ol>
-          <div class="note">
-            <p><strong>Kerro muille soiva sävellaji.</strong> Kun soitat G-otteita kapo toisella nauhalla, sano basson tai pianon soittajalle, että kappale on A-duurissa. Jos soitat itse ilman kapoa, käytä A-duurin sarakkeen sointuja. A-otteen löydät <a href="#kvinttiympyra">luvun 8</a> harjoituksesta. E-otteessa kaikki kuusi kieltä soivat. Säkeistön Bm on barré-ote, jonka opit <a href="osa-3.html#barre">luvussa 12</a>. Siihen asti soita säkeistö kapolla.</p>
-            <div class="chord-diagrams"><figure class="chord-diagram"><figcaption>E</figcaption><svg viewBox="0 0 108 124" role="img" aria-label="E: paksu E-kieli vapaana (perussävel), A-kieli 2. nauha keskisormella, D-kieli 2. nauha nimettömällä (perussävel), G-kieli 1. nauha etusormella, B-kieli vapaana, ohut e-kieli vapaana (perussävel)."><line class="nut" x1="24" y1="30" x2="94" y2="30"/><line class="fret" x1="24" y1="48" x2="94" y2="48"/><line class="fret" x1="24" y1="66" x2="94" y2="66"/><line class="fret" x1="24" y1="84" x2="94" y2="84"/><line class="fret" x1="24" y1="102" x2="94" y2="102"/><line class="string" x1="24" y1="30" x2="24" y2="102"/><line class="string" x1="38" y1="30" x2="38" y2="102"/><line class="string" x1="52" y1="30" x2="52" y2="102"/><line class="string" x1="66" y1="30" x2="66" y2="102"/><line class="string" x1="80" y1="30" x2="80" y2="102"/><line class="string" x1="94" y1="30" x2="94" y2="102"/><circle class="open root-open" cx="24" cy="18" r="4.5"/><circle class="tone" cx="38" cy="57" r="6.5"/><text class="finger" x="38" y="118">2</text><circle class="root" cx="52" cy="57" r="6.5"/><text class="finger" x="52" y="118">3</text><circle class="tone" cx="66" cy="39" r="6.5"/><text class="finger" x="66" y="118">1</text><circle class="open" cx="80" cy="18" r="4.5"/><circle class="open root-open" cx="94" cy="18" r="4.5"/></svg><code>022100</code></figure></div>
-          </div>
-          <p><strong>Tarkista sävellaji korvalla.</strong> Sointusivustojen versiot eivät aina ole levyn sävellajissa. Esimerkiksi ”Kolme cowboyta” löytyy Ultimate Guitarista myös C-duuriin kirjoitettuna (C–Dm–G7–F), vaikka levy on G-duurissa. Juice Leskisen ”Kaksoiselämää” löytyy taas G-duurissa, vaikka levy on C-duurissa. Soita sointukartan ensimmäinen sointu levyn alun mukana. Jos se riitelee, etsi levyn kotisävel kuten <a href="#savellajin-tunnistaminen">luvussa 9</a> ja siirrä kartta siihen sävellajiin.</p>
-          <aside class="practice">
-            <h3>Harjoitus · Sovita sävellaji laulajalle</h3>
-            <p>Hyräile kertosäkeen melodian mukana ensin ilman kapoa ja sitten kapo toisella nauhalla. Kummassa korkeimmat sävelet tuntuvat helpommilta? Kokeile myös kapoa ensimmäisellä nauhalla. Otteet pysyvät samoina, joten voit keskittyä siihen, miltä laulukorkeus tuntuu.</p>
-            <details>
-              <summary>Katso, mikä sävellaji soi ensimmäisellä nauhalla</summary>
-              <p>G-ote nousee puoliaskelen A♭:ään. Sävellaji on A♭-duuri, ja kertosäe alkaa soinnuilla A♭–D♭–A♭–A♭.</p>
+              <p>C-duurissa puoliaskeleet ovat 3. ja 4. asteen sekä 7. asteen ja oktaavin välissä (E–F ja B–C). Luonnollisessa c-mollissa puoliaskeleet ovat 2. ja 3. asteen sekä 5. ja 6. asteen välissä (D–E♭ ja G–A♭).</p>
             </details>
           </aside>
         </section>
 
         <aside class="practice routine" id="harjoitusrutiini" aria-labelledby="rutiini-otsikko">
           <h2 id="rutiini-otsikko">Harjoitusrutiini · 15 minuuttia päivässä</h2>
-          <p>Toista tätä viikon ajan. Soita hitaasti: vaihto ykkösellä on tärkeämpää kuin tempo.</p>
+          <p>Toista tätä 5–7 päivänä. Pidä kitara käden ulottuvilla myös kuunnellessa.</p>
           <ol>
-              <li><strong>3 min · Vaihdot.</strong> Soita <a href="#sointukierrot">luvun 7</a> säkeistön rivi G–G–Am–D ja laske ääneen 1, 2, 3, 4. Vaihda sointua aina ykkösellä.</li>
-              <li><strong>5 min · Soita mukana.</strong> Soita ”Kolme cowboyta” <a href="#kolme-cowboyta">harjoitustaustan</a> mukana ja seuraa kappaleen karttaa. Kun se sujuu, soita alkuperäisen äänitteen mukana.</li>
-              <li><strong>3 min · Kvinttiympyrä.</strong> Soita <a href="#kvinttiympyra">luvun 8</a> I–IV–V–I ensin G-duurissa ja sitten D-duurissa.</li>
-              <li><strong>4 min · Sävellaji laulajalle.</strong> Soita kertosäe kapo 2. nauhalla ja ilman kapoa. Hyräile mukana ja valitse äänellesi sopivin sävellaji (<a href="#transponointi">luku 10</a>).</li>
+              <li><strong>3 min · Kotisävel.</strong> Kuuntele <a href="#musiikki-on-kieli">luvun 3</a> esimerkki ja pysäytä se ennen loppua. Hyräile kotisävel ja tarkista se A-kielen 3. nauhalta.</li>
+              <li><strong>4 min · Duuri ja molli.</strong> Soita <a href="#savelet-ja-intervallit">luvun 4</a> C–E–G ja C–E♭–G ensin sävel kerrallaan ja sitten yhtä aikaa.</li>
+              <li><strong>4 min · Asteikot.</strong> Soita <a href="#asteikot">luvun 5</a> C-duuri ja c-molli A-kielellä. Sano ääneen, missä kohdissa on puoliaskel.</li>
+              <li><strong>4 min · Kertaus.</strong> Soita ”Kolme cowboyta” kerran <a href="osa-1.html#kolme-cowboyta">osan 1 harjoitustaustan</a> mukana ja hyräile lopuksi kotisävel G.</li>
           </ol>
-          <p><strong>Siirry eteenpäin, kun</strong> soitat ”Kolme cowboyta” -kappaleen alusta loppuun harjoitustaustan mukana pysähtymättä.</p>
+          <p><strong>Siirry eteenpäin, kun</strong> kuulet, kumpi luvun 3 melodioista palaa kotiin, ja löydät C-duuriasteikon A-kieleltä.</p>
         </aside>
 
         <aside class="sources" aria-labelledby="lisalukeminen">
           <h2 id="lisalukeminen">Lisälukemista</h2>
-          <p>Kuunteluesimerkit ja ”Kolme cowboyta” -harjoitustausta on tehty tätä opasta varten synteettisillä, kitaramaisilla soittoäänillä. Harjoitustaustassa on vain säestys: kitara, basso ja rummut. Melodiaa ja sanoja siinä ei ole. Alkuperäisen kappaleen ovat levyttäneet J. Karjalainen ja Mustat Lasit.</p>
-          <p><strong>Kappale-esimerkit.</strong> ”Kolme cowboyta” -harjoitustaustan soinnut, osien tahtimäärät, tempo ja komppi perustuvat <a href="https://www.songsterr.com/a/wsa/j-karjalainen-kolme-cowboyta-tab-s4911561">Songsterrin transkriptioon</a> levystä. Harjoitustausta on oppaan oma sovitus: siinä on kaksi säkeistöä, kaksi kertosäettä ja loppusointu. Levyn intro, muut säkeistöt ja loppu puuttuvat. Transkriptiota ei ole tarkistettu levyltä korvalla. Muiden tässä osassa mainittujen kappaleiden soinnut ja sävellajit ovat Ultimate Guitarin sointulapuista sekä Hooktheoryn ja SongBPM:n tiedoista, eikä niitäkään ole tarkistettu korvalla.</p>
+          <p>Ääniesimerkit on tehty tätä opasta varten synteettisillä, kitaramaisilla soittoäänillä.</p>
           <ul>
-            <li><a href="https://www.fender.com/articles/chords/how-to-read-a-chord-chart">Fender · Kitaran sointukaavion lukeminen</a></li>
-            <li><a href="https://viva.pressbooks.pub/openmusictheory/chapter/verse-chorus-form/">Open Music Theory · Säkeistö ja kertosäe</a></li>
-            <li><a href="https://viva.pressbooks.pub/openmusictheory/chapter/4-chord-schemas/">Open Music Theory · Neljän soinnun kierrot</a></li>
-            <li><a href="https://viva.pressbooks.pub/openmusictheory/chapter/major-scales/">Open Music Theory · Kvinttiympyrä ja etumerkit</a></li>
-            <li><a href="https://www.fender.com/articles/parts-and-accessories/what-is-a-capo">Fender · Kapotaston käyttö</a></li>
+            <li><a href="https://www.oomc.fi/arkisto/musiikin-verkko-opinnot/melodia/nuottien-nimet-oktaavialat-ja-nuottiavaimet/">Open Online Music Campus · Nuottien nimet ja oktaavialat</a></li>
+            <li><a href="https://www.researchcatalogue.net/view/532888/730341">Christina Kwon · Sävelnimet saksalaisessa urkutabulatuurissa</a></li>
+            <li><a href="https://viva.pressbooks.pub/openmusictheory/part/fundamentals/">Open Music Theory · Sävelet, intervallit ja asteikot</a></li>
           </ul>
         </aside>
       </article>
@@ -287,8 +171,8 @@
   <footer class="site-footer frame">
     <a href="../index.html">Musiikin kartan etusivulle</a>
     <a href="#luvut">Palaa lukuluetteloon</a>
-    <a href="osa-1.html">Edellinen osa · Miten musiikki toimii</a>
-    <a href="osa-3.html">Seuraava osa · Kitara työkaluna</a>
+    <a href="osa-1.html">Edellinen osa · Rytmi, komppi ja ensimmäinen kappale</a>
+    <a href="osa-3.html">Seuraava osa · Soinnut ja niiden tehtävät</a>
   </footer>
   <script src="../assets/edistyminen.js"></script>
 </body>

@@ -16,7 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 AUDIO = ROOT / 'assets' / 'audio'
-TARGET = re.compile(r'^/tallenna/(osa-[1-5])/([a-z0-9-]+)\.wav$')
+TARGET = re.compile(r'^/tallenna/(osa-\d{1,2})/([a-z0-9-]+)\.wav$')
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):

@@ -1,31 +1,65 @@
-// Edistymisen merkintä. Lukija voi merkitä luvun tehdyksi, ja etusivu näyttää osien
-// edistymisen sekä seuraavan luvun. Tieto tallentuu vain tämän selaimen localStorageen;
-// jos tallennus ei ole käytössä (esimerkiksi yksityinen ikkuna), painikkeet toimivat
-// sivun ajan mutta merkinnät eivät säily.
+// Edistymisen merkintä ja vanhojen lukulinkkien ohjaus.
+//
+// Lukija voi merkitä luvun tehdyksi, ja etusivu näyttää osien edistymisen sekä seuraavan luvun.
+// Tieto tallentuu vain tämän selaimen localStorageen; jos tallennus ei ole käytössä (esimerkiksi
+// yksityinen ikkuna), painikkeet toimivat sivun ajan mutta merkinnät eivät säily.
+//
+// PARTS-taulukossa ovat jokaisen osan luvut ja muut ankkurit, joihin linkit voivat osoittaa.
+// Kun linkin ankkuria ei ole avatulla sivulla, lukija ohjataan osaan, jossa se nykyään on. Näin
+// viiden osan jaon aikaiset linkit (esimerkiksi osa-3.html#caged) vievät oikeaan sisältöön.
+// tools/linkit/tarkista-linkit.py tarkistaa, että taulukko vastaa sivuja.
 (() => {
-  const KEY = 'musiikin-kartta:tehdyt';
+  const KEY = 'musiikin-kartta:luvut';
+  const OLD_KEY = 'musiikin-kartta:tehdyt';
   const PARTS = [
-    { slug: 'osa-1', name: 'Osa I', chapters: [
-      ['musiikki-on-kieli', 1, 'Musiikki on kieli'], ['savelet-ja-intervallit', 2, 'Sävelet ja intervallit'],
-      ['asteikot', 3, 'Asteikot'], ['harmoninen-kentta', 4, 'Harmoninen kenttä'],
-      ['roomalaiset-numerot', 5, 'Roomalaiset numerot'], ['sointujen-tehtavat', 6, 'Sointujen tehtävät']] },
-    { slug: 'osa-2', name: 'Osa II', chapters: [
-      ['sointukierrot', 7, 'Sointukierrot ja kappaleen rakenne'], ['kvinttiympyra', 8, 'Kvinttiympyrä'],
-      ['savellajin-tunnistaminen', 9, 'Sävellajin tunnistaminen'], ['transponointi', 10, 'Transponointi']] },
-    { slug: 'osa-3', name: 'Osa III', chapters: [
-      ['otelauta', 11, 'Otelauta'], ['barre', 12, 'Barré-soinnut ja numerokartta'], ['caged', 13, 'CAGED'],
-      ['septimisoinnut', 14, 'Septimisoinnut'], ['pentatoniikka', 15, 'Pentatoniikka'], ['moodit', 16, 'Moodit käytännössä']] },
-    { slug: 'osa-4', name: 'Osa IV', chapters: [
-      ['intervallit', 17, 'Asteet ja intervallit korvalla'], ['basso', 18, 'Bassolinjan kuuleminen'],
-      ['soinnut', 19, 'Sointujen tunnistaminen'], ['kappale', 20, 'Kappaleen purkaminen ilman nuotteja']] },
-    { slug: 'osa-5', name: 'Osa V', chapters: [
-      ['improvisointi', 21, 'Improvisointi'], ['sovittaminen', 22, 'Sovittaminen'],
-      ['oma-kappale', 23, 'Oman kappaleen tekeminen ja oma ilmaisu']] }
+    { slug: 'osa-1', name: 'Osa 1', chapters: [['pulssi-ja-komppi', 1, 'Pulssi ja komppi'], ['sointukierrot', 2, 'Neljä otetta ja ensimmäinen kappale']],
+      anchors: ['pulssi-aanite', 'kahdeksasosat', 'kitaran-merkinnat', 'alas-ylos-komppi', 'vaihto-kolmosella', 'kolme-cowboyta'] },
+    { slug: 'osa-2', name: 'Osa 2', chapters: [['musiikki-on-kieli', 3, 'Musiikki on kieli'], ['savelet-ja-intervallit', 4, 'Sävelet ja intervallit'], ['asteikot', 5, 'Asteikot']],
+      anchors: ['h-savelnimi'] },
+    { slug: 'osa-3', name: 'Osa 3', chapters: [['harmoninen-kentta', 6, 'Harmoninen kenttä'], ['roomalaiset-numerot', 7, 'Roomalaiset numerot'], ['sointujen-tehtavat', 8, 'Sointujen tehtävät'], ['kappale-asteina', 9, 'Kolme cowboyta roomalaisin numeroin']],
+      anchors: ['kaikuluotain', 'neljas-savel', 'asteiden-varit'] },
+    { slug: 'osa-4', name: 'Osa 4', chapters: [['savellajin-tunnistaminen', 10, 'Sävellajin tunnistaminen'], ['kvinttiympyra', 11, 'Kvinttiympyrä'], ['transponointi', 12, 'Transponointi']],
+      anchors: ['ympyra-otsikko'] },
+    { slug: 'osa-5', name: 'Osa 5', chapters: [['otelauta', 13, 'Otelauta ja oktaavimuodot'], ['perussavel', 14, 'Sävelet E- ja A-kielellä']],
+      anchors: ['oktaaviharjoitus', 'oktaavimuodot'] },
+    { slug: 'osa-6', name: 'Osa 6', chapters: [['barre', 15, 'Barré-soinnut ja numerokartta'], ['caged', 16, 'CAGED']],
+      anchors: ['numerokartta'] },
+    { slug: 'osa-7', name: 'Osa 7', chapters: [['intervallit', 17, 'Asteet ja intervallit korvalla'], ['basso', 18, 'Bassolinjan kuuleminen'], ['soinnut', 19, 'Sointujen tunnistaminen'], ['kappale', 20, 'Kappaleen purkaminen ilman nuotteja']],
+      anchors: ['aste-korvalla', 'aste-harjoitus', 'sointu-harjoitus', 'tehtava-harjoitus'] },
+    { slug: 'osa-8', name: 'Osa 8', chapters: [['improvisointi', 21, 'Improvisointi'], ['pentatoniikka', 22, 'Pentatoniikka']],
+      anchors: ['em-c-tausta', 'am-tausta', 'boksi-e-mollissa'] },
+    { slug: 'osa-9', name: 'Osa 9', chapters: [['sovittaminen', 23, 'Sovittaminen'], ['oma-kappale', 24, 'Oman kappaleen tekeminen ja oma ilmaisu']],
+      anchors: ['kokoa-yhteen', 'esimerkkikappale', 'kappale-1-luonnos', 'kappale-2-b-osa', 'kappale-3-septimit', 'kappale-4-sovitus'] },
+    { slug: 'osa-10', name: 'Osa 10', advanced: true, chapters: [['septimisoinnut', 25, 'Septimisoinnut'], ['septimi-korvalla', 26, 'Kuule septimi'], ['ii-v-i', 27, 'ii–V–I ja äänenkuljetus']],
+      anchors: [] },
+    { slug: 'osa-11', name: 'Osa 11', advanced: true, chapters: [['moodit', 28, 'Moodit käytännössä']],
+      anchors: [] }
   ];
+  // Viiden osan jaon aikaiset merkinnät (osa#luku) ja luvut, joissa sama sisältö nyt on.
+  // Vanha tallenne jätetään paikalleen, ja merkinnät kopioidaan kerran uuteen avaimeen.
+  const MOVED = {
+    'osa-1#musiikki-on-kieli': ['musiikki-on-kieli'], 'osa-1#savelet-ja-intervallit': ['savelet-ja-intervallit'], 'osa-1#asteikot': ['asteikot'],
+    'osa-1#harmoninen-kentta': ['harmoninen-kentta'], 'osa-1#roomalaiset-numerot': ['roomalaiset-numerot'], 'osa-1#sointujen-tehtavat': ['sointujen-tehtavat'],
+    'osa-2#sointukierrot': ['sointukierrot', 'kappale-asteina'], 'osa-2#kvinttiympyra': ['kvinttiympyra'], 'osa-2#savellajin-tunnistaminen': ['savellajin-tunnistaminen'],
+    'osa-2#transponointi': ['transponointi'], 'osa-3#otelauta': ['otelauta'], 'osa-3#barre': ['perussavel', 'barre'],
+    'osa-3#caged': ['caged'], 'osa-3#septimisoinnut': ['septimisoinnut', 'ii-v-i'], 'osa-3#pentatoniikka': ['pentatoniikka'],
+    'osa-3#moodit': ['moodit'], 'osa-4#intervallit': ['intervallit'], 'osa-4#basso': ['basso'],
+    'osa-4#soinnut': ['soinnut', 'septimi-korvalla'], 'osa-4#kappale': ['kappale'], 'osa-5#improvisointi': ['improvisointi'],
+    'osa-5#sovittaminen': ['sovittaminen'], 'osa-5#oma-kappale': ['oma-kappale']
+  };
 
   let memory = new Set();
   function load() {
-    try { memory = new Set(JSON.parse(localStorage.getItem(KEY) || '[]')); } catch { /* tallennus ei käytössä */ }
+    try {
+      const saved = localStorage.getItem(KEY);
+      if (saved !== null) {
+        memory = new Set(JSON.parse(saved));
+      } else {
+        const old = JSON.parse(localStorage.getItem(OLD_KEY) || '[]');
+        memory = new Set(old.flatMap(key => MOVED[key] ?? []));
+        if (memory.size) localStorage.setItem(KEY, JSON.stringify([...memory]));
+      }
+    } catch { /* tallennus ei käytössä */ }
     return memory;
   }
   function save(done) {
@@ -33,12 +67,25 @@
     try { localStorage.setItem(KEY, JSON.stringify([...done])); } catch { /* tallennus ei käytössä */ }
   }
 
-  const page = location.pathname.match(/(osa-[1-5])(?:\.html)?\/?$/);
-  if (page) setupPart(PARTS.find(part => part.slug === page[1]));
-  else if (document.querySelector('.parts')) setupIndex();
+  const page = location.pathname.match(/(osa-\d+)(?:\.html)?\/?$/);
+  const current = page && PARTS.find(part => part.slug === page[1]);
+  if (current) {
+    followMovedAnchor();
+    window.addEventListener('hashchange', followMovedAnchor);
+    setupPart(current);
+  } else if (document.querySelector('.parts')) {
+    setupIndex();
+  }
+
+  function followMovedAnchor() {
+    let id = location.hash.slice(1);
+    try { id = decodeURIComponent(id); } catch { /* käytetään sellaisenaan */ }
+    if (!id || document.getElementById(id)) return;
+    const home = PARTS.find(part => part.chapters.some(([chapter]) => chapter === id) || part.anchors.includes(id));
+    if (home && home !== current) location.replace(home.slug + '.html#' + id);
+  }
 
   function setupPart(part) {
-    if (!part) return;
     const done = load();
     const nav = document.querySelector('.contents');
     const summary = document.createElement('p');
@@ -46,29 +93,28 @@
     nav?.append(summary);
 
     function refresh() {
-      const count = part.chapters.filter(([id]) => done.has(part.slug + '#' + id)).length;
+      const count = part.chapters.filter(([id]) => done.has(id)).length;
       summary.textContent = count ? count + '/' + part.chapters.length + ' lukua tehty' : '';
       nav?.querySelectorAll('ol a').forEach(link => {
-        link.parentElement.classList.toggle('is-done', done.has(part.slug + link.getAttribute('href')));
+        link.parentElement.classList.toggle('is-done', done.has(link.getAttribute('href').slice(1)));
       });
     }
 
     part.chapters.forEach(([id]) => {
       const section = document.getElementById(id);
       if (!section) return;
-      const key = part.slug + '#' + id;
       const row = document.createElement('p');
       row.className = 'done-row';
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'done-toggle';
       const draw = () => {
-        const on = done.has(key);
+        const on = done.has(id);
         button.setAttribute('aria-pressed', on);
         button.textContent = on ? '✓ Luku tehty' : 'Merkitse luku tehdyksi';
       };
       button.addEventListener('click', () => {
-        if (done.has(key)) done.delete(key); else done.add(key);
+        if (done.has(id)) done.delete(id); else done.add(id);
         save(done);
         draw();
         refresh();
@@ -85,7 +131,7 @@
     if (!done.size) return;
     PARTS.forEach(part => {
       const card = document.querySelector('a.part-link[href="book/' + part.slug + '.html"]');
-      const count = part.chapters.filter(([id]) => done.has(part.slug + '#' + id)).length;
+      const count = part.chapters.filter(([id]) => done.has(id)).length;
       if (!card || !count) return;
       const note = document.createElement('span');
       note.className = 'part-progress';
@@ -93,7 +139,7 @@
       card.querySelector('.part-action')?.before(note);
     });
     const next = PARTS.flatMap(part => part.chapters.map(([id, num, title]) => ({ part, id, num, title })))
-      .find(({ part, id }) => !done.has(part.slug + '#' + id));
+      .find(({ id }) => !done.has(id));
     const actions = document.querySelector('.hero-actions');
     if (!actions) return;
     const p = document.createElement('p');
@@ -101,10 +147,10 @@
     if (next) {
       const link = document.createElement('a');
       link.href = 'book/' + next.part.slug + '.html#' + next.id;
-      link.textContent = 'Jatka: luku ' + next.num + ' · ' + next.title;
+      link.textContent = (next.part.advanced ? 'Peruspolku on tehty. Syventävä luku ' : 'Jatka: luku ') + next.num + ' · ' + next.title;
       p.append(link);
     } else {
-      p.textContent = 'Olet merkinnyt kaikki 23 lukua tehdyiksi.';
+      p.textContent = 'Olet merkinnyt kaikki 28 lukua tehdyiksi.';
     }
     actions.after(p);
   }

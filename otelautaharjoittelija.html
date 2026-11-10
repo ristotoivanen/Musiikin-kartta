@@ -12,7 +12,7 @@
 <header class="site-header">
   <nav class="site-nav" aria-label="Sivusto">
     <a class="brand" href="index.html">Musiikin <span>kartta</span></a>
-    <a href="book/osa-1.html">Lue oppaan I osa</a>
+    <a href="book/osa-1.html">Lue oppaan osa 1</a>
   </nav>
 </header>
 
@@ -20,6 +20,7 @@
   <h1>Otelautaharjoittelija</h1>
   <p class="tools-note">
     Valitse toonika ja asteikko. Asteikkonäkymässä pisteen numero kertoo sävelen asteen suhteessa toonikaan.
+    Oktaavit-näkymässä kuulet saman sävelen eri kieliltä ja etsit sen oktaavit otelaudalta.
   </p>
 
   <div class="controls">
@@ -27,6 +28,7 @@
       <span class="group-label" id="root-label">Toonika (kotisävel)</span>
       <span id="roots" role="group" aria-labelledby="root-label"></span>
     </div>
+    <div id="scale-pickers">
     <div class="group" role="group" aria-labelledby="minor-label">
       <span class="group-label" id="minor-label">Mollipentatoninen pohja</span>
       <button data-scale="mp">Mollipentatoninen</button>
@@ -42,11 +44,13 @@
       <button data-scale="lydian">Lyydinen</button>
       <button data-scale="mixolydian">Miksolyydinen</button>
     </div>
-    <p class="tools-note"><a href="book/osa-3.html#pentatoniikka">Mitä pentatoniikka on?</a> · <a href="book/osa-3.html#moodit">Mitä moodit ovat?</a></p>
+    <p class="tools-note"><a href="book/osa-8.html#pentatoniikka">Mitä pentatoniikka on?</a> · <a href="book/osa-11.html#moodit">Mitä moodit ovat?</a></p>
+    </div>
     <div class="group" role="group" aria-labelledby="view-label">
       <span class="group-label" id="view-label">Otelaudan näkymä</span>
       <button type="button" id="scale-view" aria-pressed="true">Asteikko</button>
       <button type="button" id="chord-view" aria-pressed="false">Soinnut</button>
+      <button type="button" id="octave-view" aria-pressed="false">Oktaavit</button>
     </div>
     <div id="chord-options" hidden>
       <div class="group">
@@ -103,8 +107,19 @@
     </details>
   </div>
 
+  <section class="octave-panel" id="oktaavit" aria-labelledby="octave-title" hidden>
+    <h2 id="octave-title">Oktaaviharjoitus</h2>
+    <p id="octave-intro"></p>
+    <div class="group" id="octave-listen" role="group" aria-label="Kuuntele annetut sävelet"></div>
+    <p id="octave-task"></p>
+    <p class="octave-feedback" id="octave-feedback" role="status"></p>
+    <div class="group">
+      <button type="button" id="octave-reset">Aloita alusta</button>
+    </div>
+    <p class="tools-note">Vaihda etsittävä sävel yllä olevista painikkeista. <a href="book/osa-5.html#oktaavimuodot">Lue oktaavimuodoista oppaan osasta 5</a></p>
+  </section>
   <div id="info" aria-live="polite" aria-atomic="true"></div>
-  <p class="tools-note"><a id="backing-link" href="harjoitustaustat.html">Soita valitun asteikon taustan mukana</a></p>
+  <p class="tools-note" id="backing-note"><a id="backing-link" href="harjoitustaustat.html">Soita valitun asteikon taustan mukana</a></p>
   <p class="tools-note scroll-hint" id="scroll-hint" hidden>Näet lisää nauhoja vierittämällä otelautaa sivusuunnassa.</p>
   <div id="board" role="region" aria-label="Kitaran otelauta" tabindex="0"></div>
 
@@ -118,6 +133,11 @@
     <span><span class="swatch" style="background:#6d4aff"></span>Terssi (3 tai ♭3) ja kvintti (5 tai ♭5)</span>
     <span id="muted-legend"><span class="swatch muted-swatch" aria-hidden="true">×</span>Kieltä ei soiteta</span>
   </div>
+  <div class="legend" id="octave-legend" hidden>
+    <span><span class="swatch" style="background:#4b2fd6; border:2px solid #fff"></span>Sama korkeus kuin paksulla E-kielellä</span>
+    <span><span class="swatch" style="background:#f0a13c"></span>Oktaavia ylempi</span>
+    <span><span class="swatch" style="background:#75e5c6"></span>Kaksi oktaavia ylempi</span>
+  </div>
 </main>
 
 <footer>
@@ -125,7 +145,9 @@
   lähdekoodi: <a href="https://github.com/ristotoivanen/Musiikin-kartta">GitHub</a>
 </footer>
 
+<script src="assets/harjoitustausta.js"></script>
 <script src="assets/otelauta.js"></script>
+<script src="assets/oktaavit.js"></script>
 <script>
 (function () {
   const { CHROM, SCALES, noteName, scaleNotes, scaleTriads, triadGrips, selectionFromURL, selectionHref,
@@ -134,6 +156,8 @@
   let { rootPC, scaleId } = selectionFromURL(7, 'mp');
   let preferredSystem = null;
   let showChords = false;
+  let showOctaves = false;
+  let octavesOpened = false;
   let chords, chordIndex = 0, gripIndex = 0;
   const board = document.getElementById('board');
   const info = document.getElementById('info');
@@ -155,6 +179,13 @@
   const scaleLegend = document.getElementById('scale-legend');
   const chordLegend = document.getElementById('chord-legend');
   const mutedLegend = document.getElementById('muted-legend');
+  const octaveView = document.getElementById('octave-view');
+  const octavePanel = document.getElementById('oktaavit');
+  const octaveLegend = document.getElementById('octave-legend');
+  const scalePickers = document.getElementById('scale-pickers');
+  const advancedOptions = document.querySelector('.advanced-options');
+  const backingNote = document.getElementById('backing-note');
+  const rootLabel = document.getElementById('root-label');
 
   function formatBoxRange({ start, end, partial }) {
     let range = 'nauhat ' + start + '–' + end;
@@ -216,14 +247,30 @@
       ) + '</span>';
   }
 
-  function setView(chordsVisible) {
-    showChords = chordsVisible;
-    scaleView.setAttribute('aria-pressed', !showChords);
+  // Näkymät: 'scale' (asteikko), 'chord' (soinnut) ja 'octave' (oktaaviharjoitus, assets/oktaavit.js).
+  function setView(view) {
+    showChords = view === 'chord';
+    showOctaves = view === 'octave';
+    scaleView.setAttribute('aria-pressed', view === 'scale');
     chordView.setAttribute('aria-pressed', showChords);
+    octaveView.setAttribute('aria-pressed', showOctaves);
     chordOptions.hidden = !showChords;
     chordLegend.hidden = !showChords;
-    scaleOptions.hidden = showChords;
-    scaleLegend.hidden = showChords;
+    scaleOptions.hidden = view !== 'scale';
+    scaleLegend.hidden = view !== 'scale';
+    [scalePickers, advancedOptions, info, backingNote].forEach(element => element.hidden = showOctaves);
+    octavePanel.hidden = !showOctaves;
+    octaveLegend.hidden = !showOctaves;
+    rootLabel.textContent = showOctaves ? 'Etsittävä sävel' : 'Toonika (kotisävel)';
+    if (showOctaves && !octavesOpened) {
+      // Ensimmäinen tehtävä on A: paksun E-kielen 5. nauha, vapaa A-kieli ja D-kielen 7. nauha.
+      octavesOpened = true;
+      rootPC = 9;
+      updateChordChoices();
+    }
+    if (!showOctaves) octaveTrainer.hide();
+    const hash = showOctaves ? '#oktaavit' : '';
+    if ((location.hash === '#oktaavit') !== showOctaves) history.replaceState(null, '', location.pathname + location.search + hash);
     render();
   }
 
@@ -239,6 +286,11 @@
     rootButtons.forEach((button, pc) => button.setAttribute('aria-pressed', pc === rootPC));
     scaleButtons.forEach(button => button.setAttribute('aria-pressed', button.dataset.scale === scaleId));
     backingLink.href = selectionHref('harjoitustaustat.html', rootPC, scaleId);
+    if (showOctaves) {
+      octaveTrainer.show(rootPC);
+      updateScrollHint();
+      return;
+    }
     if (showChords) {
       renderChord(fretCount, automatic);
       return;
@@ -311,8 +363,12 @@
   pentatonicBoxes.innerHTML = boxOptions('pentatonic');
   threeNoteBoxes.innerHTML = boxOptions('3nps');
   syncBoxSystem(boxSystem, SCALES[scaleId], preferredSystem);
-  scaleView.addEventListener('click', () => setView(false));
-  chordView.addEventListener('click', () => setView(true));
+  scaleView.addEventListener('click', () => setView('scale'));
+  chordView.addEventListener('click', () => setView('chord'));
+  octaveView.addEventListener('click', () => setView('octave'));
+  window.addEventListener('hashchange', () => {
+    if (location.hash === '#oktaavit' && !showOctaves) setView('octave');
+  });
   gripSelect.addEventListener('change', () => {
     gripIndex = Number(gripSelect.value);
     render();
@@ -328,7 +384,8 @@
   });
   new ResizeObserver(updateScrollHint).observe(board);
   updateChordChoices();
-  render();
+  if (location.hash === '#oktaavit') setView('octave');
+  else render();
 })();
 </script>
 </body>

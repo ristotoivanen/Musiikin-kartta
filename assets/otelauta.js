@@ -330,7 +330,7 @@ const fretboard = (() => {
 
   function renderBoard(rootPC, sc, fretCount, {
     boxes = [], onlyBoxNotes = false, automatic = true, focusDegree = '', grip = null,
-    label = CHROM[rootPC] + ' ' + sc.name,
+    label = CHROM[rootPC] + ' ' + sc.name, notes = null, targets = false,
   } = {}) {
     const fretboardEnd = wireX(fretCount);
     const bridgeX = fretboardEnd + 48;
@@ -350,7 +350,7 @@ const fretboard = (() => {
     const description = label + '. ' + fretCount + ' nauhaa. Vapaat kielet satulan vasemmalla puolella.' +
       (mutedNames.length ? ' Soittamatta jäävät kielet: ' + mutedNames.join(', ') + '.' : '');
 
-    let s = '<svg viewBox="0 0 ' + width + ' ' + height + '" style="min-width:' + minWidth + 'px" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' +
+    let s = '<svg viewBox="0 0 ' + width + ' ' + height + '" style="min-width:' + minWidth + 'px" xmlns="http://www.w3.org/2000/svg" role="' + (targets ? 'group' : 'img') + '" aria-label="' +
       description + '">';
     s += '<rect x="' + OPEN_LEFT + '" y="' + neckTop + '" width="' + (NUT_X - OPEN_LEFT) + '" height="' + neckHeight + '" rx="6" fill="#2a2338"/>';
     s += '<rect x="' + NUT_X + '" y="' + neckTop + '" width="' + (fretboardEnd - NUT_X) + '" height="' + neckHeight + '" fill="#231a12"/>';
@@ -402,8 +402,29 @@ const fretboard = (() => {
       s += '</g>';
       s += '<text x="13" y="' + (y + 4) + '" font-size="14" fill="#efeaff" text-anchor="middle">' + STRING_NAMES[i] + '</text>';
     });
+    // Oktaaviharjoitus (assets/oktaavit.js): jokainen nauhakohta on napautettava, ja harjoitus
+    // antaa näytettävät pisteet itse (notes) asteikon sävelten sijaan.
+    if (targets) {
+      s += '<g class="fret-targets">';
+      OPEN_PITCHES.forEach((openPitch, si) => {
+        for (let f = 0; f <= fretCount; f++) {
+          const place = f ? SPOKEN_STRING_NAMES[si] + '-kieli, ' + f + '. nauha' : 'vapaa ' + SPOKEN_STRING_NAMES[si] + '-kieli';
+          const cellWidth = f ? FW : NUT_X - OPEN_LEFT - 6;
+          s += '<rect class="fret-target" role="button" tabindex="0" data-string="' + si + '" data-fret="' + f +
+            '" data-midi="' + (openPitch + f) + '" aria-label="' + place + '" x="' + (cellCX(f) - cellWidth / 2) +
+            '" y="' + (stringY(si) - SS / 2) + '" width="' + cellWidth + '" height="' + SS + '" fill="transparent"/>';
+        }
+      });
+      s += '</g>';
+    }
+    (notes ?? []).forEach(({ string, fret, label: text, kind }) => {
+      s += '<g class="octave-note octave-' + kind + '">';
+      s += '<circle cx="' + cellCX(fret) + '" cy="' + stringY(string) + '" r="' + R + '"/>';
+      s += '<text x="' + cellCX(fret) + '" y="' + (stringY(string) + 3.5) + '" font-size="' + (text.length > 1 ? 9.5 : 11) + '" font-weight="700" text-anchor="middle">' + text + '</text>';
+      s += '</g>';
+    });
     if (grip) s += '<g class="grip-notes">';
-    OPEN_PITCHES.forEach((openPitch, si) => {
+    (notes ? [] : OPEN_PITCHES).forEach((openPitch, si) => {
       for (let f = 0; f <= fretCount; f++) {
         const pc = (openPitch + f) % 12;
         if (!(pc in ivMap)) continue;

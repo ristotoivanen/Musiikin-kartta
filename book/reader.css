@@ -208,6 +208,56 @@ thead th { background: var(--panel); }
 .glossary .ref { color: var(--muted); font-size: .92rem; }
 .contents.letters ul { display: flex; flex-wrap: wrap; gap: 0 .9rem; margin: 0; padding: 0; list-style: none; }
 .glossary-letter { margin-top: 2rem; padding-top: .5rem; border-top: 1px solid var(--line); color: var(--accent); }
+/* Osien kaaviot: kappaleen kartta, kvinttiympyrä ja tahtitaulukot. */
+.diagram { margin: 1rem 0 1.35rem; }
+.diagram figcaption { margin-bottom: .55rem; font-weight: 700; }
+.form-map { display: grid; gap: .6rem; }
+.form-map li {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: .6rem;
+  padding: .55rem;
+}
+.form-map { grid-template-columns: repeat(5, minmax(0, 1fr)); list-style: none; padding: 0; margin: 0; }
+.form-map li { border-top: 3px solid var(--accent); }
+.form-map .chorus { border-top-color: var(--gold); }
+.form-map .ending { border-top-color: #75e5c6; }
+.form-map strong, .form-map span { display: block; }
+.form-map span { color: var(--muted); font-size: .88rem; }
+.fifths-wheel { display: block; width: min(100%, 24rem); height: auto; margin: .4rem auto; }
+.fifths-rim { fill: none; stroke: #71638c; stroke-width: 2; }
+.fifths-highlight { fill: var(--panel); stroke: var(--gold); stroke-width: 2; }
+.fifths-tonic { fill: #4b2fd6; stroke: var(--accent); stroke-width: 2; }
+.fifths-keys { fill: var(--text); font-size: 23px; font-weight: 700; text-anchor: middle; dominant-baseline: central; }
+.fifths-center { fill: var(--muted); font-size: 17px; text-anchor: middle; }
+.bar-chart td { font-weight: 700; text-align: center; }
+.bar-chart th[scope="col"]:not(:first-child) { text-align: center; }
+@media (max-width: 550px) {
+  .form-map { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.count-grid th, .count-grid td { padding-inline: .25rem; }
+.count-grid td { font-size: 1.1rem; }
+/* Tabulatuurit ja E- ja A-kielen sävelet. */
+.tab text { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; text-anchor: middle; }
+.tab { margin: 1rem 0; }
+.tab figcaption { color: var(--muted); font-size: .9rem; font-weight: 600; }
+.tab svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: .4rem;
+  padding: .25rem .4rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: .5rem;
+}
+.tab line { stroke: var(--muted); stroke-width: 1; }
+.tab .tab-mask { fill: var(--panel); }
+.tab .tab-num { fill: var(--text); font-size: 11px; font-weight: 600; }
+.tab .tab-name { fill: var(--accent); font-size: 11px; font-weight: 700; }
+.tab .tab-string { fill: var(--muted); font-size: 10px; }
+.fret-notes { max-width: 22rem; }
+.fret-notes th, .fret-notes td { text-align: center; }
 @media (max-width: 760px) {
   .reading-layout { grid-template-columns: minmax(0, 1fr); }
   .contents { position: static; }
