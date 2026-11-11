@@ -2,8 +2,9 @@
 
 Harjoittelija on React-saareke staattisessa HTML-sivustossa. Selain tarvitsee
 ainoastaan `kitaraharjoittelija.html`-sivun, `assets/otelauta.css`:n ja buildatun
-`assets/harjoittelija/`-hakemiston. Ei palvelinrajapintoja, tunnuksia, analytiikkaa,
-CDN-riippuvuuksia tai service workeriä.
+`assets/harjoittelija/`-hakemiston. Koodissa ei ole palvelinrajapintoja, tunnuksia,
+analytiikkaa, CDN-riippuvuuksia tai service workeriä. Julkaisualusta (Cloudflare Pages)
+lisää sivuille oman Web Analytics -skriptinsä; se ei ole tässä repossa.
 
 Ajantasainen tilanne, testitulokset, rajoitukset ja oikealla kitaralla tehtävät
 hyväksyntätestit: [`../reviews/kitaraharjoittelija-auditointi.md`](../reviews/kitaraharjoittelija-auditointi.md).

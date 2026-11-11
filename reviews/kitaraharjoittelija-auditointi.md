@@ -295,6 +295,7 @@ lukemat (taso, varmuus, vire). Niiden perusteella kynnysarvot voi säätää.
 6. Keskeneräinen kysymys ei säily sivun uudelleenlatauksessa. Vastatut säilyvät.
 7. `vendor/notes.ts` sisältää FretEchon käyttämättömiä apufunktioita. Ne eivät päädy bundleen, ja tiedosto on jätetty alkuperäiseksi.
 8. ESLint 9 näyttää asennuksessa ylläpidon päättymisilmoituksen. Riippuvuuksissa ei ole haavoittuvuuksia.
+9. **Kävijämittaus tulee julkaisualustalta.** Harjoittelijan koodissa ei ole analytiikkaa, eikä ääntä tai harjoitustuloksia lähetetä minnekään. Cloudflare Pages kuitenkin lisää julkaistuille sivuille oman Web Analytics -skriptinsä (`static.cloudflareinsights.com/beacon.min.js`), sekä tuotantoon että esikatseluun. Se mittaa sivulatauksia ilman evästeitä. Aiempi raportti sanoi ”ei analytiikkaa”, mikä pitää paikkansa vain koodin osalta. Asetus on Cloudflaren hallintapaneelissa, enkä ole muuttanut sitä. Jos haluat, että sivuston teksti ”Harjoitustiedot vain omassa selaimessasi” on kirjaimellisesti koko totuus, kytke mittaus pois tai mainitse se sivulla.
 
 ## Muutokset, jotka kannattaa tarkistaa erikseen
 
@@ -329,3 +330,10 @@ Koko loki: `git log --oneline e17b593..fix/harjoittelija-auditointi`.
 
 Pull request: [ristotoivanen/Musiikin-kartta#2](https://github.com/ristotoivanen/Musiikin-kartta/pull/2),
 haarasta `fix/harjoittelija-auditointi` haaraan `main`. Sitä ei yhdistetä automaattisesti.
+
+**Esikatselu:** Cloudflare Pages rakentaa haarasta erillisen esikatselun osoitteeseen
+<https://fix-harjoittelija-auditointi.musiikin-kartta.pages.dev/kitaraharjoittelija>.
+Se on HTTPS-osoite, joten mikrofoni toimii siinä, ja hyväksyntätestit voi tehdä siellä
+koskematta tuotantoon. Esikatselun selaintallennus on erillinen: rinnepelto.comin
+harjoitustulokset eivät näy siellä eivätkä muutu. Tuotanto (rinnepelto.com) on
+tarkistettu muuttumattomaksi haaran pushin jälkeen.
