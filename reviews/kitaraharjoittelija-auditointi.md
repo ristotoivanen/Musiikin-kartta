@@ -15,7 +15,29 @@ käyttävät simuloitua signaalia. Otelaudalla vastaaminen on julkaisuvalmis.
 Mikrofonilla vastaaminen kannattaa julkaista vasta, kun alla olevat
 hyväksyntätestit 1–6 on tehty oikealla soittimella.
 
-Tuotantoon ei ole julkaistu mitään, eikä haaraa ole yhdistetty `main`-haaraan.
+**Julkaisu 11.11.2026:** pull request 2 yhdistettiin `main`-haaraan ja julkaistiin
+rinnepelto.comiin Riston päätöksellä ennen hyväksyntätestejä. Raportin muut osat
+kuvaavat tilannetta ennen julkaisua. Julkaisun jälkeinen tilanne on seuraavassa luvussa.
+
+## Julkaisun jälkeen
+
+Julkaistu versio on merge-commit `d90f712`. Tuotannosta on tarkistettu julkaisun jälkeen:
+
+- Kitaraharjoittelija aukeaa tavalla Testaa osaamistasi, eikä ensimmäisessä kysymyksessä näy vastausmerkintöjä.
+- Testaa mikrofoni -painike on sivulla. Sitä ei painettu, joten mikrofonitestin toimintaa tuotannossa ei ole kokeiltu.
+- Navigaatiossa lukee Kitaraharjoittelija, etusivun yhteenveto lukee tallennusversion 3 ja PDF latautuu.
+- Selainkonsolissa ei ollut virheitä.
+
+Mikrofonilla vastaaminen on tuotannossa, vaikka sitä ei ole testattu oikealla
+kitaralla. Hyväksyntätestit ovat tekemättä. Ne voi tehdä kahdessa paikassa:
+
+- **Tuotannossa:** harjoituskierrokset tallentuvat omiin tuloksiisi. Mikrofonitesti ei tallenna mitään.
+- **Esikatselussa** (osoite raportin lopussa): sama koodi, mutta erillinen selaintallennus, joten kokeilut eivät sotke tuotannon tilastoja.
+
+Jos testit paljastavat vian, korjaa mieluummin eteenpäin kuin palaamalla edelliseen
+versioon. Paluu onnistuu komennolla `git revert -m 1 d90f712`, mutta edellinen versio
+ei osaa lukea tallennusversiota 3. Se ei kirjoita tallenteen päälle, mutta näyttää
+varoituksen eikä tallenna uusia tuloksia niille, jotka ovat jo käyttäneet uutta versiota.
 
 ## Kaksi raportoitua ongelmaa
 
@@ -268,7 +290,7 @@ sijainnit, puhelin- ja työpöytänäkymät sekä nopeat peräkkäiset toiminnot
 
 ## Hyväksyntätestit oikealla kitaralla
 
-Näitä ei ole tehty. Tee ne Chromella ennen kuin mikrofonivastaaminen julkaistaan.
+Näitä ei ole tehty. Mikrofonivastaaminen julkaistiin 11.11.2026 ennen niitä, joten tee ne Chromella mahdollisimman pian.
 
 1. **Mikrofonitesti äänikortilla.** Avaa Mikrofonin asetukset, paina Testaa mikrofoni, salli lupa ja valitse Äänituloksi Scarlett Solo. Soita jokainen vapaa kieli. Odotus: mittari nousee kynnysviivan yli, sävel on E2, A2, D3, G3, B3 ja E4, vire muutaman sentin sisällä ja varmuus yli 94 %. Kanavanumero vastaa tuloa, johon kitara on kytketty.
 2. **Hiljaisuus ja kohina.** Älä soita: tila on ”ääntä ei kuulu”. Paina Mittaa taustakohina. Hankaa kieliä tai puhu: tila on ”säveltä ei tunnisteta”, eikä mittari jää paikoilleen.
@@ -309,6 +331,9 @@ Nämä ovat harkintaan perustuvia valintoja, ja ne voi perua vaikuttamatta muuhu
 
 ## Julkaisuvalmius
 
+Tämä arvio on kirjoitettu ennen julkaisua. Versio julkaistiin kokonaisuutena
+11.11.2026, myös mikrofonilla vastaaminen (katso Julkaisun jälkeen).
+
 - **Otelaudalla vastaaminen, vihjeet, harjoittelutavat, tilastot ja tallennus:** valmis julkaistavaksi katselmoinnin jälkeen.
 - **Mikrofonitesti:** valmis kokeiltavaksi. Se ei voi vahingoittaa tuloksia, ja se on väline hyväksyntätestien tekemiseen.
 - **Mikrofonilla vastaaminen:** julkaise vasta hyväksyntätestien 1–6 jälkeen. Logiikka on testattu, mutta kynnysarvot ja alukkeen tunnistus ovat validoimatta oikealla soittimella.
@@ -325,15 +350,17 @@ tallennusversion, ei kirjoita sen päälle vaan näyttää varoituksen.
 | `bcd3bd6` | Nimeä kitaraharjoittelija navigaatiossa samalla nimellä kuin sivulla. |
 | `3ed7fbb` | Lisää yksikkötestien kattavuusmittaus. |
 | `5b876bc` | Tämä raportti, `README.md` ja `harjoittelija/README.md`. |
+| `f185378`, `4106d67` | Raportin täydennykset: pull requestin tiedot, esikatselu ja kävijämittaus. |
+| `d90f712` | Pull requestin 2 yhdistäminen `main`-haaraan 11.11.2026. |
 
-Koko loki: `git log --oneline e17b593..fix/harjoittelija-auditointi`.
+Koko loki: `git log --oneline e17b593..d90f712`.
 
 Pull request: [ristotoivanen/Musiikin-kartta#2](https://github.com/ristotoivanen/Musiikin-kartta/pull/2),
-haarasta `fix/harjoittelija-auditointi` haaraan `main`. Sitä ei yhdistetä automaattisesti.
+haarasta `fix/harjoittelija-auditointi` haaraan `main`. Se yhdistettiin 11.11.2026 Riston pyynnöstä.
 
 **Esikatselu:** Cloudflare Pages rakentaa haarasta erillisen esikatselun osoitteeseen
 <https://fix-harjoittelija-auditointi.musiikin-kartta.pages.dev/kitaraharjoittelija>.
 Se on HTTPS-osoite, joten mikrofoni toimii siinä, ja hyväksyntätestit voi tehdä siellä
 koskematta tuotantoon. Esikatselun selaintallennus on erillinen: rinnepelto.comin
-harjoitustulokset eivät näy siellä eivätkä muutu. Tuotanto (rinnepelto.com) on
-tarkistettu muuttumattomaksi haaran pushin jälkeen.
+harjoitustulokset eivät näy siellä eivätkä muutu. Ennen yhdistämistä tuotanto
+(rinnepelto.com) tarkistettiin muuttumattomaksi haaran pushin jälkeen.
