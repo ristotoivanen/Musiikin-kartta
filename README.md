@@ -45,6 +45,12 @@ Vastaa otelautaruudukolla tai soita yksi sävel kerrallaan mikrofoniin / äänik
 Mikrofoni tunnistaa sävelkorkeutta, eikä sen perusteella voida varmistaa käytettyä
 kieltä tai nauhaa. Ääntä ei tallenneta eikä lähetetä palvelimelle.
 
+Harjoittelutapoja on kolme. **Testaa osaamistasi** on oletus: oikea kohta ei näy,
+ja vihjeen saa pyytämällä. **Opettele** näyttää vastauksen heti, ja **Vähennä
+vihjeitä** poistaa vihjeet asteittain. Vihjeen kanssa annetut vastaukset tilastoidaan
+erikseen. **Testaa mikrofoni** näyttää äänitason, tunnistetun sävelen, taajuuden ja
+vireen ennen harjoitusta, eikä se vaikuta tuloksiin.
+
 Tulokset tallentuvat paikallisesti selaimeen. Oppaan vanhat lukumerkinnät säilyvät.
 Harjoittelijan käyttö tarvitsee HTTP-palvelimen; mikrofonikäyttö tarvitsee
 localhost-osoitteen tai HTTPS:n. Valmiit build-tiedostot ovat repossa, joten
@@ -67,6 +73,7 @@ npm run dev
 npm run check       # ESLint, yksikkötestit, TypeScript ja staattinen tuotantobuild
 npm run test:e2e    # työpöytä + puhelin, paikallinen HTTP-palvelin käynnistyy itse
 PRACTICE_TEST_DEV=1 npm run test:e2e # samat selaintestit Viten lähdekoodipalvelimella
+npm run coverage    # yksikkötestien kattavuus logiikkamoduuleille
 npm audit          # myös kehitysriippuvuuksien tarkistus
 ```
 
@@ -74,11 +81,16 @@ E2E-testit käyttävät Macille asennettua Chromea, jos se löytyy. Muissa ympä
 asenna testiselain komennolla `npx playwright install chromium` tai anna
 `PLAYWRIGHT_CHROME_EXECUTABLE`-ympäristömuuttujassa oman Chromiumin polku.
 Puhelintesti on Chromiumin laite-emulointi, ei fyysisellä iPhonella tehty Safari-testi.
+Testiselain käynnistyy ilman äänilähtöä, ja mikrofonitestit käyttävät simuloitua
+signaalia. Ne eivät korvaa oikealla kitaralla tehtävää hyväksyntätestiä.
 
 `npm run build` päivittää `assets/harjoittelija/`-hakemiston JavaScriptin, CSS:n,
 lähdekartan ja lisenssi-ilmoitukset. Julkaisussa tarvitaan koko nykyinen staattinen
 sivusto sekä nämä tuotokset. Tavalliset lukusivut eivät lataa React-harjoittelijaa.
-Build ei julkaise sivustoa. [Käyttöohje ja kehitysraportti](reviews/fretecho-kehityskatselmus.md)
-kuvaavat asetukset, URL-parametrit, testitulokset ja jatkotestauksen.
+Build ei julkaise sivustoa. [Auditointiraportti](reviews/kitaraharjoittelija-auditointi.md)
+kuvaa nykytilan, testitulokset, mikrofonitunnistuksen rajoitukset ja oikealla
+kitaralla tehtävät hyväksyntätestit. [Kehittäjän ohje](harjoittelija/README.md) kuvaa
+rakenteen ja tallennusmuodon, ja [alkuperäinen kehitysraportti](reviews/fretecho-kehityskatselmus.md)
+URL-parametrit ja integraation taustan.
 
 Ohjelmiston lisenssitiedot ovat [LICENSE-tiedostossa](LICENSE).

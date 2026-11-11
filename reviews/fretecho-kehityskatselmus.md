@@ -2,6 +2,11 @@
 
 10.11.2026 · Musiikin kartta · haara `feature/fretecho`
 
+> **Huomio 11.11.2026:** tämä raportti kuvaa ensimmäisen integraation. Vihjeiden
+> oletus, mikrofonin käsittely, tilastokohteet ja tallennusversio ovat sen jälkeen
+> muuttuneet. Ajantasainen kuvaus on
+> [auditointiraportissa](kitaraharjoittelija-auditointi.md).
+
 ## Tulos
 
 Staattiseen sivustoon on toteutettu toimiva, suomenkielinen React/TypeScript-

@@ -5,92 +5,148 @@ ainoastaan `kitaraharjoittelija.html`-sivun, `assets/otelauta.css`:n ja buildatu
 `assets/harjoittelija/`-hakemiston. Ei palvelinrajapintoja, tunnuksia, analytiikkaa,
 CDN-riippuvuuksia tai service workeriä.
 
-## Rajapinnat
+Ajantasainen tilanne, testitulokset, rajoitukset ja oikealla kitaralla tehtävät
+hyväksyntätestit: [`../reviews/kitaraharjoittelija-auditointi.md`](../reviews/kitaraharjoittelija-auditointi.md).
 
-- `music.ts`: sovitin nykyiseen `assets/otelauta.js`:ään. Asteikkosävelet,
-  oikeinkirjoitus, vakioviritys ja sormitusboksit lasketaan olemassa olevalla
-  kirjastolla. Uutena vain harjoituskohteet, kolmen sointutyypin asteet ja CAGED.
+## Moduulit
+
+- `music.ts`: sovitin nykyiseen `assets/otelauta.js`:ään. Viritys, asteikot, asteiden
+  kirjoitusasu ja sormitusboksit lasketaan yhteisellä kirjastolla. Omaa ovat vain
+  kolmen sointutyypin asteet, intervallien nimet ja CAGED-muodot. Testi varmistaa,
+  että CAGED-muodot ovat samat avosoinnut kuin kirjaston `chordGrip`.
+- `settings.ts`: asetusten validointi, URL-parametrit ja vastaustavan päättely.
 - `engine.ts`: selaimesta ja Reactista riippumaton kysymys- ja tilamoottori.
-  Satunnaisluku ja kello voidaan injektoida testeihin. Tilat: idle → active →
-  feedback → active/done, active/feedback → paused → aiempi tila, mistä tahansa
-  done. Käyttäjä siirtyy seuraavaan kysymykseen itse; automaattisia siirtymäajastimia
-  ei ole.
-- `vendor/`: MIT-lisensoidut FretEcho-sovitukset. `notes.ts` on alkuperäinen,
-  mikrofonin ja tunnistuksen sovitukset on kuvattu arkkitehtuuriraportissa.
-- `audio.ts`: mikrofonin ja esimerkkisävelten elinkaari. Operaatiotunniste estää
-  myöhäisen lupavastauksen ja perutun toiston muuttamasta uutta harjoitusta.
-- `storage.ts`: versioitu tietomalli ja virheenkestävä selaintallennus.
-- `Controls.tsx`, `Board.tsx`, `main.tsx`: suomenkielinen käyttöliittymä.
-  Otelautaruudukko on semanttinen taulukko; nuolinäppäimet, Home, End ja Enter
-  toimivat vastauksissa. Vihjeen vaakavieritys ei siirrä koko sivua.
+  Satunnaisluku ja kello voidaan injektoida testeihin.
+- `feedback.ts`: tehtäväohjeet, palautetekstit ja tilastokohteiden kuvaukset.
+- `storage.ts`: versioitu tietomalli, migraatiot ja virheenkestävä selaintallennus.
+- `audio.ts`: mikrofonin elinkaari, sivun yhteinen äänikonteksti, esimerkkisävelet.
+- `vendor/`: MIT-lisensoidut FretEcho-sovitukset. `notes.ts` on alkuperäinen.
+  `micInput.ts` ja `pitchDetector.ts` on sovitettu; muutokset on lueteltu tiedostojen alussa.
+- `Controls.tsx`, `MicPanel.tsx`, `Board.tsx`, `Progress.tsx`, `main.tsx`: käyttöliittymä.
 
-## Tunnistuksen rajat
+## Harjoittelutavat ja vihjeet
 
-Pitchy käyttää McLeod-menetelmää 8192 näytteen ikkunassa. Taajuusalue 70–1450 Hz
-kattaa tuetun E2–E6-otelaudan. Oletukset: RMS ≥ .01, selkeys ≥ .94, senttipoikkeama
-enintään ±35 ja sama sävel vähintään 240 ms sekä vähintään kolme havaintokehystä.
-Ennen jokaista vastausta tarvitaan 140 ms vaimennusta. Havainnointi seuraa
-selaimen animaatiokehystä; piilotettu sivu keskeyttää harjoituksen. Näytön
-sävelmittarin päivityksiä rajoitetaan noin kahdeksaan sekunnissa.
+Asetus `hints` valitsee tavan. Arvot ovat samat kuin vanhassa vihjeasetuksessa,
+joten URL-parametri `vihjeet` toimii ennallaan.
 
-Arvot ovat konservatiivisia lähtöasetuksia, eivät fyysisillä kitaroilla validoitu
-optimointi. Hiljaisuuden kalibrointi mittaa kolmen sekunnin RMS-jakauman
-95. prosenttipisteen ja asettaa kynnykseksi kolminkertaisen arvon välillä .003–.15.
-Se ei kalibroi virettä, latenssia tai soittimen taajuusvastetta.
+| Arvo | Nimi | Toiminta |
+| --- | --- | --- |
+| `off` | Testaa osaamistasi (oletus) | Vastaus ei näy. Vihje avataan pyynnöstä. |
+| `always` | Opettele | Vastaus näkyy heti. Kaikki vastaukset kirjataan vihjeellisiksi. |
+| `fade` | Vähennä vihjeitä | Kysymykset 1–3 vastaus näkyvissä, 4–6 apupiste, loput ilman. |
 
-Mikrofonin väärä sävel on ehdotus, kunnes käyttäjä vahvistaa oman virheensä.
-Sävelluokkavertailu hyväksyy oktaavit. MIDI-vertailu vaatii saman oktaavin;
-virityksen toleranssi sovelletaan ennen MIDI-havainnon välittämistä moottorille.
-Oikea tulos ei ole todistus kielen, nauhan tai kokonaisen sointuotteen valinnasta.
+Vihjeellä on kaksi tasoa (`hintFor`): taso 1 on apupiste, josta vastauksen voi
+päätellä, ja taso 2 näyttää vastauksen. Moottori pitää kysymyksen korkeimman
+käytetyn tason (`hintLevel`), eikä se laske, vaikka käyttöliittymä piilottaa vihjeen.
+`Result.hint` on tosi, kun taso on yli nollan.
+
+| Harjoitus | Taso 1 | Taso 2 |
+| --- | --- | --- |
+| Otelaudan sävelet | kielen alin näkyvä sävel nimettynä | kysytty kohta |
+| Kuule ja toista | kieli, jolta sävel löytyy | kaikki kelpaavat kohdat |
+| Intervalli | alkusävelen kohdat | alkusävel, vastaus ja intervallin nimi |
+| Asteikko ja sointusävelet | perussävelet ja puoliaskelmäärä | asteen kohdat |
+| CAGED | muodon sävelet pisteinä | muoto asteineen |
+| Kuultu sävel (nimeäminen) | kohta otelaudalla ilman nimeä | sävelen nimi |
+| Asteen tunnistus | perussävelet ja kysytty sävel | aste |
+
+## Moottori
+
+Tilat: idle → active → feedback → active/done, active/feedback → paused → aiempi
+tila, mistä tahansa done. `validate` palauttaa syyn, jos valinnoilla ei voi
+muodostaa vastattavaa tehtävää; käyttöliittymä estää silloin aloituksen.
+
+- `practiceArea`: alue, jolta kysytään. Sormitusboksi ja CAGED-muoto määräävät
+  alueensa itse, joten tallennettu nauha-alue ei voi tehdä niistä mahdottomia.
+  `boardArea` lisää näytettävään otelautaan yhden nauhan kummallekin puolelle.
+- Otelaudan sävelet kysyy kohtaa (kieli ja nauha). Asteikko, sointusävelet ja CAGED
+  kysyvät astetta: mikä tahansa asteen kohta harjoitusalueella kelpaa.
+- Järjestyksessä soitettava asteikko käydään kerran läpi (`roundLength`), ja sen
+  oktaavi tarkistetaan aina (`answerCheck` palauttaa `pitch`).
+- Intervallitehtävässä valitaan ensin intervalli ja suunta, sitten sävelpari, jotta
+  pienet intervallit eivät yleisty vain siksi, että niitä mahtuu alueelle enemmän.
+- Mikrofonin vakaa mutta tehtävästä eriävä sävel palauttaa `candidate`. Se
+  kirjataan virheeksi vain, jos käyttäjä vahvistaa sen (`confirmWrong`).
+- `ms` mittaa ajan kysymyksen alusta oikeaan vastaukseen ilman taukoja, esimerkin
+  toistoa, mikrofonin avaamista ja sävelen vakaantumisaikaa (`heldMs`).
+
+## Mikrofoniketju
+
+`getUserMedia` → `MediaStreamAudioSourceNode` → (kanavajako) → `AnalyserNode` →
+Pitchy (McLeod) → analyysikehys → `NoteGate` → vastaus.
+
+- Äänitulo avataan ilman selaimen puheenkäsittelyä ja enintään kahdella kanavalla.
+  Kaksikanavaisesta äänikortista analysoidaan voimakkaampi kanava.
+- Analyysi-ikkuna on noin 170 ms näytteenottotaajuudesta riippumatta (8192 näytettä
+  44,1–48 kHz:llä, 16384 näytettä 96 kHz:llä, 32768 näytettä 192 kHz:llä).
+- Jokainen kehys raportoidaan (`AnalysisFrame`): lyhyen 50 ms ikkunan RMS ja huippu
+  sekä tila `silent`, `unclear`, `out-of-range`, `off-pitch` tai `pitch`. Tasomittari
+  toimii siis myös silloin, kun säveltä ei hyväksytä.
+- Oletusrajat: RMS ≥ 0,01 (−40 dBFS), selkeys ≥ 0,94, vire ±35 senttiä, taajuus
+  70–1450 Hz ja sama sävel vakaana 240 ms. Enintään 80 ms:n katkos ei nollaa vakausaikaa.
+- `NoteGate` päästää läpi yhden vastauksen näppäystä kohti. Uusi vastaus vaatii
+  120 ms hiljaisuutta tai uuden alukkeen (`OnsetDetector`: lyhyt taso vähintään
+  kaksinkertaistuu 300 ms:n pienimpään arvoon nähden). Soimaan jäänyt sävel tai
+  ylä-ääneksi kääntyvä havainto ei vastaa toista kertaa. Legato ilman uutta
+  näppäystä ei siis rekisteröidy.
+- Mikrofoni on auki koko kierroksen ajan. Se suljetaan tauolla, kierroksen lopussa,
+  testin lopettamisessa, välilehden piilottamisessa ja sivulta poistuttaessa.
+  Esimerkkiäänen ajaksi analyysi keskeytetään.
+- Sivulla on yksi yhteinen `AudioContext` (`audioContext()`), joka luodaan
+  ensimmäisellä käyttökerralla ja suljetaan sivulta poistuttaessa. Kontekstin
+  toistuva sulkeminen ja luominen voi jumittaa selaimen USB-äänikortilla.
+- Mikrofonitesti (`MicPanel`) käyttää samaa ketjua. Se ei koske moottoriin eikä
+  tallennukseen. Taustakohinan mittaus asettaa äänikynnyksen kolminkertaiseksi
+  kohinan 95. prosenttipisteeseen nähden, rajoissa 0,003–0,15.
+
+Arvot ovat perusteltuja lähtöasetuksia. Niitä ei ole validoitu oikealla kitaralla.
 
 ## Tallennussopimus
 
-Avain `musiikin-kartta:harjoittelu`, nykyinen `version: 2`:
+Avain `musiikin-kartta:harjoittelu`, nykyinen `version: 3`:
 
 ```text
 settings: validoidut harjoitusasetukset
-stats: avain → attempts, correct, errors, totalMs, lastSeen
-recent: enintään 500 ratkaistua tehtävää
-sessions: enintään 200 uusinta harjoituskertaa
+stats: avain → attempts, correct, errors, totalMs, lastSeen, ema, emaMs
+recent: enintään 500 ratkaistua tehtävää (hint, hintLevel, mismatches, first, errors, ms …)
+sessions: enintään 200 harjoituskertaa (count, first, solo, soloFirst, hints, complete …)
+notice: kertaluonteinen ilmoitus, esimerkiksi "hints-default"
 ```
 
-Tilastoavain on `vastaustapa:tarkistus:solo|guided:harjoituskohde`.
-Kohde erottaa sävelharjoituksen kieli/nauhan, soinnun perussävelen/tyypin/asteen,
-asteikon/boksin kohdan, CAGED-muodon tai intervallin/suunnan. Boksia ei lisätä
-erilliseen avaimeen: sama asteikkokohta jakaa tulokset riippumatta rajauksesta.
-Mikrofonin kohdalla kieli/nauha tarkoittaa kysyttyä kohdetta; otelautavastauksessa
-tallennetaan valittu kohta. Kuullun sävelen nimeämisessä avain perustuu sävelluokkaan.
+Tilastoavain on `vastaustapa:tarkistus:solo|guided:kohde`. Kohteet:
 
-`Result.first` tarkoittaa ratkaisua ilman yhtään kirjattua virhettä. `ms` mittaa
-kokonaisajan onnistuneeseen vastaukseen, mukaan lukien korjaavat yritykset mutta
-ilman taukoja tai esimerkin toistoa. `played` on MIDI sävelvastauksessa,
-sävelluokka nimivastauksessa ja puoliaskelmäärä astevastauksessa. `expected` on
-kysytty MIDI-sävel. Vihjeet merkitään myös automaattisesti avustetuissa kysymyksissä.
-Keskeneräisen kysymyksen yrityksiä ei kirjata ennen ratkaisua. Vastatut kysymykset
-tallentuvat heti; selaimen sulkeminen ei tarvitse erillistä loppukuittausta.
+```text
+notes:kieli:nauha                 ear-note:sävelluokka[:ref]      repeat:midi
+scale:toonika:asteikko:aste:tehtävä   chord:perussävel:tyyppi:aste:tehtävä
+caged:perussävel:muoto:aste           interval:puoliaskeleet:up|down
+```
 
-Osaamisarvio: 65 % ensimmäisen yrityksen tarkkuutta ja 35 % nopeutta
-(≤1,5 s = täysi nopeuspiste, ≥5 s = nolla nopeuspistettä). Alle kolme vastausta
-näytetään alustavina. Heikkojen painotus on FretEchon mallin mukaisesti 3 vähän
-harjoitelluille, muuten `.25 + (1 - osaaminen) * 3`; vahvatkin kohteet esiintyvät.
+Versio 2 tallensi asteikon, CAGEDin ja toiston kohteet kielen ja nauhan mukaan.
+Vanhat avaimet säilyvät tallenteessa ja `describeItem` osaa lukea ne, mutta uudet
+vastaukset kertyvät asteittain, jolloin kohteita on vähän ja painotus alkaa toimia.
 
-V1-mallin `{version:1, stats, settings, recent?, sessions?}` aineisto saa puuttuvat
-virhemäärät ja asetukset oletuksista. Korruptoitunutta tai tulevan version
-aineistoa ei kirjoiteta päälle; tämän käynnin tulokset jäävät muistiin ja ne voi
-ladata. Tallennuksen v1 on integraation oma yhteensopivuusmuoto, ei FretEchon
-erillisen sivuston tilastoformaatti. Oppaan `musiikin-kartta:tehdyt` ei muutu.
+Migraatio versioista 1–2: vanha vihjeoletus `fade` vaihtuu arvoon `off`, koska sitä
+ei voi erottaa käyttäjän omasta valinnasta, ja käyttäjälle näytetään kerran ilmoitus.
+Arvot `always` ja `off`, muut asetukset, tilastot, tulokset ja kierrokset säilyvät.
+Pelkkä lukeminen ei kirjoita mitään. Korruptoitunutta tai tulevan version aineistoa
+ei kirjoiteta päälle; tämän käynnin tulokset jäävät muistiin. Etusivun
+`assets/edistyminen.js` lukee versiot 2 ja 3. Oppaan lukumerkinnät ovat eri avaimissa.
+
+Osaamisarvio: 65 % heti oikein -osuutta ja 35 % nopeutta (≤ 2,5 s = täysi
+nopeuspiste, ≥ 8 s = nolla). Molemmat ovat liukuvia keskiarvoja (α = 0,3), joten
+arvio seuraa viimeisimpiä vastauksia. Alle kolme vastausta näytetään alustavina.
+Painotus: 3 vähän harjoitelluille, muuten `0,25 + (1 − osaaminen) × 3`.
 
 ## Build ja testit
 
-Repon juuresta: `npm ci`, `npm run check`, `npm run test:e2e`.
+Repon juuresta: `npm ci`, `npm run check`, `npm run test:e2e`,
+`PRACTICE_TEST_DEV=1 npm run test:e2e` ja `npm run coverage`.
 `npm run dev` palvelee portissa 5173 TypeScript-lähteitä. Tavallinen HTTP-palvelin
 palvelee commitoitua bundlea. `npm run build` päivittää bundlen ja MIT-ilmoitukset
 `tools/trainer-notices.mjs`:llä. Muuttuneesta musiikkikirjastosta tarvitaan aina
 uusi build, sillä harjoittelijan bundle sisältää sen oman kopion.
 
-ESLint tarkistaa uuden TypeScriptin ja asetukset. Nykyisten classic-skriptien
-syntaksi ja vanhat harjoitussivut tarkistetaan erillisillä regressiotesteillä.
-Testit ja build-asetukset kuuluvat myös tiukkaan TypeScript-tarkistukseen.
-E2E-kuvakaappaukset syntyvät `/private/tmp/mk-trainer-*.png`-tiedostoiksi Macilla.
-Ajantasainen tilanne, rajoitteet ja fyysiset hyväksyntätestit ovat
-[`../reviews/fretecho-kehityskatselmus.md`](../reviews/fretecho-kehityskatselmus.md).
+Selaintestit käynnistävät Chromen ilman äänilähtöä (`--disable-audio-output`).
+Mikrofonitestit käyttävät simuloitua äänivirtaa, joka kulkee oikean
+äänenkäsittelyn ja Pitchyn läpi (`tests/fakeMic.ts` ja `mockedMic`). Ne eivät ole
+oikealla kitaralla tehtyjä testejä. Kuvakaappaukset syntyvät `test-results/`-hakemistoon.
