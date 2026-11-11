@@ -91,7 +91,8 @@
   function setupPracticeSummary() {
     try {
       const data = JSON.parse(localStorage.getItem('musiikin-kartta:harjoittelu') || 'null');
-      if (data?.version !== 2 || !Array.isArray(data.sessions) || !data.sessions.length) return;
+      // Harjoittelijan tallennusversiot 2 ja 3 sisältävät saman sessions-taulukon.
+      if (![2, 3].includes(data?.version) || !Array.isArray(data.sessions) || !data.sessions.length) return;
       const last = data.sessions.at(-1);
       if (!Number.isFinite(last.count) || last.count < 0) return;
       const p = document.createElement('p');
