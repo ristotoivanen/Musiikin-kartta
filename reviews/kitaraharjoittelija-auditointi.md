@@ -323,8 +323,9 @@ tallennusversion, ei kirjoita sen päälle vaan näyttää varoituksen.
 | `8aee9d9` | Korjaa kitaraharjoittelijan vihjeet, mikrofoni ja tilastointi. Koodi, testit ja uusi build. |
 | `bcd3bd6` | Nimeä kitaraharjoittelija navigaatiossa samalla nimellä kuin sivulla. |
 | `3ed7fbb` | Lisää yksikkötestien kattavuusmittaus. |
-| dokumentaatiocommit | Tämä raportti, `README.md` ja `harjoittelija/README.md`. |
+| `5b876bc` | Tämä raportti, `README.md` ja `harjoittelija/README.md`. |
 
 Koko loki: `git log --oneline e17b593..fix/harjoittelija-auditointi`.
-Pull request avataan haarasta `fix/harjoittelija-auditointi` haaraan `main`.
-Sitä ei yhdistetä automaattisesti.
+
+Pull request: [ristotoivanen/Musiikin-kartta#2](https://github.com/ristotoivanen/Musiikin-kartta/pull/2),
+haarasta `fix/harjoittelija-auditointi` haaraan `main`. Sitä ei yhdistetä automaattisesti.
