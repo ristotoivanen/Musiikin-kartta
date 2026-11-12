@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Board } from './Board';
 import { BackingTrackMixer } from './BackingTrackMixer';
 import { ReferencePlayer, referenceAudioError } from './audio';
-import { bridgePositions, bridgeRoute, sharedPositionKeys } from './scaleBridgeData';
+import { bridgeAscending, bridgeCycle, bridgeOnce, bridgePositions, bridgeRoute, sharedPositionKeys } from './scaleBridgeData';
 import { note, pc, positionKey, stringName } from './music';
 import type { Mark } from './engine';
 
@@ -10,8 +10,8 @@ const PROGRESS_KEY = 'musiikin-kartta:skaalapolku:bridge-1-2:v1';
 const TEMPO_KEY = 'musiikin-kartta:skaalapolku:bridge-tempo:v1';
 const STEPS = [
   { title: 'Löydä yhteiset sävelet', detail: 'Tunnista, missä kaksi boksia liittyvät toisiinsa.' },
-  { title: 'Soita siirtymä', detail: 'Siirrä kättä saman asteikon sisällä ja palaa takaisin.' },
-  { title: 'Yhdistä muistista', detail: 'Toista sama reitti ilman kuvion apua.' },
+  { title: 'Soita koko asteikko', detail: 'Soita kaikkien kuuden kielen sävelpaikat ja harjoittele käsiaseman vaihto.' },
+  { title: 'Yhdistä muistista', detail: 'Soita koko 18 sävelpaikan sormitus ilman otelautavihjeitä.' },
   { title: 'Improvisoi kahdella positiolla', detail: 'Rakenna fraaseja molempien boksien sävelistä.' },
   { title: 'Yhdistäminen harjoiteltu', detail: 'Palaa kertaamaan kummankin position yhteistä otelauta-aluetta.' },
 ] as const;
@@ -44,12 +44,12 @@ export function ScaleBridgeJourney({ onBack, onPosition }: {
   const [showShared, setShowShared] = useState(false);
   const [hints, setHints] = useState<Hints>('roots');
   const [tempo, setTempo] = useState(readTempo);
-  const [playing, setPlaying] = useState<'route' | 'phrase' | null>(null);
+  const [playing, setPlaying] = useState<'whole' | 'once' | 'transition' | null>(null);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [audioError, setAudioError] = useState('');
   const player = useRef(new ReferencePlayer());
   const generation = useRef(0);
-  const active = activeIndex === null ? null : bridgeRoute[activeIndex];
+  const active = activeIndex === null ? null : bridgeCycle[activeIndex];
 
   function stopPlayback() {
     generation.current++;
@@ -73,18 +73,21 @@ export function ScaleBridgeJourney({ onBack, onPosition }: {
     };
   }, []);
 
-  async function listen(kind: 'route' | 'phrase') {
+  async function listen(kind: 'whole' | 'once' | 'transition') {
     const current = ++generation.current;
     player.current.stop();
     setActiveIndex(null);
     setAudioError('');
     setPlaying(kind);
     try {
-      if (kind === 'phrase') {
+      if (kind === 'transition') {
+        // Lyhyt fraasi havainnollistaa pelkkää käsiaseman vaihtoa.
         await player.current.play(bridgeRoute.map(position => position.midi));
+      } else if (kind === 'once') {
+        // Kaikki 18 erillistä sormituspaikkaa kuudella kielellä ylös ja alas.
+        await player.current.play(bridgeOnce.map(position => position.midi));
       } else {
-        // Vältä A-loppusävelen tuplaus jatkuvan loopin kierrosrajalla.
-        await player.current.loop(bridgeRoute.slice(0, -1).map(position => position.midi), index => {
+        await player.current.loop(bridgeCycle.map(position => position.midi), index => {
           if (current === generation.current) setActiveIndex(index);
         }, tempo);
       }
@@ -161,15 +164,16 @@ export function ScaleBridgeJourney({ onBack, onPosition }: {
 
       {step < 4 && <>
         {step === 0 && <>
-          <p>Kummassakin positiossa on 12 sävelpaikkaa, mutta yhteisiä paikkoja on kuusi. Niinpä näet yhteensä 18 erillistä paikkaa, et 24:ää.</p>
+          <p>Kummassakin positiossa on 12 sävelpaikkaa, mutta yhteisiä paikkoja on kuusi. Niinpä näet yhteensä 18 erillistä paikkaa, et 24:ää. Koko asteikon mallisoitto käy nämä kaikki läpi kuudella kielellä ylös ja alas.</p>
           <p><strong>Violetit reunustetut sävelet</strong> kuuluvat molempiin bokseihin. Vihreät A:t ovat pohjasäveliä. D-kielen 7. nauha on sekä yhteinen sävel että A-pohjasävel. Koko yhdistetyllä otelaudalla on neljä A-pohjasävelpaikkaa.</p>
         </>}
         {step === 1 && <>
-          <p>Soita ensin paksulla E-kielellä <strong>5 (A) → 8 (C) → 10 (D)</strong>. Nauha 8 on yhteinen kohta. Jatka A-kielellä <strong>7 (E) → 10 (G)</strong> ja D-kielellä <strong>7 (A) → 10 (C)</strong>. Palaa samaa reittiä. Vaihda käsiasemaa rauhallisesti, älä venytä sormia väkisin.</p>
-          <p>Reitti on yksi soitettava harjoitussarja, ei koko asteikon ylös–alas-kuvio. Se näyttää, miten siirtymä toimii käytännössä.</p>
+          <p>Soita ensin koko yhdistetty asteikko paksulta E-kieleltä ohuelle e-kielelle. Jokaisella kielellä on kolme eri nauhapaikkaa, yhteensä <strong>{bridgeAscending.length} paikkaa</strong>. Palaa samaa reittiä alas. Yhteiset sävelet muodostavat kohdat, joista pääset positiosta toiseen.</p>
+          <p>Erillisessä lyhyessä siirtymäfraasissa harjoittelet paksulla E-kielellä <strong>5 (A) → 8 (C) → 10 (D)</strong> sekä sen jälkeen A- ja D-kieliä. Se on vain käsiaseman vaihdon harjoitus, ei koko asteikko. Vaihda käsiasemaa rauhallisesti, älä venytä sormia väkisin.</p>
+          <p>Osa sävelkorkeuksista toistuu eri kielillä. Se on tarkoituksellista: harjoittelet myös niiden paikkojen löytämistä otelaudalta.</p>
         </>}
-        {step === 2 && <p>Soita sama siirtymä korvakuulolta ja muistista. Sävelet eivät näy oletuksena. Voit pyytää näkyviin vain molempien boksien kuusi yhteistä sävelpaikkaa. Palaa edelliseen vaiheeseen, jos tarvitset koko kuvion.</p>}
-        {step === 3 && <p>Soita Am-taustan päälle ensin kahden tahdin fraasi 1. positiosta ja vastaa siihen 2. positiosta. Käytä samoja yhteisiä säveliä siirtymäkohtina. Kokeile lopettaa A-säveleen ja pidä fraasien välissä taukoja.</p>}
+        {step === 2 && <p>Soita koko yhdistetty 18 paikan asteikko kuudella kielellä ylös ja alas muistista. Sävelet eivät näy oletuksena. Voit pyytää näkyviin vain molempien boksien kuusi yhteistä sävelpaikkaa. Palaa edelliseen vaiheeseen, jos tarvitset koko kuvion.</p>}
+        {step === 3 && <p>Kuuntele ensin koko yhdistetty asteikko tai lyhyt siirtymäfraasi. Soita Am-taustan päälle sitten kahden tahdin fraasi 1. positiosta ja vastaa siihen 2. positiosta. Käytä samoja yhteisiä säveliä siirtymäkohtina. Kokeile lopettaa A-säveleen ja pidä fraasien välissä taukoja.</p>}
 
         {step === 2 && <div className="scale-tempo" role="group" aria-label="Siirtymäharjoituksen tempo">
           <span>Tempo</span>
@@ -179,12 +183,17 @@ export function ScaleBridgeJourney({ onBack, onPosition }: {
           <small>Yksi sävel / isku. Voit muuttaa tempoa myös toiston aikana.</small>
         </div>}
         {step < 3 && <div className="action-row">
-          <button type="button" aria-pressed={playing === 'route'}
-            onClick={() => playing === 'route' ? stopPlayback() : void listen('route')}>
-            {playing === 'route' ? '■ Pysäytä siirtymä' : '▶ Toista siirtymää jatkuvasti'}
+          <button type="button" aria-pressed={playing === 'whole'}
+            onClick={() => playing === 'whole' ? stopPlayback() : void listen('whole')}>
+            {playing === 'whole' ? '■ Pysäytä koko asteikko' : '▶ Toista koko asteikko jatkuvasti'}
           </button>
-          <button type="button" onClick={() => playing === 'phrase' ? stopPlayback() : void listen('phrase')}>
-            {playing === 'phrase' ? '■ Pysäytä mallisoitto' : '▶ Kuuntele siirtymä kerran'}
+          <button type="button" aria-pressed={playing === 'once'}
+            onClick={() => playing === 'once' ? stopPlayback() : void listen('once')}>
+            {playing === 'once' ? '■ Pysäytä mallisoitto' : '▶ Kuuntele koko asteikko kerran'}
+          </button>
+          <button type="button" aria-pressed={playing === 'transition'}
+            onClick={() => playing === 'transition' ? stopPlayback() : void listen('transition')}>
+            {playing === 'transition' ? '■ Pysäytä siirtymäfraasi' : '▶ Kuuntele lyhyt siirtymäfraasi'}
           </button>
         </div>}
         {step === 2 && <div className="action-row">
@@ -207,15 +216,22 @@ export function ScaleBridgeJourney({ onBack, onPosition }: {
             </label>)}
           </fieldset>
           <div className="action-row">
-            <button type="button" onClick={() => void listen('phrase')}>▶ Kuuntele siirtymä kerran</button>
+            <button type="button" onClick={() => playing === 'once' ? stopPlayback() : void listen('once')}>
+              {playing === 'once' ? '■ Pysäytä koko asteikko' : '▶ Kuuntele koko asteikko kerran'}
+            </button>
+            <button type="button" onClick={() => playing === 'transition' ? stopPlayback() : void listen('transition')}>
+              {playing === 'transition' ? '■ Pysäytä siirtymäfraasi' : '▶ Kuuntele siirtymäfraasi'}
+            </button>
           </div>
         </>}
         {step !== 3 && <p className="tools-note" role="status" aria-live="polite">
-          {playing === 'route'
+          {playing === 'whole'
             ? active && step < 2
               ? `Nyt soi ${note(active.midi, false, true)} · ${stringName[active.string]}-kieli, nauha ${active.fret}.`
-              : 'Siirtymän toisto käynnissä. Pysäytä painikkeesta.'
-            : 'Mallisoitto etenee paksulta E-kieleltä A- ja D-kielille, sitten takaisin.'}
+              : 'Koko yhdistetyn asteikon toisto käynnissä. Pysäytä painikkeesta.'
+            : playing === 'once' ? 'Koko asteikko soi kerran kuudella kielellä ylös ja alas.'
+            : playing === 'transition' ? 'Lyhyt siirtymäfraasi soi kolmella paksuimmalla kielellä.'
+            : 'Koko mallisoitto kattaa kaikki kuusi kieltä. Lyhyt siirtymäfraasi harjoittaa vain käsiaseman vaihtoa.'}
         </p>}
         {audioError && <p role="alert" className="error">{audioError}</p>}
         <Board area={{ strings: [0, 1, 2, 3, 4, 5], min: 5, max: 10, fixed: 'box' }}
