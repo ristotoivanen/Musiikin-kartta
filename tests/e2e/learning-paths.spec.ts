@@ -63,6 +63,38 @@ test.describe('Uudet oppimispolut', () => {
     await expect(page.getByRole('button', { name: '▶ Toista asteikkoa jatkuvasti' })).toHaveAttribute('aria-pressed', 'false');
   });
 
+  test('asteikon toisto näyttää soivan sävelen otelaudalla mutta ei paljasta muistiharjoitusta', async ({ page }) => {
+    await page.goto('/kitaraharjoittelija.html');
+    await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
+
+    // Kuuntele ja tutustu: jatkuva toisto sekä otelaudalla liikkuva sävelkorostus.
+    await page.getByRole('button', { name: '▶ Toista asteikkoa jatkuvasti' }).click();
+    const highlight = page.locator('.practice-board td.playing button');
+    await expect(highlight).toHaveCount(1);
+    await expect(page.getByRole('status')).toContainText('Nyt soi:');
+    const initial = await highlight.getAttribute('data-string') + ':' + await highlight.getAttribute('data-fret');
+    await expect.poll(async () => {
+      const current = page.locator('.practice-board td.playing button');
+      return await current.getAttribute('data-string') + ':' + await current.getAttribute('data-fret');
+    }, { timeout: 3500 }).not.toBe(initial);
+
+    await page.getByRole('button', { name: '■ Pysäytä asteikon toisto' }).click();
+    await expect(highlight).toHaveCount(0);
+
+    // Sormitusharjoituksessa sama toisto korostaa soitettavat kohdat.
+    await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
+    await page.getByRole('button', { name: '▶ Toista asteikkoa jatkuvasti' }).click();
+    await expect(highlight).toHaveCount(1);
+
+    // Muistiharjoituksessa otelauta on piilossa myös silloin, kun malliääni soi.
+    await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
+    await expect(page.locator('.practice-board .dot')).toHaveCount(0);
+    await page.getByRole('button', { name: '▶ Toista asteikkoa jatkuvasti' }).click();
+    await expect(page.getByRole('button', { name: '■ Pysäytä asteikon toisto' })).toBeVisible();
+    await expect(page.locator('.practice-board .dot')).toHaveCount(0);
+    await page.getByRole('button', { name: '■ Pysäytä asteikon toisto' }).click();
+  });
+
   test('sointupolku tarjoaa vanhan sointusävelharjoituksen ilman kaikkien harjoitusten valikkoa', async ({ page }) => {
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Soinnut ja musiikin rakenne/ }).click();
