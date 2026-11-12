@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { SONG_CHARTS, barStartTime, chordAt, sectionBarDuration, songClock, type SongVersion, type SongChord } from './songChart';
+import { SONG_CHARTS, barStartTime, chordAt, songClock, type SongVersion, type SongChord } from './songChart';
 import {
   CHORD_NAMES, SONG_HINT_STORAGE_KEY, isChordHidden, loadSongHintSettings,
   type FadeStep, type PracticeLevel,
@@ -165,8 +165,5 @@ export function SongChordChart({version, position, onSeek}: {
       {section.lyrics.map((line,i) => <p key={i}>{line}</p>)}
     </div>}
     {showExplanations && section.note && <p className="song-chord-note">{section.note}</p>}
-    <p className="tools-note">Paina tahtia hypätäksesi sen alkuun. Kahden soinnun tahdissa vaihto on noin kolmannella iskulla.
-      Aikaleimat ovat likimääräisiä ({sectionBarDuration(sectionIndex,version).toFixed(2).replace('.',',')} s/tahti).
-      Piilotetun soinnun voi paljastaa yksittäiseksi vihjeeksi, jonka jälkeen seuraava sointu piilotetaan taas.</p>
   </section>;
 }
