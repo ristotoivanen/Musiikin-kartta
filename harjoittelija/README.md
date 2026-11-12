@@ -36,7 +36,7 @@ pysyvät piilossa. Mikrofoni- tai verkkoyhteyttä ei tarvita asteikon
 mallisoittoon.
 
 **Improvisoi taustan päälle** käyttää uutta BackingTrackMixer-komponenttia:
-käyttäjälle näkyy yksi soitin ja huomaamaton Mallikitara-valinta. Molemmat
+käyttäjälle näkyy yksi soitin ja huomaamaton Kitara kuuluu -valinta. Molemmat
 MP3-raidat soivat samanaikaisesti, mutta sähkökitara on oletuksena
 mykistetty. Kitaran voi lisätä tai poistaa kesken toiston. Kesto on
 molemmissa 3:59,760 ja aikakohdat pidetään lähellä toisiaan vertaamalla
@@ -355,7 +355,7 @@ uusissa sävelten etsinnän ja pentatonisen oppimispoluissa on omat teorialinkit
 Alareunan kaksoiskappale poistettiin.
 
 Improvisointiharjoituksen Am-taustassa on oletuksena pois käytöstä oleva
-**Soita looppina** -valinta Mallikitara-valinnan vieressä. Valinta asettaa
+**Soita looppina** -valinta Kitara kuuluu -valinnan vieressä. Valinta asettaa
 samanaikaisesti molempien ääniraitojen loop-tilan eikä katkaise soivaa raitaa.
 Malliäänen mykistys toimii siitä riippumatta. HTMLMediaElement-pohjainen
 kaksiraitainen looppi ei ole näytetarkka: kierrosrajalla voi esiintyä pientä

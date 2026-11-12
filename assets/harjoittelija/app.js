@@ -6927,10 +6927,7 @@ function Xm() {
               onChange: (z) => B(z.target.checked)
             }
           ),
-          /* @__PURE__ */ l.jsxs("span", { children: [
-            "Mallikitara ",
-            f ? "päällä" : "pois"
-          ] })
+          /* @__PURE__ */ l.jsx("span", { children: "Kitara kuuluu" })
         ] }),
         /* @__PURE__ */ l.jsxs("label", { className: "guitar-toggle", children: [
           /* @__PURE__ */ l.jsx(

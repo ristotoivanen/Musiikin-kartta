@@ -105,7 +105,7 @@ export function BackingTrackMixer() {
         <label className="guitar-toggle">
           <input type="checkbox" checked={guitarOn}
             onChange={event => toggleGuitar(event.target.checked)} />
-          <span>Mallikitara {guitarOn ? 'päällä' : 'pois'}</span>
+          <span>Kitara kuuluu</span>
         </label>
         <label className="guitar-toggle">
           <input type="checkbox" checked={loopOn}

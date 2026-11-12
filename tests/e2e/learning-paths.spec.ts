@@ -394,7 +394,7 @@ test.describe('Uudet oppimispolut', () => {
     await expect(tracks.nth(0)).toHaveAttribute('src', 'assets/audio/harjoittelija/am-vamp-without-guitar.mp3');
     await expect(tracks.nth(1)).toHaveAttribute('src', 'assets/audio/harjoittelija/am-vamp-electric-guitar.mp3');
 
-    const guitar = mixer.getByRole('checkbox', { name: 'Mallikitara pois' });
+    const guitar = mixer.getByRole('checkbox', { name: 'Kitara kuuluu' });
     await expect(guitar).not.toBeChecked();
     await expect(tracks.nth(1)).toHaveJSProperty('muted', true);
     const loop = mixer.getByRole('checkbox', { name: 'Soita looppina' });
@@ -413,10 +413,10 @@ test.describe('Uudet oppimispolut', () => {
     await expect(mixer.getByRole('button', { name: '■ Tauko' })).toBeVisible();
 
     await guitar.check();
-    await expect(mixer.getByRole('checkbox', { name: 'Mallikitara päällä' })).toBeChecked();
+    await expect(mixer.getByRole('checkbox', { name: 'Kitara kuuluu' })).toBeChecked();
     await expect(tracks.nth(1)).toHaveJSProperty('muted', false);
     await expect(mixer.getByRole('button', { name: '■ Tauko' })).toBeVisible();
-    await mixer.getByRole('checkbox', { name: 'Mallikitara päällä' }).uncheck();
+    await mixer.getByRole('checkbox', { name: 'Kitara kuuluu' }).uncheck();
     await expect(tracks.nth(1)).toHaveJSProperty('muted', true);
     await expect(mixer.getByRole('button', { name: '■ Tauko' })).toBeVisible();
 
