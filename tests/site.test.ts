@@ -6,6 +6,20 @@ describe('staattisen sivuston yhteensopivuus',()=>{
   it('muutetut nykyiset skriptit ovat syntaktisesti kelvollisia classic-skriptejä',()=>{
     for(const file of ['assets/otelauta.js','assets/visualizer.js','assets/edistyminen.js','assets/harjoitustausta.js','assets/korvatreeni.js']) expect(()=>new Script(read(file))).not.toThrow();
   });
+  it('otelautakartassa ei ole harjoitus- tai äänentoistotoimintoja', () => {
+    const visualizer = read('otelautaharjoittelija.html');
+    const redirect = read('harjoitustaustat.html');
+    const home = read('index.html');
+    expect(visualizer).toContain('assets/visualizer.js');
+    expect(visualizer).not.toContain('assets/oktaavit.js');
+    expect(visualizer).not.toContain('assets/harjoitustausta.js');
+    expect(visualizer).not.toContain('<audio');
+    expect(visualizer).toContain('Sormitusboksit ja näyttöasetukset');
+    expect(redirect).toContain('otelautaharjoittelija.html');
+    expect(home).toContain('Tutki otelautakarttaa');
+    expect(home).not.toContain('Soita taustan mukana');
+  });
+
   it('oppaan osat säilyttävät luvut, vanhat kuuntelut ja pelkät harjoituslinkit',()=>{
     for(const part of Array.from({length: 11}, (_, index) => index + 1)){
       const html=read(`book/osa-${part}.html`);
