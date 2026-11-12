@@ -419,3 +419,24 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
   .song-hint-level select { width: 100%; }
   .song-fade-order { grid-template-columns: 1fr; }
 }
+
+
+/* Koko kappaleen sanoitus aukeaa erikseen sointunäkymän yhteyteen. */
+.song-all-lyrics {
+  margin-top: 16px; padding: 16px; background: var(--bg);
+  border: 1px solid var(--line); border-radius: 10px;
+}
+.song-all-lyrics > h4 { font-size: 16px; margin: 0 0 14px; }
+.song-all-lyrics-grid {
+  display: grid; grid-template-columns: repeat(2,minmax(0,1fr));
+  column-gap: 24px; row-gap: 18px; align-items: start;
+}
+.song-lyrics-stanza { min-width: 0; }
+.song-lyrics-stanza h5 {
+  color: var(--lavender); font-size: 14px; margin: 0 0 8px; font-weight: 700;
+}
+.song-lyrics-stanza p { margin: 2px 0; line-height: 1.6; }
+.song-all-lyrics > .tools-note { margin: 14px 0 0; }
+@media (max-width: 650px) {
+  .song-all-lyrics-grid { grid-template-columns: 1fr; }
+}
