@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Board } from './Board';
 import { BackingTrackMixer } from './BackingTrackMixer';
 import { ScaleBridgeJourney } from './ScaleBridgeJourney';
-import { ReferencePlayer } from './audio';
+import { ReferencePlayer, referenceAudioError } from './audio';
 import { at, music, note, pc, stringName } from './music';
 import type { Mark } from './engine';
 
@@ -161,8 +161,8 @@ export function ScaleJourney({ onBack }: { onBack: () => void }) {
           if (current === token.current) setActiveIndex(index);
         }, step === 2 ? tempo : DEFAULT_TEMPO);
       }
-    } catch {
-      if (current === token.current) setAudioError('Mallisoitto ei käynnistynyt. Tarkista selaimen ääniasetukset ja yritä uudelleen.');
+    } catch (error) {
+      if (current === token.current) setAudioError(referenceAudioError(error));
     } finally {
       if (current === token.current) { setPlaying(null); setActiveIndex(null); }
     }
