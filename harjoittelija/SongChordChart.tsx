@@ -51,7 +51,7 @@ export function SongChordChart({version, position, onSeek}: {
 
   return <section className="song-chord-panel" aria-labelledby="song-chord-heading">
     <div className="session-top">
-      <h3 id="song-chord-heading">Soinnut ja sanat</h3>
+      <h3 id="song-chord-heading">Harjoituskartta</h3>
       <span>{hints.showChords && hints.level === 0 ? 'G-molli · ' : ''}4/4 · noin 69 BPM</span>
     </div>
 
