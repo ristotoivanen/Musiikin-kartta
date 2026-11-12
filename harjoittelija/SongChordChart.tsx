@@ -41,7 +41,7 @@ export function SongChordChart({version, position, onSeek}: {
           className={'song-measure'+(selected?' active':'')}
           aria-pressed={selected}
           aria-label={'Tahti '+(index+1)+': '+contents+'. Siirry kohtaan '+songClock(barStartTime(sectionIndex,index,version))}
-          onClick={()=>onSeek(barStartTime(sectionIndex,index))}>
+          onClick={()=>onSeek(barStartTime(sectionIndex,index,version))}>
           <span className="song-measure-number">Tahti {index+1}</span>
           <span className="song-measure-chords">
             <strong className={firstOn?'now':''}>{bar.first}</strong>
