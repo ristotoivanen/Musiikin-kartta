@@ -28,7 +28,8 @@ function readProgress(): number {
 export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void; onOpenOldExercise: () => void }) {
   const [unlocked, setUnlocked] = useState(readProgress);
   const [step, setStep] = useState(readProgress);
-  const [showHints, setShowHints] = useState(true);
+  // 0 = koko kuvio, 1 = vain A-pohjasävelet, 2 = ilman kuvion apumerkkejä.
+  const [hintLevel, setHintLevel] = useState(0);
   const [playing, setPlaying] = useState<'scale' | 'phrase' | null>(null);
   const audio = useRef(new ReferencePlayer());
   const token = useRef(0);
@@ -44,9 +45,9 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
   const examplePhrase = [69, 72, 69, 67, 64, 67, 69];
   const min = box.start, max = box.end;
   const marks: Mark[] = played
-    .filter(position => step < 2 || showHints || pc(position.midi) === 9)
+    .filter(position => step < 2 || hintLevel === 0 || (hintLevel === 1 && pc(position.midi) === 9))
     .map(position => ({
-      ...position, label: step === 2 && !showHints ? 'A' : note(position.midi),
+      ...position, label: hintLevel === 1 && step >= 2 ? 'A' : note(position.midi),
       kind: pc(position.midi) === 9 ? 'answer' as const : 'shape' as const,
     }));
 
@@ -62,7 +63,7 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
   }
   function completeStep() {
     const next = Math.min(4, step + 1);
-    setStep(next); setShowHints(next < 2);
+    setStep(next); setHintLevel(next >= 3 ? 2 : 0);
     if (next > unlocked) {
       setUnlocked(next);
       try { localStorage.setItem(PROGRESS_KEY, String(next)); } catch { /* Selain voi estää tallennuksen. */ }
@@ -71,7 +72,7 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
   function selectStep(index: number) {
     if (index > unlocked) return;
     token.current++; audio.current.stop(); setPlaying(null);
-    setStep(index); setShowHints(index < 2);
+    setStep(index); setHintLevel(index >= 3 ? 2 : 0);
   }
 
   return <section className="scale-journey" aria-labelledby="scale-path-title">
@@ -96,7 +97,7 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
       {step < 4 && <>
         {step === 0 && <p>Kuuntele ensin asteikko hitaasti. Sen jälkeen kuulet lyhyen sävelistä rakennetun mallifraasin. Fraasi on syntetisoitu esimerkki, ei kitaralla äänitetty soolo.</p>}
         {step === 1 && <p>Soita paksulta E-kieleltä alkaen jokaisen kielen alempi ja ylempi sävel, kunnes saavut ohuelle E-kielelle. Palaa samaa reittiä alas. Aloita ilman tempo- tai nopeusvaatimusta. Pyri puhtaaseen ääneen.</p>}
-        {step === 2 && <p>Katso ensin kuvio. Piilota sitten sävelten paikat ja soita koko positio ylös ja alas muistista. A-pohjasävelet jäävät avuksi näkyviin. Jos unohdat, avaa vihje hetkeksi.</p>}
+        {step === 2 && <p>Katso ensin koko kuvio. Vähennä sitten vihjeitä kahdessa vaiheessa: ensin näkyvät vain A-pohjasävelet, lopuksi ei yhtään merkkiä. Soita positio muistista molempiin suuntiin.</p>}
         {step === 3 && <p>Kuuntele mallifraasi. Käynnistä sitten Am-tausta ja soita aluksi vain 2–3 eri säveltä. Kokeile taukoja, toistoa ja pitkää lopetussäveltä A. Vasta sitten laajenna koko positioon.</p>}
         {step !== 3 && <div className="action-row">
           <button type="button" onClick={() => void listen('scale')}>{playing === 'scale' ? 'Soitetaan asteikkoa…' : '▶ Kuuntele asteikko ylös ja alas'}</button>
@@ -104,7 +105,10 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
         </div>}
         {step >= 1 && step <= 3 && <>
           {step >= 2 && <div className="action-row">
-            <button type="button" aria-pressed={showHints} onClick={() => setShowHints(value => !value)}>{showHints ? 'Piilota vihjeet' : 'Näytä sävelet'}</button>
+            {hintLevel < 2 && <button type="button" onClick={() => setHintLevel(value => Math.min(2, value + 1))}>
+              {hintLevel === 0 ? 'Näytä vain pohjasävelet' : 'Piilota loputkin vihjeet'}
+            </button>}
+            {hintLevel > 0 && <button type="button" onClick={() => setHintLevel(0)}>Näytä koko kuvio</button>}
             {step === 3 && <button type="button" onClick={() => void listen('phrase')}>▶ Mallifraasi</button>}
           </div>}
           <Board area={{ strings: [0,1,2,3,4,5], min, max, fixed: 'box' }} marks={marks} disabled caption="A-mollipentatoninen, positio 1" />
