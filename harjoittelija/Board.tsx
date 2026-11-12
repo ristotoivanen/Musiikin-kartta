@@ -28,8 +28,8 @@ function FretHeader({ min, max }: { min: number; max: number }) {
  * Vastausotelauta. Semanttinen taulukko: rivit ovat kielet (ohut E ylimpänä, kuten tabulatuurissa),
  * sarakkeet nauhat. Nuolinäppäimet, Home ja End siirtävät kohdistusta, Enter vastaa.
  */
-export function Board({ area, marks = [], disabled = false, onAnswer, caption = 'Otelauta' }:
-  { area: Area; marks?: Mark[]; disabled?: boolean; onAnswer?: (p: Position) => void; caption?: string }) {
+export function Board({ area, marks = [], mutedStrings = [], disabled = false, onAnswer, caption = 'Otelauta' }:
+  { area: Area; marks?: Mark[]; mutedStrings?: number[]; disabled?: boolean; onAnswer?: (p: Position) => void; caption?: string }) {
   const columns = { '--cols': area.max - area.min + 1 } as CSSProperties;
   const { strings, min, max } = area;
   const [cursor, setCursor] = useState({ string: Math.min(...strings), fret: min });
@@ -46,7 +46,10 @@ export function Board({ area, marks = [], disabled = false, onAnswer, caption = 
     <table className="practice-board" style={columns}><caption>{caption} · ohut e ylhäällä, paksu E alhaalla</caption>
       <FretHeader min={min} max={max} />
       <tbody>{music.OPEN_PITCHES.map((_, string) => <tr key={string} className={strings.includes(string) ? '' : 'unused'} style={stringThickness(string)}>
-        <th scope="row" aria-label={`${string + 1}. kieli: ${stringName[string]}`}><StringLabel string={string} /></th>
+        <th scope="row" aria-label={`${string + 1}. kieli: ${stringName[string]}${mutedStrings.includes(string) ? ', ei soiteta' : ''}`}>
+          <StringLabel string={string} />
+          {mutedStrings.includes(string) && <span className="string-muted" aria-hidden="true">×</span>}
+        </th>
         {positions([string], min, max).map(p => {
           const m = byKey.get(positionKey(p));
           const place = `${stringName[string]}-kieli, ${fretName(p.fret)}`;
