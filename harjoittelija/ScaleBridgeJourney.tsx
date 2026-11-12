@@ -124,7 +124,7 @@ export function ScaleBridgeJourney({ onBack, onPosition }: {
   const marks: Mark[] = bridgePositions.filter(position => show(position.midi, positionKey(position)))
     .map(position => ({
       ...position,
-      label: step < 2 || (step === 3 && hints === 'all') ? note(position.midi) : 'A',
+      label: step < 2 || (step === 2 && showShared) || (step === 3 && hints === 'all') ? note(position.midi) : 'A',
       kind: step < 2 && active?.string === position.string && active?.fret === position.fret
         ? 'playing' as const
         : isRoot(position.midi) ? 'answer' as const
@@ -140,7 +140,7 @@ export function ScaleBridgeJourney({ onBack, onPosition }: {
     <div className="action-row" role="group" aria-label="Valitse opeteltava positio">
       <button type="button" onClick={() => { stopPlayback(); onPosition(1); }}>Positio 1</button>
       <button type="button" onClick={() => { stopPlayback(); onPosition(2); }}>Positio 2</button>
-      <button type="button" aria-pressed="true">Yhdistä 1 + 2</button>
+      <button type="button" aria-pressed="true" onClick={() => chooseStep(0)}>Yhdistä 1 + 2</button>
     </div>
 
     <nav className="journey-steps" aria-label="Positioiden 1 ja 2 yhdistämisen harjoitukset">
@@ -161,7 +161,7 @@ export function ScaleBridgeJourney({ onBack, onPosition }: {
       {step < 4 && <>
         {step === 0 && <>
           <p>Kummassakin positiossa on 12 sävelpaikkaa, mutta yhteisiä paikkoja on kuusi. Niinpä näet yhteensä 18 erillistä paikkaa, et 24:ää.</p>
-          <p><strong>Violetit reunustetut sävelet</strong> kuuluvat molempiin bokseihin. Vihreät A:t ovat pohjasäveliä. D-kielen 7. nauha on sekä yhteinen sävel että A-pohjasävel.</p>
+          <p><strong>Violetit reunustetut sävelet</strong> kuuluvat molempiin bokseihin. Vihreät A:t ovat pohjasäveliä. D-kielen 7. nauha on sekä yhteinen sävel että A-pohjasävel. Molempien boksien yhteisalueella on neljä erillistä A-pohjasävelpaikkaa.</p>
         </>}
         {step === 1 && <>
           <p>Soita ensin paksulla E-kielellä <strong>5 (A) → 8 (C) → 10 (D)</strong>. Nauha 8 on yhteinen kohta. Jatka A-kielellä <strong>7 (E) → 10 (G)</strong> ja D-kielellä <strong>7 (A) → 10 (C)</strong>. Palaa samaa reittiä. Vaihda käsiasemaa rauhallisesti, älä venytä sormia väkisin.</p>
