@@ -216,7 +216,7 @@ export function acceptedPositions(s: Settings, q: Question): Position[] {
   return positions(area.strings, area.min, area.max).filter(p => accepts(s, q, p));
 }
 
-export type Mark = Position & { label: string; kind: 'answer' | 'anchor' | 'shape' | 'wrong' };
+export type Mark = Position & { label: string; kind: 'answer' | 'anchor' | 'shape' | 'wrong' | 'playing' };
 export type Hint = { marks: Mark[]; text: string };
 const mark = (p: Position, label: string, kind: Mark['kind']): Mark => ({ ...p, label, kind });
 const capital = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
