@@ -161,7 +161,7 @@ export function ScaleBridgeJourney({ onBack, onPosition }: {
       {step < 4 && <>
         {step === 0 && <>
           <p>Kummassakin positiossa on 12 sävelpaikkaa, mutta yhteisiä paikkoja on kuusi. Niinpä näet yhteensä 18 erillistä paikkaa, et 24:ää.</p>
-          <p><strong>Violetit reunustetut sävelet</strong> kuuluvat molempiin bokseihin. Vihreät A:t ovat pohjasäveliä. D-kielen 7. nauha on sekä yhteinen sävel että A-pohjasävel. Molempien boksien yhteisalueella on neljä erillistä A-pohjasävelpaikkaa.</p>
+          <p><strong>Violetit reunustetut sävelet</strong> kuuluvat molempiin bokseihin. Vihreät A:t ovat pohjasäveliä. D-kielen 7. nauha on sekä yhteinen sävel että A-pohjasävel. Koko yhdistetyllä otelaudalla on neljä A-pohjasävelpaikkaa.</p>
         </>}
         {step === 1 && <>
           <p>Soita ensin paksulla E-kielellä <strong>5 (A) → 8 (C) → 10 (D)</strong>. Nauha 8 on yhteinen kohta. Jatka A-kielellä <strong>7 (E) → 10 (G)</strong> ja D-kielellä <strong>7 (A) → 10 (C)</strong>. Palaa samaa reittiä. Vaihda käsiasemaa rauhallisesti, älä venytä sormia väkisin.</p>
@@ -237,7 +237,7 @@ export function ScaleBridgeJourney({ onBack, onPosition }: {
         </div>
       </>}
       {step === 4 && <div className="journey-next" role="status">
-        <h3>Yhdistäminen harjoiteltu</h3>
+        <h3>Hallussa: kaksi positiota</h3>
         <p>Osaat käyttää kahta boksia yhtenä asteikkona. Voit palata muistiharjoitukseen tai kerrata kumpaa tahansa positiota.</p>
         <div className="action-row">
           <button type="button" onClick={() => chooseStep(2)}>Kertaa muistiharjoitus</button>
