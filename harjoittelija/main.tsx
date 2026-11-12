@@ -347,7 +347,7 @@ function App() {
       : <details className="track-settings"><summary>Muuta harjoituksen asetuksia</summary>
           <Controls s={s} change={change} locked={locked} problem={problem} />
         </details>}
-    {!inRound && <MicPanel mic={mic} frame={frame} heard={heard} accepted={accepted} now={now} s={s} change={change} devices={devices}
+    {!inRound && (track === 'legacy' || usesMic(s)) && <MicPanel mic={mic} frame={frame} heard={heard} accepted={accepted} now={now} s={s} change={change} devices={devices}
       locked={busy} calibrating={calibrating} calibration={calibration} onTest={testMic} onStop={closeMic} onCalibrate={calibrate} />}
     <section className="session-panel" aria-labelledby="session-title" ref={panel}>
       <div className="session-top"><h2 id="session-title">{modeTitle(view.mode)}</h2>
