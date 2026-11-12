@@ -80,9 +80,19 @@ Yhteisen `Board.tsx`-otelautaruudukon ylin kieli on ohut e
 (1. kieli), alin paksu E (6. kieli). Kielten nimet näytetään
 riveittäin ja piirretyt kielet paksunevat alaspäin.
 
-Sointupolku käyttää edelleen C-duurisoinnun
-`Sointusävelet`-harjoitusta. Sen lisäasetukset ovat oletuksena kiinni.
-Vanha harjoituspolku avataan `?vanha=1`-parametrilla,
+**Soinnut ja musiikin rakenne** -polun ensimmäinen harjoitus
+(`ChordJourney.tsx`) on **Tunnista avoin sointu**. Oletuksena
+tunnistettavina ovat C, G, D ja Em. Käyttäjä voi valita seitsemän soinnun
+version, jolloin mukana ovat lisäksi Am, E ja A. Otelautakartta näyttää
+yhden tavallisen avoimen sointuotteen kerrallaan, vapaat kielet (○),
+painetut nauhat (●) ja mykistetyt kielet (×). Soinnun nimeä ei paljasteta
+ennen oikeaa valintaa. Jokaisen kierroksen järjestys arvotaan, jokainen
+sointu kysytään kerran, ja lopuksi näytetään yhteenveto. Vaikeustason
+vaihtaminen aloittaa kierroksen alusta.
+
+Vanha `Sointusävelet`-harjoitus pysyy edelleen käytettävissä
+`?tila=chord`-linkillä ja vanhan harjoitusvalikon kautta.
+Vanha harjoituspolku avataan myös `?vanha=1`-parametrilla,
 ja `?tila=repeat` avaa edelleen vanhan kuunteluharjoituksen.
 
 ## Moduulit
