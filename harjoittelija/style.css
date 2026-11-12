@@ -524,3 +524,13 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
 }
 .song-chord-display label:has(input:focus-visible) { outline: 2px solid var(--lavender); outline-offset: 2px; }
 @media (max-width: 600px) { .song-chord-display { width: 100%; } }
+
+/* Skaalat ja moodit: sormitusboksit samoilla valinnoilla kuin Otelautakartassa. */
+.song-box-settings { margin-top: 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+.song-box-settings > summary { min-height: 44px; padding: 11px 14px; color: var(--lavender); font-weight: 650; cursor: pointer; }
+.song-box-settings[open] { padding-bottom: 12px; }
+.song-box-settings > :not(summary) { margin-left: 14px; margin-right: 14px; }
+.song-box-system { margin-top: 4px; margin-bottom: 10px; font-size: 14px; font-weight: 650; }
+.song-box-settings .box-options { margin-bottom: 10px; }
+.song-box-settings .box-toggle { min-height: 44px; }
+.song-box-settings .tools-note { margin-top: 10px; margin-bottom: 0; font-size: 13px; }

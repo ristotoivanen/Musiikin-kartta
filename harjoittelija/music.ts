@@ -2,7 +2,7 @@ import '../assets/otelauta.js';
 export { midiToFreq, freqToMidi, nearestMidi, noteToMidi } from './vendor/notes';
 
 export type Scale = { name: string; base: [number, string][]; add: [number, string][] };
-type Box = { strings: number[][]; start: number; end: number };
+export type Box = { strings: number[][]; start: number; end: number; partial?: boolean };
 declare global {
   var MusicMapFretboard: {
     OPEN_PITCHES: number[]; CHROM: string[]; SCALES: Record<string, Scale>;
@@ -12,7 +12,7 @@ declare global {
     chordGrip(root: number, quality: string): { frets: (number | null)[] } | null;
     /** Otelautakartan SVG-otelauta (sama ulkoasu ja sävelmerkinnät kuin otelautaharjoittelija.html:ssä). */
     renderBoard(root: number, scale: Scale, fretCount: number, options?: {
-      boxes?: { number: number; positions: Box[] }[]; automatic?: boolean; label?: string;
+      boxes?: { number: number; positions: Box[] }[]; onlyBoxNotes?: boolean; automatic?: boolean; label?: string;
     }): string;
     revealPositions(board: Element, selector: string): void;
   };

@@ -196,7 +196,6 @@ test.describe('Skaalat ja moodit', () => {
     notes = await boardNotes(page);
     expect(notes.pitchClasses).toEqual([0, 2, 3, 5, 7, 9, 10]);
     expect(new Set(notes.roots)).toEqual(new Set([7]));
-    await expect(panel(page).getByRole('combobox', { name: /Sormitus/ }).locator('option')).toHaveCount(8);
 
     await summary.click();
     await expect(details).not.toHaveAttribute('open', '');
@@ -205,26 +204,108 @@ test.describe('Skaalat ja moodit', () => {
     await expect(scaleSelect(page)).toHaveValue('aeolian');
   });
 
-  test('pentatonisen boksin voi vaihtaa, ja kapealla näytöllä otelauta vierii boksin kohdalle', async ({ page }, testInfo) => {
+  test('Sormitusboksit ja näyttöasetukset: monivalinta, rajaus ja 5 ↔ 7 boksia toiston jatkuessa', async ({ page }, testInfo) => {
+    await mockPlayback(page);
     await page.goto(SONG);
+    const player = page.locator('.song-player');
+    await player.getByRole('button', { name: '▶ Soita kappale' }).click();
     await page.locator('details.song-scales-collapse > summary').click();
-    const box = panel(page).getByRole('combobox', { name: 'Pentatoninen boksi' });
+
+    const settings = panel(page).locator('details.song-box-settings');
+    const summary = settings.locator(':scope > summary');
+    const boxesGroup = settings.getByRole('group', { name: 'Näytettävät sormitusboksit' });
+    const box = (number: number) => boxesGroup.getByRole('checkbox', { name: 'Boksi ' + number, exact: true });
+    const only = settings.getByRole('checkbox', { name: 'Näytä vain valittujen boksien sävelet' });
     const board = panel(page).locator('.song-scale-board');
-    await expect(box.locator('option')).toHaveText(['Koko otelauta', 'Boksi 1', 'Boksi 2', 'Boksi 3', 'Boksi 4', 'Boksi 5']);
+    const dots = board.locator('svg circle[r="11"]');
+
+    // Alivalikko on aluksi suljettu, eikä vanhaa pudotusvalikkoa ole.
+    await expect(summary).toHaveText('Sormitusboksit ja näyttöasetukset');
+    await expect(settings).not.toHaveAttribute('open', '');
+    await expect(boxesGroup).toBeHidden();
+    await expect(panel(page).getByRole('combobox')).toHaveCount(1);
+    await expect(panel(page).getByText(/Pentatoninen boksi|Koko otelauta/)).toHaveCount(0);
+    // Alivalikko on otelaudan alapuolella.
+    expect((await settings.boundingBox())!.y).toBeGreaterThan((await board.boundingBox())!.y);
+
+    await summary.click();
+    await expect(settings).toHaveAttribute('open', '');
+    await expect(player.getByRole('button', { name: '■ Tauko' })).toBeVisible();
+    await expect(settings.getByText('Pentatoniset boksit (5)')).toBeVisible();
+    await expect(boxesGroup.getByRole('checkbox')).toHaveCount(5);
+    // Ei valintaa: koko asteikko näkyy, eikä rajausta voi kytkeä.
+    await expect(only).toBeDisabled();
     await expect(board.locator('.box-highlight')).toHaveCount(0);
-    await box.selectOption({ label: 'Boksi 2' });
-    await expect(board.locator('.box-highlight[data-box="2"]')).not.toHaveCount(0);
-    await expect(board.locator('.box-highlight[data-box="1"]')).toHaveCount(0);
-    await box.selectOption({ label: 'Boksi 4' });
-    await expect(board.locator('.box-highlight[data-box="4"]')).not.toHaveCount(0);
+    const all = await dots.count();
+    expect(all).toBeGreaterThan(30);
+
+    // Monivalinta: molemmat boksit korostuvat, koko asteikko pysyy näkyvissä.
+    await box(1).check();
+    await box(3).check();
+    await expect(board.locator('.box-highlight[data-box="1"]')).not.toHaveCount(0);
+    await expect(board.locator('.box-highlight[data-box="3"]')).not.toHaveCount(0);
+    await expect(board.locator('.box-highlight[data-box="2"]')).toHaveCount(0);
+    await expect(dots).toHaveCount(all);
+    await expect(only).toBeEnabled();
+
+    // Rajaus: vain valittujen boksien sävelet. Juurisävel G pysyy korostettuna.
+    await only.check();
+    const limited = await dots.count();
+    expect(limited).toBeLessThan(all);
+    expect(limited).toBeGreaterThanOrEqual(24);
+    expect((await boardNotes(page)).roots.every(pc => pc === 7)).toBe(true);
+    expect((await boardNotes(page)).roots.length).toBeGreaterThan(0);
+    await box(3).uncheck();
+    await expect(dots).toHaveCount(12);
+    await expect(player.getByRole('button', { name: '■ Tauko' })).toBeVisible();
+
+    // Bluesasteikko käyttää samoja viittä boksia, ja D♭ näkyy boksin rajauksessa.
+    await scaleSelect(page).selectOption({ label: 'G-bluesasteikko' });
+    await expect(box(1)).toBeChecked();
+    await expect(boxesGroup.getByRole('checkbox')).toHaveCount(5);
+    await expect(dots).toHaveCount(14);
+    expect((await boardNotes(page)).added).toEqual(['♭5']);
+
+    // Luonnollinen molli: seitsemän 3NPS-sormitusta omilla valinnoillaan.
+    await scaleSelect(page).selectOption({ label: 'G-luonnollinen molli (aiolinen)' });
+    await expect(settings.getByText('3NPS: kolme säveltä per kieli (7)')).toBeVisible();
+    await expect(boxesGroup.getByRole('checkbox')).toHaveCount(7);
+    for (let number = 1; number <= 7; number++) await expect(box(number)).not.toBeChecked();
+    await expect(only).toBeDisabled();
+    await expect(board.locator('.box-highlight')).toHaveCount(0);
+    expect(await dots.count()).toBeGreaterThan(40);
+    await box(7).check();
+    await box(2).check();
+    await expect(board.locator('.box-highlight[data-box="7"]')).not.toHaveCount(0);
+    await only.check();
+    await box(7).uncheck();
+    await expect(dots).toHaveCount(18);
+
+    // Paluu pentatoniseen palauttaa sen omat valinnat; sulkeminen ei nollaa asetuksia.
+    await scaleSelect(page).selectOption({ label: 'G-mollipentatoninen' });
+    await expect(boxesGroup.getByRole('checkbox')).toHaveCount(5);
+    await expect(box(1)).toBeChecked();
+    await expect(dots).toHaveCount(12);
+    await summary.click();
+    await expect(boxesGroup).toBeHidden();
+    await expect(dots).toHaveCount(12);
+    await summary.click();
+    await expect(box(1)).toBeChecked();
+    await expect(only).toBeChecked();
+    await box(1).uncheck();
+    await expect(only).toBeDisabled();
+    await expect(dots).toHaveCount(all);
+    await expect(player.getByRole('button', { name: '■ Tauko' })).toBeVisible();
 
     const viewport = page.viewportSize()!.width;
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(viewport);
-    for (const control of [scaleSelect(page), box]) {
-      const bounds = (await control.boundingBox())!;
+    for (const control of [box(1), box(5), only]) {
+      const bounds = (await control.locator('xpath=..').boundingBox())!;
       expect(bounds.x + bounds.width).toBeLessThanOrEqual(viewport);
+      expect(bounds.height).toBeGreaterThanOrEqual(44);
     }
     if (testInfo.project.name === 'phone') {
+      await box(4).check();
       const scroll = await board.evaluate(element => ({ width: element.scrollWidth, client: element.clientWidth, left: element.scrollLeft }));
       expect(scroll.width).toBeGreaterThan(scroll.client);
       expect(scroll.left).toBeGreaterThan(0);

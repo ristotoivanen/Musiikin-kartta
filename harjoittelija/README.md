@@ -200,6 +200,15 @@ suljettu osio (`SongScales.tsx`, `songScaleData.ts`). Siinä on vain
 kappaleen harmoniaan perustellut asteikot: G-mollipentatoninen,
 G-bluesasteikko ja G-luonnollinen molli. Otelauta piirretään Otelautakartan
 `renderBoard`-funktiolla, ja boksit tulevat `fingeringBoxes`-funktiolta.
+Otelaudan alla on aluksi suljettu alivalikko **Sormitusboksit ja
+näyttöasetukset**: viisi pentatonista boksia (mollipentatoninen ja blues) tai
+seitsemän 3NPS-sormitusta (luonnollinen molli) monivalintana sekä
+**Näytä vain valittujen boksien sävelet**. Kummallakin järjestelmällä on omat
+valintansa, kuten Otelautakartassa. Bluesasteikon boksi on pentatoninen boksi,
+jota `songBoxes` leventää kielellä yhden nauhan ylöspäin vain silloin, kun D♭ on
+heti boksin ylimmän sävelen vieressä, jotta lisäsävel ei katoa rajauksessa. Tulos vastaa vakiintuneita viittä
+bluesboksia. Boksin alareunan alapuolinen D♭ kuuluu edelliseen boksiin; sama
+sävelluokka voi esiintyä boksissa usealla kielellä eri oktaaveissa.
 Bluesasteikon D♭ näytetään lisäsävelenä. Kappaleen soinnut ovat Gm, F, B♭,
 E♭, Dm ja C. Luonnollisen mollin sävelistä vain E♭ hankaa kitarasoolon
 C-soinnun E:tä vastaan. G-doorista ei tarjota, koska sen E on ristiriidassa
