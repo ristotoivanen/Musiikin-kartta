@@ -17,28 +17,14 @@ kuin akustisessa versiossa. Normaali versio valitaan **Versio**-valikosta.
 Versiota vaihdettaessa toisto pysähtyy, aikajana palaa nollaan eikä uusi
 versio käynnisty automaattisesti. Kitaran, laulun ja loopin valinnat säilyvät.
 
-**Asennus:** Pura keskustelusta ladattu
-`yksi-sointu-kaksi-askelta-normaali-raidat.zip` suoraan worktreen juureen.
-Paketin mukana tuleva `README.txt` on tämän tiedoston lyhyempi kopio, eikä
-sitä tarvita repossa.
-
-```bash
-cd ~/src/Musiikin-kartta/worktrees/kitaraharjoittelija-oppimispolut
-unzip -o ~/Downloads/yksi-sointu-kaksi-askelta-normaali-raidat.zip -d .
-npm run check:song-audio
-```
-
-Asennuksen tarkistus odottaa myös akustisen version kolmea raitaa ja
-Am-vamp-harjoitustaustan kahta raitaa.
+`npm run check:song-audio` tarkistaa tämän version raidat sekä akustisen
+version ja Am-vamp-harjoitustaustan raidat.
 
 ## Julkaisu ja oikeudet
 
-MP3-tiedostot eivät ole Gitissä. Cloudflare Pages julkaisee GitHub-repon
-sisällön, joten kappaleharjoittelu tarvitsee sivustolla kaikki kuusi raitaa
-joko julkisessa repossa tai erillisessä tallennuspalvelussa.
-
-**Jakeluoikeus on vahvistamatta.** Ehdot ja tarvittavat tarkistukset ovat samat
-kuin [akustisessa versiossa](../yksi-sointu-kaksi-askelta-akustinen/README.md#julkaisu-ja-oikeudet).
+Kappaleharjoittelu tarvitsee sivustolla kaikki kuusi raitaa. Äänitteet
+luotiin maksullisella Suno-tilauksella, eikä Unlicense koske niitä, ks.
+[Suno-äänitteiden käyttöehdot](../../AANITTEET-LISENSSI.md).
 
 Huomautus: HTMLMediaElement-ääniraitojen käynnistys ja jatkuva looppitoisto
 eivät ole näytetarkkaa äänityöasemamiksausta. Tarkista musiikillinen synkka

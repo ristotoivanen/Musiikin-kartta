@@ -15,29 +15,16 @@ Raidat on koottu Sunolla tehdyn kappaleen yhdeksästä stem-tiedostosta
 ja kolme koottua tiedostoa ovat 48 kHz stereo ja kestoltaan 233,376 sekuntia.
 MP3-bittivirta on 192 kbit/s.
 
-## Asennus kehitystyöpuuhun
-
-Pura `yksi-sointu-kaksi-askelta-akustinen-raidat.zip` projektin juureen, ei
-`harjoittelija/`-kansioon:
-
-```bash
-cd ~/src/Musiikin-kartta/worktrees/kitaraharjoittelija-oppimispolut
-unzip -o ~/Downloads/yksi-sointu-kaksi-askelta-akustinen-raidat.zip -d .
-npm run check:song-audio
-```
+Tiedostojen eheyden voi tarkistaa komennolla `npm run check:song-audio`.
 
 ## Julkaisu ja oikeudet
 
-MP3-tiedostot eivät ole Gitissä. Cloudflare Pages julkaisee GitHub-repon
-sisällön, joten tiedostot tulevat sivustolle vasta, kun ne commitoidaan
-julkiseen repoon tai siirretään erilliseen tallennuspalveluun.
+Cloudflare Pages julkaisee GitHub-repon sisällön, joten MP3-tiedostot
+julkaistaan commitoimalla ne tähän hakemistoon.
 
-**Jakeluoikeus on vahvistamatta.** Sunon ehtojen mukaan kaupallinen käyttö ja
-oikeuksien siirto koskevat vain maksullisen tilauksen aikana luotuja kappaleita.
-Ilmaistason kappaleet on rajattu henkilökohtaiseen, ei-kaupalliseen käyttöön.
-Ennen julkaisua on varmistettava tilaustaso luontihetkellä ja lisättävä
-Suno-alkuperän maininta. Repon Unlicense-lisenssi koskee ohjelmistoa, ei näitä
-äänitteitä.
+Äänitteet luotiin maksullisella Suno Pro- tai Premier -tilauksella
+(ylläpitäjän vahvistus 12.11.2026). Repon Unlicense-lisenssi ei koske niitä,
+ks. [Suno-äänitteiden käyttöehdot](../../AANITTEET-LISENSSI.md).
 
 MP3-raitojen soittoaikaeroa korjataan HTMLMediaElementien välillä. Se ei ole
 näytetarkkaa audiomiksausta, joten ajoitus tarkistetaan kuuntelemalla.

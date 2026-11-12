@@ -41,8 +41,8 @@ MP3-raidat soivat samanaikaisesti, mutta sähkökitara on oletuksena
 mykistetty. Kitaran voi lisätä tai poistaa kesken toiston. Kesto on
 molemmissa 3:59,760 ja aikakohdat pidetään lähellä toisiaan vertaamalla
 raitojen toistokohtaa. Tämä on HTMLMediaElement-synkronointi, ei
-näytetarkka audiomiksaus. Binääritiedostot puretaan erikseen keskustelun
-ZIP-paketista, eivätkä ne vielä sisälly GitHub-haaraan.
+näytetarkka audiomiksaus. Äänitiedostot ovat hakemistossa
+`assets/audio/harjoittelija/`.
 Muistivaiheessa otelautamerkinnät ovat aluksi kokonaan piilossa. Käyttäjä voi
 näyttää ja piilottaa pelkät A-pohjasävelet; koko kuvio näkyy vain palaamalla
 edelliseen sormituksen opetteluvaiheeseen. Vihjeet nollautuvat vaiheenvaihdossa.
@@ -126,13 +126,10 @@ ohittaa oletuksen. Käyttäjän valitsema versio säilyy sivulla, vaikka hän
 käy välillä oppimispoluissa; kappalelinkillä avatussa sivussa linkki
 päivittyy valinnan mukaiseksi.
 
-MP3-binäärit eivät sisälly GitHubin koodipäivitykseen. Pura sekä
-`yksi-sointu-kaksi-askelta-akustinen-raidat.zip` että
-`yksi-sointu-kaksi-askelta-normaali-raidat.zip` worktreen juureen.
-Tarkista asennus komennolla `npm run check:song-audio`, joka edellyttää
+MP3-tiedostot ovat hakemistossa `assets/audio/kappaleet/`. Tarkista asennus komennolla `npm run check:song-audio`, joka edellyttää
 kaikkien kahdeksan MP3-tiedoston löytymistä (kappaleen kuusi raitaa ja
-Am-vamp-taustan kaksi raitaa). Äänitteet on tehty Sunolla, eikä niiden
-jakeluoikeutta ole vielä vahvistettu.
+Am-vamp-taustan kaksi raitaa). Äänitteet on tehty maksullisella Suno-
+tilauksella, ks. [käyttöehdot](../assets/audio/AANITTEET-LISENSSI.md).
 Katso erilliset [akustisen version tiedot](../assets/audio/kappaleet/yksi-sointu-kaksi-askelta-akustinen/README.md)
 ja [normaalin version tiedot](../assets/audio/kappaleet/yksi-sointu-kaksi-askelta-normaali/README.md).
 

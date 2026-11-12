@@ -130,4 +130,5 @@ kitaralla tehtävät hyväksyntätestit. [Kehittäjän ohje](harjoittelija/READM
 rakenteen ja tallennusmuodon, ja [alkuperäinen kehitysraportti](reviews/fretecho-kehityskatselmus.md)
 URL-parametrit ja integraation taustan.
 
-Ohjelmiston lisenssitiedot ovat [LICENSE-tiedostossa](LICENSE).
+Ohjelmiston lisenssitiedot ovat [LICENSE-tiedostossa](LICENSE). Kitaraharjoittelijan
+Suno-äänitteet eivät kuulu Unlicensen piiriin, ks. [äänitteiden käyttöehdot](assets/audio/AANITTEET-LISENSSI.md).
