@@ -71,3 +71,70 @@ test('sähköisen version osiot, loppukertosäe ja tahtihypyt pysyvät omassa ai
   await expect(panel.locator('.song-measure small')).toHaveCount(0);
   expect(await backing.evaluate(el=>el.currentTime)).toBe(195);
 });
+
+
+test('sointuja voi häivyttää harjoitustasoittain ja paljastaa vain nykyisen vihjeen', async ({page}) => {
+  await page.goto('/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen');
+  const panel=page.locator('.song-chord-panel');
+  const level=panel.getByRole('combobox',{name:'Harjoitustaso'});
+  const current=panel.locator('.song-current-chord strong');
+  const show=panel.getByRole('checkbox',{name:'Näytä soinnut'});
+  await expect(level).toHaveValue('0');
+  await expect(show).toBeChecked();
+  await expect(current).toHaveText('Gm');
+
+  await level.selectOption('1');
+  await expect(current).toHaveText('?');
+  await expect(panel.getByText('Piilossa 2/6 sointua')).toBeVisible();
+  await expect(panel.getByRole('button',{name:/^Tahti 1: sointu piilossa sointu piilossa/})).toHaveCount(1);
+  await expect(panel.locator('.song-measure').first().locator('strong')).toHaveText(['?','?']);
+
+  await panel.getByRole('button',{name:'Paljasta sointu'}).click();
+  await expect(current).toHaveText('Gm');
+  await panel.getByRole('button',{name:'Piilota vihje'}).click();
+  await expect(current).toHaveText('?');
+
+  await level.selectOption('2');
+  await expect(panel.getByText('Piilossa 4/6 sointua')).toBeVisible();
+  await level.selectOption('3');
+  await expect(panel.getByText('Piilossa 5/6 sointua')).toBeVisible();
+  await level.selectOption('4');
+  await expect(panel.getByText('Piilossa 6/6 sointua')).toBeVisible();
+  await expect(panel.locator('.song-measure-chords strong')).toHaveText(['?','?','?','?','?','?']);
+  await expect(panel.getByRole('combobox',{name:'Harjoiteltava osa'})).toHaveValue('intro');
+
+  await show.uncheck();
+  await expect(level).toBeDisabled();
+  await expect(current).toHaveText('?');
+  await show.check();
+  await expect(level).toHaveValue('4');
+  await level.selectOption('0');
+  await expect(current).toHaveText('Gm');
+});
+
+test('sointujen piilotusjärjestystä voi muokata ja valinnat säilyvät versiota vaihtaessa', async ({page}) => {
+  await page.goto('/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen');
+  const panel=page.locator('.song-chord-panel');
+  const level=panel.getByRole('combobox',{name:'Harjoitustaso'});
+  await panel.locator('.song-fade-customize summary').click();
+  await panel.getByRole('combobox',{name:'Gm: piilotusvaihe'}).selectOption('4');
+  await panel.getByRole('combobox',{name:'C: piilotusvaihe'}).selectOption('1');
+  await level.selectOption('1');
+  await expect(panel.getByText('Piilossa 2/6 sointua')).toBeVisible();
+  await expect(panel.locator('.song-current-chord strong')).toHaveText('Gm');
+
+  await page.getByRole('combobox',{name:'Versio'}).selectOption('normal');
+  await expect(level).toHaveValue('1');
+  await expect(panel.locator('.song-current-chord strong')).toHaveText('Gm');
+  await panel.getByRole('combobox',{name:'Harjoiteltava osa'}).selectOption('bridge');
+  await panel.getByRole('button',{name:/^Tahti 4: sointu piilossa/}).click();
+  await expect(panel.locator('.song-current-chord strong')).toHaveText('?');
+
+  await page.reload();
+  await expect(page.getByRole('heading',{name:'Yksi sointu, kaksi askelta'})).toBeVisible();
+  await expect(panel.getByRole('combobox',{name:'Harjoitustaso'})).toHaveValue('1');
+  await expect(panel.locator('.song-current-chord strong')).toHaveText('Gm');
+  await panel.locator('.song-fade-customize summary').click();
+  await expect(panel.getByRole('combobox',{name:'Gm: piilotusvaihe'})).toHaveValue('4');
+  await expect(panel.getByRole('combobox',{name:'C: piilotusvaihe'})).toHaveValue('1');
+});
