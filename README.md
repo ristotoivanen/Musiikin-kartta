@@ -54,6 +54,15 @@ Varsinaiset soittamiseen ja kuunteluun tarkoitetut harjoitukset ovat
 erillisessä [Kitaraharjoittelijassa](kitaraharjoittelija.html)
 sekä oppaan lukujen ääniesimerkeissä.
 
+## Kappaleharjoittelu
+
+**Kappaleharjoittelu** on Kitaraharjoittelijan neljäs oppimispolku.
+Sen ensimmäinen mallikappale on **Yksi sointu, kaksi askelta (Akustinen versio)**.
+Säestys, kitara ja laulu ovat kolme samanaikaisesti toistettavaa MP3-raitaa.
+Kitara ja laulu voidaan vaimentaa erikseen kesken kappaleen.
+Äänet toimitetaan erillisenä ZIP-pakettina, eivät GitHub-haaran mukana.
+Asennusohje on [harjoittelijan README:ssä](harjoittelija/README.md).
+
 ## Tulostettava versio
 
 [Koko opas on yhtenä PDF-tiedostona](pdf/musiikin-kartta.pdf), jossa on sisällysluettelo, kaaviot ja harjoitusten vastaukset. Ääniesimerkkien kohdalla on linkki verkkoversioon. PDF kootaan oppaan sivuista komennolla `python3 tools/pdf/rakenna-pdf.py`, ja ohjeet ovat tiedostossa [tools/pdf/README.md](tools/pdf/README.md). Yksittäisen osan voi tulostaa myös suoraan selaimesta.
