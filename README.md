@@ -57,10 +57,13 @@ sekä oppaan lukujen ääniesimerkeissä.
 ## Kappaleharjoittelu
 
 **Kappaleharjoittelu** on Kitaraharjoittelijan neljäs oppimispolku.
-Sen ensimmäinen mallikappale on **Yksi sointu, kaksi askelta (Akustinen versio)**.
-Säestys, kitara ja laulu ovat kolme samanaikaisesti toistettavaa MP3-raitaa.
-Kitara ja laulu voidaan vaimentaa erikseen kesken kappaleen.
-Äänet toimitetaan erillisenä ZIP-pakettina, eivät GitHub-haaran mukana.
+Sen ensimmäinen mallikappale on **Yksi sointu, kaksi askelta** sekä
+akustisena että normaalina versiona. Valitussa sovituksessa säestys, kitara
+ja laulu ovat kolme samanaikaisesti toistettavaa MP3-raitaa. Kitara ja laulu
+voidaan vaimentaa erikseen kesken kappaleen. Version vaihtaminen pysäyttää
+toiston, palauttaa sen alkuun ja edellyttää uutta Soita-painallusta.
+Molempien versioiden äänet toimitetaan erillisinä ZIP-paketteina,
+eivät GitHub-haaran mukana.
 Asennusohje on [harjoittelijan README:ssä](harjoittelija/README.md).
 
 ## Tulostettava versio
