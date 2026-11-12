@@ -4,7 +4,7 @@ import { describe,it,expect } from 'vitest';
 const read=(file:string)=>readFileSync(new URL('../'+file,import.meta.url),'utf8');
 describe('staattisen sivuston yhteensopivuus',()=>{
   it('muutetut nykyiset skriptit ovat syntaktisesti kelvollisia classic-skriptejä',()=>{
-    for(const file of ['assets/otelauta.js','assets/edistyminen.js','assets/harjoitustausta.js','assets/korvatreeni.js']) expect(()=>new Script(read(file))).not.toThrow();
+    for(const file of ['assets/otelauta.js','assets/visualizer.js','assets/edistyminen.js','assets/harjoitustausta.js','assets/korvatreeni.js']) expect(()=>new Script(read(file))).not.toThrow();
   });
   it('oppaan osat säilyttävät luvut, vanhat kuuntelut ja pelkät harjoituslinkit',()=>{
     for(const part of Array.from({length: 11}, (_, index) => index + 1)){
