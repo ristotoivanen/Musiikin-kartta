@@ -80,6 +80,12 @@ test.describe('Uudet oppimispolut', () => {
     await guitar.uncheck();
     await vocals.uncheck();
     await loop.check();
+    // Simuloidaan eteneminen ennen versionvaihtoa myös ilman oikeita MP3-tiedostoja.
+    await streams.nth(0).evaluate(element => {
+      Object.defineProperty(element, 'currentTime', { configurable: true, writable: true, value: 42 });
+      element.dispatchEvent(new Event('timeupdate'));
+    });
+    await expect(player.locator('.song-time')).toContainText('0:42 /');
 
     await version.selectOption('normal');
     await expect(version).toHaveValue('normal');
