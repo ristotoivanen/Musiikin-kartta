@@ -85,7 +85,7 @@ export function NoteJourney({ onBack }: { onBack: () => void }) {
         <p>Napauta otelaudalta kaikki {note(target)}-sävelet. Löydetyt kohdat jäävät näkyviin. Voit käyttää vihjettä tarvittaessa.</p>
         <p className="note-progress" role="status" aria-live="polite">Löydetty {found.length} / {wanted.length}</p>
         <Board area={AREA} marks={marks} onAnswer={answer} disabled={complete}
-          caption="Otelauta · ohut e ylhäällä, paksu E alhaalla" />
+          caption="Otelauta" />
         <p className={complete ? 'feedback good' : 'feedback info'} data-testid="note-feedback"
           role="status" aria-live="polite">{message}</p>
         <div className="action-row">
