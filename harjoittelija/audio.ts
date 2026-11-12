@@ -157,12 +157,12 @@ export class ReferencePlayer {
    * Yhtenäinen asteikkolooppi. Sävelet ajastetaan AudioContextin kellolla etukäteen,
    * ei toistokierroksen päättymistä odottavalla JavaScript-silmukalla.
    * onNote kertoo saman audiokellon mukaisen sävelindeksin otelautaa varten.
-   * Toisto päättyy vain stop()-kutsuun (tai audioalustan virheeseen).
+   * Kun repeat=false, soittaa annetun säveljonon kerran ja päättyy itsestään.
    */
   /** Muuta käynnissä olevan asteikkoloopin tempoa ilman äänivirran katkaisua. */
   setLoopTempo(bpm: number) { this.adjustLoopTempo?.(bpm); }
 
-  async loop(notes: number[], onNote?: (index: number) => void, bpm = 75): Promise<boolean> {
+  async loop(notes: number[], onNote?: (index: number) => void, bpm = 75, repeat = true): Promise<boolean> {
     this.stop();
     if (!notes.length) return false;
     const token = this.token;
@@ -184,6 +184,8 @@ export class ReferencePlayer {
     const ahead = 1.6;
     let nextAt = c.currentTime + .05;
     let nextIndex = 0;
+    let scheduled = 0;
+    let lastStopAt = 0;
     const pending: { at: number; index: number }[] = [];
 
     const tick = () => {
@@ -195,7 +197,7 @@ export class ReferencePlayer {
         nextIndex = (nextIndex + skipped) % notes.length;
         pending.length = 0;
       }
-      while (nextAt < c.currentTime + ahead) {
+      while ((repeat || scheduled < notes.length) && nextAt < c.currentTime + ahead) {
         const midi = notes[nextIndex], index = nextIndex, start = nextAt;
         const oscillator = c.createOscillator(), gain = c.createGain();
         if (wave) oscillator.setPeriodicWave(wave); else oscillator.type = 'triangle';
@@ -206,6 +208,8 @@ export class ReferencePlayer {
         gain.gain.exponentialRampToValueAtTime(.001, start + interval * .975);
         oscillator.connect(gain); gain.connect(master);
         oscillator.start(start); oscillator.stop(start + interval * .985);
+        lastStopAt = start + interval * .985;
+        scheduled++;
         pending.push({ at: start, index });
         nextAt += interval;
         nextIndex = (nextIndex + 1) % notes.length;
@@ -214,11 +218,23 @@ export class ReferencePlayer {
         const event = pending.shift()!;
         onNote?.(event.index);
       }
+      if (!repeat && scheduled >= notes.length && c.currentTime >= lastStopAt) {
+        clearInterval(this.loopTick);
+        this.loopTick = undefined;
+        this.adjustLoopTempo = undefined;
+        this.master?.disconnect();
+        this.master = undefined;
+        const finish = this.settle;
+        this.settle = undefined;
+        finish?.(true);
+      }
     };
 
-    // Ääni pysyy saumattomana, vaikka selaimen käyttöliittymäpiirto myöhästyisi hieman.
-    tick();
-    this.loopTick = setInterval(tick, 25);
-    return new Promise<boolean>(resolve => { this.settle = resolve; });
+    // Ääni ajastetaan ennakkoon ja soivan sävelen korostus seuraa samaa kelloa.
+    return new Promise<boolean>(resolve => {
+      this.settle = resolve;
+      tick();
+      if (this.settle) this.loopTick = setInterval(tick, 25);
+    });
   }
 }
