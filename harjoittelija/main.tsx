@@ -333,7 +333,7 @@ function App() {
     <button type="button" onClick={() => { store.dismissNotice(); redraw(); }}>Selvä</button>
   </div>;
   if (!inRound && track === null) return <>{introduction}{notice}
-    <LearningPaths onSelect={selectTrack} onAdvanced={() => setTrack('legacy')} /></>;
+    <LearningPaths onSelect={selectTrack} /></>;
   if (!inRound && track === 'scales') return <>{introduction}{notice}
     <ScaleJourney onBack={() => setTrack(null)} onOpenOldExercise={openOldScale} /></>;
   if (!inRound && track === 'ear') return <>{introduction}{notice}
