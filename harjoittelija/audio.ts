@@ -110,7 +110,9 @@ export function noiseThreshold(samples: number[]): { threshold: number; noise: n
  * Ilman aikarajaa UI voi näyttää "Pysäytä", vaikka yhtään säveltä ei ajasteta.
  */
 async function ensureReferenceAudioRunning(context: AudioContext): Promise<void> {
-  if (context.state === 'running') return;
+  // Tarkista tila funktiolla: resume() voi muuttaa sitä asynkronisesti.
+  const isRunning = () => context.state === 'running';
+  if (isRunning()) return;
   let timeout: ReturnType<typeof setTimeout> | undefined;
   try {
     await Promise.race([
@@ -122,7 +124,7 @@ async function ensureReferenceAudioRunning(context: AudioContext): Promise<void>
   } finally {
     if (timeout !== undefined) clearTimeout(timeout);
   }
-  if (context.state !== 'running') throw new Error('reference-audio-not-running');
+  if (!isRunning()) throw new Error('reference-audio-not-running');
 }
 
 export function referenceAudioError(error: unknown): string {
