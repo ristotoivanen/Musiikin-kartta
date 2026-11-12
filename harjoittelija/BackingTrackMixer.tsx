@@ -12,12 +12,13 @@ function clock(seconds: number): string {
   return String(Math.floor(rounded / 60)) + ':' + String(rounded % 60).padStart(2, '0');
 }
 
-/** Yksi soitin, kaksi koko ajan mukana kulkevaa raitaa. Mallikitara on aluksi mykistetty. */
+/** Yksi soitin, kaksi koko ajan mukana kulkevaa raitaa. Mallikitara ja looppi ovat aluksi pois päältä. */
 export function BackingTrackMixer() {
   const backingRef = useRef<HTMLAudioElement>(null);
   const guitarRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
   const [guitarOn, setGuitarOn] = useState(false);
+  const [loopOn, setLoopOn] = useState(false);
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
   const [error, setError] = useState('');
@@ -25,7 +26,12 @@ export function BackingTrackMixer() {
   function syncGuitar(force = false) {
     const backing = backingRef.current, guitar = guitarRef.current;
     if (!backing || !guitar || !Number.isFinite(backing.currentTime) || guitar.readyState < 1) return;
-    if (force || Math.abs(guitar.currentTime - backing.currentTime) > MAX_DRIFT_SECONDS) {
+    const drift = Math.abs(guitar.currentTime - backing.currentTime);
+    // Loopin vaihtuessa kierrokselta toiselle toinen raita voi käydä hetken
+    // alussa ja toinen lopussa. Älä korjaa tätä hetkellistä kääntökohtaa.
+    const atLoopBoundary = backing.loop && Number.isFinite(backing.duration) &&
+      Math.abs(drift - backing.duration) < 0.3;
+    if (force || (!atLoopBoundary && drift > MAX_DRIFT_SECONDS)) {
       try { guitar.currentTime = backing.currentTime; } catch { /* Metadata ei ehkä ole vielä latautunut. */ }
     }
   }
@@ -89,11 +95,18 @@ export function BackingTrackMixer() {
   return <div className="backing-track-mixer">
     <div className="backing-track-heading">
       <strong>Am-harjoitustausta</strong>
-      <label className="guitar-toggle">
-        <input type="checkbox" checked={guitarOn}
-          onChange={event => toggleGuitar(event.target.checked)} />
-        <span>Mallikitara {guitarOn ? 'päällä' : 'pois'}</span>
-      </label>
+      <div className="backing-track-toggles">
+        <label className="guitar-toggle">
+          <input type="checkbox" checked={guitarOn}
+            onChange={event => toggleGuitar(event.target.checked)} />
+          <span>Mallikitara {guitarOn ? 'päällä' : 'pois'}</span>
+        </label>
+        <label className="guitar-toggle">
+          <input type="checkbox" checked={loopOn}
+            onChange={event => setLoopOn(event.target.checked)} />
+          <span>Soita looppina</span>
+        </label>
+      </div>
     </div>
     <p className="tools-note">Soita itse taustan päälle. Voit ottaa mallikitaran mukaan ja pois kesken kappaleen.</p>
 
@@ -108,16 +121,19 @@ export function BackingTrackMixer() {
       <output className="backing-time" aria-live="off">{clock(position)} / {clock(duration)}</output>
     </div>
 
-    <audio ref={backingRef} preload="metadata" src={BACKING_SRC}
+    <audio ref={backingRef} preload="metadata" src={BACKING_SRC} loop={loopOn}
       onLoadedMetadata={event => setDuration(event.currentTarget.duration)}
       onTimeUpdate={event => {
         setPosition(event.currentTarget.currentTime);
         if (!event.currentTarget.paused) syncGuitar();
       }}
-      onEnded={() => { guitarRef.current?.pause(); setPlaying(false); setPosition(duration); }}
+      onEnded={() => {
+        if (backingRef.current?.loop) return;
+        guitarRef.current?.pause(); setPlaying(false); setPosition(duration);
+      }}
       onPause={() => { guitarRef.current?.pause(); setPlaying(false); }}
       onError={() => setError('Taustaraita puuttuu tai sitä ei voida toistaa. Tarkista am-vamp-without-guitar.mp3.')} />
-    <audio ref={guitarRef} preload="metadata" src={GUITAR_SRC} muted
+    <audio ref={guitarRef} preload="metadata" src={GUITAR_SRC} muted loop={loopOn}
       onLoadedMetadata={() => {
         const backing = backingRef.current, guitar = guitarRef.current;
         if (backing?.duration && guitar?.duration &&
@@ -128,6 +144,6 @@ export function BackingTrackMixer() {
       onError={() => setError('Mallikitaran ääniraita puuttuu tai sitä ei voida toistaa. Tarkista am-vamp-electric-guitar.mp3.')} />
 
     {error && <p className="backing-error" role="alert">{error}</p>}
-    <p className="tools-note">Molemmat raidat etenevät samaan aikaan. Kitaravalinta muuttaa vain sen kuuluvuutta, ei toistokohtaa.</p>
+    <p className="tools-note">Molemmat raidat etenevät samaan aikaan. Mallikitaran tai loopin voi kytkeä päälle ja pois myös toiston aikana.</p>
   </div>;
 }
