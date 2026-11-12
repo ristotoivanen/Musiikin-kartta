@@ -69,6 +69,7 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [audioError, setAudioError] = useState('');
   const audio = useRef(new ReferencePlayer());
+  const backingAudio = useRef<HTMLAudioElement>(null);
   const token = useRef(0);
 
   function changeTempo(next: number) {
@@ -76,6 +77,15 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
     setTempo(value);
     audio.current.setLoopTempo(value);
     try { localStorage.setItem(TEMPO_KEY, String(value)); } catch { /* Selain voi estää tallennuksen. */ }
+  }
+
+  function changeBackingVersion(value: BackingVersion) {
+    const current = backingAudio.current;
+    if (current) {
+      current.pause();
+      current.currentTime = 0;
+    }
+    setBackingVersion(value);
   }
 
   function stopPlayback() {
@@ -226,13 +236,13 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
             <strong>Am-harjoitustausta</strong>
             <label className="backing-track-switch">Versio
               <select aria-label="Harjoitustaustan versio" value={backingVersion}
-                onChange={event => setBackingVersion(event.target.value as BackingVersion)}>
+                onChange={event => changeBackingVersion(event.target.value as BackingVersion)}>
                 {Object.entries(BACKING_TRACKS).map(([value, track]) =>
                   <option key={value} value={value}>{track.label}</option>)}
               </select>
             </label>
           </div>
-          <audio key={backingVersion} controls preload="metadata"
+          <audio key={backingVersion} ref={backingAudio} controls preload="metadata"
             aria-label={`A-mollin harjoitustausta: ${BACKING_TRACKS[backingVersion].label}`}>
             <source src={BACKING_TRACKS[backingVersion].src} type="audio/mpeg" />
             Selaimesi ei tue äänentoistoa.
