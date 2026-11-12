@@ -69,6 +69,7 @@ export function NoteJourney({ onBack }: { onBack: () => void }) {
     <button type="button" className="back-link" onClick={onBack}>← Oppimispolut</button>
     <p className="eyebrow">SÄVELKORVA JA OTELAUTA · VAIHE 1</p>
     <h2 id="note-journey-title">Etsi sävelet otelaudalta</h2>
+    <p className="exercise-theory"><a href="book/osa-5.html#otelauta">Lue tämän harjoituksen teoria: Otelauta ja sävelet →</a></p>
     <p className="learning-lead">Aloita sävelnimistä. Etsi kaikki saman sävelen sijainnit nauhoilta 0–5. Kuuntelemalla tunnistaminen tulee myöhemmissä vaiheissa.</p>
     <div className="journey-lesson">
       {finished ? <>
