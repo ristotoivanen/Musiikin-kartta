@@ -31,6 +31,29 @@ test.describe('Uudet oppimispolut', () => {
     expect(await page.evaluate(() => localStorage.getItem('musiikin-kartta:skaalapolku:v1'))).toBe('2');
   });
 
+  test('asteikon ylös-alas-harjoituksessa mallin saa loopille, pysäytys ja vaiheenvaihto katkaisevat sen', async ({ page }) => {
+    await page.goto('/kitaraharjoittelija.html');
+    await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
+    await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
+
+    const loop = page.getByRole('button', { name: '▶ Toista asteikkoa jatkuvasti' });
+    await expect(loop).toBeVisible();
+    await loop.click();
+    const stop = page.getByRole('button', { name: '■ Pysäytä asteikon toisto' });
+    await expect(stop).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.getByRole('status')).toContainText('Jatkuva toisto käynnissä');
+
+    await stop.click();
+    await expect(loop).toHaveAttribute('aria-pressed', 'false');
+
+    await loop.click();
+    await expect(stop).toBeVisible();
+    await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
+    await expect(page.getByRole('heading', { name: 'Soita muistista' })).toBeVisible();
+    await page.getByRole('button', { name: /Soita ylös ja alas/ }).click();
+    await expect(page.getByRole('button', { name: '▶ Toista asteikkoa jatkuvasti' })).toHaveAttribute('aria-pressed', 'false');
+  });
+
   test('sointupolku tarjoaa vanhan sointusävelharjoituksen ilman kaikkien harjoitusten valikkoa', async ({ page }) => {
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Soinnut ja musiikin rakenne/ }).click();
