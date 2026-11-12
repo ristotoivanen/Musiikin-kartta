@@ -61,11 +61,24 @@ Harjoitusvaiheen suoritus on **käyttäjän itsearvio**, ei mitattu soittotulos.
 Toinen positio ja positioiden yhdistäminen ovat vasta tulevia sisältöjä,
 eivätkä näkyvissä valheellisesti toimivina.
 
-Sointupolku käyttää olemassa olevaa C-duurisoinnun
-`Sointusävelet`-harjoitusta, ja sävelkorvapolku vanhaa
-`Kuule ja toista`-harjoitusta. Niiden lisäasetukset ovat
-oletuksena kiinni. Testien vanha harjoituspolku avataan `?vanha=1`
--parametrilla; uusi etusivu testataan erikseen.
+**Sävelkorva ja otelauta** -polun ensimmäinen harjoitus
+(`NoteJourney.tsx`) on **Etsi sävelet otelaudalta**.
+Se alkaa C-sävelestä ja käy seitsemän luonnollista sävelnimeä läpi
+nauhoilla 0–5. Käyttäjän on löydettävä kaikki kunkin sävelnimen
+sijainnit: valitut oikeat kohdat jäävät näkyviin, ja tarvittaessa
+voi pyytää yhden vihjepaikan. Äänentoistoa ei käytetä.
+Myöhemmät kuuntelu- ja korvakuulotehtävät lisätään erillisinä vaiheina;
+vanha `Kuule ja toista` säilyy vanhojen URL-linkkien ja
+laajennetun harjoitusvalikon kautta käytettävänä.
+
+Yhteisen `Board.tsx`-otelautaruudukon ylin kieli on ohut e
+(1. kieli), alin paksu E (6. kieli). Kielten nimet näytetään
+riveittäin ja piirretyt kielet paksunevat alaspäin.
+
+Sointupolku käyttää edelleen C-duurisoinnun
+`Sointusävelet`-harjoitusta. Sen lisäasetukset ovat oletuksena kiinni.
+Vanha harjoituspolku avataan `?vanha=1`-parametrilla,
+ja `?tila=repeat` avaa edelleen vanhan kuunteluharjoituksen.
 
 ## Moduulit
 
