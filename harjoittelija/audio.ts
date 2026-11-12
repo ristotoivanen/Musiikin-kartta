@@ -106,6 +106,37 @@ export function noiseThreshold(samples: number[]): { threshold: number; noise: n
 }
 
 /**
+ * Web Audio voi jäädä Safarissa odottamaan käyttäjän sallimaa äänentoistoa.
+ * Ilman aikarajaa UI voi näyttää "Pysäytä", vaikka yhtään säveltä ei ajasteta.
+ */
+async function ensureReferenceAudioRunning(context: AudioContext): Promise<void> {
+  if (context.state === 'running') return;
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  try {
+    await Promise.race([
+      context.resume(),
+      new Promise<never>((_, reject) => {
+        timeout = setTimeout(() => reject(new Error('reference-audio-resume-timeout')), 4000);
+      }),
+    ]);
+  } finally {
+    if (timeout !== undefined) clearTimeout(timeout);
+  }
+  if (context.state !== 'running') throw new Error('reference-audio-not-running');
+}
+
+export function referenceAudioError(error: unknown): string {
+  const message = error instanceof Error ? error.message : '';
+  if (message === 'reference-audio-resume-timeout' || message === 'reference-audio-not-running') {
+    return 'Selaimen äänimoottori ei käynnistynyt. Tarkista, ettei Safari-välilehti ole mykistetty, ja kokeile mallisoittoa uudelleen. Tarvittaessa lataa sivu uudelleen.';
+  }
+  if (error instanceof Error && error.name === 'NotAllowedError') {
+    return 'Safari esti äänentoiston käynnistämisen. Käynnistä soitto uudelleen painikkeesta ja tarkista sivuston ääniasetukset.';
+  }
+  return 'Mallisoitto ei käynnistynyt. Tarkista selaimen ja tietokoneen ääniasetukset ja yritä uudelleen.';
+}
+
+/**
  * Kitaramainen esimerkkisävel: ylä-äänet kuuluvat myös puhelimen ja kannettavan kaiuttimista.
  * Käyttää sivun yhteistä äänikontekstia. Keskeytys vaimentaa jo ajastetut sävelet heti.
  */
@@ -130,7 +161,7 @@ export class ReferencePlayer {
     this.stop();
     const token = this.token;
     const c = this.provide();
-    if (c.state !== 'running') await c.resume();
+    await ensureReferenceAudioRunning(c);
     if (token !== this.token) return false;
     const master = c.createGain(); master.connect(c.destination); this.master = master;
     const partials = Array.from({ length: 12 }, (_, i) => 1 / (i + 1) ** 1.3);
@@ -167,7 +198,7 @@ export class ReferencePlayer {
     if (!notes.length) return false;
     const token = this.token;
     const c = this.provide();
-    if (c.state !== 'running') await c.resume();
+    await ensureReferenceAudioRunning(c);
     if (token !== this.token) return false;
 
     const master = c.createGain(); master.connect(c.destination); this.master = master;
