@@ -1,10 +1,23 @@
 /* Otelautakartta: vain visualisointi, ei harjoitustehtäviä tai ääniraitoja. */
+import { getSeventhVoicings, hasSeventhVoicing } from './seventh-voicings.js';
+
 (() => {
   'use strict';
 
   const { CHROM, SCALES, OPEN_PITCHES, noteName, scaleNotes,
     triadGrips, selectionFromURL, renderBoard, fingeringBoxes, boxOptions,
-    revealPositions } = fretboard;
+    revealPositions } = globalThis.MusicMapFretboard;
+
+  const SEVENTH_CHORDS = new Map([
+    ['maj7',  [[0, '1'], [4, '3'],  [7, '5'],  [11, '7']]],
+    ['7',     [[0, '1'], [4, '3'],  [7, '5'],  [10, '♭7']]],
+    ['m7',    [[0, '1'], [3, '♭3'], [7, '5'],  [10, '♭7']]],
+    ['m7b5',  [[0, '1'], [3, '♭3'], [6, '♭5'], [10, '♭7']]],
+    ['dim7',  [[0, '1'], [3, '♭3'], [6, '♭5'], [9, '♭♭7']]],
+    ['7#5',   [[0, '1'], [4, '3'],  [8, '♯5'], [10, '♭7']]],
+    ['7b5',   [[0, '1'], [4, '3'],  [6, '♭5'], [10, '♭7']]],
+    ['mMaj7', [[0, '1'], [3, '♭3'], [7, '5'],  [11, '7']]],
+  ]);
 
   const $ = id => document.getElementById(id);
   const rootSelect = $('root-select');
@@ -19,8 +32,12 @@
   const chordSettings = $('chord-settings');
   const octaveSettings = $('octave-settings');
   const rootLabel = $('root-label');
+  const chordGroupSelect = $('chord-group');
   const qualitySelect = $('chord-quality');
+  const chordModeGroup = $('chord-modes');
   const chordModes = [...document.querySelectorAll('[data-chord-mode]')];
+  const seventhForms = $('seventh-forms');
+  const seventhFormButtons = [...document.querySelectorAll('[data-seventh-root]')];
   const chordNavigation = $('chord-navigation');
   const chordPosition = $('chord-position');
   const chordHelp = $('chord-help');
@@ -43,8 +60,15 @@
     : location.hash === '#soinnut' ? 'chords' : 'scale';
   // Soinnut eivät riipu muualla valitusta asteikosta.
   const params = new URLSearchParams(location.search);
-  let chordQuality = params.get('sointu') === 'min' ? 'min' : 'maj';
+  const initialQuality = params.get('sointu');
+  let chordGroup = SEVENTH_CHORDS.has(initialQuality) ? 'sevenths' : 'triads';
+  let seventhQuality = chordGroup === 'sevenths' ? initialQuality : 'maj7';
+  let triadQuality = initialQuality === 'min' ? 'min' : 'maj';
   let chordMode = ['all', 'full', 'triad'].includes(params.get('ote')) ? params.get('ote') : 'full';
+  // Seiskasoinnun ote valitaan juurisävelen kielen mukaan: 6 = E-kieli, 5 = A-kieli.
+  const SEVENTH_FORMS = new Map([[6, 'E-juurinen'], [5, 'A-juurinen']]);
+  const formParam = rootString => SEVENTH_FORMS.get(rootString).toLowerCase();
+  let seventhRoot = params.get('ote') === formParam(5) ? 5 : 6;
   const gripIndex = { full: 0, triad: 0 };
 
   function isPentatonic() { return scaleId === 'mp' || scaleId === 'majp'; }
@@ -54,7 +78,7 @@
   function activeBoxes() { return isPentatonic() ? pentatonicBoxes : threeNoteBoxes; }
 
   function updateScrollHint() {
-    scrollHint.hidden = board.scrollWidth <= board.clientWidth + 1;
+    scrollHint.hidden = board.hidden || board.scrollWidth <= board.clientWidth + 1;
   }
 
   function syncUrl() {
@@ -62,8 +86,9 @@
     url.searchParams.set('toonikka', CHROM[rootPC]);
     url.searchParams.set('asteikko', scaleId);
     if (view === 'chords') {
-      url.searchParams.set('sointu', chordQuality);
-      url.searchParams.set('ote', chordMode);
+      url.searchParams.set('sointu', chordGroup === 'sevenths' ? seventhQuality : triadQuality);
+      url.searchParams.set('ote', chordGroup !== 'sevenths' ? chordMode
+        : hasSeventhVoicing(seventhQuality) ? formParam(seventhRoot) : 'all');
     } else {
       url.searchParams.delete('sointu');
       url.searchParams.delete('ote');
@@ -81,7 +106,6 @@
     scaleSettings.hidden = next !== 'scale';
     chordSettings.hidden = next !== 'chords';
     octaveSettings.hidden = next !== 'octaves';
-    Object.entries(legends).forEach(([name, element]) => { element.hidden = name !== next; });
     if (updateUrl) syncUrl();
     render();
   }
@@ -123,12 +147,22 @@
     '9:min': [0, 1, 2, 2, 0, null]
   };
   function chordData() {
-    const third = chordQuality === 'min' ? 3 : 4;
+    if (chordGroup === 'sevenths') {
+      const base = SEVENTH_CHORDS.get(seventhQuality);
+      return {
+        root: rootPC,
+        name: CHROM[rootPC] + seventhQuality,
+        notes: base.map(([interval, degree]) => noteName(rootPC, interval, degree)),
+        base,
+        add: []
+      };
+    }
+    const third = triadQuality === 'min' ? 3 : 4;
     return {
       root: rootPC,
-      name: CHROM[rootPC] + (chordQuality === 'min' ? 'm' : ''),
+      name: CHROM[rootPC] + (triadQuality === 'min' ? 'm' : ''),
       notes: [0, third, 7].map(iv => CHROM[(rootPC + iv) % 12]),
-      base: [[0, '1'], [third, chordQuality === 'min' ? '♭3' : '3'], [7, '5']],
+      base: [[0, '1'], [third, triadQuality === 'min' ? '♭3' : '3'], [7, '5']],
       add: []
     };
   }
@@ -141,14 +175,14 @@
       seen.add(key);
       grips.push({ strings: frets, label, base, barre });
     };
-    const open = OPEN_GRIPS[rootPC + ':' + chordQuality];
+    const open = OPEN_GRIPS[rootPC + ':' + triadQuality];
     if (open) add(open, 'Avoin ote', 0);
     // E-barré soittaa kuutta, A-barré viittä kieltä; matala E mykistetään A-muodossa.
     const shapes = [
       { name: 'E-muoto · 6 kieltä', root: 4, from: 0, to: 5,
-        offsets: chordQuality === 'min' ? [0,0,0,2,2,0] : [0,0,1,2,2,0] },
+        offsets: triadQuality === 'min' ? [0,0,0,2,2,0] : [0,0,1,2,2,0] },
       { name: 'A-muoto · 5 kieltä', root: 9, from: 0, to: 4,
-        offsets: chordQuality === 'min' ? [0,1,2,2,0,null] : [0,2,2,2,0,null] }
+        offsets: triadQuality === 'min' ? [0,1,2,2,0,null] : [0,2,2,2,0,null] }
     ];
     for (const shape of shapes) {
       for (let fret = (rootPC - shape.root + 12) % 12; fret <= fretCount(); fret += 12) {
@@ -169,27 +203,59 @@
   }
   function triadInversion(chord, strings) {
     const bass = (OPEN_PITCHES[2] + strings[2]) % 12; // G-kieli.
-    const third = (chord.root + (chordQuality === 'min' ? 3 : 4)) % 12;
+    const third = (chord.root + (triadQuality === 'min' ? 3 : 4)) % 12;
     return bass === chord.root ? 'Perusmuoto' : bass === third ? '1. käännös' : '2. käännös';
   }
   function formatFrets(strings) {
     return [...strings].reverse().map(fret => fret === null ? 'x' : fret).join(' ');
   }
+  function updateChordOptions() {
+    const sevenths = chordGroup === 'sevenths';
+    chordGroupSelect.value = chordGroup;
+    qualitySelect.replaceChildren(...(sevenths
+      ? [...SEVENTH_CHORDS.keys()].map(quality => new Option(quality, quality))
+      : [new Option('Duuri', 'maj'), new Option('Molli', 'min')]));
+    qualitySelect.value = sevenths ? seventhQuality : triadQuality;
+    chordModeGroup.hidden = sevenths;
+  }
+
   function renderChords() {
     const chord = chordData();
-    qualitySelect.value = chordQuality;
+    const sevenths = chordGroup === 'sevenths';
+    const voiced = sevenths && hasSeventhVoicing(seventhQuality);
+    const mode = voiced ? 'voicing' : sevenths ? 'all' : chordMode;
+    const formName = SEVENTH_FORMS.get(seventhRoot);
+    seventhForms.hidden = !voiced;
+    seventhFormButtons.forEach(button => button.setAttribute(
+      'aria-pressed', Number(button.dataset.seventhRoot) === seventhRoot ? 'true' : 'false'));
     chordModes.forEach(button => button.setAttribute(
-      'aria-pressed', button.dataset.chordMode === chordMode ? 'true' : 'false'));
+      'aria-pressed', button.dataset.chordMode === mode ? 'true' : 'false'));
 
-    let grip = null, barre = null, description = '';
-    if (chordMode === 'all') {
+    let grip = null, barre = null, muteFret = null, description = '', tooHigh = false;
+    if (mode === 'voicing') {
+      // Vain valitun juurikielen ote; jos se ei mahdu nauhoille, otelauta jätetään tyhjäksi.
+      const voicing = getSeventhVoicings(chord.root, seventhQuality, fretCount(), OPEN_PITCHES)
+        .find(({ rootString }) => rootString === seventhRoot);
+      chordNavigation.hidden = true;
+      tooHigh = !voicing;
+      if (voicing) {
+        grip = voicing.strings;
+        muteFret = voicing.rootFret;
+        description = formName + ' ote · ' + formatFrets(grip);
+        chordHelp.textContent = 'Kielet 6–1: ' + formatFrets(grip) + ' · × = mykistetty kieli';
+      } else {
+        chordHelp.textContent = 'Tämä ote ei mahdu valitulle nauhamäärälle.';
+      }
+    } else if (mode === 'all') {
       board.scrollLeft = 0;
       chordNavigation.hidden = true;
-      chordHelp.textContent = 'Näytössä ovat kaikki soinnun perussävelet, terssit ja kvintit koko otelaudalla.';
+      chordHelp.textContent = sevenths
+        ? 'Tälle soinnulle ei ole vielä määritelty otteita. Otelauta näyttää sointusävelet.'
+        : 'Näytössä ovat kaikki soinnun perussävelet, terssit ja kvintit koko otelaudalla.';
     } else {
-      const options = chordMode === 'full' ? fullGrips() : threeStringGrips(chord);
-      const index = Math.min(gripIndex[chordMode], Math.max(0, options.length - 1));
-      gripIndex[chordMode] = index;
+      const options = mode === 'full' ? fullGrips() : threeStringGrips(chord);
+      const index = Math.min(gripIndex[mode], Math.max(0, options.length - 1));
+      gripIndex[mode] = index;
       const chosen = options[index];
       chordNavigation.hidden = false;
       prevGrip.disabled = index === 0;
@@ -199,7 +265,7 @@
         chordHelp.textContent = 'Lisää näytettävien nauhojen määrää.';
       } else {
         grip = chosen.strings;
-        if (chordMode === 'full') {
+        if (mode === 'full') {
           barre = chosen.barre;
           description = chosen.label + ' · ' + formatFrets(grip);
           chordHelp.textContent = 'Koko ote: × merkitsee mykistettyä kieltä. Nuolilla vaihdat saman soinnun avointen ja barré-muotojen välillä.';
@@ -211,13 +277,15 @@
         chordPosition.textContent = description + ' · ' + (index + 1) + '/' + options.length;
       }
     }
-    board.innerHTML = renderBoard(chord.root, chord, fretCount(), {
-      automatic: automatic(), grip, barre,
-      label: chord.name + (grip ? ' · ' + description : ' · kaikki sointusävelet')
+    chordHelp.classList.toggle('chord-warning', tooHigh);
+    board.innerHTML = renderBoard(chord.root, tooHigh ? { ...chord, base: [], add: [] } : chord, fretCount(), {
+      automatic: automatic(), grip, barre, muteFret,
+      label: chord.name + (grip ? ' · ' + description
+        : tooHigh ? ' · ' + formName + ' ote ei mahdu valitulle nauhamäärälle' : ' · kaikki sointusävelet')
     });
-    title.textContent = CHROM[rootPC] + (chordQuality === 'maj' ? '-duuri' : '-molli') +
-      ' · ' + (chordMode === 'all' ? 'Kaikki sointusävelet' :
-        chordMode === 'full' ? 'Koko ote' : 'Triadi');
+    const chordName = sevenths ? chord.name : CHROM[rootPC] + (triadQuality === 'maj' ? '-duuri' : '-molli');
+    title.textContent = chordName + ' · ' + (mode === 'voicing' ? formName + ' ote' :
+      mode === 'all' ? 'Kaikki sointusävelet' : mode === 'full' ? 'Koko ote' : 'Triadi');
     notesLabel.textContent = 'Sointusävelet: ' + chord.notes.join(' · ');
     updateScrollHint();
     if (grip) revealPositions(board, '.grip-notes');
@@ -251,12 +319,14 @@
   function render() {
     rootSelect.value = String(rootPC);
     scaleSelect.value = scaleId;
+    Object.entries(legends).forEach(([name, element]) => { element.hidden = name !== view; });
     if (view === 'chords') renderChords();
     else if (view === 'octaves') renderOctaves();
     else renderScale();
   }
 
   CHROM.forEach((name, index) => rootSelect.add(new Option(name, String(index))));
+  updateChordOptions();
   pentatonicBoxes.innerHTML = boxOptions('pentatonic');
   threeNoteBoxes.innerHTML = boxOptions('3nps');
 
@@ -276,14 +346,29 @@
   [pentatonicBoxes, threeNoteBoxes].forEach(group =>
     group.addEventListener('change', render));
   onlyBoxNotes.addEventListener('change', render);
+  chordGroupSelect.addEventListener('change', () => {
+    chordGroup = chordGroupSelect.value;
+    updateChordOptions();
+    syncUrl();
+    render();
+  });
   qualitySelect.addEventListener('change', () => {
-    chordQuality = qualitySelect.value;
-    gripIndex.full = 0; gripIndex.triad = 0;
+    if (chordGroup === 'sevenths') {
+      seventhQuality = qualitySelect.value;
+    } else {
+      triadQuality = qualitySelect.value;
+      gripIndex.full = 0; gripIndex.triad = 0;
+    }
     syncUrl();
     render();
   });
   chordModes.forEach(button => button.addEventListener('click', () => {
     chordMode = button.dataset.chordMode;
+    syncUrl();
+    render();
+  }));
+  seventhFormButtons.forEach(button => button.addEventListener('click', () => {
+    seventhRoot = Number(button.dataset.seventhRoot);
     syncUrl();
     render();
   }));

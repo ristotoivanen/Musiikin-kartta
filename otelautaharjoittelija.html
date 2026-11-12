@@ -74,13 +74,24 @@
   <section class="visualizer-settings visualizer-chords" id="chord-settings" hidden aria-label="Soinnun näyttötapa">
     <div class="visualizer-chord-top">
       <div class="visualizer-field">
-        <label for="chord-quality">Soinnun laatu</label>
-        <select id="chord-quality">
-          <option value="maj">Duuri</option>
-          <option value="min">Molli</option>
+        <label for="chord-group">Sointuryhmä</label>
+        <select id="chord-group">
+          <option value="triads">Kolmisoinnut</option>
+          <option value="sevenths">Seiskasoinnut</option>
         </select>
       </div>
-      <div class="chord-modes" role="group" aria-label="Soinnun esitystapa">
+      <div class="visualizer-field">
+        <label for="chord-quality">Soinnun laatu</label>
+        <select id="chord-quality"></select>
+      </div>
+      <div class="visualizer-field seventh-forms" id="seventh-forms" hidden>
+        <span id="seventh-form-label">Ote</span>
+        <div class="chord-modes" role="group" aria-labelledby="seventh-form-label">
+          <button type="button" data-seventh-root="6" aria-pressed="true">E-juurinen</button>
+          <button type="button" data-seventh-root="5" aria-pressed="false">A-juurinen</button>
+        </div>
+      </div>
+      <div class="chord-modes" id="chord-modes" role="group" aria-label="Soinnun esitystapa">
         <button type="button" data-chord-mode="all" aria-pressed="false">Kaikki sointusävelet</button>
         <button type="button" data-chord-mode="full" aria-pressed="true">Koko ote</button>
         <button type="button" data-chord-mode="triad" aria-pressed="false">Triadi (G–B–e)</button>
@@ -138,6 +149,6 @@
   <a href="https://github.com/ristotoivanen/Musiikin-kartta">GitHub</a>
 </footer>
 <script src="assets/otelauta.js"></script>
-<script src="assets/visualizer.js"></script>
+<script type="module" src="assets/visualizer.js"></script>
 </body>
 </html>

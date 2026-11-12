@@ -331,6 +331,7 @@ const fretboard = (() => {
   function renderBoard(rootPC, sc, fretCount, {
     boxes = [], onlyBoxNotes = false, automatic = true, focusDegree = '', grip = null,
     barre = null, label = CHROM[rootPC] + ' ' + sc.name, notes = null, targets = false,
+    muteFret = null,
   } = {}) {
     const fretboardEnd = wireX(fretCount);
     const bridgeX = fretboardEnd + 48;
@@ -346,6 +347,8 @@ const fretboard = (() => {
 
     // Sointuotteessa kielet, joilla ei ole säveltä, jätetään soittamatta.
     const muted = OPEN_PITCHES.map((_, i) => Boolean(grip) && grip[i] === null);
+    // Siirrettävässä otteessa (muteFret) × piirretään otteen nauhalle eikä koko kieltä himmennetä.
+    const muteAtGrip = Boolean(grip) && muteFret !== null;
     const mutedNames = SPOKEN_STRING_NAMES.filter((_, i) => muted[i]).reverse();
     const description = label + '. ' + fretCount + ' nauhaa. Vapaat kielet satulan vasemmalla puolella.' +
       (mutedNames.length ? ' Soittamatta jäävät kielet: ' + mutedNames.join(', ') + '.' : '');
@@ -391,12 +394,13 @@ const fretboard = (() => {
     OPEN_PITCHES.forEach((_, i) => {
       const th = 1 + (i * 0.45);
       const y = stringY(i);
-      if (muted[i]) {
+      const dimmed = muted[i] && !muteAtGrip;
+      if (dimmed) {
         s += '<text class="muted-mark" x="' + openCenter + '" y="' + (y + 6) + '" font-size="18" font-weight="700" fill="#efeaff" text-anchor="middle">×</text>';
-      } else {
+      } else if (!(muted[i] && muteFret === 0)) {
         s += '<line x1="' + (OPEN_LEFT + 4) + '" y1="' + y + '" x2="' + (NUT_X - 4) + '" y2="' + y + '" stroke="#8b809d" stroke-dasharray="3 3"/>';
       }
-      s += '<g' + (muted[i] ? ' opacity=".35"' : '') + '>';
+      s += '<g' + (dimmed ? ' opacity=".35"' : '') + '>';
       s += '<line x1="' + NUT_X + '" y1="' + y + '" x2="' + (bridgeX + 5) + '" y2="' + y + '" stroke="#b9b9c4" stroke-width="' + th.toFixed(2) + '"/>';
       s += '<circle cx="' + (bridgeX + 5) + '" cy="' + y + '" r="3" fill="#211c26" stroke="#b9b9c4"/>';
       s += '</g>';
@@ -448,11 +452,21 @@ const fretboard = (() => {
         if (info.deg === focusDegree) {
           s += '<circle class="focus-note" cx="' + cellCX(f) + '" cy="' + stringY(si) + '" r="14.5"/>';
         }
-        s += '<circle cx="' + cellCX(f) + '" cy="' + stringY(si) + '" r="' + R + '" fill="' + fill + '" stroke="' + (isRoot ? '#fff' : '#1a1430') + '" stroke-width="' + (isRoot ? 2.5 : 1) + '"/>';
+        const gripData = grip ? ' data-string="' + (si + 1) + '" data-fret="' + f + '" data-degree="' + info.deg + '"' : '';
+        s += '<circle' + gripData + ' cx="' + cellCX(f) + '" cy="' + stringY(si) + '" r="' + R + '" fill="' + fill + '" stroke="' + (isRoot ? '#fff' : '#1a1430') + '" stroke-width="' + (isRoot ? 2.5 : 1) + '"/>';
         s += '<text x="' + cellCX(f) + '" y="' + (stringY(si) + 3.5) + '" font-size="' + (info.deg.length > 1 ? 9.5 : 11) + '" font-weight="700" fill="' + textColor + '" text-anchor="middle">' + info.deg + '</text>';
       }
     });
     if (grip) s += '</g>';
+    if (muteAtGrip) muted.forEach((isMuted, si) => {
+      if (!isMuted) return;
+      const x = cellCX(muteFret), y = stringY(si);
+      s += '<g class="muted-mark grip-mute" data-string="' + (si + 1) + '" data-fret="' + muteFret + '">';
+      // Taustan värinen pohja katkaisee kielen viivan, jolloin × erottuu nuottipisteistä.
+      s += '<circle cx="' + x + '" cy="' + y + '" r="9" fill="' + (muteFret === 0 ? '#2a2338' : '#231a12') + '"/>';
+      s += '<text x="' + x + '" y="' + (y + 6) + '" font-size="18" font-weight="700" fill="#efeaff" text-anchor="middle">×</text>';
+      s += '</g>';
+    });
     s += '</svg>';
     return s;
   }
