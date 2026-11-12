@@ -37,7 +37,7 @@ function readTempo() {
  */
 export function ScaleBridgeJourney({ onBack, onPosition }: {
   onBack: () => void;
-  onPosition: (number: 1 | 2) => void;
+  onPosition: (number: 1 | 2 | 3) => void;
 }) {
   const [unlocked, setUnlocked] = useState(readProgress);
   const [step, setStep] = useState(readProgress);
@@ -239,18 +239,19 @@ export function ScaleBridgeJourney({ onBack, onPosition }: {
       </>}
       {step === 4 && <div className="journey-next" role="status">
         <h3>Hallussa: kaksi positiota</h3>
-        <p>Osaat käyttää kahta boksia yhtenä asteikkona. Voit palata muistiharjoitukseen tai kerrata kumpaa tahansa positiota.</p>
+        <p>Olet harjoitellut kahden boksin yhdistämistä. Kolmas positio on nyt käytettävissä. Voit myös palata muistiharjoitukseen ja kerrata kumpaa tahansa aikaisempaa positiota.</p>
         <div className="action-row">
           <button type="button" onClick={() => chooseStep(2)}>Kertaa muistiharjoitus</button>
           <button type="button" onClick={() => onPosition(1)}>Kertaa positio 1</button>
           <button type="button" onClick={() => onPosition(2)}>Kertaa positio 2</button>
+          <button type="button" className="primary" onClick={() => onPosition(3)}>Siirry positioon 3 →</button>
         </div>
       </div>}
     </section>
     <div className="journey-below">
       <h3>Seuraavaksi tällä polulla</h3>
-      <p>🔒 Positio 3</p>
-      <p className="tools-note">Positio 3 on vielä toteuttamatta. Kahden position kertaus säilyy käytettävissä.</p>
+      <p>{unlocked === 4 ? 'Positio 3 käytettävissä' : '🔒 Positio 3'}</p>
+      <p className="tools-note">Positio 3 avautuu, kun kirjaat yhdistämisharjoituksen suoritetuksi. Kahden position kertaus säilyy käytettävissä.</p>
     </div>
   </section>;
 }
