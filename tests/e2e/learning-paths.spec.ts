@@ -95,6 +95,34 @@ test.describe('Uudet oppimispolut', () => {
     await page.getByRole('button', { name: '■ Pysäytä asteikon toisto' }).click();
   });
 
+  test('muistiharjoituksen tempo säätyy 5 BPM:n askelin kesken toiston ja säilyy reloadissa', async ({ page }) => {
+    await page.goto('/kitaraharjoittelija.html');
+    await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
+    await expect(page.getByRole('group', { name: 'Asteikon toiston tempo' })).toHaveCount(0);
+    await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
+    await expect(page.getByRole('group', { name: 'Asteikon toiston tempo' })).toHaveCount(0);
+    await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
+
+    const output = page.locator('.scale-tempo output');
+    await expect(output).toHaveText('75 BPM');
+    await page.getByRole('button', { name: 'Nopeuta tempoa 5 BPM' }).click({ clickCount: 2 });
+    await expect(output).toHaveText('85 BPM');
+    await page.getByRole('button', { name: '▶ Toista asteikkoa jatkuvasti' }).click();
+    const stop = page.getByRole('button', { name: '■ Pysäytä asteikon toisto' });
+    await expect(stop).toHaveAttribute('aria-pressed', 'true');
+    await page.getByRole('button', { name: 'Hidasta tempoa 5 BPM' }).click();
+    await expect(output).toHaveText('80 BPM');
+    await expect(stop).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('.practice-board .dot')).toHaveCount(0);
+
+    await page.reload();
+    await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
+    await expect(page.getByRole('heading', { name: 'Soita muistista' })).toBeVisible();
+    await expect(output).toHaveText('80 BPM');
+    await page.getByRole('button', { name: 'Palauta 75 BPM' }).click();
+    await expect(output).toHaveText('75 BPM');
+  });
+
   test('sointupolku tarjoaa vanhan sointusävelharjoituksen ilman kaikkien harjoitusten valikkoa', async ({ page }) => {
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Soinnut ja musiikin rakenne/ }).click();
