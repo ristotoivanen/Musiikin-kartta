@@ -283,15 +283,17 @@ describe('esimerkkisävelet ja yhteinen äänikonteksti', () => {
 
       // Ensimmäiset kaksi säveltä ovat jo etukäteen Web Audion aikajanalla.
       const starts = () => context.createOscillator.mock.results.map(call =>
-        (call.value as { start: ReturnType<typeof vi.fn> }).start.mock.calls[0][0] as number);
+        Number(((call.value as { start: ReturnType<typeof vi.fn> }).start.mock.calls[0][0] as number).toFixed(2)));
       expect(starts()).toEqual([.05, .85]);
 
       context.currentTime = .08;
       await vi.advanceTimersByTimeAsync(30);
       expect(onNote).toHaveBeenCalledWith(0);
 
-      context.currentTime = 2.5;
-      await vi.advanceTimersByTimeAsync(30);
+      for (const second of [.82, 1.66, 2.5]) {
+        context.currentTime = second;
+        await vi.advanceTimersByTimeAsync(30);
+      }
       // Neljäs sävel on jälleen 45 ja alkaa täsmälleen .8 s kolmannen jälkeen.
       expect(starts().slice(0, 5)).toEqual([.05, .85, 1.65, 2.45, 3.25]);
       expect(started.map(n => Math.round(n)).slice(0, 4)).toEqual([110, 131, 165, 110]);
