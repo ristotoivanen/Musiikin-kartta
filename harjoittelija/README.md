@@ -67,8 +67,12 @@ Eteneminen tallentuu omaan avaimensa
 `musiikin-kartta:skaalapolku:v1`, eikä muuta vanhaa
 `musiikin-kartta:harjoittelu`-tietomallia.
 Harjoitusvaiheen suoritus on **käyttäjän itsearvio**, ei mitattu soittotulos.
-Toinen positio ja positioiden yhdistäminen ovat vasta tulevia sisältöjä,
-eivätkä näkyvissä valheellisesti toimivina.
+A-mollipentatonisen positiot 1–3 sekä positioiden 1 ja 2 yhdistäminen
+ovat erillisiä ohjattuja harjoituksia. Kolmas positio (nauhat 9–13) avautuu,
+kun yhdistämisharjoitus on kirjattu suoritetuksi. Kunkin position eteneminen
+tallentuu omaan paikalliseen avaimeensa; yhdistämisharjoitus käyttää
+`musiikin-kartta:skaalapolku:bridge-1-2:v1`-avainta. Aiemmat tiedot säilyvät
+position vaihdossa. Harjoittelija ei mittaa soittoa automaattisesti.
 
 **Sävelkorva ja otelauta** -polun ensimmäinen harjoitus
 (`NoteJourney.tsx`) on **Etsi sävelet otelaudalta**.
