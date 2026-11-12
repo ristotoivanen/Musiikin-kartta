@@ -27,6 +27,7 @@ export function SongChordChart({version, position, onSeek}: {
 }) {
   const [hints, setHints] = useState(loadSongHintSettings);
   const [revealed, setRevealed] = useState<string | null>(null);
+  const [showAllLyrics, setShowAllLyrics] = useState(false);
 
   const chart = SONG_CHARTS[version];
   const current = chordAt(position, version);
@@ -54,11 +55,16 @@ export function SongChordChart({version, position, onSeek}: {
       <span>{hints.showChords && hints.level === 0 ? 'G-molli · ' : ''}4/4 · noin 69 BPM</span>
     </div>
 
-    <div className="song-hint-controls" role="group" aria-label="Sointuvihjeiden asetukset">
+    <div className="song-hint-controls" role="group" aria-label="Sointujen ja sanojen asetukset">
       <label className="song-hints-toggle">
         <input type="checkbox" checked={hints.showChords}
           onChange={event => { setHints(prev => ({...prev,showChords:event.target.checked})); setRevealed(null); }} />
         Näytä soinnut
+      </label>
+      <label className="song-hints-toggle">
+        <input type="checkbox" checked={showAllLyrics}
+          onChange={event => setShowAllLyrics(event.target.checked)} />
+        Näytä koko sanoitus
       </label>
       <label className="song-hint-level" htmlFor="song-hint-level">Harjoitustaso
         <select id="song-hint-level" value={hints.level} disabled={!hints.showChords}
@@ -145,7 +151,16 @@ export function SongChordChart({version, position, onSeek}: {
         </button>;
       })}
     </div>
-    {section.lyrics && <div className="song-section-lyrics">
+    {showAllLyrics ? <div className="song-all-lyrics" aria-label="Koko kappaleen sanat">
+      <h4>Koko kappaleen sanat</h4>
+      <div className="song-all-lyrics-grid">
+        {chart.filter(part => part.lyrics?.length).map(part => <section key={part.id} className="song-lyrics-stanza">
+          <h5>{part.title}</h5>
+          {part.lyrics?.map((line,i) => <p key={i}>{line}</p>)}
+        </section>)}
+      </div>
+      <p className="tools-note">Instrumentaaliosissa ei ole laulunsanoja. Kolmannen säkeistökierron sanat ovat vahvistamatta.</p>
+    </div> : section.lyrics && <div className="song-section-lyrics">
       <h4>{section.title}: sanat</h4>
       {section.lyrics.map((line,i) => <p key={i}>{line}</p>)}
     </div>}
