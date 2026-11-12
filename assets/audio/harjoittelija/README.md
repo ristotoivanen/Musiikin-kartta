@@ -1,19 +1,26 @@
-# Am-vamp: harjoitustaustan vaihtoehtoiset versiot
+# Am-vamp: synkronoidut harjoitustaustat
 
-Sijoita tähän kolme käyttäjän omaa MP3-äänitiedostoa täsmälleen näillä nimillä:
+Kitaraharjoittelijan **Improvisoi taustan päälle** -vaiheessa on kaksi yhdessä kulkevaa
+ääniraitaa. Oletuksena kuuluu vain tausta, ja käyttäjä voi ottaa mallikitaran
+mukaan tai pois kesken soiton.
 
 | Tiedosto | Käyttö |
-|---|---|
-| `am-vamp-full.mp3` | Koko kappale (oletus) |
-| `am-vamp-no-guitar.mp3` | Tausta ilman kitaraa |
-| `am-vamp-guitar-only.mp3` | Vain kitaran osuus |
+| --- | --- |
+| am-vamp-without-guitar.mp3 | Tausta, kuuluu aina |
+| am-vamp-electric-guitar.mp3 | Sähkökitara, oletuksena mykistetty |
 
-Tiedostot tulevat käyttäjän toimittamasta *A Minor Vamp* -kappaleesta.
-Ne eivät sisälly tähän koodimuutokseen, koska binääriaineisto siirretään
-erikseen. Asennuspaketti `am-vamp-harjoitustaustat.zip` on saatavana
-ChatGPT-keskustelun liitteenä ja se puretaan repositorion juureen.
+Molemmat ovat käyttäjän toimittamia *A Minor Vamp* -äänitteitä. MP3-tiedostojen
+kesto on sama, 239,760 sekuntia, näytteenottotaajuus 48 kHz, stereo. Purettu
+näytemäärä on sama, mutta käyttäjän tulee varmistaa soiton käytännön synkronointi.
 
-Huomaa, että versioiden kestot poikkeavat toisistaan: noin 3:59 / 4:05 / 4:30.
-Käyttöliittymä vaihtaa koko äänitiedoston ja aloittaa uuden version alusta,
-eikä lupaa synkronoitua vaihtoa kesken kappaleen. Tarkista julkaisu- ja
-jakeluoikeudet ennen tiedostojen lisäämistä julkiseen GitHub-repositorioon.
+Äänitiedostot eivät ole mukana GitHubin tekstikoodipäivityksessä. Lataa
+keskustelusta am-vamp-kaksi-raitaa.zip ja pura se **repositorion juureen**,
+jolloin tiedostot tulevat tämän README:n viereen.
+
+Soitin käyttää kahta HTMLMediaElementiä. Molemmat käynnistetään samasta
+käyttäjän toiminnosta, ja sähkökitara on koko ajan toistossa vaimennettuna.
+Aikakohtaa verrataan taustaan ja tarvittaessa korjataan, jos ero kasvaa yli
+120 millisekunnin. Tämä ei ole audiotyöaseman näytetarkka miksain, mutta vältetään
+suurten äänitiedostojen täydellinen dekoodaus selaimen muistiin.
+
+Älä lisää tiedostoja julkiseen repositorioon ilman oikeutta niiden julkaisuun.
