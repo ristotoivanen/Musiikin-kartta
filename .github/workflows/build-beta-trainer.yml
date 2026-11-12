@@ -30,9 +30,22 @@ jobs:
         run: npm ci
       - name: Build browser assets
         run: npm run build
+      - name: Cache-bust compiled browser module
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync, writeFileSync } from 'node:fs';
+          import { createHash } from 'node:crypto';
+          const htmlPath = 'kitaraharjoittelija.html';
+          const compiled = readFileSync('assets/harjoittelija/app.js');
+          const version = createHash('sha256').update(compiled).digest('hex').slice(0, 12);
+          const html = readFileSync(htmlPath, 'utf8');
+          const path = /assets\/harjoittelija\/app\.js(?:\?v=[a-f0-9]{12})?/;
+          if (!path.test(html)) throw new Error('Missing browser app.js import');
+          writeFileSync(htmlPath, html.replace(path, 'assets/harjoittelija/app.js?v=' + version));
+          NODE
       - name: Commit and push generated browser assets
         run: |
-          git add -A assets/harjoittelija/
+          git add -A assets/harjoittelija/ kitaraharjoittelija.html
           if git diff --cached --quiet; then
             echo "Browser assets are already up to date."
             exit 0
