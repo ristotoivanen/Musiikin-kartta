@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Board } from './Board';
-import { at, fretName, note, pc, positionKey, positions, stringName, type Position } from './music';
+import { fretName, note, pc, positionKey, positions, stringName, type Position } from './music';
 import type { Area, Mark } from './engine';
 
 // Ensimmäinen oppimistaso: vain luonnolliset sävelnimet ja nauhat 0–5.
