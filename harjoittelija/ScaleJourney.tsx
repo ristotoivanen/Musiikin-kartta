@@ -148,7 +148,7 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
         {step !== 3 && <p className="tools-note" role="status" aria-live="polite">
           {playing === 'loop'
             ? activePosition && step < 2
-              ? `Nyt soi: ${note(activePosition.midi, false, true)} · ${stringName[activePosition.string]}-kieli, nauha ${activePosition.fret}.`
+              ? `Jatkuva toisto käynnissä · Nyt soi: ${note(activePosition.midi, false, true)} · ${stringName[activePosition.string]}-kieli, nauha ${activePosition.fret}.`
               : 'Jatkuva toisto käynnissä. Pysäytä se painikkeesta.'
             : 'Toista asteikkoa ilman taukoa kierrosten välillä. Pysäytä painikkeesta tai vaihda vaihetta.'}
         </p>}
