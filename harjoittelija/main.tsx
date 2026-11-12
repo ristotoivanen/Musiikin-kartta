@@ -322,8 +322,8 @@ function App() {
   const review = e && !inRound ? e.results.filter(r => r.errors > 0 || r.hint) : [];
   const [theoryHref, theoryTitle] = theoryLink(view);
 
-  const introduction = <div className="intro"><p className="eyebrow">KUUNTELE · LÖYDÄ · SOITA</p><h1>Kitaraharjoittelija</h1>
-    <p>Harjoittele yksi taito kerrallaan: kuuntele, soita ja opi muistamaan.</p></div>;
+  const introduction = <div className="intro"><p className="eyebrow">LÖYDÄ · KUUNTELE · SOITA</p><h1>Kitaraharjoittelija</h1>
+    <p>Harjoittele yksi taito kerrallaan: opi otelauta, kuuntele ja soita.</p></div>;
   const notice = store.data.notice === 'hints-default' && <div className="notice" role="status" data-testid="hints-notice">
     <p><strong>Harjoittelutapa on muuttunut.</strong> Oikea kohta ei enää näy heti kysymyksen alussa: tapa on nyt <em>Testaa osaamistasi</em>, ja vihjeen saa pyytämällä. Aiemmat tuloksesi ja muut asetuksesi ovat tallessa. Jos haluat vihjeet takaisin, valitse <em>Opettele</em> tai <em>Vähennä vihjeitä</em>.</p>
     <button type="button" onClick={() => { store.dismissNotice(); redraw(); }}>Selvä</button>
