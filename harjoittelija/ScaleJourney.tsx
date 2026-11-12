@@ -277,7 +277,7 @@ export function ScaleJourney({ onBack }: { onBack: () => void }) {
         </div>
       </>}
       {step === 4 && <div className="journey-next" role="status">
-        <h3>Positio {positionNumber} harjoiteltu</h3>
+        <h3>{positionNumber === 1 ? 'Valmis seuraavaan positioon' : 'Kaksi positiota harjoiteltu'}</h3>
         <p>{positionNumber === 1
           ? 'Kertaa asteikko muistista myös myöhemmin. Voit nyt jatkaa positioon 2.'
           : 'Kertaa molempia positioita erikseen. Niiden yhdistämisen harjoitus rakennetaan seuraavaksi.'}</p>
