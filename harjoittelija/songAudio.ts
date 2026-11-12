@@ -81,6 +81,25 @@ export function shouldCorrectDrift(state: DriftState, force = false): boolean {
 
 /** Kelausviiveen estimaatin yläraja sekunteina. */
 export const MAX_SEEK_LATENCY_SECONDS = 1.5;
+/** iPhonen mitattu kelausviive (12.11.2026: 0,3-0,8 s, tyypillisesti noin 0,43 s). */
+export const IOS_SEEK_LATENCY_SECONDS = 0.4;
+/** Osuus havaitusta jäännöserosta, jolla estimaattia korjataan. Vaimentaa vaihtelevan viiveen heilunnan. */
+export const SEEK_LATENCY_LEARNING_RATE = 0.5;
+
+// Sivun yhteinen opittu viive: kappaleen ja Am-vampin tahdistimet aloittavat siitä.
+let sharedSeekLatency: number | null = null;
+
+/** Tahdistimen aloitusviive: aiemmin opittu, muuten iPhonella mitattu arvo ja muualla 0. */
+let cachedVolumeWorks: boolean | null = null;
+export function initialSeekLatency(volumeWorks?: boolean): number {
+  if (sharedSeekLatency !== null) return sharedSeekLatency;
+  // Tunnistus luo audioelementin, joten se tehdään sivulla vain kerran.
+  const works = volumeWorks ?? (cachedVolumeWorks ??= elementVolumeWorks());
+  return works ? 0 : IOS_SEEK_LATENCY_SECONDS;
+}
+
+/** Vain testejä varten. */
+export function resetSharedSeekLatency() { sharedSeekLatency = null; }
 
 /** Ne audioelementin ominaisuudet, joita tahdistus käyttää (testattavissa ilman selainta). */
 export interface AlignableMedia {
@@ -99,12 +118,13 @@ export interface AlignableMedia {
  * noin 0,43 s kelauksen jälkeen, joten taustan kohtaan kelattu raita päätyi joka kerta yhtä
  * paljon jälkeen, ja kahden sekunnin välein toistunut korjaus kuului katkona. Tahdistin oppii
  * viiveen: jos raita on edellisen korjauksen jälkeen yhä jäljessä tai edellä, estimaattia
- * korjataan sen verran, ja seuraava kelaus tehdään taustan aika + viive -kohtaan.
+ * korjataan puolella erosta (viive vaihtelee kelauksesta toiseen), ja seuraava kelaus tehdään
+ * taustan aika + viive -kohtaan. Opittu viive jaetaan sivun muille tahdistimille.
  * Pysäytettyä taustaa kelattaessa viivettä ei lisätä, koska raidat käynnistyvät yhdessä.
  */
 export class StemAligner {
   private lastFix = new WeakMap<object, number>();
-  constructor(public latency = 0) {}
+  constructor(public latency = initialSeekLatency()) {}
 
   /** Palauttaa true, jos raita kelattiin. force = toiston alku, käyttäjän kelaus tai raidan päälle kytkentä. */
   align(master: AlignableMedia, stem: AlignableMedia, force = false, now = performance.now()): boolean {
@@ -120,7 +140,8 @@ export class StemAligner {
     const running = !master.paused;
     // Edellisen korjauksen jälkeinen jäännösero kertoo, paljonko viive-estimaatti heittää.
     if (!force && running && previous !== undefined) {
-      this.latency = Math.min(MAX_SEEK_LATENCY_SECONDS, Math.max(0, this.latency - signed));
+      this.latency = Math.min(MAX_SEEK_LATENCY_SECONDS, Math.max(0, this.latency - SEEK_LATENCY_LEARNING_RATE * signed));
+      sharedSeekLatency = this.latency;
     }
     let target = master.currentTime + (running ? this.latency : 0);
     if (Number.isFinite(stem.duration)) target = Math.min(target, Math.max(0, stem.duration - 0.05));

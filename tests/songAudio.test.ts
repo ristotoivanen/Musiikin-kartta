@@ -1,7 +1,8 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   DEFAULT_SONG_VOLUME, MAX_DRIFT_SECONDS, MIN_DRIFT_FIX_INTERVAL_MS, SongGainMixer, TRACK_BALANCE,
-  StemAligner, elementVolumeWorks, parseSongVolume, shouldCorrectDrift, trackLevel,
+  IOS_SEEK_LATENCY_SECONDS, StemAligner, elementVolumeWorks, initialSeekLatency, parseSongVolume,
+  resetSharedSeekLatency, shouldCorrectDrift, trackLevel,
 } from '../harjoittelija/songAudio';
 
 describe('Kappaleharjoittelijan yhteinen äänenvoimakkuus', () => {
@@ -89,39 +90,54 @@ describe('raitojen driftikorjaus', () => {
 describe('StemAligner', () => {
   const media = (currentTime: number, extra: Partial<{ paused: boolean; seeking: boolean; readyState: number; loop: boolean; duration: number }> = {}) =>
     ({ currentTime, paused: false, seeking: false, readyState: 4, loop: false, duration: 240, ...extra });
+  beforeEach(() => resetSharedSeekLatency());
 
   it('ei kelaa, kun raidat ovat tahdissa', () => {
-    const aligner = new StemAligner();
+    const aligner = new StemAligner(0);
     const stem = media(10.05);
     expect(aligner.align(media(10), stem, false, 0)).toBe(false);
     expect(stem.currentTime).toBe(10.05);
   });
 
-  it('oppii iPhonen kelausviiveen, jolloin toinen korjaus osuu kohdalleen (lokin luvut 12.11.2026)', () => {
-    const aligner = new StemAligner();
+  it('aloittaa iPhonella mitatusta viiveestä ja muualla nollasta', () => {
+    expect(initialSeekLatency(false)).toBe(IOS_SEEK_LATENCY_SECONDS);
+    expect(initialSeekLatency(true)).toBe(0);
+  });
+
+  it('oppii kelausviiveen vaimennetusti lokin luvuilla (12.11.2026)', () => {
+    const aligner = new StemAligner(0);
     const backing = media(11.86);
     const guitar = media(11.57);
-    // Ensimmäinen korjaus: viivettä ei vielä tunneta.
     expect(aligner.align(backing, guitar, false, 0)).toBe(true);
     expect(guitar.currentTime).toBeCloseTo(11.86);
-    // Kaksi sekuntia myöhemmin kitara on taas 0,43 s jäljessä.
+    // Kaksi sekuntia myöhemmin kitara on taas 0,43 s jäljessä: estimaattia korjataan puolella.
     backing.currentTime = 13.86; guitar.currentTime = 13.43;
     expect(aligner.align(backing, guitar, false, 2000)).toBe(true);
-    expect(aligner.latency).toBeCloseTo(0.43);
-    expect(guitar.currentTime).toBeCloseTo(14.29);
-    // Viiveen jälkeen kitara soi taustan tahdissa, eikä uutta kelausta tarvita.
-    backing.currentTime = 15.86; guitar.currentTime = 15.85;
+    expect(aligner.latency).toBeCloseTo(0.215);
+    expect(guitar.currentTime).toBeCloseTo(14.075);
+    // Seuraava jäännös on enää noin puolet, eikä se ylitä korjausrajaa.
+    backing.currentTime = 15.86; guitar.currentTime = 15.75;
     expect(aligner.align(backing, guitar, false, 4000)).toBe(false);
   });
 
-  it('pienentää estimaattia, jos raita päätyy edelle', () => {
-    const aligner = new StemAligner(0.5);
+  it('vaihteleva viive ei saa estimaattia heilumaan edestakaisin', () => {
+    const aligner = new StemAligner(0.43);
     const backing = media(20), stem = media(19);
     aligner.align(backing, stem, false, 0);
-    expect(stem.currentTime).toBeCloseTo(20.5);
-    backing.currentTime = 22; stem.currentTime = 22.3;
+    // Yksi kelaus osui 0,4 s edelle (lyhyempi viive kuin yleensä).
+    backing.currentTime = 22; stem.currentTime = 22.4;
     aligner.align(backing, stem, false, 2000);
-    expect(aligner.latency).toBeCloseTo(0.2);
+    expect(aligner.latency).toBeCloseTo(0.23);
+    expect(aligner.latency).toBeGreaterThan(0);
+  });
+
+  it('jakaa opitun viiveen seuraavalle tahdistimelle', () => {
+    const first = new StemAligner(0);
+    const backing = media(10), stem = media(9);
+    first.align(backing, stem, false, 0);
+    backing.currentTime = 12; stem.currentTime = 11.6;
+    first.align(backing, stem, false, 2000);
+    expect(new StemAligner().latency).toBeCloseTo(first.latency);
   });
 
   it('ei lisää viivettä, kun tausta on pysäytettynä (toiston alku)', () => {
@@ -131,7 +147,7 @@ describe('StemAligner', () => {
     expect(stem.currentTime).toBe(30);
   });
 
-  it('lisää opitun viiveen, kun raita kytketään päälle kesken soiton', () => {
+  it('lisää viiveen, kun raita kytketään päälle kesken soiton', () => {
     const aligner = new StemAligner(0.43);
     const stem = media(7.86, { paused: true });
     expect(aligner.align(media(11.47), stem, true, 0)).toBe(true);
@@ -139,7 +155,7 @@ describe('StemAligner', () => {
   });
 
   it('ohittaa pysäytetyn raidan ja loopin kääntökohdan jatkuvassa toistossa', () => {
-    const aligner = new StemAligner();
+    const aligner = new StemAligner(0);
     expect(aligner.align(media(10), media(5, { paused: true }), false, 0)).toBe(false);
     expect(aligner.align(media(0.1, { loop: true }), media(239.9), false, 0)).toBe(false);
   });
