@@ -19,7 +19,7 @@ test.describe('Uudet oppimispolut', () => {
     await page.getByRole('button', { name: /Kappaleharjoittelu/ }).click();
 
     await expect(page.getByRole('heading', { name: 'Yksi sointu, kaksi askelta' })).toBeVisible();
-    await expect(page.getByText('Akustinen versio', { exact: true })).toBeVisible();
+    await expect(page.getByRole('combobox', { name: 'Versio' })).toHaveValue('acoustic');
     const player = page.locator('.song-player');
     const streams = player.locator('audio');
     await expect(streams).toHaveCount(3);
@@ -51,6 +51,64 @@ test.describe('Uudet oppimispolut', () => {
     await expect(player.getByRole('button', { name: '■ Tauko' })).toBeVisible();
     await player.getByRole('button', { name: '■ Tauko' }).click();
     await expect(player.getByRole('button', { name: '▶ Soita kappale' })).toBeVisible();
+  });
+
+  test('kappaleen versiota vaihtaessa soitin pysähtyy ja kelaa alkuun, eikä soita ilman uutta painallusta', async ({ page }) => {
+    await page.addInitScript(() => {
+      HTMLMediaElement.prototype.play = function () {
+        this.dataset.playCount = String(Number(this.dataset.playCount ?? '0') + 1);
+        return Promise.resolve();
+      };
+      HTMLMediaElement.prototype.pause = function () {
+        this.dataset.pauseCount = String(Number(this.dataset.pauseCount ?? '0') + 1);
+      };
+    });
+    await page.goto('/kitaraharjoittelija.html');
+    await page.getByRole('button', { name: /Kappaleharjoittelu/ }).click();
+
+    const version = page.getByRole('combobox', { name: 'Versio' });
+    const player = page.locator('.song-player');
+    const streams = player.locator('audio');
+    const guitar = page.getByRole('checkbox', { name: 'Kitara kuuluu' });
+    const vocals = page.getByRole('checkbox', { name: 'Laulu kuuluu' });
+    const loop = page.getByRole('checkbox', { name: 'Soita looppina' });
+
+    await expect(version).toHaveValue('acoustic');
+    await player.getByRole('button', { name: '▶ Soita kappale' }).click();
+    await expect(player.getByRole('button', { name: '■ Tauko' })).toBeVisible();
+
+    await guitar.uncheck();
+    await vocals.uncheck();
+    await loop.check();
+
+    await version.selectOption('normal');
+    await expect(version).toHaveValue('normal');
+    await expect(player.getByRole('button', { name: '▶ Soita kappale' })).toBeVisible();
+    await expect(player.locator('.song-time')).toContainText('0:00 /');
+    await expect(player.getByText('Normaali versio · 3:32')).toBeVisible();
+    const base = 'assets/audio/kappaleet/yksi-sointu-kaksi-askelta-normaali/yksi-sointu-kaksi-askelta-normaali-';
+    await expect(streams).toHaveCount(3);
+    await expect(streams.nth(0)).toHaveAttribute('src', base + 'saestys.mp3');
+    await expect(streams.nth(1)).toHaveAttribute('src', base + 'kitara.mp3');
+    await expect(streams.nth(2)).toHaveAttribute('src', base + 'laulu.mp3');
+    await expect(streams.nth(0)).not.toHaveAttribute('data-play-count', '1');
+    await expect(guitar).not.toBeChecked();
+    await expect(vocals).not.toBeChecked();
+    await expect(loop).toBeChecked();
+    await expect(streams.nth(1)).toHaveJSProperty('muted', true);
+    await expect(streams.nth(2)).toHaveJSProperty('muted', true);
+    for (let i = 0; i < 3; i++) await expect(streams.nth(i)).toHaveJSProperty('loop', true);
+
+    // Soitto alkaa vasta manuaalisella painalluksella.
+    await player.getByRole('button', { name: '▶ Soita kappale' }).click();
+    await expect(streams.nth(0)).toHaveAttribute('data-play-count', '1');
+    await expect(player.getByRole('button', { name: '■ Tauko' })).toBeVisible();
+
+    await version.selectOption('acoustic');
+    await expect(player.getByRole('button', { name: '▶ Soita kappale' })).toBeVisible();
+    await expect(version).toHaveValue('acoustic');
+    await expect(streams.nth(0)).toHaveAttribute('src', 'assets/audio/kappaleet/yksi-sointu-kaksi-askelta-akustinen/yksi-sointu-kaksi-askelta-akustinen-saestys.mp3');
+    await expect(streams.nth(0)).not.toHaveAttribute('data-play-count', '1');
   });
 
   test('akustinen mallikappale voidaan avata suoralla linkillä', async ({ page }) => {
