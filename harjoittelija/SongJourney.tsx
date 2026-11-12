@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { SongChordChart } from './SongChordChart';
 
 type SongVersion = 'acoustic' | 'normal';
 const VERSIONS = {
@@ -201,10 +202,12 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
         onError={() => setError(song.label + ': lauluraita puuttuu tai ei lataudu.')} />
     </div>
 
+    <SongChordChart version={version} position={position} onSeek={seek} />
+
     <details className="song-instructions">
       <summary>Miten harjoittelen tämän kappaleen kanssa?</summary>
       <p>Kuuntele ensin kappale kitara ja laulu päällä. Kytke sitten kitara pois ja soita itse sen osuutta laulun ja bändin mukana. Kun haluat harjoitella ilman laulua, poista myös laulu: jäljelle jää säestys.</p>
     </details>
-    <p className="tools-note song-future">Sointujen tarkka järjestys ja osioiden aikaleimat vahvistetaan erikseen molemmista sovituksista ennen niiden lisäämistä.</p>
+
   </section>;
 }
