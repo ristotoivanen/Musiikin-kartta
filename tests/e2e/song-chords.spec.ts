@@ -30,6 +30,67 @@ test('akustisen kappaleen soinnut seuraavat aikajanaa ja tahtiin voi hypätä', 
   await expect(panel.locator('.song-current-chord strong')).toHaveText('Gm');
 });
 
+test('osio- ja tahtihyppy säilyvät, kun säestys ei vielä voi kelata', async ({page}) => {
+  await page.route('**/*.mp3', route => route.abort());
+  await page.goto('/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen');
+  await page.getByRole('combobox',{name:'Versio'}).selectOption('normal');
+  const player=page.locator('.song-player');
+  const backing=player.locator('audio').first();
+  await backing.evaluate(element => {
+    const audio = element as HTMLAudioElement;
+    let currentTime = 0;
+    Object.defineProperties(audio, {
+      readyState: { configurable:true, value:HTMLMediaElement.HAVE_NOTHING },
+      duration: { get:() => audio.readyState === HTMLMediaElement.HAVE_NOTHING ? NaN : 212 },
+      seekable: { get:() => ({
+        length:audio.readyState === HTMLMediaElement.HAVE_NOTHING ? 0 : 1,
+        start:() => 0, end:() => 212,
+      }) },
+      currentTime: {
+        get:() => currentTime,
+        set:(time: number) => {
+          if (audio.readyState === HTMLMediaElement.HAVE_NOTHING) {
+            throw new DOMException('Metadata puuttuu', 'InvalidStateError');
+          }
+          currentTime = time;
+          queueMicrotask(() => audio.dispatchEvent(new Event('timeupdate')));
+        },
+      },
+    });
+  });
+
+  const panel=page.locator('.song-chord-panel');
+  const jump=panel.getByRole('combobox',{name:'Harjoiteltava osa'});
+  const lyrics=panel.locator('.song-section-lyrics');
+  await jump.selectOption('bridge');
+  await backing.dispatchEvent('timeupdate');
+  await expect(jump).toHaveValue('bridge');
+  await expect(player.locator('.song-time')).toContainText('1:51 /');
+  await expect(lyrics).toHaveCount(0);
+
+  await panel.getByRole('button',{name:/^Tahti 4: C/}).click();
+  await backing.dispatchEvent('timeupdate');
+  await expect(backing).toHaveJSProperty('currentTime', 0);
+  await expect(panel.locator('.song-measure.active .song-measure-number')).toHaveText('Tahti 4');
+  await expect(panel.locator('.song-current-chord strong')).toHaveText('C');
+
+  await backing.evaluate(audio => {
+    Object.defineProperty(audio, 'readyState', { value:HTMLMediaElement.HAVE_CURRENT_DATA });
+    audio.dispatchEvent(new Event('loadedmetadata'));
+  });
+  await expect(backing).toHaveJSProperty('currentTime', 121.5);
+
+  const setMediaTime = (time: number) => backing.evaluate((element, time) => {
+    (element as HTMLAudioElement).currentTime = time;
+  }, time);
+  await setMediaTime(138.99);
+  await expect(jump).toHaveValue('bridge');
+  await expect(lyrics).toHaveCount(0);
+  await setMediaTime(139);
+  await expect(jump).toHaveValue('verse3');
+  await expect(lyrics).toContainText('Pidän tauon, annan soida');
+});
+
 test('kertosäkeen ohimenevä basso ja outrossa epävarma Dm erotetaan soinnuista', async ({page}) => {
   await page.goto('/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen');
   const panel=page.locator('.song-chord-panel');
@@ -130,7 +191,7 @@ test('sointujen piilotusjärjestystä voi muokata ja valinnat säilyvät versiot
   await panel.getByRole('button',{name:/^Tahti 4: sointu piilossa/}).click();
   await expect(panel.locator('.song-current-chord strong')).toHaveText('?');
 
-  await page.reload();
+  await page.reload({waitUntil:'domcontentloaded'});
   await expect(page.getByRole('heading',{name:'Yksi sointu, kaksi askelta'})).toBeVisible();
   await expect(panel.getByRole('combobox',{name:'Harjoitustaso'})).toHaveValue('1');
   await expect(panel.locator('.song-current-chord strong')).toHaveText('Gm');
@@ -181,7 +242,7 @@ test('Soinnut ja sanat -osion saa piiloon avaamatta tai pysäyttämättä soitin
   });
   await page.goto('/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen');
   const disclosure=page.locator('details.song-chart-collapse');
-  const summary=disclosure.locator('summary');
+  const summary=disclosure.locator(':scope > summary');
   const panel=disclosure.locator('.song-chord-panel');
   await expect(disclosure).toHaveAttribute('open','');
   await expect(panel).toBeVisible();

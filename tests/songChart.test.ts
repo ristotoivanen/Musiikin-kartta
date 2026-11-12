@@ -83,9 +83,26 @@ describe('Yksi sointu, kaksi askelta: sähköisen version sointukartta', () => {
   });
 });
 
+describe('Tahtihyppyjen aikarajat', () => {
+  it('valitsee hypätyn tahdin ensimmäisen iskun molemmissa versioissa', () => {
+    for (const version of ['acoustic', 'normal'] as const) {
+      SONG_CHARTS[version].forEach((section, sectionIndex) => {
+        section.bars.forEach((bar, barIndex) => {
+          const start = barStartTime(sectionIndex, barIndex, version);
+          expect(chordAt(start, version)).toMatchObject({ sectionIndex, barIndex, beat: 1, chord: bar.first });
+          if (barIndex > 0) {
+            expect(chordAt(start - 0.000001, version)).toMatchObject({ sectionIndex, barIndex: barIndex - 1, beat: 4 });
+          }
+        });
+      });
+    }
+  });
+});
+
 describe('Kappalerakenteen sanojen sijoittelu', () => {
   it('kitarasoolossa ei ole laulusäkeitä, ja väliosan sanat tulevat sen jälkeen', () => {
-    for (const chart of [ACOUSTIC_CHART, NORMAL_CHART]) {
+    for (const version of ['acoustic', 'normal'] as const) {
+      const chart = SONG_CHARTS[version];
       const solo=chart.find(section=>section.id==='bridge');
       const vocal=chart.find(section=>section.id==='verse3');
       expect(solo?.title).toBe('Kitarasoolo');
@@ -98,6 +115,8 @@ describe('Kappalerakenteen sanojen sijoittelu', () => {
         'löytyy tie eteenpäin',
       ]);
       expect(vocal!.start).toBeGreaterThan(solo!.start);
+      expect(chordAt(vocal!.start - 0.000001, version).section).toBe(solo);
+      expect(chordAt(vocal!.start, version).section).toBe(vocal);
     }
   });
 });

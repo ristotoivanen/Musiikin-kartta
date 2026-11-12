@@ -18,6 +18,12 @@ const VERSIONS = {
 } as const;
 
 const MAX_DRIFT_SECONDS = 0.12;
+const SEEK_PRECISION_SECONDS = 0.001;
+
+function setBackingTime(backing: HTMLAudioElement, seconds: number) {
+  try { backing.currentTime = seconds; } catch { /* Media ei ehkä ole vielä kelattavissa. */ }
+}
+
 function clock(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
   const whole = Math.floor(seconds);
@@ -31,6 +37,7 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   const vocalsRef = useRef<HTMLAudioElement>(null);
   // Suojaa keskeneräisen play()-lupauksen versionvaihtoon liittyvältä kilpailutilanteelta.
   const playbackRequest = useRef(0);
+  const pendingSeek = useRef<number | null>(null);
   const [version, setVersion] = useState<SongVersion>('acoustic');
   const song = VERSIONS[version];
   const [playing, setPlaying] = useState(false);
@@ -68,6 +75,7 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
     if (next === version) return;
     // Toisto pysäytetään ja kelataan alkuun. Uuden version käynnistäminen
     // edellyttää aina käyttäjältä erillistä Soita-painallusta.
+    pendingSeek.current = null;
     pause();
     for (const stem of [backingRef.current, guitarRef.current, vocalsRef.current]) {
       if (!stem) continue;
@@ -83,9 +91,42 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
     const backing = backingRef.current;
     if (!backing || !Number.isFinite(seconds)) return;
     const at = Math.max(0, Math.min(seconds, Number.isFinite(backing.duration) ? backing.duration : seconds));
-    try { backing.currentTime = at; } catch { return; }
-    syncStems(true);
+    pendingSeek.current = at;
     setPosition(at);
+    setBackingTime(backing, at);
+  }
+
+  function retryPendingSeek(backing: HTMLAudioElement) {
+    const target = pendingSeek.current;
+    if (target === null || backing !== backingRef.current || backing.seeking) return;
+    const at = Number.isFinite(backing.duration) ? Math.min(target, backing.duration) : target;
+    if (at !== target) {
+      pendingSeek.current = at;
+      setPosition(at);
+    }
+    if (Math.abs(backing.currentTime - at) < SEEK_PRECISION_SECONDS) return;
+    const ranges = backing.seekable;
+    for (let i = 0; i < ranges.length; i++) {
+      if (ranges.start(i) <= at && at <= ranges.end(i)) {
+        setBackingTime(backing, at);
+        return;
+      }
+    }
+  }
+
+  function followBacking(backing: HTMLAudioElement) {
+    if (backing !== backingRef.current) return;
+    const target = pendingSeek.current;
+    if (target === null) {
+      setPosition(backing.currentTime);
+    } else if (backing.readyState >= 1 && !backing.seeking &&
+      Math.abs(backing.currentTime - target) < SEEK_PRECISION_SECONDS) {
+      pendingSeek.current = null;
+      syncStems(true);
+      return;
+    }
+    // Epäonnistuneen tai keskeneräisen kelauksen timeupdate voi ilmoittaa vanhan ajan.
+    if (!backing.paused) syncStems();
   }
 
   async function togglePlayback() {
@@ -95,7 +136,9 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
     if (!backing || !guitar || !vocals) return;
     if (playing) { pause(); return; }
     setError('');
-    if (Number.isFinite(backing.duration) && backing.currentTime >= backing.duration - 0.05) seek(0);
+    const startAt = pendingSeek.current ?? backing.currentTime;
+    if (Number.isFinite(backing.duration) && startAt >= backing.duration - 0.05) seek(0);
+    retryPendingSeek(backing);
     backing.volume = 0.85;
     guitar.volume = 0.78;
     vocals.volume = 0.78;
@@ -181,15 +224,19 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
       <p className="tools-note">Kitara ja laulu ovat aluksi päällä. Versiota vaihtaessa toisto pysähtyy ja palautuu alkuun. Käynnistä valitsemasi versio Soita-painikkeesta.</p>
       {error && <p className="backing-error" role="alert">{error}</p>}
       <audio key={version + '-backing'} ref={backingRef} src={song.backing} preload="metadata" loop={loopOn}
-        onLoadedMetadata={event => setDuration(event.currentTarget.duration)}
-        onTimeUpdate={event => {
-          setPosition(event.currentTarget.currentTime);
-          if (!event.currentTarget.paused && event.currentTarget === backingRef.current) syncStems();
+        onLoadedMetadata={event => {
+          if (event.currentTarget !== backingRef.current) return;
+          setDuration(event.currentTarget.duration);
+          retryPendingSeek(event.currentTarget);
         }}
-        onEnded={() => {
-          if (backingRef.current?.loop) return;
+        onProgress={event => retryPendingSeek(event.currentTarget)}
+        onCanPlay={event => retryPendingSeek(event.currentTarget)}
+        onTimeUpdate={event => followBacking(event.currentTarget)}
+        onEnded={event => {
+          if (event.currentTarget !== backingRef.current || event.currentTarget.loop) return;
+          pendingSeek.current = null;
           guitarRef.current?.pause(); vocalsRef.current?.pause();
-          setPlaying(false); setPosition(backingRef.current?.duration ?? 0);
+          setPlaying(false); setPosition(event.currentTarget.duration);
         }}
         onPause={event => {
           if (event.currentTarget === backingRef.current) setPlaying(false);

@@ -145,10 +145,15 @@ export function chordAt(seconds: number, version: SongVersion = 'acoustic'): Cur
     sectionIndex=i;
   }
   const section=chart[sectionIndex];
-  const barDuration=sectionBarDuration(sectionIndex, version);
-  const barPosition=Math.max(0,(time-section.start)/barDuration);
-  const barIndex=Math.min(section.bars.length-1,Math.floor(barPosition));
-  const beat=Math.min(4,Math.floor((barPosition-barIndex)*4)+1);
+  // Käytä samoja aikarajoja kuin tahtihypyissä, jotta pyöristys ei jätä valintaa edelliseen tahtiin.
+  let barIndex = 0;
+  while (barIndex + 1 < section.bars.length && time >= barStartTime(sectionIndex, barIndex + 1, version)) {
+    barIndex++;
+  }
+  const barStart = barStartTime(sectionIndex, barIndex, version);
+  const beatDuration = sectionBarDuration(sectionIndex, version) / 4;
+  let beat = 1;
+  while (beat < 4 && time >= barStart + beat * beatDuration) beat++;
   const bar=section.bars[barIndex];
   return {section,sectionIndex,barIndex,beat,
     chord:bar.second && beat>=3 ? bar.second : bar.first};
