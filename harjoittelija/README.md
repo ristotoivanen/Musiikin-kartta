@@ -21,8 +21,8 @@ Oppaan suorat `?tila=...`-linkit avaavat vanhan moottorin kuten ennenkin;
 `LearningPaths.tsx` sisältää kolmen polun kortit. `ScaleJourney.tsx`
 on ohjatun oppimisjärjestelmän ensimmäinen kokonainen käyttöliittymäsiivu:
 A-mollipentatonisen ensimmäinen positio, Web Audio -mallisävelet,
-sormituskuvio, vihjeiden vähentäminen ja käyttäjän toimittama Am-vamp-harjoitustausta
-kolmena versiona (koko kappale, ilman kitaraa, vain kitara).
+sormituskuvio, vihjeiden vähentäminen ja käyttäjän toimittamat kaksi
+Am-vamp-ääniraitaa (tausta ilman sähkökitaraa ja erillinen kitararaita).
 Äänitiedostot asennetaan erikseen, ks. [audiohakemisto](../assets/audio/harjoittelija/README.md).
 Mallifraasi on syntetisoitu, ei äänitetty kitarasoolo.
 
@@ -35,11 +35,14 @@ sävel korostuu otelaudalla, mutta muistiharjoituksessa mallisävelet
 pysyvät piilossa. Mikrofoni- tai verkkoyhteyttä ei tarvita asteikon
 mallisoittoon.
 
-**Improvisoi taustan päälle** käyttää yhtä HTML-äänisoitinta. Sen vieressä
-on pienikokoinen kolmen ääniversion valinta. Oletuksena on koko kappale.
-Valinnan muutos aloittaa uuden tiedoston alusta, koska käyttäjän toimittamien
-versioiden kestot eivät ole samat (noin 3:59, 4:05 ja 4:30).
-Äänitiedostoja ei ole liitetty tähän GitHub-koodipäivitykseen automaattisesti.
+**Improvisoi taustan päälle** käyttää uutta BackingTrackMixer-komponenttia:
+käyttäjälle näkyy yksi soitin ja huomaamaton Mallikitara-valinta. Molemmat
+MP3-raidat soivat samanaikaisesti, mutta sähkökitara on oletuksena
+mykistetty. Kitaran voi lisätä tai poistaa kesken toiston. Kesto on
+molemmissa 3:59,760 ja aikakohdat pidetään lähellä toisiaan vertaamalla
+raitojen toistokohtaa. Tämä on HTMLMediaElement-synkronointi, ei
+näytetarkka audiomiksaus. Binääritiedostot puretaan erikseen keskustelun
+ZIP-paketista, eivätkä ne vielä sisälly GitHub-haaraan.
 Muistivaiheessa otelautamerkinnät ovat aluksi kokonaan piilossa. Käyttäjä voi
 näyttää ja piilottaa pelkät A-pohjasävelet; koko kuvio näkyy vain palaamalla
 edelliseen sormituksen opetteluvaiheeseen. Vihjeet nollautuvat vaiheenvaihdossa.
