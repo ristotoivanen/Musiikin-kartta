@@ -64,7 +64,7 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
   // Muistiharjoituksessa ei näytetä koko kuviota: vain erikseen pyydetyt A-pohjasävelet.
   const [showRoots, setShowRoots] = useState(false);
   const [tempo, setTempo] = useState(readTempo);
-  const [playing, setPlaying] = useState<'phrase' | 'loop' | 'once' | null>(null);
+  const [playing, setPlaying] = useState<'phrase' | 'loop' | null>(null);
   const [backingVersion, setBackingVersion] = useState<BackingVersion>('full');
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [audioError, setAudioError] = useState('');
@@ -107,10 +107,7 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
     .sort((a, b) => a.midi - b.midi || b.string - a.string);
   // Viimeisen ja ensimmäisen sävelen tuplaus poistettu: tasainen syke jatkuu kierrosrajan yli.
   const cyclePositions = [...played, ...played.slice(1, -1).reverse()];
-  // Kuuntelun kertatoisto päättyy takaisin alimpaan säveleen.
-  const singlePassPositions = [...played, ...played.slice(0, -1).reverse()];
-  const activeSequence = playing === 'once' ? singlePassPositions : cyclePositions;
-  const activePosition = activeIndex === null ? null : activeSequence[activeIndex];
+  const activePosition = activeIndex === null ? null : cyclePositions[activeIndex];
   // Sävelet löytyvät kokonaan 1. positiosta. Rytmi on tässä vielä tasainen.
   const examplePhrase = [69, 72, 69, 67, 64, 67, 69];
   const min = box.start, max = box.end;
@@ -122,7 +119,7 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
         ? 'playing' as const : pc(position.midi) === 9 ? 'answer' as const : 'shape' as const,
     }));
 
-  async function listen(kind: 'phrase' | 'loop' | 'once') {
+  async function listen(kind: 'phrase' | 'loop') {
     const current = ++token.current;
     audio.current.stop();
     setActiveIndex(null);
@@ -132,10 +129,9 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
       if (kind === 'phrase') {
         await audio.current.play(examplePhrase);
       } else {
-        const positions = kind === 'once' ? singlePassPositions : cyclePositions;
-        await audio.current.loop(positions.map(position => position.midi), index => {
+        await audio.current.loop(cyclePositions.map(position => position.midi), index => {
           if (current === token.current) setActiveIndex(index);
-        }, step === 2 ? tempo : DEFAULT_TEMPO, kind === 'loop');
+        }, step === 2 ? tempo : DEFAULT_TEMPO);
       }
     } catch {
       if (current === token.current) setAudioError('Mallisoitto ei käynnistynyt. Tarkista selaimen ääniasetukset ja yritä uudelleen.');
@@ -178,7 +174,7 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
       <p>{steps[step].detail}</p>
 
       {step < 4 && <>
-        {step === 0 && <p>Kuuntele asteikko kerran ylös ja alas. Juuri soiva sävel korostuu otelaudalla, joten voit seurata kulkua. Voit kuunnella esimerkin uudelleen painamalla toistopainiketta. Kokeile myös lyhyttä mallifraasia. Ääni on syntetisoitu.</p>}
+        {step === 0 && <p>Toista asteikkoa jatkuvasti ja seuraa, miten juuri soiva sävel korostuu otelaudalla. Asteikko jatkuu tauotta ylös ja alas, kunnes pysäytät sen. Kuuntele myös lyhyt mallifraasi. Ääni on syntetisoitu.</p>}
         {step === 1 && <p>Soita paksulta E-kieleltä alkaen jokaisen kielen alempi ja ylempi sävel, kunnes saavut ohuelle E-kielelle. Palaa samaa reittiä alas. Jatkuva mallisoitto etenee tasaisessa sykkeessä, ja otelauta näyttää juuri soivan sävelen. Soita mukana ja pysäytä toisto tarvittaessa.</p>}
         {step === 2 && <p>Soita positio ylös ja alas ulkomuistista. Otelauta on aluksi ilman merkintöjä. Säädä mallisoiton tempo itsellesi sopivaksi. Jos tarvitset apua, näytä vain A-pohjasävelet. Jos koko kuvio unohtui, palaa edelliseen opetukseen.</p>}
         {step === 3 && <p>Kuuntele mallifraasi. Käynnistä sitten Am-tausta ja soita aluksi vain 2–3 eri säveltä. Kokeile taukoja, toistoa ja pitkää lopetussäveltä A. Vasta sitten laajenna koko positioon.</p>}
@@ -194,27 +190,20 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
           <small>Yksi sävel / isku. Voit säätää myös toiston aikana.</small>
         </div>}
         {step !== 3 && <div className="action-row">
-          {step === 0
-            ? <button type="button" aria-pressed={playing === 'once'}
-                onClick={() => playing === 'once' ? stopPlayback() : void listen('once')}>
-                {playing === 'once' ? '■ Pysäytä asteikon toisto' : '▶ Kuuntele asteikko ylös ja alas'}
-              </button>
-            : <button type="button" aria-pressed={playing === 'loop'}
-                onClick={() => playing === 'loop' ? stopPlayback() : void listen('loop')}>
-                {playing === 'loop' ? '■ Pysäytä asteikon toisto' : '▶ Toista asteikkoa jatkuvasti'}
-              </button>}
+          <button type="button" aria-pressed={playing === 'loop'}
+            onClick={() => playing === 'loop' ? stopPlayback() : void listen('loop')}>
+            {playing === 'loop' ? '■ Pysäytä asteikon toisto' : '▶ Toista asteikkoa jatkuvasti'}
+          </button>
           <button type="button" onClick={() => playing === 'phrase' ? stopPlayback() : void listen('phrase')}>
             {playing === 'phrase' ? '■ Pysäytä fraasi' : '▶ Kuuntele mallifraasi'}
           </button>
         </div>}
         {step !== 3 && <p className="tools-note" role="status" aria-live="polite">
-          {playing === 'loop' || playing === 'once'
+          {playing === 'loop'
             ? activePosition && step < 2
-              ? `${playing === 'once' ? 'Mallisoitto käynnissä' : 'Jatkuva toisto käynnissä'} · Nyt soi: ${note(activePosition.midi, false, true)} · ${stringName[activePosition.string]}-kieli, nauha ${activePosition.fret}.`
+              ? `Jatkuva toisto käynnissä · Nyt soi: ${note(activePosition.midi, false, true)} · ${stringName[activePosition.string]}-kieli, nauha ${activePosition.fret}.`
               : 'Jatkuva toisto käynnissä. Pysäytä se painikkeesta.'
-            : step === 0
-              ? 'Kuuntele asteikko kerran ylös ja alas.'
-              : 'Toista asteikkoa ilman taukoa kierrosten välillä. Pysäytä painikkeesta tai vaihda vaihetta.'}
+            : 'Toista asteikkoa ilman taukoa kierrosten välillä. Pysäytä painikkeesta tai vaihda vaihetta.'}
         </p>}
         {audioError && <p className="error" role="alert">{audioError}</p>}
         {step >= 1 && step <= 3 && <>
