@@ -193,14 +193,47 @@ test.describe('Uudet oppimispolut', () => {
       .toHaveAttribute('href', 'book/osa-8.html#pentatoniikka');
   });
 
-  test('sointupolku tarjoaa vanhan sointusävelharjoituksen ilman kaikkien harjoitusten valikkoa', async ({ page }) => {
+  test('sointupolun ensimmäinen harjoitus tunnistaa neljä avointa sointua', async ({ page }) => {
+    // Fisher–Yates-arvonnan vaihdot osuvat samaan indeksiin: C on testin aloitussointu.
+    await page.addInitScript(() => { Math.random = () => 0.999999; });
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Soinnut ja musiikin rakenne/ }).click();
-    await expect(page.getByText(/Rakenna C-duurisointua/)).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Tunnista avoin sointu' })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Lue tämän harjoituksen teoria/ }))
+      .toHaveAttribute('href', 'book/osa-6.html#caged');
+    await expect(page.getByRole('radio', { name: /4 sointua/ })).toBeChecked();
+    await expect(page.getByRole('radio', { name: /7 sointua/ })).not.toBeChecked();
+    await expect(page.getByRole('heading', { name: 'Mikä avoin sointu?' })).toBeVisible();
+    await expect(page.getByText('Sointu 1 / 4')).toBeVisible();
     await expect(page.getByRole('combobox', { name: 'Harjoitus' })).toHaveCount(0);
-    await page.getByRole('button', { name: 'Aloita harjoitus' }).click();
-    await expect(page.getByTestId('round-status')).toContainText('Kysymys 1');
+
+    const board = page.locator('.chord-journey .practice-board');
+    const choices = page.getByRole('group', { name: 'Valitse soinnun nimi' });
+    await expect(choices.locator('button')).toHaveCount(4);
+    await expect(board.locator('.dot')).toHaveCount(5);
+    await expect(board.locator('tbody tr').last().locator('th')).toContainText('×');
+    await expect(board.locator('button[data-string="1"][data-fret="1"] .dot')).toHaveText('●');
+    await expect(board.locator('button[data-string="0"][data-fret="0"] .dot')).toHaveText('○');
+
+    await choices.getByRole('button', { name: 'D', exact: true }).click();
+    await expect(page.getByTestId('chord-feedback')).toContainText('Ei aivan');
+    await choices.getByRole('button', { name: 'C', exact: true }).click();
+    await expect(page.getByTestId('chord-feedback')).toContainText('Oikein! Tämä on C-sointu');
+    await page.getByRole('button', { name: 'Seuraava sointu →' }).click();
+    await expect(page.getByText('Sointu 2 / 4')).toBeVisible();
+    await expect(board.locator('.dot')).toHaveCount(6);
+
+    await page.getByRole('radio', { name: /7 sointua/ }).check();
+    await expect(page.getByText('Sointu 1 / 7')).toBeVisible();
+    await expect(choices.locator('button')).toHaveCount(7);
+    await expect(choices.getByRole('button', { name: 'Am', exact: true })).toBeVisible();
+    await expect(choices.getByRole('button', { name: 'A', exact: true })).toBeVisible();
+  });
+
+  test('vanhat sointusävelharjoitukset säilyvät linkeillä', async ({ page }) => {
+    await page.goto('/kitaraharjoittelija.html?tila=chord&toonikka=C&sointu=maj');
     await expect(page.getByRole('heading', { name: 'Sointusävelet' })).toBeVisible();
+    await expect(page.getByRole('combobox', { name: 'Harjoitus' })).toHaveValue('chord');
   });
 
   test('sävelkorvan ensimmäinen harjoitus etsii nimetyn sävelen kaikki sijainnit ilman ääntä', async ({ page }) => {
