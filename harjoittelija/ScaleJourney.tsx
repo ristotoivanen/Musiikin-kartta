@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Board } from './Board';
+import { BackingTrackMixer } from './BackingTrackMixer';
 import { ReferencePlayer } from './audio';
 import { at, music, note, pc, stringName } from './music';
 import type { Mark } from './engine';
@@ -9,25 +10,6 @@ const TEMPO_KEY = 'musiikin-kartta:skaalapolku:tempo:v1';
 const DEFAULT_TEMPO = 75;
 const MIN_TEMPO = 40;
 const MAX_TEMPO = 140;
-
-const BACKING_TRACKS = {
-  full: {
-    label: 'Koko kappale',
-    src: 'assets/audio/harjoittelija/am-vamp-full.mp3',
-    detail: 'Kuuntele ensin valmis kokonaisuus ja kitaran paikka siinä.',
-  },
-  noGuitar: {
-    label: 'Ilman kitaraa',
-    src: 'assets/audio/harjoittelija/am-vamp-no-guitar.mp3',
-    detail: 'Soita itse kitaran osuus tai improvisoi taustan päälle.',
-  },
-  guitarOnly: {
-    label: 'Vain kitara',
-    src: 'assets/audio/harjoittelija/am-vamp-guitar-only.mp3',
-    detail: 'Kuuntele kitaran fraaseja ja kokeile toistaa niitä.',
-  },
-} as const;
-type BackingVersion = keyof typeof BACKING_TRACKS;
 
 function readTempo(): number {
   try {
@@ -65,11 +47,9 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
   const [showRoots, setShowRoots] = useState(false);
   const [tempo, setTempo] = useState(readTempo);
   const [playing, setPlaying] = useState<'phrase' | 'loop' | null>(null);
-  const [backingVersion, setBackingVersion] = useState<BackingVersion>('full');
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [audioError, setAudioError] = useState('');
   const audio = useRef(new ReferencePlayer());
-  const backingAudio = useRef<HTMLAudioElement>(null);
   const token = useRef(0);
 
   function changeTempo(next: number) {
@@ -77,15 +57,6 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
     setTempo(value);
     audio.current.setLoopTempo(value);
     try { localStorage.setItem(TEMPO_KEY, String(value)); } catch { /* Selain voi estää tallennuksen. */ }
-  }
-
-  function changeBackingVersion(value: BackingVersion) {
-    const current = backingAudio.current;
-    if (current) {
-      current.pause();
-      current.currentTime = 0;
-    }
-    setBackingVersion(value);
   }
 
   function stopPlayback() {
@@ -187,7 +158,7 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
         {step === 0 && <p>Toista asteikkoa jatkuvasti ja seuraa, miten juuri soiva sävel korostuu otelaudalla. Asteikko jatkuu tauotta ylös ja alas, kunnes pysäytät sen. Kuuntele myös lyhyt mallifraasi. Ääni on syntetisoitu.</p>}
         {step === 1 && <p>Soita paksulta E-kieleltä alkaen jokaisen kielen alempi ja ylempi sävel, kunnes saavut ohuelle E-kielelle. Palaa samaa reittiä alas. Jatkuva mallisoitto etenee tasaisessa sykkeessä, ja otelauta näyttää juuri soivan sävelen. Soita mukana ja pysäytä toisto tarvittaessa.</p>}
         {step === 2 && <p>Soita positio ylös ja alas ulkomuistista. Otelauta on aluksi ilman merkintöjä. Säädä mallisoiton tempo itsellesi sopivaksi. Jos tarvitset apua, näytä vain A-pohjasävelet. Jos koko kuvio unohtui, palaa edelliseen opetukseen.</p>}
-        {step === 3 && <p>Kuuntele mallifraasi. Käynnistä sitten Am-tausta ja soita aluksi vain 2–3 eri säveltä. Kokeile taukoja, toistoa ja pitkää lopetussäveltä A. Vasta sitten laajenna koko positioon.</p>}
+        {step === 3 && <p>Kuuntele mallifraasi. Käynnistä sitten Am-tausta ilman sähkökitaraa ja soita aluksi vain 2–3 eri säveltä. Halutessasi voit kytkeä mallikitaran mukaan kesken toiston. Kokeile taukoja, toistoa ja pitkää lopetussäveltä A.</p>}
         {step === 2 && <div className="scale-tempo" role="group" aria-label="Asteikon toiston tempo">
           <span>Tempo</span>
           <button type="button" aria-label="Hidasta tempoa 5 BPM" disabled={tempo <= MIN_TEMPO}
@@ -231,25 +202,7 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
           <Board area={{ strings: [0,1,2,3,4,5], min, max, fixed: 'box' }} marks={marks} disabled caption="Ensimmäisen position sävelet" />
           <p className="tools-note">Sama sormitus ja samat viisi säveltä palaavat seuraavissa tehtävissä.</p>
         </>}
-        {step === 3 && <div className="backing-track">
-          <div className="backing-track-heading">
-            <strong>Am-harjoitustausta</strong>
-            <label className="backing-track-switch">Versio
-              <select aria-label="Harjoitustaustan versio" value={backingVersion}
-                onChange={event => changeBackingVersion(event.target.value as BackingVersion)}>
-                {Object.entries(BACKING_TRACKS).map(([value, track]) =>
-                  <option key={value} value={value}>{track.label}</option>)}
-              </select>
-            </label>
-          </div>
-          <audio key={backingVersion} ref={backingAudio} controls preload="metadata"
-            aria-label={`A-mollin harjoitustausta: ${BACKING_TRACKS[backingVersion].label}`}>
-            <source src={BACKING_TRACKS[backingVersion].src} type="audio/mpeg" />
-            Selaimesi ei tue äänentoistoa.
-          </audio>
-          <p className="tools-note">{BACKING_TRACKS[backingVersion].detail}</p>
-          <p className="tools-note">Version vaihtaminen pysäyttää nykyisen raidan ja aloittaa uuden alusta. Versioiden kestot eroavat toisistaan.</p>
-        </div>}
+        {step === 3 && <BackingTrackMixer />}
         <div className="journey-next">
           <p>{step === 0 ? 'Kun tunnistat äänen ja löydät sävelet kuvasta, jatka sormitukseen.' :
             step === 1 ? 'Jatka, kun saat kuljettua position molempiin suuntiin rauhallisesti.' :
