@@ -6,6 +6,7 @@ import { LearningPaths, type LearningTrack } from './LearningPaths';
 import { ScaleJourney } from './ScaleJourney';
 import { NoteJourney } from './NoteJourney';
 import { ChordJourney } from './ChordJourney';
+import { SongJourney } from './SongJourney';
 import { MicLive, MicPanel, type Heard, type MicUi } from './MicPanel';
 import { Progress } from './Progress';
 import { Microphone, ReferencePlayer, micError, noiseThreshold, releaseAudio } from './audio';
@@ -62,8 +63,12 @@ function App() {
   const [calibrating, setCalibrating] = useState(false), [calibration, setCalibration] = useState('');
   const [finished, setFinished] = useState<'' | 'complete' | 'stopped'>('');
   // Vanhoilla ?tila=-linkeillä avataan alkuperäinen harjoitus suoraan.
-  const [track, setTrack] = useState<LearningTrack | 'legacy' | null>(() =>
-    (new URLSearchParams(location.search).has('tila') || new URLSearchParams(location.search).has('vanha')) ? 'legacy' : null);
+  const [track, setTrack] = useState<LearningTrack | 'legacy' | null>(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.has('tila') || params.has('vanha')) return 'legacy';
+    if (params.get('kappale') === 'yksi-sointu-kaksi-askelta-akustinen') return 'songs';
+    return null;
+  });
 
   const refreshDevices = () => void listInputDevices().then(setDevices).catch(() => {});
   function stopCalibration() { clearTimeout(calibrationTimer.current); calibrationSamples.current = null; setCalibrating(false); }
@@ -335,6 +340,8 @@ function App() {
     <NoteJourney onBack={() => setTrack(null)} /></>;
   if (!inRound && track === 'chords') return <>{introduction}{notice}
     <ChordJourney onBack={() => setTrack(null)} /></>;
+  if (!inRound && track === 'songs') return <>{introduction}{notice}
+    <SongJourney onBack={() => setTrack(null)} /></>;
 
   return <>
     {introduction}{notice}
