@@ -34,6 +34,12 @@ otelautaan, mutta muistiharjoituksen otelauta pysyy ilman merkintöjä.
 Muistivaiheessa otelautamerkinnät ovat aluksi kokonaan piilossa. Käyttäjä voi
 näyttää ja piilottaa pelkät A-pohjasävelet; koko kuvio näkyy vain palaamalla
 edelliseen sormituksen opetteluvaiheeseen. Vihjeet nollautuvat vaiheenvaihdossa.
+Muistiharjoituksessa käyttäjä voi säätää asteikkoloopin tempoa 5 BPM:n askelin
+välillä 40–140 BPM (oletus 75 BPM, yksi sävel per isku). Nopeutta voi muuttaa myös
+toiston aikana ilman uudelleenkäynnistystä. Äänikelloon jo ajastetut sävelet
+soivat ensin loppuun, minkä jälkeen uusi tempo kuuluu. Valinta tallentuu
+erilliseen `musiikin-kartta:skaalapolku:tempo:v1`-avaimeen. Temponsäätö ei
+muuta mallifraasin eikä oppaan harjoitustaustan nopeutta.
 
 
 Eteneminen tallentuu omaan avaimensa
