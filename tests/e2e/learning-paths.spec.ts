@@ -8,6 +8,9 @@ test.describe('Uudet oppimispolut', () => {
       await expect(page.getByRole('button', { name: new RegExp(title) })).toBeVisible();
     }
     await expect(page.getByRole('combobox', { name: 'Harjoitus' })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'Harjoitustaustat' })).toHaveCount(0);
+    await expect(page.getByText('Muut harjoitukset ja vanhat asetukset')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Avaa kaikki harjoitukset' })).toHaveCount(0);
   });
 
   test('akustisen mallikappaleen kitara ja laulu saa erikseen pois ilman toiston katkaisua', async ({ page }) => {
