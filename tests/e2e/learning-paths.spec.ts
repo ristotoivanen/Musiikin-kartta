@@ -23,8 +23,11 @@ test.describe('Uudet oppimispolut', () => {
     await expect(page.getByRole('heading', { name: 'Soita ylös ja alas' })).toBeVisible();
     await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
     await expect(page.getByRole('heading', { name: 'Soita muistista' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Piilota vihjeet' })).toHaveCount(0);
-    await expect(page.getByRole('button', { name: 'Näytä sävelet' })).toBeVisible();
+    await page.getByRole('button', { name: 'Näytä vain pohjasävelet' }).click();
+    await expect(page.locator('.practice-board .dot')).toHaveCount(3);
+    await page.getByRole('button', { name: 'Piilota loputkin vihjeet' }).click();
+    await expect(page.locator('.practice-board .dot')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Näytä koko kuvio' })).toBeVisible();
     expect(await page.evaluate(() => localStorage.getItem('musiikin-kartta:skaalapolku:v1'))).toBe('2');
   });
 
