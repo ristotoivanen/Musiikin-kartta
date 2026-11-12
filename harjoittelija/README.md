@@ -13,9 +13,9 @@ hyväksyntätestit: [`../reviews/kitaraharjoittelija-auditointi.md`](../reviews/
 
 Kitaraharjoittelijan etusivu näyttää nykyisin neljä valintaa:
 **Sävelkorva ja otelauta**, **Skaalat ja moodit**,
-**Soinnut ja musiikin rakenne** sekä **Kappaleharjoittelu**. Vanha harjoitusvalikko säilyy
-kohdassa `Muut harjoitukset ja vanhat asetukset`.
-Oppaan suorat `?tila=...`-linkit avaavat vanhan moottorin kuten ennenkin;
+**Soinnut ja musiikin rakenne** sekä **Kappaleharjoittelu**.
+Vanha harjoitusvalikko ei näy etusivulla, mutta
+oppaan suorat `?tila=...`-linkit avaavat vanhan moottorin kuten ennenkin;
 `?vanha=1` avaa vanhan näkymän säilyttäen tallennetun harjoituslajin.
 
 `LearningPaths.tsx` sisältää neljän polun kortit. `ScaleJourney.tsx`
