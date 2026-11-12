@@ -11,7 +11,7 @@ test.describe('Otelautakartta, vain visualisointi', () => {
     await page.goto('/otelautaharjoittelija.html');
     const root = page.getByRole('combobox', { name: 'Kotisävel' });
     const scale = page.getByRole('combobox', { name: 'Asteikko tai moodi' });
-    const details = page.getByText('Sormitusboksit ja näyttöasetukset');
+    const details = page.locator('#box-details > summary');
     const board = page.locator('#board svg');
     const neck = await board.getAttribute('viewBox');
 
