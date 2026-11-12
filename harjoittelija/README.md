@@ -23,11 +23,14 @@ on ohjatun oppimisjärjestelmän ensimmäinen kokonainen käyttöliittymäsiivu:
 A-mollipentatonisen ensimmäinen positio, Web Audio -mallisävelet,
 sormituskuvio, vihjeiden vähentäminen ja oppaan valmis Am-taustaraita.
 Mallifraasi on syntetisoitu, ei äänitetty kitarasoolo.
-Ylös–alas-sormitusharjoituksessa malliasteikon saa jatkuvaan toistoon yhdellä
-painikkeella. Toisto jatkuu kierros kerrallaan ja päättyy pysäytykseen,
-oppimisaskeleen vaihtoon, sivulta poistumiseen tai välilehden piilottamiseen.
-Toisto käyttää samaa `ReferencePlayer`-sovelluskoodia eikä vaadi mikrofoni- tai
-verkkoyhteyttä.
+Asteikon jatkuva mallisoitto on käytettävissä jokaisessa kolmessa ensimmäisessä
+vaiheessa (kuuntelu, sormitus, muistaminen). Se käyttää `ReferencePlayer.loop`-
+toimintoa, joka ajastaa sävelet etukäteen Web Audio -kelloon. Näin kierrosrajalla
+ei odoteta JS-ajastinta eikä tule aiemman toteutuksen tahatonta taukoa.
+Jatkuva toisto päättyy pysäytykseen, oppimisaskeleen vaihtoon, sivulta
+poistumiseen tai välilehden piilottamiseen. Mikrofoni- tai verkkoyhteyttä
+ei tarvita. Juuri soiva sävel korostetaan kuuntelu- ja sormitusvaiheissa
+otelautaan, mutta muistiharjoituksen otelauta pysyy ilman merkintöjä.
 Muistivaiheessa otelautamerkinnät ovat aluksi kokonaan piilossa. Käyttäjä voi
 näyttää ja piilottaa pelkät A-pohjasävelet; koko kuvio näkyy vain palaamalla
 edelliseen sormituksen opetteluvaiheeseen. Vihjeet nollautuvat vaiheenvaihdossa.
