@@ -67,6 +67,11 @@ Se alkaa C-sävelestä ja käy seitsemän luonnollista sävelnimeä läpi
 nauhoilla 0–5. Käyttäjän on löydettävä kaikki kunkin sävelnimen
 sijainnit: valitut oikeat kohdat jäävät näkyviin, ja tarvittaessa
 voi pyytää yhden vihjepaikan. Äänentoistoa ei käytetä.
+`Jatka automaattisesti` on oletuksena pois päältä. Sen ollessa päällä
+harjoitus näyttää kaikkien sijaintien löytymisestä palautteen 1,2 sekunnin
+ajan ja siirtyy sitten seuraavaan säveleen tai viimeisen jälkeen
+yhteenvetoon. Ajastin perutaan, jos valinta otetaan pois tai näkymä suljetaan.
+Kun automatiikka on pois, jatketaan erillisellä painikkeella.
 Myöhemmät kuuntelu- ja korvakuulotehtävät lisätään erillisinä vaiheina;
 vanha `Kuule ja toista` säilyy vanhojen URL-linkkien ja
 laajennetun harjoitusvalikon kautta käytettävänä.
