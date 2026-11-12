@@ -4,6 +4,7 @@ import { Board } from './Board';
 import { Controls, modeTitle, settingsSummary } from './Controls';
 import { LearningPaths, type LearningTrack } from './LearningPaths';
 import { ScaleJourney } from './ScaleJourney';
+import { NoteJourney } from './NoteJourney';
 import { MicLive, MicPanel, type Heard, type MicUi } from './MicPanel';
 import { Progress } from './Progress';
 import { Microphone, ReferencePlayer, micError, noiseThreshold, releaseAudio } from './audio';
@@ -124,7 +125,6 @@ function App() {
     else microphone.current.setOptions(detection(clean));
   }
   function selectTrack(next: LearningTrack) {
-    if (next === 'ear') change({ ...sRef.current, mode: 'repeat', input: 'board', hints: 'fade', rounds: 10 });
     if (next === 'chords') change({ ...sRef.current, mode: 'chord', root: 0, chord: 'maj', chordTone: 'build', activity: 'play',
       input: 'board', hints: 'fade', rounds: 10 });
     setFinished(''); engine.current = null;
@@ -332,6 +332,8 @@ function App() {
     <LearningPaths onSelect={selectTrack} onAdvanced={() => setTrack('legacy')} /></>;
   if (!inRound && track === 'scales') return <>{introduction}{notice}
     <ScaleJourney onBack={() => setTrack(null)} onOpenOldExercise={openOldScale} /></>;
+  if (!inRound && track === 'ear') return <>{introduction}{notice}
+    <NoteJourney onBack={() => setTrack(null)} /></>;
 
   return <>
     {introduction}{notice}
