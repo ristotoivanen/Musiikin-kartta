@@ -8,9 +8,8 @@ const tracks: { id: LearningTrack; number: string; title: string; description: s
 ];
 
 /** Aloitusvalinta: ei enää harjoitusmoottorin kaikkia tiloja yhdessä pudotusvalikossa. */
-export function LearningPaths({ onSelect, onAdvanced }: {
+export function LearningPaths({ onSelect }: {
   onSelect: (track: LearningTrack) => void;
-  onAdvanced: () => void;
 }) {
   return <section className="learning-home" aria-labelledby="learning-title">
     <h2 id="learning-title">Mitä haluat harjoitella?</h2>
@@ -24,9 +23,5 @@ export function LearningPaths({ onSelect, onAdvanced }: {
       </span>
       <span className="learning-arrow" aria-hidden="true">→</span>
     </button>)}</div>
-    <details className="learning-advanced"><summary>Muut harjoitukset ja vanhat asetukset</summary>
-      <p>Vanha harjoitusmoottori ja sen asetukset ovat edelleen käytettävissä. Myös oppaan vanhat harjoituslinkit toimivat.</p>
-      <button type="button" onClick={onAdvanced}>Avaa kaikki harjoitukset</button>
-    </details>
   </section>;
 }
