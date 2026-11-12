@@ -124,7 +124,11 @@ signaalia. Ne eivät korvaa oikealla kitaralla tehtävää hyväksyntätestiä.
 `npm run build` päivittää `assets/harjoittelija/`-hakemiston JavaScriptin, CSS:n,
 lähdekartan ja lisenssi-ilmoitukset. Julkaisussa tarvitaan koko nykyinen staattinen
 sivusto sekä nämä tuotokset. Tavalliset lukusivut eivät lataa React-harjoittelijaa.
-Build ei julkaise sivustoa. [Auditointiraportti](reviews/kitaraharjoittelija-auditointi.md)
+Build ei julkaise sivustoa. Cloudflare Pages ajaa lisäksi
+[`functions/assets/audio/[[path]].ts`](functions/assets/audio/[[path]].ts)-funktion, joka
+palvelee äänitiedostojen tavualueet (HTTP 206). Ilman sitä kappaleharjoittelun
+kelaus ja raitojen synkronointi eivät toimi Pagesissa. Funktio ei näy paikallisessa
+`python3 -m http.server`-palvelimessa, joka ei myöskään tue tavualueita. [Auditointiraportti](reviews/kitaraharjoittelija-auditointi.md)
 kuvaa nykytilan, testitulokset, mikrofonitunnistuksen rajoitukset ja oikealla
 kitaralla tehtävät hyväksyntätestit. [Kehittäjän ohje](harjoittelija/README.md) kuvaa
 rakenteen ja tallennusmuodon, ja [alkuperäinen kehitysraportti](reviews/fretecho-kehityskatselmus.md)
