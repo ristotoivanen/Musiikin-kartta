@@ -28,6 +28,10 @@ painikkeella. Toisto jatkuu kierros kerrallaan ja päättyy pysäytykseen,
 oppimisaskeleen vaihtoon, sivulta poistumiseen tai välilehden piilottamiseen.
 Toisto käyttää samaa `ReferencePlayer`-sovelluskoodia eikä vaadi mikrofoni- tai
 verkkoyhteyttä.
+Muistivaiheessa otelautamerkinnät ovat aluksi kokonaan piilossa. Käyttäjä voi
+näyttää ja piilottaa pelkät A-pohjasävelet; koko kuvio näkyy vain palaamalla
+edelliseen sormituksen opetteluvaiheeseen. Vihjeet nollautuvat vaiheenvaihdossa.
+
 
 Eteneminen tallentuu omaan avaimensa
 `musiikin-kartta:skaalapolku:v1`, eikä muuta vanhaa
