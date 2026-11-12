@@ -167,7 +167,6 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
 .learning-card-body > span { color: var(--muted); line-height: 1.5; }
 .learning-card-body small { font-size: 13px; color: var(--lavender); }
 .learning-arrow { font-size: 25px; }
-.learning-advanced { margin: 22px 0; color: var(--muted); }
 .selected-track { margin: 10px 0 16px; }
 .selected-track h2 { margin-top: 13px; }
 .selected-track > p { color: var(--muted); }
