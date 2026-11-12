@@ -322,6 +322,12 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
 }
 .song-toggles input { width: 19px; height: 19px; margin: 0; }
 .song-player .tools-note { margin: 4px 0; }
+/* Sama avattava rakenne kuin alareunan harjoitteluohjeessa. */
+.song-chart-collapse { margin: 18px 0; }
+.song-chart-collapse > summary { color: var(--text); font-weight: 700; }
+.song-chart-collapse[open] > summary { margin-bottom: 8px; }
+.song-chart-collapse .song-chord-panel { margin: 0 0 12px; }
+
 .song-instructions { margin: 18px 0; }
 .song-instructions p { color: var(--muted); }
 .song-future { margin-bottom: 26px; }
