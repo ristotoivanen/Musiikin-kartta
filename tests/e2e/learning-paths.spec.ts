@@ -167,6 +167,54 @@ test.describe('Uudet oppimispolut', () => {
     await expect(page.locator('.song-player audio').first()).toHaveAttribute('src', /normaali-saestys\.mp3$/);
   });
 
+  test('positio 2 avautuu position 1 jälkeen ja muistaa oman etenemisensä', async ({ page }) => {
+    await page.goto('/kitaraharjoittelija.html');
+    await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
+    const position1 = page.getByRole('button', { name: 'Positio 1', exact: true });
+    const position2 = page.getByRole('button', { name: 'Positio 2', exact: true });
+
+    await expect(position1).toHaveAttribute('aria-pressed', 'true');
+    await expect(position2).toBeDisabled();
+    for (let i = 0; i < 3; i++) {
+      await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
+    }
+    await page.getByRole('button', { name: 'Kirjaa harjoitelluksi' }).click();
+    await expect(position2).toBeEnabled();
+    await page.getByRole('button', { name: 'Siirry positioon 2 →' }).click();
+
+    await expect(page.getByRole('heading', { name: 'A-mollipentatoninen · positio 2' })).toBeVisible();
+    await expect(page.getByText(/Nauhat 7–10/)).toBeVisible();
+    await expect(page.locator('.practice-board .dot')).toHaveCount(12);
+    const boardNotes = () => page.locator('.practice-board td.target button, .practice-board td.shape button')
+      .evaluateAll(buttons => buttons.map(button =>
+        button.getAttribute('data-string') + ':' + button.getAttribute('data-fret')).sort());
+    expect(await boardNotes()).toEqual([
+      '0:10', '0:8', '1:10', '1:8', '2:7', '2:9',
+      '3:10', '3:7', '4:10', '4:7', '5:10', '5:8',
+    ]);
+
+    await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
+    await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
+    await expect(page.getByRole('heading', { name: 'Soita muistista' })).toBeVisible();
+    await expect(page.locator('.practice-board .dot')).toHaveCount(0);
+    await page.getByRole('button', { name: 'Näytä pohjasävelet' }).click();
+    await expect(page.locator('.practice-board td.target button')).toHaveCount(2);
+
+    await page.reload();
+    await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
+    await expect(page.getByRole('heading', { name: 'A-mollipentatoninen · positio 2' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Soita muistista' })).toBeVisible();
+    expect(await page.evaluate(() => [
+      localStorage.getItem('musiikin-kartta:skaalapolku:v1'),
+      localStorage.getItem('musiikin-kartta:skaalapolku:position-2:v1'),
+    ])).toEqual(['4', '2']);
+
+    await page.getByRole('button', { name: 'Positio 1', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'A-mollipentatoninen · positio 1' })).toBeVisible();
+    await page.getByRole('button', { name: 'Positio 2', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Soita muistista' })).toBeVisible();
+  });
+
   test('ensimmäisen skaalaposition vaiheet avautuvat järjestyksessä ja eteneminen tallentuu', async ({ page }) => {
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
