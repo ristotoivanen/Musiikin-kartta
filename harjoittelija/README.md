@@ -21,16 +21,25 @@ Oppaan suorat `?tila=...`-linkit avaavat vanhan moottorin kuten ennenkin;
 `LearningPaths.tsx` sisältää kolmen polun kortit. `ScaleJourney.tsx`
 on ohjatun oppimisjärjestelmän ensimmäinen kokonainen käyttöliittymäsiivu:
 A-mollipentatonisen ensimmäinen positio, Web Audio -mallisävelet,
-sormituskuvio, vihjeiden vähentäminen ja oppaan valmis Am-taustaraita.
+sormituskuvio, vihjeiden vähentäminen ja käyttäjän toimittama Am-vamp-harjoitustausta
+kolmena versiona (koko kappale, ilman kitaraa, vain kitara).
+Äänitiedostot asennetaan erikseen, ks. [audiohakemisto](../assets/audio/harjoittelija/README.md).
 Mallifraasi on syntetisoitu, ei äänitetty kitarasoolo.
-Asteikon jatkuva mallisoitto on käytettävissä jokaisessa kolmessa ensimmäisessä
-vaiheessa (kuuntelu, sormitus, muistaminen). Se käyttää `ReferencePlayer.loop`-
-toimintoa, joka ajastaa sävelet etukäteen Web Audio -kelloon. Näin kierrosrajalla
-ei odoteta JS-ajastinta eikä tule aiemman toteutuksen tahatonta taukoa.
-Jatkuva toisto päättyy pysäytykseen, oppimisaskeleen vaihtoon, sivulta
-poistumiseen tai välilehden piilottamiseen. Mikrofoni- tai verkkoyhteyttä
-ei tarvita. Juuri soiva sävel korostetaan kuuntelu- ja sormitusvaiheissa
-otelautaan, mutta muistiharjoituksen otelauta pysyy ilman merkintöjä.
+
+**Kuuntele ja tutustu** soittaa asteikon kerran ylös ja alas; soiva
+sävel korostuu otelaudalla. **Soita ylös ja alas** sekä **Soita muistista**
+tarjoavat jatkuvan mallisoiton, jossa Web Audio ajastaa sävelet valmiiksi
+eikä jätä taukoa kierrosrajalle. Äänentoisto päättyy pysäytykseen,
+vaiheenvaihtoon, sivulta poistumiseen tai välilehden piilottamiseen.
+Sormituksen kuuntelu- ja opetteluvaiheissa juuri soiva sävel korostuu
+otelautaan, mutta muistiharjoituksessa otelauta ei näytä mallisäveliä.
+Mikrofoni- tai verkkoyhteyttä ei tarvita asteikon mallisoittoon.
+
+**Improvisoi taustan päälle** käyttää yhtä HTML-äänisoitinta. Sen vieressä
+on pienikokoinen kolmen ääniversion valinta. Oletuksena on koko kappale.
+Valinnan muutos aloittaa uuden tiedoston alusta, koska käyttäjän toimittamien
+versioiden kestot eivät ole samat (noin 3:59, 4:05 ja 4:30).
+Äänitiedostoja ei ole liitetty tähän GitHub-koodipäivitykseen automaattisesti.
 Muistivaiheessa otelautamerkinnät ovat aluksi kokonaan piilossa. Käyttäjä voi
 näyttää ja piilottaa pelkät A-pohjasävelet; koko kuvio näkyy vain palaamalla
 edelliseen sormituksen opetteluvaiheeseen. Vihjeet nollautuvat vaiheenvaihdossa.
