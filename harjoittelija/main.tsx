@@ -2,6 +2,8 @@ import { useEffect, useReducer, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Board } from './Board';
 import { Controls, modeTitle, settingsSummary } from './Controls';
+import { LearningPaths, type LearningTrack } from './LearningPaths';
+import { ScaleJourney } from './ScaleJourney';
 import { MicLive, MicPanel, type Heard, type MicUi } from './MicPanel';
 import { Progress } from './Progress';
 import { Microphone, ReferencePlayer, micError, noiseThreshold, releaseAudio } from './audio';
@@ -57,6 +59,9 @@ function App() {
   const [candidate, setCandidate] = useState<number | null>(null);
   const [calibrating, setCalibrating] = useState(false), [calibration, setCalibration] = useState('');
   const [finished, setFinished] = useState<'' | 'complete' | 'stopped'>('');
+  // Vanhoilla ?tila=-linkeillä avataan alkuperäinen harjoitus suoraan.
+  const [track, setTrack] = useState<LearningTrack | 'legacy' | null>(() =>
+    new URLSearchParams(location.search).has('tila') ? 'legacy' : null);
 
   const refreshDevices = () => void listInputDevices().then(setDevices).catch(() => {});
   function stopCalibration() { clearTimeout(calibrationTimer.current); calibrationSamples.current = null; setCalibrating(false); }
@@ -117,6 +122,18 @@ function App() {
     if (!microphone.current.active) return;
     if (deviceChanged && micRef.current.purpose === 'test') { closeMic(); void ensureMic('test'); }
     else microphone.current.setOptions(detection(clean));
+  }
+  function selectTrack(next: LearningTrack) {
+    if (next === 'ear') change({ ...sRef.current, mode: 'repeat', input: 'board', hints: 'fade', rounds: 10 });
+    if (next === 'chords') change({ ...sRef.current, mode: 'chord', root: 0, chord: 'maj', chordTone: 'build', activity: 'play',
+      input: 'board', hints: 'fade', rounds: 10 });
+    setFinished(''); engine.current = null;
+    setTrack(next);
+  }
+  function openOldScale() {
+    change({ ...sRef.current, mode: 'scale', root: 9, scale: 'mp', box: 1, order: 'up',
+      activity: 'play', hints: 'fade', input: 'board', rounds: 10 });
+    engine.current = null; setFinished(''); setTrack('legacy');
   }
   function testMic() { setCalibration(''); void ensureMic('test'); }
   function calibrate() {
@@ -305,15 +322,31 @@ function App() {
   const review = e && !inRound ? e.results.filter(r => r.errors > 0 || r.hint) : [];
   const [theoryHref, theoryTitle] = theoryLink(view);
 
+  const introduction = <div className="intro"><p className="eyebrow">KUUNTELE · LÖYDÄ · SOITA</p><h1>Kitaraharjoittelija</h1>
+    <p>Harjoittele yksi taito kerrallaan: kuuntele, soita ja opi muistamaan.</p></div>;
+  const notice = store.data.notice === 'hints-default' && <div className="notice" role="status" data-testid="hints-notice">
+    <p><strong>Harjoittelutapa on muuttunut.</strong> Oikea kohta ei enää näy heti kysymyksen alussa: tapa on nyt <em>Testaa osaamistasi</em>, ja vihjeen saa pyytämällä. Aiemmat tuloksesi ja muut asetuksesi ovat tallessa. Jos haluat vihjeet takaisin, valitse <em>Opettele</em> tai <em>Vähennä vihjeitä</em>.</p>
+    <button type="button" onClick={() => { store.dismissNotice(); redraw(); }}>Selvä</button>
+  </div>;
+  if (!inRound && track === null) return <>{introduction}{notice}
+    <LearningPaths onSelect={selectTrack} onAdvanced={() => setTrack('legacy')} /></>;
+  if (!inRound && track === 'scales') return <>{introduction}{notice}
+    <ScaleJourney onBack={() => setTrack(null)} onOpenOldExercise={openOldScale} /></>;
+
   return <>
-    <div className="intro"><p className="eyebrow">KUUNTELE · LÖYDÄ · SOITA</p><h1>Kitaraharjoittelija</h1>
-      <p>Valitse harjoitus, vastaa otelaudalta tai soita oikealla kitaralla, ja näe, mitä jo osaat.</p></div>
-    {store.data.notice === 'hints-default' && <div className="notice" role="status" data-testid="hints-notice">
-      <p><strong>Harjoittelutapa on muuttunut.</strong> Oikea kohta ei enää näy heti kysymyksen alussa: tapa on nyt <em>Testaa osaamistasi</em>, ja vihjeen saa pyytämällä. Aiemmat tuloksesi ja muut asetuksesi ovat tallessa. Jos haluat vihjeet takaisin, valitse <em>Opettele</em> tai <em>Vähennä vihjeitä</em>.</p>
-      <button type="button" onClick={() => { store.dismissNotice(); redraw(); }}>Selvä</button>
-    </div>}
+    {introduction}{notice}
+    {track !== 'legacy' && <section className="selected-track" aria-label="Valittu oppimispolku">
+      <button type="button" className="back-link" onClick={() => { if (inRound) finish(); setTrack(null); }}>← Oppimispolut</button>
+      <h2>{track === 'ear' ? 'Sävelkorva ja otelauta' : 'Soinnut ja musiikin rakenne'}</h2>
+      <p>{track === 'ear' ? 'Ensimmäinen harjoitus: Kuule sävel ja etsi se kitarasta. Sama vanha kuunteluharjoitus selkeässä aloitusnäkymässä.' :
+        'Ensimmäinen harjoitus: Rakenna C-duurisointua sen sävelistä C, E ja G. Tämä käyttää nykyistä Sointusävelet-harjoitusta.'}</p>
+      <p className="tools-note">Muut tämän polun harjoitukset lisätään myöhemmin. Alla on yksi oikeasti toimiva vanha harjoitus.</p>
+    </section>}
     {inRound ? <p className="round-setup" data-testid="round-setup"><strong>{modeTitle(view.mode)}</strong> · {settingsSummary(view)}</p>
-      : <Controls s={s} change={change} locked={locked} problem={problem} />}
+      : track === 'legacy' ? <Controls s={s} change={change} locked={locked} problem={problem} />
+      : <details className="track-settings"><summary>Muuta harjoituksen asetuksia</summary>
+          <Controls s={s} change={change} locked={locked} problem={problem} />
+        </details>}
     {!inRound && <MicPanel mic={mic} frame={frame} heard={heard} accepted={accepted} now={now} s={s} change={change} devices={devices}
       locked={busy} calibrating={calibrating} calibration={calibration} onTest={testMic} onStop={closeMic} onCalibrate={calibrate} />}
     <section className="session-panel" aria-labelledby="session-title" ref={panel}>
