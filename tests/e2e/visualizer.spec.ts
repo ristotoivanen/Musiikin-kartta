@@ -48,8 +48,10 @@ test.describe('Otelautakartta, vain visualisointi', () => {
     await page.goto('/otelautaharjoittelija.html?toonikka=A&asteikko=mp');
     await page.getByRole('button', { name: 'Soinnut' }).click();
     await expect(page.locator('#chord-settings')).toBeVisible();
-    await expect(page.locator('#chord-buttons button').first()).toBeVisible();
-    await expect(page.locator('#board svg')).toBeVisible();
+    await expect(page.getByRole('combobox', { name: 'Asteikko tai moodi' })).toBeHidden();
+    await expect(page.getByRole('combobox', { name: 'Soinnun laatu' })).toHaveValue('maj');
+    await expect(page.getByRole('button', { name: 'Koko ote' })).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('#board .grip-notes circle')).not.toHaveCount(0);
     await page.getByRole('button', { name: 'Oktaavit' }).click();
     await expect(page.locator('#octave-settings')).toBeVisible();
     await expect(page.locator('#scale-field')).toBeHidden();
@@ -57,6 +59,69 @@ test.describe('Otelautakartta, vain visualisointi', () => {
     await expect(page.locator('audio')).toHaveCount(0);
     await expect(page.locator('main button').filter({ hasText: /Soita tausta|Aloita harjoitus|Tarkista vastaus/ })).toHaveCount(0);
     await expect(page).toHaveURL(/#oktaavit$/);
+  });
+
+  test('sointunäkymä ei riipu asteikosta: avoin ote, kaksi barré-muotoa ja kaikki sävelet', async ({ page }) => {
+    await page.goto('/otelautaharjoittelija.html?toonikka=C&asteikko=dorian');
+    await page.getByRole('button', { name: 'Soinnut' }).click();
+    const board = page.locator('#board svg');
+    const neck = await board.getAttribute('viewBox');
+
+    await expect(page.getByRole('combobox', { name: 'Asteikko tai moodi' })).toBeHidden();
+    await expect(page.getByRole('combobox', { name: 'Soinnun perussävel' })).toHaveValue('0');
+    await expect(page.getByRole('combobox', { name: 'Soinnun laatu' })).toHaveValue('maj');
+    await expect(page.locator('#selection-title')).toContainText('C-duuri');
+    await expect(page.locator('#chord-position')).toContainText('Avoin ote');
+    await expect(page.locator('#chord-position')).toContainText('x 3 2 0 1 0');
+    await expect(board.locator('.grip-notes circle')).toHaveCount(5);
+    await expect(board.locator('.muted-mark')).toHaveCount(1);
+    await expect(page.locator('#grip-select')).toHaveCount(0);
+
+    await page.getByRole('button', { name: 'Seuraava sointuote' }).click();
+    await expect(page.locator('#chord-position')).toContainText('Barré · A-muoto');
+    await expect(board.locator('.barre-indicator')).toHaveCount(1);
+    await expect(board.locator('.grip-notes circle')).toHaveCount(5);
+    await page.getByRole('button', { name: 'Seuraava sointuote' }).click();
+    await expect(page.locator('#chord-position')).toContainText('Barré · E-muoto');
+    await expect(board.locator('.grip-notes circle')).toHaveCount(6);
+    await expect(board).toHaveAttribute('viewBox', neck!);
+    await page.getByRole('button', { name: 'Edellinen sointuote' }).click();
+    await expect(page.locator('#chord-position')).toContainText('Barré · A-muoto');
+
+    await page.getByRole('button', { name: 'Kaikki sointusävelet' }).click();
+    await expect(page.locator('#chord-navigation')).toBeHidden();
+    await expect(board.locator('.grip-notes')).toHaveCount(0);
+    await expect(board).toHaveAttribute('viewBox', neck!);
+
+    await page.getByRole('combobox', { name: 'Soinnun laatu' }).selectOption('min');
+    await expect(page.locator('#selection-title')).toContainText('C-molli');
+    await page.getByRole('button', { name: 'Koko ote' }).click();
+    await expect(page.locator('#chord-position')).toContainText('Barré');
+    await page.getByRole('combobox', { name: 'Soinnun perussävel' }).selectOption('5');
+    await expect(page.locator('#selection-title')).toContainText('F-molli');
+    await expect(page.locator('#chord-position')).toContainText('Barré · E-muoto');
+
+    await page.getByRole('button', { name: 'Asteikko' }).click();
+    await expect(page.getByRole('combobox', { name: 'Asteikko tai moodi' })).toHaveValue('dorian');
+  });
+
+  test('triadeissa käytetään vain G-, B- ja e-kieliä ja nuolilla selataan käännöksiä', async ({ page }) => {
+    await page.goto('/otelautaharjoittelija.html?toonikka=C&asteikko=mp#soinnut');
+    await page.getByRole('button', { name: 'Triadi (G–B–e)' }).click();
+    const notes = page.locator('#board .grip-notes circle');
+    await expect(notes).toHaveCount(3);
+    await expect(page.locator('#board .muted-mark')).toHaveCount(3);
+    await expect(page.locator('#chord-position')).toContainText('G–B–e');
+    await expect(page.getByRole('button', { name: 'Edellinen sointuote' })).toBeDisabled();
+    const first = await page.locator('#chord-position').innerText();
+    await page.getByRole('button', { name: 'Seuraava sointuote' }).click();
+    await expect(page.locator('#chord-position')).not.toHaveText(first);
+    await expect(notes).toHaveCount(3);
+    await expect(page.locator('#board .muted-mark')).toHaveCount(3);
+
+    await page.reload();
+    await expect(page.getByRole('button', { name: 'Triadi (G–B–e)' })).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('#chord-navigation')).toBeVisible();
   });
 
   test('vanha harjoitustaustaosoite ohjautuu karttaan ja säilyttää sävellajin', async ({ page }) => {
