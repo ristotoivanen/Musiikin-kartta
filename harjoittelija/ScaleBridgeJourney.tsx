@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Board } from './Board';
 import { BackingTrackMixer } from './BackingTrackMixer';
-import { ReferencePlayer } from './audio';
+import { ReferencePlayer, referenceAudioError } from './audio';
 import { bridgePositions, bridgeRoute, sharedPositionKeys } from './scaleBridgeData';
 import { note, pc, positionKey, stringName } from './music';
 import type { Mark } from './engine';
@@ -88,8 +88,8 @@ export function ScaleBridgeJourney({ onBack, onPosition }: {
           if (current === generation.current) setActiveIndex(index);
         }, tempo);
       }
-    } catch {
-      if (current === generation.current) setAudioError('Mallisoitto ei käynnistynyt. Tarkista selaimen ääniasetukset.');
+    } catch (error) {
+      if (current === generation.current) setAudioError(referenceAudioError(error));
     } finally {
       if (current === generation.current) { setPlaying(null); setActiveIndex(null); }
     }
