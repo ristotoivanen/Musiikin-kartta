@@ -82,3 +82,22 @@ describe('Yksi sointu, kaksi askelta: sähköisen version sointukartta', () => {
     expect(chordAt(barStartTime(8,3,'normal')+.1,'normal').chord).toBe('Gm');
   });
 });
+
+describe('Kappalerakenteen sanojen sijoittelu', () => {
+  it('kitarasoolossa ei ole laulusäkeitä, ja väliosan sanat tulevat sen jälkeen', () => {
+    for (const chart of [ACOUSTIC_CHART, NORMAL_CHART]) {
+      const solo=chart.find(section=>section.id==='bridge');
+      const vocal=chart.find(section=>section.id==='verse3');
+      expect(solo?.title).toBe('Kitarasoolo');
+      expect(solo?.lyrics).toBeUndefined();
+      expect(vocal?.title).toMatch(/^Väliosa/);
+      expect(vocal?.lyrics).toEqual([
+        'Pidän tauon, annan soida',
+        'kuuntelen ja hengitän',
+        'pienestäkin sävelestä',
+        'löytyy tie eteenpäin',
+      ]);
+      expect(vocal!.start).toBeGreaterThan(solo!.start);
+    }
+  });
+});
