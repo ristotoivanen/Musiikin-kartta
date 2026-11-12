@@ -183,6 +183,7 @@
 
     let grip = null, barre = null, description = '';
     if (chordMode === 'all') {
+      board.scrollLeft = 0;
       chordNavigation.hidden = true;
       chordHelp.textContent = 'Näytössä ovat kaikki soinnun perussävelet, terssit ja kvintit koko otelaudalla.';
     } else {
@@ -214,7 +215,7 @@
       automatic: automatic(), grip, barre,
       label: chord.name + (grip ? ' · ' + description : ' · kaikki sointusävelet')
     });
-    title.textContent = chord.name + (chordQuality === 'maj' ? '-duuri' : '-molli') +
+    title.textContent = CHROM[rootPC] + (chordQuality === 'maj' ? '-duuri' : '-molli') +
       ' · ' + (chordMode === 'all' ? 'Kaikki sointusävelet' :
         chordMode === 'full' ? 'Koko ote' : 'Triadi');
     notesLabel.textContent = 'Sointusävelet: ' + chord.notes.join(' · ');
