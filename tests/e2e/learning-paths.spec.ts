@@ -105,7 +105,8 @@ test.describe('Uudet oppimispolut', () => {
 
     const output = page.locator('.scale-tempo output');
     await expect(output).toHaveText('75 BPM');
-    await page.getByRole('button', { name: 'Nopeuta tempoa 5 BPM' }).click({ clickCount: 2 });
+    await page.getByRole('button', { name: 'Nopeuta tempoa 5 BPM' }).click();
+    await page.getByRole('button', { name: 'Nopeuta tempoa 5 BPM' }).click();
     await expect(output).toHaveText('85 BPM');
     await page.getByRole('button', { name: '▶ Toista asteikkoa jatkuvasti' }).click();
     const stop = page.getByRole('button', { name: '■ Pysäytä asteikon toisto' });
