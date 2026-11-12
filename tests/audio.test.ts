@@ -272,6 +272,65 @@ describe('esimerkkisävelet ja yhteinen äänikonteksti', () => {
       expect(context.resume).toHaveBeenCalledOnce(); expect(context.close).not.toHaveBeenCalled();
     } finally { vi.useRealTimers(); }
   });
+  it('jatkuva asteikkotoisto ajastaa kierrosrajan ilman taukoa ja ilmoittaa soivan sävelen', async () => {
+    vi.useFakeTimers();
+    try {
+      const { context, started, masters } = fakeOutput();
+      const onNote = vi.fn();
+      const player = new ReferencePlayer(() => context as unknown as AudioContext);
+      const looping = player.loop([45, 48, 52], onNote);
+      await vi.advanceTimersByTimeAsync(0);
+
+      // Ensimmäiset kaksi säveltä ovat jo etukäteen Web Audion aikajanalla.
+      const starts = () => context.createOscillator.mock.results.map(call =>
+        Number(((call.value as { start: ReturnType<typeof vi.fn> }).start.mock.calls[0][0] as number).toFixed(2)));
+      expect(starts()).toEqual([.05, .85]);
+
+      context.currentTime = .08;
+      await vi.advanceTimersByTimeAsync(30);
+      expect(onNote).toHaveBeenCalledWith(0);
+
+      for (const second of [.82, 1.66, 2.5]) {
+        context.currentTime = second;
+        await vi.advanceTimersByTimeAsync(30);
+      }
+      // Neljäs sävel on jälleen 45 ja alkaa täsmälleen .8 s kolmannen jälkeen.
+      expect(starts().slice(0, 5)).toEqual([.05, .85, 1.65, 2.45, 3.25]);
+      expect(started.map(n => Math.round(n)).slice(0, 4)).toEqual([110, 131, 165, 110]);
+
+      player.stop();
+      expect(await looping).toBe(false);
+      expect(masters[0].disconnect).toHaveBeenCalled();
+      const count = context.createOscillator.mock.calls.length;
+      context.currentTime = 10;
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(context.createOscillator).toHaveBeenCalledTimes(count);
+    } finally { vi.useRealTimers(); }
+  });
+
+  it('asteikkoloopin BPM voidaan muuttaa toiston aikana katkaisematta äänivirtaa', async () => {
+    vi.useFakeTimers();
+    try {
+      const { context, masters } = fakeOutput();
+      const player = new ReferencePlayer(() => context as unknown as AudioContext);
+      const looping = player.loop([45, 48], undefined, 60);
+      await vi.advanceTimersByTimeAsync(0);
+      const starts = () => context.createOscillator.mock.results.map(call =>
+        Number(((call.value as { start: ReturnType<typeof vi.fn> }).start.mock.calls[0][0] as number).toFixed(2)));
+      expect(starts()).toEqual([.05, 1.05]);
+
+      player.setLoopTempo(120);
+      context.currentTime = 1.1;
+      await vi.advanceTimersByTimeAsync(30);
+      // Jo ajastetut sävelet säilyvät, tulevat sävelet etenevät 0,5 s välein.
+      expect(starts().slice(0, 4)).toEqual([.05, 1.05, 2.05, 2.55]);
+      expect(masters[0].disconnect).not.toHaveBeenCalled();
+      player.stop();
+      expect(await looping).toBe(false);
+      expect(masters[0].disconnect).toHaveBeenCalledOnce();
+    } finally { vi.useRealTimers(); }
+  });
+
   it('keskeytys vaimentaa esimerkin heti ja kesken jäänyt toisto palauttaa false', async () => {
     vi.useFakeTimers();
     try {

@@ -9,6 +9,241 @@ lisää sivuille oman Web Analytics -skriptinsä; se ei ole tässä repossa.
 Ajantasainen tilanne, testitulokset, rajoitukset ja oikealla kitaralla tehtävät
 hyväksyntätestit: [`../reviews/kitaraharjoittelija-auditointi.md`](../reviews/kitaraharjoittelija-auditointi.md).
 
+## Oppimispolut (ensimmäinen toteutus)
+
+Kitaraharjoittelijan etusivu näyttää nykyisin neljä valintaa:
+**Sävelkorva ja otelauta**, **Skaalat ja moodit**,
+**Soinnut ja musiikin rakenne** sekä **Kappaleharjoittelu**.
+Vanha harjoitusvalikko ei näy etusivulla, mutta
+oppaan suorat `?tila=...`-linkit avaavat vanhan moottorin kuten ennenkin;
+`?vanha=1` avaa vanhan näkymän säilyttäen tallennetun harjoituslajin.
+
+`LearningPaths.tsx` sisältää neljän polun kortit. `ScaleJourney.tsx`
+on ohjatun oppimisjärjestelmän ensimmäinen kokonainen käyttöliittymäsiivu:
+A-mollipentatonisen ensimmäinen positio, Web Audio -mallisävelet,
+sormituskuvio, vihjeiden vähentäminen ja käyttäjän toimittamat kaksi
+Am-vamp-ääniraitaa (tausta ilman sähkökitaraa ja erillinen kitararaita).
+Äänitiedostot asennetaan erikseen, ks. [audiohakemisto](../assets/audio/harjoittelija/README.md).
+Mallifraasi on syntetisoitu, ei äänitetty kitarasoolo.
+
+**Kuuntele ja tutustu**, **Soita ylös ja alas** ja **Soita muistista**
+tarjoavat saman jatkuvan asteikkotoiston. Web Audio ajastaa sävelet
+ennakkoon eikä jätä ylimääräistä taukoa kierrosrajalle. Äänentoisto
+päättyy pysäytykseen, vaiheenvaihtoon, sivulta poistumiseen tai
+välilehden piilottamiseen. Kuuntelu- ja sormitusvaiheessa juuri soiva
+sävel korostuu otelaudalla, mutta muistiharjoituksessa mallisävelet
+pysyvät piilossa. Mikrofoni- tai verkkoyhteyttä ei tarvita asteikon
+mallisoittoon.
+
+**Improvisoi taustan päälle** käyttää uutta BackingTrackMixer-komponenttia:
+käyttäjälle näkyy yksi soitin ja huomaamaton Kitara kuuluu -valinta. Sähkökitara
+on oletuksena pois päältä ja pysäytettynä. Kitaran voi lisätä tai poistaa
+kesken toiston (ks. Raitojen tahdistus). Kesto on
+molemmissa 3:59,760 ja aikakohdat pidetään lähellä toisiaan vertaamalla
+raitojen toistokohtaa. Tämä on HTMLMediaElement-synkronointi, ei
+näytetarkka audiomiksaus. Äänitiedostot ovat hakemistossa
+`assets/audio/harjoittelija/`.
+Muistivaiheessa otelautamerkinnät ovat aluksi kokonaan piilossa. Käyttäjä voi
+näyttää ja piilottaa pelkät A-pohjasävelet; koko kuvio näkyy vain palaamalla
+edelliseen sormituksen opetteluvaiheeseen. Vihjeet nollautuvat vaiheenvaihdossa.
+Improvisaatioharjoituksessa (4/4) on kolmen vaihtoehdon valinta:
+**Vain pohjasävelet** (oletus, A-sävelet), **Koko pentatoninen** (position 1
+sävelet A, C, D, E ja G kaikilla kuudella kielellä, A korostettuna) ja
+**Ei sävelvihjeitä**. Merkinnät lasketaan samasta `music.fingeringBoxes`-boksista
+kuin muissa vaiheissa, eikä valinta vaikuta taustaan tai mallifraasiin. Valinta
+palaa oletukseen vaiheenvaihdossa.
+Asteikkopolulla ei enää ole linkkiä vanhaan asteikon sävelharjoitukseen. Vanha
+moottori, sen asetukset ja tallennetut tulokset säilyvät, ja oppaan
+`?tila=scale`-linkit sekä `?vanha=1` avaavat sen edelleen.
+Muistiharjoituksessa käyttäjä voi säätää asteikkoloopin tempoa 5 BPM:n askelin
+välillä 40–140 BPM (oletus 75 BPM, yksi sävel per isku). Nopeutta voi muuttaa myös
+toiston aikana ilman uudelleenkäynnistystä. Äänikelloon jo ajastetut sävelet
+soivat ensin loppuun, minkä jälkeen uusi tempo kuuluu. Valinta tallentuu
+erilliseen `musiikin-kartta:skaalapolku:tempo:v1`-avaimeen. Temponsäätö ei
+muuta mallifraasin eikä oppaan harjoitustaustan nopeutta.
+
+
+Eteneminen tallentuu omaan avaimensa
+`musiikin-kartta:skaalapolku:v1`, eikä muuta vanhaa
+`musiikin-kartta:harjoittelu`-tietomallia.
+Harjoitusvaiheen suoritus on **käyttäjän itsearvio**, ei mitattu soittotulos.
+Toinen positio ja positioiden yhdistäminen ovat vasta tulevia sisältöjä,
+eivätkä näkyvissä valheellisesti toimivina.
+
+**Sävelkorva ja otelauta** -polun ensimmäinen harjoitus
+(`NoteJourney.tsx`) on **Etsi sävelet otelaudalta**.
+Se alkaa C-sävelestä ja käy seitsemän luonnollista sävelnimeä läpi
+nauhoilla 0–5. Käyttäjän on löydettävä kaikki kunkin sävelnimen
+sijainnit: valitut oikeat kohdat jäävät näkyviin, ja tarvittaessa
+voi pyytää yhden vihjepaikan. Äänentoistoa ei käytetä.
+`Jatka automaattisesti` on oletuksena pois päältä. Sen ollessa päällä
+harjoitus näyttää kaikkien sijaintien löytymisestä palautteen 1,2 sekunnin
+ajan ja siirtyy sitten seuraavaan säveleen tai viimeisen jälkeen
+yhteenvetoon. Ajastin perutaan, jos valinta otetaan pois tai näkymä suljetaan.
+Kun automatiikka on pois, jatketaan erillisellä painikkeella.
+Myöhemmät kuuntelu- ja korvakuulotehtävät lisätään erillisinä vaiheina;
+vanha `Kuule ja toista` säilyy vanhojen URL-linkkien ja
+laajennetun harjoitusvalikon kautta käytettävänä.
+
+Yhteisen `Board.tsx`-otelautaruudukon ylin kieli on ohut e
+(1. kieli), alin paksu E (6. kieli). Kielten nimet näytetään
+riveittäin ja piirretyt kielet paksunevat alaspäin.
+
+**Soinnut ja musiikin rakenne** -polun ensimmäinen harjoitus
+(`ChordJourney.tsx`) on **Tunnista avoin sointu**. Oletuksena
+tunnistettavina ovat C, G, D ja Em. Käyttäjä voi valita seitsemän soinnun
+version, jolloin mukana ovat lisäksi Am, E ja A. Otelautakartta näyttää
+yhden tavallisen avoimen sointuotteen kerrallaan, vapaat kielet (○),
+painetut nauhat (●) ja mykistetyt kielet (×). Soinnun nimeä ei paljasteta
+ennen oikeaa valintaa. Jokaisen kierroksen järjestys arvotaan, jokainen
+sointu kysytään kerran, ja lopuksi näytetään yhteenveto. Vaikeustason
+vaihtaminen aloittaa kierroksen alusta.
+
+Vanha `Sointusävelet`-harjoitus pysyy edelleen käytettävissä
+`?tila=chord`-linkillä ja vanhan harjoitusvalikon kautta.
+Vanha harjoituspolku avataan myös `?vanha=1`-parametrilla,
+ja `?tila=repeat` avaa edelleen vanhan kuunteluharjoituksen.
+
+## Kappaleharjoittelun mallikappale
+
+Neljäntenä oppimispolkuna on **Kappaleharjoittelu**, jonka ensimmäinen
+kappale on **Yksi sointu, kaksi askelta** kahdella eri sovituksella:
+
+- **Normaali versio** (3:32,208), oletus.
+- **Akustinen versio** (3:53,376).
+
+`SongJourney.tsx` näyttää yhden soittimen ja pienen **Versio**-valinnan.
+Kumpikin sovitus käyttää kolmea itsenäistä MP3-raitaa: säestys, kitara ja
+laulu. Kitara ja laulu ovat oletuksena päällä, ja ne voi mykistää
+toisistaan riippumatta. Lisäksi on valinnainen looppi ja aikajana.
+**Version vaihtaminen pysäyttää toiston ja kelaa alkuun: uusi versio
+käynnistyy vain erillisestä Soita kappale -painalluksesta.** Mykistys- ja
+looppiasetukset säilyvät vaihdossa.
+
+Suorat osoitteet: `kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta`
+(oletusversio), `…-normaali` ja `…-akustinen`. Linkissä nimetty versio
+ohittaa oletuksen. Käyttäjän valitsema versio säilyy sivulla, vaikka hän
+käy välillä oppimispoluissa; kappalelinkillä avatussa sivussa linkki
+päivittyy valinnan mukaiseksi.
+
+MP3-tiedostot ovat hakemistossa `assets/audio/kappaleet/`. Tarkista asennus komennolla `npm run check:song-audio`, joka edellyttää
+kaikkien kahdeksan MP3-tiedoston löytymistä (kappaleen kuusi raitaa ja
+Am-vamp-taustan kaksi raitaa). Äänitteet on tehty maksullisella Suno-
+tilauksella, ks. [käyttöehdot](../assets/audio/AANITTEET-LISENSSI.md).
+Katso erilliset [akustisen version tiedot](../assets/audio/kappaleet/yksi-sointu-kaksi-askelta-akustinen/README.md)
+ja [normaalin version tiedot](../assets/audio/kappaleet/yksi-sointu-kaksi-askelta-normaali/README.md).
+
+`songChart.ts` sisältää kummankin version oman sointukulun ja osioiden
+aikaleimat. `SongChordChart.tsx` näyttää senhetkisen tahdin ja soinnun
+sekä tarjoaa siirtymisen osioon tai yksittäiseen tahtiin.
+
+**Soinnut ja sanat** -osiossa soinnut voi piilottaa kokonaan tai neljällä
+kumulatiivisesti vaikeutuvalla muistiharjoitustasolla. Soitinkohtaisen
+vaikeuden takia kunkin soinnun piilotusjärjestystä voi muuttaa
+(`songHints.ts`); asetukset tallennetaan paikallisesti. Yhden soinnun
+voi myös paljastaa hetkelliseksi vihjeeksi.
+
+**Sointumerkinnät**-valinta (Täydet soinnut / Power-soinnut) vaihtaa vain
+näytettävän merkinnän: tahtikartan, soivan soinnun ja seuraavan osan ennakon.
+Muunnos on `chordLabel.ts`:n esitysfunktio (Gm → G5, B♭ → B♭5, Dm? → D5?);
+kappaleen sointutiedot, piilotustasot, ajoitus ja ääniraidat eivät muutu.
+Power-sointu on juuri ja kvintti ilman terssiä, ei duuri eikä molli.
+
+**Näytä koko sanoitus** avaa molemmissa sovituksissa kaikki sanoitetut
+osiot yhdellä kertaa. Oletuksena näytetään vain parhaillaan valitun
+osion sanat. Koko sanoituksen ollessa auki osion erillistä sananäyttöä
+ei toisteta. Instrumentaaliosiin ei lisätä keksittyjä sanoja.
+Molemmissa versioissa Gm–Dm–F–C–Gm–Dm–E♭–F-jakso on **Kitarasoolo**
+(akustinen 2:02, normaali 1:51) ilman sanoja. Sen jälkeen alkaa
+**Väliosa (laulu)**, jossa lauletaan `Pidän tauon, annan soida…`
+(akustinen 2:31, normaali 2:19).
+Normaalissa versiossa basso on tauolla noin 2:23–2:44, ja väliosan laulu
+sijoittuu tämän kitaravetoisen jakson päälle. Tieto on vain tässä
+dokumentaatiossa ja `songChart.ts`:n kommentissa, ei käyttäjälle näkyvänä
+huomautuksena.
+
+**Soinnut ja sanat** on avattava osio, joka on aluksi suljettu. Sen voi
+avata ja sulkea kesken kappaleen ilman, että ääni pysähtyy tai
+harjoitusasetukset nollautuvat. Erillinen harjoitteluohje on poistettu;
+kappaleen nimen alla on yksi lyhyt ohje.
+
+Kappaleenosan viimeisen tahdin ajan sointukartta näyttää **Seuraava
+sointu** -ennakon: seuraavan osan ensimmäisen soinnun. Ennakko laskee
+saman tahtirajan kuin korostus (`lookAhead` tiedostossa `songChart.ts`),
+joten soiva sointu ja aktiivinen tahti vaihtuvat vasta oikealla hetkellä.
+Viimeisessä osassa ennakko näkyy vain loopissa (intron sointu).
+Harjoitustason piilottama sointu näkyy ennakossa kysymysmerkkinä.
+
+**Äänenvoimakkuus** (`songAudio.ts`): soittimen alareunassa on yksi
+säädin (0–100 %), joka kertoo kaikkien kolmen raidan aiemmat tasot
+(säestys 0,85, kitara ja laulu 0,78) samalla prosentilla. Oletus 100 %
+vastaa aiempaa toistovoimakkuutta. Arvo tallennetaan selaimeen ja säilyy
+versionvaihdossa. Mykistys hoidetaan edelleen `muted`-ominaisuudella.
+
+- Työpöytäselaimissa taso asetetaan `HTMLMediaElement.volume`-arvolla, joten
+  toisto, kelaus ja synkronointi toimivat kuten ennen.
+- iOS Safarissa `volume` ei muutu (pysyy 1:nä). Sivu tunnistaa tämän ja
+  ohjaa raidat ensimmäisestä Soita-painalluksesta alkaen Web Audio API:n
+  GainNodeihin. AudioContext luodaan ja käynnistetään painalluksen aikana,
+  ja jokainen audioelementti kytketään vain kerran, jolloin ääni kulkee
+  vain GainNoden kautta eikä kuulu kahteen kertaan. Mykistetyn raidan
+  GainNode asetetaan lisäksi nollaan.
+- **Rajoitus:** GainNode-reitti on testattu Playwrightilla simuloimalla
+  iOS:n toiminta (volume-arvo ei muutu, AudioContext korvattu
+  kirjaavalla tynkäversiolla). Sitä ei ole testattu fyysisellä iPhonella.
+  Jos iOS keskeyttää AudioContextin (esim. puhelu tai taustalle
+  siirtyminen), seuraava Soita-painallus käynnistää sen uudelleen.
+
+**Skaalat ja moodit** on Soinnut ja sanat -osion alla oleva, aluksi
+suljettu osio (`SongScales.tsx`, `songScaleData.ts`). Siinä on vain
+kappaleen harmoniaan perustellut asteikot: G-mollipentatoninen,
+G-bluesasteikko ja G-luonnollinen molli. Otelauta piirretään Otelautakartan
+`renderBoard`-funktiolla, ja boksit tulevat `fingeringBoxes`-funktiolta.
+Otelaudan alla on aluksi suljettu alivalikko **Sormitusboksit ja
+näyttöasetukset**: viisi pentatonista boksia (mollipentatoninen ja blues) tai
+seitsemän 3NPS-sormitusta (luonnollinen molli) monivalintana sekä
+**Näytä vain valittujen boksien sävelet**. Kummallakin järjestelmällä on omat
+valintansa, kuten Otelautakartassa. Bluesasteikon boksi on pentatoninen boksi,
+jota `songBoxes` leventää kielellä yhden nauhan ylöspäin vain silloin, kun D♭ on
+heti boksin ylimmän sävelen vieressä, jotta lisäsävel ei katoa rajauksessa. Tulos vastaa vakiintuneita viittä
+bluesboksia. Boksin alareunan alapuolinen D♭ kuuluu edelliseen boksiin; sama
+sävelluokka voi esiintyä boksissa usealla kielellä eri oktaaveissa.
+Bluesasteikon D♭ näytetään lisäsävelenä. Kappaleen soinnut ovat Gm, F, B♭,
+E♭, Dm ja C. Luonnollisen mollin sävelistä vain E♭ hankaa kitarasoolon
+C-soinnun E:tä vastaan. G-doorista ei tarjota, koska sen E on ristiriidassa
+toistuvan E♭-soinnun kanssa.
+
+Aikaleimat ja yksittäisten iskujen ajoitukset ovat vielä
+likimääräisiä. Kolmen erillisen HTMLMediaElementin ajoitus ei ole
+näytetarkka; testaa todellinen synkronointi sekä tietokoneella
+että mobiililaitteella.
+
+### Raitojen tahdistus (`StemAligner`, `songAudio.ts`)
+
+Kappaleharjoittelu ja Am-vamp-tausta käyttävät samaa tahdistinta. Säännöt
+perustuvat iPhonen Safarilla 12.11.2026 tehtyihin mittauksiin (iOS 18.7):
+
+- **Pois kytketty raita pysäytetään, ei mykistetä soimaan.** iPhone ei vie
+  mykistettyä audioelementtiä eteenpäin: aika pysyi nollassa, eikä raita
+  alkanut kuulua, kun mykistys poistettiin.
+- **Driftiä korjataan harvoin.** Jos raita on yli 0,12 s sivussa taustasta,
+  se kelataan, mutta ei kesken edellisen kelauksen, ei ennen kuin raidalla
+  on dataa, ja enintään kerran kahdessa sekunnissa. Toistuvat kelaukset
+  latauksen aikana mykistivät iPhonella raidan kokonaan.
+- **Kelausviive kompensoidaan.** iPhonella soiva raita alkaa soida vasta
+  noin 0,3–0,8 s kelauksen jälkeen. Tahdistin kelaa raidan kohtaan
+  taustan aika + viive ja oppii viiveen jäännöserosta (puolet erosta
+  kerrallaan). iPhonella aloitusarvo on 0,4 s, muualla 0.
+- **Äänitiedostot tarvitsevat HTTP Range -tuen.** Ilman 206-vastauksia
+  selain ei voi kelata lainkaan. Cloudflare Pagesissa sen hoitaa
+  `functions/assets/audio/[[path]].ts`.
+
+**Tunnettu rajoitus:** kun raita kytketään iPhonella takaisin päälle kesken
+soiton, se voi nykäistä hetken ja asettua tahtiin vasta yhden korjauksen
+jälkeen. Jatkuva soitto ja tauolla tehty kytkentä toimivat. Rajoituksen
+poistaisi vain raitojen miksaaminen Web Audiossa puretuista puskureista,
+mikä vaatisi kaikkien raitojen lataamisen muistiin ennen soittoa.
+
 ## Moduulit
 
 - `music.ts`: sovitin nykyiseen `assets/otelauta.js`:ään. Viritys, asteikot, asteiden
@@ -137,6 +372,20 @@ Osaamisarvio: 65 % heti oikein -osuutta ja 35 % nopeutta (≤ 2,5 s = täysi
 nopeuspiste, ≥ 8 s = nolla). Molemmat ovat liukuvia keskiarvoja (α = 0,3), joten
 arvio seuraa viimeisimpiä vastauksia. Alle kolme vastausta näytetään alustavina.
 Painotus: 3 vähän harjoitelluille, muuten `0,25 + (1 − osaaminen) × 3`.
+
+## Harjoituksen teorialinkki ja taustaraidan looppi
+
+Jokaisen harjoituksen alussa on suora linkki sitä käsittelevään oppaan teoriaan.
+Vanhassa harjoitusvalikossa linkki päivittyy valitun harjoitustilan mukaan,
+uusissa sävelten etsinnän ja pentatonisen oppimispoluissa on omat teorialinkit.
+Alareunan kaksoiskappale poistettiin.
+
+Improvisointiharjoituksen Am-taustassa on oletuksena pois käytöstä oleva
+**Soita looppina** -valinta Kitara kuuluu -valinnan vieressä. Valinta asettaa
+samanaikaisesti molempien ääniraitojen loop-tilan eikä katkaise soivaa raitaa.
+Malliäänen mykistys toimii siitä riippumatta. HTMLMediaElement-pohjainen
+kaksiraitainen looppi ei ole näytetarkka: kierrosrajalla voi esiintyä pientä
+toistoviivettä.
 
 ## Build ja testit
 

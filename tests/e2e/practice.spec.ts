@@ -34,7 +34,7 @@ async function solveNote(page: Page) { const { string, fret } = await noteAnswer
 
 test.describe('vihjeet ja harjoittelutavat', () => {
   test('uusi käyttäjä: vastaus ei näy, vihje avataan pyynnöstä eikä piilottaminen tee vastauksesta itsenäistä', async ({ page }) => {
-    await page.goto('/kitaraharjoittelija.html');
+    await page.goto('/kitaraharjoittelija.html?vanha=1');
     await expect(page.getByRole('radio', { name: /Testaa osaamistasi/ })).toBeChecked();
     await startButton(page).click();
     await expect(page.getByTestId('round-status')).toContainText('Kysymys 1 / 10 · Testaa osaamistasi');
@@ -72,7 +72,7 @@ test.describe('vihjeet ja harjoittelutavat', () => {
   });
 
   test('väärä vastaus merkitään ja kirjataan, oikea kohta näkyy vasta ratkaisun jälkeen', async ({ page }) => {
-    await seed(page); await page.goto('/kitaraharjoittelija.html?alku=0&loppu=3&kielet=6');
+    await seed(page); await page.goto('/kitaraharjoittelija.html?alku=0&loppu=3&kielet=6&vanha=1');
     await startButton(page).click();
     const { fret } = await noteAnswer(page);
     const miss = [0, 1, 2, 3].find(f => f !== fret && NAMES[(40 + f) % 12] !== NAMES[(40 + fret) % 12])!;
@@ -87,7 +87,7 @@ test.describe('vihjeet ja harjoittelutavat', () => {
   });
 
   test('Opettele näyttää oikean kohdan heti ja kertoo, ettei kyse ole testistä', async ({ page }) => {
-    await seed(page); await page.goto('/kitaraharjoittelija.html?vihjeet=always&alku=0&loppu=5');
+    await seed(page); await page.goto('/kitaraharjoittelija.html?vihjeet=always&alku=0&loppu=5&vanha=1');
     await expect(page.getByRole('radio', { name: /Opettele/ })).toBeChecked();
     await startButton(page).click();
     for (let i = 0; i < 3; i++) {
@@ -106,7 +106,7 @@ test.describe('vihjeet ja harjoittelutavat', () => {
   });
 
   test('Vähennä vihjeitä: kolme vastauksella, kolme apupisteellä, loput ilman ja tulokset eroteltuina', async ({ page }) => {
-    await seed(page); await page.goto('/kitaraharjoittelija.html?vihjeet=fade&alku=1&loppu=5');
+    await seed(page); await page.goto('/kitaraharjoittelija.html?vihjeet=fade&alku=1&loppu=5&vanha=1');
     await startButton(page).click();
     for (let i = 1; i <= 10; i++) {
       await expect(page.getByTestId('round-status')).toContainText(`Kysymys ${i} / 10 · Vähennä vihjeitä · ${i <= 3 ? 'vastaus näkyy' : i <= 6 ? 'apupiste näkyy' : 'ilman vihjettä'}`);
@@ -128,7 +128,7 @@ test.describe('vihjeet ja harjoittelutavat', () => {
       recent: [{ id: 'old:1', item: 'notes:5:3', mode: 'notes', input: 'board', check: 'class', expected: 43, played: 43, first: true, errors: 0, ms: 2000, hint: false, at: 99 }],
       sessions: [{ id: 'old', mode: 'notes', count: 4, first: 3, ms: 8000, at: 99, complete: true }] };
     await page.addInitScript(([k, data]) => { if (!localStorage.getItem(k)) localStorage.setItem(k, data); }, [key, JSON.stringify(old)]);
-    await page.goto('/kitaraharjoittelija.html');
+    await page.goto('/kitaraharjoittelija.html?vanha=1');
     await expect(page.getByTestId('hints-notice')).toContainText('Harjoittelutapa on muuttunut');
     await expect(page.getByRole('radio', { name: /Testaa osaamistasi/ })).toBeChecked();
     await expect(page.getByText('4 vastattua kysymystä · 1 harjoituskertaa')).toBeVisible();
@@ -152,7 +152,7 @@ test.describe('harjoituskierros', () => {
   test('kymmenen kysymystä, tauko, tulokset, uudelleenlataus ja etusivun yhteenveto', async ({ page }) => {
     const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
     await page.addInitScript(() => localStorage.setItem('musiikin-kartta:tehdyt', '["osa-3#otelauta"]'));
-    await seed(page); await page.goto('/kitaraharjoittelija.html?alku=0&loppu=0');
+    await seed(page); await page.goto('/kitaraharjoittelija.html?alku=0&loppu=0&vanha=1');
     await startButton(page).click();
     await expect(page.getByTestId('round-setup')).toContainText('Otelaudan sävelet');
     await expect(page.getByLabel('Harjoitus', { exact: true })).toHaveCount(0);
@@ -183,7 +183,7 @@ test.describe('harjoituskierros', () => {
   });
 
   test('oikean vastauksen jälkeen siirrytään itsestään seuraavaan, tauko pysäyttää siirtymisen', async ({ page }) => {
-    await page.goto('/kitaraharjoittelija.html?alku=0&loppu=0');
+    await page.goto('/kitaraharjoittelija.html?alku=0&loppu=0&vanha=1');
     await startButton(page).click();
     await solveNote(page);
     await expect(page.getByTestId('round-status')).toContainText('Kysymys 1');
@@ -200,7 +200,7 @@ test.describe('harjoituskierros', () => {
 
   test('nopeat peräkkäiset painallukset eivät sekoita kierrosta', async ({ page }) => {
     const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
-    await seed(page); await page.goto('/kitaraharjoittelija.html?alku=0&loppu=0');
+    await seed(page); await page.goto('/kitaraharjoittelija.html?alku=0&loppu=0&vanha=1');
     await startButton(page).dblclick();
     await expect(page.getByTestId('round-status')).toContainText('Kysymys 1 / 10');
     const { string } = await noteAnswer(page);
@@ -221,7 +221,7 @@ test.describe('harjoituskierros', () => {
   });
 
   test('harjoituksen vaihtaminen näyttää vain sen asetukset ja oikean vastaustavan', async ({ page }) => {
-    await seed(page); await page.goto('/kitaraharjoittelija.html');
+    await seed(page); await page.goto('/kitaraharjoittelija.html?vanha=1');
     const mode = page.getByLabel('Harjoitus', { exact: true });
     await expect(page.getByRole('radio', { name: /Napauta otelaudalta/ })).toBeChecked();
     await expect(page.getByLabel('Asteikko', { exact: true })).toHaveCount(0);
@@ -265,7 +265,7 @@ test.describe('harjoituskierros', () => {
     await expect(page.getByTestId('round-status')).toContainText('Kysymys 1 / 12');
     await expect(page.locator('#question')).toHaveText('A-mollipentatoninen, boksi 1 ylöspäin, sävel 1/12: 1. aste (A2).');
     // Boksin ympärillä näkyy yksi nauha kumpaankin suuntaan.
-    await expect(page.locator('.practice-board thead th')).toHaveText(['Kieli', '4', '5●', '6', '7●', '8', '9●']);
+    await expect(page.locator('.practice-board thead th')).toHaveText(['Kielet', '4', '5●', '6', '7●', '8', '9●']);
     await expect(targets(page)).toHaveCount(1);
     await expect(targets(page)).toHaveAttribute('data-string', '5'); await expect(targets(page)).toHaveAttribute('data-fret', '5');
     // Sama aste toisessa oktaavissa ei kelpaa, kun asteikko soitetaan järjestyksessä.
@@ -310,7 +310,7 @@ test.describe('harjoituskierros', () => {
     await startButton(page).click();
     await expect(page.locator('#question')).toContainText('C-duurisointu, E-muoto: etsi');
     await expect(dots(page)).toHaveCount(0);
-    await expect(page.locator('.practice-board thead th')).toHaveText(['Kieli', '7●', '8', '9●', '10', '11']);
+    await expect(page.locator('.practice-board thead th')).toHaveText(['Kielet', '7●', '8', '9●', '10', '11']);
     await page.getByRole('button', { name: 'Näytä vihje', exact: true }).click();
     await expect(page.locator('.practice-board .shape')).toHaveCount(6); await expect(targets(page)).toHaveCount(0);
     await page.getByRole('button', { name: 'Näytä vastaus' }).click();
@@ -339,7 +339,7 @@ test.describe('harjoituskierros', () => {
   });
 
   test('varmuuskopion palautus ja tulosten poisto', async ({ page }) => {
-    await seed(page); await page.goto('/kitaraharjoittelija.html?alku=0&loppu=0');
+    await seed(page); await page.goto('/kitaraharjoittelija.html?alku=0&loppu=0&vanha=1');
     await startButton(page).click(); await solveNote(page);
     await page.getByRole('button', { name: 'Lopeta harjoitus' }).click();
     const backup = JSON.stringify(await stored(page));
@@ -359,7 +359,7 @@ test.describe('harjoituskierros', () => {
 
 test.describe('ulkoasu ja saavutettavuus', () => {
   test('näppäimistö, mobiilin vaakavieritys ja vaalea teema', async ({ page }) => {
-    await seed(page); await page.goto('/kitaraharjoittelija.html?loppu=24&vihjeet=always');
+    await seed(page); await page.goto('/kitaraharjoittelija.html?loppu=24&vihjeet=always&vanha=1');
     const button = startButton(page); await button.focus(); await page.keyboard.press('Enter');
     // 24 nauhan alueella sama sävel löytyy kieleltä myös oktaavia ylempää.
     await expect(targets(page).first()).toBeVisible();
@@ -385,7 +385,7 @@ test.describe('ulkoasu ja saavutettavuus', () => {
   test('valmiiden näkymien kuvakaappaukset', async ({ page }, info) => {
     await mockedMic(page); await seed(page, { input: 'mic' });
     await page.emulateMedia({ colorScheme: 'dark' });
-    await page.goto('/kitaraharjoittelija.html');
+    await page.goto('/kitaraharjoittelija.html?vanha=1');
     await page.screenshot({ path: info.outputPath('asetukset-tumma.png'), fullPage: true });
     await page.getByRole('button', { name: 'Testaa mikrofoni' }).click();
     await wave(page, 110);
@@ -420,21 +420,27 @@ test.describe('sivuston yhtenäisyys', () => {
     await expect(page.getByRole('link', { name: 'Harjoittele kitaralla' })).toBeVisible();
     await expect(page.locator('a[href="pdf/musiikin-kartta.pdf"]').first()).toBeVisible();
 
+    // Yhdistetty otelautakartta: moodi valitaan pudotusvalikosta, ei enää painikkeesta.
     await page.goto('/otelautaharjoittelija.html');
     await expect(page.getByRole('link', { name: 'Kitaraharjoittelija', exact: true })).toHaveAttribute('href', 'kitaraharjoittelija.html');
-    await page.getByRole('button', { name: 'Doorinen', exact: true }).click();
+    await page.getByRole('combobox', { name: 'Asteikko tai moodi' }).selectOption('dorian');
+    await expect(page.locator('#selection-title')).toContainText('A-doorinen');
     await expect(page.locator('#board svg')).toBeVisible();
-    await page.goto('/otelautaharjoittelija.html#oktaavit');
-    await expect(page.getByRole('heading', { name: 'Oktaaviharjoitus' })).toBeVisible();
-    await expect(page.locator('#octave-listen button').first()).toBeVisible();
 
-    await page.goto('/harjoitustaustat.html');
+    // Oktaavit ovat nyt vain visualisointia: ei kysymystä eikä kuuntelupainikkeita.
+    await page.goto('/otelautaharjoittelija.html?toonikka=A#oktaavit');
+    await expect(page.getByRole('button', { name: 'Oktaavit' })).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('#board .octave-note')).not.toHaveCount(0);
     await expect(page.locator('#board svg')).toBeVisible();
-    await page.getByRole('button', { name: 'Soita tausta' }).click();
-    await expect(page.locator('#backing-status')).toHaveText('Tausta soi toistolla.');
-    await expect(page.locator('#chord-loop .is-playing')).toHaveCount(1);
-    await page.getByRole('button', { name: 'Pysäytä tausta' }).click();
-    await expect(page.locator('#backing-status')).toBeEmpty();
+    await expect(page.locator('audio')).toHaveCount(0);
+
+    // Entinen taustaraitasivu säilyy vanhoille linkeille, mutta ohjaa otelautakarttaan.
+    await page.goto('/harjoitustaustat.html?toonikka=E&asteikko=dorian');
+    await expect(page).toHaveURL(/otelautaharjoittelija\.html\?toonikka=E&asteikko=dorian/);
+    await expect(page.getByRole('combobox', { name: 'Kotisävel' })).toHaveValue('4');
+    await expect(page.getByRole('combobox', { name: 'Asteikko tai moodi' })).toHaveValue('dorian');
+    await expect(page.locator('#board svg')).toBeVisible();
+    await expect(page.locator('audio')).toHaveCount(0);
 
     await page.goto('/book/osa-3.html#otelauta');
     await expect(page).toHaveURL(/osa-5\.html#otelauta$/);
@@ -477,9 +483,11 @@ test.describe('sivuston yhtenäisyys', () => {
       await expect(page.getByRole('radio', { name: /Testaa osaamistasi/ })).toBeChecked();
     }
     await expect(page.getByLabel('Asteikko', { exact: true })).toHaveValue('dorian');
-    await expect(page.getByRole('link', { name: 'Lue teoria: Moodit käytännössä' })).toHaveAttribute('href', 'book/osa-11.html#moodit');
-    await expect(page.getByRole('link', { name: 'Katso asteikko otelautaharjoittelijassa' })).toHaveAttribute('href', 'otelautaharjoittelija.html?toonikka=A&asteikko=dorian');
-    await page.getByRole('link', { name: 'Lue teoria: Moodit käytännössä' }).click();
+    const theory = page.getByRole('link', { name: 'Lue tämän harjoituksen teoria: Moodit käytännössä →' });
+    await expect(theory).toHaveAttribute('href', 'book/osa-11.html#moodit');
+    await expect(page.getByRole('link', { name: 'Katso asteikko otelautakartassa' }))
+      .toHaveAttribute('href', 'otelautaharjoittelija.html?toonikka=A&asteikko=dorian');
+    await theory.click();
     await expect(page).toHaveURL(/osa-11\.html#moodit$/);
     await page.goBack();
     await page.getByRole('link', { name: 'Opas · otelauta' }).click();
@@ -538,7 +546,7 @@ const reading = (page: Page) => page.getByTestId('mic-state');
 
 test.describe('mikrofonitesti ilman harjoitusta', () => {
   test('tilat: ei käytössä, lupaa pyydetään, hiljaista, ääntä ilman säveltä, epävire, sävel tunnistettu', async ({ page }) => {
-    await mockedMic(page, { hold: true }); await seed(page); await page.goto('/kitaraharjoittelija.html');
+    await mockedMic(page, { hold: true }); await seed(page); await page.goto('/kitaraharjoittelija.html?vanha=1');
     await expect(page.getByRole('radio', { name: /Napauta otelaudalta/ })).toBeChecked();
     await expect(reading(page)).toHaveAttribute('data-reading', 'off'); await expect(reading(page)).toContainText('Mikrofoni ei ole käytössä');
     expect((await micState(page)).opens).toBe(0);
@@ -587,7 +595,7 @@ test.describe('mikrofonitesti ilman harjoitusta', () => {
   });
 
   test('luvan epääminen ja laitevirhe antavat toimintaohjeen, ja uusi yritys onnistuu', async ({ page }) => {
-    await mockedMic(page, { fail: 'NotAllowedError' }); await seed(page); await page.goto('/kitaraharjoittelija.html');
+    await mockedMic(page, { fail: 'NotAllowedError' }); await seed(page); await page.goto('/kitaraharjoittelija.html?vanha=1');
     await page.getByRole('button', { name: 'Testaa mikrofoni' }).click();
     await expect(reading(page)).toHaveAttribute('data-reading', 'error'); await expect(reading(page)).toContainText('Mikrofonilupa evättiin. Salli mikrofoni');
     await expect(page.locator('.mic-panel')).toContainText('Voit harjoitella ilman mikrofonia');
@@ -603,7 +611,7 @@ test.describe('mikrofonitesti ilman harjoitusta', () => {
   });
 
   test('äänikortin valinta, kaksikanavainen tulo ja kadonneen laitteen korvaaminen', async ({ page }) => {
-    await mockedMic(page, { channels: 2 }); await seed(page); await page.goto('/kitaraharjoittelija.html');
+    await mockedMic(page, { channels: 2 }); await seed(page); await page.goto('/kitaraharjoittelija.html?vanha=1');
     await page.getByText('Mikrofonin asetukset').click();
     const device = page.getByLabel('Äänitulo', { exact: true });
     await expect(device.locator('option')).toHaveText(['Järjestelmän oletustulo']);
@@ -629,7 +637,7 @@ test.describe('mikrofonitesti ilman harjoitusta', () => {
   });
 
   test('taustakohinan mittaus asettaa äänikynnyksen eikä tuota tuloksia', async ({ page }) => {
-    await mockedMic(page); await seed(page); await page.goto('/kitaraharjoittelija.html');
+    await mockedMic(page); await seed(page); await page.goto('/kitaraharjoittelija.html?vanha=1');
     await page.getByRole('button', { name: 'Testaa mikrofoni' }).click();
     await setMic(page, { noise: .01 });
     await page.getByRole('button', { name: 'Mittaa taustakohina' }).click();
@@ -644,7 +652,7 @@ test.describe('mikrofonitesti ilman harjoitusta', () => {
 
   test('nopea testin käynnistely ja lopettelu ei jätä äänilaitetta auki', async ({ page }) => {
     const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
-    await mockedMic(page); await seed(page); await page.goto('/kitaraharjoittelija.html');
+    await mockedMic(page); await seed(page); await page.goto('/kitaraharjoittelija.html?vanha=1');
     for (let i = 0; i < 6; i++) {
       await page.getByRole('button', { name: 'Testaa mikrofoni' }).click();
       await page.getByRole('button', { name: 'Lopeta testi' }).click();
@@ -664,7 +672,7 @@ test.describe('mikrofonitesti ilman harjoitusta', () => {
 
 test.describe('harjoitus mikrofonilla (simuloitu signaali)', () => {
   test('mikrofoniluvan epääminen ei aloita kierrosta eikä estä otelaudalla harjoittelua', async ({ page }) => {
-    await mockedMic(page, { fail: 'NotAllowedError' }); await seed(page); await page.goto('/kitaraharjoittelija.html?alku=0&loppu=0');
+    await mockedMic(page, { fail: 'NotAllowedError' }); await seed(page); await page.goto('/kitaraharjoittelija.html?alku=0&loppu=0&vanha=1');
     await page.getByRole('radio', { name: /Soita kitaralla/ }).check();
     await startButton(page).click();
     await expect(page.getByRole('alert')).toContainText('Mikrofoni ei käynnistynyt');
@@ -676,7 +684,7 @@ test.describe('harjoitus mikrofonilla (simuloitu signaali)', () => {
   });
 
   test('sävel kulkee tunnistuksen läpi, mikrofoni pysyy auki kierroksen ajan eikä sama ääni vastaa kahdesti', async ({ page }) => {
-    await mockedMic(page); await seed(page); await page.goto('/kitaraharjoittelija.html?alku=0&loppu=0&kielet=6&vastaus=mic');
+    await mockedMic(page); await seed(page); await page.goto('/kitaraharjoittelija.html?alku=0&loppu=0&kielet=6&vastaus=mic&vanha=1');
     await startButton(page).click();
     await expect(page.getByTestId('instruction')).toContainText('ei kieltä tai nauhaa');
     await expect(page.getByTestId('mic-live')).toHaveText('Kuuntelen… soita sävel');
@@ -702,7 +710,7 @@ test.describe('harjoitus mikrofonilla (simuloitu signaali)', () => {
   });
 
   test('automaattinen siirtyminen: kierros etenee soittamalla ilman hiirtä', async ({ page }) => {
-    await mockedMic(page); await seed(page, { advance: true }); await page.goto('/kitaraharjoittelija.html?alku=0&loppu=0&kielet=6&vastaus=mic');
+    await mockedMic(page); await seed(page, { advance: true }); await page.goto('/kitaraharjoittelija.html?alku=0&loppu=0&kielet=6&vastaus=mic&vanha=1');
     await startButton(page).click();
     for (let i = 1; i <= 3; i++) {
       await expect(page.getByTestId('round-status')).toContainText(`Kysymys ${i} /`, { timeout: 6000 });
@@ -714,7 +722,7 @@ test.describe('harjoitus mikrofonilla (simuloitu signaali)', () => {
   });
 
   test('tarkka oktaavi: eriävä havainto ei ole virhe, ellei sitä itse vahvista', async ({ page }) => {
-    await mockedMic(page); await seed(page); await page.goto('/kitaraharjoittelija.html?alku=0&loppu=0&kielet=6&vastaus=mic&tarkistus=pitch');
+    await mockedMic(page); await seed(page); await page.goto('/kitaraharjoittelija.html?alku=0&loppu=0&kielet=6&vastaus=mic&tarkistus=pitch&vanha=1');
     await startButton(page).click();
     await expect(page.locator('#question')).toHaveText('Etsi E2 paksulta E-kieleltä.');
     await page.waitForTimeout(200); await wave(page, 164.8138);
@@ -733,7 +741,7 @@ test.describe('harjoitus mikrofonilla (simuloitu signaali)', () => {
   });
 
   test('kohina tai epävireinen sävel ei ole vastaus eikä virhe', async ({ page }) => {
-    await mockedMic(page); await seed(page); await page.goto('/kitaraharjoittelija.html?alku=0&loppu=0&kielet=6&vastaus=mic');
+    await mockedMic(page); await seed(page); await page.goto('/kitaraharjoittelija.html?alku=0&loppu=0&kielet=6&vastaus=mic&vanha=1');
     await startButton(page).click();
     await page.waitForTimeout(200); await setMic(page, { frequency: 0, noise: .2 });
     await expect(page.getByTestId('mic-live')).toHaveText('Ääntä kuuluu, sävel ei vielä selvä');
@@ -746,7 +754,7 @@ test.describe('harjoitus mikrofonilla (simuloitu signaali)', () => {
   });
 
   test('testistä harjoitukseen ilman uutta lupakyselyä, ja otelautaharjoitus sulkee testin', async ({ page }) => {
-    await mockedMic(page); await seed(page, { input: 'mic' }); await page.goto('/kitaraharjoittelija.html?alku=0&loppu=0&kielet=6');
+    await mockedMic(page); await seed(page, { input: 'mic' }); await page.goto('/kitaraharjoittelija.html?alku=0&loppu=0&kielet=6&vanha=1');
     await page.getByRole('button', { name: 'Testaa mikrofoni' }).click();
     await expect(reading(page)).toHaveAttribute('data-reading', 'silent');
     // Portti virittyy vasta, kun mikrofoni on kuullut hetken hiljaisuutta.
@@ -769,7 +777,7 @@ test.describe('harjoitus mikrofonilla (simuloitu signaali)', () => {
   });
 
   test('äänilaitteen katoaminen tauottaa harjoituksen ja vapauttaa laitteen', async ({ page }) => {
-    await mockedMic(page); await seed(page); await page.goto('/kitaraharjoittelija.html?vastaus=mic');
+    await mockedMic(page); await seed(page); await page.goto('/kitaraharjoittelija.html?vastaus=mic&vanha=1');
     await startButton(page).click();
     await expect(page.getByTestId('mic-live')).toBeVisible();
     await page.evaluate(() => (window as unknown as { micTest: MicState }).micTest.ended!());
@@ -783,7 +791,7 @@ test.describe('harjoitus mikrofonilla (simuloitu signaali)', () => {
   });
 
   test('mikrofoni avautuu vain käyttäjän toiminnosta ja sulkeutuu tauolla, piilotettaessa ja poistuttaessa', async ({ page }) => {
-    await mockedMic(page); await seed(page); await page.goto('/kitaraharjoittelija.html');
+    await mockedMic(page); await seed(page); await page.goto('/kitaraharjoittelija.html?vanha=1');
     expect((await micState(page)).opens).toBe(0);
     await page.getByRole('radio', { name: /Soita kitaralla/ }).check();
     expect((await micState(page)).opens).toBe(0);
@@ -804,7 +812,7 @@ test.describe('harjoitus mikrofonilla (simuloitu signaali)', () => {
   });
 
   test('aloituksen peruminen lupakyselyn aikana vapauttaa myöhässä myönnetyn laitteen', async ({ page }) => {
-    await mockedMic(page, { hold: true }); await seed(page); await page.goto('/kitaraharjoittelija.html?vastaus=mic');
+    await mockedMic(page, { hold: true }); await seed(page); await page.goto('/kitaraharjoittelija.html?vastaus=mic&vanha=1');
     await startButton(page).click();
     await expect(page.getByRole('button', { name: 'Avataan mikrofonia…' })).toBeDisabled();
     await page.getByRole('button', { name: 'Peru' }).click();

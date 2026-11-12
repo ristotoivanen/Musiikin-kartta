@@ -4,10 +4,19 @@ import type { Area, Mark } from './engine';
 import { accuracy, averageMs, proficiency, type Stat } from './storage';
 
 const INLAYS = new Set([3, 5, 7, 9, 15, 17, 19, 21]);
-const MARK_WORD: Record<Mark['kind'], string> = { answer: 'vastaus', anchor: 'apupiste', shape: 'muodon sävel', wrong: 'valintasi, ei oikea' };
+const STRING_LABELS = ['e', 'B', 'G', 'D', 'A', 'E'];
+function StringLabel({ string }: { string: number }) {
+  return <span className="string-label">
+    <span>{string + 1} · <strong>{STRING_LABELS[string]}</strong></span>
+    {string === 0 ? <small>ohuin</small> : string === 5 ? <small>paksuin</small> : null}
+  </span>;
+}
+const stringThickness = (string: number) =>
+  ({ '--string-thickness': (1.25 + string * 0.45) + 'px' }) as CSSProperties;
+const MARK_WORD: Record<Mark['kind'], string> = { answer: 'vastaus', anchor: 'apupiste', shape: 'muodon sävel', wrong: 'valintasi, ei oikea', playing: 'nyt soi' };
 
 function FretHeader({ min, max }: { min: number; max: number }) {
-  return <thead><tr><th scope="col">Kieli</th>{Array.from({ length: max - min + 1 }, (_, i) => {
+  return <thead><tr><th scope="col">Kielet</th>{Array.from({ length: max - min + 1 }, (_, i) => {
     const fret = min + i;
     return <th key={fret} scope="col" className={fret === 0 ? 'open-fret' : ''}>
       {fret}{fret > 0 && fret % 12 === 0 ? <span className="inlay" aria-hidden="true">●●</span> : INLAYS.has(fret) ? <span className="inlay" aria-hidden="true">●</span> : null}
@@ -19,8 +28,8 @@ function FretHeader({ min, max }: { min: number; max: number }) {
  * Vastausotelauta. Semanttinen taulukko: rivit ovat kielet (ohut E ylimpänä, kuten tabulatuurissa),
  * sarakkeet nauhat. Nuolinäppäimet, Home ja End siirtävät kohdistusta, Enter vastaa.
  */
-export function Board({ area, marks = [], disabled = false, onAnswer, caption = 'Otelauta' }:
-  { area: Area; marks?: Mark[]; disabled?: boolean; onAnswer?: (p: Position) => void; caption?: string }) {
+export function Board({ area, marks = [], mutedStrings = [], disabled = false, onAnswer, caption = 'Otelauta' }:
+  { area: Area; marks?: Mark[]; mutedStrings?: number[]; disabled?: boolean; onAnswer?: (p: Position) => void; caption?: string }) {
   const columns = { '--cols': area.max - area.min + 1 } as CSSProperties;
   const { strings, min, max } = area;
   const [cursor, setCursor] = useState({ string: Math.min(...strings), fret: min });
@@ -32,12 +41,36 @@ export function Board({ area, marks = [], disabled = false, onAnswer, caption = 
     const box = viewport.current, target = box?.querySelector<HTMLElement>('.target, .anchor');
     if (box && target) box.scrollLeft += target.getBoundingClientRect().left - box.getBoundingClientRect().left - box.clientWidth / 2 + target.clientWidth / 2;
   }, [shown]);
+  // Kapealla näytöllä osa nauhoista jää vierityksen taakse: kerro, kummalla puolella niitä on.
+  const [more, setMore] = useState({ left: false, right: false });
+  useEffect(() => {
+    const box = viewport.current;
+    if (!box) return;
+    const update = () => {
+      const left = box.scrollLeft > 2, right = box.scrollLeft + box.clientWidth < box.scrollWidth - 2;
+      setMore(prev => prev.left === left && prev.right === right ? prev : { left, right });
+    };
+    update();
+    box.addEventListener('scroll', update, { passive: true });
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(update);
+    observer?.observe(box);
+    return () => { box.removeEventListener('scroll', update); observer?.disconnect(); };
+  }, [shown, min, max]);
   const focusable = strings.includes(cursor.string) && cursor.fret >= min && cursor.fret <= max ? cursor : { string: Math.min(...strings), fret: min };
-  return <div ref={viewport} className="fret-scroll" tabIndex={0} role="region" aria-label="Otelaudan vastausruudukko">
-    <table className="practice-board" style={columns}><caption>{caption} · ohut E ylimpänä</caption>
+  return <div className={'fret-wrap' + (more.left ? ' more-left' : '') + (more.right ? ' more-right' : '')}>
+    {(more.left || more.right) && <p className="fret-scroll-hint">
+      {more.left && <span aria-hidden="true">← </span>}
+      Vieritä otelautaa sivusuunnassa: nauhoja on lisää {more.left && more.right ? 'molemmilla puolilla' : more.right ? 'oikealla' : 'vasemmalla'}
+      {more.right && <span aria-hidden="true"> →</span>}
+    </p>}
+    <div ref={viewport} className="fret-scroll" tabIndex={0} role="region" aria-label="Otelaudan vastausruudukko">
+    <table className="practice-board" style={columns}><caption>{caption} · ohut e ylhäällä, paksu E alhaalla</caption>
       <FretHeader min={min} max={max} />
-      <tbody>{music.OPEN_PITCHES.map((_, string) => <tr key={string} className={strings.includes(string) ? '' : 'unused'}>
-        <th scope="row">{string + 1} · {stringName[string]}</th>
+      <tbody>{music.OPEN_PITCHES.map((_, string) => <tr key={string} className={strings.includes(string) ? '' : 'unused'} style={stringThickness(string)}>
+        <th scope="row" aria-label={`${string + 1}. kieli: ${stringName[string]}${mutedStrings.includes(string) ? ', ei soiteta' : ''}`}>
+          <StringLabel string={string} />
+          {mutedStrings.includes(string) && <span className="string-muted" aria-hidden="true">×</span>}
+        </th>
         {positions([string], min, max).map(p => {
           const m = byKey.get(positionKey(p));
           const place = `${stringName[string]}-kieli, ${fretName(p.fret)}`;
@@ -57,6 +90,7 @@ export function Board({ area, marks = [], disabled = false, onAnswer, caption = 
               onClick={() => onAnswer?.(p)}>{m ? <span className="dot">{m.label || '●'}</span> : null}</button>
           </td>;
         })}</tr>)}</tbody></table>
+    </div>
   </div>;
 }
 
@@ -65,10 +99,10 @@ export function MasteryMap({ area, stats, input, check, flats }: { area: Area; s
   const { strings, min, max } = area;
   const prefix = `${input}:${check}:solo:notes:`;
   return <div className="fret-scroll" tabIndex={0} role="region" aria-label="Harjoiteltujen kohteiden osaamiskartta">
-    <table className="practice-board mastery" style={{ '--cols': max - min + 1 } as CSSProperties}><caption>Osaamiskartta · ohut E ylimpänä</caption>
+    <table className="practice-board mastery" style={{ '--cols': max - min + 1 } as CSSProperties}><caption>Osaamiskartta · ohut e ylhäällä, paksu E alhaalla</caption>
       <FretHeader min={min} max={max} />
-      <tbody>{music.OPEN_PITCHES.map((_, string) => <tr key={string} className={strings.includes(string) ? '' : 'unused'}>
-        <th scope="row">{string + 1} · {stringName[string]}</th>
+      <tbody>{music.OPEN_PITCHES.map((_, string) => <tr key={string} className={strings.includes(string) ? '' : 'unused'} style={stringThickness(string)}>
+        <th scope="row" aria-label={`${string + 1}. kieli: ${stringName[string]}`}><StringLabel string={string} /></th>
         {positions([string], min, max).map(p => {
           const stat = Object.hasOwn(stats, prefix + positionKey(p)) ? stats[prefix + positionKey(p)] : undefined;
           const score = proficiency(stat);

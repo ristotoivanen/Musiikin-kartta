@@ -2,14 +2,19 @@ import '../assets/otelauta.js';
 export { midiToFreq, freqToMidi, nearestMidi, noteToMidi } from './vendor/notes';
 
 export type Scale = { name: string; base: [number, string][]; add: [number, string][] };
-type Box = { strings: number[][]; start: number; end: number };
+export type Box = { strings: number[][]; start: number; end: number; partial?: boolean };
 declare global {
   var MusicMapFretboard: {
     OPEN_PITCHES: number[]; CHROM: string[]; SCALES: Record<string, Scale>;
     scaleNotes(scale: Scale): [number, string][];
     noteName(root: number, interval: number, degree: string): string;
-    fingeringBoxes(root: number, scale: Scale, system: string, numbers: number[], frets?: number): { positions: Box[] }[];
+    fingeringBoxes(root: number, scale: Scale, system: string, numbers: number[], frets?: number): { number: number; positions: Box[] }[];
     chordGrip(root: number, quality: string): { frets: (number | null)[] } | null;
+    /** Otelautakartan SVG-otelauta (sama ulkoasu ja sävelmerkinnät kuin otelautaharjoittelija.html:ssä). */
+    renderBoard(root: number, scale: Scale, fretCount: number, options?: {
+      boxes?: { number: number; positions: Box[] }[]; onlyBoxNotes?: boolean; automatic?: boolean; label?: string;
+    }): string;
+    revealPositions(board: Element, selector: string): void;
   };
 }
 /** Yhteinen musiikkikirjasto: sama laskenta kuin otelautaharjoittelijassa ja oppaassa. */

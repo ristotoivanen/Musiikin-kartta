@@ -64,7 +64,13 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
 
 /* Otelauta */
 .fret-scroll { max-width: 100%; overflow-x: auto; padding-bottom: 8px; }
-.practice-board { --head: 86px; border-collapse: separate; border-spacing: 0; font-size: 13px; text-align: center; table-layout: fixed;
+/* Vieritysvihje: näkyy vain, kun nauhoja jää näkymän ulkopuolelle. Reunan varjo näyttää suunnan. */
+.fret-wrap { max-width: 100%; }
+.fret-scroll-hint { margin: 10px 0 -8px; font-size: 13px; font-weight: 650; color: var(--gold); }
+.fret-wrap.more-right > .fret-scroll { box-shadow: inset -14px 0 12px -12px var(--gold); }
+.fret-wrap.more-left > .fret-scroll { box-shadow: inset 14px 0 12px -12px var(--gold); }
+.fret-wrap.more-left.more-right > .fret-scroll { box-shadow: inset 14px 0 12px -12px var(--gold), inset -14px 0 12px -12px var(--gold); }
+.practice-board { --head: 105px; border-collapse: separate; border-spacing: 0; font-size: 13px; text-align: center; table-layout: fixed;
   width: min(100%, calc(var(--head) + var(--cols, 6) * 66px)); min-width: calc(var(--head) + var(--cols, 6) * 46px); }
 .practice-board caption { text-align: left; color: var(--muted); margin: 8px 0; white-space: nowrap; }
 .practice-board th { font-weight: 500; color: var(--muted); padding: 2px 4px; }
@@ -73,9 +79,12 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
 .practice-board thead th:first-child, .practice-board tbody th { position: sticky; left: 0; background: var(--panel); z-index: 2; text-align: left; }
 .practice-board thead th:first-child, .practice-board tbody th { width: var(--head); }
 .practice-board tbody th { white-space: nowrap; overflow: hidden; }
+.practice-board .string-label { display: flex; align-items: center; flex-wrap: wrap; gap: 2px 7px; }
+.practice-board .string-label strong { color: var(--text); font-weight: 750; }
+.practice-board .string-label small { font-size: 10px; color: var(--muted); }
 /* Kieli kulkee solun läpi vaakaviivana ja nauha solun oikeassa reunassa. */
 .practice-board td { padding: 0; height: 46px; border-right: 2px solid #6f5b47;
-  background: linear-gradient(#b9b9c4, #b9b9c4) center / 100% 1.5px no-repeat, #231a12; }
+  background: linear-gradient(#b9b9c4, #b9b9c4) center / 100% var(--string-thickness, 1.5px) no-repeat, #231a12; }
 .practice-board td.open-fret { border-right: 5px solid #d8cbb6; background-color: #2a2338; }
 .practice-board tr.unused td { opacity: .35; }
 .practice-board td button { display: grid; place-items: center; width: 100%; height: 46px; min-height: 46px; padding: 0; background: transparent; border: 0; border-radius: 0; color: inherit; font-size: 13px; }
@@ -140,8 +149,388 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
 @media (max-width: 600px) {
   .settings, .session-panel, .progress-panel, .mic-panel { padding: 12px; }
   .practice-main { padding: 22px 12px 0; }
-  .practice-board { --head: 64px; }
+  .practice-board { --head: 96px; }
   .practice-board tbody th { font-size: 12px; }
   .mic-readout > div:nth-child(-n+2) { grid-column: 1 / -1; }
 }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
+
+
+/* Oppimispolkujen uusi aloitus: etusivulla vain kolme valintaa. */
+.learning-home { margin: 12px 0 30px; }
+.learning-lead { max-width: 770px; color: var(--muted); line-height: 1.6; }
+.learning-grid { display: grid; gap: 14px; margin-top: 22px; }
+.learning-card {
+  display: flex; align-items: center; gap: 18px; width: 100%; min-height: 116px;
+  padding: 20px; border: 1px solid var(--line); border-radius: 16px;
+  background: var(--panel); text-align: left; color: var(--text); cursor: pointer;
+}
+.learning-card:hover, .learning-card:focus-visible { border-color: var(--lavender); background: var(--bg); }
+.learning-number { display: grid; flex: 0 0 45px; place-items: center; height: 45px; border-radius: 12px;
+  background: var(--bg); color: var(--lavender); font-weight: 750; font-size: 19px; }
+.learning-card-body { display: grid; flex: 1; gap: 5px; }
+.learning-card-body strong { font-size: 19px; }
+.learning-card-body > span { color: var(--muted); line-height: 1.5; }
+.learning-card-body small { font-size: 13px; color: var(--lavender); }
+.learning-arrow { font-size: 25px; }
+.selected-track { margin: 10px 0 16px; }
+.selected-track h2 { margin-top: 13px; }
+.selected-track > p { color: var(--muted); }
+.back-link { padding: 8px 10px; min-height: 42px; background: transparent; color: var(--lavender); }
+.track-settings { margin: 14px 0; }
+.track-settings > summary { color: var(--muted); }
+
+/* Ensimmäisen skaalapolun oikea harjoitusnäkymä. */
+.scale-journey h2 { margin: 12px 0; font-size: clamp(23px,3.4vw,32px); }
+.scale-fact { padding: 10px 14px; margin: 16px 0; border-radius: 10px; background: var(--panel); }
+.journey-steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin: 18px 0; }
+.journey-step { min-width: 0; display: flex; align-items: center; gap: 8px; padding: 12px 9px; min-height: 72px;
+  border: 1px solid var(--line); border-radius: 11px; background: var(--panel); color: var(--muted);
+  text-align: left; font-size: 13px; line-height: 1.3; }
+.journey-step.current { border: 2px solid var(--lavender); color: var(--text); font-weight: 700; }
+.journey-step:disabled { opacity: .5; cursor: not-allowed; }
+.journey-index { display: grid; place-items: center; flex: 0 0 27px; height: 27px; background: var(--bg);
+  color: var(--text); border-radius: 50%; font-weight: 700; font-size: 12px; }
+.journey-lesson, .journey-below { padding: clamp(14px,3vw,24px); margin: 16px 0;
+  border: 1px solid var(--line); border-radius: 14px; background: var(--panel); }
+.journey-lesson .session-top h3 { font-size: 20px; margin: 0; }
+.journey-lesson > p { line-height: 1.65; }
+.journey-lesson .fret-scroll { margin: 18px 0; }
+.journey-next { margin: 22px 0 0; padding: 16px; background: var(--bg); border-radius: 12px; }
+.journey-next p { max-width: 690px; }
+.journey-next .primary { padding: 10px 16px; }
+.backing-track { display: grid; gap: 8px; margin: 18px 0; padding: 14px; border: 1px solid var(--line); border-radius: 12px; }
+.backing-track audio { display: block; width: 100%; }
+@media (max-width: 790px) {
+  .journey-steps { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .journey-step { min-height: 52px; }
+}
+@media (max-width: 470px) {
+  .learning-card { padding: 14px; gap: 12px; }
+  .learning-number { flex-basis: 35px; height: 35px; font-size: 15px; }
+  .learning-card-body strong { font-size: 16px; }
+  .learning-card-body > span { font-size: 14px; }
+  .journey-steps { grid-template-columns: 1fr; gap: 6px; }
+  .journey-step { min-height: 44px; }
+}
+
+/* Malliäänen juuri soiva sävel erottuu koko asteikkokuviosta. */
+.practice-board .playing .dot {
+  background: #ffda76; color: #251900; border: 2px solid #fff;
+  box-shadow: 0 0 0 3px #e5a431; transform: scale(1.12);
+}
+
+/* Muistiharjoituksen yksinkertainen, kosketusnäytöllekin sopiva temponsäätö. */
+.scale-tempo {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 10px;
+  padding: 12px 14px; margin: 14px 0;
+  border: 1px solid var(--line); border-radius: 12px;
+  background: var(--bg);
+}
+.scale-tempo > span { font-weight: 700; margin-right: 4px; }
+.scale-tempo output {
+  display: inline-block; min-width: 80px; font-size: 20px; font-weight: 750;
+  text-align: center; font-variant-numeric: tabular-nums;
+}
+.scale-tempo button { padding: 8px 13px; }
+.scale-tempo .tempo-reset { font-size: 13px; }
+.scale-tempo small { flex: 1 1 100%; color: var(--muted); }
+
+/* Yksi soitin, huomaamaton vaihtoehtoisten harjoitustaustojen valinta. */
+.backing-track-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.backing-track-switch { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; }
+.backing-track-switch select {
+  max-width: 180px; min-height: 36px; padding: 6px 8px; border-radius: 8px;
+  background: var(--bg); color: var(--text); border: 1px solid var(--line);
+  font: inherit;
+}
+
+/* Kaksi synkronoitua ääniraitaa, mutta käyttäjälle vain yksi ohjaus. */
+.backing-track-mixer { display: grid; gap: 12px; padding: 14px; margin: 18px 0;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
+.backing-track-mixer .backing-track-heading { display: flex; flex-wrap: wrap; align-items: center;
+  justify-content: space-between; gap: 10px; }
+.backing-track-mixer p { margin: 0; }
+.backing-track-toggles { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; column-gap: 20px; row-gap: 2px; }
+.guitar-toggle { display: flex; align-items: center; gap: 8px; font-size: 14px;
+  min-height: 44px; cursor: pointer; color: var(--text); }
+.guitar-toggle input { width: 19px; height: 19px; accent-color: var(--lavender); }
+.backing-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.backing-controls .backing-play { min-width: 93px; }
+.backing-controls input[type="range"] { flex: 1 1 160px; min-width: 100px;
+  accent-color: var(--lavender); cursor: pointer; }
+.backing-controls input[type="range"]:disabled { cursor: default; }
+.backing-time { min-width: 91px; text-align: right; font-size: 13px; font-variant-numeric: tabular-nums; color: var(--muted); }
+.backing-error { color: var(--wrong); font-size: 14px; }
+
+/* Nimettyjen sävelten aloitusharjoitus. Löytyneet paikat erottuvat muusta otelaudasta. */
+.note-journey .note-progress { font-weight: 750; color: var(--lavender); margin: 8px 0 0; }
+.note-journey .journey-lesson { max-width: 100%; }
+.note-journey .fret-scroll { margin-top: 10px; }
+
+/* Teorialinkki näkyy heti harjoituksen alussa, ei vasta alareunassa. */
+.exercise-theory { margin: 8px 0 18px; font-size: 14px; }
+.exercise-theory a { color: var(--lavender); font-weight: 650; }
+.exercise-theory a:hover { text-decoration: underline; }
+
+/* Sävelten etsinnän valinnainen automaattinen eteneminen. */
+.note-autoadvance {
+  display: inline-flex; align-items: center; gap: 9px; min-height: 44px;
+  margin: 2px 0 10px; cursor: pointer; color: var(--text); font-size: 14px;
+}
+.note-autoadvance input { width: 19px; height: 19px; margin: 0; accent-color: var(--lavender); }
+
+/* Avosointujen tunnistus: valittavissa neljä tai seitsemän sointunimeä. */
+.chord-difficulty {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px 20px;
+  padding: 12px 16px; margin: 14px 0; border: 1px solid var(--line); border-radius: 12px;
+}
+.chord-difficulty legend { font-weight: 700; padding: 0 6px; }
+.chord-difficulty label { display: flex; align-items: center; gap: 8px; min-height: 44px; cursor: pointer; }
+.chord-difficulty input { width: 18px; height: 18px; accent-color: var(--lavender); }
+.chord-difficulty p { flex-basis: 100%; margin: 0; }
+.chord-journey .string-muted { display: inline-block; margin-left: 8px; color: var(--wrong); font-weight: 800; }
+.chord-journey .practice-board tr.unused { opacity: .55; }
+.chord-journey .practice-board .anchor .dot { background: var(--good); color: #16121f; border: 1px solid #fff; }
+.chord-journey .practice-board .shape .dot { background: #6d4aff; border: 1px solid #fff; }
+.chord-answers { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0 10px; }
+.chord-answers button { min-width: 64px; min-height: 48px; font-size: 18px; font-weight: 750; }
+.chord-answers button.right { background: var(--good); color: #16121f; border-color: var(--good); }
+.chord-answers button.wrong { text-decoration: line-through; border-color: var(--wrong); opacity: .6; }
+
+/* Akustisen kappaleen soitin: yksi aikajana, kaksi erillistä mykistystä. */
+.song-journey .song-version {
+  display: inline-flex; align-items: center; flex-wrap: wrap; gap: 10px;
+  margin: 0 0 16px; font-size: 14px; font-weight: 650; color: var(--muted);
+}
+.song-journey .song-version select {
+  min-width: 190px; min-height: 44px; padding: 8px 11px;
+  color: var(--text); background: var(--panel);
+  border: 1px solid var(--line); border-radius: 9px;
+}
+.song-journey .journey-lesson { max-width: 100%; }
+.song-journey .session-top h3 { margin: 0; }
+.song-player-controls {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 18px 0 14px;
+}
+.song-player-controls input[type="range"] {
+  flex: 1 1 210px; min-width: 130px; accent-color: var(--lavender);
+}
+.song-player-controls .song-play { flex: none; min-width: 158px; }
+.song-time {
+  min-width: 96px; text-align: right; font-size: 14px; color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.song-toggles { display: flex; flex-wrap: wrap; gap: 10px 24px; margin: 12px 0; }
+.song-toggles label {
+  display: inline-flex; align-items: center; gap: 9px; min-height: 44px;
+  cursor: pointer; font-size: 14px;
+}
+.song-toggles input { width: 19px; height: 19px; margin: 0; }
+.song-player .tools-note { margin: 4px 0; }
+/* Yksi yhteinen äänenvoimakkuus: kaiutin, liukusäädin ja prosentit samalla rivillä. */
+.song-volume { margin-left: auto; color: var(--muted); }
+.song-volume input[type="range"] { width: min(180px, 46vw); height: auto; accent-color: var(--lavender); }
+.song-volume output { min-width: 3.4em; text-align: right; font-variant-numeric: tabular-nums; }
+@media (max-width: 600px) { .song-volume { margin-left: 0; width: 100%; } .song-volume input[type="range"] { flex: 1; width: auto; } }
+
+/* Skaalat ja moodit: sama otelauta ja merkinnät kuin Otelautakartassa. */
+.song-scales-panel {
+  border: 1px solid var(--line); border-radius: 14px; background: var(--panel);
+  padding: clamp(14px, 3vw, 22px); margin: 0 0 12px;
+}
+.song-scale-controls { display: flex; flex-wrap: wrap; gap: 12px 18px; }
+.song-scale-controls label { display: grid; gap: 6px; color: var(--muted); font-size: 14px; }
+.song-scale-controls select {
+  min-width: min(290px, 80vw); min-height: 42px; padding: 7px 10px; color: var(--text);
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+}
+.song-scale-notes { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; margin: 16px 0 4px; }
+.song-scale-notes span { color: var(--gold); font-weight: 700; letter-spacing: .02em; }
+.song-scale-note { color: var(--muted); font-size: 14px; margin: 0 0 12px; }
+.song-scale-board { overflow-x: auto; max-width: 100%; border-radius: 10px; }
+.song-scale-board svg { display: block; width: 100%; height: auto; }
+/* Soinnut ja sanat on aluksi suljettu avattava osio. */
+.song-chart-collapse, .song-scales-collapse { margin: 18px 0; }
+.song-chart-collapse > summary, .song-scales-collapse > summary { color: var(--text); font-weight: 700; }
+.song-chart-collapse[open] > summary, .song-scales-collapse[open] > summary { margin-bottom: 8px; }
+.song-chart-collapse .song-chord-panel { margin: 0 0 12px; }
+.song-journey .song-lead { margin: 0 0 14px; }
+.song-future { margin-bottom: 26px; }
+@media (max-width: 600px) {
+  .song-player-controls .song-play { flex: 1 1 100%; }
+  .song-time { text-align: left; }
+}
+
+
+/* Mallikappaleen soinnut: yksi aktiivinen osa kerrallaan, ei koko biisin taulukkoa. */
+.song-chord-panel {
+  border: 1px solid var(--line); border-radius: 14px; background: var(--panel);
+  padding: clamp(14px, 3vw, 22px); margin: 16px 0 20px;
+}
+.song-chord-panel .session-top h3 { margin: 0; }
+.song-chord-toolbar {
+  display: flex; align-items: end; flex-wrap: wrap; justify-content: space-between;
+  gap: 12px 18px; margin: 16px 0;
+}
+.song-chord-toolbar label {
+  display: flex; flex-direction: column; gap: 6px; color: var(--muted); font-size: 14px;
+}
+.song-chord-toolbar select {
+  min-width: min(290px, 80vw); padding: 8px 10px; color: var(--text);
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+}
+.song-current-chord {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin: 0;
+  font-size: 14px; color: var(--muted);
+}
+.song-current-chord strong { font-size: 25px; color: var(--text); }
+.song-current-chord span { font-size: 13px; }
+/* Soiva ja seuraava sointu rinnakkain: ennakko ei siirrä tahtikartan korostusta. */
+.song-now-next { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 22px; }
+.song-ahead {
+  display: flex; align-items: center; gap: 9px; margin: 0; padding: 7px 12px;
+  border-left: 3px solid var(--gold); border-radius: 0 9px 9px 0; background: var(--bg);
+  font-size: 13px; color: var(--muted);
+}
+.song-ahead strong { font-size: 21px; color: var(--gold); }
+.song-bar-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; }
+.song-measure {
+  display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start;
+  gap: 7px; min-width: 0; min-height: 80px; padding: 11px 10px;
+  text-align: left; background: var(--bg); color: var(--text);
+  border: 1px solid var(--line); border-radius: 10px;
+}
+.song-measure:hover, .song-measure:focus-visible { border-color: var(--lavender); }
+.song-measure.active { border: 2px solid var(--good); padding: 10px 9px; }
+.song-measure-number { font-size: 12px; color: var(--muted); }
+.song-measure-chords {
+  display: flex; justify-content: space-around; flex-wrap: wrap; gap: 9px;
+  font-size: clamp(17px, 2.6vw, 23px);
+}
+.song-measure-chords strong { font-weight: 600; opacity: .75; }
+.song-measure-chords strong.now { color: var(--good); opacity: 1; font-weight: 800; }
+.song-measure small { color: var(--muted); font-size: 11px; line-height: 1.4; }
+.song-section-lyrics {
+  margin-top: 16px; padding: 12px 14px; border-left: 3px solid var(--lavender);
+  background: var(--bg); border-radius: 0 9px 9px 0;
+}
+.song-section-lyrics h4 { margin: 0 0 8px; font-size: 14px; }
+.song-section-lyrics p { margin: 3px 0; line-height: 1.5; }
+.song-chord-note { color: var(--gold); font-size: 13px; }
+.song-chord-panel > .tools-note { margin: 12px 0 0; font-size: 13px; }
+@media (max-width: 700px) {
+  .song-bar-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .song-current-chord, .song-now-next, .song-ahead { width: 100%; }
+}
+
+
+/* Vähitellen häivytettävät sointuvihjeet: asetukset pidetään kompaktina. */
+.song-hint-controls {
+  display: flex; align-items: end; gap: 12px 20px; flex-wrap: wrap;
+  margin: 16px 0 6px; padding: 12px;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--bg);
+}
+.song-hints-toggle { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; cursor: pointer; font-weight: 650; }
+.song-hints-toggle input { width: 19px; height: 19px; accent-color: var(--lavender); }
+.song-hint-level { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+.song-hint-level select, .song-fade-order select {
+  min-height: 42px; min-width: 190px; padding: 7px 10px;
+  color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+}
+.song-hint-level select:disabled { opacity: .55; }
+.song-hint-progress { font-size: 13px; color: var(--muted); margin: 0 0 12px; }
+.song-fade-customize { margin: 4px 0 12px; font-size: 14px; }
+.song-fade-customize summary { color: var(--lavender); }
+.song-fade-customize p { color: var(--muted); line-height: 1.5; margin: 4px 0 12px; }
+.song-fade-order { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+.song-fade-order label { display: grid; gap: 4px; min-width: 0; font-size: 14px; font-weight: 650; }
+.song-fade-order select { width: 100%; min-width: 0; }
+.song-current-chord .song-reveal-chord {
+  min-height: 38px; padding: 6px 11px; color: var(--lavender);
+  background: transparent; border: 1px solid var(--line); border-radius: 8px;
+  font-size: 13px;
+}
+.song-current-chord .song-reveal-chord:hover,
+.song-current-chord .song-reveal-chord:focus-visible { border-color: var(--lavender); }
+@media (max-width: 600px) {
+  .song-hint-controls { align-items: stretch; }
+  .song-hint-level { width: 100%; }
+  .song-hint-level select { width: 100%; }
+  .song-fade-order { grid-template-columns: 1fr; }
+}
+
+
+/* Koko kappaleen sanoitus aukeaa erikseen sointunäkymän yhteyteen. */
+.song-all-lyrics {
+  margin-top: 16px; padding: 16px; background: var(--bg);
+  border: 1px solid var(--line); border-radius: 10px;
+}
+.song-all-lyrics > h4 { font-size: 16px; margin: 0 0 14px; }
+.song-all-lyrics-grid {
+  display: grid; grid-template-columns: repeat(2,minmax(0,1fr));
+  column-gap: 24px; row-gap: 18px; align-items: start;
+}
+.song-lyrics-column { display: grid; gap: 18px; align-content: start; min-width: 0; }
+.song-lyrics-stanza { min-width: 0; }
+.song-lyrics-stanza h5 {
+  color: var(--lavender); font-size: 14px; margin: 0 0 8px; font-weight: 700;
+}
+.song-lyrics-stanza p { margin: 2px 0; line-height: 1.6; }
+.song-all-lyrics > .tools-note { margin: 14px 0 0; }
+@media (max-width: 650px) {
+  .song-all-lyrics-grid { grid-template-columns: 1fr; }
+}
+
+/* Improvisaatioharjoituksen sävelvihjeet: kolme vaihtoehtoa segmenttivalintana. */
+.hint-segments {
+  display: flex; flex-wrap: wrap; gap: 0; margin: 14px 0 10px; padding: 0; border: 0;
+}
+.hint-segments legend { width: 100%; margin-bottom: 6px; font-size: 14px; color: var(--muted); }
+.hint-segments label {
+  flex: 1 1 0; display: flex; align-items: center; justify-content: center; min-height: 44px;
+  padding: 8px 12px; border: 1px solid var(--line); background: var(--bg); color: var(--text);
+  font-size: 14px; text-align: center; cursor: pointer;
+}
+.hint-segments label + label { margin-left: -1px; }
+.hint-segments label:first-of-type { border-radius: 9px 0 0 9px; }
+.hint-segments label:last-of-type { border-radius: 0 9px 9px 0; }
+.hint-segments input { position: absolute; opacity: 0; pointer-events: none; }
+.hint-segments label:has(input:checked) {
+  background: var(--purple-dark, #4b2fd6); border-color: var(--lavender); color: #fff; font-weight: 700; z-index: 1;
+}
+.hint-segments label:has(input:focus-visible) { outline: 2px solid var(--lavender); outline-offset: 2px; }
+@media (max-width: 520px) {
+  .hint-segments { flex-direction: column; }
+  .hint-segments label + label { margin-left: 0; margin-top: -1px; }
+  .hint-segments label:first-of-type { border-radius: 9px 9px 0 0; }
+  .hint-segments label:last-of-type { border-radius: 0 0 9px 9px; }
+}
+
+/* Sointumerkintöjen esitystapa: täydet soinnut tai power-soinnut. */
+.song-chord-display { display: flex; flex-wrap: wrap; margin: 0; padding: 0; border: 0; }
+.song-chord-display legend { width: 100%; margin-bottom: 4px; font-size: 13px; color: var(--muted); }
+.song-chord-display label {
+  flex: 1 1 0; display: flex; align-items: center; justify-content: center; min-height: 42px;
+  padding: 7px 12px; border: 1px solid var(--line); background: var(--panel); color: var(--text);
+  font-size: 14px; white-space: nowrap; cursor: pointer;
+}
+.song-chord-display label + label { margin-left: -1px; }
+.song-chord-display label:first-of-type { border-radius: 8px 0 0 8px; }
+.song-chord-display label:last-of-type { border-radius: 0 8px 8px 0; }
+.song-chord-display input { position: absolute; opacity: 0; pointer-events: none; }
+.song-chord-display label:has(input:checked) {
+  background: #4b2fd6; border-color: var(--lavender); color: #fff; font-weight: 700; z-index: 1;
+}
+.song-chord-display label:has(input:focus-visible) { outline: 2px solid var(--lavender); outline-offset: 2px; }
+@media (max-width: 600px) { .song-chord-display { width: 100%; } }
+
+/* Skaalat ja moodit: sormitusboksit samoilla valinnoilla kuin Otelautakartassa. */
+.song-box-settings { margin-top: 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+.song-box-settings > summary { min-height: 44px; padding: 11px 14px; color: var(--lavender); font-weight: 650; cursor: pointer; }
+.song-box-settings[open] { padding-bottom: 12px; }
+.song-box-settings > :not(summary) { margin-left: 14px; margin-right: 14px; }
+.song-box-system { margin-top: 4px; margin-bottom: 10px; font-size: 14px; font-weight: 650; }
+.song-box-settings .box-options { margin-bottom: 10px; }
+.song-box-settings .box-toggle { min-height: 44px; }
+.song-box-settings .tools-note { margin-top: 10px; margin-bottom: 0; font-size: 13px; }

@@ -1,393 +1,154 @@
 <!DOCTYPE html>
 <html lang="fi">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Harjoittele asteikoita, moodeja, sointuja ja sormitusbokseja kitaran otelaudalla.">
-<title>Otelautaharjoittelija – Musiikin kartta</title>
-<link rel="stylesheet" href="assets/otelauta.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Kitaran otelautakartta: tutki säveliä, asteikoita, moodeja, oktaaveja, sointuja ja sormitusbokseja.">
+  <title>Otelautakartta – Musiikin kartta</title>
+  <link rel="stylesheet" href="assets/otelauta.css">
+  <link rel="stylesheet" href="assets/visualizer.css">
 </head>
 <body>
-
 <header class="site-header">
   <nav class="site-nav" aria-label="Sivusto">
     <a class="brand" href="index.html">Musiikin <span>kartta</span></a>
-    <a href="book/osa-1.html">Lue oppaan osa 1</a>
+    <a href="book/osa-1.html">Lue opasta</a>
     <a href="kitaraharjoittelija.html">Kitaraharjoittelija</a>
   </nav>
 </header>
+<main class="visualizer">
+  <h1>Otelautakartta</h1>
+  <p class="visualizer-intro">Tutki, missä sävelet sijaitsevat kitaran otelaudalla. Valitse kotisävel ja asteikko. Sormitusboksit ja muut näyttöasetukset löydät halutessasi alta.</p>
 
-<main id="harjoittelija">
-  <h1>Otelautaharjoittelija</h1>
-  <p class="tools-note">
-    Valitse toonika ja asteikko. Asteikkonäkymässä pisteen numero kertoo sävelen asteen suhteessa toonikaan.
-    Oktaavit-näkymässä kuulet saman sävelen eri kieliltä ja etsit sen oktaavit otelaudalta.
-  </p>
+  <section class="visualizer-controls" aria-label="Otelaudan valinnat">
+    <div class="visualizer-field">
+      <label for="root-select" id="root-label">Kotisävel</label>
+      <select id="root-select"></select>
+    </div>
+    <div class="visualizer-field" id="scale-field">
+      <label for="scale-select">Asteikko tai moodi</label>
+      <select id="scale-select">
+        <optgroup label="Pentatoniset">
+          <option value="mp">Mollipentatoninen</option>
+          <option value="majp">Duuripentatoninen</option>
+        </optgroup>
+        <optgroup label="Moodit">
+          <option value="ionian">Jooninen (duuri)</option>
+          <option value="dorian">Doorinen</option>
+          <option value="phrygian">Fryyginen</option>
+          <option value="lydian">Lyydinen</option>
+          <option value="mixolydian">Miksolyydinen</option>
+          <option value="aeolian">Aiolinen (luonnollinen molli)</option>
+          <option value="locrian">Lokrinen</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="visualizer-views" role="group" aria-label="Näytä otelaudalla">
+      <button type="button" data-view="scale" aria-pressed="true">Asteikko</button>
+      <button type="button" data-view="chords" aria-pressed="false">Soinnut</button>
+      <button type="button" data-view="octaves" aria-pressed="false">Oktaavit</button>
+    </div>
+  </section>
 
-  <div class="controls">
-    <div class="group">
-      <span class="group-label" id="root-label">Toonika (kotisävel)</span>
-      <span id="roots" role="group" aria-labelledby="root-label"></span>
-    </div>
-    <div id="scale-pickers">
-    <div class="group" role="group" aria-labelledby="minor-label">
-      <span class="group-label" id="minor-label">Mollipentatoninen pohja</span>
-      <button data-scale="mp">Mollipentatoninen</button>
-      <button data-scale="dorian">Doorinen</button>
-      <button data-scale="phrygian">Fryyginen</button>
-      <button data-scale="aeolian">Aiolinen</button>
-      <button data-scale="locrian">Lokrinen</button>
-    </div>
-    <div class="group" role="group" aria-labelledby="major-label">
-      <span class="group-label" id="major-label">Duuripentatoninen pohja</span>
-      <button data-scale="majp">Duuripentatoninen</button>
-      <button data-scale="ionian">Jooninen</button>
-      <button data-scale="lydian">Lyydinen</button>
-      <button data-scale="mixolydian">Miksolyydinen</button>
-    </div>
-    <p class="tools-note"><a href="book/osa-8.html#pentatoniikka">Mitä pentatoniikka on?</a> · <a href="book/osa-11.html#moodit">Mitä moodit ovat?</a></p>
-    </div>
-    <div class="group" role="group" aria-labelledby="view-label">
-      <span class="group-label" id="view-label">Otelaudan näkymä</span>
-      <button type="button" id="scale-view" aria-pressed="true">Asteikko</button>
-      <button type="button" id="chord-view" aria-pressed="false">Soinnut</button>
-      <button type="button" id="octave-view" aria-pressed="false">Oktaavit</button>
-    </div>
-    <div id="chord-options" hidden>
-      <div class="group">
-        <span class="group-label" id="chord-label">Asteikon kolmisoinnut</span>
-        <span class="chord-buttons" id="chord-buttons" role="group" aria-labelledby="chord-label"></span>
-      </div>
-      <div class="group">
-        <label class="group-label" for="grip-select">Sointuote</label>
-        <select id="grip-select" aria-describedby="grip-help"></select>
-      </div>
-      <p class="tools-note" id="grip-help">Otteet luetaan paksusta E-kielestä ohueen e-kieleen. <b>x</b> jätetään soittamatta, <b>0</b> soitetaan vapaana.</p>
-    </div>
-    <details class="advanced-options">
-      <summary>
-        <span class="advanced-open">Osaan jo perusteet <span class="advanced-caption">Näytä lisäasetukset</span></span>
-        <span class="advanced-close">Takaisin perusteisiin</span>
-      </summary>
-      <div class="advanced-fields">
+  <section class="visualizer-settings" id="scale-settings">
+    <details id="box-details">
+      <summary>Sormitusboksit ja näyttöasetukset <span class="visualizer-summary-hint">Valinnainen</span></summary>
+      <div class="visualizer-settings-body">
         <div class="group">
-          <label class="group-label" for="fret-count">Nauhojen määrä</label>
-          <select id="fret-count">
-            <option value="auto">Automaattinen (15 tai 17 nauhaa)</option>
-            <option value="12">12 nauhaa · yksi oktaavi</option>
-            <option value="19">19 nauhaa · klassinen kitara</option>
-            <option value="20">20 nauhaa · teräskielinen akustinen</option>
-            <option value="22">22 nauhaa · sähkökitara</option>
-            <option value="24">24 nauhaa · kaksi oktaavia</option>
-          </select>
+          <span class="group-label" id="system-label">Sormitusboksit</span>
+          <span class="visualizer-system" id="system-name" aria-labelledby="system-label">Pentatoniset boksit</span>
         </div>
-        <div id="scale-options">
-          <div class="group">
-            <label class="group-label" for="box-system">Sormitustapa</label>
-            <select id="box-system" aria-describedby="box-help">
-              <option value="pentatonic">Pentatoniset boksit</option>
-              <option value="3nps">3 säveltä per kieli (3NPS)</option>
-            </select>
-          </div>
-          <div class="group" id="box-controls" role="group" aria-labelledby="box-label">
-            <span class="group-label" id="box-label">Näytettävät sormitusboksit</span>
-            <div class="box-options" id="pentatonic-boxes"></div>
-            <div class="box-options" id="three-note-boxes" hidden></div>
-          </div>
-          <div class="group">
-            <span class="group-label">Sävelpisteet</span>
-            <label class="box-toggle box-filter">
-              <input type="checkbox" id="box-notes-only" aria-describedby="box-help" disabled>
-              Näytä vain valittujen boksien sävelet
-            </label>
-          </div>
-          <p class="tools-note" id="box-help" aria-live="polite"></p>
-          <p class="tools-note"><strong>Kokeile.</strong> Soita G-mollipentatoninen boksista 1. Vaihda G-dooriseen ja valitse sormitustavaksi pentatoniset boksit. Etsi samasta boksista kaksi uutta säveltä, A ja E.</p>
+        <div class="group" role="group" aria-label="Näytettävät sormitusboksit">
+          <div class="box-options" id="pentatonic-boxes"></div>
+          <div class="box-options" id="three-note-boxes" hidden></div>
         </div>
+        <label class="box-toggle box-filter">
+          <input type="checkbox" id="box-notes-only" disabled>
+          Näytä vain valittujen boksien sävelet
+        </label>
+        <p class="tools-note" id="box-help">Valitse vähintään yksi boksi, jos haluat rajata sävelet.</p>
       </div>
     </details>
+  </section>
+
+  <section class="visualizer-settings visualizer-chords" id="chord-settings" hidden aria-label="Soinnun näyttötapa">
+    <div class="visualizer-chord-top">
+      <div class="visualizer-field">
+        <label for="chord-group">Sointuryhmä</label>
+        <select id="chord-group">
+          <option value="triads">Kolmisoinnut</option>
+          <option value="sevenths">Seiskasoinnut</option>
+        </select>
+      </div>
+      <div class="visualizer-field">
+        <label for="chord-quality">Soinnun laatu</label>
+        <select id="chord-quality"></select>
+      </div>
+      <div class="visualizer-field seventh-forms" id="seventh-forms" hidden>
+        <span id="seventh-form-label">Ote</span>
+        <div class="chord-modes" role="group" aria-labelledby="seventh-form-label">
+          <button type="button" data-seventh-root="6" aria-pressed="true">E-juurinen</button>
+          <button type="button" data-seventh-root="5" aria-pressed="false">A-juurinen</button>
+        </div>
+      </div>
+      <div class="chord-modes" id="chord-modes" role="group" aria-label="Soinnun esitystapa">
+        <button type="button" data-chord-mode="all" aria-pressed="false">Kaikki sointusävelet</button>
+        <button type="button" data-chord-mode="full" aria-pressed="true">Koko ote</button>
+        <button type="button" data-chord-mode="triad" aria-pressed="false">Triadi (G–B–e)</button>
+      </div>
+    </div>
+    <div class="chord-navigation" id="chord-navigation">
+      <button type="button" id="chord-prev" aria-label="Edellinen sointuote">←</button>
+      <div class="chord-position" id="chord-position" role="status" aria-live="polite"></div>
+      <button type="button" id="chord-next" aria-label="Seuraava sointuote">→</button>
+    </div>
+    <p class="tools-note" id="chord-help"></p>
+  </section>
+
+  <section class="visualizer-settings visualizer-octaves" id="octave-settings" hidden>
+    <p>Kaikki valitun sävelen sijainnit eri kielillä. Väri kertoo, mihin oktaaviin sävel kuuluu, ja pisteessä näkyy sävelen nimi oktaavinumeroineen.</p>
+  </section>
+
+  <div id="selection-info" class="visualizer-info" role="status" aria-live="polite">
+    <strong id="selection-title"></strong>
+    <span id="selection-notes"></span>
   </div>
 
-  <section class="octave-panel" id="oktaavit" aria-labelledby="octave-title" hidden>
-    <h2 id="octave-title">Oktaaviharjoitus</h2>
-    <p id="octave-intro"></p>
-    <div class="group" id="octave-listen" role="group" aria-label="Kuuntele annetut sävelet"></div>
-    <p id="octave-task"></p>
-    <p class="octave-feedback" id="octave-feedback" role="status"></p>
-    <div class="group">
-      <button type="button" id="octave-reset">Aloita alusta</button>
-    </div>
-    <p class="tools-note">Vaihda etsittävä sävel yllä olevista painikkeista. <a href="book/osa-5.html#oktaavimuodot">Lue oktaavimuodoista oppaan osasta 5</a></p>
-  </section>
-  <div id="info" aria-live="polite" aria-atomic="true"></div>
-  <p class="tools-note" id="backing-note"><a id="backing-link" href="harjoitustaustat.html">Soita valitun asteikon taustan mukana</a></p>
-  <p class="tools-note scroll-hint" id="scroll-hint" hidden>Näet lisää nauhoja vierittämällä otelautaa sivusuunnassa.</p>
+  <div class="visualizer-board-settings">
+    <label for="fret-count">Näytettävät nauhat</label>
+    <select id="fret-count">
+      <option value="17">17 nauhaa (oletus)</option>
+      <option value="12">12 nauhaa</option>
+      <option value="19">19 nauhaa</option>
+      <option value="20">20 nauhaa</option>
+      <option value="22">22 nauhaa</option>
+      <option value="24">24 nauhaa</option>
+    </select>
+    <span class="tools-note" id="scroll-hint" hidden>Voit vierittää otelautaa sivusuunnassa.</span>
+  </div>
   <div id="board" role="region" aria-label="Kitaran otelauta" tabindex="0"></div>
 
   <div class="legend" id="scale-legend">
-    <span><span class="swatch" style="background:#6d4aff"></span>Pentatoninen pohjasävel</span>
-    <span><span class="swatch" style="background:#4b2fd6; border:2px solid #fff"></span>Toonika (1)</span>
+    <span><span class="swatch" style="background:#4b2fd6; border:2px solid #fff"></span>Kotisävel (1)</span>
+    <span><span class="swatch" style="background:#6d4aff"></span>Asteikon sävel</span>
     <span><span class="swatch" style="background:#f0a13c"></span>Moodin lisäsävel</span>
   </div>
   <div class="legend" id="chord-legend" hidden>
-    <span><span class="swatch" style="background:#4b2fd6; border:2px solid #fff"></span>Soinnun perussävel (1)</span>
-    <span><span class="swatch" style="background:#6d4aff"></span>Terssi (3 tai ♭3) ja kvintti (5 tai ♭5)</span>
-    <span id="muted-legend"><span class="swatch muted-swatch" aria-hidden="true">×</span>Kieltä ei soiteta</span>
+    <span><span class="swatch" style="background:#4b2fd6; border:2px solid #fff"></span>Soinnun perussävel</span>
+    <span><span class="swatch" style="background:#6d4aff"></span>Muut sointusävelet</span>
   </div>
   <div class="legend" id="octave-legend" hidden>
-    <span><span class="swatch" style="background:#4b2fd6; border:2px solid #fff"></span>Sama korkeus kuin paksulla E-kielellä</span>
-    <span><span class="swatch" style="background:#f0a13c"></span>Oktaavia ylempi</span>
-    <span><span class="swatch" style="background:#75e5c6"></span>Kaksi oktaavia ylempi</span>
+    <span><span class="swatch" style="background:#4b2fd6; border:2px solid #fff"></span>Alin näkyvä oktaavi</span>
+    <span><span class="swatch" style="background:#f0a13c"></span>Yksi oktaavi ylempänä</span>
+    <span><span class="swatch" style="background:#75e5c6"></span>Kaksi oktaavia ylempänä</span>
+    <span><span class="swatch" style="background:#ff9fc7"></span>Kolme oktaavia ylempänä</span>
   </div>
+  <noscript><p>Otelautakartan käyttö vaatii JavaScriptin.</p></noscript>
 </main>
-
-<footer>
-  Musiikin kartta · avoin opas ·
-  lähdekoodi: <a href="https://github.com/ristotoivanen/Musiikin-kartta">GitHub</a>
+<footer>Musiikin kartta · avoin opas · lähdekoodi:
+  <a href="https://github.com/ristotoivanen/Musiikin-kartta">GitHub</a>
 </footer>
-
-<script src="assets/harjoitustausta.js"></script>
 <script src="assets/otelauta.js"></script>
-<script src="assets/oktaavit.js"></script>
-<script>
-(function () {
-  const { CHROM, SCALES, noteName, scaleNotes, scaleTriads, triadGrips, selectionFromURL, selectionHref,
-    renderBoard, BOX_FRETS, supportsThreeNoteBoxes, syncBoxSystem, fingeringBoxes, boxOptions,
-    revealPositions } = fretboard;
-  let { rootPC, scaleId } = selectionFromURL(7, 'mp');
-  let preferredSystem = null;
-  let showChords = false;
-  let showOctaves = false;
-  let octavesOpened = false;
-  let chords, chordIndex = 0, gripIndex = 0;
-  const board = document.getElementById('board');
-  const info = document.getElementById('info');
-  const backingLink = document.getElementById('backing-link');
-  const fretCountSelect = document.getElementById('fret-count');
-  const scrollHint = document.getElementById('scroll-hint');
-  const boxSystem = document.getElementById('box-system');
-  const boxControls = document.getElementById('box-controls');
-  const boxNotesOnly = document.getElementById('box-notes-only');
-  const boxHelp = document.getElementById('box-help');
-  const pentatonicBoxes = document.getElementById('pentatonic-boxes');
-  const threeNoteBoxes = document.getElementById('three-note-boxes');
-  const scaleView = document.getElementById('scale-view');
-  const chordView = document.getElementById('chord-view');
-  const chordOptions = document.getElementById('chord-options');
-  const scaleOptions = document.getElementById('scale-options');
-  const chordButtons = document.getElementById('chord-buttons');
-  const gripSelect = document.getElementById('grip-select');
-  const scaleLegend = document.getElementById('scale-legend');
-  const chordLegend = document.getElementById('chord-legend');
-  const mutedLegend = document.getElementById('muted-legend');
-  const octaveView = document.getElementById('octave-view');
-  const octavePanel = document.getElementById('oktaavit');
-  const octaveLegend = document.getElementById('octave-legend');
-  const scalePickers = document.getElementById('scale-pickers');
-  const advancedOptions = document.querySelector('.advanced-options');
-  const backingNote = document.getElementById('backing-note');
-  const rootLabel = document.getElementById('root-label');
-
-  function formatBoxRange({ start, end, partial }) {
-    let range = 'nauhat ' + start + '–' + end;
-    if (start === end) range = 'nauha ' + start;
-    if (start === 0) range = end === 0 ? 'vapaat kielet' : 'vapaista kielistä nauhalle ' + end;
-    return range + (partial ? ' (osa)' : '');
-  }
-
-  function updateScrollHint() {
-    scrollHint.hidden = board.scrollWidth <= board.clientWidth;
-  }
-
-  function updateChordChoices() {
-    chords = scaleTriads(rootPC, SCALES[scaleId]);
-    chordIndex = 0;
-    gripIndex = 0;
-    chordButtons.replaceChildren(...chords.map(({ name, degree }, index) => {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.textContent = name;
-      if (degree >= 1 && degree <= 7) button.dataset.aste = degree;
-      button.addEventListener('click', () => {
-        if (chordIndex === index) return;
-        chordIndex = index;
-        gripIndex = 0;
-        render();
-      });
-      return button;
-    }));
-  }
-
-  function renderChord(fretCount, automatic) {
-    const chord = chords[chordIndex];
-    [...chordButtons.children].forEach((button, index) => {
-      button.setAttribute('aria-pressed', chordIndex === index);
-    });
-    const grips = triadGrips(chord, fretCount);
-    if (gripIndex >= grips.length) gripIndex = grips.length ? 0 : -1;
-    gripSelect.replaceChildren(
-      ...grips.map(({ strings }, index) =>
-        new Option('Ote ' + (index + 1) + ' · ' + [...strings].reverse().map(fret => fret ?? 'x').join(' '), index)
-      ),
-      new Option('Kaikki sointusävelet', -1)
-    );
-    gripSelect.value = gripIndex;
-    const grip = grips[gripIndex]?.strings;
-    mutedLegend.hidden = !grip;
-    board.innerHTML = renderBoard(chord.root, chord, fretCount, {
-      automatic, grip, label: chord.name + (grip ? ', kolmen kielen sointuote' : ', kaikki sointusävelet')
-    });
-    updateScrollHint();
-    if (grip) revealPositions(board, '.grip-notes');
-    info.innerHTML =
-      '<span class="scale-name">' + chord.name + '</span>' +
-      'Sointusävelet: <b>' + chord.notes.join(' – ') + '</b>' +
-      '<span class="hint">' + (grip
-        ? 'Soita pisteillä merkityt kielet ja jätä ×-merkityt soittamatta. Kokeile samaa sointua myös toisesta kohdasta otelautaa.'
-        : 'Pisteiden numerot ovat asteita soinnun perussävelestä. Valitse sointuote, jos haluat soittaa kolme säveltä kerralla.'
-      ) + '</span>';
-  }
-
-  // Näkymät: 'scale' (asteikko), 'chord' (soinnut) ja 'octave' (oktaaviharjoitus, assets/oktaavit.js).
-  function setView(view) {
-    showChords = view === 'chord';
-    showOctaves = view === 'octave';
-    scaleView.setAttribute('aria-pressed', view === 'scale');
-    chordView.setAttribute('aria-pressed', showChords);
-    octaveView.setAttribute('aria-pressed', showOctaves);
-    chordOptions.hidden = !showChords;
-    chordLegend.hidden = !showChords;
-    scaleOptions.hidden = view !== 'scale';
-    scaleLegend.hidden = view !== 'scale';
-    [scalePickers, advancedOptions, info, backingNote].forEach(element => element.hidden = showOctaves);
-    octavePanel.hidden = !showOctaves;
-    octaveLegend.hidden = !showOctaves;
-    rootLabel.textContent = showOctaves ? 'Etsittävä sävel' : 'Toonika (kotisävel)';
-    if (showOctaves && !octavesOpened) {
-      // Ensimmäinen tehtävä on A: paksun E-kielen 5. nauha, vapaa A-kieli ja D-kielen 7. nauha.
-      octavesOpened = true;
-      rootPC = 9;
-      updateChordChoices();
-    }
-    if (!showOctaves) octaveTrainer.hide();
-    const hash = showOctaves ? '#oktaavit' : '';
-    if ((location.hash === '#oktaavit') !== showOctaves) history.replaceState(null, '', location.pathname + location.search + hash);
-    render();
-  }
-
-  function render(revealNumber) {
-    const sc = SCALES[scaleId];
-    const rootName = CHROM[rootPC];
-    const allIv = scaleNotes(sc);
-    const system = boxSystem.value;
-    const threeNotes = system === '3nps';
-    const automatic = fretCountSelect.value === 'auto';
-    const fretCount = automatic ? BOX_FRETS[system] : Number(fretCountSelect.value);
-
-    rootButtons.forEach((button, pc) => button.setAttribute('aria-pressed', pc === rootPC));
-    scaleButtons.forEach(button => button.setAttribute('aria-pressed', button.dataset.scale === scaleId));
-    backingLink.href = selectionHref('harjoitustaustat.html', rootPC, scaleId);
-    if (showOctaves) {
-      octaveTrainer.show(rootPC);
-      updateScrollHint();
-      return;
-    }
-    if (showChords) {
-      renderChord(fretCount, automatic);
-      return;
-    }
-
-    pentatonicBoxes.hidden = threeNotes;
-    threeNoteBoxes.hidden = !threeNotes;
-    let help = threeNotes
-      ? 'Soita kolme peräkkäistä asteikon säveltä jokaiselta kieleltä. Boksi 1 alkaa toonikalta paksuimmalla E-kielellä, muut asteikon seuraavilta säveliltä.'
-      : 'Voit näyttää useita bokseja kerralla. Boksi 1 alkaa toonikalta paksuimmalla E-kielellä.';
-    const activeOptions = threeNotes ? threeNoteBoxes : pentatonicBoxes;
-    const numbers = [...activeOptions.querySelectorAll('input:checked')].map(input => Number(input.value));
-    const boxes = fingeringBoxes(rootPC, sc, system, numbers, automatic ? undefined : fretCount);
-    boxNotesOnly.disabled = !boxes.some(box => box.positions.length);
-    const onlyBoxNotes = boxNotesOnly.checked && !boxNotesOnly.disabled;
-    if (boxNotesOnly.disabled) {
-      help += ' Valitse boksi, jos haluat rajata näkyvät sävelet sen sisälle.';
-    }
-    if (!supportsThreeNoteBoxes(sc)) {
-      help += ' 3NPS-sormitus on käytössä seitsemänsävelisissä moodeissa, esimerkiksi doorisessa tai joonisessa.';
-    }
-    if (boxHelp.textContent !== help) boxHelp.textContent = help;
-    const names = allIv.map(([iv, deg]) => noteName(rootPC, iv, deg));
-    const addedPairs = sc.add.map(([iv, deg]) => noteName(rootPC, iv, deg) + ' (' + deg + ')');
-
-    board.innerHTML = renderBoard(rootPC, sc, fretCount, { boxes, onlyBoxNotes, automatic });
-    updateScrollHint();
-    const boxToReveal = revealNumber ?? (boxes.length === 1 ? boxes[0].number : null);
-    if (boxToReveal !== null) revealPositions(board, '.box-highlight[data-box="' + boxToReveal + '"]');
-
-    const boxRanges = boxes.map(({ number, positions }) => {
-      const ranges = positions.map(formatBoxRange).join(', ');
-      return '<span class="box-range" data-box="' + number + '">Boksi ' + number + ' · ' + ranges + '</span>';
-    });
-    const boxSystemName = threeNotes ? '3NPS' : 'Pentatoniset boksit';
-    info.innerHTML =
-      '<span class="scale-name">' + rootName + '-' + sc.name + '</span>' +
-      'Sävelet: <b>' + names.join(' – ') + '</b>' +
-      (addedPairs.length ? ' &nbsp;·&nbsp; Lisäsävelet: <span class="added">' + addedPairs.join(', ') + '</span>' : '') +
-      '<span class="hint">' + sc.hint + '</span>' +
-      (boxRanges.length ? '<span class="box-summary"><span>' + boxSystemName + '</span>' + boxRanges.join(' ') + '</span>' : '') +
-      (onlyBoxNotes ? '<span class="hint">Otelaudalla näkyvät vain valittujen boksien sävelet.</span>' : '');
-  }
-
-  const rootsEl = document.getElementById('roots');
-  const rootButtons = CHROM.map((name, pc) => {
-    const button = document.createElement('button');
-    button.textContent = name;
-    button.addEventListener('click', () => {
-      if (rootPC === pc) return;
-      rootPC = pc;
-      updateChordChoices();
-      render();
-    });
-    rootsEl.appendChild(button);
-    return button;
-  });
-
-  const scaleButtons = document.querySelectorAll('[data-scale]');
-  scaleButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      if (scaleId === button.dataset.scale) return;
-      scaleId = button.dataset.scale;
-      syncBoxSystem(boxSystem, SCALES[scaleId], preferredSystem);
-      updateChordChoices();
-      render();
-    });
-  });
-
-  pentatonicBoxes.innerHTML = boxOptions('pentatonic');
-  threeNoteBoxes.innerHTML = boxOptions('3nps');
-  syncBoxSystem(boxSystem, SCALES[scaleId], preferredSystem);
-  scaleView.addEventListener('click', () => setView('scale'));
-  chordView.addEventListener('click', () => setView('chord'));
-  octaveView.addEventListener('click', () => setView('octave'));
-  window.addEventListener('hashchange', () => {
-    if (location.hash === '#oktaavit' && !showOctaves) setView('octave');
-  });
-  gripSelect.addEventListener('change', () => {
-    gripIndex = Number(gripSelect.value);
-    render();
-  });
-  fretCountSelect.addEventListener('change', () => render());
-  boxSystem.addEventListener('change', () => {
-    preferredSystem = boxSystem.value;
-    render();
-  });
-  boxNotesOnly.addEventListener('change', () => render());
-  boxControls.addEventListener('change', ({ target }) => {
-    render(target.checked ? Number(target.value) : undefined);
-  });
-  new ResizeObserver(updateScrollHint).observe(board);
-  updateChordChoices();
-  if (location.hash === '#oktaavit') setView('octave');
-  else render();
-})();
-</script>
+<script type="module" src="assets/visualizer.js"></script>
 </body>
 </html>

@@ -2,7 +2,7 @@
 
 Musiikin kartta on avoin suomenkielinen verkko-opas musiikin teoriaan ja kitaransoittoon. Yhdeksän perusosaa etenevät ensimmäisestä kappaleesta sointuihin, otelautaan, korvakuulolta soittamiseen ja oman kappaleen äänittämiseen. Kaksi valinnaista osaa syventää septimisointuihin ja moodeihin. Mukana on kuunteluesimerkkejä, kitaraharjoituksia ja säestystaustoja.
 
-**[Lue opas verkossa](https://rinnepelto.com/)** · [Avaa Otelautaharjoittelija](https://rinnepelto.com/otelautaharjoittelija)
+**[Lue opas verkossa](https://rinnepelto.com/)** · [Avaa Otelautakartta](https://rinnepelto.com/otelautaharjoittelija.html)
 
 ## Oppaan osat
 
@@ -23,11 +23,48 @@ Musiikin kartta on avoin suomenkielinen verkko-opas musiikin teoriaan ja kitaran
 
 [Oppaan lukukohtainen sisällysluettelo](book/SISALLYSLUETTELO.md) · [Koko opas tulostettavana PDF:nä](pdf/musiikin-kartta.pdf)
 
-## Otelautaharjoittelija
+## Otelautakartta
 
-Valitse toonikka sekä pentatoninen asteikko tai moodi ja katso, mistä sävelet löytyvät kitaran otelaudalta. Lisäasetuksissa voi valita nauhamäärän ja näytettävät sormitusboksit. Seitsemänsävelisille moodeille on myös 3NPS-sormitukset, joissa soitetaan kolme säveltä kieltä kohti. Oktaaviharjoituksessa kuulet saman sävelen eri kieliltä ja etsit sen oktaavit otelaudalta.
+[Otelautakartta](otelautaharjoittelija.html) yhdistää vanhat
+`Kokeile otelautaa`- ja `Soita taustan mukana` -sivut yhdeksi
+visualisointityökaluksi. Kartassa ei ole harjoitustehtäviä,
+äänisoittimia tai säestystaustoja. Asteikko-näkymässä valitaan kotisävel
+ja asteikko tai moodi. Oktaavit-näkymä näyttää saman sävelen eri korkeuksilla.
 
-[Harjoitustaustat](harjoitustaustat.html) yhdistää otelaudan tyylinmukaisiin komppeihin. Kullekin seitsemälle moodille ja kahdelle pentatoniselle asteikolle on oma toistuva säestys, jonka voi soittaa kaikista 12 toonikasta. Selain tuottaa äänen valitulla tempolla.
+**Soinnut-näkymä toimii asteikoista riippumatta.** Valitse soinnun
+perussävel ja duurin tai mollin laatu. Kolme näyttötapaa ovat:
+**Kaikki sointusävelet** (koko otelauta),
+**Koko ote** (mahdollinen avoin ote ensin ja sitten saman soinnun
+E- ja A-muotoiset barré-otteet nuolilla) sekä
+**Triadi (G–B–e)** (vain kolmen ohuimman kielen sointusävelet ja
+niiden käännökset nuolilla). Kaikissa näyttötavoissa käytetään samaa
+nauhamäärää, eikä sointua sidota valittuun moodiin.
+
+Sormitusboksit löytyvät valinnaisista näyttöasetuksista. Pentatonisilla
+asteikoilla käytetään automaattisesti **viittä pentatonista boksia**,
+seitsemänsävelisillä moodeilla **seitsemää 3NPS-boksia**.
+Yksittäisiä tai useita bokseja voi korostaa ja halutessaan näyttää
+vain valittujen boksien sävelet. Otelaudan oletuslaajuus on
+**17 nauhaa molemmille asteikkotyypeille**, eikä kaulan koko vaihdu
+pelkän asteikon valinnan seurauksena. Nauhamäärän voi vaihtaa erikseen.
+
+Vanha [harjoitustaustat.html](harjoitustaustat.html) ohjaa
+Otelautakarttaan säilyttäen linkin kotisävelen ja asteikon.
+Varsinaiset soittamiseen ja kuunteluun tarkoitetut harjoitukset ovat
+erillisessä [Kitaraharjoittelijassa](kitaraharjoittelija.html)
+sekä oppaan lukujen ääniesimerkeissä.
+
+## Kappaleharjoittelu
+
+**Kappaleharjoittelu** on Kitaraharjoittelijan neljäs oppimispolku.
+Sen ensimmäinen mallikappale on **Yksi sointu, kaksi askelta** sekä
+akustisena että normaalina versiona. Valitussa sovituksessa säestys, kitara
+ja laulu ovat kolme samanaikaisesti toistettavaa MP3-raitaa. Kitara ja laulu
+voidaan vaimentaa erikseen kesken kappaleen. Version vaihtaminen pysäyttää
+toiston, palauttaa sen alkuun ja edellyttää uutta Soita-painallusta.
+Molempien versioiden äänet toimitetaan erillisinä ZIP-paketteina,
+eivät GitHub-haaran mukana.
+Asennusohje on [harjoittelijan README:ssä](harjoittelija/README.md).
 
 ## Tulostettava versio
 
@@ -87,10 +124,15 @@ signaalia. Ne eivät korvaa oikealla kitaralla tehtävää hyväksyntätestiä.
 `npm run build` päivittää `assets/harjoittelija/`-hakemiston JavaScriptin, CSS:n,
 lähdekartan ja lisenssi-ilmoitukset. Julkaisussa tarvitaan koko nykyinen staattinen
 sivusto sekä nämä tuotokset. Tavalliset lukusivut eivät lataa React-harjoittelijaa.
-Build ei julkaise sivustoa. [Auditointiraportti](reviews/kitaraharjoittelija-auditointi.md)
+Build ei julkaise sivustoa. Cloudflare Pages ajaa lisäksi
+[`functions/assets/audio/[[path]].ts`](functions/assets/audio/[[path]].ts)-funktion, joka
+palvelee äänitiedostojen tavualueet (HTTP 206). Ilman sitä kappaleharjoittelun
+kelaus ja raitojen synkronointi eivät toimi Pagesissa. Funktio ei näy paikallisessa
+`python3 -m http.server`-palvelimessa, joka ei myöskään tue tavualueita. [Auditointiraportti](reviews/kitaraharjoittelija-auditointi.md)
 kuvaa nykytilan, testitulokset, mikrofonitunnistuksen rajoitukset ja oikealla
 kitaralla tehtävät hyväksyntätestit. [Kehittäjän ohje](harjoittelija/README.md) kuvaa
 rakenteen ja tallennusmuodon, ja [alkuperäinen kehitysraportti](reviews/fretecho-kehityskatselmus.md)
 URL-parametrit ja integraation taustan.
 
-Ohjelmiston lisenssitiedot ovat [LICENSE-tiedostossa](LICENSE).
+Ohjelmiston lisenssitiedot ovat [LICENSE-tiedostossa](LICENSE). Kitaraharjoittelijan
+Suno-äänitteet eivät kuulu Unlicensen piiriin, ks. [äänitteiden käyttöehdot](assets/audio/AANITTEET-LISENSSI.md).

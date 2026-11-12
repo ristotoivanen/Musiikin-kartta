@@ -113,12 +113,16 @@ export class ReferencePlayer {
   private master?: GainNode;
   private token = 0;
   private timer?: ReturnType<typeof setTimeout>;
+  private loopTick?: ReturnType<typeof setInterval>;
+  private adjustLoopTempo?: (bpm: number) => void;
   private settle?: (completed: boolean) => void;
   constructor(private provide: () => AudioContext = audioContext) {}
   /** Keskeyttää soivan esimerkin heti. Kesken jäänyt play palauttaa false. */
   stop() {
     this.token++;
     clearTimeout(this.timer);
+    clearInterval(this.loopTick); this.loopTick = undefined;
+    this.adjustLoopTempo = undefined;
     this.settle?.(false); this.settle = undefined;
     this.master?.disconnect(); this.master = undefined;
   }
@@ -147,5 +151,74 @@ export class ReferencePlayer {
     if (!completed || token !== this.token) return false;
     this.settle = undefined; master.disconnect(); this.master = undefined;
     return true;
+  }
+
+  /**
+   * Yhtenäinen asteikkolooppi. Sävelet ajastetaan AudioContextin kellolla etukäteen,
+   * ei toistokierroksen päättymistä odottavalla JavaScript-silmukalla.
+   * onNote kertoo saman audiokellon mukaisen sävelindeksin otelautaa varten.
+   * Toisto päättyy vain stop()-kutsuun (tai audioalustan virheeseen).
+   */
+  /** Muuta käynnissä olevan asteikkoloopin tempoa ilman äänivirran katkaisua. */
+  setLoopTempo(bpm: number) { this.adjustLoopTempo?.(bpm); }
+
+  async loop(notes: number[], onNote?: (index: number) => void, bpm = 75): Promise<boolean> {
+    this.stop();
+    if (!notes.length) return false;
+    const token = this.token;
+    const c = this.provide();
+    if (c.state !== 'running') await c.resume();
+    if (token !== this.token) return false;
+
+    const master = c.createGain(); master.connect(c.destination); this.master = master;
+    const partials = Array.from({ length: 12 }, (_, i) => 1 / (i + 1) ** 1.3);
+    const wave = c.createPeriodicWave?.(new Float32Array([0, ...partials.map(() => 0)]), new Float32Array([0, ...partials]));
+    // Aiemmin 0,8 s / sävel vastasi 75 BPM:ää.
+    // Tempon vaihtuessa jo ajastetut 1–2 sekuntia soivat loppuun, sitten uusi nopeus astuu voimaan.
+    let interval = 60 / Math.max(40, Math.min(140, bpm));
+    this.adjustLoopTempo = value => {
+      if (token === this.token && Number.isFinite(value)) {
+        interval = 60 / Math.max(40, Math.min(140, value));
+      }
+    };
+    const ahead = 1.6;
+    let nextAt = c.currentTime + .05;
+    let nextIndex = 0;
+    const pending: { at: number; index: number }[] = [];
+
+    const tick = () => {
+      if (token !== this.token) return;
+      // Jos pääsäie oli pitkään jumissa, älä käynnistä kymmeniä menneitä säveliä yhtä aikaa.
+      if (nextAt < c.currentTime - .02) {
+        const skipped = Math.ceil((c.currentTime - nextAt) / interval);
+        nextAt += skipped * interval;
+        nextIndex = (nextIndex + skipped) % notes.length;
+        pending.length = 0;
+      }
+      while (nextAt < c.currentTime + ahead) {
+        const midi = notes[nextIndex], index = nextIndex, start = nextAt;
+        const oscillator = c.createOscillator(), gain = c.createGain();
+        if (wave) oscillator.setPeriodicWave(wave); else oscillator.type = 'triangle';
+        oscillator.frequency.value = midiToFreq(midi);
+        gain.gain.setValueAtTime(0, start);
+        gain.gain.linearRampToValueAtTime(.22, start + .012);
+        // Sävel päättyy aina ennen seuraavan pulssin alkua myös nopeassa tempossa.
+        gain.gain.exponentialRampToValueAtTime(.001, start + interval * .975);
+        oscillator.connect(gain); gain.connect(master);
+        oscillator.start(start); oscillator.stop(start + interval * .985);
+        pending.push({ at: start, index });
+        nextAt += interval;
+        nextIndex = (nextIndex + 1) % notes.length;
+      }
+      while (pending.length && pending[0].at <= c.currentTime + .01) {
+        const event = pending.shift()!;
+        onNote?.(event.index);
+      }
+    };
+
+    // Ääni pysyy saumattomana, vaikka selaimen käyttöliittymäpiirto myöhästyisi hieman.
+    tick();
+    this.loopTick = setInterval(tick, 25);
+    return new Promise<boolean>(resolve => { this.settle = resolve; });
   }
 }
