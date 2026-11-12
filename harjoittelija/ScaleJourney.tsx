@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Board } from './Board';
 import { BackingTrackMixer } from './BackingTrackMixer';
+import { ScaleBridgeJourney } from './ScaleBridgeJourney';
 import { ReferencePlayer } from './audio';
 import { at, music, note, pc, stringName } from './music';
 import type { Mark } from './engine';
@@ -47,8 +48,16 @@ function readProgress(key = PROGRESS_KEY): number {
 
 function readActivePosition(): 1 | 2 {
   try {
-    return readProgress(PROGRESS_KEY) === 4 && localStorage.getItem(ACTIVE_POSITION_KEY) === '2' ? 2 : 1;
+    const active = localStorage.getItem(ACTIVE_POSITION_KEY);
+    return readProgress(PROGRESS_KEY) === 4 && (active === '2' || active === 'bridge') ? 2 : 1;
   } catch { return 1; }
+}
+
+function readBridgeOpen(): boolean {
+  try {
+    return readProgress(POSITION_2_PROGRESS_KEY) === 4 &&
+      localStorage.getItem(ACTIVE_POSITION_KEY) === 'bridge';
+  } catch { return false; }
 }
 
 /**
@@ -58,6 +67,7 @@ function readActivePosition(): 1 | 2 {
  */
 export function ScaleJourney({ onBack }: { onBack: () => void }) {
   const [positionNumber, setPositionNumber] = useState<1 | 2>(readActivePosition);
+  const [bridgeOpen, setBridgeOpen] = useState(readBridgeOpen);
   const [unlockedByPosition, setUnlockedByPosition] = useState(() => ({
     1: readProgress(PROGRESS_KEY),
     2: readProgress(POSITION_2_PROGRESS_KEY),
@@ -169,6 +179,7 @@ export function ScaleJourney({ onBack }: { onBack: () => void }) {
   function selectPosition(next: 1 | 2) {
     if (next === 2 && unlockedByPosition[1] < 4) return;
     stopPlayback();
+    setBridgeOpen(false);
     setPositionNumber(next);
     setStep(unlockedByPosition[next]);
     setShowRoots(false);
@@ -176,6 +187,16 @@ export function ScaleJourney({ onBack }: { onBack: () => void }) {
     setAudioError('');
     try { localStorage.setItem(ACTIVE_POSITION_KEY, String(next)); } catch { /* Selain voi estää tallennuksen. */ }
   }
+  function selectBridge() {
+    if (unlockedByPosition[2] < 4) return;
+    stopPlayback();
+    setBridgeOpen(true);
+    setShowRoots(false);
+    setAudioError('');
+    try { localStorage.setItem(ACTIVE_POSITION_KEY, 'bridge'); } catch { /* Selain voi estää tallennuksen. */ }
+  }
+
+  if (bridgeOpen) return <ScaleBridgeJourney onBack={onBack} onPosition={selectPosition} />;
 
   return <section className="scale-journey" aria-labelledby="scale-path-title">
     <button type="button" className="back-link" onClick={() => { stopPlayback(); onBack(); }}>← Oppimispolut</button>
@@ -189,6 +210,8 @@ export function ScaleJourney({ onBack }: { onBack: () => void }) {
       <button type="button" aria-pressed={positionNumber === 1} onClick={() => selectPosition(1)}>Positio 1</button>
       <button type="button" aria-pressed={positionNumber === 2} disabled={unlockedByPosition[1] < 4}
         onClick={() => selectPosition(2)}>Positio 2</button>
+      <button type="button" disabled={unlockedByPosition[2] < 4}
+        onClick={selectBridge}>Yhdistä 1 + 2</button>
     </div>
 
     <nav className="journey-steps" aria-label={`Position ${positionNumber} harjoitukset`}>{steps.map((item, index) =>
@@ -280,15 +303,17 @@ export function ScaleJourney({ onBack }: { onBack: () => void }) {
         <h3>{positionNumber === 1 ? 'Valmis seuraavaan positioon' : 'Kaksi positiota harjoiteltu'}</h3>
         <p>{positionNumber === 1
           ? 'Kertaa asteikko muistista myös myöhemmin. Voit nyt jatkaa positioon 2.'
-          : 'Kertaa molempia positioita erikseen. Niiden yhdistämisen harjoitus rakennetaan seuraavaksi.'}</p>
+          : 'Kertaa molempia positioita erikseen tai harjoittele nyt siirtymään niiden välillä.'}</p>
         <button type="button" onClick={() => selectStep(2)}>Kertaa muistiharjoitus</button>
-        {positionNumber === 1 && <button type="button" className="primary" onClick={() => selectPosition(2)}>Siirry positioon 2 →</button>}
+        {positionNumber === 1
+          ? <button type="button" className="primary" onClick={() => selectPosition(2)}>Siirry positioon 2 →</button>
+          : <button type="button" className="primary" onClick={selectBridge}>Yhdistä positiot 1 ja 2 →</button>}
       </div>}
     </section>
     <div className="journey-below">
       <h3>Seuraavaksi tällä polulla</h3>
-      <p>{unlockedByPosition[1] < 4 ? '🔒 Positio 2' : unlockedByPosition[2] === 4 ? '✓ Positio 2 harjoiteltu' : 'Positio 2 käytettävissä'} · 🔒 Positioiden 1 ja 2 yhdistäminen · 🔒 Positio 3</p>
-      <p className="tools-note">Positio 2 avautuu, kun olet kirjannut position 1 harjoitelluksi. Positioiden yhdistäminen ja positio 3 ovat vielä toteuttamatta.</p>
+      <p>{unlockedByPosition[1] < 4 ? '🔒 Positio 2' : unlockedByPosition[2] === 4 ? '✓ Positio 2 harjoiteltu' : 'Positio 2 käytettävissä'} · {unlockedByPosition[2] === 4 ? 'Positioiden 1 ja 2 yhdistäminen käytettävissä' : '🔒 Positioiden 1 ja 2 yhdistäminen'} · 🔒 Positio 3</p>
+      <p className="tools-note">Positio 2 avautuu position 1 valmistuttua ja yhdistämisharjoitus position 2 valmistuttua. Positio 3 on vielä toteuttamatta.</p>
     </div>
   </section>;
 }
