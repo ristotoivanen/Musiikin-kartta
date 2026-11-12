@@ -61,7 +61,7 @@ function App() {
   const [finished, setFinished] = useState<'' | 'complete' | 'stopped'>('');
   // Vanhoilla ?tila=-linkeillä avataan alkuperäinen harjoitus suoraan.
   const [track, setTrack] = useState<LearningTrack | 'legacy' | null>(() =>
-    new URLSearchParams(location.search).has('tila') ? 'legacy' : null);
+    (new URLSearchParams(location.search).has('tila') || new URLSearchParams(location.search).has('vanha')) ? 'legacy' : null);
 
   const refreshDevices = () => void listInputDevices().then(setDevices).catch(() => {});
   function stopCalibration() { clearTimeout(calibrationTimer.current); calibrationSamples.current = null; setCalibrating(false); }
