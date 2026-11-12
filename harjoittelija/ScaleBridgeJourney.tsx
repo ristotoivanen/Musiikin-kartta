@@ -83,7 +83,8 @@ export function ScaleBridgeJourney({ onBack, onPosition }: {
       if (kind === 'phrase') {
         await player.current.play(bridgeRoute.map(position => position.midi));
       } else {
-        await player.current.loop(bridgeRoute.map(position => position.midi), index => {
+        // Vältä A-loppusävelen tuplaus jatkuvan loopin kierrosrajalla.
+        await player.current.loop(bridgeRoute.slice(0, -1).map(position => position.midi), index => {
           if (current === generation.current) setActiveIndex(index);
         }, tempo);
       }
