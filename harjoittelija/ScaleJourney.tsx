@@ -148,7 +148,7 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
           {playing === 'loop' ? 'Jatkuva toisto käynnissä. Asteikko alkaa automaattisesti uudelleen edellisen kierroksen jälkeen.' :
             'Toisto jatkuu, kunnes pysäytät sen tai siirryt seuraavaan vaiheeseen.'}
         </p>}
-        {audioError && <p className="error" role="alert">{audioError}</p>
+        {audioError && <p className="error" role="alert">{audioError}</p>}
         {step >= 1 && step <= 3 && <>
           {step >= 2 && <div className="action-row">
             <button type="button" aria-pressed={showRoots} onClick={() => setShowRoots(value => !value)}>
