@@ -99,9 +99,10 @@ export const NORMAL_CHART: SongSection[] = [
   { id:'bridge', title:'Kitarasoolo', start:111,
     bars:[b('Gm'),b('Dm'),b('F'),b('C'),b('Gm'),b('Dm'),b('E♭'),b('F')],
   },
+  // Tekninen huomio (ei näytetä käyttäjälle): basso on tauolla noin 2:23–2:44,
+  // ja laulu sijoittuu tämän kitaravetoisen jakson päälle.
   { id:'verse3', title:'Väliosa (laulu, kitara)', start:139, bars:verse(),
     lyrics:bridgeLyrics,
-    note:'Basso on tauolla noin 2:23–2:44. Laulu sijoittuu tämän kitaravetoisen jakson päälle.',
   },
   { id:'chorus3', title:'Kertosäe 3', start:167,
     bars:[...chorusStart(),b('B♭','F'),b('Gm'),b('E♭','F'),b('Gm')],
@@ -117,6 +118,23 @@ export const SONG_CHARTS: Record<SongVersion, SongSection[]> = {
   acoustic: ACOUSTIC_CHART,
   normal: NORMAL_CHART,
 };
+
+/** Kappale avautuu ensimmäisellä kerralla normaalina (sähköisenä) versiona. */
+export const DEFAULT_SONG_VERSION: SongVersion = 'normal';
+const SONG_SLUG = 'yksi-sointu-kaksi-askelta';
+const VERSION_SLUGS: Record<SongVersion, string> = {
+  acoustic: SONG_SLUG + '-akustinen',
+  normal: SONG_SLUG + '-normaali',
+};
+/** URL:n ?kappale= -arvo: kappaleen nimi tai nimi ja versio (-akustinen / -normaali). */
+export const isSongLink = (slug: string | null): boolean =>
+  slug === SONG_SLUG || Object.values(VERSION_SLUGS).includes(slug ?? '');
+/** Linkissä nimetty versio, tai null, jos linkki ei määrää versiota. */
+export function versionFromSongLink(slug: string | null): SongVersion | null {
+  const entry = Object.entries(VERSION_SLUGS).find(([, value]) => value === slug);
+  return entry ? entry[0] as SongVersion : null;
+}
+export const songLink = (version: SongVersion): string => VERSION_SLUGS[version];
 
 export const songClock = (seconds: number): string => {
   const n = Math.max(0, Math.floor(Number.isFinite(seconds) ? seconds : 0));
@@ -160,4 +178,88 @@ export function chordAt(seconds: number, version: SongVersion = 'acoustic'): Cur
 }
 export function barStartTime(sectionIndex:number,barIndex:number,version:SongVersion='acoustic'):number {
   return SONG_CHARTS[version][sectionIndex].start + sectionBarDuration(sectionIndex,version)*barIndex;
+}
+
+export type ChordPart = 'first' | 'second';
+/** Yksi sointu kartan aikajärjestyksessä: tahdin alku tai kolmannen iskun vaihto. */
+export interface ChordEvent {
+  section: SongSection;
+  sectionIndex: number;
+  barIndex: number;
+  part: ChordPart;
+  chord: SongChord;
+  /** Alkuhetki kappaleessa. Sama aikamalli kuin chordAt, joten ennakko ja korostus eivät erkane. */
+  time: number;
+  /** Looppi palaa kappaleen alkuun ennen tätä sointua. */
+  wrapped: boolean;
+}
+export interface UpcomingSection {
+  section: SongSection;
+  sectionIndex: number;
+  firstChord: SongChord;
+  /** Uusi osa alkaa samalla soinnulla, jolla edellinen päättyy: ei soinnunvaihtoa. */
+  continues: boolean;
+  wrapped: boolean;
+}
+export interface LookAhead {
+  /** Seuraava eri sointu. Saman soinnun jatkumista ei esitetä vaihtona. */
+  nextChord: ChordEvent | null;
+  /** Seuraava osa näytetään koko nykyisen osan viimeisen tahdin ajan. */
+  nextSection: UpcomingSection | null;
+}
+
+function chordEvents(version: SongVersion): Omit<ChordEvent, 'wrapped'>[] {
+  return SONG_CHARTS[version].flatMap((section, sectionIndex) => section.bars.flatMap((bar, barIndex) => {
+    const time = barStartTime(sectionIndex, barIndex, version);
+    const first = { section, sectionIndex, barIndex, part: 'first' as const, chord: bar.first, time };
+    if (!bar.second) return [first];
+    // chordAt vaihtaa jälkimmäiseen sointuun kolmannella iskulla eli tahdin puolivälissä.
+    const half = sectionBarDuration(sectionIndex, version) / 2;
+    return [first, { ...first, part: 'second' as const, chord: bar.second, time: time + half }];
+  }));
+}
+
+/** Ennakkotieto soittajalle. Ei muuta chordAtin palauttamaa soivaa sointua tai tahtia. */
+export function lookAhead(seconds: number, version: SongVersion = 'acoustic', loop = false): LookAhead {
+  const chart = SONG_CHARTS[version];
+  const current = chordAt(seconds, version);
+  const bar = current.section.bars[current.barIndex];
+  const part: ChordPart = current.beat >= 3 && bar.second ? 'second' : 'first';
+  const events = chordEvents(version);
+  const index = events.findIndex(event => event.sectionIndex === current.sectionIndex &&
+    event.barIndex === current.barIndex && event.part === part);
+  const upcoming: ChordEvent[] = [
+    ...events.slice(index + 1).map(event => ({ ...event, wrapped: false })),
+    ...(loop ? events.slice(0, index + 1).map(event => ({ ...event, wrapped: true })) : []),
+  ];
+  const nextChord = upcoming.find(event => event.chord !== current.chord) ?? null;
+
+  let nextSection: UpcomingSection | null = null;
+  const lastSection = current.sectionIndex === chart.length - 1;
+  if (current.barIndex === current.section.bars.length - 1 && (!lastSection || loop)) {
+    const sectionIndex = lastSection ? 0 : current.sectionIndex + 1;
+    const section = chart[sectionIndex];
+    const firstChord = section.bars[0].first;
+    nextSection = {
+      section, sectionIndex, firstChord, wrapped: lastSection,
+      continues: firstChord === (bar.second ?? bar.first),
+    };
+  }
+  return { nextChord, nextSection };
+}
+
+/** Jakaa sanoitetut osiot järjestyksessä kahteen palstaan: vasen luetaan ensin ylhäältä alas.
+ * Osiota ei katkaista. Jakokohta tasaa palstojen korkeuden (otsikko + rivit). */
+export function lyricColumns(sections: SongSection[]): [SongSection[], SongSection[]] {
+  const parts = sections.filter(section => section.lyrics?.length);
+  const weight = (section: SongSection) => 1 + (section.lyrics?.length ?? 0);
+  const total = parts.reduce((sum, section) => sum + weight(section), 0);
+  let best = 0, bestDiff = Infinity, left = 0;
+  for (let split = 0; split <= parts.length; split++) {
+    const diff = Math.abs(total - 2 * left);
+    // Tasatilanteessa vasen palsta saa enemmän, jotta lukeminen jatkuu luontevasti oikealle.
+    if (diff < bestDiff || (diff === bestDiff && left >= total - left)) { best = split; bestDiff = diff; }
+    if (split < parts.length) left += weight(parts[split]);
+  }
+  return [parts.slice(0, best), parts.slice(best)];
 }

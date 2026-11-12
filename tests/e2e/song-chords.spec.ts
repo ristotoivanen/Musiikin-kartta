@@ -1,7 +1,24 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+
+const ACOUSTIC_LINK = '/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen';
+
+/** Soinnut ja sanat on oletuksena suljettu. */
+async function openChart(page: Page) {
+  await page.locator('details.song-chart-collapse > summary').click();
+  await expect(page.locator('.song-chord-panel')).toBeVisible();
+}
+
+/** Simuloi säestysraidan etenemistä ilman oikeaa äänentoistoa. */
+async function setSongTime(page: Page, seconds: number) {
+  await page.locator('.song-player audio').first().evaluate((element, time) => {
+    Object.defineProperty(element, 'currentTime', { configurable: true, writable: true, value: time });
+    element.dispatchEvent(new Event('timeupdate'));
+  }, seconds);
+}
 
 test('akustisen kappaleen soinnut seuraavat aikajanaa ja tahtiin voi hypätä', async ({page}) => {
-  await page.goto('/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen');
+  await page.goto(ACOUSTIC_LINK);
+  await openChart(page);
   const panel=page.locator('.song-chord-panel');
   await expect(panel.getByRole('heading',{name:'Harjoituskartta'})).toBeVisible();
   const jump=panel.getByRole('combobox',{name:'Harjoiteltava osa'});
@@ -32,7 +49,8 @@ test('akustisen kappaleen soinnut seuraavat aikajanaa ja tahtiin voi hypätä', 
 
 test('osio- ja tahtihyppy säilyvät, kun säestys ei vielä voi kelata', async ({page}) => {
   await page.route('**/*.mp3', route => route.abort());
-  await page.goto('/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen');
+  await page.goto(ACOUSTIC_LINK);
+  await openChart(page);
   await page.getByRole('combobox',{name:'Versio'}).selectOption('normal');
   const player=page.locator('.song-player');
   const backing=player.locator('audio').first();
@@ -92,7 +110,8 @@ test('osio- ja tahtihyppy säilyvät, kun säestys ei vielä voi kelata', async 
 });
 
 test('kertosäkeen ohimenevä basso ja outrossa epävarma Dm erotetaan soinnuista', async ({page}) => {
-  await page.goto('/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen');
+  await page.goto(ACOUSTIC_LINK);
+  await openChart(page);
   const panel=page.locator('.song-chord-panel');
   const backing=page.locator('.song-player audio').first();
   await backing.evaluate(el=>{
@@ -107,7 +126,8 @@ test('kertosäkeen ohimenevä basso ja outrossa epävarma Dm erotetaan soinnuist
 });
 
 test('sähköisen version osiot, loppukertosäe ja tahtihypyt pysyvät omassa aikajanassa', async ({page}) => {
-  await page.goto('/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen');
+  await page.goto(ACOUSTIC_LINK);
+  await openChart(page);
   const panel=page.locator('.song-chord-panel');
   await page.getByRole('combobox',{name:'Versio'}).selectOption('normal');
   const jump=panel.getByRole('combobox',{name:'Harjoiteltava osa'});
@@ -135,7 +155,8 @@ test('sähköisen version osiot, loppukertosäe ja tahtihypyt pysyvät omassa ai
 
 
 test('sointuja voi häivyttää harjoitustasoittain ja paljastaa vain nykyisen vihjeen', async ({page}) => {
-  await page.goto('/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen');
+  await page.goto(ACOUSTIC_LINK);
+  await openChart(page);
   const panel=page.locator('.song-chord-panel');
   const level=panel.getByRole('combobox',{name:'Harjoitustaso'});
   const current=panel.locator('.song-current-chord strong');
@@ -174,7 +195,8 @@ test('sointuja voi häivyttää harjoitustasoittain ja paljastaa vain nykyisen v
 });
 
 test('sointujen piilotusjärjestystä voi muokata ja valinnat säilyvät versiota vaihtaessa', async ({page}) => {
-  await page.goto('/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen');
+  await page.goto(ACOUSTIC_LINK);
+  await openChart(page);
   const panel=page.locator('.song-chord-panel');
   const level=panel.getByRole('combobox',{name:'Harjoitustaso'});
   await panel.locator('.song-fade-customize summary').click();
@@ -193,6 +215,10 @@ test('sointujen piilotusjärjestystä voi muokata ja valinnat säilyvät versiot
 
   await page.reload({waitUntil:'domcontentloaded'});
   await expect(page.getByRole('heading',{name:'Yksi sointu, kaksi askelta'})).toBeVisible();
+  // Käyttäjän valitsema versio säilyy uudelleenlatauksessa, eikä sitä vaihdeta automaattisesti.
+  await expect(page.getByRole('combobox',{name:'Versio'})).toHaveValue('normal');
+  await expect(page).toHaveURL(/kappale=yksi-sointu-kaksi-askelta-normaali/);
+  await openChart(page);
   await expect(panel.getByRole('combobox',{name:'Harjoitustaso'})).toHaveValue('1');
   await expect(panel.locator('.song-current-chord strong')).toHaveText('Gm');
   await panel.locator('.song-fade-customize summary').click();
@@ -202,7 +228,8 @@ test('sointujen piilotusjärjestystä voi muokata ja valinnat säilyvät versiot
 
 
 test('koko sanoitus avautuu sointuasetuksista ja toimii molemmilla versioilla', async ({page}) => {
-  await page.goto('/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen');
+  await page.goto(ACOUSTIC_LINK);
+  await openChart(page);
   const panel=page.locator('.song-chord-panel');
   const lyrics=panel.getByRole('checkbox',{name:'Näytä koko sanoitus'});
   const full=panel.locator('.song-all-lyrics');
@@ -218,6 +245,17 @@ test('koko sanoitus avautuu sointuasetuksista ja toimii molemmilla versioilla', 
   await lyrics.check();
   await expect(full.getByRole('heading',{name:'Koko kappaleen sanat'})).toBeVisible();
   await expect(full.locator('.song-lyrics-stanza')).toHaveCount(7);
+  // Sanoitus luetaan ensin vasen palsta ylhäältä alas, sitten oikea.
+  const columns=full.locator('.song-lyrics-column');
+  await expect(columns).toHaveCount(2);
+  await expect(columns.nth(0).locator('h5')).toHaveText(['Säkeistö 1','Kertosäe 1','Säkeistö 2']);
+  await expect(columns.nth(1).locator('h5')).toHaveText(['Kertosäe 2','Väliosa (laulu)','Kertosäe 3','Outro']);
+  const [leftBox,rightBox]=[await columns.nth(0).boundingBox(),await columns.nth(1).boundingBox()];
+  if ((page.viewportSize()?.width ?? 1000) <= 650) {
+    expect(rightBox!.y).toBeGreaterThanOrEqual(leftBox!.y+leftBox!.height-1);
+  } else {
+    expect(rightBox!.x).toBeGreaterThan(leftBox!.x);
+  }
   await expect(full.getByText('Aamu piirtää viivan seinään')).toBeVisible();
   await expect(full.getByText('Pidän tauon, annan soida')).toBeVisible();
   await expect(full.getByText('Yksi sointu, kaksi askelta')).toHaveCount(4);
@@ -235,23 +273,28 @@ test('koko sanoitus avautuu sointuasetuksista ja toimii molemmilla versioilla', 
   await expect(part.getByText('sama riffi palaa taas')).toBeVisible();
 });
 
-test('Soinnut ja sanat -osion saa piiloon avaamatta tai pysäyttämättä soitinta', async ({page}) => {
+test('Soinnut ja sanat on aluksi suljettu, ja sen saa auki ja kiinni pysäyttämättä soitinta', async ({page}) => {
   await page.addInitScript(() => {
     HTMLMediaElement.prototype.play = function () { return Promise.resolve(); };
     HTMLMediaElement.prototype.pause = function () { /* Selaintesti ei vaadi äänilaitetta. */ };
   });
-  await page.goto('/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen');
+  await page.goto(ACOUSTIC_LINK);
   const disclosure=page.locator('details.song-chart-collapse');
   const summary=disclosure.locator(':scope > summary');
   const panel=disclosure.locator('.song-chord-panel');
-  await expect(disclosure).toHaveAttribute('open','');
-  await expect(panel).toBeVisible();
+  await expect(disclosure).not.toHaveAttribute('open','');
+  await expect(panel).toBeHidden();
   await expect(summary).toHaveText('Soinnut ja sanat');
-  await panel.getByRole('combobox',{name:'Harjoitustaso'}).selectOption('2');
 
   const player=page.locator('.song-player');
   await player.getByRole('button',{name:'▶ Soita kappale'}).click();
   await expect(player.getByRole('button',{name:'■ Tauko'})).toBeVisible();
+  // Avaaminen kesken toiston ei pysäytä soitinta.
+  await summary.click();
+  await expect(disclosure).toHaveAttribute('open','');
+  await expect(panel).toBeVisible();
+  await expect(player.getByRole('button',{name:'■ Tauko'})).toBeVisible();
+  await panel.getByRole('combobox',{name:'Harjoitustaso'}).selectOption('2');
 
   await summary.click();
   await expect(disclosure).not.toHaveAttribute('open','');
@@ -266,7 +309,8 @@ test('Soinnut ja sanat -osion saa piiloon avaamatta tai pysäyttämättä soitin
 });
 
 test('soolon aikana ei näytetä väliosan laulunsanoja, vaan vasta seuraavassa lauluosassa', async ({page}) => {
-  await page.goto('/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen');
+  await page.goto(ACOUSTIC_LINK);
+  await openChart(page);
   const panel=page.locator('.song-chord-panel');
   const backing=page.locator('.song-player audio').first();
   await backing.evaluate(el => {
@@ -283,4 +327,101 @@ test('soolon aikana ei näytetä väliosan laulunsanoja, vaan vasta seuraavassa 
     await expect(panel.locator('.song-section-lyrics')).toContainText('Pidän tauon, annan soida');
   }
   await expect(panel.getByText('Paina tahtia hypätäksesi sen alkuun')).toHaveCount(0);
+});
+
+test.describe('Seuraavan kappaleenosan sointuennakko', () => {
+  const ahead = (page: Page) => page.locator('.song-chord-panel .song-ahead');
+  const current = (page: Page) => page.locator('.song-chord-panel .song-current-chord strong');
+  const activeBar = (page: Page) => page.locator('.song-chord-panel .song-measure.active .song-measure-number');
+  const jump = (page: Page) => page.getByRole('combobox', { name: 'Harjoiteltava osa' });
+
+  // Säkeistö 1:n 7. ja viimeinen tahti sekä kertosäkeen alku (songChart.ts:n tahtirajat).
+  const versions = [
+    { version: 'acoustic', link: ACOUSTIC_LINK, bar7: 36, lastBar: 39.4, beforeChorus: 42.9, chorus: 43 },
+    { version: 'normal', link: '/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-normaali',
+      bar7: 35.2, lastBar: 38.6, beforeChorus: 41.9, chorus: 42 },
+  ] as const;
+
+  for (const { version, link, bar7, lastBar, beforeChorus, chorus } of versions) {
+    test(`${version}: seuraavan osan ensimmäinen sointu näkyy vain edellisen osan viimeisessä tahdissa`, async ({ page }) => {
+      await page.goto(link);
+      await expect(page.getByRole('combobox', { name: 'Versio' })).toHaveValue(version);
+      await openChart(page);
+
+      await setSongTime(page, 0.2);
+      await expect(ahead(page)).toHaveCount(0);
+      await setSongTime(page, bar7);
+      await expect(activeBar(page)).toHaveText('Tahti 7');
+      await expect(ahead(page)).toHaveCount(0);
+
+      await setSongTime(page, lastBar);
+      await expect(activeBar(page)).toHaveText('Tahti 8');
+      await expect(ahead(page)).toHaveText('Seuraava sointu B♭');
+      await expect(ahead(page).locator('strong')).toHaveText('B♭');
+
+      // Korostus pysyy nykyisessä tahdissa oikeaan soittohetkeen asti.
+      await setSongTime(page, beforeChorus);
+      await expect(jump(page)).toHaveValue('verse1');
+      await expect(activeBar(page)).toHaveText('Tahti 8');
+      await expect(current(page)).toHaveText('Gm');
+      await expect(ahead(page)).toHaveText('Seuraava sointu B♭');
+
+      await setSongTime(page, chorus);
+      await expect(jump(page)).toHaveValue('chorus1');
+      await expect(activeBar(page)).toHaveText('Tahti 1');
+      await expect(current(page)).toHaveText('B♭');
+      await expect(ahead(page)).toHaveCount(0);
+    });
+  }
+
+  test('kelaus, osahyppy ja versionvaihto päivittävät ennakon tahtirajojen mukaan', async ({ page }) => {
+    await page.goto(ACOUSTIC_LINK);
+    await openChart(page);
+    // Intron viimeinen tahti: säkeistö alkaa samalla Gm:llä.
+    await setSongTime(page, 11);
+    await expect(ahead(page).locator('strong')).toHaveText('Gm');
+    await setSongTime(page, 5);
+    await expect(ahead(page)).toHaveCount(0);
+
+    await jump(page).selectOption('bridge');
+    await expect(current(page)).toHaveText('Gm');
+    await expect(ahead(page)).toHaveCount(0);
+    await page.getByRole('button', { name: /^Tahti 8: F/ }).click();
+    await expect(ahead(page).locator('strong')).toHaveText('Gm');
+
+    await page.getByRole('combobox', { name: 'Versio' }).selectOption('normal');
+    await expect(jump(page)).toHaveValue('intro');
+    await expect(ahead(page)).toHaveCount(0);
+  });
+
+  test('viimeisessä osassa ennakkoa ei ole ilman looppia, loopissa näkyy intron sointu', async ({ page }) => {
+    await page.goto(ACOUSTIC_LINK);
+    await openChart(page);
+    await setSongTime(page, 223);
+    await expect(jump(page)).toHaveValue('outro');
+    await expect(activeBar(page)).toHaveText('Tahti 7');
+    await expect(ahead(page)).toHaveCount(0);
+
+    await page.getByRole('checkbox', { name: 'Soita looppina' }).check();
+    await expect(ahead(page)).toHaveText('Seuraava sointu Gm');
+    // Loopin alkaessa uudelleen ennakko poistuu.
+    await setSongTime(page, 0.2);
+    await expect(jump(page)).toHaveValue('intro');
+    await expect(ahead(page)).toHaveCount(0);
+  });
+
+  test('ennakko ei paljasta harjoitustason piilottamaa sointua', async ({ page }) => {
+    await page.goto(ACOUSTIC_LINK);
+    await openChart(page);
+    const level = page.getByRole('combobox', { name: 'Harjoitustaso' });
+    await setSongTime(page, 39.4);
+    await level.selectOption('1'); // Gm ja F piiloon, B♭ näkyy.
+    await expect(ahead(page).locator('strong')).toHaveText('B♭');
+    await level.selectOption('2'); // Myös B♭ ja E♭ piiloon.
+    await expect(ahead(page).locator('strong')).toHaveText('?');
+    await expect(ahead(page)).not.toContainText('B♭');
+    await level.selectOption('0');
+    await page.getByRole('checkbox', { name: 'Näytä soinnut' }).uncheck();
+    await expect(ahead(page).locator('strong')).toHaveText('?');
+  });
 });

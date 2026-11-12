@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
-import { SONG_CHARTS, barStartTime, chordAt, songClock, type SongVersion, type SongChord } from './songChart';
+import {
+  SONG_CHARTS, barStartTime, chordAt, lookAhead, lyricColumns, songClock,
+  type ChordPart, type SongVersion, type SongChord,
+} from './songChart';
 import {
   CHORD_NAMES, SONG_HINT_STORAGE_KEY, isChordHidden, loadSongHintSettings,
   type FadeStep, type PracticeLevel,
@@ -20,9 +23,10 @@ const STEPS: { value: FadeStep; label: string }[] = [
 ];
 
 /** Harjoituskäyttöön tehty, soitinta seuraava sointukartta. Ei muuta äänen toistoa. */
-export function SongChordChart({version, position, onSeek}: {
+export function SongChordChart({version, position, loop = false, onSeek}: {
   version: SongVersion;
   position: number;
+  loop?: boolean;
   onSeek: (seconds: number) => void;
 }) {
   const [hints, setHints] = useState(loadSongHintSettings);
@@ -33,14 +37,20 @@ export function SongChordChart({version, position, onSeek}: {
   const current = chordAt(position, version);
   const {section,sectionIndex,barIndex,beat,chord} = current;
   const currentPart = beat >= 3 && section.bars[barIndex].second ? 'second' : 'first';
-  const keyFor = (index: number, part: 'first' | 'second') => `${version}:${section.id}:${index}:${part}`;
+  const eventKey = (sectionId: string, index: number, part: ChordPart) => `${version}:${sectionId}:${index}:${part}`;
+  const keyFor = (index: number, part: ChordPart) => eventKey(section.id, index, part);
   const currentKey = keyFor(barIndex, currentPart);
   const hiddenCurrent = isChordHidden(chord, hints);
   const revealedCurrent = hiddenCurrent && revealed === currentKey;
-  const showChord = (name: SongChord, index: number, part: 'first' | 'second') =>
+  const showChord = (name: SongChord, index: number, part: ChordPart) =>
     !isChordHidden(name, hints) || revealed === keyFor(index, part);
   const showExplanations = hints.showChords && hints.level === 0;
   const hiddenCount = CHORD_NAMES.filter(name => isChordHidden(name,hints)).length;
+
+  // Ennakko näkyy vain osan viimeisessä tahdissa: seuraavan osan ensimmäinen sointu.
+  // Se käyttää samoja tahtirajoja kuin korostus ja katoaa, kun uusi osa alkaa.
+  const {nextSection} = lookAhead(position, version, loop);
+  const nextHidden = !!nextSection && isChordHidden(nextSection.firstChord, hints);
 
   // Uuden tahdin, soinnun tai version alkaessa vihje ei jää paljastetuksi.
   useEffect(() => { setRevealed(null); }, [currentKey]);
@@ -110,15 +120,20 @@ export function SongChordChart({version, position, onSeek}: {
           </option>)}
         </select>
       </label>
-      <p className="song-current-chord">
-        {hiddenCurrent && !revealedCurrent ? 'Piilotettu sointu' : 'Soiva sointu'}
-        <strong>{hiddenCurrent && !revealedCurrent ? '?' : chord}</strong>
-        <span>{section.title}, tahti {barIndex+1}, isku {beat}/4</span>
-        {hiddenCurrent && <button type="button" className="song-reveal-chord"
-          onClick={() => setRevealed(revealedCurrent ? null : currentKey)}>
-          {revealedCurrent ? 'Piilota vihje' : 'Paljasta sointu'}
-        </button>}
-      </p>
+      <div className="song-now-next">
+        <p className="song-current-chord">
+          {hiddenCurrent && !revealedCurrent ? 'Piilotettu sointu' : 'Soiva sointu'}
+          <strong>{hiddenCurrent && !revealedCurrent ? '?' : chord}</strong>
+          <span>{section.title}, tahti {barIndex+1}, isku {beat}/4</span>
+          {hiddenCurrent && <button type="button" className="song-reveal-chord"
+            onClick={() => setRevealed(revealedCurrent ? null : currentKey)}>
+            {revealedCurrent ? 'Piilota vihje' : 'Paljasta sointu'}
+          </button>}
+        </p>
+        {nextSection && <p className="song-ahead song-next-chord">
+          Seuraava sointu <strong>{nextHidden ? '?' : nextSection.firstChord}</strong>
+        </p>}
+      </div>
     </div>
 
     <div className="song-bar-grid" role="group" aria-label={section.title + ': tahdit'}>
@@ -154,10 +169,12 @@ export function SongChordChart({version, position, onSeek}: {
     {showAllLyrics ? <div className="song-all-lyrics" aria-label="Koko kappaleen sanat">
       <h4>Koko kappaleen sanat</h4>
       <div className="song-all-lyrics-grid">
-        {chart.filter(part => part.lyrics?.length).map(part => <section key={part.id} className="song-lyrics-stanza">
-          <h5>{part.title}</h5>
-          {part.lyrics?.map((line,i) => <p key={i}>{line}</p>)}
-        </section>)}
+        {lyricColumns(chart).map((column, index) => <div key={index} className="song-lyrics-column">
+          {column.map(part => <section key={part.id} className="song-lyrics-stanza">
+            <h5>{part.title}</h5>
+            {part.lyrics?.map((line,i) => <p key={i}>{line}</p>)}
+          </section>)}
+        </div>)}
       </div>
       <p className="tools-note">Instrumentaaliosissa ei ole laulunsanoja. Kolmannen säkeistökierron sanat ovat vahvistamatta.</p>
     </div> : section.lyrics && <div className="song-section-lyrics">

@@ -100,8 +100,8 @@ ja `?tila=repeat` avaa edelleen vanhan kuunteluharjoituksen.
 Neljäntenä oppimispolkuna on **Kappaleharjoittelu**, jonka ensimmäinen
 kappale on **Yksi sointu, kaksi askelta** kahdella eri sovituksella:
 
-- **Akustinen versio** (3:53,376), oletus.
-- **Normaali versio** (3:32,208).
+- **Normaali versio** (3:32,208), oletus.
+- **Akustinen versio** (3:53,376).
 
 `SongJourney.tsx` näyttää yhden soittimen ja pienen **Versio**-valinnan.
 Kumpikin sovitus käyttää kolmea itsenäistä MP3-raitaa: säestys, kitara ja
@@ -111,9 +111,11 @@ toisistaan riippumatta. Lisäksi on valinnainen looppi ja aikajana.
 käynnistyy vain erillisestä Soita kappale -painalluksesta.** Mykistys- ja
 looppiasetukset säilyvät vaihdossa.
 
-Sivun suora osoite:
-`kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen`.
-Versiot ovat samalla sivulla.
+Suorat osoitteet: `kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta`
+(oletusversio), `…-normaali` ja `…-akustinen`. Linkissä nimetty versio
+ohittaa oletuksen. Käyttäjän valitsema versio säilyy sivulla, vaikka hän
+käy välillä oppimispoluissa; kappalelinkillä avatussa sivussa linkki
+päivittyy valinnan mukaiseksi.
 
 MP3-binäärit eivät sisälly GitHubin koodipäivitykseen. Pura sekä
 `yksi-sointu-kaksi-askelta-akustinen-raidat.zip` että
@@ -141,11 +143,52 @@ Molemmissa versioissa Gm–Dm–F–C–Gm–Dm–E♭–F-jakso on **Kitarasool
 (akustinen 2:02, normaali 1:51) ilman sanoja. Sen jälkeen alkaa
 **Väliosa (laulu)**, jossa lauletaan `Pidän tauon, annan soida…`
 (akustinen 2:31, normaali 2:19).
+Normaalissa versiossa basso on tauolla noin 2:23–2:44, ja väliosan laulu
+sijoittuu tämän kitaravetoisen jakson päälle. Tieto on vain tässä
+dokumentaatiossa ja `songChart.ts`:n kommentissa, ei käyttäjälle näkyvänä
+huomautuksena.
 
-**Soinnut ja sanat** on alareunan harjoitteluohjeen kaltainen avattava
-osio. Se on aluksi auki, mutta sen voi sulkea kesken kappaleen ilman,
-että ääni pysähtyy tai harjoitusasetukset nollautuvat. Sointukartan
-alareunan pitkä ohjeteksti on poistettu.
+**Soinnut ja sanat** on avattava osio, joka on aluksi suljettu. Sen voi
+avata ja sulkea kesken kappaleen ilman, että ääni pysähtyy tai
+harjoitusasetukset nollautuvat. Erillinen harjoitteluohje on poistettu;
+kappaleen nimen alla on yksi lyhyt ohje.
+
+Kappaleenosan viimeisen tahdin ajan sointukartta näyttää **Seuraava
+sointu** -ennakon: seuraavan osan ensimmäisen soinnun. Ennakko laskee
+saman tahtirajan kuin korostus (`lookAhead` tiedostossa `songChart.ts`),
+joten soiva sointu ja aktiivinen tahti vaihtuvat vasta oikealla hetkellä.
+Viimeisessä osassa ennakko näkyy vain loopissa (intron sointu).
+Harjoitustason piilottama sointu näkyy ennakossa kysymysmerkkinä.
+
+**Äänenvoimakkuus** (`songAudio.ts`): soittimen alareunassa on yksi
+säädin (0–100 %), joka kertoo kaikkien kolmen raidan aiemmat tasot
+(säestys 0,85, kitara ja laulu 0,78) samalla prosentilla. Oletus 100 %
+vastaa aiempaa toistovoimakkuutta. Arvo tallennetaan selaimeen ja säilyy
+versionvaihdossa. Mykistys hoidetaan edelleen `muted`-ominaisuudella.
+
+- Työpöytäselaimissa taso asetetaan `HTMLMediaElement.volume`-arvolla, joten
+  toisto, kelaus ja synkronointi toimivat kuten ennen.
+- iOS Safarissa `volume` ei muutu (pysyy 1:nä). Sivu tunnistaa tämän ja
+  ohjaa raidat ensimmäisestä Soita-painalluksesta alkaen Web Audio API:n
+  GainNodeihin. AudioContext luodaan ja käynnistetään painalluksen aikana,
+  ja jokainen audioelementti kytketään vain kerran, jolloin ääni kulkee
+  vain GainNoden kautta eikä kuulu kahteen kertaan. Mykistetyn raidan
+  GainNode asetetaan lisäksi nollaan.
+- **Rajoitus:** GainNode-reitti on testattu Playwrightilla simuloimalla
+  iOS:n toiminta (volume-arvo ei muutu, AudioContext korvattu
+  kirjaavalla tynkäversiolla). Sitä ei ole testattu fyysisellä iPhonella.
+  Jos iOS keskeyttää AudioContextin (esim. puhelu tai taustalle
+  siirtyminen), seuraava Soita-painallus käynnistää sen uudelleen.
+
+**Skaalat ja moodit** on Soinnut ja sanat -osion alla oleva, aluksi
+suljettu osio (`SongScales.tsx`, `songScaleData.ts`). Siinä on vain
+kappaleen harmoniaan perustellut asteikot: G-mollipentatoninen,
+G-bluesasteikko ja G-luonnollinen molli. Otelauta piirretään Otelautakartan
+`renderBoard`-funktiolla, ja boksit tulevat `fingeringBoxes`-funktiolta.
+Bluesasteikon D♭ näytetään lisäsävelenä. Kappaleen soinnut ovat Gm, F, B♭,
+E♭, Dm ja C. Luonnollisen mollin sävelistä vain E♭ hankaa kitarasoolon
+C-soinnun E:tä vastaan. G-doorista ei tarjota, koska sen E on ristiriidassa
+toistuvan E♭-soinnun kanssa.
 
 Aikaleimat ja yksittäisten iskujen ajoitukset ovat vielä
 likimääräisiä. Kolmen erillisen HTMLMediaElementin ajoitus ei ole

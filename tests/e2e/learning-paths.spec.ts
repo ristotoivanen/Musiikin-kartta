@@ -13,7 +13,7 @@ test.describe('Uudet oppimispolut', () => {
     await expect(page.getByRole('button', { name: 'Avaa kaikki harjoitukset' })).toHaveCount(0);
   });
 
-  test('akustisen mallikappaleen kitara ja laulu saa erikseen pois ilman toiston katkaisua', async ({ page }) => {
+  test('mallikappale avautuu normaalina versiona, ja kitaran sekä laulun saa erikseen pois ilman toiston katkaisua', async ({ page }) => {
     await page.addInitScript(() => {
       HTMLMediaElement.prototype.play = function () { return Promise.resolve(); };
       HTMLMediaElement.prototype.pause = function () { /* Ei audiolaitetta selaintestissä */ };
@@ -22,11 +22,17 @@ test.describe('Uudet oppimispolut', () => {
     await page.getByRole('button', { name: /Kappaleharjoittelu/ }).click();
 
     await expect(page.getByRole('heading', { name: 'Yksi sointu, kaksi askelta' })).toBeVisible();
-    await expect(page.getByRole('combobox', { name: 'Versio' })).toHaveValue('acoustic');
+    await expect(page.getByRole('combobox', { name: 'Versio' })).toHaveValue('normal');
+    await expect(page.getByRole('combobox', { name: 'Versio' }).locator('option')).toHaveText(['Normaali versio', 'Akustinen versio']);
+    await expect(page.getByText('Avaa sointukartta nähdäksesi soinnut ja sanat tai harjoitellaksesi sointuja muistista. Voit myös mykistää mallikitaran tai laulun ja toistaa kappaletta looppina.')).toBeVisible();
+    await expect(page.getByText('Miten harjoittelen tämän kappaleen kanssa?')).toHaveCount(0);
+    await expect(page.getByText(/Kitara ja laulu ovat aluksi päällä|Soita itsenäisesti kappaleen mukana/)).toHaveCount(0);
+    await expect(page.locator('details.song-chart-collapse')).not.toHaveAttribute('open', '');
     const player = page.locator('.song-player');
+    await expect(player.getByText('Normaali versio · 3:32')).toBeVisible();
     const streams = player.locator('audio');
     await expect(streams).toHaveCount(3);
-    const base = 'assets/audio/kappaleet/yksi-sointu-kaksi-askelta-akustinen/yksi-sointu-kaksi-askelta-akustinen-';
+    const base = 'assets/audio/kappaleet/yksi-sointu-kaksi-askelta-normaali/yksi-sointu-kaksi-askelta-normaali-';
     await expect(streams.nth(0)).toHaveAttribute('src', base + 'saestys.mp3');
     await expect(streams.nth(1)).toHaveAttribute('src', base + 'kitara.mp3');
     await expect(streams.nth(2)).toHaveAttribute('src', base + 'laulu.mp3');
@@ -76,7 +82,7 @@ test.describe('Uudet oppimispolut', () => {
     const vocals = page.getByRole('checkbox', { name: 'Laulu kuuluu' });
     const loop = page.getByRole('checkbox', { name: 'Soita looppina' });
 
-    await expect(version).toHaveValue('acoustic');
+    await expect(version).toHaveValue('normal');
     await player.getByRole('button', { name: '▶ Soita kappale' }).click();
     await expect(player.getByRole('button', { name: '■ Tauko' })).toBeVisible();
 
@@ -90,12 +96,12 @@ test.describe('Uudet oppimispolut', () => {
     });
     await expect(player.locator('.song-time')).toContainText('0:42 /');
 
-    await version.selectOption('normal');
-    await expect(version).toHaveValue('normal');
+    await version.selectOption('acoustic');
+    await expect(version).toHaveValue('acoustic');
     await expect(player.getByRole('button', { name: '▶ Soita kappale' })).toBeVisible();
     await expect(player.locator('.song-time')).toContainText('0:00 /');
-    await expect(player.getByText('Normaali versio · 3:32')).toBeVisible();
-    const base = 'assets/audio/kappaleet/yksi-sointu-kaksi-askelta-normaali/yksi-sointu-kaksi-askelta-normaali-';
+    await expect(player.getByText('Akustinen versio · 3:53')).toBeVisible();
+    const base = 'assets/audio/kappaleet/yksi-sointu-kaksi-askelta-akustinen/yksi-sointu-kaksi-askelta-akustinen-';
     await expect(streams).toHaveCount(3);
     await expect(streams.nth(0)).toHaveAttribute('src', base + 'saestys.mp3');
     await expect(streams.nth(1)).toHaveAttribute('src', base + 'kitara.mp3');
@@ -113,19 +119,52 @@ test.describe('Uudet oppimispolut', () => {
     await expect(streams.nth(0)).toHaveAttribute('data-play-count', '1');
     await expect(player.getByRole('button', { name: '■ Tauko' })).toBeVisible();
 
-    await version.selectOption('acoustic');
+    await version.selectOption('normal');
     await expect(player.getByRole('button', { name: '▶ Soita kappale' })).toBeVisible();
-    await expect(version).toHaveValue('acoustic');
-    await expect(streams.nth(0)).toHaveAttribute('src', 'assets/audio/kappaleet/yksi-sointu-kaksi-askelta-akustinen/yksi-sointu-kaksi-askelta-akustinen-saestys.mp3');
+    await expect(version).toHaveValue('normal');
+    await expect(streams.nth(0)).toHaveAttribute('src', 'assets/audio/kappaleet/yksi-sointu-kaksi-askelta-normaali/yksi-sointu-kaksi-askelta-normaali-saestys.mp3');
     await expect(streams.nth(0)).not.toHaveAttribute('data-play-count', '1');
   });
 
-  test('akustinen mallikappale voidaan avata suoralla linkillä', async ({ page }) => {
-    await page.goto('/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen');
-    await expect(page.getByRole('heading', { name: 'Yksi sointu, kaksi askelta' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Mitä haluat harjoitella?' })).toHaveCount(0);
+  test('mallikappaleen suora linkki kunnioittaa siinä nimettyä versiota', async ({ page }) => {
+    const version = page.getByRole('combobox', { name: 'Versio' });
+    for (const [slug, expected] of [
+      ['yksi-sointu-kaksi-askelta-akustinen', 'acoustic'],
+      ['yksi-sointu-kaksi-askelta-normaali', 'normal'],
+      ['yksi-sointu-kaksi-askelta', 'normal'],
+    ] as const) {
+      await page.goto('/kitaraharjoittelija.html?kappale=' + slug);
+      await expect(page.getByRole('heading', { name: 'Yksi sointu, kaksi askelta' })).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Mitä haluat harjoitella?' })).toHaveCount(0);
+      await expect(version).toHaveValue(expected);
+    }
     await page.getByRole('button', { name: '← Oppimispolut' }).click();
     await expect(page.getByRole('heading', { name: 'Mitä haluat harjoitella?' })).toBeVisible();
+  });
+
+  test('käyttäjän valitsemaa versiota ei vaihdeta automaattisesti kesken harjoittelun', async ({ page }) => {
+    await page.goto('/kitaraharjoittelija.html');
+    await page.getByRole('button', { name: /Kappaleharjoittelu/ }).click();
+    const version = page.getByRole('combobox', { name: 'Versio' });
+    await expect(version).toHaveValue('normal');
+    await version.selectOption('acoustic');
+    // Ilman kappalelinkkiä osoitteeseen ei lisätä versiota.
+    await expect(page).not.toHaveURL(/kappale=/);
+    await page.locator('details.song-chart-collapse > summary').click();
+    await page.getByRole('checkbox', { name: 'Soita looppina' }).check();
+    await expect(version).toHaveValue('acoustic');
+    await page.getByRole('button', { name: '← Oppimispolut' }).click();
+    await page.getByRole('button', { name: /Kappaleharjoittelu/ }).click();
+    await expect(version).toHaveValue('acoustic');
+    await expect(page.locator('.song-player audio').first()).toHaveAttribute('src', /akustinen-saestys\.mp3$/);
+
+    // Kappalelinkillä avattu sivu pitää linkin samassa versiossa kuin valinnan.
+    await page.goto('/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen');
+    await version.selectOption('normal');
+    await expect(page).toHaveURL(/kappale=yksi-sointu-kaksi-askelta-normaali/);
+    await page.reload();
+    await expect(version).toHaveValue('normal');
+    await expect(page.locator('.song-player audio').first()).toHaveAttribute('src', /normaali-saestys\.mp3$/);
   });
 
   test('ensimmäisen skaalaposition vaiheet avautuvat järjestyksessä ja eteneminen tallentuu', async ({ page }) => {

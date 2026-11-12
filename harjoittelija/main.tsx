@@ -7,6 +7,7 @@ import { ScaleJourney } from './ScaleJourney';
 import { NoteJourney } from './NoteJourney';
 import { ChordJourney } from './ChordJourney';
 import { SongJourney } from './SongJourney';
+import { isSongLink } from './songChart';
 import { MicLive, MicPanel, type Heard, type MicUi } from './MicPanel';
 import { Progress } from './Progress';
 import { Microphone, ReferencePlayer, micError, noiseThreshold, releaseAudio } from './audio';
@@ -66,7 +67,7 @@ function App() {
   const [track, setTrack] = useState<LearningTrack | 'legacy' | null>(() => {
     const params = new URLSearchParams(location.search);
     if (params.has('tila') || params.has('vanha')) return 'legacy';
-    if (params.get('kappale') === 'yksi-sointu-kaksi-askelta-akustinen') return 'songs';
+    if (isSongLink(params.get('kappale'))) return 'songs';
     return null;
   });
 

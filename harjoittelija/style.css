@@ -322,14 +322,34 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
 }
 .song-toggles input { width: 19px; height: 19px; margin: 0; }
 .song-player .tools-note { margin: 4px 0; }
-/* Sama avattava rakenne kuin alareunan harjoitteluohjeessa. */
-.song-chart-collapse { margin: 18px 0; }
-.song-chart-collapse > summary { color: var(--text); font-weight: 700; }
-.song-chart-collapse[open] > summary { margin-bottom: 8px; }
-.song-chart-collapse .song-chord-panel { margin: 0 0 12px; }
+/* Yksi yhteinen äänenvoimakkuus: kaiutin, liukusäädin ja prosentit samalla rivillä. */
+.song-volume { margin-left: auto; color: var(--muted); }
+.song-volume input[type="range"] { width: min(180px, 46vw); height: auto; accent-color: var(--lavender); }
+.song-volume output { min-width: 3.4em; text-align: right; font-variant-numeric: tabular-nums; }
+@media (max-width: 600px) { .song-volume { margin-left: 0; width: 100%; } .song-volume input[type="range"] { flex: 1; width: auto; } }
 
-.song-instructions { margin: 18px 0; }
-.song-instructions p { color: var(--muted); }
+/* Skaalat ja moodit: sama otelauta ja merkinnät kuin Otelautakartassa. */
+.song-scales-panel {
+  border: 1px solid var(--line); border-radius: 14px; background: var(--panel);
+  padding: clamp(14px, 3vw, 22px); margin: 0 0 12px;
+}
+.song-scale-controls { display: flex; flex-wrap: wrap; gap: 12px 18px; }
+.song-scale-controls label { display: grid; gap: 6px; color: var(--muted); font-size: 14px; }
+.song-scale-controls select {
+  min-width: min(290px, 80vw); min-height: 42px; padding: 7px 10px; color: var(--text);
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+}
+.song-scale-notes { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; margin: 16px 0 4px; }
+.song-scale-notes span { color: var(--gold); font-weight: 700; letter-spacing: .02em; }
+.song-scale-note { color: var(--muted); font-size: 14px; margin: 0 0 12px; }
+.song-scale-board { overflow-x: auto; max-width: 100%; border-radius: 10px; }
+.song-scale-board svg { display: block; width: 100%; height: auto; }
+/* Soinnut ja sanat on aluksi suljettu avattava osio. */
+.song-chart-collapse, .song-scales-collapse { margin: 18px 0; }
+.song-chart-collapse > summary, .song-scales-collapse > summary { color: var(--text); font-weight: 700; }
+.song-chart-collapse[open] > summary, .song-scales-collapse[open] > summary { margin-bottom: 8px; }
+.song-chart-collapse .song-chord-panel { margin: 0 0 12px; }
+.song-journey .song-lead { margin: 0 0 14px; }
 .song-future { margin-bottom: 26px; }
 @media (max-width: 600px) {
   .song-player-controls .song-play { flex: 1 1 100%; }
@@ -360,6 +380,14 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
 }
 .song-current-chord strong { font-size: 25px; color: var(--text); }
 .song-current-chord span { font-size: 13px; }
+/* Soiva ja seuraava sointu rinnakkain: ennakko ei siirrä tahtikartan korostusta. */
+.song-now-next { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 22px; }
+.song-ahead {
+  display: flex; align-items: center; gap: 9px; margin: 0; padding: 7px 12px;
+  border-left: 3px solid var(--gold); border-radius: 0 9px 9px 0; background: var(--bg);
+  font-size: 13px; color: var(--muted);
+}
+.song-ahead strong { font-size: 21px; color: var(--gold); }
 .song-bar-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; }
 .song-measure {
   display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start;
@@ -387,7 +415,7 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
 .song-chord-panel > .tools-note { margin: 12px 0 0; font-size: 13px; }
 @media (max-width: 700px) {
   .song-bar-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
-  .song-current-chord { width: 100%; }
+  .song-current-chord, .song-now-next, .song-ahead { width: 100%; }
 }
 
 
@@ -437,6 +465,7 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
   display: grid; grid-template-columns: repeat(2,minmax(0,1fr));
   column-gap: 24px; row-gap: 18px; align-items: start;
 }
+.song-lyrics-column { display: grid; gap: 18px; align-content: start; min-width: 0; }
 .song-lyrics-stanza { min-width: 0; }
 .song-lyrics-stanza h5 {
   color: var(--lavender); font-size: 14px; margin: 0 0 8px; font-weight: 700;

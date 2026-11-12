@@ -1,7 +1,28 @@
 import { useEffect, useRef, useState } from 'react';
 import { SongChordChart } from './SongChordChart';
+import { SongScales } from './SongScales';
+import {
+  SongGainMixer, elementVolumeWorks, loadSongVolume, saveSongVolume, trackLevel, type SongTrack,
+} from './songAudio';
+import { DEFAULT_SONG_VERSION, isSongLink, songLink, versionFromSongLink, type SongVersion } from './songChart';
 
-type SongVersion = 'acoustic' | 'normal';
+// Käyttäjän itse valitsema versio säilyy, vaikka hän käy välillä oppimispoluissa.
+let chosenVersion: SongVersion | null = null;
+
+/** URL:ssa nimetty versio voittaa, sitten käyttäjän valinta, muuten oletus (normaali). */
+function initialVersion(): SongVersion {
+  const linked = versionFromSongLink(new URLSearchParams(location.search).get('kappale'));
+  return linked ?? chosenVersion ?? DEFAULT_SONG_VERSION;
+}
+
+/** Pidä suora linkki samassa versiossa kuin valinta, jos sivu avattiin kappalelinkillä. */
+function rememberVersion(version: SongVersion) {
+  chosenVersion = version;
+  const url = new URL(location.href);
+  if (!isSongLink(url.searchParams.get('kappale'))) return;
+  url.searchParams.set('kappale', songLink(version));
+  history.replaceState(history.state, '', url.pathname + url.search + url.hash);
+}
 const VERSIONS = {
   acoustic: {
     label: 'Akustinen versio', length: '3:53',
@@ -38,13 +59,20 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   // Suojaa keskeneräisen play()-lupauksen versionvaihtoon liittyvältä kilpailutilanteelta.
   const playbackRequest = useRef(0);
   const pendingSeek = useRef<number | null>(null);
-  const [version, setVersion] = useState<SongVersion>('acoustic');
+  const [version, setVersion] = useState<SongVersion>(initialVersion);
   const song = VERSIONS[version];
   const [playing, setPlaying] = useState(false);
   const [guitarOn, setGuitarOn] = useState(true);
   const [vocalsOn, setVocalsOn] = useState(true);
   const [loopOn, setLoopOn] = useState(false);
-  const [chordPanelOpen, setChordPanelOpen] = useState(true);
+  // Suljettukin sointukartta pysyy mukana DOMissa, joten toisto ja harjoitusasetukset säilyvät.
+  const [chordPanelOpen, setChordPanelOpen] = useState(false);
+  const [scalePanelOpen, setScalePanelOpen] = useState(false);
+  const [volume, setVolume] = useState(loadSongVolume);
+  // Työpöytäselaimissa käytetään elementin volume-arvoa. iOS Safarissa se ei toimi, joten
+  // raidat ohjataan Web Audion GainNodeihin ensimmäisestä Soita-painalluksesta alkaen.
+  const [volumeMode] = useState<'element' | 'webaudio'>(() => elementVolumeWorks() ? 'element' : 'webaudio');
+  const mixer = useRef<SongGainMixer | null>(null);
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
   const [error, setError] = useState('');
@@ -61,6 +89,31 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
         try { stem.currentTime = backing.currentTime; } catch { /* metadata kesken */ }
       }
     }
+  }
+
+  function tracks(): [SongTrack, HTMLAudioElement | null, boolean][] {
+    return [['backing', backingRef.current, true], ['guitar', guitarRef.current, guitarOn],
+      ['vocals', vocalsRef.current, vocalsOn]];
+  }
+
+  /** Asettaa kaikkien raitojen tason. Ei koske toistoon, kelaukseen eikä synkronointiin. */
+  function applyLevels(level = volume, audible?: Partial<Record<SongTrack, boolean>>) {
+    for (const [track, element, on] of tracks()) {
+      if (!element) continue;
+      const value = trackLevel(track, level, audible?.[track] ?? on);
+      if (volumeMode === 'webaudio' && mixer.current?.routed(element)) {
+        mixer.current.setLevel(element, value);
+      } else {
+        // Mykistys hoidetaan muted-ominaisuudella kuten ennenkin, joten elementin taso ei sisällä sitä.
+        try { element.volume = trackLevel(track, level); } catch { /* volume ei ehkä ole säädettävissä */ }
+      }
+    }
+  }
+
+  function changeVolume(next: number) {
+    setVolume(next);
+    saveSongVolume(next);
+    applyLevels(next);
   }
 
   function pause() {
@@ -85,6 +138,7 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
     setDuration(0);
     setError('');
     setVersion(next);
+    rememberVersion(next);
   }
 
   function seek(seconds: number) {
@@ -139,9 +193,12 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
     const startAt = pendingSeek.current ?? backing.currentTime;
     if (Number.isFinite(backing.duration) && startAt >= backing.duration - 0.05) seek(0);
     retryPendingSeek(backing);
-    backing.volume = 0.85;
-    guitar.volume = 0.78;
-    vocals.volume = 0.78;
+    if (volumeMode === 'webaudio') {
+      // AudioContext käynnistyy käyttäjän painalluksesta. Jokainen elementti kytketään vain kerran.
+      mixer.current ??= new SongGainMixer();
+      if (mixer.current.unlock()) for (const stem of [backing, guitar, vocals]) mixer.current.route(stem);
+    }
+    applyLevels();
     guitar.muted = !guitarOn;
     vocals.muted = !vocalsOn;
     syncStems(true);
@@ -164,12 +221,14 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
     if (enabled) syncStems();
     if (guitarRef.current) guitarRef.current.muted = !enabled;
     setGuitarOn(enabled);
+    applyLevels(volume, { guitar: enabled });
   }
 
   function changeVocals(enabled: boolean) {
     if (enabled) syncStems();
     if (vocalsRef.current) vocalsRef.current.muted = !enabled;
     setVocalsOn(enabled);
+    applyLevels(volume, { vocals: enabled });
   }
 
   useEffect(() => {
@@ -184,22 +243,26 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
       backingRef.current?.pause();
       guitarRef.current?.pause();
       vocalsRef.current?.pause();
+      mixer.current?.close();
     };
   }, []);
+
+  // Versionvaihdossa syntyvät uudet audioelementit saavat saman tason heti.
+  useEffect(() => { applyLevels(); }, [version]);
 
   return <section className="song-journey" aria-labelledby="song-journey-title">
     <button type="button" className="back-link" onClick={onBack}>← Oppimispolut</button>
     <p className="eyebrow">KAPPALEHARJOITTELU · MALLIKAPPALE 01</p>
     <h2 id="song-journey-title">Yksi sointu, kaksi askelta</h2>
+    <p className="learning-lead song-lead">Avaa sointukartta nähdäksesi soinnut ja sanat tai harjoitellaksesi sointuja muistista. Voit myös mykistää mallikitaran tai laulun ja toistaa kappaletta looppina.</p>
     <label className="song-version" htmlFor="song-version-select">
       <span>Versio</span>
       <select id="song-version-select" value={version}
         onChange={event => changeVersion(event.target.value as SongVersion)}>
-        <option value="acoustic">Akustinen versio</option>
         <option value="normal">Normaali versio</option>
+        <option value="acoustic">Akustinen versio</option>
       </select>
     </label>
-    <p className="learning-lead">Soita itsenäisesti kappaleen mukana. Voit poistaa mallikitaran tai laulun kesken toiston ja kuulla oman soiton paremmin.</p>
 
     <div className="journey-lesson song-player">
       <div className="session-top"><h3>Kappaleen soitin</h3><span>{song.label} · {song.length} · kolme ääniraitaa</span></div>
@@ -220,8 +283,17 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
           onChange={event => changeVocals(event.target.checked)} /> Laulu kuuluu</label>
         <label><input type="checkbox" checked={loopOn}
           onChange={event => setLoopOn(event.target.checked)} /> Soita looppina</label>
+        <label className="song-volume" data-volume-mode={volumeMode}>
+          <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20">
+            <path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor" />
+            {volume > 0 && <path d="M16 9.5a3.5 3.5 0 0 1 0 5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />}
+            {volume > 50 && <path d="M18.5 7a7 7 0 0 1 0 10" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />}
+          </svg>
+          <input type="range" min={0} max={100} step={1} value={volume} aria-label="Äänenvoimakkuus"
+            aria-valuetext={volume + ' %'} onChange={event => changeVolume(Number(event.target.value))} />
+          <output aria-hidden="true">{volume} %</output>
+        </label>
       </div>
-      <p className="tools-note">Kitara ja laulu ovat aluksi päällä. Versiota vaihtaessa toisto pysähtyy ja palautuu alkuun. Käynnistä valitsemasi versio Soita-painikkeesta.</p>
       {error && <p className="backing-error" role="alert">{error}</p>}
       <audio key={version + '-backing'} ref={backingRef} src={song.backing} preload="metadata" loop={loopOn}
         onLoadedMetadata={event => {
@@ -254,13 +326,14 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
       <summary onClick={event => { event.preventDefault(); setChordPanelOpen(open => !open); }}>
         Soinnut ja sanat
       </summary>
-      <SongChordChart version={version} position={position} onSeek={seek} />
+      <SongChordChart version={version} position={position} loop={loopOn} onSeek={seek} />
     </details>
 
-    <details className="song-instructions">
-      <summary>Miten harjoittelen tämän kappaleen kanssa?</summary>
-      <p>Kuuntele ensin kappale kitara ja laulu päällä. Kytke sitten kitara pois ja soita itse sen osuutta laulun ja bändin mukana. Kun haluat harjoitella ilman laulua, poista myös laulu: jäljelle jää säestys.</p>
+    <details className="song-scales-collapse" open={scalePanelOpen}>
+      <summary onClick={event => { event.preventDefault(); setScalePanelOpen(open => !open); }}>
+        Skaalat ja moodit
+      </summary>
+      <SongScales open={scalePanelOpen} />
     </details>
-
   </section>;
 }
