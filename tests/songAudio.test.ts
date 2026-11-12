@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   DEFAULT_SONG_VOLUME, MAX_DRIFT_SECONDS, MIN_DRIFT_FIX_INTERVAL_MS, SongGainMixer, TRACK_BALANCE,
-  elementVolumeWorks, parseSongVolume, shouldCorrectDrift, trackLevel,
+  StemAligner, elementVolumeWorks, parseSongVolume, shouldCorrectDrift, trackLevel,
 } from '../harjoittelija/songAudio';
 
 describe('Kappaleharjoittelijan yhteinen äänenvoimakkuus', () => {
@@ -83,5 +83,73 @@ describe('raitojen driftikorjaus', () => {
   });
   it('pakotettu synkronointi (toiston alku, käyttäjän kelaus) tehdään aina', () => {
     expect(shouldCorrectDrift({ ...base, drift: 0, seeking: true, readyState: 1, msSinceLastFix: 0 }, true)).toBe(true);
+  });
+});
+
+describe('StemAligner', () => {
+  const media = (currentTime: number, extra: Partial<{ paused: boolean; seeking: boolean; readyState: number; loop: boolean; duration: number }> = {}) =>
+    ({ currentTime, paused: false, seeking: false, readyState: 4, loop: false, duration: 240, ...extra });
+
+  it('ei kelaa, kun raidat ovat tahdissa', () => {
+    const aligner = new StemAligner();
+    const stem = media(10.05);
+    expect(aligner.align(media(10), stem, false, 0)).toBe(false);
+    expect(stem.currentTime).toBe(10.05);
+  });
+
+  it('oppii iPhonen kelausviiveen, jolloin toinen korjaus osuu kohdalleen (lokin luvut 12.11.2026)', () => {
+    const aligner = new StemAligner();
+    const backing = media(11.86);
+    const guitar = media(11.57);
+    // Ensimmäinen korjaus: viivettä ei vielä tunneta.
+    expect(aligner.align(backing, guitar, false, 0)).toBe(true);
+    expect(guitar.currentTime).toBeCloseTo(11.86);
+    // Kaksi sekuntia myöhemmin kitara on taas 0,43 s jäljessä.
+    backing.currentTime = 13.86; guitar.currentTime = 13.43;
+    expect(aligner.align(backing, guitar, false, 2000)).toBe(true);
+    expect(aligner.latency).toBeCloseTo(0.43);
+    expect(guitar.currentTime).toBeCloseTo(14.29);
+    // Viiveen jälkeen kitara soi taustan tahdissa, eikä uutta kelausta tarvita.
+    backing.currentTime = 15.86; guitar.currentTime = 15.85;
+    expect(aligner.align(backing, guitar, false, 4000)).toBe(false);
+  });
+
+  it('pienentää estimaattia, jos raita päätyy edelle', () => {
+    const aligner = new StemAligner(0.5);
+    const backing = media(20), stem = media(19);
+    aligner.align(backing, stem, false, 0);
+    expect(stem.currentTime).toBeCloseTo(20.5);
+    backing.currentTime = 22; stem.currentTime = 22.3;
+    aligner.align(backing, stem, false, 2000);
+    expect(aligner.latency).toBeCloseTo(0.2);
+  });
+
+  it('ei lisää viivettä, kun tausta on pysäytettynä (toiston alku)', () => {
+    const aligner = new StemAligner(0.43);
+    const stem = media(5, { paused: true });
+    expect(aligner.align(media(30, { paused: true }), stem, true, 0)).toBe(true);
+    expect(stem.currentTime).toBe(30);
+  });
+
+  it('lisää opitun viiveen, kun raita kytketään päälle kesken soiton', () => {
+    const aligner = new StemAligner(0.43);
+    const stem = media(7.86, { paused: true });
+    expect(aligner.align(media(11.47), stem, true, 0)).toBe(true);
+    expect(stem.currentTime).toBeCloseTo(11.9);
+  });
+
+  it('ohittaa pysäytetyn raidan ja loopin kääntökohdan jatkuvassa toistossa', () => {
+    const aligner = new StemAligner();
+    expect(aligner.align(media(10), media(5, { paused: true }), false, 0)).toBe(false);
+    expect(aligner.align(media(0.1, { loop: true }), media(239.9), false, 0)).toBe(false);
+  });
+
+  it('rajaa viive-estimaatin ylärajaan', () => {
+    const aligner = new StemAligner(1.4);
+    const backing = media(50), stem = media(48);
+    aligner.align(backing, stem, false, 0);
+    backing.currentTime = 52; stem.currentTime = 50;
+    aligner.align(backing, stem, false, 2000);
+    expect(aligner.latency).toBe(1.5);
   });
 });

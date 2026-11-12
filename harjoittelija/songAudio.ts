@@ -79,6 +79,58 @@ export function shouldCorrectDrift(state: DriftState, force = false): boolean {
   return state.msSinceLastFix >= MIN_DRIFT_FIX_INTERVAL_MS;
 }
 
+/** Kelausviiveen estimaatin yläraja sekunteina. */
+export const MAX_SEEK_LATENCY_SECONDS = 1.5;
+
+/** Ne audioelementin ominaisuudet, joita tahdistus käyttää (testattavissa ilman selainta). */
+export interface AlignableMedia {
+  currentTime: number;
+  readonly paused: boolean;
+  readonly seeking: boolean;
+  readonly readyState: number;
+  readonly loop: boolean;
+  readonly duration: number;
+}
+
+/**
+ * Pitää raidan (kitara, laulu) taustan tahdissa.
+ *
+ * Soivan raidan kelaus ei ole hetkellinen. iPhonella (mitattu 12.11.2026) raita alkoi soida
+ * noin 0,43 s kelauksen jälkeen, joten taustan kohtaan kelattu raita päätyi joka kerta yhtä
+ * paljon jälkeen, ja kahden sekunnin välein toistunut korjaus kuului katkona. Tahdistin oppii
+ * viiveen: jos raita on edellisen korjauksen jälkeen yhä jäljessä tai edellä, estimaattia
+ * korjataan sen verran, ja seuraava kelaus tehdään taustan aika + viive -kohtaan.
+ * Pysäytettyä taustaa kelattaessa viivettä ei lisätä, koska raidat käynnistyvät yhdessä.
+ */
+export class StemAligner {
+  private lastFix = new WeakMap<object, number>();
+  constructor(public latency = 0) {}
+
+  /** Palauttaa true, jos raita kelattiin. force = toiston alku, käyttäjän kelaus tai raidan päälle kytkentä. */
+  align(master: AlignableMedia, stem: AlignableMedia, force = false, now = performance.now()): boolean {
+    if (stem.readyState < 1 || master.readyState < 1) return false;
+    if (!force && (stem.paused || master.paused)) return false;
+    const signed = stem.currentTime - master.currentTime;
+    const drift = Math.abs(signed);
+    const atLoopBoundary = master.loop && Number.isFinite(master.duration) &&
+      Math.abs(drift - master.duration) < 0.35;
+    const previous = this.lastFix.get(stem);
+    if (!shouldCorrectDrift({ drift, atLoopBoundary, seeking: stem.seeking, readyState: stem.readyState,
+      msSinceLastFix: previous === undefined ? Infinity : now - previous }, force)) return false;
+    const running = !master.paused;
+    // Edellisen korjauksen jälkeinen jäännösero kertoo, paljonko viive-estimaatti heittää.
+    if (!force && running && previous !== undefined) {
+      this.latency = Math.min(MAX_SEEK_LATENCY_SECONDS, Math.max(0, this.latency - signed));
+    }
+    let target = master.currentTime + (running ? this.latency : 0);
+    if (Number.isFinite(stem.duration)) target = Math.min(target, Math.max(0, stem.duration - 0.05));
+    try { stem.currentTime = target; } catch { return false; /* metadata kesken */ }
+    if (running) this.lastFix.set(stem, now);
+    else this.lastFix.delete(stem);
+    return true;
+  }
+}
+
 type ContextFactory = () => AudioContext;
 const defaultContext: ContextFactory = () => {
   const Context = globalThis.AudioContext ??

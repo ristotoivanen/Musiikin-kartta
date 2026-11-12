@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { shouldCorrectDrift } from './songAudio';
+import { StemAligner } from './songAudio';
 
 const BACKING_SRC = 'assets/audio/harjoittelija/am-vamp-without-guitar.mp3';
 const GUITAR_SRC = 'assets/audio/harjoittelija/am-vamp-electric-guitar.mp3';
@@ -22,26 +22,14 @@ export function BackingTrackMixer() {
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
   const [error, setError] = useState('');
-  // Edellinen driftikorjaus (performance.now), ks. shouldCorrectDrift.
-  const lastDriftFix = useRef<number | null>(null);
+  // Pitää kitaran taustan tahdissa ja oppii laitteen kelausviiveen.
+  const aligner = useRef(new StemAligner());
 
   function syncGuitar(force = false) {
     const backing = backingRef.current, guitar = guitarRef.current;
-    if (!backing || !guitar || !Number.isFinite(backing.currentTime) || guitar.readyState < 1) return;
-    // Pois kytketty kitara on pysäytettynä, joten sen driftillä ei ole merkitystä.
-    if (!force && guitar.paused) return;
-    const drift = Math.abs(guitar.currentTime - backing.currentTime);
-    // Loopin vaihtuessa kierrokselta toiselle toinen raita voi käydä hetken
-    // alussa ja toinen lopussa. Älä korjaa tätä hetkellistä kääntökohtaa.
-    const atLoopBoundary = backing.loop && Number.isFinite(backing.duration) &&
-      Math.abs(drift - backing.duration) < 0.3;
-    const now = performance.now();
-    const msSinceLastFix = lastDriftFix.current === null ? Infinity : now - lastDriftFix.current;
-    if (!shouldCorrectDrift({ drift, atLoopBoundary, seeking: guitar.seeking, readyState: guitar.readyState, msSinceLastFix }, force)) return;
-    try {
-      guitar.currentTime = backing.currentTime;
-      if (!force) lastDriftFix.current = now;
-    } catch { /* Metadata ei ehkä ole vielä latautunut. */ }
+    if (!backing || !guitar || !Number.isFinite(backing.currentTime)) return;
+    // Loopin kääntökohta ja pysäytetty (pois kytketty) kitara käsitellään tahdistimessa.
+    aligner.current.align(backing, guitar, force);
   }
 
   function pause() {
