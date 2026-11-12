@@ -506,3 +506,21 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
   .hint-segments label:first-of-type { border-radius: 9px 9px 0 0; }
   .hint-segments label:last-of-type { border-radius: 0 0 9px 9px; }
 }
+
+/* Sointumerkintöjen esitystapa: täydet soinnut tai power-soinnut. */
+.song-chord-display { display: flex; flex-wrap: wrap; margin: 0; padding: 0; border: 0; }
+.song-chord-display legend { width: 100%; margin-bottom: 4px; font-size: 13px; color: var(--muted); }
+.song-chord-display label {
+  flex: 1 1 0; display: flex; align-items: center; justify-content: center; min-height: 42px;
+  padding: 7px 12px; border: 1px solid var(--line); background: var(--panel); color: var(--text);
+  font-size: 14px; white-space: nowrap; cursor: pointer;
+}
+.song-chord-display label + label { margin-left: -1px; }
+.song-chord-display label:first-of-type { border-radius: 8px 0 0 8px; }
+.song-chord-display label:last-of-type { border-radius: 0 8px 8px 0; }
+.song-chord-display input { position: absolute; opacity: 0; pointer-events: none; }
+.song-chord-display label:has(input:checked) {
+  background: #4b2fd6; border-color: var(--lavender); color: #fff; font-weight: 700; z-index: 1;
+}
+.song-chord-display label:has(input:focus-visible) { outline: 2px solid var(--lavender); outline-offset: 2px; }
+@media (max-width: 600px) { .song-chord-display { width: 100%; } }

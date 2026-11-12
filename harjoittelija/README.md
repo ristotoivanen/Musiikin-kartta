@@ -144,6 +144,12 @@ vaikeuden takia kunkin soinnun piilotusjärjestystä voi muuttaa
 (`songHints.ts`); asetukset tallennetaan paikallisesti. Yhden soinnun
 voi myös paljastaa hetkelliseksi vihjeeksi.
 
+**Sointumerkinnät**-valinta (Täydet soinnut / Power-soinnut) vaihtaa vain
+näytettävän merkinnän: tahtikartan, soivan soinnun ja seuraavan osan ennakon.
+Muunnos on `chordLabel.ts`:n esitysfunktio (Gm → G5, B♭ → B♭5, Dm? → D5?);
+kappaleen sointutiedot, piilotustasot, ajoitus ja ääniraidat eivät muutu.
+Power-sointu on juuri ja kvintti ilman terssiä, ei duuri eikä molli.
+
 **Näytä koko sanoitus** avaa molemmissa sovituksissa kaikki sanoitetut
 osiot yhdellä kertaa. Oletuksena näytetään vain parhaillaan valitun
 osion sanat. Koko sanoituksen ollessa auki osion erillistä sananäyttöä

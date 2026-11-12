@@ -7,6 +7,7 @@ import {
   CHORD_NAMES, SONG_HINT_STORAGE_KEY, isChordHidden, loadSongHintSettings,
   type FadeStep, type PracticeLevel,
 } from './songHints';
+import { chordLabel, type ChordDisplay } from './chordLabel';
 
 const LEVELS: { value: PracticeLevel; label: string }[] = [
   { value: 0, label: '0 · Kaikki näkyvät' },
@@ -32,6 +33,9 @@ export function SongChordChart({version, position, loop = false, onSeek}: {
   const [hints, setHints] = useState(loadSongHintSettings);
   const [revealed, setRevealed] = useState<string | null>(null);
   const [showAllLyrics, setShowAllLyrics] = useState(false);
+  // Esitystapa muuttaa vain näkyvää merkintää. Piilotus ja ajoitus käyttävät alkuperäisiä sointuja.
+  const [display, setDisplay] = useState<ChordDisplay>('full');
+  const label = (name: string) => chordLabel(name, display);
 
   const chart = SONG_CHARTS[version];
   const current = chordAt(position, version);
@@ -76,6 +80,15 @@ export function SongChordChart({version, position, loop = false, onSeek}: {
           onChange={event => setShowAllLyrics(event.target.checked)} />
         Näytä koko sanoitus
       </label>
+      <fieldset className="song-chord-display">
+        <legend>Sointumerkinnät</legend>
+        {([['full', 'Täydet soinnut'], ['power', 'Power-soinnut']] as const).map(([value, text]) =>
+          <label key={value}>
+            <input type="radio" name="song-chord-display" value={value} checked={display === value}
+              onChange={() => setDisplay(value)} />
+            <span>{text}</span>
+          </label>)}
+      </fieldset>
       <label className="song-hint-level" htmlFor="song-hint-level">Harjoitustaso
         <select id="song-hint-level" value={hints.level} disabled={!hints.showChords}
           onChange={event => {
@@ -123,7 +136,7 @@ export function SongChordChart({version, position, loop = false, onSeek}: {
       <div className="song-now-next">
         <p className="song-current-chord">
           {hiddenCurrent && !revealedCurrent ? 'Piilotettu sointu' : 'Soiva sointu'}
-          <strong>{hiddenCurrent && !revealedCurrent ? '?' : chord}</strong>
+          <strong>{hiddenCurrent && !revealedCurrent ? '?' : label(chord)}</strong>
           <span>{section.title}, tahti {barIndex+1}, isku {beat}/4</span>
           {hiddenCurrent && <button type="button" className="song-reveal-chord"
             onClick={() => setRevealed(revealedCurrent ? null : currentKey)}>
@@ -131,7 +144,7 @@ export function SongChordChart({version, position, loop = false, onSeek}: {
           </button>}
         </p>
         {nextSection && <p className="song-ahead song-next-chord">
-          Seuraava sointu <strong>{nextHidden ? '?' : nextSection.firstChord}</strong>
+          Seuraava sointu <strong>{nextHidden ? '?' : label(nextSection.firstChord)}</strong>
         </p>}
       </div>
     </div>
@@ -143,10 +156,10 @@ export function SongChordChart({version, position, loop = false, onSeek}: {
         const secondOn = selected && beat >= 3 && !!bar.second;
         const firstVisible = showChord(bar.first,index,'first');
         const secondVisible = bar.second ? showChord(bar.second,index,'second') : false;
-        const contents = (firstVisible ? bar.first : 'sointu piilossa') +
-          (bar.second ? ' ' + (secondVisible ? bar.second : 'sointu piilossa') : '') +
+        const contents = (firstVisible ? label(bar.first) : 'sointu piilossa') +
+          (bar.second ? ' ' + (secondVisible ? label(bar.second) : 'sointu piilossa') : '') +
           (showExplanations && bar.passingBass ? ' (basson kulku ' + bar.passingBass + ')' : '') +
-          (showExplanations && bar.possibleChord ? ' (' + bar.possibleChord + '?)' : '');
+          (showExplanations && bar.possibleChord ? ' (' + label(bar.possibleChord + '?') + ')' : '');
         return <button type="button" key={index}
           className={'song-measure' + (selected ? ' active' : '')}
           aria-pressed={selected}
@@ -155,14 +168,14 @@ export function SongChordChart({version, position, loop = false, onSeek}: {
           <span className="song-measure-number">Tahti {index+1}</span>
           <span className="song-measure-chords">
             <strong className={firstOn && firstVisible ? 'now' : ''}>
-              {firstVisible ? bar.first : '?'}
+              {firstVisible ? label(bar.first) : '?'}
             </strong>
             {bar.second && <strong className={secondOn && secondVisible ? 'now' : ''}>
-              {secondVisible ? bar.second : '?'}
+              {secondVisible ? label(bar.second) : '?'}
             </strong>}
           </span>
           {showExplanations && bar.passingBass && <small>Basso: ({bar.passingBass}), isku 4</small>}
-          {showExplanations && bar.possibleChord && <small>Mahdollinen ({bar.possibleChord}?)</small>}
+          {showExplanations && bar.possibleChord && <small>Mahdollinen ({label(bar.possibleChord + '?')})</small>}
         </button>;
       })}
     </div>

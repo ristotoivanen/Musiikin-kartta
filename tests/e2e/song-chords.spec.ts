@@ -425,3 +425,100 @@ test.describe('Seuraavan kappaleenosan sointuennakko', () => {
     await expect(ahead(page).locator('strong')).toHaveText('?');
   });
 });
+
+test.describe('Sointumerkintöjen esitystapa', () => {
+  const panel = (page: Page) => page.locator('.song-chord-panel');
+  const display = (page: Page) => panel(page).getByRole('group', { name: 'Sointumerkinnät' });
+  const choose = (page: Page, name: string) => display(page).locator('label', { hasText: name }).click();
+  const current = (page: Page) => panel(page).locator('.song-current-chord strong');
+  const bars = (page: Page) => panel(page).locator('.song-measure-chords strong');
+  const jump = (page: Page) => panel(page).getByRole('combobox', { name: 'Harjoiteltava osa' });
+
+  for (const [version, link] of [['acoustic', ACOUSTIC_LINK],
+    ['normal', '/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-normaali']] as const) {
+    test(`${version}: power-soinnut näkyvät tahtikartassa, soivassa soinnussa ja ennakossa ajoituksen muuttumatta`, async ({ page }, testInfo) => {
+      await page.goto(link);
+      await openChart(page);
+      await expect(display(page).getByRole('radio', { name: 'Täydet soinnut' })).toBeChecked();
+      await expect(bars(page)).toHaveText(['Gm', 'F', 'Gm', 'B♭', 'F', 'Gm']);
+      await expect(current(page)).toHaveText('Gm');
+
+      await choose(page, 'Power-soinnut');
+      await expect(display(page).getByRole('radio', { name: 'Power-soinnut' })).toBeChecked();
+      await expect(bars(page)).toHaveText(['G5', 'F5', 'G5', 'B♭5', 'F5', 'G5']);
+      await expect(current(page)).toHaveText('G5');
+      await expect(panel(page).getByRole('button', { name: /^Tahti 3: B♭5 F5\./ })).toHaveCount(1);
+
+      // Kelaus ja osan vaihtuminen: sama ajoitus kuin täysillä soinnuilla.
+      const lastBar = version === 'acoustic' ? 39.4 : 38.6, chorus = version === 'acoustic' ? 43 : 42;
+      await setSongTime(page, lastBar);
+      await expect(panel(page).locator('.song-measure.active .song-measure-number')).toHaveText('Tahti 8');
+      await expect(current(page)).toHaveText('G5');
+      await expect(panel(page).locator('.song-ahead')).toHaveText('Seuraava sointu B♭5');
+      await setSongTime(page, chorus);
+      await expect(jump(page)).toHaveValue('chorus1');
+      await expect(current(page)).toHaveText('B♭5');
+      await expect(bars(page).first()).toHaveText('B♭5');
+      await jump(page).selectOption('bridge');
+      await expect(bars(page)).toHaveText(['G5', 'D5', 'F5', 'C5', 'G5', 'D5', 'E♭5', 'F5']);
+
+      // Valinta säilyy, kun osio suljetaan ja avataan.
+      const summary = page.locator('details.song-chart-collapse > summary');
+      await summary.click();
+      await expect(panel(page)).toBeHidden();
+      await summary.click();
+      await expect(display(page).getByRole('radio', { name: 'Power-soinnut' })).toBeChecked();
+      await expect(bars(page).first()).toHaveText('G5');
+
+      if (testInfo.project.name === 'phone') {
+        const width = page.viewportSize()!.width;
+        expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+        const box = (await display(page).boundingBox())!;
+        expect(box.x).toBeGreaterThanOrEqual(0);
+        expect(box.x + box.width).toBeLessThanOrEqual(width);
+      }
+
+      await choose(page, 'Täydet soinnut');
+      await expect(bars(page)).toHaveText(['Gm', 'Dm', 'F', 'C', 'Gm', 'Dm', 'E♭', 'F']);
+    });
+  }
+
+  test('power-soinnuissa piilotus, vihje, epävarmuusmerkintä, loop-ennakko ja versionvaihto toimivat', async ({ page }) => {
+    await page.goto(ACOUSTIC_LINK);
+    await openChart(page);
+    await choose(page, 'Power-soinnut');
+    const level = panel(page).getByRole('combobox', { name: 'Harjoitustaso' });
+
+    // Epävarma Dm? näkyy muodossa D5?; basson kulkuääni F on sävel, ei sointu.
+    await setSongTime(page, 202);
+    await expect(jump(page)).toHaveValue('outro');
+    await expect(panel(page).getByText('Mahdollinen (D5?)')).toHaveCount(2);
+    await setSongTime(page, 44);
+    await expect(jump(page)).toHaveValue('chorus1');
+    await expect(panel(page).getByText('Basso: (F), isku 4')).toBeVisible();
+
+    // Loopissa viimeisen tahdin ennakko näyttää intron soinnun power-merkintänä.
+    await setSongTime(page, 223);
+    await page.getByRole('checkbox', { name: 'Soita looppina' }).check();
+    await expect(panel(page).locator('.song-ahead')).toHaveText('Seuraava sointu G5');
+
+    // Taso 1 piilottaa Gm:n ja F:n: merkintä on ?, ei G5 tai F5. Vihje paljastaa power-merkinnän.
+    await setSongTime(page, 0.2);
+    await level.selectOption('1');
+    await expect(current(page)).toHaveText('?');
+    await expect(bars(page)).toHaveText(['?', '?', '?', 'B♭5', '?', '?']);
+    await expect(panel(page).getByText('Piilossa 2/6 sointua')).toBeVisible();
+    await panel(page).getByRole('button', { name: 'Paljasta sointu' }).click();
+    await expect(current(page)).toHaveText('G5');
+    await setSongTime(page, 11);
+    await expect(panel(page).locator('.song-ahead strong')).toHaveText('?');
+    await expect(panel(page).locator('.song-ahead')).not.toContainText('G5');
+
+    // Versionvaihto säilyttää esitystavan ja palaa alkuun.
+    await page.getByRole('combobox', { name: 'Versio' }).selectOption('normal');
+    await expect(display(page).getByRole('radio', { name: 'Power-soinnut' })).toBeChecked();
+    await expect(jump(page)).toHaveValue('intro');
+    await level.selectOption('0');
+    await expect(bars(page)).toHaveText(['G5', 'F5', 'G5', 'B♭5', 'F5', 'G5']);
+  });
+});
