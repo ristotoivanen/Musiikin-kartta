@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test('akustisen kappaleen soinnut seuraavat aikajanaa ja tahtiin voi hypätä', async ({page}) => {
   await page.goto('/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen');
   const panel=page.locator('.song-chord-panel');
-  await expect(panel.getByRole('heading',{name:'Soinnut ja sanat'})).toBeVisible();
+  await expect(panel.getByRole('heading',{name:'Harjoituskartta'})).toBeVisible();
   const jump=panel.getByRole('combobox',{name:'Harjoiteltava osa'});
   await expect(jump).toHaveValue('intro');
   await expect(panel.locator('.song-current-chord strong')).toHaveText('Gm');
@@ -22,7 +22,7 @@ test('akustisen kappaleen soinnut seuraavat aikajanaa ja tahtiin voi hypätä', 
   await expect(panel.locator('.song-measure.active .song-measure-number')).toHaveText('Tahti 7');
 
   await page.getByRole('combobox',{name:'Versio'}).selectOption('normal');
-  await expect(panel.getByRole('heading',{name:'Soinnut ja sanat'})).toBeVisible();
+  await expect(panel.getByRole('heading',{name:'Harjoituskartta'})).toBeVisible();
   await expect(panel.locator('.song-bar-grid .song-measure')).toHaveCount(4);
   await expect(jump).toHaveValue('intro');
   await page.getByRole('combobox',{name:'Versio'}).selectOption('acoustic');
@@ -172,4 +172,54 @@ test('koko sanoitus avautuu sointuasetuksista ja toimii molemmilla versioilla', 
   await expect(part).toHaveCount(0); // Vaihdon jälkeen intro, jossa ei ole laulua.
   await panel.getByRole('combobox',{name:'Harjoiteltava osa'}).selectOption('chorus1');
   await expect(part.getByText('sama riffi palaa taas')).toBeVisible();
+});
+
+test('Soinnut ja sanat -osion saa piiloon avaamatta tai pysäyttämättä soitinta', async ({page}) => {
+  await page.addInitScript(() => {
+    HTMLMediaElement.prototype.play = function () { return Promise.resolve(); };
+    HTMLMediaElement.prototype.pause = function () { /* Selaintesti ei vaadi äänilaitetta. */ };
+  });
+  await page.goto('/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen');
+  const disclosure=page.locator('details.song-chart-collapse');
+  const summary=disclosure.locator('summary');
+  const panel=disclosure.locator('.song-chord-panel');
+  await expect(disclosure).toHaveAttribute('open','');
+  await expect(panel).toBeVisible();
+  await expect(summary).toHaveText('Soinnut ja sanat');
+  await panel.getByRole('combobox',{name:'Harjoitustaso'}).selectOption('2');
+
+  const player=page.locator('.song-player');
+  await player.getByRole('button',{name:'▶ Soita kappale'}).click();
+  await expect(player.getByRole('button',{name:'■ Tauko'})).toBeVisible();
+
+  await summary.click();
+  await expect(disclosure).not.toHaveAttribute('open','');
+  await expect(panel).toBeHidden();
+  await expect(player.getByRole('button',{name:'■ Tauko'})).toBeVisible();
+
+  await summary.click();
+  await expect(disclosure).toHaveAttribute('open','');
+  await expect(panel).toBeVisible();
+  await expect(panel.getByRole('combobox',{name:'Harjoitustaso'})).toHaveValue('2');
+  await expect(player.getByRole('button',{name:'■ Tauko'})).toBeVisible();
+});
+
+test('soolon aikana ei näytetä väliosan laulunsanoja, vaan vasta seuraavassa lauluosassa', async ({page}) => {
+  await page.goto('/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen');
+  const panel=page.locator('.song-chord-panel');
+  const backing=page.locator('.song-player audio').first();
+  await backing.evaluate(el => {
+    Object.defineProperty(el,'currentTime',{configurable:true,writable:true,value:0});
+  });
+  const jump=panel.getByRole('combobox',{name:'Harjoiteltava osa'});
+  for (const version of ['acoustic','normal']) {
+    await page.getByRole('combobox',{name:'Versio'}).selectOption(version);
+    await jump.selectOption('bridge');
+    await expect(jump.locator('option:checked')).toContainText('Kitarasoolo');
+    await expect(panel.locator('.song-section-lyrics')).toHaveCount(0);
+    await jump.selectOption('verse3');
+    await expect(jump.locator('option:checked')).toContainText('Väliosa');
+    await expect(panel.locator('.song-section-lyrics')).toContainText('Pidän tauon, annan soida');
+  }
+  await expect(panel.getByText('Paina tahtia hypätäksesi sen alkuun')).toHaveCount(0);
 });
