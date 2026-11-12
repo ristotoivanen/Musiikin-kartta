@@ -58,5 +58,8 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "build: refresh beta trainer browser assets [skip ci]"
+          # GITHUB_TOKEN-push ei käynnistä tätä GitHub Actions -työnkulkua uudestaan.
+          # Älä lisää [skip ci] -merkintää: Cloudflare Pagesin pitää julkaista
+          # vasta tässä vaiheessa syntyneet käännetyt tiedostot.
+          git commit -m "build: publish compiled beta trainer assets"
           git push origin HEAD:beta
