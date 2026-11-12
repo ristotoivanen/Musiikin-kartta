@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { bridgePositions, bridgeRoute, sharedPositionKeys } from '../harjoittelija/scaleBridgeData';
+import { bridgeAscending, bridgeCycle, bridgeOnce, bridgePositions, bridgeRoute, sharedPositionKeys } from '../harjoittelija/scaleBridgeData';
 import { music, positionKey } from '../harjoittelija/music';
 
 describe('A-mollipentatonisen positioiden 1 ja 2 yhdistäminen', () => {
@@ -22,6 +22,27 @@ describe('A-mollipentatonisen positioiden 1 ja 2 yhdistäminen', () => {
     expect(bridgePositions.map(position => position.midi % 12)
       .every(pc => [0, 2, 4, 7, 9].includes(pc))).toBe(true);
     expect(bridgePositions.filter(position => position.midi % 12 === 9)).toHaveLength(4);
+  });
+
+  it('soittaa koko kahden position sormituksen kuudella kielellä', () => {
+    expect(bridgeAscending.map(positionKey)).toEqual([
+      '5:5', '5:8', '5:10',
+      '4:5', '4:7', '4:10',
+      '3:5', '3:7', '3:10',
+      '2:5', '2:7', '2:9',
+      '1:5', '1:8', '1:10',
+      '0:5', '0:8', '0:10',
+    ]);
+    expect(bridgeAscending).toHaveLength(18);
+    expect(new Set(bridgeAscending.map(positionKey)).size).toBe(18);
+    expect(new Set(bridgeAscending.map(position => position.string)).size).toBe(6);
+    expect(bridgeCycle).toHaveLength(34);
+    expect(bridgeCycle.slice(0, 18)).toEqual(bridgeAscending);
+    expect(bridgeCycle.slice(18)).toEqual(bridgeAscending.slice(1, -1).reverse());
+    expect(bridgeOnce).toHaveLength(35);
+    expect(bridgeOnce[0]).toEqual(bridgeOnce.at(-1));
+    expect(bridgeOnce.map(position => position.midi % 12)
+      .every(tone => [0, 2, 4, 7, 9].includes(tone))).toBe(true);
   });
 
   it('siirtymäharjoitus kulkee kahden boksin läpi ja takaisin saman reitin', () => {

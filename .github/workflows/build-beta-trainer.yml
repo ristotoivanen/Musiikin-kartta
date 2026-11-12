@@ -35,7 +35,7 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
       - name: Test scale positions and bridge in browser
-        run: npx playwright test tests/e2e/learning-paths.spec.ts --grep "positioiden 1 ja 2 yhdistäminen|positio 3 avautuu" --project=desktop
+        run: npx playwright test tests/e2e/learning-paths.spec.ts --grep "positioiden 1 ja 2 yhdistäminen|positio 3 avautuu|yhdistämisen mallisoitto" --project=desktop
       - name: Cache-bust compiled browser module
         run: |
           node --input-type=module <<'NODE'
