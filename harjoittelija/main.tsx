@@ -337,6 +337,7 @@ function App() {
 
   return <>
     {introduction}{notice}
+    <p className="exercise-theory"><a href={theoryHref}>Lue tämän harjoituksen teoria: {theoryTitle} →</a></p>
     {track !== 'legacy' && <section className="selected-track" aria-label="Valittu oppimispolku">
       <button type="button" className="back-link" onClick={() => { if (inRound) finish(); setTrack(null); }}>← Oppimispolut</button>
       <h2>{track === 'ear' ? 'Sävelkorva ja otelauta' : 'Soinnut ja musiikin rakenne'}</h2>
@@ -407,8 +408,8 @@ function App() {
       {!inRound && error && <p className="error" role="alert">{error}</p>}
     </section>
     {!inRound && <>
-      <p className="link-row"><a href={theoryHref}>Lue teoria: {theoryTitle}</a>
-        {s.mode === 'scale' && <a href={`otelautaharjoittelija.html?toonikka=${encodeURIComponent(music.CHROM[s.root])}&asteikko=${s.scale}`}>Katso asteikko otelautaharjoittelijassa</a>}
+      <p className="link-row">
+        {s.mode === 'scale' && <a href={`otelautaharjoittelija.html?toonikka=${encodeURIComponent(music.CHROM[s.root])}&asteikko=${s.scale}`}>Katso asteikko otelautakartassa</a>}
         <a href={settingsURL(s)}>Linkki tähän harjoitukseen</a></p>
       <Progress store={store} s={s} locked={locked} changed={() => { const restored = sanitize(store.data.settings); sRef.current = restored; setSettings(restored); redraw(); }} />
       <details className="privacy"><summary>Miten tunnistus ja tallennus toimivat?</summary>
