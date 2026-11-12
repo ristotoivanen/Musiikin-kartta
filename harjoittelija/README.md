@@ -23,6 +23,12 @@ on ohjatun oppimisjärjestelmän ensimmäinen kokonainen käyttöliittymäsiivu:
 A-mollipentatonisen ensimmäinen positio, Web Audio -mallisävelet,
 sormituskuvio, vihjeiden vähentäminen ja oppaan valmis Am-taustaraita.
 Mallifraasi on syntetisoitu, ei äänitetty kitarasoolo.
+Ylös–alas-sormitusharjoituksessa malliasteikon saa jatkuvaan toistoon yhdellä
+painikkeella. Toisto jatkuu kierros kerrallaan ja päättyy pysäytykseen,
+oppimisaskeleen vaihtoon, sivulta poistumiseen tai välilehden piilottamiseen.
+Toisto käyttää samaa `ReferencePlayer`-sovelluskoodia eikä vaadi mikrofoni- tai
+verkkoyhteyttä.
+
 Eteneminen tallentuu omaan avaimensa
 `musiikin-kartta:skaalapolku:v1`, eikä muuta vanhaa
 `musiikin-kartta:harjoittelu`-tietomallia.
