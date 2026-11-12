@@ -420,21 +420,27 @@ test.describe('sivuston yhtenäisyys', () => {
     await expect(page.getByRole('link', { name: 'Harjoittele kitaralla' })).toBeVisible();
     await expect(page.locator('a[href="pdf/musiikin-kartta.pdf"]').first()).toBeVisible();
 
+    // Yhdistetty otelautakartta: moodi valitaan pudotusvalikosta, ei enää painikkeesta.
     await page.goto('/otelautaharjoittelija.html');
     await expect(page.getByRole('link', { name: 'Kitaraharjoittelija', exact: true })).toHaveAttribute('href', 'kitaraharjoittelija.html');
-    await page.getByRole('button', { name: 'Doorinen', exact: true }).click();
+    await page.getByRole('combobox', { name: 'Asteikko tai moodi' }).selectOption('dorian');
+    await expect(page.locator('#selection-title')).toContainText('A-doorinen');
     await expect(page.locator('#board svg')).toBeVisible();
-    await page.goto('/otelautaharjoittelija.html#oktaavit');
-    await expect(page.getByRole('heading', { name: 'Oktaaviharjoitus' })).toBeVisible();
-    await expect(page.locator('#octave-listen button').first()).toBeVisible();
 
-    await page.goto('/harjoitustaustat.html');
+    // Oktaavit ovat nyt vain visualisointia: ei kysymystä eikä kuuntelupainikkeita.
+    await page.goto('/otelautaharjoittelija.html?toonikka=A#oktaavit');
+    await expect(page.getByRole('button', { name: 'Oktaavit' })).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('#board .octave-note')).not.toHaveCount(0);
     await expect(page.locator('#board svg')).toBeVisible();
-    await page.getByRole('button', { name: 'Soita tausta' }).click();
-    await expect(page.locator('#backing-status')).toHaveText('Tausta soi toistolla.');
-    await expect(page.locator('#chord-loop .is-playing')).toHaveCount(1);
-    await page.getByRole('button', { name: 'Pysäytä tausta' }).click();
-    await expect(page.locator('#backing-status')).toBeEmpty();
+    await expect(page.locator('audio')).toHaveCount(0);
+
+    // Entinen taustaraitasivu säilyy vanhoille linkeille, mutta ohjaa otelautakarttaan.
+    await page.goto('/harjoitustaustat.html?toonikka=E&asteikko=dorian');
+    await expect(page).toHaveURL(/otelautaharjoittelija\.html\?toonikka=E&asteikko=dorian/);
+    await expect(page.getByRole('combobox', { name: 'Kotisävel' })).toHaveValue('4');
+    await expect(page.getByRole('combobox', { name: 'Asteikko tai moodi' })).toHaveValue('dorian');
+    await expect(page.locator('#board svg')).toBeVisible();
+    await expect(page.locator('audio')).toHaveCount(0);
 
     await page.goto('/book/osa-3.html#otelauta');
     await expect(page).toHaveURL(/osa-5\.html#otelauta$/);
