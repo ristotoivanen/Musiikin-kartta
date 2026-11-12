@@ -16,7 +16,7 @@ test('akustisen kappaleen soinnut seuraavat aikajanaa ja tahtiin voi hypätä', 
   await jump.selectOption('bridge');
   await expect(jump).toHaveValue('bridge');
   await expect(panel.locator('.song-current-chord strong')).toHaveText('Gm');
-  expect(await backing.evaluate(el=>el.currentTime)).toBe(122);
+  expect(await backing.evaluate(el => (el as HTMLAudioElement).currentTime)).toBe(122);
   await panel.getByRole('button',{name:/^Tahti 7: E♭/}).click();
   await expect(panel.locator('.song-current-chord strong')).toHaveText('E♭');
   await expect(panel.locator('.song-measure.active .song-measure-number')).toHaveText('Tahti 7');
@@ -58,7 +58,7 @@ test('sähköisen version osiot, loppukertosäe ja tahtihypyt pysyvät omassa ai
   await expect(jump.locator('option')).not.toContainText(['Välisoitto']);
   await jump.selectOption('verse2');
   await expect(jump).toHaveValue('verse2');
-  expect(await backing.evaluate(el=>el.currentTime)).toBe(63);
+  expect(await backing.evaluate(el => (el as HTMLAudioElement).currentTime)).toBe(63);
   await jump.selectOption('chorus3');
   await expect(panel.locator('.song-measure')).toHaveCount(8);
   await expect(panel.locator('.song-measure').nth(4)).toContainText('B♭');
@@ -69,7 +69,7 @@ test('sähköisen version osiot, loppukertosäe ja tahtihypyt pysyvät omassa ai
   await expect(panel.locator('.song-measure')).toHaveCount(4);
   await expect(panel.getByText(/Viimeinen Gm jää soimaan/)).toBeVisible();
   await expect(panel.locator('.song-measure small')).toHaveCount(0);
-  expect(await backing.evaluate(el=>el.currentTime)).toBe(195);
+  expect(await backing.evaluate(el => (el as HTMLAudioElement).currentTime)).toBe(195);
 });
 
 
