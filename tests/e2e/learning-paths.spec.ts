@@ -223,6 +223,17 @@ test.describe('Uudet oppimispolut', () => {
     await expect(page.getByText('Sointu 2 / 4')).toBeVisible();
     await expect(board.locator('.dot')).toHaveCount(6);
 
+    await choices.getByRole('button', { name: 'G', exact: true }).click();
+    await page.getByRole('button', { name: 'Seuraava sointu →' }).click();
+    await expect(page.getByText('Sointu 3 / 4')).toBeVisible();
+    await choices.getByRole('button', { name: 'D', exact: true }).click();
+    await page.getByRole('button', { name: 'Seuraava sointu →' }).click();
+    await expect(page.getByText('Sointu 4 / 4')).toBeVisible();
+    await choices.getByRole('button', { name: 'Em', exact: true }).click();
+    await page.getByRole('button', { name: 'Näytä yhteenveto' }).click();
+    await expect(page.getByRole('heading', { name: 'Avosointukierros valmis' })).toBeVisible();
+    await expect(page.getByText('Vääriä valintoja yhteensä 1.')).toBeVisible();
+
     await page.getByRole('radio', { name: /7 sointua/ }).check();
     await expect(page.getByText('Sointu 1 / 7')).toBeVisible();
     await expect(choices.locator('button')).toHaveCount(7);
