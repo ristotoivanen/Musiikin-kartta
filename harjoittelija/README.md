@@ -26,14 +26,14 @@ kolmena versiona (koko kappale, ilman kitaraa, vain kitara).
 Äänitiedostot asennetaan erikseen, ks. [audiohakemisto](../assets/audio/harjoittelija/README.md).
 Mallifraasi on syntetisoitu, ei äänitetty kitarasoolo.
 
-**Kuuntele ja tutustu** soittaa asteikon kerran ylös ja alas; soiva
-sävel korostuu otelaudalla. **Soita ylös ja alas** sekä **Soita muistista**
-tarjoavat jatkuvan mallisoiton, jossa Web Audio ajastaa sävelet valmiiksi
-eikä jätä taukoa kierrosrajalle. Äänentoisto päättyy pysäytykseen,
-vaiheenvaihtoon, sivulta poistumiseen tai välilehden piilottamiseen.
-Sormituksen kuuntelu- ja opetteluvaiheissa juuri soiva sävel korostuu
-otelautaan, mutta muistiharjoituksessa otelauta ei näytä mallisäveliä.
-Mikrofoni- tai verkkoyhteyttä ei tarvita asteikon mallisoittoon.
+**Kuuntele ja tutustu**, **Soita ylös ja alas** ja **Soita muistista**
+tarjoavat saman jatkuvan asteikkotoiston. Web Audio ajastaa sävelet
+ennakkoon eikä jätä ylimääräistä taukoa kierrosrajalle. Äänentoisto
+päättyy pysäytykseen, vaiheenvaihtoon, sivulta poistumiseen tai
+välilehden piilottamiseen. Kuuntelu- ja sormitusvaiheessa juuri soiva
+sävel korostuu otelaudalla, mutta muistiharjoituksessa mallisävelet
+pysyvät piilossa. Mikrofoni- tai verkkoyhteyttä ei tarvita asteikon
+mallisoittoon.
 
 **Improvisoi taustan päälle** käyttää yhtä HTML-äänisoitinta. Sen vieressä
 on pienikokoinen kolmen ääniversion valinta. Oletuksena on koko kappale.
