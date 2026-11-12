@@ -28,9 +28,17 @@ Musiikin kartta on avoin suomenkielinen verkko-opas musiikin teoriaan ja kitaran
 [Otelautakartta](otelautaharjoittelija.html) yhdistää vanhat
 `Kokeile otelautaa`- ja `Soita taustan mukana` -sivut yhdeksi
 visualisointityökaluksi. Kartassa ei ole harjoitustehtäviä,
-äänisoittimia tai säestystaustoja. Valitse kotisävel ja asteikko
-tai moodi ja tutki niiden sijainteja otelaudalla.
-Voit tarkastella myös asteikon kolmisointuja tai saman sävelen oktaaveja.
+äänisoittimia tai säestystaustoja. Asteikko-näkymässä valitaan kotisävel
+ja asteikko tai moodi. Oktaavit-näkymä näyttää saman sävelen eri korkeuksilla.
+
+**Soinnut-näkymä toimii asteikoista riippumatta.** Valitse soinnun
+perussävel ja duurin tai mollin laatu. Kolme näyttötapaa ovat:
+**Kaikki sointusävelet** (koko otelauta),
+**Koko ote** (mahdollinen avoin ote ensin ja sitten saman soinnun
+E- ja A-muotoiset barré-otteet nuolilla) sekä
+**Triadi (G–B–e)** (vain kolmen ohuimman kielen sointusävelet ja
+niiden käännökset nuolilla). Kaikissa näyttötavoissa käytetään samaa
+nauhamäärää, eikä sointua sidota valittuun moodiin.
 
 Sormitusboksit löytyvät valinnaisista näyttöasetuksista. Pentatonisilla
 asteikoilla käytetään automaattisesti **viittä pentatonista boksia**,
