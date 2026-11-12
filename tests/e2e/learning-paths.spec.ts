@@ -124,26 +124,40 @@ test.describe('Uudet oppimispolut', () => {
     await expect(output).toHaveText('75 BPM');
   });
 
-  test('improvisointitaustassa on vain yksi soitin ja kolme selkeästi vaihdettavaa versiota', async ({ page }) => {
+  test('improvisointitaustassa kaksi raitaa kulkee yhdessä ja mallikitaran saa mykistettyä', async ({ page }) => {
+    await page.addInitScript(() => {
+      // Ei vaadi varsinaisia MP3-tiedostoja selaintestille: varmistaa UI:n ohjauksen.
+      HTMLMediaElement.prototype.play = function () { return Promise.resolve(); };
+      HTMLMediaElement.prototype.pause = function () { /* Testissä ei äänilaitetta. */ };
+    });
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
     for (let i = 0; i < 3; i++) {
       await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
     }
     await expect(page.getByRole('heading', { name: 'Improvisoi taustan päälle' })).toBeVisible();
-    const tracks = page.getByRole('combobox', { name: 'Harjoitustaustan versio' });
-    await expect(tracks).toHaveValue('full');
-    await expect(page.locator('.backing-track audio')).toHaveCount(1);
-    await expect(page.locator('.backing-track audio source')).toHaveAttribute('src', 'assets/audio/harjoittelija/am-vamp-full.mp3');
+    const mixer = page.locator('.backing-track-mixer');
+    const tracks = mixer.locator('audio');
+    await expect(tracks).toHaveCount(2);
+    await expect(tracks.nth(0)).toHaveAttribute('src', 'assets/audio/harjoittelija/am-vamp-without-guitar.mp3');
+    await expect(tracks.nth(1)).toHaveAttribute('src', 'assets/audio/harjoittelija/am-vamp-electric-guitar.mp3');
 
-    await tracks.selectOption('noGuitar');
-    await expect(page.locator('.backing-track audio source')).toHaveAttribute('src', 'assets/audio/harjoittelija/am-vamp-no-guitar.mp3');
-    await expect(page.getByText('Soita itse kitaran osuus tai improvisoi taustan päälle.')).toBeVisible();
+    const guitar = mixer.getByRole('checkbox', { name: 'Mallikitara pois' });
+    await expect(guitar).not.toBeChecked();
+    await expect(tracks.nth(1)).toHaveJSProperty('muted', true);
+    await mixer.getByRole('button', { name: '▶ Soita' }).click();
+    await expect(mixer.getByRole('button', { name: '■ Tauko' })).toBeVisible();
 
-    await tracks.selectOption('guitarOnly');
-    await expect(page.locator('.backing-track audio source')).toHaveAttribute('src', 'assets/audio/harjoittelija/am-vamp-guitar-only.mp3');
-    await tracks.selectOption('full');
-    await expect(page.locator('.backing-track audio')).toHaveCount(1);
+    await guitar.check();
+    await expect(mixer.getByRole('checkbox', { name: 'Mallikitara päällä' })).toBeChecked();
+    await expect(tracks.nth(1)).toHaveJSProperty('muted', false);
+    await expect(mixer.getByRole('button', { name: '■ Tauko' })).toBeVisible();
+    await mixer.getByRole('checkbox', { name: 'Mallikitara päällä' }).uncheck();
+    await expect(tracks.nth(1)).toHaveJSProperty('muted', true);
+    await expect(mixer.getByRole('button', { name: '■ Tauko' })).toBeVisible();
+
+    await mixer.getByRole('button', { name: '■ Tauko' }).click();
+    await expect(mixer.getByRole('button', { name: '▶ Soita' })).toBeVisible();
   });
 
   test('sointupolku tarjoaa vanhan sointusävelharjoituksen ilman kaikkien harjoitusten valikkoa', async ({ page }) => {
