@@ -67,11 +67,11 @@ test.describe('Uudet oppimispolut', () => {
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
 
-    // Kuuntele ja tutustu: yksi asteikkokierros ja liikkuva otelautakorostus.
-    await page.getByRole('button', { name: '▶ Kuuntele asteikko ylös ja alas' }).click();
+    // Kuuntele ja tutustu: jatkuva mallisoitto ja liikkuva otelautakorostus.
+    await page.getByRole('button', { name: '▶ Toista asteikkoa jatkuvasti' }).click();
     const highlight = page.locator('.practice-board td.playing button');
     await expect(highlight).toHaveCount(1);
-    await expect(page.getByRole('status')).toContainText('Mallisoitto käynnissä · Nyt soi:');
+    await expect(page.getByRole('status')).toContainText('Jatkuva toisto käynnissä · Nyt soi:');
     const initial = await highlight.getAttribute('data-string') + ':' + await highlight.getAttribute('data-fret');
     await expect.poll(async () => {
       const current = page.locator('.practice-board td.playing button');
