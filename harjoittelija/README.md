@@ -9,6 +9,33 @@ lisää sivuille oman Web Analytics -skriptinsä; se ei ole tässä repossa.
 Ajantasainen tilanne, testitulokset, rajoitukset ja oikealla kitaralla tehtävät
 hyväksyntätestit: [`../reviews/kitaraharjoittelija-auditointi.md`](../reviews/kitaraharjoittelija-auditointi.md).
 
+## Oppimispolut (ensimmäinen toteutus)
+
+Kitaraharjoittelijan etusivu näyttää nykyisin kolme valintaa:
+**Sävelkorva ja otelauta**, **Skaalat ja moodit** sekä
+**Soinnut ja musiikin rakenne**. Vanha harjoitusvalikko säilyy
+kohdassa `Muut harjoitukset ja vanhat asetukset`.
+Oppaan suorat `?tila=...`-linkit avaavat vanhan moottorin kuten ennenkin;
+`?vanha=1` avaa vanhan näkymän säilyttäen tallennetun harjoituslajin.
+
+`LearningPaths.tsx` sisältää kolmen polun kortit. `ScaleJourney.tsx`
+on ohjatun oppimisjärjestelmän ensimmäinen kokonainen käyttöliittymäsiivu:
+A-mollipentatonisen ensimmäinen positio, Web Audio -mallisävelet,
+sormituskuvio, vihjeiden vähentäminen ja oppaan valmis Am-taustaraita.
+Mallifraasi on syntetisoitu, ei äänitetty kitarasoolo.
+Eteneminen tallentuu omaan avaimensa
+`musiikin-kartta:skaalapolku:v1`, eikä muuta vanhaa
+`musiikin-kartta:harjoittelu`-tietomallia.
+Harjoitusvaiheen suoritus on **käyttäjän itsearvio**, ei mitattu soittotulos.
+Toinen positio ja positioiden yhdistäminen ovat vasta tulevia sisältöjä,
+eivätkä näkyvissä valheellisesti toimivina.
+
+Sointupolku käyttää olemassa olevaa C-duurisoinnun
+`Sointusävelet`-harjoitusta, ja sävelkorvapolku vanhaa
+`Kuule ja toista`-harjoitusta. Niiden lisäasetukset ovat
+oletuksena kiinni. Testien vanha harjoituspolku avataan `?vanha=1`
+-parametrilla; uusi etusivu testataan erikseen.
+
 ## Moduulit
 
 - `music.ts`: sovitin nykyiseen `assets/otelauta.js`:ään. Viritys, asteikot, asteiden
