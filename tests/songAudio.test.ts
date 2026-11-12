@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
-  DEFAULT_SONG_VOLUME, SongGainMixer, TRACK_BALANCE, elementVolumeWorks, parseSongVolume, trackLevel,
+  DEFAULT_SONG_VOLUME, MAX_DRIFT_SECONDS, MIN_DRIFT_FIX_INTERVAL_MS, SongGainMixer, TRACK_BALANCE,
+  elementVolumeWorks, parseSongVolume, shouldCorrectDrift, trackLevel,
 } from '../harjoittelija/songAudio';
 
 describe('Kappaleharjoittelijan yhteinen äänenvoimakkuus', () => {
@@ -59,5 +60,28 @@ describe('Kappaleharjoittelijan yhteinen äänenvoimakkuus', () => {
     mixer.close();
     expect(context.close).toHaveBeenCalled();
     expect(mixer.routed(a)).toBe(false);
+  });
+});
+
+describe('raitojen driftikorjaus', () => {
+  const base = { drift: 0.3, atLoopBoundary: false, seeking: false, readyState: 4, msSinceLastFix: Infinity };
+  it('korjaa selvän driftin, kun raita on valmis eikä korjausta ole juuri tehty', () => {
+    expect(shouldCorrectDrift(base)).toBe(true);
+  });
+  it('ei korjaa sallitun rajan sisällä eikä loopin kääntökohdassa', () => {
+    expect(shouldCorrectDrift({ ...base, drift: MAX_DRIFT_SECONDS })).toBe(false);
+    expect(shouldCorrectDrift({ ...base, atLoopBoundary: true })).toBe(false);
+  });
+  it('ei kelaa uudelleen kesken kelauksen tai ennen kuin raidalla on dataa (iPhonen mykistyminen)', () => {
+    expect(shouldCorrectDrift({ ...base, seeking: true })).toBe(false);
+    expect(shouldCorrectDrift({ ...base, readyState: 2 })).toBe(false);
+    expect(shouldCorrectDrift({ ...base, readyState: 1 })).toBe(false);
+  });
+  it('pitää korjausten välillä vähimmäistauon', () => {
+    expect(shouldCorrectDrift({ ...base, msSinceLastFix: MIN_DRIFT_FIX_INTERVAL_MS - 1 })).toBe(false);
+    expect(shouldCorrectDrift({ ...base, msSinceLastFix: MIN_DRIFT_FIX_INTERVAL_MS })).toBe(true);
+  });
+  it('pakotettu synkronointi (toiston alku, käyttäjän kelaus) tehdään aina', () => {
+    expect(shouldCorrectDrift({ ...base, drift: 0, seeking: true, readyState: 1, msSinceLastFix: 0 }, true)).toBe(true);
   });
 });

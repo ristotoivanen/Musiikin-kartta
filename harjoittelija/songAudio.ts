@@ -45,6 +45,40 @@ export function elementVolumeWorks(create: () => HTMLMediaElement = () => new Au
   }
 }
 
+/** Raitojen sallittu aikaero ennen korjauskelausta. */
+export const MAX_DRIFT_SECONDS = 0.12;
+/** Saman raidan korjauskelausten vähimmäisväli. */
+export const MIN_DRIFT_FIX_INTERVAL_MS = 2000;
+/** HTMLMediaElement.HAVE_FUTURE_DATA: raidalla on dataa soida eteenpäin. */
+const HAVE_FUTURE_DATA = 3;
+
+export interface DriftState {
+  /** Raidan ja säestyksen aikaero sekunteina (itseisarvo). */
+  drift: number;
+  /** Ero johtuu loopin kääntökohdasta, ei oikeasta driftistä. */
+  atLoopBoundary: boolean;
+  seeking: boolean;
+  readyState: number;
+  /** Aika edellisestä tämän raidan korjauskelauksesta. */
+  msSinceLastFix: number;
+}
+
+/**
+ * Korjataanko raidan drift kelaamalla se säestyksen kohtaan.
+ *
+ * iPhonen Safarissa Web Audioon kytketty audioelementti voi mykistyä pysyvästi, jos sitä
+ * kelataan toistuvasti latauksen aikana: aika kulkee, mutta ääntä ei tule. Siksi jatkuvan
+ * toiston korjaus odottaa, että edellinen kelaus on valmis ja raidalla on dataa, ja jättää
+ * korjausten väliin vähintään kaksi sekuntia. Pakotettu synkronointi (toiston alku ja
+ * käyttäjän kelaus) tehdään aina.
+ */
+export function shouldCorrectDrift(state: DriftState, force = false): boolean {
+  if (force) return true;
+  if (state.atLoopBoundary || state.drift <= MAX_DRIFT_SECONDS) return false;
+  if (state.seeking || state.readyState < HAVE_FUTURE_DATA) return false;
+  return state.msSinceLastFix >= MIN_DRIFT_FIX_INTERVAL_MS;
+}
+
 type ContextFactory = () => AudioContext;
 const defaultContext: ContextFactory = () => {
   const Context = globalThis.AudioContext ??

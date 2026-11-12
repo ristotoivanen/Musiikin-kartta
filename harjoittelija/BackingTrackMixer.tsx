@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
+import { shouldCorrectDrift } from './songAudio';
 
 const BACKING_SRC = 'assets/audio/harjoittelija/am-vamp-without-guitar.mp3';
 const GUITAR_SRC = 'assets/audio/harjoittelija/am-vamp-electric-guitar.mp3';
 // Kaksi samasta projektista vietyä MP3-tiedostoa: sama kesto ja näytemäärä.
 // HTMLMediaElement ei takaa sampletarkkaa aloitusta, joten seuraamme mahdollista driftia.
-const MAX_DRIFT_SECONDS = 0.12;
 
 function clock(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
@@ -22,6 +22,8 @@ export function BackingTrackMixer() {
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
   const [error, setError] = useState('');
+  // Edellinen driftikorjaus (performance.now), ks. shouldCorrectDrift.
+  const lastDriftFix = useRef<number | null>(null);
 
   function syncGuitar(force = false) {
     const backing = backingRef.current, guitar = guitarRef.current;
@@ -31,9 +33,13 @@ export function BackingTrackMixer() {
     // alussa ja toinen lopussa. Älä korjaa tätä hetkellistä kääntökohtaa.
     const atLoopBoundary = backing.loop && Number.isFinite(backing.duration) &&
       Math.abs(drift - backing.duration) < 0.3;
-    if (force || (!atLoopBoundary && drift > MAX_DRIFT_SECONDS)) {
-      try { guitar.currentTime = backing.currentTime; } catch { /* Metadata ei ehkä ole vielä latautunut. */ }
-    }
+    const now = performance.now();
+    const msSinceLastFix = lastDriftFix.current === null ? Infinity : now - lastDriftFix.current;
+    if (!shouldCorrectDrift({ drift, atLoopBoundary, seeking: guitar.seeking, readyState: guitar.readyState, msSinceLastFix }, force)) return;
+    try {
+      guitar.currentTime = backing.currentTime;
+      if (!force) lastDriftFix.current = now;
+    } catch { /* Metadata ei ehkä ole vielä latautunut. */ }
   }
 
   function pause() {

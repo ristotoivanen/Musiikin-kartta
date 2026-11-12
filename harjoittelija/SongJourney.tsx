@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { SongChordChart } from './SongChordChart';
 import { SongScales } from './SongScales';
 import {
-  SongGainMixer, elementVolumeWorks, loadSongVolume, saveSongVolume, trackLevel, type SongTrack,
+  SongGainMixer, elementVolumeWorks, loadSongVolume, saveSongVolume, shouldCorrectDrift, trackLevel, type SongTrack,
 } from './songAudio';
 import { DEFAULT_SONG_VERSION, isSongLink, songLink, versionFromSongLink, type SongVersion } from './songChart';
 
@@ -38,7 +38,6 @@ const VERSIONS = {
   },
 } as const;
 
-const MAX_DRIFT_SECONDS = 0.12;
 const SEEK_PRECISION_SECONDS = 0.001;
 
 function setBackingTime(backing: HTMLAudioElement, seconds: number) {
@@ -58,6 +57,8 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   const vocalsRef = useRef<HTMLAudioElement>(null);
   // Suojaa keskeneräisen play()-lupauksen versionvaihtoon liittyvältä kilpailutilanteelta.
   const playbackRequest = useRef(0);
+  // Kunkin raidan edellinen driftikorjaus (performance.now), ks. shouldCorrectDrift.
+  const lastDriftFix = useRef(new WeakMap<HTMLMediaElement, number>());
   const pendingSeek = useRef<number | null>(null);
   const [version, setVersion] = useState<SongVersion>(initialVersion);
   const song = VERSIONS[version];
@@ -80,14 +81,19 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   function syncStems(force = false) {
     const backing = backingRef.current;
     if (!backing || backing.readyState < 1) return;
+    const now = performance.now();
     for (const stem of [guitarRef.current, vocalsRef.current]) {
       if (!stem || stem.readyState < 1) continue;
       const drift = Math.abs(stem.currentTime - backing.currentTime);
-      const wrap = backing.loop && Number.isFinite(backing.duration) &&
+      const atLoopBoundary = backing.loop && Number.isFinite(backing.duration) &&
         Math.abs(drift - backing.duration) < 0.35;
-      if (force || (!wrap && drift > MAX_DRIFT_SECONDS)) {
-        try { stem.currentTime = backing.currentTime; } catch { /* metadata kesken */ }
-      }
+      const lastFix = lastDriftFix.current.get(stem);
+      if (!shouldCorrectDrift({ drift, atLoopBoundary, seeking: stem.seeking, readyState: stem.readyState,
+        msSinceLastFix: lastFix === undefined ? Infinity : now - lastFix }, force)) continue;
+      try {
+        stem.currentTime = backing.currentTime;
+        if (!force) lastDriftFix.current.set(stem, now);
+      } catch { /* metadata kesken */ }
     }
   }
 
