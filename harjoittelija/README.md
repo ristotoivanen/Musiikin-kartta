@@ -137,6 +137,15 @@ voi myös paljastaa hetkelliseksi vihjeeksi.
 osiot yhdellä kertaa. Oletuksena näytetään vain parhaillaan valitun
 osion sanat. Koko sanoituksen ollessa auki osion erillistä sananäyttöä
 ei toisteta. Instrumentaaliosiin ei lisätä keksittyjä sanoja.
+Molemmissa versioissa Gm–Dm–F–C–Gm–Dm–E♭–F-jakso on **Kitarasoolo**
+(akustinen 2:02, normaali 1:51) ilman sanoja. Sen jälkeen alkaa
+**Väliosa (laulu)**, jossa lauletaan `Pidän tauon, annan soida…`
+(akustinen 2:31, normaali 2:19).
+
+**Soinnut ja sanat** on alareunan harjoitteluohjeen kaltainen avattava
+osio. Se on aluksi auki, mutta sen voi sulkea kesken kappaleen ilman,
+että ääni pysähtyy tai harjoitusasetukset nollautuvat. Sointukartan
+alareunan pitkä ohjeteksti on poistettu.
 
 Aikaleimat ja yksittäisten iskujen ajoitukset ovat vielä
 likimääräisiä. Kolmen erillisen HTMLMediaElementin ajoitus ei ole
