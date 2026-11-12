@@ -19,7 +19,7 @@
   <footer>Musiikin kartta · Harjoitustiedot vain omassa selaimessasi.</footer>
   <script type="module">
     const dev = import.meta.env?.DEV === true;
-    import(/* @vite-ignore */ dev ? './harjoittelija/main.tsx' : './assets/harjoittelija/app.js?v=713dac780efc').catch(error => {
+    import(/* @vite-ignore */ dev ? './harjoittelija/main.tsx' : './assets/harjoittelija/app.js?v=268c9e1d5e38').catch(error => {
       console.error('Harjoittelijan lataus epäonnistui', error);
       document.getElementById('guitar-practice').textContent = 'Harjoittelijan lataus ei onnistunut. Tarkista yhteys ja lataa sivu uudelleen. Kehitysympäristössä aja npm run build.';
     });
