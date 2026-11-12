@@ -2,7 +2,7 @@
 
 Musiikin kartta on avoin suomenkielinen verkko-opas musiikin teoriaan ja kitaransoittoon. Yhdeksän perusosaa etenevät ensimmäisestä kappaleesta sointuihin, otelautaan, korvakuulolta soittamiseen ja oman kappaleen äänittämiseen. Kaksi valinnaista osaa syventää septimisointuihin ja moodeihin. Mukana on kuunteluesimerkkejä, kitaraharjoituksia ja säestystaustoja.
 
-**[Lue opas verkossa](https://rinnepelto.com/)** · [Avaa Otelautaharjoittelija](https://rinnepelto.com/otelautaharjoittelija)
+**[Lue opas verkossa](https://rinnepelto.com/)** · [Avaa Otelautakartta](https://rinnepelto.com/otelautaharjoittelija.html)
 
 ## Oppaan osat
 
@@ -23,11 +23,28 @@ Musiikin kartta on avoin suomenkielinen verkko-opas musiikin teoriaan ja kitaran
 
 [Oppaan lukukohtainen sisällysluettelo](book/SISALLYSLUETTELO.md) · [Koko opas tulostettavana PDF:nä](pdf/musiikin-kartta.pdf)
 
-## Otelautaharjoittelija
+## Otelautakartta
 
-Valitse toonikka sekä pentatoninen asteikko tai moodi ja katso, mistä sävelet löytyvät kitaran otelaudalta. Lisäasetuksissa voi valita nauhamäärän ja näytettävät sormitusboksit. Seitsemänsävelisille moodeille on myös 3NPS-sormitukset, joissa soitetaan kolme säveltä kieltä kohti. Oktaaviharjoituksessa kuulet saman sävelen eri kieliltä ja etsit sen oktaavit otelaudalta.
+[Otelautakartta](otelautaharjoittelija.html) yhdistää vanhat
+`Kokeile otelautaa`- ja `Soita taustan mukana` -sivut yhdeksi
+visualisointityökaluksi. Kartassa ei ole harjoitustehtäviä,
+äänisoittimia tai säestystaustoja. Valitse kotisävel ja asteikko
+tai moodi ja tutki niiden sijainteja otelaudalla.
+Voit tarkastella myös asteikon kolmisointuja tai saman sävelen oktaaveja.
 
-[Harjoitustaustat](harjoitustaustat.html) yhdistää otelaudan tyylinmukaisiin komppeihin. Kullekin seitsemälle moodille ja kahdelle pentatoniselle asteikolle on oma toistuva säestys, jonka voi soittaa kaikista 12 toonikasta. Selain tuottaa äänen valitulla tempolla.
+Sormitusboksit löytyvät valinnaisista näyttöasetuksista. Pentatonisilla
+asteikoilla käytetään automaattisesti **viittä pentatonista boksia**,
+seitsemänsävelisillä moodeilla **seitsemää 3NPS-boksia**.
+Yksittäisiä tai useita bokseja voi korostaa ja halutessaan näyttää
+vain valittujen boksien sävelet. Otelaudan oletuslaajuus on
+**17 nauhaa molemmille asteikkotyypeille**, eikä kaulan koko vaihdu
+pelkän asteikon valinnan seurauksena. Nauhamäärän voi vaihtaa erikseen.
+
+Vanha [harjoitustaustat.html](harjoitustaustat.html) ohjaa
+Otelautakarttaan säilyttäen linkin kotisävelen ja asteikon.
+Varsinaiset soittamiseen ja kuunteluun tarkoitetut harjoitukset ovat
+erillisessä [Kitaraharjoittelijassa](kitaraharjoittelija.html)
+sekä oppaan lukujen ääniesimerkeissä.
 
 ## Tulostettava versio
 
