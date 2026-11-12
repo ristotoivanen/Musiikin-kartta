@@ -4,10 +4,19 @@ import type { Area, Mark } from './engine';
 import { accuracy, averageMs, proficiency, type Stat } from './storage';
 
 const INLAYS = new Set([3, 5, 7, 9, 15, 17, 19, 21]);
+const STRING_LABELS = ['e', 'B', 'G', 'D', 'A', 'E'];
+function StringLabel({ string }: { string: number }) {
+  return <span className="string-label">
+    <span>{string + 1} · <strong>{STRING_LABELS[string]}</strong></span>
+    {string === 0 ? <small>ohuin</small> : string === 5 ? <small>paksuin</small> : null}
+  </span>;
+}
+const stringThickness = (string: number) =>
+  ({ '--string-thickness': (1.25 + string * 0.45) + 'px' }) as CSSProperties;
 const MARK_WORD: Record<Mark['kind'], string> = { answer: 'vastaus', anchor: 'apupiste', shape: 'muodon sävel', wrong: 'valintasi, ei oikea', playing: 'nyt soi' };
 
 function FretHeader({ min, max }: { min: number; max: number }) {
-  return <thead><tr><th scope="col">Kieli</th>{Array.from({ length: max - min + 1 }, (_, i) => {
+  return <thead><tr><th scope="col">Kielet</th>{Array.from({ length: max - min + 1 }, (_, i) => {
     const fret = min + i;
     return <th key={fret} scope="col" className={fret === 0 ? 'open-fret' : ''}>
       {fret}{fret > 0 && fret % 12 === 0 ? <span className="inlay" aria-hidden="true">●●</span> : INLAYS.has(fret) ? <span className="inlay" aria-hidden="true">●</span> : null}
@@ -34,10 +43,10 @@ export function Board({ area, marks = [], disabled = false, onAnswer, caption = 
   }, [shown]);
   const focusable = strings.includes(cursor.string) && cursor.fret >= min && cursor.fret <= max ? cursor : { string: Math.min(...strings), fret: min };
   return <div ref={viewport} className="fret-scroll" tabIndex={0} role="region" aria-label="Otelaudan vastausruudukko">
-    <table className="practice-board" style={columns}><caption>{caption} · ohut E ylimpänä</caption>
+    <table className="practice-board" style={columns}><caption>{caption} · ohut e ylhäällä, paksu E alhaalla</caption>
       <FretHeader min={min} max={max} />
-      <tbody>{music.OPEN_PITCHES.map((_, string) => <tr key={string} className={strings.includes(string) ? '' : 'unused'}>
-        <th scope="row">{string + 1} · {stringName[string]}</th>
+      <tbody>{music.OPEN_PITCHES.map((_, string) => <tr key={string} className={strings.includes(string) ? '' : 'unused'} style={stringThickness(string)}>
+        <th scope="row" aria-label={`${string + 1}. kieli: ${stringName[string]}`}><StringLabel string={string} /></th>
         {positions([string], min, max).map(p => {
           const m = byKey.get(positionKey(p));
           const place = `${stringName[string]}-kieli, ${fretName(p.fret)}`;
@@ -65,10 +74,10 @@ export function MasteryMap({ area, stats, input, check, flats }: { area: Area; s
   const { strings, min, max } = area;
   const prefix = `${input}:${check}:solo:notes:`;
   return <div className="fret-scroll" tabIndex={0} role="region" aria-label="Harjoiteltujen kohteiden osaamiskartta">
-    <table className="practice-board mastery" style={{ '--cols': max - min + 1 } as CSSProperties}><caption>Osaamiskartta · ohut E ylimpänä</caption>
+    <table className="practice-board mastery" style={{ '--cols': max - min + 1 } as CSSProperties}><caption>Osaamiskartta · ohut e ylhäällä, paksu E alhaalla</caption>
       <FretHeader min={min} max={max} />
-      <tbody>{music.OPEN_PITCHES.map((_, string) => <tr key={string} className={strings.includes(string) ? '' : 'unused'}>
-        <th scope="row">{string + 1} · {stringName[string]}</th>
+      <tbody>{music.OPEN_PITCHES.map((_, string) => <tr key={string} className={strings.includes(string) ? '' : 'unused'} style={stringThickness(string)}>
+        <th scope="row" aria-label={`${string + 1}. kieli: ${stringName[string]}`}><StringLabel string={string} /></th>
         {positions([string], min, max).map(p => {
           const stat = Object.hasOwn(stats, prefix + positionKey(p)) ? stats[prefix + positionKey(p)] : undefined;
           const score = proficiency(stat);
