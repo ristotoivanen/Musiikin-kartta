@@ -262,3 +262,8 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
 .note-journey .note-progress { font-weight: 750; color: var(--lavender); margin: 8px 0 0; }
 .note-journey .journey-lesson { max-width: 100%; }
 .note-journey .fret-scroll { margin-top: 10px; }
+
+/* Teorialinkki näkyy heti harjoituksen alussa, ei vasta alareunassa. */
+.exercise-theory { margin: 8px 0 18px; font-size: 14px; }
+.exercise-theory a { color: var(--lavender); font-weight: 650; }
+.exercise-theory a:hover { text-decoration: underline; }
