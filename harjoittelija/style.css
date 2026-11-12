@@ -236,3 +236,20 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
   background: var(--bg); color: var(--text); border: 1px solid var(--line);
   font: inherit;
 }
+
+/* Kaksi synkronoitua ääniraitaa, mutta käyttäjälle vain yksi ohjaus. */
+.backing-track-mixer { display: grid; gap: 12px; padding: 14px; margin: 18px 0;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
+.backing-track-mixer .backing-track-heading { display: flex; flex-wrap: wrap; align-items: center;
+  justify-content: space-between; gap: 10px; }
+.backing-track-mixer p { margin: 0; }
+.guitar-toggle { display: flex; align-items: center; gap: 8px; font-size: 14px;
+  min-height: 44px; cursor: pointer; color: var(--text); }
+.guitar-toggle input { width: 19px; height: 19px; accent-color: var(--lavender); }
+.backing-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.backing-controls .backing-play { min-width: 93px; }
+.backing-controls input[type="range"] { flex: 1 1 160px; min-width: 100px;
+  accent-color: var(--lavender); cursor: pointer; }
+.backing-controls input[type="range"]:disabled { cursor: default; }
+.backing-time { min-width: 91px; text-align: right; font-size: 13px; font-variant-numeric: tabular-nums; color: var(--muted); }
+.backing-error { color: var(--wrong); font-size: 14px; }
