@@ -114,6 +114,7 @@ export class ReferencePlayer {
   private token = 0;
   private timer?: ReturnType<typeof setTimeout>;
   private loopTick?: ReturnType<typeof setInterval>;
+  private adjustLoopTempo?: (bpm: number) => void;
   private settle?: (completed: boolean) => void;
   constructor(private provide: () => AudioContext = audioContext) {}
   /** Keskeyttää soivan esimerkin heti. Kesken jäänyt play palauttaa false. */
@@ -121,6 +122,7 @@ export class ReferencePlayer {
     this.token++;
     clearTimeout(this.timer);
     clearInterval(this.loopTick); this.loopTick = undefined;
+    this.adjustLoopTempo = undefined;
     this.settle?.(false); this.settle = undefined;
     this.master?.disconnect(); this.master = undefined;
   }
@@ -157,7 +159,10 @@ export class ReferencePlayer {
    * onNote kertoo saman audiokellon mukaisen sävelindeksin otelautaa varten.
    * Toisto päättyy vain stop()-kutsuun (tai audioalustan virheeseen).
    */
-  async loop(notes: number[], onNote?: (index: number) => void): Promise<boolean> {
+  /** Muuta käynnissä olevan asteikkoloopin tempoa ilman äänivirran katkaisua. */
+  setLoopTempo(bpm: number) { this.adjustLoopTempo?.(bpm); }
+
+  async loop(notes: number[], onNote?: (index: number) => void, bpm = 75): Promise<boolean> {
     this.stop();
     if (!notes.length) return false;
     const token = this.token;
@@ -168,7 +173,14 @@ export class ReferencePlayer {
     const master = c.createGain(); master.connect(c.destination); this.master = master;
     const partials = Array.from({ length: 12 }, (_, i) => 1 / (i + 1) ** 1.3);
     const wave = c.createPeriodicWave?.(new Float32Array([0, ...partials.map(() => 0)]), new Float32Array([0, ...partials]));
-    const interval = .8;
+    // Aiemmin 0,8 s / sävel vastasi 75 BPM:ää.
+    // Tempon vaihtuessa jo ajastetut 1–2 sekuntia soivat loppuun, sitten uusi nopeus astuu voimaan.
+    let interval = 60 / Math.max(40, Math.min(140, bpm));
+    this.adjustLoopTempo = value => {
+      if (token === this.token && Number.isFinite(value)) {
+        interval = 60 / Math.max(40, Math.min(140, value));
+      }
+    };
     const ahead = 1.6;
     let nextAt = c.currentTime + .05;
     let nextIndex = 0;
@@ -190,9 +202,10 @@ export class ReferencePlayer {
         oscillator.frequency.value = midiToFreq(midi);
         gain.gain.setValueAtTime(0, start);
         gain.gain.linearRampToValueAtTime(.22, start + .012);
-        gain.gain.exponentialRampToValueAtTime(.001, start + .78);
+        // Sävel päättyy aina ennen seuraavan pulssin alkua myös nopeassa tempossa.
+        gain.gain.exponentialRampToValueAtTime(.001, start + interval * .975);
         oscillator.connect(gain); gain.connect(master);
-        oscillator.start(start); oscillator.stop(start + .79);
+        oscillator.start(start); oscillator.stop(start + interval * .985);
         pending.push({ at: start, index });
         nextAt += interval;
         nextIndex = (nextIndex + 1) % notes.length;
