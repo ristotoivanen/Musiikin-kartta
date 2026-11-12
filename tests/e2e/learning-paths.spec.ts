@@ -169,9 +169,12 @@ test.describe('Uudet oppimispolut', () => {
 
   test('positioiden 1 ja 2 yhdistäminen avautuu vasta molempien jälkeen ja säilyttää etenemisen', async ({ page }) => {
     await page.addInitScript(() => {
-      localStorage.setItem('musiikin-kartta:skaalapolku:v1', '4');
-      localStorage.setItem('musiikin-kartta:skaalapolku:position-2:v1', '3');
-      localStorage.setItem('musiikin-kartta:skaalapolku:active-position:v1', '2');
+      if (localStorage.getItem('musiikin-kartta:skaalapolku:v1') === null)
+        localStorage.setItem('musiikin-kartta:skaalapolku:v1', '4');
+      if (localStorage.getItem('musiikin-kartta:skaalapolku:position-2:v1') === null)
+        localStorage.setItem('musiikin-kartta:skaalapolku:position-2:v1', '3');
+      if (localStorage.getItem('musiikin-kartta:skaalapolku:active-position:v1') === null)
+        localStorage.setItem('musiikin-kartta:skaalapolku:active-position:v1', '2');
     });
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
