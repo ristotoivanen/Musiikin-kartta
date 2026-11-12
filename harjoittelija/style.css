@@ -205,3 +205,9 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
   .journey-steps { grid-template-columns: 1fr; gap: 6px; }
   .journey-step { min-height: 44px; }
 }
+
+/* Malliäänen juuri soiva sävel erottuu koko asteikkokuviosta. */
+.practice-board .playing .dot {
+  background: #ffda76; color: #251900; border: 2px solid #fff;
+  box-shadow: 0 0 0 3px #e5a431; transform: scale(1.12);
+}
