@@ -36,9 +36,9 @@ pysyvät piilossa. Mikrofoni- tai verkkoyhteyttä ei tarvita asteikon
 mallisoittoon.
 
 **Improvisoi taustan päälle** käyttää uutta BackingTrackMixer-komponenttia:
-käyttäjälle näkyy yksi soitin ja huomaamaton Mallikitara-valinta. Molemmat
-MP3-raidat soivat samanaikaisesti, mutta sähkökitara on oletuksena
-mykistetty. Kitaran voi lisätä tai poistaa kesken toiston. Kesto on
+käyttäjälle näkyy yksi soitin ja huomaamaton Kitara kuuluu -valinta. Sähkökitara
+on oletuksena pois päältä ja pysäytettynä. Kitaran voi lisätä tai poistaa
+kesken toiston (ks. Raitojen tahdistus). Kesto on
 molemmissa 3:59,760 ja aikakohdat pidetään lähellä toisiaan vertaamalla
 raitojen toistokohtaa. Tämä on HTMLMediaElement-synkronointi, ei
 näytetarkka audiomiksaus. Äänitiedostot ovat hakemistossa
@@ -222,6 +222,32 @@ likimääräisiä. Kolmen erillisen HTMLMediaElementin ajoitus ei ole
 näytetarkka; testaa todellinen synkronointi sekä tietokoneella
 että mobiililaitteella.
 
+### Raitojen tahdistus (`StemAligner`, `songAudio.ts`)
+
+Kappaleharjoittelu ja Am-vamp-tausta käyttävät samaa tahdistinta. Säännöt
+perustuvat iPhonen Safarilla 12.11.2026 tehtyihin mittauksiin (iOS 18.7):
+
+- **Pois kytketty raita pysäytetään, ei mykistetä soimaan.** iPhone ei vie
+  mykistettyä audioelementtiä eteenpäin: aika pysyi nollassa, eikä raita
+  alkanut kuulua, kun mykistys poistettiin.
+- **Driftiä korjataan harvoin.** Jos raita on yli 0,12 s sivussa taustasta,
+  se kelataan, mutta ei kesken edellisen kelauksen, ei ennen kuin raidalla
+  on dataa, ja enintään kerran kahdessa sekunnissa. Toistuvat kelaukset
+  latauksen aikana mykistivät iPhonella raidan kokonaan.
+- **Kelausviive kompensoidaan.** iPhonella soiva raita alkaa soida vasta
+  noin 0,3–0,8 s kelauksen jälkeen. Tahdistin kelaa raidan kohtaan
+  taustan aika + viive ja oppii viiveen jäännöserosta (puolet erosta
+  kerrallaan). iPhonella aloitusarvo on 0,4 s, muualla 0.
+- **Äänitiedostot tarvitsevat HTTP Range -tuen.** Ilman 206-vastauksia
+  selain ei voi kelata lainkaan. Cloudflare Pagesissa sen hoitaa
+  `functions/assets/audio/[[path]].ts`.
+
+**Tunnettu rajoitus:** kun raita kytketään iPhonella takaisin päälle kesken
+soiton, se voi nykäistä hetken ja asettua tahtiin vasta yhden korjauksen
+jälkeen. Jatkuva soitto ja tauolla tehty kytkentä toimivat. Rajoituksen
+poistaisi vain raitojen miksaaminen Web Audiossa puretuista puskureista,
+mikä vaatisi kaikkien raitojen lataamisen muistiin ennen soittoa.
+
 ## Moduulit
 
 - `music.ts`: sovitin nykyiseen `assets/otelauta.js`:ään. Viritys, asteikot, asteiden
@@ -359,7 +385,7 @@ uusissa sävelten etsinnän ja pentatonisen oppimispoluissa on omat teorialinkit
 Alareunan kaksoiskappale poistettiin.
 
 Improvisointiharjoituksen Am-taustassa on oletuksena pois käytöstä oleva
-**Soita looppina** -valinta Mallikitara-valinnan vieressä. Valinta asettaa
+**Soita looppina** -valinta Kitara kuuluu -valinnan vieressä. Valinta asettaa
 samanaikaisesti molempien ääniraitojen loop-tilan eikä katkaise soivaa raitaa.
 Malliäänen mykistys toimii siitä riippumatta. HTMLMediaElement-pohjainen
 kaksiraitainen looppi ei ole näytetarkka: kierrosrajalla voi esiintyä pientä
