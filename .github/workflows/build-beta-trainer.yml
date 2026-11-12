@@ -28,8 +28,14 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
+      - name: Lint and unit tests
+        run: npm run lint && npm test
       - name: Build browser assets
         run: npm run build
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Test connecting scale positions in browser
+        run: npx playwright test tests/e2e/learning-paths.spec.ts --grep "positioiden 1 ja 2 yhdistäminen" --project=desktop
       - name: Cache-bust compiled browser module
         run: |
           node --input-type=module <<'NODE'
