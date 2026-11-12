@@ -1,13 +1,64 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Uudet oppimispolut', () => {
-  test('etusivulla näkyy kolme polkua eikä vanhaa pudotusvalikkoa', async ({ page }) => {
+  test('etusivulla näkyy neljä polkua eikä vanhaa pudotusvalikkoa', async ({ page }) => {
     await page.goto('/kitaraharjoittelija.html');
     await expect(page.getByRole('heading', { name: 'Mitä haluat harjoitella?' })).toBeVisible();
-    for (const title of ['Sävelkorva ja otelauta', 'Skaalat ja moodit', 'Soinnut ja musiikin rakenne']) {
+    for (const title of ['Sävelkorva ja otelauta', 'Skaalat ja moodit', 'Soinnut ja musiikin rakenne', 'Kappaleharjoittelu']) {
       await expect(page.getByRole('button', { name: new RegExp(title) })).toBeVisible();
     }
     await expect(page.getByRole('combobox', { name: 'Harjoitus' })).toHaveCount(0);
+  });
+
+  test('akustisen mallikappaleen kitara ja laulu saa erikseen pois ilman toiston katkaisua', async ({ page }) => {
+    await page.addInitScript(() => {
+      HTMLMediaElement.prototype.play = function () { return Promise.resolve(); };
+      HTMLMediaElement.prototype.pause = function () { /* Ei audiolaitetta selaintestissä */ };
+    });
+    await page.goto('/kitaraharjoittelija.html');
+    await page.getByRole('button', { name: /Kappaleharjoittelu/ }).click();
+
+    await expect(page.getByRole('heading', { name: 'Yksi sointu, kaksi askelta' })).toBeVisible();
+    await expect(page.getByText('Akustinen versio', { exact: true })).toBeVisible();
+    const player = page.locator('.song-player');
+    const streams = player.locator('audio');
+    await expect(streams).toHaveCount(3);
+    const base = 'assets/audio/kappaleet/yksi-sointu-kaksi-askelta-akustinen/yksi-sointu-kaksi-askelta-akustinen-';
+    await expect(streams.nth(0)).toHaveAttribute('src', base + 'saestys.mp3');
+    await expect(streams.nth(1)).toHaveAttribute('src', base + 'kitara.mp3');
+    await expect(streams.nth(2)).toHaveAttribute('src', base + 'laulu.mp3');
+
+    const guitar = page.getByRole('checkbox', { name: 'Kitara kuuluu' });
+    const vocals = page.getByRole('checkbox', { name: 'Laulu kuuluu' });
+    const loop = page.getByRole('checkbox', { name: 'Soita looppina' });
+    await expect(guitar).toBeChecked();
+    await expect(vocals).toBeChecked();
+    await expect(loop).not.toBeChecked();
+
+    await player.getByRole('button', { name: '▶ Soita kappale' }).click();
+    await expect(player.getByRole('button', { name: '■ Tauko' })).toBeVisible();
+    await guitar.uncheck();
+    await expect(streams.nth(1)).toHaveJSProperty('muted', true);
+    await expect(streams.nth(2)).toHaveJSProperty('muted', false);
+    await vocals.uncheck();
+    await expect(streams.nth(2)).toHaveJSProperty('muted', true);
+    await expect(player.getByRole('button', { name: '■ Tauko' })).toBeVisible();
+
+    await guitar.check();
+    await expect(streams.nth(1)).toHaveJSProperty('muted', false);
+    await loop.check();
+    for (let i = 0; i < 3; i++) await expect(streams.nth(i)).toHaveJSProperty('loop', true);
+    await expect(player.getByRole('button', { name: '■ Tauko' })).toBeVisible();
+    await player.getByRole('button', { name: '■ Tauko' }).click();
+    await expect(player.getByRole('button', { name: '▶ Soita kappale' })).toBeVisible();
+  });
+
+  test('akustinen mallikappale voidaan avata suoralla linkillä', async ({ page }) => {
+    await page.goto('/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen');
+    await expect(page.getByRole('heading', { name: 'Yksi sointu, kaksi askelta' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Mitä haluat harjoitella?' })).toHaveCount(0);
+    await page.getByRole('button', { name: '← Oppimispolut' }).click();
+    await expect(page.getByRole('heading', { name: 'Mitä haluat harjoitella?' })).toBeVisible();
   });
 
   test('ensimmäisen skaalaposition vaiheet avautuvat järjestyksessä ja eteneminen tallentuu', async ({ page }) => {
