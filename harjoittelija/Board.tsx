@@ -4,7 +4,7 @@ import type { Area, Mark } from './engine';
 import { accuracy, averageMs, proficiency, type Stat } from './storage';
 
 const INLAYS = new Set([3, 5, 7, 9, 15, 17, 19, 21]);
-const MARK_WORD: Record<Mark['kind'], string> = { answer: 'vastaus', anchor: 'apupiste', shape: 'muodon sävel', wrong: 'valintasi, ei oikea' };
+const MARK_WORD: Record<Mark['kind'], string> = { answer: 'vastaus', anchor: 'apupiste', shape: 'muodon sävel', wrong: 'valintasi, ei oikea', playing: 'nyt soi' };
 
 function FretHeader({ min, max }: { min: number; max: number }) {
   return <thead><tr><th scope="col">Kieli</th>{Array.from({ length: max - min + 1 }, (_, i) => {
