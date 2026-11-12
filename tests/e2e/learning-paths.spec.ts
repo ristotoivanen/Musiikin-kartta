@@ -170,11 +170,49 @@ test.describe('Uudet oppimispolut', () => {
     await expect(page.getByRole('heading', { name: 'Sointusävelet' })).toBeVisible();
   });
 
-  test('sävelkorvan polku käyttää olemassa olevaa kuule ja toista -harjoitusta', async ({ page }) => {
+  test('sävelkorvan ensimmäinen harjoitus etsii nimetyn sävelen kaikki sijainnit ilman ääntä', async ({ page }) => {
     await page.goto('/kitaraharjoittelija.html');
+    await expect(page.getByRole('button', { name: /Sävelkorva ja otelauta/ })).toContainText('Etsi sävelet otelaudalta');
     await page.getByRole('button', { name: /Sävelkorva ja otelauta/ }).click();
+
+    await expect(page.getByRole('heading', { name: 'Etsi sävelet otelaudalta' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Etsi kaikki C-sävelet' })).toBeVisible();
+    await expect(page.getByText('Löydetty 0 / 3')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Kuuntele uudelleen' })).toHaveCount(0);
+    await expect(page.locator('.note-journey .practice-board .dot')).toHaveCount(0);
+
+    const board = page.locator('.note-journey .practice-board');
+    const firstString = board.locator('tbody tr').first();
+    const lastString = board.locator('tbody tr').last();
+    await expect(firstString.locator('th')).toContainText('ohuin');
+    await expect(lastString.locator('th')).toContainText('paksuin');
+    await expect(firstString).toHaveAttribute('style', /--string-thickness: 1.25px/);
+    await expect(lastString).toHaveAttribute('style', /--string-thickness: 3.5px/);
+
+    // C löytyy B-kielen 1. nauhalta, G-kielen 5. nauhalta ja A-kielen 3. nauhalta.
+    await board.locator('button[data-string="1"][data-fret="1"]').click();
+    await expect(page.getByText('Löydetty 1 / 3')).toBeVisible();
+    await expect(board.locator('.dot')).toHaveCount(1);
+    await board.locator('button[data-string="0"][data-fret="0"]').click();
+    await expect(page.getByTestId('note-feedback')).toContainText('Valitsit sävelen E');
+
+    await page.getByRole('button', { name: 'Näytä vihje' }).click();
+    await expect(board.locator('.anchor .dot')).toHaveCount(1);
+    await page.getByRole('button', { name: 'Piilota vihje' }).click();
+    await expect(board.locator('.anchor .dot')).toHaveCount(0);
+
+    await board.locator('button[data-string="2"][data-fret="5"]').click();
+    await board.locator('button[data-string="4"][data-fret="3"]').click();
+    await expect(page.getByText('Löydetty 3 / 3')).toBeVisible();
+    await expect(board.locator('.dot')).toHaveCount(3);
+    await page.getByRole('button', { name: 'Seuraava sävel →' }).click();
+    await expect(page.getByRole('heading', { name: 'Etsi kaikki D-sävelet' })).toBeVisible();
+    await expect(page.getByText('Löydetty 0 / 3')).toBeVisible();
+  });
+
+  test('vanha Kuule ja toista säilyy erillisenä kuunteluharjoituksena', async ({ page }) => {
+    await page.goto('/kitaraharjoittelija.html?tila=repeat');
     await expect(page.getByRole('heading', { name: 'Kuule ja toista' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Aloita harjoitus' })).toBeVisible();
   });
 
   test('oppaan vanha ?tila=-linkki ohittaa polun valinnan', async ({ page }) => {
