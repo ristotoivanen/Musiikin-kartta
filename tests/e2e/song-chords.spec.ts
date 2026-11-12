@@ -138,3 +138,38 @@ test('sointujen piilotusjärjestystä voi muokata ja valinnat säilyvät versiot
   await expect(panel.getByRole('combobox',{name:'Gm: piilotusvaihe'})).toHaveValue('4');
   await expect(panel.getByRole('combobox',{name:'C: piilotusvaihe'})).toHaveValue('1');
 });
+
+
+test('koko sanoitus avautuu sointuasetuksista ja toimii molemmilla versioilla', async ({page}) => {
+  await page.goto('/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen');
+  const panel=page.locator('.song-chord-panel');
+  const lyrics=panel.getByRole('checkbox',{name:'Näytä koko sanoitus'});
+  const full=panel.locator('.song-all-lyrics');
+  const part=panel.locator('.song-section-lyrics');
+  expect(await lyrics.isChecked()).toBe(false);
+  await expect(full).toHaveCount(0);
+  const backing=page.locator('.song-player audio').first();
+  await backing.evaluate(el => {
+    Object.defineProperty(el,'currentTime',{configurable:true,writable:true,value:0});
+  });
+  await panel.getByRole('combobox',{name:'Harjoiteltava osa'}).selectOption('verse1');
+  await expect(part).toBeVisible();
+  await lyrics.check();
+  await expect(full.getByRole('heading',{name:'Koko kappaleen sanat'})).toBeVisible();
+  await expect(full.locator('.song-lyrics-stanza')).toHaveCount(7);
+  await expect(full.getByText('Aamu piirtää viivan seinään')).toBeVisible();
+  await expect(full.getByText('Pidän tauon, annan soida')).toBeVisible();
+  await expect(full.getByText('Yksi sointu, kaksi askelta')).toHaveCount(4);
+  await expect(part).toHaveCount(0);
+
+  await page.getByRole('combobox',{name:'Versio'}).selectOption('normal');
+  await expect(lyrics).toBeChecked();
+  await expect(full.locator('.song-lyrics-stanza')).toHaveCount(7);
+  await expect(full.getByText('Ei tarvitse kiirehtiä')).toBeVisible();
+
+  await lyrics.uncheck();
+  await expect(full).toHaveCount(0);
+  await expect(part).toHaveCount(0); // Vaihdon jälkeen intro, jossa ei ole laulua.
+  await panel.getByRole('combobox',{name:'Harjoiteltava osa'}).selectOption('chorus1');
+  await expect(part.getByText('sama riffi palaa taas')).toBeVisible();
+});
