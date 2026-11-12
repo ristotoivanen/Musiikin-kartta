@@ -308,6 +308,29 @@ describe('esimerkkisävelet ja yhteinen äänikonteksti', () => {
     } finally { vi.useRealTimers(); }
   });
 
+  it('asteikkoloopin BPM voidaan muuttaa toiston aikana katkaisematta äänivirtaa', async () => {
+    vi.useFakeTimers();
+    try {
+      const { context, masters } = fakeOutput();
+      const player = new ReferencePlayer(() => context as unknown as AudioContext);
+      const looping = player.loop([45, 48], undefined, 60);
+      await vi.advanceTimersByTimeAsync(0);
+      const starts = () => context.createOscillator.mock.results.map(call =>
+        Number(((call.value as { start: ReturnType<typeof vi.fn> }).start.mock.calls[0][0] as number).toFixed(2)));
+      expect(starts()).toEqual([.05, 1.05]);
+
+      player.setLoopTempo(120);
+      context.currentTime = 1.1;
+      await vi.advanceTimersByTimeAsync(30);
+      // Jo ajastetut sävelet säilyvät, tulevat sävelet etenevät 0,5 s välein.
+      expect(starts().slice(0, 4)).toEqual([.05, 1.05, 2.05, 2.55]);
+      expect(masters[0].disconnect).not.toHaveBeenCalled();
+      player.stop();
+      expect(await looping).toBe(false);
+      expect(masters[0].disconnect).toHaveBeenCalledOnce();
+    } finally { vi.useRealTimers(); }
+  });
+
   it('keskeytys vaimentaa esimerkin heti ja kesken jäänyt toisto palauttaa false', async () => {
     vi.useFakeTimers();
     try {
