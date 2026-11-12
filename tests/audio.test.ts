@@ -308,6 +308,30 @@ describe('esimerkkisävelet ja yhteinen äänikonteksti', () => {
     } finally { vi.useRealTimers(); }
   });
 
+  it('johdannon asteikko soitetaan yhden kerran ja korostuksen viimeinen sävel palautuu alimpaan', async () => {
+    vi.useFakeTimers();
+    try {
+      const { context, masters } = fakeOutput();
+      const onNote = vi.fn();
+      const player = new ReferencePlayer(() => context as unknown as AudioContext);
+      const once = player.loop([45, 48, 52, 48, 45], onNote, 75, false);
+      await vi.advanceTimersByTimeAsync(0);
+
+      for (const time of [.08, .82, 1.62, 2.42, 3.22, 4.12]) {
+        context.currentTime = time;
+        await vi.advanceTimersByTimeAsync(30);
+      }
+      expect(await once).toBe(true);
+      expect(onNote.mock.calls.map(call => call[0])).toEqual([0, 1, 2, 3, 4]);
+      expect(context.createOscillator).toHaveBeenCalledTimes(5);
+      expect(masters[0].disconnect).toHaveBeenCalledOnce();
+
+      context.currentTime = 20;
+      await vi.advanceTimersByTimeAsync(200);
+      expect(context.createOscillator).toHaveBeenCalledTimes(5);
+    } finally { vi.useRealTimers(); }
+  });
+
   it('asteikkoloopin BPM voidaan muuttaa toiston aikana katkaisematta äänivirtaa', async () => {
     vi.useFakeTimers();
     try {
