@@ -95,26 +95,38 @@ Vanha `Sointusävelet`-harjoitus pysyy edelleen käytettävissä
 Vanha harjoituspolku avataan myös `?vanha=1`-parametrilla,
 ja `?tila=repeat` avaa edelleen vanhan kuunteluharjoituksen.
 
-## Akustinen mallikappale
+## Kappaleharjoittelun mallikappale
 
 Neljäntenä oppimispolkuna on **Kappaleharjoittelu**, jonka ensimmäinen
-malli on **Yksi sointu, kaksi askelta (Akustinen versio)**.
-`SongJourney.tsx` sisältää yhden soittimen, jonka taustalla toistuu
-kolme samankestoista MP3-raitaa: säestys, kitara ja laulu.
-Kitara ja laulu ovat oletuksena päällä ja ne voi mykistää
-toisistaan riippumatta keskeyttämättä toistoa. Lisäksi on valinnainen
-toistolooppi ja aikajana. Malliin pääsee oppimispolusta 04 tai osoitteella
+kappale on **Yksi sointu, kaksi askelta** kahdella eri sovituksella:
+
+- **Akustinen versio** (3:53,376), oletus.
+- **Normaali versio** (3:32,208).
+
+`SongJourney.tsx` näyttää yhden soittimen ja pienen **Versio**-valinnan.
+Kumpikin sovitus käyttää kolmea itsenäistä MP3-raitaa: säestys, kitara ja
+laulu. Kitara ja laulu ovat oletuksena päällä, ja ne voi mykistää
+toisistaan riippumatta. Lisäksi on valinnainen looppi ja aikajana.
+**Version vaihtaminen pysäyttää toiston ja kelaa alkuun: uusi versio
+käynnistyy vain erillisestä Soita kappale -painalluksesta.** Mykistys- ja
+looppiasetukset säilyvät vaihdossa.
+
+Sivun suora osoite:
 `kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen`.
+Versiot ovat samalla sivulla.
 
-Paketti `yksi-sointu-kaksi-askelta-akustinen-raidat.zip` puretaan
-repositorion juureen. MP3-binääriraidat eivät kuulu GitHubin
-koodipäivitykseen. Tarkista asennus komennolla `npm run check:song-audio`.
-Tiedostojen nimet ja koostumus on selitetty
-[akustisen kappaleen aineistossa](../assets/audio/kappaleet/yksi-sointu-kaksi-askelta-akustinen/README.md).
+MP3-binäärit eivät sisälly GitHubin koodipäivitykseen. Pura sekä
+`yksi-sointu-kaksi-askelta-akustinen-raidat.zip` että
+`yksi-sointu-kaksi-askelta-normaali-raidat.zip` worktreen juureen.
+Tarkista asennus komennolla `npm run check:song-audio`, joka edellyttää
+kaikkien kuuden MP3-tiedoston löytymistä.
+Katso erilliset [akustisen version tiedot](../assets/audio/kappaleet/yksi-sointu-kaksi-askelta-akustinen/README.md)
+ja [normaalin version tiedot](../assets/audio/kappaleet/yksi-sointu-kaksi-askelta-normaali/README.md).
 
-Sointukulku, sävellaji ja osioiden aikaleimat vahvistetaan myöhemmin
-juuri akustisesta äänitteestä. MP3-elementtien samanaikainen toisto
-ei takaa näytetarkkaa miksausta: testaa synkronointi oikeasti kuuntelemalla.
+Tarkkaa sointukulkua tai osioiden aikaleimoja ei näytetä vielä, ennen
+kuin ne on varmistettu äänitteistä sovituskohtaisesti. Kolmen erillisen
+HTMLMediaElementin ajoitus ei ole näytetarkka; testaa todellinen
+synkronointi sekä tietokoneella että mobiililaitteella.
 
 ## Moduulit
 
