@@ -284,7 +284,7 @@ test.describe('Uudet oppimispolut', () => {
     expect(shared).toContain('5:8');
 
     await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
-    await expect(page.getByRole('heading', { name: 'Soita siirtymä' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Soita koko asteikko' })).toBeVisible();
     await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
     await expect(page.getByRole('heading', { name: 'Yhdistä muistista' })).toBeVisible();
     await expect(page.locator('.practice-board .dot')).toHaveCount(0);
