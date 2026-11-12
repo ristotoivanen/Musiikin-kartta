@@ -1,5 +1,5 @@
 import { afterEach, describe, it, expect, vi } from 'vitest';
-import { Microphone, ReferencePlayer, audioContext, meterLevel, micError, micReading, noiseThreshold, releaseAudio } from '../harjoittelija/audio';
+import { Microphone, ReferencePlayer, audioContext, meterLevel, micError, micReading, noiseThreshold, referenceAudioError, releaseAudio } from '../harjoittelija/audio';
 import { NoteGate, OnsetDetector, type AnalysisFrame } from '../harjoittelija/vendor/pitchDetector';
 import { MicSetupError, listInputDevices, openMic, type MicStream } from '../harjoittelija/vendor/micInput';
 import { fakeClock, fakeMic, midiHz, silence, sine } from './fakeMic';
@@ -256,6 +256,29 @@ describe('esimerkkisävelet ja yhteinen äänikonteksti', () => {
       createOscillator: vi.fn(() => { const osc = { frequency: param(), type: 'sine', setPeriodicWave: vi.fn(), connect: vi.fn(), start: vi.fn(), stop: vi.fn() }; queueMicrotask(() => started.push(osc.frequency.value)); return osc; }) };
     return { context, started, masters };
   }
+  it('ilmoittaa, jos Web Audio -käynnistys jää odottamaan eikä ajasta hiljaista asteikkolooppia', async () => {
+    vi.useFakeTimers();
+    try {
+      const { context } = fakeOutput();
+      context.resume = vi.fn(() => new Promise<void>(() => {}));
+      const player = new ReferencePlayer(() => context as unknown as AudioContext);
+      const attempt = expect(player.loop([69, 72])).rejects.toThrow('reference-audio-resume-timeout');
+      await vi.advanceTimersByTimeAsync(4100);
+      await attempt;
+      expect(context.createOscillator).not.toHaveBeenCalled();
+      expect(referenceAudioError(new Error('reference-audio-resume-timeout'))).toContain('äänimoottori ei käynnistynyt');
+      player.stop();
+    } finally { vi.useRealTimers(); }
+  });
+
+  it('ilmoittaa, jos Web Audio väittää heränneensä mutta tila on edelleen pysähtynyt', async () => {
+    const { context } = fakeOutput();
+    context.resume = vi.fn(async () => {});
+    const player = new ReferencePlayer(() => context as unknown as AudioContext);
+    await expect(player.play([69])).rejects.toThrow('reference-audio-not-running');
+    expect(context.createOscillator).not.toHaveBeenCalled();
+  });
+
   it('soittaa sävelet oikeilla taajuuksilla ja käyttää samaa kontekstia uudelleen', async () => {
     vi.useFakeTimers();
     try {
