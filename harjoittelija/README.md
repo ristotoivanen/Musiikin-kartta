@@ -209,6 +209,20 @@ nopeuspiste, ≥ 8 s = nolla). Molemmat ovat liukuvia keskiarvoja (α = 0,3), jo
 arvio seuraa viimeisimpiä vastauksia. Alle kolme vastausta näytetään alustavina.
 Painotus: 3 vähän harjoitelluille, muuten `0,25 + (1 − osaaminen) × 3`.
 
+## Harjoituksen teorialinkki ja taustaraidan looppi
+
+Jokaisen harjoituksen alussa on suora linkki sitä käsittelevään oppaan teoriaan.
+Vanhassa harjoitusvalikossa linkki päivittyy valitun harjoitustilan mukaan,
+uusissa sävelten etsinnän ja pentatonisen oppimispoluissa on omat teorialinkit.
+Alareunan kaksoiskappale poistettiin.
+
+Improvisointiharjoituksen Am-taustassa on oletuksena pois käytöstä oleva
+**Soita looppina** -valinta Mallikitara-valinnan vieressä. Valinta asettaa
+samanaikaisesti molempien ääniraitojen loop-tilan eikä katkaise soivaa raitaa.
+Malliäänen mykistys toimii siitä riippumatta. HTMLMediaElement-pohjainen
+kaksiraitainen looppi ei ole näytetarkka: kierrosrajalla voi esiintyä pientä
+toistoviivettä.
+
 ## Build ja testit
 
 Repon juuresta: `npm ci`, `npm run check`, `npm run test:e2e`,
