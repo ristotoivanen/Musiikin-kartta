@@ -145,3 +145,63 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
   .mic-readout > div:nth-child(-n+2) { grid-column: 1 / -1; }
 }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
+
+
+/* Oppimispolkujen uusi aloitus: etusivulla vain kolme valintaa. */
+.learning-home { margin: 12px 0 30px; }
+.learning-lead { max-width: 770px; color: var(--muted); line-height: 1.6; }
+.learning-grid { display: grid; gap: 14px; margin-top: 22px; }
+.learning-card {
+  display: flex; align-items: center; gap: 18px; width: 100%; min-height: 116px;
+  padding: 20px; border: 1px solid var(--line); border-radius: 16px;
+  background: var(--panel); text-align: left; color: var(--text); cursor: pointer;
+}
+.learning-card:hover, .learning-card:focus-visible { border-color: var(--lavender); background: var(--bg); }
+.learning-number { display: grid; flex: 0 0 45px; place-items: center; height: 45px; border-radius: 12px;
+  background: var(--bg); color: var(--lavender); font-weight: 750; font-size: 19px; }
+.learning-card-body { display: grid; flex: 1; gap: 5px; }
+.learning-card-body strong { font-size: 19px; }
+.learning-card-body > span { color: var(--muted); line-height: 1.5; }
+.learning-card-body small { font-size: 13px; color: var(--lavender); }
+.learning-arrow { font-size: 25px; }
+.learning-advanced { margin: 22px 0; color: var(--muted); }
+.selected-track { margin: 10px 0 16px; }
+.selected-track h2 { margin-top: 13px; }
+.selected-track > p { color: var(--muted); }
+.back-link { padding: 8px 10px; min-height: 42px; background: transparent; color: var(--lavender); }
+.track-settings { margin: 14px 0; }
+.track-settings > summary { color: var(--muted); }
+
+/* Ensimmäisen skaalapolun oikea harjoitusnäkymä. */
+.scale-journey h2 { margin: 12px 0; font-size: clamp(23px,3.4vw,32px); }
+.scale-fact { padding: 10px 14px; margin: 16px 0; border-radius: 10px; background: var(--panel); }
+.journey-steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin: 18px 0; }
+.journey-step { min-width: 0; display: flex; align-items: center; gap: 8px; padding: 12px 9px; min-height: 72px;
+  border: 1px solid var(--line); border-radius: 11px; background: var(--panel); color: var(--muted);
+  text-align: left; font-size: 13px; line-height: 1.3; }
+.journey-step.current { border: 2px solid var(--lavender); color: var(--text); font-weight: 700; }
+.journey-step:disabled { opacity: .5; cursor: not-allowed; }
+.journey-index { display: grid; place-items: center; flex: 0 0 27px; height: 27px; background: var(--bg);
+  color: var(--text); border-radius: 50%; font-weight: 700; font-size: 12px; }
+.journey-lesson, .journey-below { padding: clamp(14px,3vw,24px); margin: 16px 0;
+  border: 1px solid var(--line); border-radius: 14px; background: var(--panel); }
+.journey-lesson .session-top h3 { font-size: 20px; margin: 0; }
+.journey-lesson > p { line-height: 1.65; }
+.journey-lesson .fret-scroll { margin: 18px 0; }
+.journey-next { margin: 22px 0 0; padding: 16px; background: var(--bg); border-radius: 12px; }
+.journey-next p { max-width: 690px; }
+.journey-next .primary { padding: 10px 16px; }
+.backing-track { display: grid; gap: 8px; margin: 18px 0; padding: 14px; border: 1px solid var(--line); border-radius: 12px; }
+.backing-track audio { display: block; width: 100%; }
+@media (max-width: 790px) {
+  .journey-steps { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .journey-step { min-height: 52px; }
+}
+@media (max-width: 470px) {
+  .learning-card { padding: 14px; gap: 12px; }
+  .learning-number { flex-basis: 35px; height: 35px; font-size: 15px; }
+  .learning-card-body strong { font-size: 16px; }
+  .learning-card-body > span { font-size: 14px; }
+  .journey-steps { grid-template-columns: 1fr; gap: 6px; }
+  .journey-step { min-height: 44px; }
+}
