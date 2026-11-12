@@ -67,11 +67,11 @@ test.describe('Uudet oppimispolut', () => {
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
 
-    // Kuuntele ja tutustu: jatkuva toisto sekä otelaudalla liikkuva sävelkorostus.
-    await page.getByRole('button', { name: '▶ Toista asteikkoa jatkuvasti' }).click();
+    // Kuuntele ja tutustu: yksi asteikkokierros ja liikkuva otelautakorostus.
+    await page.getByRole('button', { name: '▶ Kuuntele asteikko ylös ja alas' }).click();
     const highlight = page.locator('.practice-board td.playing button');
     await expect(highlight).toHaveCount(1);
-    await expect(page.getByRole('status')).toContainText('Nyt soi:');
+    await expect(page.getByRole('status')).toContainText('Mallisoitto käynnissä · Nyt soi:');
     const initial = await highlight.getAttribute('data-string') + ':' + await highlight.getAttribute('data-fret');
     await expect.poll(async () => {
       const current = page.locator('.practice-board td.playing button');
@@ -122,6 +122,28 @@ test.describe('Uudet oppimispolut', () => {
     await expect(output).toHaveText('80 BPM');
     await page.getByRole('button', { name: 'Palauta 75 BPM' }).click();
     await expect(output).toHaveText('75 BPM');
+  });
+
+  test('improvisointitaustassa on vain yksi soitin ja kolme selkeästi vaihdettavaa versiota', async ({ page }) => {
+    await page.goto('/kitaraharjoittelija.html');
+    await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
+    for (let i = 0; i < 3; i++) {
+      await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
+    }
+    await expect(page.getByRole('heading', { name: 'Improvisoi taustan päälle' })).toBeVisible();
+    const tracks = page.getByRole('combobox', { name: 'Harjoitustaustan versio' });
+    await expect(tracks).toHaveValue('full');
+    await expect(page.locator('.backing-track audio')).toHaveCount(1);
+    await expect(page.locator('.backing-track audio source')).toHaveAttribute('src', 'assets/audio/harjoittelija/am-vamp-full.mp3');
+
+    await tracks.selectOption('noGuitar');
+    await expect(page.locator('.backing-track audio source')).toHaveAttribute('src', 'assets/audio/harjoittelija/am-vamp-no-guitar.mp3');
+    await expect(page.getByText('Soita itse kitaran osuus tai improvisoi taustan päälle.')).toBeVisible();
+
+    await tracks.selectOption('guitarOnly');
+    await expect(page.locator('.backing-track audio source')).toHaveAttribute('src', 'assets/audio/harjoittelija/am-vamp-guitar-only.mp3');
+    await tracks.selectOption('full');
+    await expect(page.locator('.backing-track audio')).toHaveCount(1);
   });
 
   test('sointupolku tarjoaa vanhan sointusävelharjoituksen ilman kaikkien harjoitusten valikkoa', async ({ page }) => {
