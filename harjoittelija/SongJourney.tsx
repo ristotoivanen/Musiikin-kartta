@@ -37,6 +37,7 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   const [guitarOn, setGuitarOn] = useState(true);
   const [vocalsOn, setVocalsOn] = useState(true);
   const [loopOn, setLoopOn] = useState(false);
+  const [chordPanelOpen, setChordPanelOpen] = useState(true);
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
   const [error, setError] = useState('');
@@ -202,7 +203,17 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
         onError={() => setError(song.label + ': lauluraita puuttuu tai ei lataudu.')} />
     </div>
 
-    <SongChordChart version={version} position={position} onSeek={seek} />
+    <section className="song-chart-collapse" aria-label="Sointujen ja sanojen näkymä">
+      <button type="button" className="song-chart-collapse-toggle"
+        aria-expanded={chordPanelOpen} aria-controls="song-chart-collapse-content"
+        onClick={() => setChordPanelOpen(open => !open)}>
+        <span className="song-chart-collapse-label"><span aria-hidden="true">{chordPanelOpen ? '▾' : '▸'}</span> Soinnut ja sanat</span>
+        <span className="song-chart-collapse-state">{chordPanelOpen ? 'Piilota' : 'Näytä'}</span>
+      </button>
+      <div id="song-chart-collapse-content" className="song-chart-collapse-content" hidden={!chordPanelOpen}>
+        <SongChordChart version={version} position={position} onSeek={seek} />
+      </div>
+    </section>
 
     <details className="song-instructions">
       <summary>Miten harjoittelen tämän kappaleen kanssa?</summary>
