@@ -8,7 +8,7 @@ const PROGRESS_KEY = 'musiikin-kartta:skaalapolku:v1';
 const steps = [
   { title: 'Kuuntele ja tutustu', detail: 'Kuule ensin asteikko ja pieni melodinen esimerkki.' },
   { title: 'Soita ylös ja alas', detail: 'Opettele 1. position sormitus rauhallisesti.' },
-  { title: 'Soita muistista', detail: 'Vähennä vihjeitä ja soita ilman mallia.' },
+  { title: 'Soita muistista', detail: 'Soita ilman otelautavihjeitä. Pyydä tarvittaessa vain pohjasävelet näkyviin.' },
   { title: 'Improvisoi taustan päälle', detail: 'Muodosta omia fraaseja samoista sävelistä.' },
   { title: 'Positio 1 harjoiteltu', detail: 'Palaa harjoitukseen ja kertaa myöhemmin.' },
 ] as const;
@@ -28,8 +28,8 @@ function readProgress(): number {
 export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void; onOpenOldExercise: () => void }) {
   const [unlocked, setUnlocked] = useState(readProgress);
   const [step, setStep] = useState(readProgress);
-  // 0 = koko kuvio, 1 = vain A-pohjasävelet, 2 = ilman kuvion apumerkkejä.
-  const [hintLevel, setHintLevel] = useState(0);
+  // Muistiharjoituksessa ei näytetä koko kuviota: vain erikseen pyydetyt A-pohjasävelet.
+  const [showRoots, setShowRoots] = useState(false);
   const [playing, setPlaying] = useState<'scale' | 'phrase' | 'loop' | null>(null);
   const [audioError, setAudioError] = useState('');
   const audio = useRef(new ReferencePlayer());
@@ -66,9 +66,9 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
   const examplePhrase = [69, 72, 69, 67, 64, 67, 69];
   const min = box.start, max = box.end;
   const marks: Mark[] = played
-    .filter(position => step < 2 || hintLevel === 0 || (hintLevel === 1 && pc(position.midi) === 9))
+    .filter(position => step < 2 || (showRoots && pc(position.midi) === 9))
     .map(position => ({
-      ...position, label: hintLevel === 1 && step >= 2 ? 'A' : note(position.midi),
+      ...position, label: step >= 2 ? 'A' : note(position.midi),
       kind: pc(position.midi) === 9 ? 'answer' as const : 'shape' as const,
     }));
 
@@ -97,7 +97,7 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
   function completeStep() {
     stopPlayback();
     const next = Math.min(4, step + 1);
-    setStep(next); setHintLevel(next >= 3 ? 2 : 0);
+    setStep(next); setShowRoots(false);
     if (next > unlocked) {
       setUnlocked(next);
       try { localStorage.setItem(PROGRESS_KEY, String(next)); } catch { /* Selain voi estää tallennuksen. */ }
@@ -106,7 +106,7 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
   function selectStep(index: number) {
     if (index > unlocked) return;
     stopPlayback();
-    setStep(index); setHintLevel(index >= 3 ? 2 : 0);
+    setStep(index); setShowRoots(false);
   }
 
   return <section className="scale-journey" aria-labelledby="scale-path-title">
@@ -131,7 +131,7 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
       {step < 4 && <>
         {step === 0 && <p>Kuuntele ensin asteikko hitaasti. Sen jälkeen kuulet lyhyen sävelistä rakennetun mallifraasin. Fraasi on syntetisoitu esimerkki, ei kitaralla äänitetty soolo.</p>}
         {step === 1 && <p>Soita paksulta E-kieleltä alkaen jokaisen kielen alempi ja ylempi sävel, kunnes saavut ohuelle E-kielelle. Palaa samaa reittiä alas. Käynnistä mallisoiton jatkuva toisto ja soita mukana omaan tahtiisi. Voit pysäyttää toiston milloin tahansa.</p>}
-        {step === 2 && <p>Katso ensin koko kuvio. Vähennä sitten vihjeitä kahdessa vaiheessa: ensin näkyvät vain A-pohjasävelet, lopuksi ei yhtään merkkiä. Soita positio muistista molempiin suuntiin.</p>}
+        {step === 2 && <p>Soita positio ylös ja alas ulkomuistista. Otelauta on aluksi ilman merkintöjä. Jos tarvitset apua, näytä vain A-pohjasävelet. Jos koko kuvio unohtui, palaa edelliseen opetukseen ja harjoittele sen kanssa uudelleen.</p>}
         {step === 3 && <p>Kuuntele mallifraasi. Käynnistä sitten Am-tausta ja soita aluksi vain 2–3 eri säveltä. Kokeile taukoja, toistoa ja pitkää lopetussäveltä A. Vasta sitten laajenna koko positioon.</p>}
         {step !== 3 && <div className="action-row">
           {step === 1 ? <button type="button" aria-pressed={playing === 'loop'}
@@ -151,14 +151,14 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
         {audioError && <p className="error" role="alert">{audioError}</p>
         {step >= 1 && step <= 3 && <>
           {step >= 2 && <div className="action-row">
-            {hintLevel < 2 && <button type="button" onClick={() => setHintLevel(value => Math.min(2, value + 1))}>
-              {hintLevel === 0 ? 'Näytä vain pohjasävelet' : 'Piilota loputkin vihjeet'}
-            </button>}
-            {hintLevel > 0 && <button type="button" onClick={() => setHintLevel(0)}>Näytä koko kuvio</button>}
+            <button type="button" aria-pressed={showRoots} onClick={() => setShowRoots(value => !value)}>
+              {showRoots ? 'Piilota pohjasävelet' : 'Näytä pohjasävelet'}
+            </button>
+            {step === 2 && <button type="button" onClick={() => selectStep(1)}>← Palaa edelliseen opetukseen</button>}
             {step === 3 && <button type="button" onClick={() => void listen('phrase')}>▶ Mallifraasi</button>}
           </div>}
           <Board area={{ strings: [0,1,2,3,4,5], min, max, fixed: 'box' }} marks={marks} disabled caption="A-mollipentatoninen, positio 1" />
-          <p className="tools-note">Vihreä A on pohjasävel. Nuotit eivät mittaa soittoasi: arvioit itse, miten harjoitus sujui.</p>
+          <p className="tools-note">{step < 2 ? 'Vihreällä merkitty A on pohjasävel.' : showRoots ? 'Näkyvissä ovat vain A-pohjasävelet.' : 'Otelauta on ilman vihjemerkintöjä.'} Sovellus ei mittaa soittoasi: arvioit itse, miten harjoitus sujui.</p>
         </>}
         {step === 0 && <>
           <Board area={{ strings: [0,1,2,3,4,5], min, max, fixed: 'box' }} marks={marks} disabled caption="Ensimmäisen position sävelet" />
