@@ -203,17 +203,12 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
         onError={() => setError(song.label + ': lauluraita puuttuu tai ei lataudu.')} />
     </div>
 
-    <section className="song-chart-collapse" aria-label="Sointujen ja sanojen näkymä">
-      <button type="button" className="song-chart-collapse-toggle"
-        aria-expanded={chordPanelOpen} aria-controls="song-chart-collapse-content"
-        onClick={() => setChordPanelOpen(open => !open)}>
-        <span className="song-chart-collapse-label"><span aria-hidden="true">{chordPanelOpen ? '▾' : '▸'}</span> Soinnut ja sanat</span>
-        <span className="song-chart-collapse-state">{chordPanelOpen ? 'Piilota' : 'Näytä'}</span>
-      </button>
-      <div id="song-chart-collapse-content" className="song-chart-collapse-content" hidden={!chordPanelOpen}>
-        <SongChordChart version={version} position={position} onSeek={seek} />
-      </div>
-    </section>
+    <details className="song-chart-collapse" open={chordPanelOpen}>
+      <summary onClick={event => { event.preventDefault(); setChordPanelOpen(open => !open); }}>
+        Soinnut ja sanat
+      </summary>
+      <SongChordChart version={version} position={position} onSeek={seek} />
+    </details>
 
     <details className="song-instructions">
       <summary>Miten harjoittelen tämän kappaleen kanssa?</summary>
