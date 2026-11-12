@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
+import { StemAligner } from './songAudio';
 
 const BACKING_SRC = 'assets/audio/harjoittelija/am-vamp-without-guitar.mp3';
 const GUITAR_SRC = 'assets/audio/harjoittelija/am-vamp-electric-guitar.mp3';
 // Kaksi samasta projektista vietyä MP3-tiedostoa: sama kesto ja näytemäärä.
 // HTMLMediaElement ei takaa sampletarkkaa aloitusta, joten seuraamme mahdollista driftia.
-const MAX_DRIFT_SECONDS = 0.12;
 
 function clock(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
@@ -22,18 +22,14 @@ export function BackingTrackMixer() {
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
   const [error, setError] = useState('');
+  // Pitää kitaran taustan tahdissa ja oppii laitteen kelausviiveen.
+  const aligner = useRef(new StemAligner());
 
   function syncGuitar(force = false) {
     const backing = backingRef.current, guitar = guitarRef.current;
-    if (!backing || !guitar || !Number.isFinite(backing.currentTime) || guitar.readyState < 1) return;
-    const drift = Math.abs(guitar.currentTime - backing.currentTime);
-    // Loopin vaihtuessa kierrokselta toiselle toinen raita voi käydä hetken
-    // alussa ja toinen lopussa. Älä korjaa tätä hetkellistä kääntökohtaa.
-    const atLoopBoundary = backing.loop && Number.isFinite(backing.duration) &&
-      Math.abs(drift - backing.duration) < 0.3;
-    if (force || (!atLoopBoundary && drift > MAX_DRIFT_SECONDS)) {
-      try { guitar.currentTime = backing.currentTime; } catch { /* Metadata ei ehkä ole vielä latautunut. */ }
-    }
+    if (!backing || !guitar || !Number.isFinite(backing.currentTime)) return;
+    // Loopin kääntökohta ja pysäytetty (pois kytketty) kitara käsitellään tahdistimessa.
+    aligner.current.align(backing, guitar, force);
   }
 
   function pause() {
@@ -53,8 +49,10 @@ export function BackingTrackMixer() {
     backing.volume = 0.75;
     syncGuitar(true);
     try {
-      // Molemmat play-kutsut tapahtuvat samassa käyttäjän painalluksessa.
-      await Promise.all([backing.play(), guitar.play()]);
+      // Play-kutsut tapahtuvat samassa käyttäjän painalluksessa. Pois kytkettyä kitaraa ei
+      // soiteta mykistettynä: iPhonen Safari ei vie mykistettyä raitaa eteenpäin, eikä se
+      // ala kuulua, kun mykistys poistetaan. Se käynnistetään vasta, kun kitara kytketään.
+      await Promise.all(guitarOn ? [backing.play(), guitar.play()] : [backing.play()]);
       syncGuitar();
       setPlaying(true);
     } catch {
@@ -72,9 +70,15 @@ export function BackingTrackMixer() {
   }
 
   function toggleGuitar(enabled: boolean) {
-    if (enabled) syncGuitar();
-    if (guitarRef.current) guitarRef.current.muted = !enabled;
+    const backing = backingRef.current, guitar = guitarRef.current;
     setGuitarOn(enabled);
+    if (!guitar) return;
+    guitar.muted = !enabled;
+    if (!enabled) { guitar.pause(); return; }
+    if (!backing || !playing) return;
+    // Kitara käynnistetään taustan kohdasta samalla käyttäjän painalluksella.
+    syncGuitar(true);
+    void guitar.play().catch(() => setError('Mallikitaraa ei voitu käynnistää. Kokeile pysäyttää ja soittaa uudelleen.'));
   }
 
   useEffect(() => {
@@ -99,7 +103,7 @@ export function BackingTrackMixer() {
         <label className="guitar-toggle">
           <input type="checkbox" checked={guitarOn}
             onChange={event => toggleGuitar(event.target.checked)} />
-          <span>Mallikitara {guitarOn ? 'päällä' : 'pois'}</span>
+          <span>Kitara kuuluu</span>
         </label>
         <label className="guitar-toggle">
           <input type="checkbox" checked={loopOn}

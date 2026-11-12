@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { SongChordChart } from './SongChordChart';
 import { SongScales } from './SongScales';
 import {
-  SongGainMixer, elementVolumeWorks, loadSongVolume, saveSongVolume, trackLevel, type SongTrack,
+  SongGainMixer, StemAligner, elementVolumeWorks, loadSongVolume, saveSongVolume, trackLevel, type SongTrack,
 } from './songAudio';
 import { DEFAULT_SONG_VERSION, isSongLink, songLink, versionFromSongLink, type SongVersion } from './songChart';
 
@@ -38,7 +38,6 @@ const VERSIONS = {
   },
 } as const;
 
-const MAX_DRIFT_SECONDS = 0.12;
 const SEEK_PRECISION_SECONDS = 0.001;
 
 function setBackingTime(backing: HTMLAudioElement, seconds: number) {
@@ -58,6 +57,8 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   const vocalsRef = useRef<HTMLAudioElement>(null);
   // Suojaa keskeneräisen play()-lupauksen versionvaihtoon liittyvältä kilpailutilanteelta.
   const playbackRequest = useRef(0);
+  // Pitää kitaran ja laulun taustan tahdissa ja oppii laitteen kelausviiveen.
+  const aligner = useRef(new StemAligner());
   const pendingSeek = useRef<number | null>(null);
   const [version, setVersion] = useState<SongVersion>(initialVersion);
   const song = VERSIONS[version];
@@ -77,17 +78,12 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   const [duration, setDuration] = useState(0);
   const [error, setError] = useState('');
 
-  function syncStems(force = false) {
+  function syncStems(force = false, only?: HTMLAudioElement) {
     const backing = backingRef.current;
-    if (!backing || backing.readyState < 1) return;
+    if (!backing) return;
+    // Pois kytketty raita on pysäytettynä, joten tahdistin ohittaa sen jatkuvassa toistossa.
     for (const stem of [guitarRef.current, vocalsRef.current]) {
-      if (!stem || stem.readyState < 1) continue;
-      const drift = Math.abs(stem.currentTime - backing.currentTime);
-      const wrap = backing.loop && Number.isFinite(backing.duration) &&
-        Math.abs(drift - backing.duration) < 0.35;
-      if (force || (!wrap && drift > MAX_DRIFT_SECONDS)) {
-        try { stem.currentTime = backing.currentTime; } catch { /* metadata kesken */ }
-      }
+      if (stem && (!only || stem === only)) aligner.current.align(backing, stem, force);
     }
   }
 
@@ -204,8 +200,12 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
     syncStems(true);
     const request = ++playbackRequest.current;
     try {
-      // Kaikki käynnistyvät samalla käyttäjän painalluksella.
-      const starters = [backing.play(), guitar.play(), vocals.play()];
+      // Kaikki käynnistyvät samalla käyttäjän painalluksella. Pois kytkettyä raitaa ei soiteta
+      // mykistettynä: iPhonen Safari ei vie mykistettyä raitaa eteenpäin, eikä se ala kuulua,
+      // kun mykistys poistetaan. Se käynnistetään vasta, kun raita kytketään päälle.
+      if (!guitarOn) guitar.pause();
+      if (!vocalsOn) vocals.pause();
+      const starters = [backing.play(), ...(guitarOn ? [guitar.play()] : []), ...(vocalsOn ? [vocals.play()] : [])];
       await Promise.all(starters);
       if (request !== playbackRequest.current) return;
       syncStems();
@@ -217,18 +217,27 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
     }
   }
 
+  /** Kytkee raidan päälle tai pois. Päälle kytketty raita liittyy toistoon taustan kohdasta. */
+  function switchStem(stem: HTMLAudioElement | null, enabled: boolean, label: string) {
+    if (!stem) return;
+    stem.muted = !enabled;
+    if (!enabled) { stem.pause(); return; }
+    const backing = backingRef.current;
+    if (!backing || !playing) return;
+    syncStems(true, stem);
+    void stem.play().catch(() => setError(label + ' ei käynnistynyt. Pysäytä ja soita uudelleen.'));
+  }
+
   function changeGuitar(enabled: boolean) {
-    if (enabled) syncStems();
-    if (guitarRef.current) guitarRef.current.muted = !enabled;
     setGuitarOn(enabled);
     applyLevels(volume, { guitar: enabled });
+    switchStem(guitarRef.current, enabled, 'Kitararaita');
   }
 
   function changeVocals(enabled: boolean) {
-    if (enabled) syncStems();
-    if (vocalsRef.current) vocalsRef.current.muted = !enabled;
     setVocalsOn(enabled);
     applyLevels(volume, { vocals: enabled });
+    switchStem(vocalsRef.current, enabled, 'Lauluraita');
   }
 
   useEffect(() => {
@@ -315,10 +324,10 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
         }}
         onError={() => setError(song.label + ': säestysraita puuttuu. Pura kyseisen version ZIP-paketti projektin juureen.')} />
       <audio key={version + '-guitar'} ref={guitarRef} src={song.guitar} preload="metadata" muted={!guitarOn} loop={loopOn}
-        onLoadedMetadata={() => syncStems(true)}
+        onLoadedMetadata={() => { if (backingRef.current?.paused) syncStems(true); }}
         onError={() => setError(song.label + ': kitararaita puuttuu tai ei lataudu.')} />
       <audio key={version + '-vocals'} ref={vocalsRef} src={song.vocals} preload="metadata" muted={!vocalsOn} loop={loopOn}
-        onLoadedMetadata={() => syncStems(true)}
+        onLoadedMetadata={() => { if (backingRef.current?.paused) syncStems(true); }}
         onError={() => setError(song.label + ': lauluraita puuttuu tai ei lataudu.')} />
     </div>
 
