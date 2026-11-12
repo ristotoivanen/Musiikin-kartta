@@ -265,7 +265,7 @@ test.describe('harjoituskierros', () => {
     await expect(page.getByTestId('round-status')).toContainText('Kysymys 1 / 12');
     await expect(page.locator('#question')).toHaveText('A-mollipentatoninen, boksi 1 ylöspäin, sävel 1/12: 1. aste (A2).');
     // Boksin ympärillä näkyy yksi nauha kumpaankin suuntaan.
-    await expect(page.locator('.practice-board thead th')).toHaveText(['Kieli', '4', '5●', '6', '7●', '8', '9●']);
+    await expect(page.locator('.practice-board thead th')).toHaveText(['Kielet', '4', '5●', '6', '7●', '8', '9●']);
     await expect(targets(page)).toHaveCount(1);
     await expect(targets(page)).toHaveAttribute('data-string', '5'); await expect(targets(page)).toHaveAttribute('data-fret', '5');
     // Sama aste toisessa oktaavissa ei kelpaa, kun asteikko soitetaan järjestyksessä.
@@ -310,7 +310,7 @@ test.describe('harjoituskierros', () => {
     await startButton(page).click();
     await expect(page.locator('#question')).toContainText('C-duurisointu, E-muoto: etsi');
     await expect(dots(page)).toHaveCount(0);
-    await expect(page.locator('.practice-board thead th')).toHaveText(['Kieli', '7●', '8', '9●', '10', '11']);
+    await expect(page.locator('.practice-board thead th')).toHaveText(['Kielet', '7●', '8', '9●', '10', '11']);
     await page.getByRole('button', { name: 'Näytä vihje', exact: true }).click();
     await expect(page.locator('.practice-board .shape')).toHaveCount(6); await expect(targets(page)).toHaveCount(0);
     await page.getByRole('button', { name: 'Näytä vastaus' }).click();
