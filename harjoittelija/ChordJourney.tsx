@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Board } from './Board';
-import { at, type Position } from './music';
+import { at } from './music';
 import type { Area, Mark } from './engine';
 
 type ChordName = 'C' | 'G' | 'D' | 'Em' | 'Am' | 'E' | 'A';
