@@ -23,11 +23,20 @@ test.describe('Uudet oppimispolut', () => {
     await expect(page.getByRole('heading', { name: 'Soita ylös ja alas' })).toBeVisible();
     await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
     await expect(page.getByRole('heading', { name: 'Soita muistista' })).toBeVisible();
-    await page.getByRole('button', { name: 'Näytä vain pohjasävelet' }).click();
-    await expect(page.locator('.practice-board .dot')).toHaveCount(3);
-    await page.getByRole('button', { name: 'Piilota loputkin vihjeet' }).click();
+    // Muistiharjoitus ei anna otelaudan nuotteja oletuksena.
     await expect(page.locator('.practice-board .dot')).toHaveCount(0);
-    await expect(page.getByRole('button', { name: 'Näytä koko kuvio' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Näytä koko kuvio' })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Näytä pohjasävelet' }).click();
+    await expect(page.locator('.practice-board .dot')).toHaveCount(3);
+    await page.getByRole('button', { name: 'Piilota pohjasävelet' }).click();
+    await expect(page.locator('.practice-board .dot')).toHaveCount(0);
+
+    // Koko muoto löytyy vain palaamalla edelliseen opetukseen.
+    await page.getByRole('button', { name: '← Palaa edelliseen opetukseen' }).click();
+    await expect(page.getByRole('heading', { name: 'Soita ylös ja alas' })).toBeVisible();
+    await expect(page.locator('.practice-board .dot')).toHaveCount(12);
+    await page.getByRole('button', { name: /Soita muistista/ }).click();
+    await expect(page.locator('.practice-board .dot')).toHaveCount(0);
     expect(await page.evaluate(() => localStorage.getItem('musiikin-kartta:skaalapolku:v1'))).toBe('2');
   });
 
