@@ -10,6 +10,25 @@ const DEFAULT_TEMPO = 75;
 const MIN_TEMPO = 40;
 const MAX_TEMPO = 140;
 
+const BACKING_TRACKS = {
+  full: {
+    label: 'Koko kappale',
+    src: 'assets/audio/harjoittelija/am-vamp-full.mp3',
+    detail: 'Kuuntele ensin valmis kokonaisuus ja kitaran paikka siinä.',
+  },
+  noGuitar: {
+    label: 'Ilman kitaraa',
+    src: 'assets/audio/harjoittelija/am-vamp-no-guitar.mp3',
+    detail: 'Soita itse kitaran osuus tai improvisoi taustan päälle.',
+  },
+  guitarOnly: {
+    label: 'Vain kitara',
+    src: 'assets/audio/harjoittelija/am-vamp-guitar-only.mp3',
+    detail: 'Kuuntele kitaran fraaseja ja kokeile toistaa niitä.',
+  },
+} as const;
+type BackingVersion = keyof typeof BACKING_TRACKS;
+
 function readTempo(): number {
   try {
     const saved = localStorage.getItem(TEMPO_KEY);
@@ -45,7 +64,8 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
   // Muistiharjoituksessa ei näytetä koko kuviota: vain erikseen pyydetyt A-pohjasävelet.
   const [showRoots, setShowRoots] = useState(false);
   const [tempo, setTempo] = useState(readTempo);
-  const [playing, setPlaying] = useState<'phrase' | 'loop' | null>(null);
+  const [playing, setPlaying] = useState<'phrase' | 'loop' | 'once' | null>(null);
+  const [backingVersion, setBackingVersion] = useState<BackingVersion>('full');
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [audioError, setAudioError] = useState('');
   const audio = useRef(new ReferencePlayer());
@@ -87,7 +107,10 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
     .sort((a, b) => a.midi - b.midi || b.string - a.string);
   // Viimeisen ja ensimmäisen sävelen tuplaus poistettu: tasainen syke jatkuu kierrosrajan yli.
   const cyclePositions = [...played, ...played.slice(1, -1).reverse()];
-  const activePosition = activeIndex === null ? null : cyclePositions[activeIndex];
+  // Kuuntelun kertatoisto päättyy takaisin alimpaan säveleen.
+  const singlePassPositions = [...played, ...played.slice(0, -1).reverse()];
+  const activeSequence = playing === 'once' ? singlePassPositions : cyclePositions;
+  const activePosition = activeIndex === null ? null : activeSequence[activeIndex];
   // Sävelet löytyvät kokonaan 1. positiosta. Rytmi on tässä vielä tasainen.
   const examplePhrase = [69, 72, 69, 67, 64, 67, 69];
   const min = box.start, max = box.end;
@@ -99,19 +122,20 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
         ? 'playing' as const : pc(position.midi) === 9 ? 'answer' as const : 'shape' as const,
     }));
 
-  async function listen(kind: 'phrase' | 'loop') {
+  async function listen(kind: 'phrase' | 'loop' | 'once') {
     const current = ++token.current;
     audio.current.stop();
     setActiveIndex(null);
     setAudioError('');
     setPlaying(kind);
     try {
-      if (kind === 'loop') {
-        await audio.current.loop(cyclePositions.map(position => position.midi), index => {
-          if (current === token.current) setActiveIndex(index);
-        }, step === 2 ? tempo : DEFAULT_TEMPO);
-      } else {
+      if (kind === 'phrase') {
         await audio.current.play(examplePhrase);
+      } else {
+        const positions = kind === 'once' ? singlePassPositions : cyclePositions;
+        await audio.current.loop(positions.map(position => position.midi), index => {
+          if (current === token.current) setActiveIndex(index);
+        }, step === 2 ? tempo : DEFAULT_TEMPO, kind === 'loop');
       }
     } catch {
       if (current === token.current) setAudioError('Mallisoitto ei käynnistynyt. Tarkista selaimen ääniasetukset ja yritä uudelleen.');
@@ -154,7 +178,7 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
       <p>{steps[step].detail}</p>
 
       {step < 4 && <>
-        {step === 0 && <p>Käynnistä asteikon jatkuva toisto. Juuri soiva sävel korostuu otelaudalla, joten voit seurata asteikon kulkua. Pysäytä toisto, kun olet valmis. Kuuntele myös lyhyt mallifraasi. Ääni on syntetisoitu, ei kitaralla äänitetty soolo.</p>}
+        {step === 0 && <p>Kuuntele asteikko kerran ylös ja alas. Juuri soiva sävel korostuu otelaudalla, joten voit seurata kulkua. Voit kuunnella esimerkin uudelleen painamalla toistopainiketta. Kokeile myös lyhyttä mallifraasia. Ääni on syntetisoitu.</p>}
         {step === 1 && <p>Soita paksulta E-kieleltä alkaen jokaisen kielen alempi ja ylempi sävel, kunnes saavut ohuelle E-kielelle. Palaa samaa reittiä alas. Jatkuva mallisoitto etenee tasaisessa sykkeessä, ja otelauta näyttää juuri soivan sävelen. Soita mukana ja pysäytä toisto tarvittaessa.</p>}
         {step === 2 && <p>Soita positio ylös ja alas ulkomuistista. Otelauta on aluksi ilman merkintöjä. Säädä mallisoiton tempo itsellesi sopivaksi. Jos tarvitset apua, näytä vain A-pohjasävelet. Jos koko kuvio unohtui, palaa edelliseen opetukseen.</p>}
         {step === 3 && <p>Kuuntele mallifraasi. Käynnistä sitten Am-tausta ja soita aluksi vain 2–3 eri säveltä. Kokeile taukoja, toistoa ja pitkää lopetussäveltä A. Vasta sitten laajenna koko positioon.</p>}
@@ -170,20 +194,27 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
           <small>Yksi sävel / isku. Voit säätää myös toiston aikana.</small>
         </div>}
         {step !== 3 && <div className="action-row">
-          <button type="button" aria-pressed={playing === 'loop'}
-            onClick={() => playing === 'loop' ? stopPlayback() : void listen('loop')}>
-            {playing === 'loop' ? '■ Pysäytä asteikon toisto' : '▶ Toista asteikkoa jatkuvasti'}
-          </button>
+          {step === 0
+            ? <button type="button" aria-pressed={playing === 'once'}
+                onClick={() => playing === 'once' ? stopPlayback() : void listen('once')}>
+                {playing === 'once' ? '■ Pysäytä asteikon toisto' : '▶ Kuuntele asteikko ylös ja alas'}
+              </button>
+            : <button type="button" aria-pressed={playing === 'loop'}
+                onClick={() => playing === 'loop' ? stopPlayback() : void listen('loop')}>
+                {playing === 'loop' ? '■ Pysäytä asteikon toisto' : '▶ Toista asteikkoa jatkuvasti'}
+              </button>}
           <button type="button" onClick={() => playing === 'phrase' ? stopPlayback() : void listen('phrase')}>
             {playing === 'phrase' ? '■ Pysäytä fraasi' : '▶ Kuuntele mallifraasi'}
           </button>
         </div>}
         {step !== 3 && <p className="tools-note" role="status" aria-live="polite">
-          {playing === 'loop'
+          {playing === 'loop' || playing === 'once'
             ? activePosition && step < 2
-              ? `Jatkuva toisto käynnissä · Nyt soi: ${note(activePosition.midi, false, true)} · ${stringName[activePosition.string]}-kieli, nauha ${activePosition.fret}.`
+              ? `${playing === 'once' ? 'Mallisoitto käynnissä' : 'Jatkuva toisto käynnissä'} · Nyt soi: ${note(activePosition.midi, false, true)} · ${stringName[activePosition.string]}-kieli, nauha ${activePosition.fret}.`
               : 'Jatkuva toisto käynnissä. Pysäytä se painikkeesta.'
-            : 'Toista asteikkoa ilman taukoa kierrosten välillä. Pysäytä painikkeesta tai vaihda vaihetta.'}
+            : step === 0
+              ? 'Kuuntele asteikko kerran ylös ja alas.'
+              : 'Toista asteikkoa ilman taukoa kierrosten välillä. Pysäytä painikkeesta tai vaihda vaihetta.'}
         </p>}
         {audioError && <p className="error" role="alert">{audioError}</p>}
         {step >= 1 && step <= 3 && <>
@@ -202,13 +233,23 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
           <p className="tools-note">Sama sormitus ja samat viisi säveltä palaavat seuraavissa tehtävissä.</p>
         </>}
         {step === 3 && <div className="backing-track">
-          <strong>Am-harjoitustausta</strong>
-          <audio controls preload="none" aria-label="A-mollin improvisointitausta">
-            <source src="assets/audio/osa-8/am-harjoitustausta.m4a" type="audio/mp4" />
-            <source src="assets/audio/osa-8/am-harjoitustausta.wav" type="audio/wav" />
+          <div className="backing-track-heading">
+            <strong>Am-harjoitustausta</strong>
+            <label className="backing-track-switch">Versio
+              <select aria-label="Harjoitustaustan versio" value={backingVersion}
+                onChange={event => setBackingVersion(event.target.value as BackingVersion)}>
+                {Object.entries(BACKING_TRACKS).map(([value, track]) =>
+                  <option key={value} value={value}>{track.label}</option>)}
+              </select>
+            </label>
+          </div>
+          <audio key={backingVersion} controls preload="metadata"
+            aria-label={`A-mollin harjoitustausta: ${BACKING_TRACKS[backingVersion].label}`}>
+            <source src={BACKING_TRACKS[backingVersion].src} type="audio/mpeg" />
             Selaimesi ei tue äänentoistoa.
           </audio>
-          <p className="tools-note">Taustaraita on oppaan luvusta 8. Käytä sitä omaan improvisointiin, ilman automaattista suoritusarviointia.</p>
+          <p className="tools-note">{BACKING_TRACKS[backingVersion].detail}</p>
+          <p className="tools-note">Version vaihtaminen pysäyttää nykyisen raidan ja aloittaa uuden alusta. Versioiden kestot eroavat toisistaan.</p>
         </div>}
         <div className="journey-next">
           <p>{step === 0 ? 'Kun tunnistat äänen ja löydät sävelet kuvasta, jatka sormitukseen.' :
