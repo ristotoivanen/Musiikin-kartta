@@ -330,7 +330,7 @@ const fretboard = (() => {
 
   function renderBoard(rootPC, sc, fretCount, {
     boxes = [], onlyBoxNotes = false, automatic = true, focusDegree = '', grip = null,
-    label = CHROM[rootPC] + ' ' + sc.name, notes = null, targets = false,
+    barre = null, label = CHROM[rootPC] + ' ' + sc.name, notes = null, targets = false,
   } = {}) {
     const fretboardEnd = wireX(fretCount);
     const bridgeX = fretboardEnd + 48;
@@ -402,6 +402,14 @@ const fretboard = (() => {
       s += '</g>';
       s += '<text x="13" y="' + (y + 4) + '" font-size="14" fill="#efeaff" text-anchor="middle">' + STRING_NAMES[i] + '</text>';
     });
+    // Korosta koko barré-otteen etusormella painettava nauha merkkien takana.
+    if (grip && barre && barre.fret >= 1 && barre.fret <= fretCount) {
+      const y1 = stringY(barre.from), y2 = stringY(barre.to);
+      const top = Math.min(y1, y2) - 6;
+      const bottom = Math.max(y1, y2) + 6;
+      s += '<rect class="barre-indicator" x="' + (cellCX(barre.fret) - 7) + '" y="' + top +
+        '" width="14" height="' + (bottom - top) + '" rx="7" fill="#d5b5ff" opacity=".53"/>';
+    }
     // Oktaaviharjoitus (assets/oktaavit.js): jokainen nauhakohta on napautettava, ja harjoitus
     // antaa näytettävät pisteet itse (notes) asteikon sävelten sijaan.
     if (targets) {
