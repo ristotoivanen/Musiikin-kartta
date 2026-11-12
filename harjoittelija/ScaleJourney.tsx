@@ -139,6 +139,7 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
     <button type="button" className="back-link" onClick={() => { stopPlayback(); onBack(); }}>← Oppimispolut</button>
     <p className="eyebrow">SKAALAT JA MOODIT · VAIHE 1</p>
     <h2 id="scale-path-title">A-mollipentatoninen · positio 1</h2>
+    <p className="exercise-theory"><a href="book/osa-8.html#pentatoniikka">Lue tämän harjoituksen teoria: Pentatoniikka →</a></p>
     <p className="learning-lead">Yksi asteikko, yksi positio. Kuuntele, opettele, soita muistista ja kokeile sitten omia melodioita.</p>
     <p className="scale-fact">Sävelet: <strong>A · C · D · E · G</strong> · Nauhat 5–8 · 6 kieltä</p>
 
