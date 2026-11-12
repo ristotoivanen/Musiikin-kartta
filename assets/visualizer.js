@@ -261,13 +261,12 @@
 
   rootSelect.addEventListener('change', () => {
     rootPC = Number(rootSelect.value);
-    selectedChord = 0; selectedGrip = -1;
+    gripIndex.full = 0; gripIndex.triad = 0;
     syncUrl();
     render();
   });
   scaleSelect.addEventListener('change', () => {
     scaleId = scaleSelect.value;
-    selectedChord = 0; selectedGrip = -1;
     syncUrl();
     render();
   });
@@ -276,8 +275,23 @@
   [pentatonicBoxes, threeNoteBoxes].forEach(group =>
     group.addEventListener('change', render));
   onlyBoxNotes.addEventListener('change', render);
-  gripSelect.addEventListener('change', () => {
-    selectedGrip = Number(gripSelect.value);
+  qualitySelect.addEventListener('change', () => {
+    chordQuality = qualitySelect.value;
+    gripIndex.full = 0; gripIndex.triad = 0;
+    syncUrl();
+    render();
+  });
+  chordModes.forEach(button => button.addEventListener('click', () => {
+    chordMode = button.dataset.chordMode;
+    syncUrl();
+    render();
+  }));
+  prevGrip.addEventListener('click', () => {
+    gripIndex[chordMode] = Math.max(0, gripIndex[chordMode] - 1);
+    render();
+  });
+  nextGrip.addEventListener('click', () => {
+    gripIndex[chordMode] += 1;
     render();
   });
 
