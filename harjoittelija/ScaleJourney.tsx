@@ -5,6 +5,20 @@ import { at, music, note, pc, stringName } from './music';
 import type { Mark } from './engine';
 
 const PROGRESS_KEY = 'musiikin-kartta:skaalapolku:v1';
+const TEMPO_KEY = 'musiikin-kartta:skaalapolku:tempo:v1';
+const DEFAULT_TEMPO = 75;
+const MIN_TEMPO = 40;
+const MAX_TEMPO = 140;
+
+function readTempo(): number {
+  try {
+    const saved = localStorage.getItem(TEMPO_KEY);
+    if (saved === null) return DEFAULT_TEMPO;
+    const value = Number(saved);
+    return Number.isInteger(value) && value >= MIN_TEMPO && value <= MAX_TEMPO && value % 5 === 0
+      ? value : DEFAULT_TEMPO;
+  } catch { return DEFAULT_TEMPO; }
+}
 const steps = [
   { title: 'Kuuntele ja tutustu', detail: 'Kuule ensin asteikko ja pieni melodinen esimerkki.' },
   { title: 'Soita ylös ja alas', detail: 'Opettele 1. position sormitus rauhallisesti.' },
@@ -30,11 +44,19 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
   const [step, setStep] = useState(readProgress);
   // Muistiharjoituksessa ei näytetä koko kuviota: vain erikseen pyydetyt A-pohjasävelet.
   const [showRoots, setShowRoots] = useState(false);
+  const [tempo, setTempo] = useState(readTempo);
   const [playing, setPlaying] = useState<'phrase' | 'loop' | null>(null);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [audioError, setAudioError] = useState('');
   const audio = useRef(new ReferencePlayer());
   const token = useRef(0);
+
+  function changeTempo(next: number) {
+    const value = Math.max(MIN_TEMPO, Math.min(MAX_TEMPO, next));
+    setTempo(value);
+    audio.current.setLoopTempo(value);
+    try { localStorage.setItem(TEMPO_KEY, String(value)); } catch { /* Selain voi estää tallennuksen. */ }
+  }
 
   function stopPlayback() {
     token.current++;
@@ -87,7 +109,7 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
       if (kind === 'loop') {
         await audio.current.loop(cyclePositions.map(position => position.midi), index => {
           if (current === token.current) setActiveIndex(index);
-        });
+        }, step === 2 ? tempo : DEFAULT_TEMPO);
       } else {
         await audio.current.play(examplePhrase);
       }
@@ -134,8 +156,19 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
       {step < 4 && <>
         {step === 0 && <p>Käynnistä asteikon jatkuva toisto. Juuri soiva sävel korostuu otelaudalla, joten voit seurata asteikon kulkua. Pysäytä toisto, kun olet valmis. Kuuntele myös lyhyt mallifraasi. Ääni on syntetisoitu, ei kitaralla äänitetty soolo.</p>}
         {step === 1 && <p>Soita paksulta E-kieleltä alkaen jokaisen kielen alempi ja ylempi sävel, kunnes saavut ohuelle E-kielelle. Palaa samaa reittiä alas. Jatkuva mallisoitto etenee tasaisessa sykkeessä, ja otelauta näyttää juuri soivan sävelen. Soita mukana ja pysäytä toisto tarvittaessa.</p>}
-        {step === 2 && <p>Soita positio ylös ja alas ulkomuistista. Otelauta on aluksi ilman merkintöjä. Jos tarvitset apua, näytä vain A-pohjasävelet. Jos koko kuvio unohtui, palaa edelliseen opetukseen ja harjoittele sen kanssa uudelleen.</p>}
+        {step === 2 && <p>Soita positio ylös ja alas ulkomuistista. Otelauta on aluksi ilman merkintöjä. Säädä mallisoiton tempo itsellesi sopivaksi. Jos tarvitset apua, näytä vain A-pohjasävelet. Jos koko kuvio unohtui, palaa edelliseen opetukseen.</p>}
         {step === 3 && <p>Kuuntele mallifraasi. Käynnistä sitten Am-tausta ja soita aluksi vain 2–3 eri säveltä. Kokeile taukoja, toistoa ja pitkää lopetussäveltä A. Vasta sitten laajenna koko positioon.</p>}
+        {step === 2 && <div className="scale-tempo" role="group" aria-label="Asteikon toiston tempo">
+          <span>Tempo</span>
+          <button type="button" aria-label="Hidasta tempoa 5 BPM" disabled={tempo <= MIN_TEMPO}
+            onClick={() => changeTempo(tempo - 5)}>− 5</button>
+          <output aria-live="polite" aria-label="Nykyinen tempo">{tempo} BPM</output>
+          <button type="button" aria-label="Nopeuta tempoa 5 BPM" disabled={tempo >= MAX_TEMPO}
+            onClick={() => changeTempo(tempo + 5)}>+ 5</button>
+          {tempo !== DEFAULT_TEMPO && <button type="button" className="tempo-reset"
+            onClick={() => changeTempo(DEFAULT_TEMPO)}>Palauta 75 BPM</button>}
+          <small>Yksi sävel / isku. Voit säätää myös toiston aikana.</small>
+        </div>}
         {step !== 3 && <div className="action-row">
           <button type="button" aria-pressed={playing === 'loop'}
             onClick={() => playing === 'loop' ? stopPlayback() : void listen('loop')}>
