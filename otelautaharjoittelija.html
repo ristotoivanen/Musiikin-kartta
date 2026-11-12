@@ -22,7 +22,7 @@
 
   <section class="visualizer-controls" aria-label="Otelaudan valinnat">
     <div class="visualizer-field">
-      <label for="root-select">Kotisävel</label>
+      <label for="root-select" id="root-label">Kotisävel</label>
       <select id="root-select"></select>
     </div>
     <div class="visualizer-field" id="scale-field">
@@ -71,15 +71,27 @@
     </details>
   </section>
 
-  <section class="visualizer-settings" id="chord-settings" hidden>
-    <div class="group">
-      <span class="group-label" id="chord-label">Asteikon soinnut</span>
-      <div class="chord-buttons" id="chord-buttons" role="group" aria-labelledby="chord-label"></div>
+  <section class="visualizer-settings visualizer-chords" id="chord-settings" hidden aria-label="Soinnun näyttötapa">
+    <div class="visualizer-chord-top">
+      <div class="visualizer-field">
+        <label for="chord-quality">Soinnun laatu</label>
+        <select id="chord-quality">
+          <option value="maj">Duuri</option>
+          <option value="min">Molli</option>
+        </select>
+      </div>
+      <div class="chord-modes" role="group" aria-label="Soinnun esitystapa">
+        <button type="button" data-chord-mode="all" aria-pressed="false">Kaikki sointusävelet</button>
+        <button type="button" data-chord-mode="full" aria-pressed="true">Koko ote</button>
+        <button type="button" data-chord-mode="triad" aria-pressed="false">Triadi (G–B–e)</button>
+      </div>
     </div>
-    <label class="visualizer-field visualizer-grip">
-      <span>Sointuote</span>
-      <select id="grip-select"></select>
-    </label>
+    <div class="chord-navigation" id="chord-navigation">
+      <button type="button" id="chord-prev" aria-label="Edellinen sointuote">←</button>
+      <div class="chord-position" id="chord-position" role="status" aria-live="polite"></div>
+      <button type="button" id="chord-next" aria-label="Seuraava sointuote">→</button>
+    </div>
+    <p class="tools-note" id="chord-help"></p>
   </section>
 
   <section class="visualizer-settings visualizer-octaves" id="octave-settings" hidden>
