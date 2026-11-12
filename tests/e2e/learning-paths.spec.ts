@@ -145,7 +145,19 @@ test.describe('Uudet oppimispolut', () => {
     const guitar = mixer.getByRole('checkbox', { name: 'Mallikitara pois' });
     await expect(guitar).not.toBeChecked();
     await expect(tracks.nth(1)).toHaveJSProperty('muted', true);
+    const loop = mixer.getByRole('checkbox', { name: 'Soita looppina' });
+    await expect(loop).not.toBeChecked();
+    await expect(tracks.nth(0)).toHaveJSProperty('loop', false);
+    await expect(tracks.nth(1)).toHaveJSProperty('loop', false);
     await mixer.getByRole('button', { name: '▶ Soita' }).click();
+    await expect(mixer.getByRole('button', { name: '■ Tauko' })).toBeVisible();
+    await loop.check();
+    await expect(tracks.nth(0)).toHaveJSProperty('loop', true);
+    await expect(tracks.nth(1)).toHaveJSProperty('loop', true);
+    await expect(mixer.getByRole('button', { name: '■ Tauko' })).toBeVisible();
+    await loop.uncheck();
+    await expect(tracks.nth(0)).toHaveJSProperty('loop', false);
+    await expect(tracks.nth(1)).toHaveJSProperty('loop', false);
     await expect(mixer.getByRole('button', { name: '■ Tauko' })).toBeVisible();
 
     await guitar.check();
@@ -158,6 +170,27 @@ test.describe('Uudet oppimispolut', () => {
 
     await mixer.getByRole('button', { name: '■ Tauko' }).click();
     await expect(mixer.getByRole('button', { name: '▶ Soita' })).toBeVisible();
+  });
+
+  test('teoria löytyy heti harjoituksen alusta ja vaihtuu harjoituksen mukaan', async ({ page }) => {
+    await page.goto('/kitaraharjoittelija.html?tila=ear-note');
+    const theory = page.getByRole('link', { name: /Lue tämän harjoituksen teoria/ });
+    await expect(theory).toBeVisible();
+    await expect(theory).toHaveAttribute('href', 'book/osa-7.html#intervallit');
+
+    await page.getByRole('combobox', { name: 'Harjoitus' }).selectOption('notes');
+    await expect(theory).toHaveAttribute('href', 'book/osa-5.html#otelauta');
+    await expect(theory).toHaveCount(1);
+
+    await page.goto('/kitaraharjoittelija.html');
+    await page.getByRole('button', { name: /Sävelkorva ja otelauta/ }).click();
+    await expect(page.getByRole('link', { name: /Lue tämän harjoituksen teoria/ }))
+      .toHaveAttribute('href', 'book/osa-5.html#otelauta');
+
+    await page.goto('/kitaraharjoittelija.html');
+    await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
+    await expect(page.getByRole('link', { name: /Lue tämän harjoituksen teoria/ }))
+      .toHaveAttribute('href', 'book/osa-8.html#pentatoniikka');
   });
 
   test('sointupolku tarjoaa vanhan sointusävelharjoituksen ilman kaikkien harjoitusten valikkoa', async ({ page }) => {
