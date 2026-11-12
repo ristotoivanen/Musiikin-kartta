@@ -1,7 +1,9 @@
 # Yksi sointu, kaksi askelta (normaali versio)
 
 Kappaleharjoittelijan toinen ääniversio. Kesto 3:32,208 (212,208 sekuntia).
-Alkuperäiset 10 ääniraitaa ovat samanpituisia, 48 kHz stereo.
+Raidat on koottu Sunolla tehdyn kappaleen kymmenestä stem-tiedostosta
+(ID3: `made with suno; created=2026-11-11T16:10:48Z`). Alkuperäiset raidat ovat
+samanpituisia, 48 kHz stereo.
 
 | Julkaistava äänitiedosto | Alkuperäiset raidat |
 | --- | --- |
@@ -15,10 +17,10 @@ kuin akustisessa versiossa. Normaali versio valitaan **Versio**-valikosta.
 Versiota vaihdettaessa toisto pysähtyy, aikajana palaa nollaan eikä uusi
 versio käynnisty automaattisesti. Kitaran, laulun ja loopin valinnat säilyvät.
 
-Äänitiedostot eivät sisälly GitHub-tekstipäivitykseen.
-
 **Asennus:** Pura keskustelusta ladattu
 `yksi-sointu-kaksi-askelta-normaali-raidat.zip` suoraan worktreen juureen.
+Paketin mukana tuleva `README.txt` on tämän tiedoston lyhyempi kopio, eikä
+sitä tarvita repossa.
 
 ```bash
 cd ~/src/Musiikin-kartta/worktrees/kitaraharjoittelija-oppimispolut
@@ -26,9 +28,17 @@ unzip -o ~/Downloads/yksi-sointu-kaksi-askelta-normaali-raidat.zip -d .
 npm run check:song-audio
 ```
 
-Asennuksen tarkistus odottaa myös akustisen version kolmea raitaa.
-Julkaisuun tarvitaan kaikki kuusi MP3-tiedostoa. Varmista jakeluoikeudet
-ennen julkiseen sivustoon lisäämistä.
+Asennuksen tarkistus odottaa myös akustisen version kolmea raitaa ja
+Am-vamp-harjoitustaustan kahta raitaa.
+
+## Julkaisu ja oikeudet
+
+MP3-tiedostot eivät ole Gitissä. Cloudflare Pages julkaisee GitHub-repon
+sisällön, joten kappaleharjoittelu tarvitsee sivustolla kaikki kuusi raitaa
+joko julkisessa repossa tai erillisessä tallennuspalvelussa.
+
+**Jakeluoikeus on vahvistamatta.** Ehdot ja tarvittavat tarkistukset ovat samat
+kuin [akustisessa versiossa](../yksi-sointu-kaksi-askelta-akustinen/README.md#julkaisu-ja-oikeudet).
 
 Huomautus: HTMLMediaElement-ääniraitojen käynnistys ja jatkuva looppitoisto
 eivät ole näytetarkkaa äänityöasemamiksausta. Tarkista musiikillinen synkka

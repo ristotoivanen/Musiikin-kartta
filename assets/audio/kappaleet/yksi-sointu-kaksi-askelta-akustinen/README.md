@@ -1,8 +1,8 @@
 # Yksi sointu, kaksi askelta (akustinen versio)
 
-Kitaraharjoittelijan neljännen polun mallikappale. Toisto käyttää kolmea
-samaan aikaan käynnistyvää MP3-raitaa. Oletuksena sekä kitara että laulu
-kuuluvat, ja ne saa erikseen mykistettyä keskeyttämättä soittoa.
+Kappaleharjoittelun oletusversio. Toisto käyttää kolmea samaan aikaan
+käynnistyvää MP3-raitaa. Oletuksena sekä kitara että laulu kuuluvat, ja ne saa
+erikseen mykistettyä keskeyttämättä soittoa.
 
 | Julkaistava äänitiedosto | Alkuperäiset raidat |
 | --- | --- |
@@ -10,14 +10,15 @@ kuuluvat, ja ne saa erikseen mykistettyä keskeyttämättä soittoa.
 | yksi-sointu-kaksi-askelta-akustinen-kitara.mp3 | Guitar |
 | yksi-sointu-kaksi-askelta-akustinen-laulu.mp3 | Vocals + Backing Vocals |
 
-Kaikki alkuperäiset 9 ääniraitaa ovat 48 kHz stereo ja kestoltaan
-233,376 sekuntia. Myös kolmen julkaistavan miksatun tiedoston kestot
-ovat täsmälleen 233,376 sekuntia. Käytetty MP3-bittivirta: 192 kbit/s.
+Raidat on koottu Sunolla tehdyn kappaleen yhdeksästä stem-tiedostosta
+(ID3: `made with suno; created=2026-11-11T21:16:11Z`). Kaikki alkuperäiset raidat
+ja kolme koottua tiedostoa ovat 48 kHz stereo ja kestoltaan 233,376 sekuntia.
+MP3-bittivirta on 192 kbit/s.
 
-**Asennus:** Lataa keskustelusta `yksi-sointu-kaksi-askelta-akustinen-raidat.zip`
-ja pura paketti projektin juuriin, ei `harjoittelija/`-kansioon.
+## Asennus kehitystyöpuuhun
 
-Esimerkiksi:
+Pura `yksi-sointu-kaksi-askelta-akustinen-raidat.zip` projektin juureen, ei
+`harjoittelija/`-kansioon:
 
 ```bash
 cd ~/src/Musiikin-kartta/worktrees/kitaraharjoittelija-oppimispolut
@@ -25,9 +26,18 @@ unzip -o ~/Downloads/yksi-sointu-kaksi-askelta-akustinen-raidat.zip -d .
 npm run check:song-audio
 ```
 
-MP3-binäärit eivät sisälly GitHubin koodipäivitykseen; julkaisun yhteydessä
-ne on siirrettävä julkaistavalle palvelimelle erikseen. Älä julkaise
-äänitteitä julkisesti ilman jakeluoikeuksien tarkistamista.
+## Julkaisu ja oikeudet
 
-MP3-striimien soittoaikaeroa korjataan HTMLMediaElementien välillä, mutta
-se ei ole ammattitasoinen näytetarkka audiomiksaus.
+MP3-tiedostot eivät ole Gitissä. Cloudflare Pages julkaisee GitHub-repon
+sisällön, joten tiedostot tulevat sivustolle vasta, kun ne commitoidaan
+julkiseen repoon tai siirretään erilliseen tallennuspalveluun.
+
+**Jakeluoikeus on vahvistamatta.** Sunon ehtojen mukaan kaupallinen käyttö ja
+oikeuksien siirto koskevat vain maksullisen tilauksen aikana luotuja kappaleita.
+Ilmaistason kappaleet on rajattu henkilökohtaiseen, ei-kaupalliseen käyttöön.
+Ennen julkaisua on varmistettava tilaustaso luontihetkellä ja lisättävä
+Suno-alkuperän maininta. Repon Unlicense-lisenssi koskee ohjelmistoa, ei näitä
+äänitteitä.
+
+MP3-raitojen soittoaikaeroa korjataan HTMLMediaElementien välillä. Se ei ole
+näytetarkkaa audiomiksausta, joten ajoitus tarkistetaan kuuntelemalla.

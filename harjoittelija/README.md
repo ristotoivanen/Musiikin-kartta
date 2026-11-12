@@ -130,7 +130,9 @@ MP3-binäärit eivät sisälly GitHubin koodipäivitykseen. Pura sekä
 `yksi-sointu-kaksi-askelta-akustinen-raidat.zip` että
 `yksi-sointu-kaksi-askelta-normaali-raidat.zip` worktreen juureen.
 Tarkista asennus komennolla `npm run check:song-audio`, joka edellyttää
-kaikkien kuuden MP3-tiedoston löytymistä.
+kaikkien kahdeksan MP3-tiedoston löytymistä (kappaleen kuusi raitaa ja
+Am-vamp-taustan kaksi raitaa). Äänitteet on tehty Sunolla, eikä niiden
+jakeluoikeutta ole vielä vahvistettu.
 Katso erilliset [akustisen version tiedot](../assets/audio/kappaleet/yksi-sointu-kaksi-askelta-akustinen/README.md)
 ja [normaalin version tiedot](../assets/audio/kappaleet/yksi-sointu-kaksi-askelta-normaali/README.md).
 
