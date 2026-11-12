@@ -225,6 +225,33 @@ test.describe('Uudet oppimispolut', () => {
     await expect(page.getByRole('heading', { name: 'Soita muistista' })).toBeVisible();
   });
 
+  test('yhdistämisen mallisoitto kattaa koko asteikon ja säilyttää lyhyen siirtymäfraasin', async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem('musiikin-kartta:skaalapolku:v1', '4');
+      localStorage.setItem('musiikin-kartta:skaalapolku:position-2:v1', '4');
+      localStorage.setItem('musiikin-kartta:skaalapolku:bridge-1-2:v1', '1');
+      localStorage.setItem('musiikin-kartta:skaalapolku:active-position:v1', 'bridge');
+    });
+    await page.goto('/kitaraharjoittelija.html');
+    await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
+    await expect(page.getByRole('heading', { name: 'Soita koko asteikko' })).toBeVisible();
+    await expect(page.getByText(/Nauhat 5–10/)).toBeVisible();
+    await expect(page.locator('.practice-board .dot')).toHaveCount(18);
+    await expect(page.getByText(/kaikilla kuudella kielellä|kaikkien kuuden kielen/)).toBeVisible();
+    const loop = page.getByRole('button', { name: '▶ Toista koko asteikko jatkuvasti' });
+    await expect(loop).toBeVisible();
+    await expect(page.getByRole('button', { name: '▶ Kuuntele koko asteikko kerran' })).toBeVisible();
+    await expect(page.getByRole('button', { name: '▶ Kuuntele lyhyt siirtymäfraasi' })).toBeVisible();
+    await loop.click();
+    await expect(page.getByRole('button', { name: '■ Pysäytä koko asteikko' })).toBeVisible();
+    await page.getByRole('button', { name: '■ Pysäytä koko asteikko' }).click();
+    await expect(loop).toBeVisible();
+
+    await page.getByRole('button', { name: 'Harjoiteltu, seuraava vaihe →' }).click();
+    await expect(page.getByRole('heading', { name: 'Yhdistä muistista' })).toBeVisible();
+    await expect(page.getByRole('button', { name: '▶ Toista koko asteikko jatkuvasti' })).toBeVisible();
+  });
+
   test('positioiden 1 ja 2 yhdistäminen avautuu vasta molempien jälkeen ja säilyttää etenemisen', async ({ page }) => {
     await page.addInitScript(() => {
       if (localStorage.getItem('musiikin-kartta:skaalapolku:v1') === null)
