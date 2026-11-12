@@ -15,8 +15,12 @@ test.describe('Uudet oppimispolut', () => {
 
   test('mallikappale avautuu normaalina versiona, ja kitaran sekä laulun saa erikseen pois ilman toiston katkaisua', async ({ page }) => {
     await page.addInitScript(() => {
-      HTMLMediaElement.prototype.play = function () { return Promise.resolve(); };
-      HTMLMediaElement.prototype.pause = function () { /* Ei audiolaitetta selaintestissä */ };
+      // Kirjataan käynnistetyt ja pysäytetyt raidat: pois kytketty raita pysäytetään, ei mykistetä soimaan.
+      const w = window as unknown as { __plays: string[]; __pauses: string[] };
+      w.__plays = []; w.__pauses = [];
+      const file = (el: HTMLMediaElement) => el.getAttribute('src')?.split('/').pop() ?? '';
+      HTMLMediaElement.prototype.play = function () { w.__plays.push(file(this)); return Promise.resolve(); };
+      HTMLMediaElement.prototype.pause = function () { w.__pauses.push(file(this)); };
     });
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Kappaleharjoittelu/ }).click();
@@ -44,17 +48,28 @@ test.describe('Uudet oppimispolut', () => {
     await expect(vocals).toBeChecked();
     await expect(loop).not.toBeChecked();
 
+    const plays = () => page.evaluate(() => (window as unknown as { __plays: string[] }).__plays);
+    const pauses = () => page.evaluate(() => (window as unknown as { __pauses: string[] }).__pauses);
+    const count = (list: string[], end: string) => list.filter(name => name.endsWith(end)).length;
     await player.getByRole('button', { name: '▶ Soita kappale' }).click();
     await expect(player.getByRole('button', { name: '■ Tauko' })).toBeVisible();
+    expect(await plays()).toEqual(['yksi-sointu-kaksi-askelta-normaali-saestys.mp3',
+      'yksi-sointu-kaksi-askelta-normaali-kitara.mp3', 'yksi-sointu-kaksi-askelta-normaali-laulu.mp3']);
     await guitar.uncheck();
     await expect(streams.nth(1)).toHaveJSProperty('muted', true);
     await expect(streams.nth(2)).toHaveJSProperty('muted', false);
+    expect(count(await pauses(), 'kitara.mp3')).toBe(1);
     await vocals.uncheck();
     await expect(streams.nth(2)).toHaveJSProperty('muted', true);
+    expect(count(await pauses(), 'laulu.mp3')).toBe(1);
+    expect(count(await pauses(), 'saestys.mp3')).toBe(0);
     await expect(player.getByRole('button', { name: '■ Tauko' })).toBeVisible();
 
     await guitar.check();
     await expect(streams.nth(1)).toHaveJSProperty('muted', false);
+    // Päälle kytketty kitara käynnistetään uudelleen, laulu pysyy pysäytettynä.
+    expect(count(await plays(), 'kitara.mp3')).toBe(2);
+    expect(count(await plays(), 'laulu.mp3')).toBe(1);
     await loop.check();
     for (let i = 0; i < 3; i++) await expect(streams.nth(i)).toHaveJSProperty('loop', true);
     await expect(player.getByRole('button', { name: '■ Tauko' })).toBeVisible();
@@ -379,8 +394,12 @@ test.describe('Uudet oppimispolut', () => {
   test('improvisointitaustassa kaksi raitaa kulkee yhdessä ja mallikitaran saa mykistettyä', async ({ page }) => {
     await page.addInitScript(() => {
       // Ei vaadi varsinaisia MP3-tiedostoja selaintestille: varmistaa UI:n ohjauksen.
-      HTMLMediaElement.prototype.play = function () { return Promise.resolve(); };
-      HTMLMediaElement.prototype.pause = function () { /* Testissä ei äänilaitetta. */ };
+      // Kirjataan käynnistetyt ja pysäytetyt raidat: pois kytketty raita pysäytetään, ei mykistetä soimaan.
+      const w = window as unknown as { __plays: string[]; __pauses: string[] };
+      w.__plays = []; w.__pauses = [];
+      const file = (el: HTMLMediaElement) => el.getAttribute('src')?.split('/').pop() ?? '';
+      HTMLMediaElement.prototype.play = function () { w.__plays.push(file(this)); return Promise.resolve(); };
+      HTMLMediaElement.prototype.pause = function () { w.__pauses.push(file(this)); };
     });
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
@@ -401,8 +420,13 @@ test.describe('Uudet oppimispolut', () => {
     await expect(loop).not.toBeChecked();
     await expect(tracks.nth(0)).toHaveJSProperty('loop', false);
     await expect(tracks.nth(1)).toHaveJSProperty('loop', false);
+    const plays = () => page.evaluate(() => (window as unknown as { __plays: string[] }).__plays);
+    const pauses = () => page.evaluate(() => (window as unknown as { __pauses: string[] }).__pauses);
+    const count = (list: string[], end: string) => list.filter(name => name.endsWith(end)).length;
     await mixer.getByRole('button', { name: '▶ Soita' }).click();
     await expect(mixer.getByRole('button', { name: '■ Tauko' })).toBeVisible();
+    // Pois kytkettyä kitaraa ei käynnistetä mykistettynä.
+    expect(await plays()).toEqual(['am-vamp-without-guitar.mp3']);
     await loop.check();
     await expect(tracks.nth(0)).toHaveJSProperty('loop', true);
     await expect(tracks.nth(1)).toHaveJSProperty('loop', true);
@@ -415,13 +439,23 @@ test.describe('Uudet oppimispolut', () => {
     await guitar.check();
     await expect(mixer.getByRole('checkbox', { name: 'Kitara kuuluu' })).toBeChecked();
     await expect(tracks.nth(1)).toHaveJSProperty('muted', false);
+    expect(count(await plays(), 'electric-guitar.mp3')).toBe(1);
     await expect(mixer.getByRole('button', { name: '■ Tauko' })).toBeVisible();
     await mixer.getByRole('checkbox', { name: 'Kitara kuuluu' }).uncheck();
     await expect(tracks.nth(1)).toHaveJSProperty('muted', true);
+    expect(count(await pauses(), 'electric-guitar.mp3')).toBeGreaterThanOrEqual(1);
+    expect(count(await pauses(), 'without-guitar.mp3')).toBe(0);
     await expect(mixer.getByRole('button', { name: '■ Tauko' })).toBeVisible();
 
     await mixer.getByRole('button', { name: '■ Tauko' }).click();
     await expect(mixer.getByRole('button', { name: '▶ Soita' })).toBeVisible();
+    // Tauolla kytketty kitara ei käynnisty heti, vaan seuraavan Soita-painalluksen mukana.
+    await guitar.check();
+    expect(count(await plays(), 'electric-guitar.mp3')).toBe(1);
+    await mixer.getByRole('button', { name: '▶ Soita' }).click();
+    await expect(mixer.getByRole('button', { name: '■ Tauko' })).toBeVisible();
+    expect(count(await plays(), 'electric-guitar.mp3')).toBe(2);
+    await mixer.getByRole('button', { name: '■ Tauko' }).click();
   });
 
   test('teoria löytyy heti harjoituksen alusta ja vaihtuu harjoituksen mukaan', async ({ page }) => {

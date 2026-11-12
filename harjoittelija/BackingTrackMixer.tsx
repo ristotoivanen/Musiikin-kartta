@@ -28,6 +28,8 @@ export function BackingTrackMixer() {
   function syncGuitar(force = false) {
     const backing = backingRef.current, guitar = guitarRef.current;
     if (!backing || !guitar || !Number.isFinite(backing.currentTime) || guitar.readyState < 1) return;
+    // Pois kytketty kitara on pysäytettynä, joten sen driftillä ei ole merkitystä.
+    if (!force && guitar.paused) return;
     const drift = Math.abs(guitar.currentTime - backing.currentTime);
     // Loopin vaihtuessa kierrokselta toiselle toinen raita voi käydä hetken
     // alussa ja toinen lopussa. Älä korjaa tätä hetkellistä kääntökohtaa.
@@ -59,8 +61,10 @@ export function BackingTrackMixer() {
     backing.volume = 0.75;
     syncGuitar(true);
     try {
-      // Molemmat play-kutsut tapahtuvat samassa käyttäjän painalluksessa.
-      await Promise.all([backing.play(), guitar.play()]);
+      // Play-kutsut tapahtuvat samassa käyttäjän painalluksessa. Pois kytkettyä kitaraa ei
+      // soiteta mykistettynä: iPhonen Safari ei vie mykistettyä raitaa eteenpäin, eikä se
+      // ala kuulua, kun mykistys poistetaan. Se käynnistetään vasta, kun kitara kytketään.
+      await Promise.all(guitarOn ? [backing.play(), guitar.play()] : [backing.play()]);
       syncGuitar();
       setPlaying(true);
     } catch {
@@ -78,9 +82,15 @@ export function BackingTrackMixer() {
   }
 
   function toggleGuitar(enabled: boolean) {
-    if (enabled) syncGuitar();
-    if (guitarRef.current) guitarRef.current.muted = !enabled;
+    const backing = backingRef.current, guitar = guitarRef.current;
     setGuitarOn(enabled);
+    if (!guitar) return;
+    guitar.muted = !enabled;
+    if (!enabled) { guitar.pause(); return; }
+    if (!backing || !playing) return;
+    // Kitara käynnistetään taustan kohdasta samalla käyttäjän painalluksella.
+    syncGuitar(true);
+    void guitar.play().catch(() => setError('Mallikitaraa ei voitu käynnistää. Kokeile pysäyttää ja soittaa uudelleen.'));
   }
 
   useEffect(() => {
