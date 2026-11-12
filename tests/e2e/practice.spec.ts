@@ -483,9 +483,11 @@ test.describe('sivuston yhtenäisyys', () => {
       await expect(page.getByRole('radio', { name: /Testaa osaamistasi/ })).toBeChecked();
     }
     await expect(page.getByLabel('Asteikko', { exact: true })).toHaveValue('dorian');
-    await expect(page.getByRole('link', { name: 'Lue teoria: Moodit käytännössä' })).toHaveAttribute('href', 'book/osa-11.html#moodit');
-    await expect(page.getByRole('link', { name: 'Katso asteikko otelautaharjoittelijassa' })).toHaveAttribute('href', 'otelautaharjoittelija.html?toonikka=A&asteikko=dorian');
-    await page.getByRole('link', { name: 'Lue teoria: Moodit käytännössä' }).click();
+    const theory = page.getByRole('link', { name: 'Lue tämän harjoituksen teoria: Moodit käytännössä →' });
+    await expect(theory).toHaveAttribute('href', 'book/osa-11.html#moodit');
+    await expect(page.getByRole('link', { name: 'Katso asteikko otelautakartassa' }))
+      .toHaveAttribute('href', 'otelautaharjoittelija.html?toonikka=A&asteikko=dorian');
+    await theory.click();
     await expect(page).toHaveURL(/osa-11\.html#moodit$/);
     await page.goBack();
     await page.getByRole('link', { name: 'Opas · otelauta' }).click();
