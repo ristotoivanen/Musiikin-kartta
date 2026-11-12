@@ -274,3 +274,21 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
   margin: 2px 0 10px; cursor: pointer; color: var(--text); font-size: 14px;
 }
 .note-autoadvance input { width: 19px; height: 19px; margin: 0; accent-color: var(--lavender); }
+
+/* Avosointujen tunnistus: valittavissa neljä tai seitsemän sointunimeä. */
+.chord-difficulty {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px 20px;
+  padding: 12px 16px; margin: 14px 0; border: 1px solid var(--line); border-radius: 12px;
+}
+.chord-difficulty legend { font-weight: 700; padding: 0 6px; }
+.chord-difficulty label { display: flex; align-items: center; gap: 8px; min-height: 44px; cursor: pointer; }
+.chord-difficulty input { width: 18px; height: 18px; accent-color: var(--lavender); }
+.chord-difficulty p { flex-basis: 100%; margin: 0; }
+.chord-journey .string-muted { display: inline-block; margin-left: 8px; color: var(--wrong); font-weight: 800; }
+.chord-journey .practice-board tr.unused { opacity: .55; }
+.chord-journey .practice-board .anchor .dot { background: var(--good); color: #16121f; border: 1px solid #fff; }
+.chord-journey .practice-board .shape .dot { background: #6d4aff; border: 1px solid #fff; }
+.chord-answers { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0 10px; }
+.chord-answers button { min-width: 64px; min-height: 48px; font-size: 18px; font-weight: 750; }
+.chord-answers button.right { background: var(--good); color: #16121f; border-color: var(--good); }
+.chord-answers button.wrong { text-decoration: line-through; border-color: var(--wrong); opacity: .6; }
