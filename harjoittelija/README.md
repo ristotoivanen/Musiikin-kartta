@@ -123,10 +123,25 @@ kaikkien kuuden MP3-tiedoston löytymistä.
 Katso erilliset [akustisen version tiedot](../assets/audio/kappaleet/yksi-sointu-kaksi-askelta-akustinen/README.md)
 ja [normaalin version tiedot](../assets/audio/kappaleet/yksi-sointu-kaksi-askelta-normaali/README.md).
 
-Tarkkaa sointukulkua tai osioiden aikaleimoja ei näytetä vielä, ennen
-kuin ne on varmistettu äänitteistä sovituskohtaisesti. Kolmen erillisen
-HTMLMediaElementin ajoitus ei ole näytetarkka; testaa todellinen
-synkronointi sekä tietokoneella että mobiililaitteella.
+`songChart.ts` sisältää kummankin version oman sointukulun ja osioiden
+aikaleimat. `SongChordChart.tsx` näyttää senhetkisen tahdin ja soinnun
+sekä tarjoaa siirtymisen osioon tai yksittäiseen tahtiin.
+
+**Soinnut ja sanat** -osiossa soinnut voi piilottaa kokonaan tai neljällä
+kumulatiivisesti vaikeutuvalla muistiharjoitustasolla. Soitinkohtaisen
+vaikeuden takia kunkin soinnun piilotusjärjestystä voi muuttaa
+(`songHints.ts`); asetukset tallennetaan paikallisesti. Yhden soinnun
+voi myös paljastaa hetkelliseksi vihjeeksi.
+
+**Näytä koko sanoitus** avaa molemmissa sovituksissa kaikki sanoitetut
+osiot yhdellä kertaa. Oletuksena näytetään vain parhaillaan valitun
+osion sanat. Koko sanoituksen ollessa auki osion erillistä sananäyttöä
+ei toisteta. Instrumentaaliosiin ei lisätä keksittyjä sanoja.
+
+Aikaleimat ja yksittäisten iskujen ajoitukset ovat vielä
+likimääräisiä. Kolmen erillisen HTMLMediaElementin ajoitus ei ole
+näytetarkka; testaa todellinen synkronointi sekä tietokoneella
+että mobiililaitteella.
 
 ## Moduulit
 
