@@ -46,6 +46,15 @@ ZIP-paketista, eivätkä ne vielä sisälly GitHub-haaraan.
 Muistivaiheessa otelautamerkinnät ovat aluksi kokonaan piilossa. Käyttäjä voi
 näyttää ja piilottaa pelkät A-pohjasävelet; koko kuvio näkyy vain palaamalla
 edelliseen sormituksen opetteluvaiheeseen. Vihjeet nollautuvat vaiheenvaihdossa.
+Improvisaatioharjoituksessa (4/4) on kolmen vaihtoehdon valinta:
+**Vain pohjasävelet** (oletus, A-sävelet), **Koko pentatoninen** (position 1
+sävelet A, C, D, E ja G kaikilla kuudella kielellä, A korostettuna) ja
+**Ei sävelvihjeitä**. Merkinnät lasketaan samasta `music.fingeringBoxes`-boksista
+kuin muissa vaiheissa, eikä valinta vaikuta taustaan tai mallifraasiin. Valinta
+palaa oletukseen vaiheenvaihdossa.
+Asteikkopolulla ei enää ole linkkiä vanhaan asteikon sävelharjoitukseen. Vanha
+moottori, sen asetukset ja tallennetut tulokset säilyvät, ja oppaan
+`?tila=scale`-linkit sekä `?vanha=1` avaavat sen edelleen.
 Muistiharjoituksessa käyttäjä voi säätää asteikkoloopin tempoa 5 BPM:n askelin
 välillä 40–140 BPM (oletus 75 BPM, yksi sävel per isku). Nopeutta voi muuttaa myös
 toiston aikana ilman uudelleenkäynnistystä. Äänikelloon jo ajastetut sävelet

@@ -41,8 +41,29 @@ export function Board({ area, marks = [], mutedStrings = [], disabled = false, o
     const box = viewport.current, target = box?.querySelector<HTMLElement>('.target, .anchor');
     if (box && target) box.scrollLeft += target.getBoundingClientRect().left - box.getBoundingClientRect().left - box.clientWidth / 2 + target.clientWidth / 2;
   }, [shown]);
+  // Kapealla näytöllä osa nauhoista jää vierityksen taakse: kerro, kummalla puolella niitä on.
+  const [more, setMore] = useState({ left: false, right: false });
+  useEffect(() => {
+    const box = viewport.current;
+    if (!box) return;
+    const update = () => {
+      const left = box.scrollLeft > 2, right = box.scrollLeft + box.clientWidth < box.scrollWidth - 2;
+      setMore(prev => prev.left === left && prev.right === right ? prev : { left, right });
+    };
+    update();
+    box.addEventListener('scroll', update, { passive: true });
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(update);
+    observer?.observe(box);
+    return () => { box.removeEventListener('scroll', update); observer?.disconnect(); };
+  }, [shown, min, max]);
   const focusable = strings.includes(cursor.string) && cursor.fret >= min && cursor.fret <= max ? cursor : { string: Math.min(...strings), fret: min };
-  return <div ref={viewport} className="fret-scroll" tabIndex={0} role="region" aria-label="Otelaudan vastausruudukko">
+  return <div className={'fret-wrap' + (more.left ? ' more-left' : '') + (more.right ? ' more-right' : '')}>
+    {(more.left || more.right) && <p className="fret-scroll-hint">
+      {more.left && <span aria-hidden="true">← </span>}
+      Vieritä otelautaa sivusuunnassa: nauhoja on lisää {more.left && more.right ? 'molemmilla puolilla' : more.right ? 'oikealla' : 'vasemmalla'}
+      {more.right && <span aria-hidden="true"> →</span>}
+    </p>}
+    <div ref={viewport} className="fret-scroll" tabIndex={0} role="region" aria-label="Otelaudan vastausruudukko">
     <table className="practice-board" style={columns}><caption>{caption} · ohut e ylhäällä, paksu E alhaalla</caption>
       <FretHeader min={min} max={max} />
       <tbody>{music.OPEN_PITCHES.map((_, string) => <tr key={string} className={strings.includes(string) ? '' : 'unused'} style={stringThickness(string)}>
@@ -69,6 +90,7 @@ export function Board({ area, marks = [], mutedStrings = [], disabled = false, o
               onClick={() => onAnswer?.(p)}>{m ? <span className="dot">{m.label || '●'}</span> : null}</button>
           </td>;
         })}</tr>)}</tbody></table>
+    </div>
   </div>;
 }
 

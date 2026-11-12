@@ -64,6 +64,12 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
 
 /* Otelauta */
 .fret-scroll { max-width: 100%; overflow-x: auto; padding-bottom: 8px; }
+/* Vieritysvihje: näkyy vain, kun nauhoja jää näkymän ulkopuolelle. Reunan varjo näyttää suunnan. */
+.fret-wrap { max-width: 100%; }
+.fret-scroll-hint { margin: 10px 0 -8px; font-size: 13px; font-weight: 650; color: var(--gold); }
+.fret-wrap.more-right > .fret-scroll { box-shadow: inset -14px 0 12px -12px var(--gold); }
+.fret-wrap.more-left > .fret-scroll { box-shadow: inset 14px 0 12px -12px var(--gold); }
+.fret-wrap.more-left.more-right > .fret-scroll { box-shadow: inset 14px 0 12px -12px var(--gold), inset -14px 0 12px -12px var(--gold); }
 .practice-board { --head: 105px; border-collapse: separate; border-spacing: 0; font-size: 13px; text-align: center; table-layout: fixed;
   width: min(100%, calc(var(--head) + var(--cols, 6) * 66px)); min-width: calc(var(--head) + var(--cols, 6) * 46px); }
 .practice-board caption { text-align: left; color: var(--muted); margin: 8px 0; white-space: nowrap; }
@@ -474,4 +480,29 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
 .song-all-lyrics > .tools-note { margin: 14px 0 0; }
 @media (max-width: 650px) {
   .song-all-lyrics-grid { grid-template-columns: 1fr; }
+}
+
+/* Improvisaatioharjoituksen sävelvihjeet: kolme vaihtoehtoa segmenttivalintana. */
+.hint-segments {
+  display: flex; flex-wrap: wrap; gap: 0; margin: 14px 0 10px; padding: 0; border: 0;
+}
+.hint-segments legend { width: 100%; margin-bottom: 6px; font-size: 14px; color: var(--muted); }
+.hint-segments label {
+  flex: 1 1 0; display: flex; align-items: center; justify-content: center; min-height: 44px;
+  padding: 8px 12px; border: 1px solid var(--line); background: var(--bg); color: var(--text);
+  font-size: 14px; text-align: center; cursor: pointer;
+}
+.hint-segments label + label { margin-left: -1px; }
+.hint-segments label:first-of-type { border-radius: 9px 0 0 9px; }
+.hint-segments label:last-of-type { border-radius: 0 9px 9px 0; }
+.hint-segments input { position: absolute; opacity: 0; pointer-events: none; }
+.hint-segments label:has(input:checked) {
+  background: var(--purple-dark, #4b2fd6); border-color: var(--lavender); color: #fff; font-weight: 700; z-index: 1;
+}
+.hint-segments label:has(input:focus-visible) { outline: 2px solid var(--lavender); outline-offset: 2px; }
+@media (max-width: 520px) {
+  .hint-segments { flex-direction: column; }
+  .hint-segments label + label { margin-left: 0; margin-top: -1px; }
+  .hint-segments label:first-of-type { border-radius: 9px 9px 0 0; }
+  .hint-segments label:last-of-type { border-radius: 0 0 9px 9px; }
 }

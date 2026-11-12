@@ -135,11 +135,6 @@ function App() {
     setFinished(''); engine.current = null;
     setTrack(next);
   }
-  function openOldScale() {
-    change({ ...sRef.current, mode: 'scale', root: 9, scale: 'mp', box: 1, order: 'up',
-      activity: 'play', hints: 'fade', input: 'board', rounds: 10 });
-    engine.current = null; setFinished(''); setTrack('legacy');
-  }
   function testMic() { setCalibration(''); void ensureMic('test'); }
   function calibrate() {
     if (micRef.current.phase !== 'on' || micRef.current.purpose !== 'test') return;
@@ -336,7 +331,7 @@ function App() {
   if (!inRound && track === null) return <>{introduction}{notice}
     <LearningPaths onSelect={selectTrack} /></>;
   if (!inRound && track === 'scales') return <>{introduction}{notice}
-    <ScaleJourney onBack={() => setTrack(null)} onOpenOldExercise={openOldScale} /></>;
+    <ScaleJourney onBack={() => setTrack(null)} /></>;
   if (!inRound && track === 'ear') return <>{introduction}{notice}
     <NoteJourney onBack={() => setTrack(null)} /></>;
   if (!inRound && track === 'chords') return <>{introduction}{notice}

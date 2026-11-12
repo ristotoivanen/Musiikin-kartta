@@ -281,6 +281,101 @@ test.describe('Uudet oppimispolut', () => {
     await expect(output).toHaveText('75 BPM');
   });
 
+  test('improvisaatioharjoituksen kolme sävelnäyttöä näyttävät position 1 oikeat sävelet ilman vaikutusta ääneen', async ({ page }, testInfo) => {
+    await page.addInitScript(() => {
+      HTMLMediaElement.prototype.play = function () { return Promise.resolve(); };
+      HTMLMediaElement.prototype.pause = function () { /* Testissä ei äänilaitetta. */ };
+    });
+    await page.goto('/kitaraharjoittelija.html');
+    await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
+    // Vanhaan asteikon sävelharjoitukseen ei ole enää näkyvää linkkiä.
+    await expect(page.getByText(/Vanha asteikon sävelharjoitus|vanha asteikkoharjoitus/i)).toHaveCount(0);
+    for (let i = 0; i < 3; i++) await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
+    await expect(page.getByRole('heading', { name: 'Improvisoi taustan päälle' })).toBeVisible();
+
+    const hints = page.getByRole('group', { name: 'Sävelvihjeet otelaudalla' });
+    const radio = (name: string) => hints.getByRole('radio', { name });
+    // Käyttäjä painaa näkyvää segmenttiä; varsinainen radiopainike on sen sisällä.
+    const choose = (name: string) => hints.locator('label', { hasText: name }).click();
+    // Merkinnät kielinumeroittain (0 = ohut e, 5 = paksu E) ja nauhoittain.
+    const marks = () => page.locator('.practice-board td.target button, .practice-board td.shape button').evaluateAll(buttons =>
+      buttons.map(button => ({
+        at: button.getAttribute('data-string') + ':' + button.getAttribute('data-fret'),
+        label: button.textContent ?? '',
+        root: button.closest('td')!.classList.contains('target'),
+      })).sort((a, b) => a.at.localeCompare(b.at)));
+    const roots = ['0:5', '3:7', '5:5'];
+
+    await expect(radio('Vain pohjasävelet')).toBeChecked();
+    let shown = await marks();
+    expect(shown.map(mark => mark.at)).toEqual(roots);
+    expect(shown.every(mark => mark.label === 'A' && mark.root)).toBe(true);
+
+    await choose('Koko pentatoninen');
+    shown = await marks();
+    expect(shown).toEqual([
+      { at: '0:5', label: 'A', root: true }, { at: '0:8', label: 'C', root: false },
+      { at: '1:5', label: 'E', root: false }, { at: '1:8', label: 'G', root: false },
+      { at: '2:5', label: 'C', root: false }, { at: '2:7', label: 'D', root: false },
+      { at: '3:5', label: 'G', root: false }, { at: '3:7', label: 'A', root: true },
+      { at: '4:5', label: 'D', root: false }, { at: '4:7', label: 'E', root: false },
+      { at: '5:5', label: 'A', root: true }, { at: '5:8', label: 'C', root: false },
+    ]);
+    await expect(page.getByText(/A-pohjasävelet on korostettu/)).toBeVisible();
+
+    // Tausta ja mallifraasi toimivat jokaisella näytöllä.
+    const mixer = page.locator('.backing-track-mixer');
+    await mixer.getByRole('button', { name: '▶ Soita' }).click();
+    await expect(mixer.getByRole('button', { name: '■ Tauko' })).toBeVisible();
+    await choose('Ei sävelvihjeitä');
+    await expect(page.locator('.practice-board .dot')).toHaveCount(0);
+    await expect(mixer.getByRole('button', { name: '■ Tauko' })).toBeVisible();
+    await page.getByRole('button', { name: '▶ Mallifraasi' }).click();
+    await expect(page.getByRole('alert')).toHaveCount(0);
+    await choose('Vain pohjasävelet');
+    await expect(page.locator('.practice-board .dot')).toHaveCount(3);
+    await expect(mixer.getByRole('button', { name: '■ Tauko' })).toBeVisible();
+
+    // Kapealla näytöllä nauha 8 on vierityksen takana: vihje kertoo sen, ja nauhan saa näkyviin vierittämällä.
+    const scroller = page.locator('.fret-scroll');
+    const hint = page.locator('.fret-scroll-hint');
+    if (testInfo.project.name === 'phone') {
+      await expect(hint).toContainText('nauhoja on lisää');
+      const fret8 = page.locator('.practice-board button[data-string="0"][data-fret="8"]');
+      await scroller.evaluate(element => { element.scrollLeft = element.scrollWidth; });
+      await expect(hint).toContainText('vasemmalla');
+      const [cell, view] = [(await fret8.boundingBox())!, (await scroller.boundingBox())!];
+      expect(cell.x).toBeGreaterThanOrEqual(view.x);
+      expect(cell.x + cell.width).toBeLessThanOrEqual(view.x + view.width + 1);
+      await scroller.evaluate(element => { element.scrollLeft = 0; });
+      await expect(hint).toContainText('oikealla');
+      expect((await page.locator('.practice-board .dot').first().boundingBox())!.width).toBeGreaterThanOrEqual(24);
+    } else {
+      await expect(hint).toHaveCount(0);
+    }
+
+    if (testInfo.project.name === 'phone') {
+      const width = page.viewportSize()!.width;
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+      for (const name of ['Vain pohjasävelet', 'Koko pentatoninen', 'Ei sävelvihjeitä']) {
+        const box = (await hints.locator('label', { hasText: name }).boundingBox())!;
+        expect(box.x + box.width).toBeLessThanOrEqual(width);
+        expect(box.height).toBeGreaterThanOrEqual(44);
+      }
+    }
+
+    // Muistiharjoitus 3/4 alkaa edelleen ilman vihjeitä, ja paluu improvisointiin palauttaa oletuksen.
+    await choose('Ei sävelvihjeitä');
+    await page.getByRole('button', { name: /Soita muistista/ }).click();
+    await expect(page.locator('.practice-board .dot')).toHaveCount(0);
+    await expect(hints).toHaveCount(0);
+    await page.getByRole('button', { name: 'Näytä pohjasävelet' }).click();
+    await expect(page.locator('.practice-board .dot')).toHaveCount(3);
+    await page.getByRole('button', { name: /Improvisoi taustan päälle/ }).click();
+    await expect(radio('Vain pohjasävelet')).toBeChecked();
+    await expect(page.locator('.practice-board .dot')).toHaveCount(3);
+  });
+
   test('improvisointitaustassa kaksi raitaa kulkee yhdessä ja mallikitaran saa mykistettyä', async ({ page }) => {
     await page.addInitScript(() => {
       // Ei vaadi varsinaisia MP3-tiedostoja selaintestille: varmistaa UI:n ohjauksen.

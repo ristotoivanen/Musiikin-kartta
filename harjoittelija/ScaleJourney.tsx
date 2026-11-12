@@ -28,6 +28,14 @@ const steps = [
   { title: 'Positio 1 harjoiteltu', detail: 'Palaa harjoitukseen ja kertaa myöhemmin.' },
 ] as const;
 
+/** Improvisaatioharjoituksen sävelnäyttö. Vaikuttaa vain otelaudan merkintöihin, ei ääneen. */
+type ImproHints = 'roots' | 'scale' | 'none';
+const IMPRO_HINTS: { value: ImproHints; label: string; note: string }[] = [
+  { value: 'roots', label: 'Vain pohjasävelet', note: 'Näkyvissä ovat vain A-pohjasävelet.' },
+  { value: 'scale', label: 'Koko pentatoninen', note: 'Näkyvissä on koko position 1 A-mollipentatoninen. A-pohjasävelet on korostettu.' },
+  { value: 'none', label: 'Ei sävelvihjeitä', note: 'Otelauta on ilman sävelmerkintöjä: improvisoi muistista.' },
+];
+
 function readProgress(): number {
   try {
     const value = Number(localStorage.getItem(PROGRESS_KEY));
@@ -40,11 +48,13 @@ function readProgress(): number {
  * Etukäteiskäsitys, kuva, asteikon toisto, muistaminen ja musiikillinen soveltaminen.
  * Osaaminen kirjataan käyttäjän itsearviona, ei automaattisena mikrofonitulkintana.
  */
-export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void; onOpenOldExercise: () => void }) {
+export function ScaleJourney({ onBack }: { onBack: () => void }) {
   const [unlocked, setUnlocked] = useState(readProgress);
   const [step, setStep] = useState(readProgress);
   // Muistiharjoituksessa ei näytetä koko kuviota: vain erikseen pyydetyt A-pohjasävelet.
   const [showRoots, setShowRoots] = useState(false);
+  // Improvisoinnissa pohjasävelet näkyvät oletuksena; muut vaihtoehdot valitaan itse.
+  const [improHints, setImproHints] = useState<ImproHints>('roots');
   const [tempo, setTempo] = useState(readTempo);
   const [playing, setPlaying] = useState<'phrase' | 'loop' | null>(null);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -92,12 +102,17 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
   // Sävelet löytyvät kokonaan 1. positiosta. Rytmi on tässä vielä tasainen.
   const examplePhrase = [69, 72, 69, 67, 64, 67, 69];
   const min = box.start, max = box.end;
+  const isRoot = (midi: number) => pc(midi) === 9;
+  // Kaikki merkinnät tulevat position 1 boksista (fingeringBoxes), ei erillisestä sävelkartasta.
+  const visible = (midi: number) => step < 2 ? true
+    : step === 2 ? showRoots && isRoot(midi)
+    : improHints === 'scale' || (improHints === 'roots' && isRoot(midi));
   const marks: Mark[] = played
-    .filter(position => step < 2 || (showRoots && pc(position.midi) === 9))
+    .filter(position => visible(position.midi))
     .map(position => ({
-      ...position, label: step >= 2 ? 'A' : note(position.midi),
+      ...position, label: step < 2 || (step === 3 && improHints === 'scale') ? note(position.midi) : 'A',
       kind: step < 2 && activePosition?.string === position.string && activePosition.fret === position.fret
-        ? 'playing' as const : pc(position.midi) === 9 ? 'answer' as const : 'shape' as const,
+        ? 'playing' as const : isRoot(position.midi) ? 'answer' as const : 'shape' as const,
     }));
 
   async function listen(kind: 'phrase' | 'loop') {
@@ -123,7 +138,7 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
   function completeStep() {
     stopPlayback();
     const next = Math.min(4, step + 1);
-    setStep(next); setShowRoots(false);
+    setStep(next); setShowRoots(false); setImproHints('roots');
     if (next > unlocked) {
       setUnlocked(next);
       try { localStorage.setItem(PROGRESS_KEY, String(next)); } catch { /* Selain voi estää tallennuksen. */ }
@@ -132,7 +147,7 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
   function selectStep(index: number) {
     if (index > unlocked) return;
     stopPlayback();
-    setStep(index); setShowRoots(false);
+    setStep(index); setShowRoots(false); setImproHints('roots');
   }
 
   return <section className="scale-journey" aria-labelledby="scale-path-title">
@@ -189,15 +204,29 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
         </p>}
         {audioError && <p className="error" role="alert">{audioError}</p>}
         {step >= 1 && step <= 3 && <>
-          {step >= 2 && <div className="action-row">
+          {step === 2 && <div className="action-row">
             <button type="button" aria-pressed={showRoots} onClick={() => setShowRoots(value => !value)}>
               {showRoots ? 'Piilota pohjasävelet' : 'Näytä pohjasävelet'}
             </button>
-            {step === 2 && <button type="button" onClick={() => selectStep(1)}>← Palaa edelliseen opetukseen</button>}
-            {step === 3 && <button type="button" onClick={() => void listen('phrase')}>▶ Mallifraasi</button>}
+            <button type="button" onClick={() => selectStep(1)}>← Palaa edelliseen opetukseen</button>
           </div>}
+          {step === 3 && <>
+            <fieldset className="hint-segments">
+              <legend>Sävelvihjeet otelaudalla</legend>
+              {IMPRO_HINTS.map(option => <label key={option.value}>
+                <input type="radio" name="impro-hints" value={option.value}
+                  checked={improHints === option.value} onChange={() => setImproHints(option.value)} />
+                <span>{option.label}</span>
+              </label>)}
+            </fieldset>
+            <div className="action-row">
+              <button type="button" onClick={() => void listen('phrase')}>▶ Mallifraasi</button>
+            </div>
+          </>}
           <Board area={{ strings: [0,1,2,3,4,5], min, max, fixed: 'box' }} marks={marks} disabled caption="A-mollipentatoninen, positio 1" />
-          <p className="tools-note">{step < 2 ? 'Vihreällä merkitty A on pohjasävel.' : showRoots ? 'Näkyvissä ovat vain A-pohjasävelet.' : 'Otelauta on ilman vihjemerkintöjä.'} Sovellus ei mittaa soittoasi: arvioit itse, miten harjoitus sujui.</p>
+          <p className="tools-note">{step < 2 ? 'Vihreällä merkitty A on pohjasävel.'
+            : step === 3 ? IMPRO_HINTS.find(option => option.value === improHints)!.note
+            : showRoots ? 'Näkyvissä ovat vain A-pohjasävelet.' : 'Otelauta on ilman vihjemerkintöjä.'} Sovellus ei mittaa soittoasi: arvioit itse, miten harjoitus sujui.</p>
         </>}
         {step === 0 && <>
           <Board area={{ strings: [0,1,2,3,4,5], min, max, fixed: 'box' }} marks={marks} disabled caption="Ensimmäisen position sävelet" />
@@ -223,10 +252,6 @@ export function ScaleJourney({ onBack, onOpenOldExercise }: { onBack: () => void
       <h3>Seuraavaksi tällä polulla</h3>
       <p>🔒 Positio 2 · 🔒 Positioiden 1 ja 2 yhdistäminen · 🔒 Positio 3</p>
       <p className="tools-note">Nämä harjoitukset ovat vielä toteuttamatta. Ensimmäinen positio toimii uuden rakenteen testiversiona.</p>
-      <details><summary>Vanha asteikon sävelharjoitus</summary>
-        <p>Halutessasi voit käyttää myös aiempaa otelaudalta vastaamisen harjoitusta. Se avautuu omine asetuksineen.</p>
-        <button type="button" onClick={() => { stopPlayback(); onOpenOldExercise(); }}>Avaa vanha asteikkoharjoitus</button>
-      </details>
     </div>
   </section>;
 }
