@@ -202,7 +202,7 @@ export class ReferencePlayer {
    * kellolla ja kuvakorostuksen ajastimet siivotaan myös keskeytyksessä.
    */
   async playTimed(notes: { midi: number; beat: number; duration: number }[], bpm: number,
-    onNote?: (index: number) => void): Promise<boolean> {
+    onNote?: (index: number) => void, onSilence?: () => void): Promise<boolean> {
     this.stop();
     if (!notes.length) return false;
     const token = this.token;
@@ -235,6 +235,13 @@ export class ReferencePlayer {
       if (onNote) this.noteTimers.push(setTimeout(() => {
         if (token === this.token) onNote(index);
       }, 50 + event.beat * secondsPerBeat * 1000));
+      // Pitkän tauon aikana edellinen nauhapaikka ei saa jäädä näkyviin.
+      const nextBeat = notes[index + 1]?.beat ?? Infinity;
+      if (onSilence && nextBeat > event.beat + event.duration + .02) {
+        this.noteTimers.push(setTimeout(() => {
+          if (token === this.token) onSilence();
+        }, 50 + event.beat * secondsPerBeat * 1000 + length * 1000));
+      }
       finalBeat = Math.max(finalBeat, event.beat + event.duration);
     });
     const completed = await new Promise<boolean>(resolve => {
