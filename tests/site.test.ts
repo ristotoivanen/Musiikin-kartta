@@ -1,4 +1,5 @@
 import { readFileSync, readdirSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { Script } from 'node:vm';
 import { describe,it,expect } from 'vitest';
 import ts from 'typescript';
@@ -86,5 +87,19 @@ describe('staattisen sivuston yhteensopivuus',()=>{
     expect(js).toContain("const KEY = 'musiikin-kartta:luvut';");
     expect(js).toContain("const OLD_KEY = 'musiikin-kartta:tehdyt';");
     expect(js).not.toMatch(/localStorage\.(setItem|removeItem)\('musiikin-kartta:harjoittelu'/);
+  });
+
+  it('jokaisen tyylitiedostolinkin versiotunniste vastaa tiedoston nykyistä sisältöä',()=>{
+    // Ilman tunnistetta selain voi käyttää vanhaa CSS:ää uuden HTML:n kanssa (Cloudflare: max-age 4 h).
+    const pages=['index.html','otelautaharjoittelija.html','kitaraharjoittelija.html',...readdirSync(new URL('../book/',import.meta.url)).filter(f=>f.endsWith('.html')).map(f=>'book/'+f)];
+    for(const page of pages){
+      const links=[...read(page).matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(m=>m[1]);
+      expect(links.length,page).toBeGreaterThan(0);
+      for(const link of links){
+        const [href,v]=link.split('?v=');
+        const file=new URL('../'+(page.includes('/')?page.slice(0,page.lastIndexOf('/')+1):'')+href,import.meta.url);
+        expect(v,`${page}: ${href} (aja node tools/versioi-tyylit.mjs)`).toBe(createHash('sha256').update(readFileSync(file)).digest('hex').slice(0,10));
+      }
+    }
   });
 });
