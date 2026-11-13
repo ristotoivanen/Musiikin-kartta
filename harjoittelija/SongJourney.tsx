@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { SongChordChart } from './SongChordChart';
 import { SongScales } from './SongScales';
 import {
-  SongGainMixer, StemAligner, elementVolumeWorks, loadSongVolume, saveSongVolume, trackLevel, type SongTrack,
+  SongGainMixer, StemAligner, loadSongVolume, saveSongVolume, songVolumeMode, trackLevel, type SongTrack,
 } from './songAudio';
 import { DEFAULT_SONG_VERSION, isSongLink, songLink, versionFromSongLink, type SongVersion } from './songChart';
 
@@ -74,10 +74,12 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   const [chordPanelOpen, setChordPanelOpen] = useState(false);
   const [scalePanelOpen, setScalePanelOpen] = useState(false);
   const [volume, setVolume] = useState(loadSongVolume);
-  // Työpöytäselaimissa käytetään elementin volume-arvoa. iOS Safarissa se ei toimi, joten
+  // Työpöytäselaimissa käytetään elementin volume-arvoa. iOS:llä se ei vaikuta ääneen, joten
   // raidat ohjataan Web Audion GainNodeihin ensimmäisestä Soita-painalluksesta alkaen.
-  const [volumeMode] = useState<'element' | 'webaudio'>(() => elementVolumeWorks() ? 'element' : 'webaudio');
+  const [volumeMode] = useState<'element' | 'webaudio'>(() => songVolumeMode());
   const mixer = useRef<SongGainMixer | null>(null);
+  // Näkyvä ilmoitus, jos GainNode-reititys ei onnistu: säädin ei silloin vaikuta ääneen.
+  const [volumeNote, setVolumeNote] = useState('');
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
   const [error, setError] = useState('');
@@ -195,8 +197,9 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
     retryPendingSeek(backing);
     if (volumeMode === 'webaudio') {
       // AudioContext käynnistyy käyttäjän painalluksesta. Jokainen elementti kytketään vain kerran.
-      mixer.current ??= new SongGainMixer();
-      if (mixer.current.unlock()) for (const stem of [backing, guitar, vocals]) mixer.current.route(stem);
+      const gains = mixer.current ??= new SongGainMixer();
+      const routed = gains.unlock() && [backing, guitar, vocals].map(stem => gains.route(stem)).every(Boolean);
+      setVolumeNote(routed ? '' : 'Äänenvoimakkuutta ei voi säätää tässä selaimessa. Käytä laitteen äänenvoimakkuuspainikkeita. ' + gains.lastError);
     }
     applyLevels();
     guitar.muted = !guitarOn;
@@ -214,6 +217,14 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
       if (request !== playbackRequest.current) return;
       syncStems();
       setPlaying(true);
+      // Reititetty raita kuuluu vain, kun Web Audio on käynnissä. Jos se jää pysähdyksiin, kerrotaan siitä.
+      if (volumeMode === 'webaudio' && mixer.current?.routed(backing)) {
+        const gains = mixer.current;
+        setTimeout(() => {
+          if (request === playbackRequest.current && gains.state !== 'running')
+            setError(`Ääni ei käynnistynyt (Web Audio: ${gains.state}). Pysäytä ja soita uudelleen.${gains.lastError ? ' ' + gains.lastError : ''}`);
+        }, 800);
+      }
     } catch {
       if (request !== playbackRequest.current) return;
       pause();
@@ -307,6 +318,7 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
           <output aria-hidden="true">{volume} %</output>
         </label>
       </div>
+      {volumeNote && <p className="tools-note" role="status">{volumeNote}</p>}
       <p className="song-download">
         {/* Tavallinen saman originin linkki: lataus ei koske soittimen toistoon, mykistyksiin eikä äänenvoimakkuuteen. */}
         <a href={song.download} download={song.download.split('/').pop()} type="audio/mpeg">

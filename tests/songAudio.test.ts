@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   DEFAULT_SONG_VOLUME, MAX_DRIFT_SECONDS, MIN_DRIFT_FIX_INTERVAL_MS, SongGainMixer, TRACK_BALANCE,
-  IOS_SEEK_LATENCY_SECONDS, StemAligner, elementVolumeWorks, initialSeekLatency, parseSongVolume,
+  IOS_SEEK_LATENCY_SECONDS, StemAligner, elementVolumeWorks, initialSeekLatency, isIOSDevice, parseSongVolume, songVolumeMode,
   resetSharedSeekLatency, shouldCorrectDrift, trackLevel,
 } from '../harjoittelija/songAudio';
 
@@ -34,6 +34,56 @@ describe('Kappaleharjoittelijan yhteinen äänenvoimakkuus', () => {
     expect(elementVolumeWorks(() => ios as unknown as HTMLMediaElement)).toBe(false);
   });
 
+  it('nykyinen iOS palauttaa asetetun volume-arvon, joten iOS-laite valitsee GainNode-tilan lukutestistä riippumatta', () => {
+    // Fyysinen iPhone 13.11.2026: säädin ei toiminut. iOS tallentaa ja palauttaa arvon, mutta ei käytä sitä.
+    const stored = { _v: 1, get volume() { return this._v; }, set volume(value: number) { this._v = value; } };
+    expect(elementVolumeWorks(() => stored as unknown as HTMLMediaElement)).toBe(true);
+    expect(songVolumeMode(true, () => true)).toBe('webaudio');
+    expect(songVolumeMode(false, () => true)).toBe('element');
+    expect(songVolumeMode(false, () => false)).toBe('webaudio');
+  });
+
+  it('tunnistaa iPhonen, iPadin ja iPadOS:n työpöytätilan, mutta ei Macia eikä Androidia', () => {
+    const nav = (userAgent: string, platform = '', maxTouchPoints = 0) => ({ userAgent, platform, maxTouchPoints });
+    expect(isIOSDevice(nav('Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 Version/18.7 Mobile/15E148 Safari/604.1'))).toBe(true);
+    expect(isIOSDevice(nav('Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 CriOS/131.0 Mobile/15E148 Safari/604.1'))).toBe(true);
+    expect(isIOSDevice(nav('Mozilla/5.0 (iPad; CPU OS 17_5 like Mac OS X) AppleWebKit/605.1.15'))).toBe(true);
+    expect(isIOSDevice(nav('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Version/18.0 Safari/605.1.15', 'MacIntel', 5))).toBe(true);
+    expect(isIOSDevice(nav('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Version/18.0 Safari/605.1.15', 'MacIntel', 0))).toBe(false);
+    expect(isIOSDevice(nav('Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/131.0 Mobile Safari/537.36', 'Linux armv8l', 5))).toBe(false);
+    expect(isIOSDevice(undefined)).toBe(false);
+  });
+
+  it('GainNode-reititys asettaa iOS:n ääni-istunnon toistoksi, jotta äänetön-kytkin ei vaimenna kappaletta', () => {
+    const context = { state: 'running', destination: {}, resume: vi.fn(() => Promise.resolve()), close: vi.fn(() => Promise.resolve()) };
+    const ios = { audioSession: { type: 'auto' } };
+    new SongGainMixer(() => context as unknown as AudioContext, ios).unlock();
+    expect(ios.audioSession.type).toBe('playback');
+    // Selaimissa ilman ääni-istuntoa mitään ei aseteta eikä synny virhettä.
+    const mixer = new SongGainMixer(() => context as unknown as AudioContext, {});
+    expect(mixer.unlock()).toBe(true);
+    expect(mixer.lastError).toBe('');
+    expect(mixer.state).toBe('running');
+  });
+
+  it('kytkentävirhe kirjataan eikä niellä hiljaa', () => {
+    const context = {
+      state: 'running', destination: {}, resume: vi.fn(() => Promise.resolve()), close: vi.fn(() => Promise.resolve()),
+      createMediaElementSource: vi.fn(() => { throw new Error('InvalidStateError'); }),
+      createGain: vi.fn(),
+    };
+    const mixer = new SongGainMixer(() => context as unknown as AudioContext, {});
+    const element = {} as HTMLMediaElement;
+    expect(mixer.unlock()).toBe(true);
+    expect(mixer.route(element)).toBe(false);
+    expect(mixer.lastError).toContain('InvalidStateError');
+    expect(mixer.routed(element)).toBe(false);
+    expect(mixer.level(element)).toBeNull();
+    const broken = new SongGainMixer(() => { throw new Error('Web Audio puuttuu'); }, {});
+    expect(broken.unlock()).toBe(false);
+    expect(broken.lastError).toContain('Web Audio puuttuu');
+  });
+
   it('GainNode-reititys kytkee jokaisen elementin vain kerran ja käynnistää kontekstin', () => {
     const gains: { gain: { value: number }; connect: ReturnType<typeof vi.fn> }[] = [];
     const context = {
@@ -57,6 +107,7 @@ describe('Kappaleharjoittelijan yhteinen äänenvoimakkuus', () => {
     mixer.setLevel(a, 0.4);
     mixer.setLevel(b, 0);
     expect(gains.map(node => node.gain.value)).toEqual([0.4, 0]);
+    expect([mixer.level(a), mixer.level(b)]).toEqual([0.4, 0]);
     expect(mixer.routed(a)).toBe(true);
     mixer.close();
     expect(context.close).toHaveBeenCalled();

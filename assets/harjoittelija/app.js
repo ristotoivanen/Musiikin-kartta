@@ -1,23 +1,23 @@
 function zm(s) {
   return s && s.__esModule && Object.prototype.hasOwnProperty.call(s, "default") ? s.default : s;
 }
-var fo = { exports: {} }, Qr = {}, ho = { exports: {} }, Re = {};
+var fo = { exports: {} }, Qr = {}, ho = { exports: {} }, $e = {};
 var gd;
 function Bm() {
-  if (gd) return Re;
+  if (gd) return $e;
   gd = 1;
-  var s = /* @__PURE__ */ Symbol.for("react.element"), a = /* @__PURE__ */ Symbol.for("react.portal"), o = /* @__PURE__ */ Symbol.for("react.fragment"), c = /* @__PURE__ */ Symbol.for("react.strict_mode"), d = /* @__PURE__ */ Symbol.for("react.profiler"), f = /* @__PURE__ */ Symbol.for("react.provider"), p = /* @__PURE__ */ Symbol.for("react.context"), m = /* @__PURE__ */ Symbol.for("react.forward_ref"), E = /* @__PURE__ */ Symbol.for("react.suspense"), L = /* @__PURE__ */ Symbol.for("react.memo"), v = /* @__PURE__ */ Symbol.for("react.lazy"), j = Symbol.iterator;
-  function M(x) {
+  var s = /* @__PURE__ */ Symbol.for("react.element"), a = /* @__PURE__ */ Symbol.for("react.portal"), o = /* @__PURE__ */ Symbol.for("react.fragment"), c = /* @__PURE__ */ Symbol.for("react.strict_mode"), d = /* @__PURE__ */ Symbol.for("react.profiler"), f = /* @__PURE__ */ Symbol.for("react.provider"), p = /* @__PURE__ */ Symbol.for("react.context"), m = /* @__PURE__ */ Symbol.for("react.forward_ref"), E = /* @__PURE__ */ Symbol.for("react.suspense"), P = /* @__PURE__ */ Symbol.for("react.memo"), v = /* @__PURE__ */ Symbol.for("react.lazy"), j = Symbol.iterator;
+  function T(x) {
     return x === null || typeof x != "object" ? null : (x = j && x[j] || x["@@iterator"], typeof x == "function" ? x : null);
   }
-  var O = { isMounted: function() {
+  var R = { isMounted: function() {
     return !1;
   }, enqueueForceUpdate: function() {
   }, enqueueReplaceState: function() {
   }, enqueueSetState: function() {
-  } }, P = Object.assign, w = {};
-  function S(x, y, te) {
-    this.props = x, this.context = y, this.refs = w, this.updater = te || O;
+  } }, A = Object.assign, w = {};
+  function S(x, y, re) {
+    this.props = x, this.context = y, this.refs = w, this.updater = re || R;
   }
   S.prototype.isReactComponent = {}, S.prototype.setState = function(x, y) {
     if (typeof x != "object" && typeof x != "function" && x != null) throw Error("setState(...): takes an object of state variables to update or a function which returns an object of state variables.");
@@ -28,41 +28,41 @@ function Bm() {
   function z() {
   }
   z.prototype = S.prototype;
-  function T(x, y, te) {
-    this.props = x, this.context = y, this.refs = w, this.updater = te || O;
+  function C(x, y, re) {
+    this.props = x, this.context = y, this.refs = w, this.updater = re || R;
   }
-  var K = T.prototype = new z();
-  K.constructor = T, P(K, S.prototype), K.isPureReactComponent = !0;
-  var B = Array.isArray, H = Object.prototype.hasOwnProperty, I = { current: null }, _ = { key: !0, ref: !0, __self: !0, __source: !0 };
-  function $(x, y, te) {
-    var he, we = {}, G = null, V = null;
-    if (y != null) for (he in y.ref !== void 0 && (V = y.ref), y.key !== void 0 && (G = "" + y.key), y) H.call(y, he) && !_.hasOwnProperty(he) && (we[he] = y[he]);
-    var ne = arguments.length - 2;
-    if (ne === 1) we.children = te;
-    else if (1 < ne) {
-      for (var C = Array(ne), Z = 0; Z < ne; Z++) C[Z] = arguments[Z + 2];
-      we.children = C;
+  var K = C.prototype = new z();
+  K.constructor = C, A(K, S.prototype), K.isPureReactComponent = !0;
+  var B = Array.isArray, U = Object.prototype.hasOwnProperty, F = { current: null }, M = { key: !0, ref: !0, __self: !0, __source: !0 };
+  function $(x, y, re) {
+    var he, Se = {}, G = null, V = null;
+    if (y != null) for (he in y.ref !== void 0 && (V = y.ref), y.key !== void 0 && (G = "" + y.key), y) U.call(y, he) && !M.hasOwnProperty(he) && (Se[he] = y[he]);
+    var te = arguments.length - 2;
+    if (te === 1) Se.children = re;
+    else if (1 < te) {
+      for (var X = Array(te), ve = 0; ve < te; ve++) X[ve] = arguments[ve + 2];
+      Se.children = X;
     }
-    if (x && x.defaultProps) for (he in ne = x.defaultProps, ne) we[he] === void 0 && (we[he] = ne[he]);
-    return { $$typeof: s, type: x, key: G, ref: V, props: we, _owner: I.current };
+    if (x && x.defaultProps) for (he in te = x.defaultProps, te) Se[he] === void 0 && (Se[he] = te[he]);
+    return { $$typeof: s, type: x, key: G, ref: V, props: Se, _owner: F.current };
   }
   function ie(x, y) {
     return { $$typeof: s, type: x.type, key: y, ref: x.ref, props: x.props, _owner: x._owner };
   }
-  function J(x) {
+  function Z(x) {
     return typeof x == "object" && x !== null && x.$$typeof === s;
   }
-  function ve(x) {
+  function je(x) {
     var y = { "=": "=0", ":": "=2" };
-    return "$" + x.replace(/[=:]/g, function(te) {
-      return y[te];
+    return "$" + x.replace(/[=:]/g, function(re) {
+      return y[re];
     });
   }
-  var Se = /\/+/g;
-  function X(x, y) {
-    return typeof x == "object" && x !== null && x.key != null ? ve("" + x.key) : y.toString(36);
+  var Ee = /\/+/g;
+  function J(x, y) {
+    return typeof x == "object" && x !== null && x.key != null ? je("" + x.key) : y.toString(36);
   }
-  function fe(x, y, te, he, we) {
+  function de(x, y, re, he, Se) {
     var G = typeof x;
     (G === "undefined" || G === "boolean") && (x = null);
     var V = !1;
@@ -79,86 +79,86 @@ function Bm() {
             V = !0;
         }
     }
-    if (V) return V = x, we = we(V), x = he === "" ? "." + X(V, 0) : he, B(we) ? (te = "", x != null && (te = x.replace(Se, "$&/") + "/"), fe(we, y, te, "", function(Z) {
-      return Z;
-    })) : we != null && (J(we) && (we = ie(we, te + (!we.key || V && V.key === we.key ? "" : ("" + we.key).replace(Se, "$&/") + "/") + x)), y.push(we)), 1;
-    if (V = 0, he = he === "" ? "." : he + ":", B(x)) for (var ne = 0; ne < x.length; ne++) {
-      G = x[ne];
-      var C = he + X(G, ne);
-      V += fe(G, y, te, C, we);
+    if (V) return V = x, Se = Se(V), x = he === "" ? "." + J(V, 0) : he, B(Se) ? (re = "", x != null && (re = x.replace(Ee, "$&/") + "/"), de(Se, y, re, "", function(ve) {
+      return ve;
+    })) : Se != null && (Z(Se) && (Se = ie(Se, re + (!Se.key || V && V.key === Se.key ? "" : ("" + Se.key).replace(Ee, "$&/") + "/") + x)), y.push(Se)), 1;
+    if (V = 0, he = he === "" ? "." : he + ":", B(x)) for (var te = 0; te < x.length; te++) {
+      G = x[te];
+      var X = he + J(G, te);
+      V += de(G, y, re, X, Se);
     }
-    else if (C = M(x), typeof C == "function") for (x = C.call(x), ne = 0; !(G = x.next()).done; ) G = G.value, C = he + X(G, ne++), V += fe(G, y, te, C, we);
+    else if (X = T(x), typeof X == "function") for (x = X.call(x), te = 0; !(G = x.next()).done; ) G = G.value, X = he + J(G, te++), V += de(G, y, re, X, Se);
     else if (G === "object") throw y = String(x), Error("Objects are not valid as a React child (found: " + (y === "[object Object]" ? "object with keys {" + Object.keys(x).join(", ") + "}" : y) + "). If you meant to render a collection of children, use an array instead.");
     return V;
   }
-  function U(x, y, te) {
+  function H(x, y, re) {
     if (x == null) return x;
-    var he = [], we = 0;
-    return fe(x, he, "", "", function(G) {
-      return y.call(te, G, we++);
+    var he = [], Se = 0;
+    return de(x, he, "", "", function(G) {
+      return y.call(re, G, Se++);
     }), he;
   }
-  function ae(x) {
+  function ce(x) {
     if (x._status === -1) {
       var y = x._result;
-      y = y(), y.then(function(te) {
-        (x._status === 0 || x._status === -1) && (x._status = 1, x._result = te);
-      }, function(te) {
-        (x._status === 0 || x._status === -1) && (x._status = 2, x._result = te);
+      y = y(), y.then(function(re) {
+        (x._status === 0 || x._status === -1) && (x._status = 1, x._result = re);
+      }, function(re) {
+        (x._status === 0 || x._status === -1) && (x._status = 2, x._result = re);
       }), x._status === -1 && (x._status = 0, x._result = y);
     }
     if (x._status === 1) return x._result.default;
     throw x._result;
   }
-  var ue = { current: null }, W = { transition: null }, le = { ReactCurrentDispatcher: ue, ReactCurrentBatchConfig: W, ReactCurrentOwner: I };
+  var oe = { current: null }, W = { transition: null }, ue = { ReactCurrentDispatcher: oe, ReactCurrentBatchConfig: W, ReactCurrentOwner: F };
   function ee() {
     throw Error("act(...) is not supported in production builds of React.");
   }
-  return Re.Children = { map: U, forEach: function(x, y, te) {
-    U(x, function() {
+  return $e.Children = { map: H, forEach: function(x, y, re) {
+    H(x, function() {
       y.apply(this, arguments);
-    }, te);
+    }, re);
   }, count: function(x) {
     var y = 0;
-    return U(x, function() {
+    return H(x, function() {
       y++;
     }), y;
   }, toArray: function(x) {
-    return U(x, function(y) {
+    return H(x, function(y) {
       return y;
     }) || [];
   }, only: function(x) {
-    if (!J(x)) throw Error("React.Children.only expected to receive a single React element child.");
+    if (!Z(x)) throw Error("React.Children.only expected to receive a single React element child.");
     return x;
-  } }, Re.Component = S, Re.Fragment = o, Re.Profiler = d, Re.PureComponent = T, Re.StrictMode = c, Re.Suspense = E, Re.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = le, Re.act = ee, Re.cloneElement = function(x, y, te) {
+  } }, $e.Component = S, $e.Fragment = o, $e.Profiler = d, $e.PureComponent = C, $e.StrictMode = c, $e.Suspense = E, $e.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = ue, $e.act = ee, $e.cloneElement = function(x, y, re) {
     if (x == null) throw Error("React.cloneElement(...): The argument must be a React element, but you passed " + x + ".");
-    var he = P({}, x.props), we = x.key, G = x.ref, V = x._owner;
+    var he = A({}, x.props), Se = x.key, G = x.ref, V = x._owner;
     if (y != null) {
-      if (y.ref !== void 0 && (G = y.ref, V = I.current), y.key !== void 0 && (we = "" + y.key), x.type && x.type.defaultProps) var ne = x.type.defaultProps;
-      for (C in y) H.call(y, C) && !_.hasOwnProperty(C) && (he[C] = y[C] === void 0 && ne !== void 0 ? ne[C] : y[C]);
+      if (y.ref !== void 0 && (G = y.ref, V = F.current), y.key !== void 0 && (Se = "" + y.key), x.type && x.type.defaultProps) var te = x.type.defaultProps;
+      for (X in y) U.call(y, X) && !M.hasOwnProperty(X) && (he[X] = y[X] === void 0 && te !== void 0 ? te[X] : y[X]);
     }
-    var C = arguments.length - 2;
-    if (C === 1) he.children = te;
-    else if (1 < C) {
-      ne = Array(C);
-      for (var Z = 0; Z < C; Z++) ne[Z] = arguments[Z + 2];
-      he.children = ne;
+    var X = arguments.length - 2;
+    if (X === 1) he.children = re;
+    else if (1 < X) {
+      te = Array(X);
+      for (var ve = 0; ve < X; ve++) te[ve] = arguments[ve + 2];
+      he.children = te;
     }
-    return { $$typeof: s, type: x.type, key: we, ref: G, props: he, _owner: V };
-  }, Re.createContext = function(x) {
+    return { $$typeof: s, type: x.type, key: Se, ref: G, props: he, _owner: V };
+  }, $e.createContext = function(x) {
     return x = { $$typeof: p, _currentValue: x, _currentValue2: x, _threadCount: 0, Provider: null, Consumer: null, _defaultValue: null, _globalName: null }, x.Provider = { $$typeof: f, _context: x }, x.Consumer = x;
-  }, Re.createElement = $, Re.createFactory = function(x) {
+  }, $e.createElement = $, $e.createFactory = function(x) {
     var y = $.bind(null, x);
     return y.type = x, y;
-  }, Re.createRef = function() {
+  }, $e.createRef = function() {
     return { current: null };
-  }, Re.forwardRef = function(x) {
+  }, $e.forwardRef = function(x) {
     return { $$typeof: m, render: x };
-  }, Re.isValidElement = J, Re.lazy = function(x) {
-    return { $$typeof: v, _payload: { _status: -1, _result: x }, _init: ae };
-  }, Re.memo = function(x, y) {
-    return { $$typeof: L, type: x, compare: y === void 0 ? null : y };
-  }, Re.startTransition = function(x) {
+  }, $e.isValidElement = Z, $e.lazy = function(x) {
+    return { $$typeof: v, _payload: { _status: -1, _result: x }, _init: ce };
+  }, $e.memo = function(x, y) {
+    return { $$typeof: P, type: x, compare: y === void 0 ? null : y };
+  }, $e.startTransition = function(x) {
     var y = W.transition;
     W.transition = {};
     try {
@@ -166,36 +166,36 @@ function Bm() {
     } finally {
       W.transition = y;
     }
-  }, Re.unstable_act = ee, Re.useCallback = function(x, y) {
-    return ue.current.useCallback(x, y);
-  }, Re.useContext = function(x) {
-    return ue.current.useContext(x);
-  }, Re.useDebugValue = function() {
-  }, Re.useDeferredValue = function(x) {
-    return ue.current.useDeferredValue(x);
-  }, Re.useEffect = function(x, y) {
-    return ue.current.useEffect(x, y);
-  }, Re.useId = function() {
-    return ue.current.useId();
-  }, Re.useImperativeHandle = function(x, y, te) {
-    return ue.current.useImperativeHandle(x, y, te);
-  }, Re.useInsertionEffect = function(x, y) {
-    return ue.current.useInsertionEffect(x, y);
-  }, Re.useLayoutEffect = function(x, y) {
-    return ue.current.useLayoutEffect(x, y);
-  }, Re.useMemo = function(x, y) {
-    return ue.current.useMemo(x, y);
-  }, Re.useReducer = function(x, y, te) {
-    return ue.current.useReducer(x, y, te);
-  }, Re.useRef = function(x) {
-    return ue.current.useRef(x);
-  }, Re.useState = function(x) {
-    return ue.current.useState(x);
-  }, Re.useSyncExternalStore = function(x, y, te) {
-    return ue.current.useSyncExternalStore(x, y, te);
-  }, Re.useTransition = function() {
-    return ue.current.useTransition();
-  }, Re.version = "18.3.1", Re;
+  }, $e.unstable_act = ee, $e.useCallback = function(x, y) {
+    return oe.current.useCallback(x, y);
+  }, $e.useContext = function(x) {
+    return oe.current.useContext(x);
+  }, $e.useDebugValue = function() {
+  }, $e.useDeferredValue = function(x) {
+    return oe.current.useDeferredValue(x);
+  }, $e.useEffect = function(x, y) {
+    return oe.current.useEffect(x, y);
+  }, $e.useId = function() {
+    return oe.current.useId();
+  }, $e.useImperativeHandle = function(x, y, re) {
+    return oe.current.useImperativeHandle(x, y, re);
+  }, $e.useInsertionEffect = function(x, y) {
+    return oe.current.useInsertionEffect(x, y);
+  }, $e.useLayoutEffect = function(x, y) {
+    return oe.current.useLayoutEffect(x, y);
+  }, $e.useMemo = function(x, y) {
+    return oe.current.useMemo(x, y);
+  }, $e.useReducer = function(x, y, re) {
+    return oe.current.useReducer(x, y, re);
+  }, $e.useRef = function(x) {
+    return oe.current.useRef(x);
+  }, $e.useState = function(x) {
+    return oe.current.useState(x);
+  }, $e.useSyncExternalStore = function(x, y, re) {
+    return oe.current.useSyncExternalStore(x, y, re);
+  }, $e.useTransition = function() {
+    return oe.current.useTransition();
+  }, $e.version = "18.3.1", $e;
 }
 var jd;
 function Ko() {
@@ -206,12 +206,12 @@ function Vm() {
   if (xd) return Qr;
   xd = 1;
   var s = Ko(), a = /* @__PURE__ */ Symbol.for("react.element"), o = /* @__PURE__ */ Symbol.for("react.fragment"), c = Object.prototype.hasOwnProperty, d = s.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner, f = { key: !0, ref: !0, __self: !0, __source: !0 };
-  function p(m, E, L) {
-    var v, j = {}, M = null, O = null;
-    L !== void 0 && (M = "" + L), E.key !== void 0 && (M = "" + E.key), E.ref !== void 0 && (O = E.ref);
+  function p(m, E, P) {
+    var v, j = {}, T = null, R = null;
+    P !== void 0 && (T = "" + P), E.key !== void 0 && (T = "" + E.key), E.ref !== void 0 && (R = E.ref);
     for (v in E) c.call(E, v) && !f.hasOwnProperty(v) && (j[v] = E[v]);
     if (m && m.defaultProps) for (v in E = m.defaultProps, E) j[v] === void 0 && (j[v] = E[v]);
-    return { $$typeof: a, type: m, key: M, ref: O, props: j, _owner: d.current };
+    return { $$typeof: a, type: m, key: T, ref: R, props: j, _owner: d.current };
   }
   return Qr.Fragment = o, Qr.jsx = p, Qr.jsxs = p, Qr;
 }
@@ -219,16 +219,16 @@ var Sd;
 function Km() {
   return Sd || (Sd = 1, fo.exports = Vm()), fo.exports;
 }
-var r = Km(), A = Ko(), ma = {}, mo = { exports: {} }, zt = {}, po = { exports: {} }, vo = {};
+var r = Km(), _ = Ko(), ma = {}, mo = { exports: {} }, zt = {}, po = { exports: {} }, vo = {};
 var wd;
 function Um() {
   return wd || (wd = 1, (function(s) {
-    function a(W, le) {
+    function a(W, ue) {
       var ee = W.length;
-      W.push(le);
+      W.push(ue);
       e: for (; 0 < ee; ) {
         var x = ee - 1 >>> 1, y = W[x];
-        if (0 < d(y, le)) W[x] = le, W[ee] = y, ee = x;
+        if (0 < d(y, ue)) W[x] = ue, W[ee] = y, ee = x;
         else break e;
       }
     }
@@ -237,21 +237,21 @@ function Um() {
     }
     function c(W) {
       if (W.length === 0) return null;
-      var le = W[0], ee = W.pop();
-      if (ee !== le) {
+      var ue = W[0], ee = W.pop();
+      if (ee !== ue) {
         W[0] = ee;
-        e: for (var x = 0, y = W.length, te = y >>> 1; x < te; ) {
-          var he = 2 * (x + 1) - 1, we = W[he], G = he + 1, V = W[G];
-          if (0 > d(we, ee)) G < y && 0 > d(V, we) ? (W[x] = V, W[G] = ee, x = G) : (W[x] = we, W[he] = ee, x = he);
+        e: for (var x = 0, y = W.length, re = y >>> 1; x < re; ) {
+          var he = 2 * (x + 1) - 1, Se = W[he], G = he + 1, V = W[G];
+          if (0 > d(Se, ee)) G < y && 0 > d(V, Se) ? (W[x] = V, W[G] = ee, x = G) : (W[x] = Se, W[he] = ee, x = he);
           else if (G < y && 0 > d(V, ee)) W[x] = V, W[G] = ee, x = G;
           else break e;
         }
       }
-      return le;
+      return ue;
     }
-    function d(W, le) {
-      var ee = W.sortIndex - le.sortIndex;
-      return ee !== 0 ? ee : W.id - le.id;
+    function d(W, ue) {
+      var ee = W.sortIndex - ue.sortIndex;
+      return ee !== 0 ? ee : W.id - ue.id;
     }
     if (typeof performance == "object" && typeof performance.now == "function") {
       var f = performance;
@@ -264,112 +264,112 @@ function Um() {
         return p.now() - m;
       };
     }
-    var E = [], L = [], v = 1, j = null, M = 3, O = !1, P = !1, w = !1, S = typeof setTimeout == "function" ? setTimeout : null, z = typeof clearTimeout == "function" ? clearTimeout : null, T = typeof setImmediate < "u" ? setImmediate : null;
+    var E = [], P = [], v = 1, j = null, T = 3, R = !1, A = !1, w = !1, S = typeof setTimeout == "function" ? setTimeout : null, z = typeof clearTimeout == "function" ? clearTimeout : null, C = typeof setImmediate < "u" ? setImmediate : null;
     typeof navigator < "u" && navigator.scheduling !== void 0 && navigator.scheduling.isInputPending !== void 0 && navigator.scheduling.isInputPending.bind(navigator.scheduling);
     function K(W) {
-      for (var le = o(L); le !== null; ) {
-        if (le.callback === null) c(L);
-        else if (le.startTime <= W) c(L), le.sortIndex = le.expirationTime, a(E, le);
+      for (var ue = o(P); ue !== null; ) {
+        if (ue.callback === null) c(P);
+        else if (ue.startTime <= W) c(P), ue.sortIndex = ue.expirationTime, a(E, ue);
         else break;
-        le = o(L);
+        ue = o(P);
       }
     }
     function B(W) {
-      if (w = !1, K(W), !P) if (o(E) !== null) P = !0, ae(H);
+      if (w = !1, K(W), !A) if (o(E) !== null) A = !0, ce(U);
       else {
-        var le = o(L);
-        le !== null && ue(B, le.startTime - W);
+        var ue = o(P);
+        ue !== null && oe(B, ue.startTime - W);
       }
     }
-    function H(W, le) {
-      P = !1, w && (w = !1, z($), $ = -1), O = !0;
-      var ee = M;
+    function U(W, ue) {
+      A = !1, w && (w = !1, z($), $ = -1), R = !0;
+      var ee = T;
       try {
-        for (K(le), j = o(E); j !== null && (!(j.expirationTime > le) || W && !ve()); ) {
+        for (K(ue), j = o(E); j !== null && (!(j.expirationTime > ue) || W && !je()); ) {
           var x = j.callback;
           if (typeof x == "function") {
-            j.callback = null, M = j.priorityLevel;
-            var y = x(j.expirationTime <= le);
-            le = s.unstable_now(), typeof y == "function" ? j.callback = y : j === o(E) && c(E), K(le);
+            j.callback = null, T = j.priorityLevel;
+            var y = x(j.expirationTime <= ue);
+            ue = s.unstable_now(), typeof y == "function" ? j.callback = y : j === o(E) && c(E), K(ue);
           } else c(E);
           j = o(E);
         }
-        if (j !== null) var te = !0;
+        if (j !== null) var re = !0;
         else {
-          var he = o(L);
-          he !== null && ue(B, he.startTime - le), te = !1;
+          var he = o(P);
+          he !== null && oe(B, he.startTime - ue), re = !1;
         }
-        return te;
+        return re;
       } finally {
-        j = null, M = ee, O = !1;
+        j = null, T = ee, R = !1;
       }
     }
-    var I = !1, _ = null, $ = -1, ie = 5, J = -1;
-    function ve() {
-      return !(s.unstable_now() - J < ie);
+    var F = !1, M = null, $ = -1, ie = 5, Z = -1;
+    function je() {
+      return !(s.unstable_now() - Z < ie);
     }
-    function Se() {
-      if (_ !== null) {
+    function Ee() {
+      if (M !== null) {
         var W = s.unstable_now();
-        J = W;
-        var le = !0;
+        Z = W;
+        var ue = !0;
         try {
-          le = _(!0, W);
+          ue = M(!0, W);
         } finally {
-          le ? X() : (I = !1, _ = null);
+          ue ? J() : (F = !1, M = null);
         }
-      } else I = !1;
+      } else F = !1;
     }
-    var X;
-    if (typeof T == "function") X = function() {
-      T(Se);
+    var J;
+    if (typeof C == "function") J = function() {
+      C(Ee);
     };
     else if (typeof MessageChannel < "u") {
-      var fe = new MessageChannel(), U = fe.port2;
-      fe.port1.onmessage = Se, X = function() {
-        U.postMessage(null);
+      var de = new MessageChannel(), H = de.port2;
+      de.port1.onmessage = Ee, J = function() {
+        H.postMessage(null);
       };
-    } else X = function() {
-      S(Se, 0);
+    } else J = function() {
+      S(Ee, 0);
     };
-    function ae(W) {
-      _ = W, I || (I = !0, X());
+    function ce(W) {
+      M = W, F || (F = !0, J());
     }
-    function ue(W, le) {
+    function oe(W, ue) {
       $ = S(function() {
         W(s.unstable_now());
-      }, le);
+      }, ue);
     }
     s.unstable_IdlePriority = 5, s.unstable_ImmediatePriority = 1, s.unstable_LowPriority = 4, s.unstable_NormalPriority = 3, s.unstable_Profiling = null, s.unstable_UserBlockingPriority = 2, s.unstable_cancelCallback = function(W) {
       W.callback = null;
     }, s.unstable_continueExecution = function() {
-      P || O || (P = !0, ae(H));
+      A || R || (A = !0, ce(U));
     }, s.unstable_forceFrameRate = function(W) {
       0 > W || 125 < W ? console.error("forceFrameRate takes a positive int between 0 and 125, forcing frame rates higher than 125 fps is not supported") : ie = 0 < W ? Math.floor(1e3 / W) : 5;
     }, s.unstable_getCurrentPriorityLevel = function() {
-      return M;
+      return T;
     }, s.unstable_getFirstCallbackNode = function() {
       return o(E);
     }, s.unstable_next = function(W) {
-      switch (M) {
+      switch (T) {
         case 1:
         case 2:
         case 3:
-          var le = 3;
+          var ue = 3;
           break;
         default:
-          le = M;
+          ue = T;
       }
-      var ee = M;
-      M = le;
+      var ee = T;
+      T = ue;
       try {
         return W();
       } finally {
-        M = ee;
+        T = ee;
       }
     }, s.unstable_pauseExecution = function() {
     }, s.unstable_requestPaint = function() {
-    }, s.unstable_runWithPriority = function(W, le) {
+    }, s.unstable_runWithPriority = function(W, ue) {
       switch (W) {
         case 1:
         case 2:
@@ -380,14 +380,14 @@ function Um() {
         default:
           W = 3;
       }
-      var ee = M;
-      M = W;
+      var ee = T;
+      T = W;
       try {
-        return le();
+        return ue();
       } finally {
-        M = ee;
+        T = ee;
       }
-    }, s.unstable_scheduleCallback = function(W, le, ee) {
+    }, s.unstable_scheduleCallback = function(W, ue, ee) {
       var x = s.unstable_now();
       switch (typeof ee == "object" && ee !== null ? (ee = ee.delay, ee = typeof ee == "number" && 0 < ee ? x + ee : x) : ee = x, W) {
         case 1:
@@ -405,16 +405,16 @@ function Um() {
         default:
           y = 5e3;
       }
-      return y = ee + y, W = { id: v++, callback: le, priorityLevel: W, startTime: ee, expirationTime: y, sortIndex: -1 }, ee > x ? (W.sortIndex = ee, a(L, W), o(E) === null && W === o(L) && (w ? (z($), $ = -1) : w = !0, ue(B, ee - x))) : (W.sortIndex = y, a(E, W), P || O || (P = !0, ae(H))), W;
-    }, s.unstable_shouldYield = ve, s.unstable_wrapCallback = function(W) {
-      var le = M;
+      return y = ee + y, W = { id: v++, callback: ue, priorityLevel: W, startTime: ee, expirationTime: y, sortIndex: -1 }, ee > x ? (W.sortIndex = ee, a(P, W), o(E) === null && W === o(P) && (w ? (z($), $ = -1) : w = !0, oe(B, ee - x))) : (W.sortIndex = y, a(E, W), A || R || (A = !0, ce(U))), W;
+    }, s.unstable_shouldYield = je, s.unstable_wrapCallback = function(W) {
+      var ue = T;
       return function() {
-        var ee = M;
-        M = le;
+        var ee = T;
+        T = ue;
         try {
           return W.apply(this, arguments);
         } finally {
-          M = ee;
+          T = ee;
         }
       };
     };
@@ -440,11 +440,11 @@ function Gm() {
   function p(e, t) {
     for (d[e] = t, e = 0; e < t.length; e++) c.add(t[e]);
   }
-  var m = !(typeof window > "u" || typeof window.document > "u" || typeof window.document.createElement > "u"), E = Object.prototype.hasOwnProperty, L = /^[:A-Z_a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD][:A-Z_a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\-.0-9\u00B7\u0300-\u036F\u203F-\u2040]*$/, v = {}, j = {};
-  function M(e) {
-    return E.call(j, e) ? !0 : E.call(v, e) ? !1 : L.test(e) ? j[e] = !0 : (v[e] = !0, !1);
+  var m = !(typeof window > "u" || typeof window.document > "u" || typeof window.document.createElement > "u"), E = Object.prototype.hasOwnProperty, P = /^[:A-Z_a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD][:A-Z_a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\-.0-9\u00B7\u0300-\u036F\u203F-\u2040]*$/, v = {}, j = {};
+  function T(e) {
+    return E.call(j, e) ? !0 : E.call(v, e) ? !1 : P.test(e) ? j[e] = !0 : (v[e] = !0, !1);
   }
-  function O(e, t, n, i) {
+  function R(e, t, n, i) {
     if (n !== null && n.type === 0) return !1;
     switch (typeof t) {
       case "function":
@@ -456,8 +456,8 @@ function Gm() {
         return !1;
     }
   }
-  function P(e, t, n, i) {
-    if (t === null || typeof t > "u" || O(e, t, n, i)) return !0;
+  function A(e, t, n, i) {
+    if (t === null || typeof t > "u" || R(e, t, n, i)) return !0;
     if (i) return !1;
     if (n !== null) switch (n.type) {
       case 3:
@@ -496,20 +496,20 @@ function Gm() {
     S[e] = new w(e, 5, !1, e.toLowerCase(), null, !1, !1);
   });
   var z = /[\-:]([a-z])/g;
-  function T(e) {
+  function C(e) {
     return e[1].toUpperCase();
   }
   "accent-height alignment-baseline arabic-form baseline-shift cap-height clip-path clip-rule color-interpolation color-interpolation-filters color-profile color-rendering dominant-baseline enable-background fill-opacity fill-rule flood-color flood-opacity font-family font-size font-size-adjust font-stretch font-style font-variant font-weight glyph-name glyph-orientation-horizontal glyph-orientation-vertical horiz-adv-x horiz-origin-x image-rendering letter-spacing lighting-color marker-end marker-mid marker-start overline-position overline-thickness paint-order panose-1 pointer-events rendering-intent shape-rendering stop-color stop-opacity strikethrough-position strikethrough-thickness stroke-dasharray stroke-dashoffset stroke-linecap stroke-linejoin stroke-miterlimit stroke-opacity stroke-width text-anchor text-decoration text-rendering underline-position underline-thickness unicode-bidi unicode-range units-per-em v-alphabetic v-hanging v-ideographic v-mathematical vector-effect vert-adv-y vert-origin-x vert-origin-y word-spacing writing-mode xmlns:xlink x-height".split(" ").forEach(function(e) {
     var t = e.replace(
       z,
-      T
+      C
     );
     S[t] = new w(t, 1, !1, e, null, !1, !1);
   }), "xlink:actuate xlink:arcrole xlink:role xlink:show xlink:title xlink:type".split(" ").forEach(function(e) {
-    var t = e.replace(z, T);
+    var t = e.replace(z, C);
     S[t] = new w(t, 1, !1, e, "http://www.w3.org/1999/xlink", !1, !1);
   }), ["xml:base", "xml:lang", "xml:space"].forEach(function(e) {
-    var t = e.replace(z, T);
+    var t = e.replace(z, C);
     S[t] = new w(t, 1, !1, e, "http://www.w3.org/XML/1998/namespace", !1, !1);
   }), ["tabIndex", "crossOrigin"].forEach(function(e) {
     S[e] = new w(e, 1, !1, e.toLowerCase(), null, !1, !1);
@@ -518,10 +518,10 @@ function Gm() {
   });
   function K(e, t, n, i) {
     var l = S.hasOwnProperty(t) ? S[t] : null;
-    (l !== null ? l.type !== 0 : i || !(2 < t.length) || t[0] !== "o" && t[0] !== "O" || t[1] !== "n" && t[1] !== "N") && (P(t, n, l, i) && (n = null), i || l === null ? M(t) && (n === null ? e.removeAttribute(t) : e.setAttribute(t, "" + n)) : l.mustUseProperty ? e[l.propertyName] = n === null ? l.type === 3 ? !1 : "" : n : (t = l.attributeName, i = l.attributeNamespace, n === null ? e.removeAttribute(t) : (l = l.type, n = l === 3 || l === 4 && n === !0 ? "" : "" + n, i ? e.setAttributeNS(i, t, n) : e.setAttribute(t, n))));
+    (l !== null ? l.type !== 0 : i || !(2 < t.length) || t[0] !== "o" && t[0] !== "O" || t[1] !== "n" && t[1] !== "N") && (A(t, n, l, i) && (n = null), i || l === null ? T(t) && (n === null ? e.removeAttribute(t) : e.setAttribute(t, "" + n)) : l.mustUseProperty ? e[l.propertyName] = n === null ? l.type === 3 ? !1 : "" : n : (t = l.attributeName, i = l.attributeNamespace, n === null ? e.removeAttribute(t) : (l = l.type, n = l === 3 || l === 4 && n === !0 ? "" : "" + n, i ? e.setAttributeNS(i, t, n) : e.setAttribute(t, n))));
   }
-  var B = s.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED, H = /* @__PURE__ */ Symbol.for("react.element"), I = /* @__PURE__ */ Symbol.for("react.portal"), _ = /* @__PURE__ */ Symbol.for("react.fragment"), $ = /* @__PURE__ */ Symbol.for("react.strict_mode"), ie = /* @__PURE__ */ Symbol.for("react.profiler"), J = /* @__PURE__ */ Symbol.for("react.provider"), ve = /* @__PURE__ */ Symbol.for("react.context"), Se = /* @__PURE__ */ Symbol.for("react.forward_ref"), X = /* @__PURE__ */ Symbol.for("react.suspense"), fe = /* @__PURE__ */ Symbol.for("react.suspense_list"), U = /* @__PURE__ */ Symbol.for("react.memo"), ae = /* @__PURE__ */ Symbol.for("react.lazy"), ue = /* @__PURE__ */ Symbol.for("react.offscreen"), W = Symbol.iterator;
-  function le(e) {
+  var B = s.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED, U = /* @__PURE__ */ Symbol.for("react.element"), F = /* @__PURE__ */ Symbol.for("react.portal"), M = /* @__PURE__ */ Symbol.for("react.fragment"), $ = /* @__PURE__ */ Symbol.for("react.strict_mode"), ie = /* @__PURE__ */ Symbol.for("react.profiler"), Z = /* @__PURE__ */ Symbol.for("react.provider"), je = /* @__PURE__ */ Symbol.for("react.context"), Ee = /* @__PURE__ */ Symbol.for("react.forward_ref"), J = /* @__PURE__ */ Symbol.for("react.suspense"), de = /* @__PURE__ */ Symbol.for("react.suspense_list"), H = /* @__PURE__ */ Symbol.for("react.memo"), ce = /* @__PURE__ */ Symbol.for("react.lazy"), oe = /* @__PURE__ */ Symbol.for("react.offscreen"), W = Symbol.iterator;
+  function ue(e) {
     return e === null || typeof e != "object" ? null : (e = W && e[W] || e["@@iterator"], typeof e == "function" ? e : null);
   }
   var ee = Object.assign, x;
@@ -535,10 +535,10 @@ function Gm() {
     return `
 ` + x + e;
   }
-  var te = !1;
+  var re = !1;
   function he(e, t) {
-    if (!e || te) return "";
-    te = !0;
+    if (!e || re) return "";
+    re = !0;
     var n = Error.prepareStackTrace;
     Error.prepareStackTrace = void 0;
     try {
@@ -549,29 +549,29 @@ function Gm() {
       } }), typeof Reflect == "object" && Reflect.construct) {
         try {
           Reflect.construct(t, []);
-        } catch (F) {
-          var i = F;
+        } catch (O) {
+          var i = O;
         }
         Reflect.construct(e, [], t);
       } else {
         try {
           t.call();
-        } catch (F) {
-          i = F;
+        } catch (O) {
+          i = O;
         }
         e.call(t.prototype);
       }
       else {
         try {
           throw Error();
-        } catch (F) {
-          i = F;
+        } catch (O) {
+          i = O;
         }
         e();
       }
-    } catch (F) {
-      if (F && i && typeof F.stack == "string") {
-        for (var l = F.stack.split(`
+    } catch (O) {
+      if (O && i && typeof O.stack == "string") {
+        for (var l = O.stack.split(`
 `), u = i.stack.split(`
 `), h = l.length - 1, k = u.length - 1; 1 <= h && 0 <= k && l[h] !== u[k]; ) k--;
         for (; 1 <= h && 0 <= k; h--, k--) if (l[h] !== u[k]) {
@@ -587,11 +587,11 @@ function Gm() {
         }
       }
     } finally {
-      te = !1, Error.prepareStackTrace = n;
+      re = !1, Error.prepareStackTrace = n;
     }
     return (e = e ? e.displayName || e.name : "") ? y(e) : "";
   }
-  function we(e) {
+  function Se(e) {
     switch (e.tag) {
       case 5:
         return y(e.type);
@@ -618,30 +618,30 @@ function Gm() {
     if (typeof e == "function") return e.displayName || e.name || null;
     if (typeof e == "string") return e;
     switch (e) {
-      case _:
+      case M:
         return "Fragment";
-      case I:
+      case F:
         return "Portal";
       case ie:
         return "Profiler";
       case $:
         return "StrictMode";
-      case X:
+      case J:
         return "Suspense";
-      case fe:
+      case de:
         return "SuspenseList";
     }
     if (typeof e == "object") switch (e.$$typeof) {
-      case ve:
+      case je:
         return (e.displayName || "Context") + ".Consumer";
-      case J:
+      case Z:
         return (e._context.displayName || "Context") + ".Provider";
-      case Se:
+      case Ee:
         var t = e.render;
         return e = e.displayName, e || (e = t.displayName || t.name || "", e = e !== "" ? "ForwardRef(" + e + ")" : "ForwardRef"), e;
-      case U:
+      case H:
         return t = e.displayName || null, t !== null ? t : G(e.type) || "Memo";
-      case ae:
+      case ce:
         t = e._payload, e = e._init;
         try {
           return G(e(t));
@@ -700,7 +700,7 @@ function Gm() {
     }
     return null;
   }
-  function ne(e) {
+  function te(e) {
     switch (typeof e) {
       case "boolean":
       case "number":
@@ -713,12 +713,12 @@ function Gm() {
         return "";
     }
   }
-  function C(e) {
+  function X(e) {
     var t = e.type;
     return (e = e.nodeName) && e.toLowerCase() === "input" && (t === "checkbox" || t === "radio");
   }
-  function Z(e) {
-    var t = C(e) ? "checked" : "value", n = Object.getOwnPropertyDescriptor(e.constructor.prototype, t), i = "" + e[t];
+  function ve(e) {
+    var t = X(e) ? "checked" : "value", n = Object.getOwnPropertyDescriptor(e.constructor.prototype, t), i = "" + e[t];
     if (!e.hasOwnProperty(t) && typeof n < "u" && typeof n.get == "function" && typeof n.set == "function") {
       var l = n.get, u = n.set;
       return Object.defineProperty(e, t, { configurable: !0, get: function() {
@@ -734,17 +734,17 @@ function Gm() {
       } };
     }
   }
-  function oe(e) {
-    e._valueTracker || (e._valueTracker = Z(e));
+  function I(e) {
+    e._valueTracker || (e._valueTracker = ve(e));
   }
-  function ce(e) {
+  function ne(e) {
     if (!e) return !1;
     var t = e._valueTracker;
     if (!t) return !0;
     var n = t.getValue(), i = "";
-    return e && (i = C(e) ? e.checked ? "true" : "false" : e.value), e = i, e !== n ? (t.setValue(e), !0) : !1;
+    return e && (i = X(e) ? e.checked ? "true" : "false" : e.value), e = i, e !== n ? (t.setValue(e), !0) : !1;
   }
-  function me(e) {
+  function ae(e) {
     if (e = e || (typeof document < "u" ? document : void 0), typeof e > "u") return null;
     try {
       return e.activeElement || e.body;
@@ -752,28 +752,28 @@ function Gm() {
       return e.body;
     }
   }
-  function ye(e, t) {
+  function fe(e, t) {
     var n = t.checked;
     return ee({}, t, { defaultChecked: void 0, defaultValue: void 0, value: void 0, checked: n ?? e._wrapperState.initialChecked });
   }
-  function Ae(e, t) {
+  function Ne(e, t) {
     var n = t.defaultValue == null ? "" : t.defaultValue, i = t.checked != null ? t.checked : t.defaultChecked;
-    n = ne(t.value != null ? t.value : n), e._wrapperState = { initialChecked: i, initialValue: n, controlled: t.type === "checkbox" || t.type === "radio" ? t.checked != null : t.value != null };
+    n = te(t.value != null ? t.value : n), e._wrapperState = { initialChecked: i, initialValue: n, controlled: t.type === "checkbox" || t.type === "radio" ? t.checked != null : t.value != null };
   }
-  function Me(e, t) {
+  function we(e, t) {
     t = t.checked, t != null && K(e, "checked", t, !1);
   }
-  function Ie(e, t) {
-    Me(e, t);
-    var n = ne(t.value), i = t.type;
+  function Le(e, t) {
+    we(e, t);
+    var n = te(t.value), i = t.type;
     if (n != null) i === "number" ? (n === 0 && e.value === "" || e.value != n) && (e.value = "" + n) : e.value !== "" + n && (e.value = "" + n);
     else if (i === "submit" || i === "reset") {
       e.removeAttribute("value");
       return;
     }
-    t.hasOwnProperty("value") ? Ye(e, t.type, n) : t.hasOwnProperty("defaultValue") && Ye(e, t.type, ne(t.defaultValue)), t.checked == null && t.defaultChecked != null && (e.defaultChecked = !!t.defaultChecked);
+    t.hasOwnProperty("value") ? Ye(e, t.type, n) : t.hasOwnProperty("defaultValue") && Ye(e, t.type, te(t.defaultValue)), t.checked == null && t.defaultChecked != null && (e.defaultChecked = !!t.defaultChecked);
   }
-  function Qe(e, t, n) {
+  function He(e, t, n) {
     if (t.hasOwnProperty("value") || t.hasOwnProperty("defaultValue")) {
       var i = t.type;
       if (!(i !== "submit" && i !== "reset" || t.value !== void 0 && t.value !== null)) return;
@@ -782,16 +782,16 @@ function Gm() {
     n = e.name, n !== "" && (e.name = ""), e.defaultChecked = !!e._wrapperState.initialChecked, n !== "" && (e.name = n);
   }
   function Ye(e, t, n) {
-    (t !== "number" || me(e.ownerDocument) !== e) && (n == null ? e.defaultValue = "" + e._wrapperState.initialValue : e.defaultValue !== "" + n && (e.defaultValue = "" + n));
+    (t !== "number" || ae(e.ownerDocument) !== e) && (n == null ? e.defaultValue = "" + e._wrapperState.initialValue : e.defaultValue !== "" + n && (e.defaultValue = "" + n));
   }
-  var Ge = Array.isArray;
+  var We = Array.isArray;
   function Xe(e, t, n, i) {
     if (e = e.options, t) {
       t = {};
       for (var l = 0; l < n.length; l++) t["$" + n[l]] = !0;
       for (n = 0; n < e.length; n++) l = t.hasOwnProperty("$" + e[n].value), e[n].selected !== l && (e[n].selected = l), l && i && (e[n].defaultSelected = !0);
     } else {
-      for (n = "" + ne(n), t = null, l = 0; l < e.length; l++) {
+      for (n = "" + te(n), t = null, l = 0; l < e.length; l++) {
         if (e[l].value === n) {
           e[l].selected = !0, i && (e[l].defaultSelected = !0);
           return;
@@ -810,7 +810,7 @@ function Gm() {
     if (n == null) {
       if (n = t.children, t = t.defaultValue, n != null) {
         if (t != null) throw Error(o(92));
-        if (Ge(n)) {
+        if (We(n)) {
           if (1 < n.length) throw Error(o(93));
           n = n[0];
         }
@@ -818,10 +818,10 @@ function Gm() {
       }
       t == null && (t = ""), n = t;
     }
-    e._wrapperState = { initialValue: ne(n) };
+    e._wrapperState = { initialValue: te(n) };
   }
   function Ve(e, t) {
-    var n = ne(t.value), i = ne(t.defaultValue);
+    var n = te(t.value), i = te(t.defaultValue);
     n != null && (n = "" + n, n !== e.value && (e.value = n), t.defaultValue == null && e.defaultValue !== n && (e.defaultValue = n)), i != null && (e.defaultValue = "" + i);
   }
   function it(e) {
@@ -914,20 +914,20 @@ function Gm() {
       t = t + e.charAt(0).toUpperCase() + e.substring(1), Xt[t] = Xt[e];
     });
   });
-  function Ne(e, t, n) {
+  function Ce(e, t, n) {
     return t == null || typeof t == "boolean" || t === "" ? "" : n || typeof t != "number" || t === 0 || Xt.hasOwnProperty(e) && Xt[e] ? ("" + t).trim() : t + "px";
   }
   function Vt(e, t) {
     e = e.style;
     for (var n in t) if (t.hasOwnProperty(n)) {
-      var i = n.indexOf("--") === 0, l = Ne(n, t[n], i);
+      var i = n.indexOf("--") === 0, l = Ce(n, t[n], i);
       n === "float" && (n = "cssFloat"), i ? e.setProperty(n, l) : e[n] = l;
     }
   }
-  var Te = ee({ menuitem: !0 }, { area: !0, base: !0, br: !0, col: !0, embed: !0, hr: !0, img: !0, input: !0, keygen: !0, link: !0, meta: !0, param: !0, source: !0, track: !0, wbr: !0 });
-  function Pe(e, t) {
+  var _e = ee({ menuitem: !0 }, { area: !0, base: !0, br: !0, col: !0, embed: !0, hr: !0, img: !0, input: !0, keygen: !0, link: !0, meta: !0, param: !0, source: !0, track: !0, wbr: !0 });
+  function be(e, t) {
     if (t) {
-      if (Te[e] && (t.children != null || t.dangerouslySetInnerHTML != null)) throw Error(o(137, e));
+      if (_e[e] && (t.children != null || t.dangerouslySetInnerHTML != null)) throw Error(o(137, e));
       if (t.dangerouslySetInnerHTML != null) {
         if (t.children != null) throw Error(o(60));
         if (typeof t.dangerouslySetInnerHTML != "object" || !("__html" in t.dangerouslySetInnerHTML)) throw Error(o(61));
@@ -935,7 +935,7 @@ function Gm() {
       if (t.style != null && typeof t.style != "object") throw Error(o(62));
     }
   }
-  function Le(e, t) {
+  function Re(e, t) {
     if (e.indexOf("-") === -1) return typeof t.is == "string";
     switch (e) {
       case "annotation-xml":
@@ -951,7 +951,7 @@ function Gm() {
         return !0;
     }
   }
-  var He = null;
+  var Ge = null;
   function st(e) {
     return e = e.target || e.srcElement || window, e.correspondingUseElement && (e = e.correspondingUseElement), e.nodeType === 3 ? e.parentNode : e;
   }
@@ -975,7 +975,7 @@ function Gm() {
   function ss(e, t) {
     return e(t);
   }
-  function $e() {
+  function Fe() {
   }
   var et = !1;
   function Ze(e, t, n) {
@@ -984,7 +984,7 @@ function Gm() {
     try {
       return ss(e, t, n);
     } finally {
-      et = !1, (vt !== null || Zt !== null) && ($e(), kn());
+      et = !1, (vt !== null || Zt !== null) && (Fe(), kn());
     }
   }
   function ct(e, t) {
@@ -1024,9 +1024,9 @@ function Gm() {
     Kt = !1;
   }
   function Ai(e, t, n, i, l, u, h, k, g) {
-    var F = Array.prototype.slice.call(arguments, 3);
+    var O = Array.prototype.slice.call(arguments, 3);
     try {
-      t.apply(n, F);
+      t.apply(n, O);
     } catch (Y) {
       this.onError(Y);
     }
@@ -1040,10 +1040,10 @@ function Gm() {
   function as(e, t, n, i, l, u, h, k, g) {
     if (fr.apply(this, arguments), Cn) {
       if (Cn) {
-        var F = Dn;
+        var O = Dn;
         Cn = !1, Dn = null;
       } else throw Error(o(198));
-      di || (di = !0, dr = F);
+      di || (di = !0, dr = O);
     }
   }
   function Tn(e) {
@@ -1067,7 +1067,7 @@ function Gm() {
   function jt(e) {
     if (Tn(e) !== e) throw Error(o(188));
   }
-  function Pa(e) {
+  function ba(e) {
     var t = e.alternate;
     if (!t) {
       if (t = Tn(e), t === null) throw Error(o(188));
@@ -1126,7 +1126,7 @@ function Gm() {
     return n.stateNode.current === n ? e : t;
   }
   function hr(e) {
-    return e = Pa(e), e !== null ? os(e) : null;
+    return e = ba(e), e !== null ? os(e) : null;
   }
   function os(e) {
     if (e.tag === 5 || e.tag === 6) return e;
@@ -1137,7 +1137,7 @@ function Gm() {
     }
     return null;
   }
-  var us = a.unstable_scheduleCallback, Mn = a.unstable_cancelCallback, zn = a.unstable_shouldYield, D = a.unstable_requestPaint, se = a.unstable_now, De = a.unstable_getCurrentPriorityLevel, Rt = a.unstable_ImmediatePriority, dt = a.unstable_UserBlockingPriority, _n = a.unstable_NormalPriority, mr = a.unstable_LowPriority, Bn = a.unstable_IdlePriority, cs = null, yn = null;
+  var us = a.unstable_scheduleCallback, Mn = a.unstable_cancelCallback, zn = a.unstable_shouldYield, D = a.unstable_requestPaint, le = a.unstable_now, De = a.unstable_getCurrentPriorityLevel, Rt = a.unstable_ImmediatePriority, dt = a.unstable_UserBlockingPriority, _n = a.unstable_NormalPriority, mr = a.unstable_LowPriority, Bn = a.unstable_IdlePriority, cs = null, yn = null;
   function th(e) {
     if (yn && typeof yn.onCommitFiberRoot == "function") try {
       yn.onCommitFiberRoot(cs, e, void 0, (e.current.flags & 128) === 128);
@@ -1258,7 +1258,7 @@ function Gm() {
       g === -1 ? ((k & n) === 0 || (k & i) !== 0) && (l[h] = sh(k, t)) : g <= t && (e.expiredLanes |= k), u &= ~k;
     }
   }
-  function ba(e) {
+  function Pa(e) {
     return e = e.pendingLanes & -1073741825, e !== 0 ? e : e & 1073741824 ? 1073741824 : 0;
   }
   function Jo() {
@@ -1288,11 +1288,11 @@ function Gm() {
       l & t | e[i] & t && (e[i] |= t), n &= ~l;
     }
   }
-  var We = 0;
+  var Qe = 0;
   function Xo(e) {
     return e &= -e, 1 < e ? 4 < e ? (e & 268435455) !== 0 ? 16 : 536870912 : 4 : 1;
   }
-  var Zo, Oa, qo, eu, tu, $a = !1, ms = [], Vn = null, Kn = null, Un = null, kr = /* @__PURE__ */ new Map(), yr = /* @__PURE__ */ new Map(), Hn = [], oh = "mousedown mouseup touchcancel touchend touchstart auxclick dblclick pointercancel pointerdown pointerup dragend dragstart drop compositionend compositionstart keydown keypress keyup input textInput copy cut paste click change contextmenu reset submit".split(" ");
+  var Zo, $a, qo, eu, tu, Oa = !1, ms = [], Vn = null, Kn = null, Un = null, kr = /* @__PURE__ */ new Map(), yr = /* @__PURE__ */ new Map(), Hn = [], oh = "mousedown mouseup touchcancel touchend touchstart auxclick dblclick pointercancel pointerdown pointerup dragend dragstart drop compositionend compositionstart keydown keypress keyup input textInput copy cut paste click change contextmenu reset submit".split(" ");
   function nu(e, t) {
     switch (e) {
       case "focusin":
@@ -1317,7 +1317,7 @@ function Gm() {
     }
   }
   function gr(e, t, n, i, l, u) {
-    return e === null || e.nativeEvent !== u ? (e = { blockedOn: t, domEventName: n, eventSystemFlags: i, nativeEvent: u, targetContainers: [l] }, t !== null && (t = Lr(t), t !== null && Oa(t)), e) : (e.eventSystemFlags |= i, t = e.targetContainers, l !== null && t.indexOf(l) === -1 && t.push(l), e);
+    return e === null || e.nativeEvent !== u ? (e = { blockedOn: t, domEventName: n, eventSystemFlags: i, nativeEvent: u, targetContainers: [l] }, t !== null && (t = Lr(t), t !== null && $a(t)), e) : (e.eventSystemFlags |= i, t = e.targetContainers, l !== null && t.indexOf(l) === -1 && t.push(l), e);
   }
   function uh(e, t, n, i, l) {
     switch (t) {
@@ -1362,8 +1362,8 @@ function Gm() {
       if (n === null) {
         n = e.nativeEvent;
         var i = new n.constructor(n.type, n);
-        He = i, n.target.dispatchEvent(i), He = null;
-      } else return t = Lr(n), t !== null && Oa(t), e.blockedOn = n, !1;
+        Ge = i, n.target.dispatchEvent(i), Ge = null;
+      } else return t = Lr(n), t !== null && $a(t), e.blockedOn = n, !1;
       t.shift();
     }
     return !0;
@@ -1372,10 +1372,10 @@ function Gm() {
     ps(e) && n.delete(t);
   }
   function ch() {
-    $a = !1, Vn !== null && ps(Vn) && (Vn = null), Kn !== null && ps(Kn) && (Kn = null), Un !== null && ps(Un) && (Un = null), kr.forEach(ru), yr.forEach(ru);
+    Oa = !1, Vn !== null && ps(Vn) && (Vn = null), Kn !== null && ps(Kn) && (Kn = null), Un !== null && ps(Un) && (Un = null), kr.forEach(ru), yr.forEach(ru);
   }
   function jr(e, t) {
-    e.blockedOn === t && (e.blockedOn = null, $a || ($a = !0, a.unstable_scheduleCallback(a.unstable_NormalPriority, ch)));
+    e.blockedOn === t && (e.blockedOn = null, Oa || (Oa = !0, a.unstable_scheduleCallback(a.unstable_NormalPriority, ch)));
   }
   function xr(e) {
     function t(l) {
@@ -1391,23 +1391,23 @@ function Gm() {
     for (Vn !== null && jr(Vn, e), Kn !== null && jr(Kn, e), Un !== null && jr(Un, e), kr.forEach(t), yr.forEach(t), n = 0; n < Hn.length; n++) i = Hn[n], i.blockedOn === e && (i.blockedOn = null);
     for (; 0 < Hn.length && (n = Hn[0], n.blockedOn === null); ) iu(n), n.blockedOn === null && Hn.shift();
   }
-  var Pi = B.ReactCurrentBatchConfig, vs = !0;
+  var bi = B.ReactCurrentBatchConfig, vs = !0;
   function dh(e, t, n, i) {
-    var l = We, u = Pi.transition;
-    Pi.transition = null;
+    var l = Qe, u = bi.transition;
+    bi.transition = null;
     try {
-      We = 1, Fa(e, t, n, i);
+      Qe = 1, Fa(e, t, n, i);
     } finally {
-      We = l, Pi.transition = u;
+      Qe = l, bi.transition = u;
     }
   }
   function fh(e, t, n, i) {
-    var l = We, u = Pi.transition;
-    Pi.transition = null;
+    var l = Qe, u = bi.transition;
+    bi.transition = null;
     try {
-      We = 4, Fa(e, t, n, i);
+      Qe = 4, Fa(e, t, n, i);
     } finally {
-      We = l, Pi.transition = u;
+      Qe = l, bi.transition = u;
     }
   }
   function Fa(e, t, n, i) {
@@ -1564,17 +1564,17 @@ function Gm() {
     }, persist: function() {
     }, isPersistent: js }), t;
   }
-  var bi = { eventPhase: 0, bubbles: 0, cancelable: 0, timeStamp: function(e) {
+  var Pi = { eventPhase: 0, bubbles: 0, cancelable: 0, timeStamp: function(e) {
     return e.timeStamp || Date.now();
-  }, defaultPrevented: 0, isTrusted: 0 }, za = Ut(bi), Sr = ee({}, bi, { view: 0, detail: 0 }), hh = Ut(Sr), Ba, Va, wr, xs = ee({}, Sr, { screenX: 0, screenY: 0, clientX: 0, clientY: 0, pageX: 0, pageY: 0, ctrlKey: 0, shiftKey: 0, altKey: 0, metaKey: 0, getModifierState: Ua, button: 0, buttons: 0, relatedTarget: function(e) {
+  }, defaultPrevented: 0, isTrusted: 0 }, za = Ut(Pi), Sr = ee({}, Pi, { view: 0, detail: 0 }), hh = Ut(Sr), Ba, Va, wr, xs = ee({}, Sr, { screenX: 0, screenY: 0, clientX: 0, clientY: 0, pageX: 0, pageY: 0, ctrlKey: 0, shiftKey: 0, altKey: 0, metaKey: 0, getModifierState: Ua, button: 0, buttons: 0, relatedTarget: function(e) {
     return e.relatedTarget === void 0 ? e.fromElement === e.srcElement ? e.toElement : e.fromElement : e.relatedTarget;
   }, movementX: function(e) {
     return "movementX" in e ? e.movementX : (e !== wr && (wr && e.type === "mousemove" ? (Ba = e.screenX - wr.screenX, Va = e.screenY - wr.screenY) : Va = Ba = 0, wr = e), Ba);
   }, movementY: function(e) {
     return "movementY" in e ? e.movementY : Va;
-  } }), ou = Ut(xs), mh = ee({}, xs, { dataTransfer: 0 }), ph = Ut(mh), vh = ee({}, Sr, { relatedTarget: 0 }), Ka = Ut(vh), kh = ee({}, bi, { animationName: 0, elapsedTime: 0, pseudoElement: 0 }), yh = Ut(kh), gh = ee({}, bi, { clipboardData: function(e) {
+  } }), ou = Ut(xs), mh = ee({}, xs, { dataTransfer: 0 }), ph = Ut(mh), vh = ee({}, Sr, { relatedTarget: 0 }), Ka = Ut(vh), kh = ee({}, Pi, { animationName: 0, elapsedTime: 0, pseudoElement: 0 }), yh = Ut(kh), gh = ee({}, Pi, { clipboardData: function(e) {
     return "clipboardData" in e ? e.clipboardData : window.clipboardData;
-  } }), jh = Ut(gh), xh = ee({}, bi, { data: 0 }), uu = Ut(xh), Sh = {
+  } }), jh = Ut(gh), xh = ee({}, Pi, { data: 0 }), uu = Ut(xh), Sh = {
     Esc: "Escape",
     Spacebar: " ",
     Left: "ArrowLeft",
@@ -1644,7 +1644,7 @@ function Gm() {
     return e.type === "keydown" || e.type === "keyup" ? e.keyCode : 0;
   }, which: function(e) {
     return e.type === "keypress" ? gs(e) : e.type === "keydown" || e.type === "keyup" ? e.keyCode : 0;
-  } }), Th = Ut(Ch), Mh = ee({}, xs, { pointerId: 0, width: 0, height: 0, pressure: 0, tangentialPressure: 0, tiltX: 0, tiltY: 0, twist: 0, pointerType: 0, isPrimary: 0 }), cu = Ut(Mh), _h = ee({}, Sr, { touches: 0, targetTouches: 0, changedTouches: 0, altKey: 0, metaKey: 0, ctrlKey: 0, shiftKey: 0, getModifierState: Ua }), Ah = Ut(_h), Ph = ee({}, bi, { propertyName: 0, elapsedTime: 0, pseudoElement: 0 }), bh = Ut(Ph), Lh = ee({}, xs, {
+  } }), Th = Ut(Ch), Mh = ee({}, xs, { pointerId: 0, width: 0, height: 0, pressure: 0, tangentialPressure: 0, tiltX: 0, tiltY: 0, twist: 0, pointerType: 0, isPrimary: 0 }), cu = Ut(Mh), _h = ee({}, Sr, { touches: 0, targetTouches: 0, changedTouches: 0, altKey: 0, metaKey: 0, ctrlKey: 0, shiftKey: 0, getModifierState: Ua }), Ah = Ut(_h), bh = ee({}, Pi, { propertyName: 0, elapsedTime: 0, pseudoElement: 0 }), Ph = Ut(bh), Lh = ee({}, xs, {
     deltaX: function(e) {
       return "deltaX" in e ? e.deltaX : "wheelDeltaX" in e ? -e.wheelDeltaX : 0;
     },
@@ -1653,13 +1653,13 @@ function Gm() {
     },
     deltaZ: 0,
     deltaMode: 0
-  }), Rh = Ut(Lh), Oh = [9, 13, 27, 32], Ha = m && "CompositionEvent" in window, Nr = null;
+  }), Rh = Ut(Lh), $h = [9, 13, 27, 32], Ha = m && "CompositionEvent" in window, Nr = null;
   m && "documentMode" in document && (Nr = document.documentMode);
-  var $h = m && "TextEvent" in window && !Nr, du = m && (!Ha || Nr && 8 < Nr && 11 >= Nr), fu = " ", hu = !1;
+  var Oh = m && "TextEvent" in window && !Nr, du = m && (!Ha || Nr && 8 < Nr && 11 >= Nr), fu = " ", hu = !1;
   function mu(e, t) {
     switch (e) {
       case "keyup":
-        return Oh.indexOf(t.keyCode) !== -1;
+        return $h.indexOf(t.keyCode) !== -1;
       case "keydown":
         return t.keyCode !== 229;
       case "keypress":
@@ -1713,11 +1713,11 @@ function Gm() {
   }
   var Er = null, Cr = null;
   function zh(e) {
-    Ou(e, 0);
+    $u(e, 0);
   }
   function Ss(e) {
     var t = Ii(e);
-    if (ce(t)) return e;
+    if (ne(t)) return e;
   }
   function Bh(e, t) {
     if (e === "change") return t;
@@ -1800,7 +1800,7 @@ function Gm() {
     return e && t ? e === t ? !0 : e && e.nodeType === 3 ? !1 : t && t.nodeType === 3 ? Nu(e, t.parentNode) : "contains" in e ? e.contains(t) : e.compareDocumentPosition ? !!(e.compareDocumentPosition(t) & 16) : !1 : !1;
   }
   function Eu() {
-    for (var e = window, t = me(); t instanceof e.HTMLIFrameElement; ) {
+    for (var e = window, t = ae(); t instanceof e.HTMLIFrameElement; ) {
       try {
         var n = typeof t.contentWindow.location.href == "string";
       } catch {
@@ -1808,7 +1808,7 @@ function Gm() {
       }
       if (n) e = t.contentWindow;
       else break;
-      t = me(e.document);
+      t = ae(e.document);
     }
     return t;
   }
@@ -1839,36 +1839,36 @@ function Gm() {
   var Qh = m && "documentMode" in document && 11 >= document.documentMode, Ri = null, Ya = null, Mr = null, Ja = !1;
   function Cu(e, t, n) {
     var i = n.window === n ? n.document : n.nodeType === 9 ? n : n.ownerDocument;
-    Ja || Ri == null || Ri !== me(i) || (i = Ri, "selectionStart" in i && Qa(i) ? i = { start: i.selectionStart, end: i.selectionEnd } : (i = (i.ownerDocument && i.ownerDocument.defaultView || window).getSelection(), i = { anchorNode: i.anchorNode, anchorOffset: i.anchorOffset, focusNode: i.focusNode, focusOffset: i.focusOffset }), Mr && Tr(Mr, i) || (Mr = i, i = Cs(Ya, "onSelect"), 0 < i.length && (t = new za("onSelect", "select", null, t, n), e.push({ event: t, listeners: i }), t.target = Ri)));
+    Ja || Ri == null || Ri !== ae(i) || (i = Ri, "selectionStart" in i && Qa(i) ? i = { start: i.selectionStart, end: i.selectionEnd } : (i = (i.ownerDocument && i.ownerDocument.defaultView || window).getSelection(), i = { anchorNode: i.anchorNode, anchorOffset: i.anchorOffset, focusNode: i.focusNode, focusOffset: i.focusOffset }), Mr && Tr(Mr, i) || (Mr = i, i = Cs(Ya, "onSelect"), 0 < i.length && (t = new za("onSelect", "select", null, t, n), e.push({ event: t, listeners: i }), t.target = Ri)));
   }
   function ws(e, t) {
     var n = {};
     return n[e.toLowerCase()] = t.toLowerCase(), n["Webkit" + e] = "webkit" + t, n["Moz" + e] = "moz" + t, n;
   }
-  var Oi = { animationend: ws("Animation", "AnimationEnd"), animationiteration: ws("Animation", "AnimationIteration"), animationstart: ws("Animation", "AnimationStart"), transitionend: ws("Transition", "TransitionEnd") }, Xa = {}, Tu = {};
-  m && (Tu = document.createElement("div").style, "AnimationEvent" in window || (delete Oi.animationend.animation, delete Oi.animationiteration.animation, delete Oi.animationstart.animation), "TransitionEvent" in window || delete Oi.transitionend.transition);
+  var $i = { animationend: ws("Animation", "AnimationEnd"), animationiteration: ws("Animation", "AnimationIteration"), animationstart: ws("Animation", "AnimationStart"), transitionend: ws("Transition", "TransitionEnd") }, Xa = {}, Tu = {};
+  m && (Tu = document.createElement("div").style, "AnimationEvent" in window || (delete $i.animationend.animation, delete $i.animationiteration.animation, delete $i.animationstart.animation), "TransitionEvent" in window || delete $i.transitionend.transition);
   function Ns(e) {
     if (Xa[e]) return Xa[e];
-    if (!Oi[e]) return e;
-    var t = Oi[e], n;
+    if (!$i[e]) return e;
+    var t = $i[e], n;
     for (n in t) if (t.hasOwnProperty(n) && n in Tu) return Xa[e] = t[n];
     return e;
   }
-  var Mu = Ns("animationend"), _u = Ns("animationiteration"), Au = Ns("animationstart"), Pu = Ns("transitionend"), bu = /* @__PURE__ */ new Map(), Lu = "abort auxClick cancel canPlay canPlayThrough click close contextMenu copy cut drag dragEnd dragEnter dragExit dragLeave dragOver dragStart drop durationChange emptied encrypted ended error gotPointerCapture input invalid keyDown keyPress keyUp load loadedData loadedMetadata loadStart lostPointerCapture mouseDown mouseMove mouseOut mouseOver mouseUp paste pause play playing pointerCancel pointerDown pointerMove pointerOut pointerOver pointerUp progress rateChange reset resize seeked seeking stalled submit suspend timeUpdate touchCancel touchEnd touchStart volumeChange scroll toggle touchMove waiting wheel".split(" ");
+  var Mu = Ns("animationend"), _u = Ns("animationiteration"), Au = Ns("animationstart"), bu = Ns("transitionend"), Pu = /* @__PURE__ */ new Map(), Lu = "abort auxClick cancel canPlay canPlayThrough click close contextMenu copy cut drag dragEnd dragEnter dragExit dragLeave dragOver dragStart drop durationChange emptied encrypted ended error gotPointerCapture input invalid keyDown keyPress keyUp load loadedData loadedMetadata loadStart lostPointerCapture mouseDown mouseMove mouseOut mouseOver mouseUp paste pause play playing pointerCancel pointerDown pointerMove pointerOut pointerOver pointerUp progress rateChange reset resize seeked seeking stalled submit suspend timeUpdate touchCancel touchEnd touchStart volumeChange scroll toggle touchMove waiting wheel".split(" ");
   function Wn(e, t) {
-    bu.set(e, t), f(t, [e]);
+    Pu.set(e, t), f(t, [e]);
   }
   for (var Za = 0; Za < Lu.length; Za++) {
     var qa = Lu[Za], Yh = qa.toLowerCase(), Jh = qa[0].toUpperCase() + qa.slice(1);
     Wn(Yh, "on" + Jh);
   }
-  Wn(Mu, "onAnimationEnd"), Wn(_u, "onAnimationIteration"), Wn(Au, "onAnimationStart"), Wn("dblclick", "onDoubleClick"), Wn("focusin", "onFocus"), Wn("focusout", "onBlur"), Wn(Pu, "onTransitionEnd"), p("onMouseEnter", ["mouseout", "mouseover"]), p("onMouseLeave", ["mouseout", "mouseover"]), p("onPointerEnter", ["pointerout", "pointerover"]), p("onPointerLeave", ["pointerout", "pointerover"]), f("onChange", "change click focusin focusout input keydown keyup selectionchange".split(" ")), f("onSelect", "focusout contextmenu dragend focusin keydown keyup mousedown mouseup selectionchange".split(" ")), f("onBeforeInput", ["compositionend", "keypress", "textInput", "paste"]), f("onCompositionEnd", "compositionend focusout keydown keypress keyup mousedown".split(" ")), f("onCompositionStart", "compositionstart focusout keydown keypress keyup mousedown".split(" ")), f("onCompositionUpdate", "compositionupdate focusout keydown keypress keyup mousedown".split(" "));
+  Wn(Mu, "onAnimationEnd"), Wn(_u, "onAnimationIteration"), Wn(Au, "onAnimationStart"), Wn("dblclick", "onDoubleClick"), Wn("focusin", "onFocus"), Wn("focusout", "onBlur"), Wn(bu, "onTransitionEnd"), p("onMouseEnter", ["mouseout", "mouseover"]), p("onMouseLeave", ["mouseout", "mouseover"]), p("onPointerEnter", ["pointerout", "pointerover"]), p("onPointerLeave", ["pointerout", "pointerover"]), f("onChange", "change click focusin focusout input keydown keyup selectionchange".split(" ")), f("onSelect", "focusout contextmenu dragend focusin keydown keyup mousedown mouseup selectionchange".split(" ")), f("onBeforeInput", ["compositionend", "keypress", "textInput", "paste"]), f("onCompositionEnd", "compositionend focusout keydown keypress keyup mousedown".split(" ")), f("onCompositionStart", "compositionstart focusout keydown keypress keyup mousedown".split(" ")), f("onCompositionUpdate", "compositionupdate focusout keydown keypress keyup mousedown".split(" "));
   var _r = "abort canplay canplaythrough durationchange emptied encrypted ended error loadeddata loadedmetadata loadstart pause play playing progress ratechange resize seeked seeking stalled suspend timeupdate volumechange waiting".split(" "), Xh = new Set("cancel close invalid load scroll toggle".split(" ").concat(_r));
   function Ru(e, t, n) {
     var i = e.type || "unknown-event";
     e.currentTarget = n, as(i, t, void 0, e), e.currentTarget = null;
   }
-  function Ou(e, t) {
+  function $u(e, t) {
     t = (t & 4) !== 0;
     for (var n = 0; n < e.length; n++) {
       var i = e[n], l = i.event;
@@ -1876,13 +1876,13 @@ function Gm() {
       e: {
         var u = void 0;
         if (t) for (var h = i.length - 1; 0 <= h; h--) {
-          var k = i[h], g = k.instance, F = k.currentTarget;
+          var k = i[h], g = k.instance, O = k.currentTarget;
           if (k = k.listener, g !== u && l.isPropagationStopped()) break e;
-          Ru(l, k, F), u = g;
+          Ru(l, k, O), u = g;
         }
         else for (h = 0; h < i.length; h++) {
-          if (k = i[h], g = k.instance, F = k.currentTarget, k = k.listener, g !== u && l.isPropagationStopped()) break e;
-          Ru(l, k, F), u = g;
+          if (k = i[h], g = k.instance, O = k.currentTarget, k = k.listener, g !== u && l.isPropagationStopped()) break e;
+          Ru(l, k, O), u = g;
         }
       }
     }
@@ -1892,11 +1892,11 @@ function Gm() {
     var n = t[ll];
     n === void 0 && (n = t[ll] = /* @__PURE__ */ new Set());
     var i = e + "__bubble";
-    n.has(i) || ($u(t, e, 2, !1), n.add(i));
+    n.has(i) || (Ou(t, e, 2, !1), n.add(i));
   }
   function el(e, t, n) {
     var i = 0;
-    t && (i |= 4), $u(n, e, i, t);
+    t && (i |= 4), Ou(n, e, i, t);
   }
   var Es = "_reactListening" + Math.random().toString(36).slice(2);
   function Ar(e) {
@@ -1908,7 +1908,7 @@ function Gm() {
       t === null || t[Es] || (t[Es] = !0, el("selectionchange", !1, t));
     }
   }
-  function $u(e, t, n, i) {
+  function Ou(e, t, n, i) {
     switch (su(t)) {
       case 1:
         var l = dh;
@@ -1946,27 +1946,27 @@ function Gm() {
       i = i.return;
     }
     Ze(function() {
-      var F = u, Y = st(n), q = [];
+      var O = u, Y = st(n), q = [];
       e: {
-        var Q = bu.get(e);
+        var Q = Pu.get(e);
         if (Q !== void 0) {
-          var de = za, ke = e;
+          var me = za, ke = e;
           switch (e) {
             case "keypress":
               if (gs(n) === 0) break e;
             case "keydown":
             case "keyup":
-              de = Th;
+              me = Th;
               break;
             case "focusin":
-              ke = "focus", de = Ka;
+              ke = "focus", me = Ka;
               break;
             case "focusout":
-              ke = "blur", de = Ka;
+              ke = "blur", me = Ka;
               break;
             case "beforeblur":
             case "afterblur":
-              de = Ka;
+              me = Ka;
               break;
             case "click":
               if (n.button === 2) break e;
@@ -1978,7 +1978,7 @@ function Gm() {
             case "mouseout":
             case "mouseover":
             case "contextmenu":
-              de = ou;
+              me = ou;
               break;
             case "drag":
             case "dragend":
@@ -1988,32 +1988,32 @@ function Gm() {
             case "dragover":
             case "dragstart":
             case "drop":
-              de = ph;
+              me = ph;
               break;
             case "touchcancel":
             case "touchend":
             case "touchmove":
             case "touchstart":
-              de = Ah;
+              me = Ah;
               break;
             case Mu:
             case _u:
             case Au:
-              de = yh;
+              me = yh;
               break;
-            case Pu:
-              de = bh;
+            case bu:
+              me = Ph;
               break;
             case "scroll":
-              de = hh;
+              me = hh;
               break;
             case "wheel":
-              de = Rh;
+              me = Rh;
               break;
             case "copy":
             case "cut":
             case "paste":
-              de = jh;
+              me = jh;
               break;
             case "gotpointercapture":
             case "lostpointercapture":
@@ -2023,55 +2023,55 @@ function Gm() {
             case "pointerout":
             case "pointerover":
             case "pointerup":
-              de = cu;
+              me = cu;
           }
-          var je = (t & 4) !== 0, ft = !je && e === "scroll", b = je ? Q !== null ? Q + "Capture" : null : Q;
-          je = [];
-          for (var N = F, R; N !== null; ) {
-            R = N;
-            var re = R.stateNode;
-            if (R.tag === 5 && re !== null && (R = re, b !== null && (re = ct(N, b), re != null && je.push(Pr(N, re, R)))), ft) break;
+          var ge = (t & 4) !== 0, ft = !ge && e === "scroll", b = ge ? Q !== null ? Q + "Capture" : null : Q;
+          ge = [];
+          for (var N = O, L; N !== null; ) {
+            L = N;
+            var se = L.stateNode;
+            if (L.tag === 5 && se !== null && (L = se, b !== null && (se = ct(N, b), se != null && ge.push(br(N, se, L)))), ft) break;
             N = N.return;
           }
-          0 < je.length && (Q = new de(Q, ke, null, n, Y), q.push({ event: Q, listeners: je }));
+          0 < ge.length && (Q = new me(Q, ke, null, n, Y), q.push({ event: Q, listeners: ge }));
         }
       }
       if ((t & 7) === 0) {
         e: {
-          if (Q = e === "mouseover" || e === "pointerover", de = e === "mouseout" || e === "pointerout", Q && n !== He && (ke = n.relatedTarget || n.fromElement) && (hi(ke) || ke[An])) break e;
-          if ((de || Q) && (Q = Y.window === Y ? Y : (Q = Y.ownerDocument) ? Q.defaultView || Q.parentWindow : window, de ? (ke = n.relatedTarget || n.toElement, de = F, ke = ke ? hi(ke) : null, ke !== null && (ft = Tn(ke), ke !== ft || ke.tag !== 5 && ke.tag !== 6) && (ke = null)) : (de = null, ke = F), de !== ke)) {
-            if (je = ou, re = "onMouseLeave", b = "onMouseEnter", N = "mouse", (e === "pointerout" || e === "pointerover") && (je = cu, re = "onPointerLeave", b = "onPointerEnter", N = "pointer"), ft = de == null ? Q : Ii(de), R = ke == null ? Q : Ii(ke), Q = new je(re, N + "leave", de, n, Y), Q.target = ft, Q.relatedTarget = R, re = null, hi(Y) === F && (je = new je(b, N + "enter", ke, n, Y), je.target = R, je.relatedTarget = ft, re = je), ft = re, de && ke) t: {
-              for (je = de, b = ke, N = 0, R = je; R; R = $i(R)) N++;
-              for (R = 0, re = b; re; re = $i(re)) R++;
-              for (; 0 < N - R; ) je = $i(je), N--;
-              for (; 0 < R - N; ) b = $i(b), R--;
+          if (Q = e === "mouseover" || e === "pointerover", me = e === "mouseout" || e === "pointerout", Q && n !== Ge && (ke = n.relatedTarget || n.fromElement) && (hi(ke) || ke[An])) break e;
+          if ((me || Q) && (Q = Y.window === Y ? Y : (Q = Y.ownerDocument) ? Q.defaultView || Q.parentWindow : window, me ? (ke = n.relatedTarget || n.toElement, me = O, ke = ke ? hi(ke) : null, ke !== null && (ft = Tn(ke), ke !== ft || ke.tag !== 5 && ke.tag !== 6) && (ke = null)) : (me = null, ke = O), me !== ke)) {
+            if (ge = ou, se = "onMouseLeave", b = "onMouseEnter", N = "mouse", (e === "pointerout" || e === "pointerover") && (ge = cu, se = "onPointerLeave", b = "onPointerEnter", N = "pointer"), ft = me == null ? Q : Ii(me), L = ke == null ? Q : Ii(ke), Q = new ge(se, N + "leave", me, n, Y), Q.target = ft, Q.relatedTarget = L, se = null, hi(Y) === O && (ge = new ge(b, N + "enter", ke, n, Y), ge.target = L, ge.relatedTarget = ft, se = ge), ft = se, me && ke) t: {
+              for (ge = me, b = ke, N = 0, L = ge; L; L = Oi(L)) N++;
+              for (L = 0, se = b; se; se = Oi(se)) L++;
+              for (; 0 < N - L; ) ge = Oi(ge), N--;
+              for (; 0 < L - N; ) b = Oi(b), L--;
               for (; N--; ) {
-                if (je === b || b !== null && je === b.alternate) break t;
-                je = $i(je), b = $i(b);
+                if (ge === b || b !== null && ge === b.alternate) break t;
+                ge = Oi(ge), b = Oi(b);
               }
-              je = null;
+              ge = null;
             }
-            else je = null;
-            de !== null && Fu(q, Q, de, je, !1), ke !== null && ft !== null && Fu(q, ft, ke, je, !0);
+            else ge = null;
+            me !== null && Fu(q, Q, me, ge, !1), ke !== null && ft !== null && Fu(q, ft, ke, ge, !0);
           }
         }
         e: {
-          if (Q = F ? Ii(F) : window, de = Q.nodeName && Q.nodeName.toLowerCase(), de === "select" || de === "input" && Q.type === "file") var xe = Bh;
+          if (Q = O ? Ii(O) : window, me = Q.nodeName && Q.nodeName.toLowerCase(), me === "select" || me === "input" && Q.type === "file") var xe = Bh;
           else if (vu(Q)) if (yu) xe = Hh;
           else {
             xe = Kh;
-            var Ee = Vh;
+            var Te = Vh;
           }
-          else (de = Q.nodeName) && de.toLowerCase() === "input" && (Q.type === "checkbox" || Q.type === "radio") && (xe = Uh);
-          if (xe && (xe = xe(e, F))) {
+          else (me = Q.nodeName) && me.toLowerCase() === "input" && (Q.type === "checkbox" || Q.type === "radio") && (xe = Uh);
+          if (xe && (xe = xe(e, O))) {
             ku(q, xe, n, Y);
             break e;
           }
-          Ee && Ee(e, Q, F), e === "focusout" && (Ee = Q._wrapperState) && Ee.controlled && Q.type === "number" && Ye(Q, "number", Q.value);
+          Te && Te(e, Q, O), e === "focusout" && (Te = Q._wrapperState) && Te.controlled && Q.type === "number" && Ye(Q, "number", Q.value);
         }
-        switch (Ee = F ? Ii(F) : window, e) {
+        switch (Te = O ? Ii(O) : window, e) {
           case "focusin":
-            (vu(Ee) || Ee.contentEditable === "true") && (Ri = Ee, Ya = F, Mr = null);
+            (vu(Te) || Te.contentEditable === "true") && (Ri = Te, Ya = O, Mr = null);
             break;
           case "focusout":
             Mr = Ya = Ri = null;
@@ -2090,38 +2090,38 @@ function Gm() {
           case "keyup":
             Cu(q, n, Y);
         }
-        var Ce;
+        var Me;
         if (Ha) e: {
           switch (e) {
             case "compositionstart":
-              var _e = "onCompositionStart";
+              var Ae = "onCompositionStart";
               break e;
             case "compositionend":
-              _e = "onCompositionEnd";
+              Ae = "onCompositionEnd";
               break e;
             case "compositionupdate":
-              _e = "onCompositionUpdate";
+              Ae = "onCompositionUpdate";
               break e;
           }
-          _e = void 0;
+          Ae = void 0;
         }
-        else Li ? mu(e, n) && (_e = "onCompositionEnd") : e === "keydown" && n.keyCode === 229 && (_e = "onCompositionStart");
-        _e && (du && n.locale !== "ko" && (Li || _e !== "onCompositionStart" ? _e === "onCompositionEnd" && Li && (Ce = au()) : (Gn = Y, Da = "value" in Gn ? Gn.value : Gn.textContent, Li = !0)), Ee = Cs(F, _e), 0 < Ee.length && (_e = new uu(_e, e, null, n, Y), q.push({ event: _e, listeners: Ee }), Ce ? _e.data = Ce : (Ce = pu(n), Ce !== null && (_e.data = Ce)))), (Ce = $h ? Fh(e, n) : Ih(e, n)) && (F = Cs(F, "onBeforeInput"), 0 < F.length && (Y = new uu("onBeforeInput", "beforeinput", null, n, Y), q.push({ event: Y, listeners: F }), Y.data = Ce));
+        else Li ? mu(e, n) && (Ae = "onCompositionEnd") : e === "keydown" && n.keyCode === 229 && (Ae = "onCompositionStart");
+        Ae && (du && n.locale !== "ko" && (Li || Ae !== "onCompositionStart" ? Ae === "onCompositionEnd" && Li && (Me = au()) : (Gn = Y, Da = "value" in Gn ? Gn.value : Gn.textContent, Li = !0)), Te = Cs(O, Ae), 0 < Te.length && (Ae = new uu(Ae, e, null, n, Y), q.push({ event: Ae, listeners: Te }), Me ? Ae.data = Me : (Me = pu(n), Me !== null && (Ae.data = Me)))), (Me = Oh ? Fh(e, n) : Ih(e, n)) && (O = Cs(O, "onBeforeInput"), 0 < O.length && (Y = new uu("onBeforeInput", "beforeinput", null, n, Y), q.push({ event: Y, listeners: O }), Y.data = Me));
       }
-      Ou(q, t);
+      $u(q, t);
     });
   }
-  function Pr(e, t, n) {
+  function br(e, t, n) {
     return { instance: e, listener: t, currentTarget: n };
   }
   function Cs(e, t) {
     for (var n = t + "Capture", i = []; e !== null; ) {
       var l = e, u = l.stateNode;
-      l.tag === 5 && u !== null && (l = u, u = ct(e, n), u != null && i.unshift(Pr(e, u, l)), u = ct(e, t), u != null && i.push(Pr(e, u, l))), e = e.return;
+      l.tag === 5 && u !== null && (l = u, u = ct(e, n), u != null && i.unshift(br(e, u, l)), u = ct(e, t), u != null && i.push(br(e, u, l))), e = e.return;
     }
     return i;
   }
-  function $i(e) {
+  function Oi(e) {
     if (e === null) return null;
     do
       e = e.return;
@@ -2130,9 +2130,9 @@ function Gm() {
   }
   function Fu(e, t, n, i, l) {
     for (var u = t._reactName, h = []; n !== null && n !== i; ) {
-      var k = n, g = k.alternate, F = k.stateNode;
+      var k = n, g = k.alternate, O = k.stateNode;
       if (g !== null && g === i) break;
-      k.tag === 5 && F !== null && (k = F, l ? (g = ct(n, u), g != null && h.unshift(Pr(n, g, k))) : l || (g = ct(n, u), g != null && h.push(Pr(n, g, k)))), n = n.return;
+      k.tag === 5 && O !== null && (k = O, l ? (g = ct(n, u), g != null && h.unshift(br(n, g, k))) : l || (g = ct(n, u), g != null && h.push(br(n, g, k)))), n = n.return;
     }
     h.length !== 0 && e.push({ event: t, listeners: h });
   }
@@ -2198,7 +2198,7 @@ function Gm() {
     }
     return null;
   }
-  var Fi = Math.random().toString(36).slice(2), gn = "__reactFiber$" + Fi, br = "__reactProps$" + Fi, An = "__reactContainer$" + Fi, ll = "__reactEvents$" + Fi, im = "__reactListeners$" + Fi, rm = "__reactHandles$" + Fi;
+  var Fi = Math.random().toString(36).slice(2), gn = "__reactFiber$" + Fi, Pr = "__reactProps$" + Fi, An = "__reactContainer$" + Fi, ll = "__reactEvents$" + Fi, im = "__reactListeners$" + Fi, rm = "__reactHandles$" + Fi;
   function hi(e) {
     var t = e[gn];
     if (t) return t;
@@ -2222,7 +2222,7 @@ function Gm() {
     throw Error(o(33));
   }
   function _s(e) {
-    return e[br] || null;
+    return e[Pr] || null;
   }
   var ol = [], Di = -1;
   function Yn(e) {
@@ -2234,7 +2234,7 @@ function Gm() {
   function qe(e, t) {
     Di++, ol[Di] = e.current, e.current = t;
   }
-  var Jn = {}, Et = Yn(Jn), Ot = Yn(!1), mi = Jn;
+  var Jn = {}, Et = Yn(Jn), $t = Yn(!1), mi = Jn;
   function zi(e, t) {
     var n = e.type.contextTypes;
     if (!n) return Jn;
@@ -2244,15 +2244,15 @@ function Gm() {
     for (u in n) l[u] = t[u];
     return i && (e = e.stateNode, e.__reactInternalMemoizedUnmaskedChildContext = t, e.__reactInternalMemoizedMaskedChildContext = l), l;
   }
-  function $t(e) {
+  function Ot(e) {
     return e = e.childContextTypes, e != null;
   }
   function As() {
-    nt(Ot), nt(Et);
+    nt($t), nt(Et);
   }
   function Bu(e, t, n) {
     if (Et.current !== Jn) throw Error(o(168));
-    qe(Et, t), qe(Ot, n);
+    qe(Et, t), qe($t, n);
   }
   function Vu(e, t, n) {
     var i = e.stateNode;
@@ -2261,64 +2261,64 @@ function Gm() {
     for (var l in i) if (!(l in t)) throw Error(o(108, V(e) || "Unknown", l));
     return ee({}, n, i);
   }
-  function Ps(e) {
-    return e = (e = e.stateNode) && e.__reactInternalMemoizedMergedChildContext || Jn, mi = Et.current, qe(Et, e), qe(Ot, Ot.current), !0;
+  function bs(e) {
+    return e = (e = e.stateNode) && e.__reactInternalMemoizedMergedChildContext || Jn, mi = Et.current, qe(Et, e), qe($t, $t.current), !0;
   }
   function Ku(e, t, n) {
     var i = e.stateNode;
     if (!i) throw Error(o(169));
-    n ? (e = Vu(e, t, mi), i.__reactInternalMemoizedMergedChildContext = e, nt(Ot), nt(Et), qe(Et, e)) : nt(Ot), qe(Ot, n);
+    n ? (e = Vu(e, t, mi), i.__reactInternalMemoizedMergedChildContext = e, nt($t), nt(Et), qe(Et, e)) : nt($t), qe($t, n);
   }
-  var Pn = null, bs = !1, ul = !1;
+  var bn = null, Ps = !1, ul = !1;
   function Uu(e) {
-    Pn === null ? Pn = [e] : Pn.push(e);
+    bn === null ? bn = [e] : bn.push(e);
   }
   function sm(e) {
-    bs = !0, Uu(e);
+    Ps = !0, Uu(e);
   }
   function Xn() {
-    if (!ul && Pn !== null) {
+    if (!ul && bn !== null) {
       ul = !0;
-      var e = 0, t = We;
+      var e = 0, t = Qe;
       try {
-        var n = Pn;
-        for (We = 1; e < n.length; e++) {
+        var n = bn;
+        for (Qe = 1; e < n.length; e++) {
           var i = n[e];
           do
             i = i(!0);
           while (i !== null);
         }
-        Pn = null, bs = !1;
+        bn = null, Ps = !1;
       } catch (l) {
-        throw Pn !== null && (Pn = Pn.slice(e + 1)), us(Rt, Xn), l;
+        throw bn !== null && (bn = bn.slice(e + 1)), us(Rt, Xn), l;
       } finally {
-        We = t, ul = !1;
+        Qe = t, ul = !1;
       }
     }
     return null;
   }
-  var Bi = [], Vi = 0, Ls = null, Rs = 0, en = [], tn = 0, pi = null, bn = 1, Ln = "";
+  var Bi = [], Vi = 0, Ls = null, Rs = 0, en = [], tn = 0, pi = null, Pn = 1, Ln = "";
   function vi(e, t) {
     Bi[Vi++] = Rs, Bi[Vi++] = Ls, Ls = e, Rs = t;
   }
   function Hu(e, t, n) {
-    en[tn++] = bn, en[tn++] = Ln, en[tn++] = pi, pi = e;
-    var i = bn;
+    en[tn++] = Pn, en[tn++] = Ln, en[tn++] = pi, pi = e;
+    var i = Pn;
     e = Ln;
     var l = 32 - on(i) - 1;
     i &= ~(1 << l), n += 1;
     var u = 32 - on(t) + l;
     if (30 < u) {
       var h = l - l % 5;
-      u = (i & (1 << h) - 1).toString(32), i >>= h, l -= h, bn = 1 << 32 - on(t) + l | n << l | i, Ln = u + e;
-    } else bn = 1 << u | n << l | i, Ln = e;
+      u = (i & (1 << h) - 1).toString(32), i >>= h, l -= h, Pn = 1 << 32 - on(t) + l | n << l | i, Ln = u + e;
+    } else Pn = 1 << u | n << l | i, Ln = e;
   }
   function cl(e) {
     e.return !== null && (vi(e, 1), Hu(e, 1, 0));
   }
   function dl(e) {
     for (; e === Ls; ) Ls = Bi[--Vi], Bi[Vi] = null, Rs = Bi[--Vi], Bi[Vi] = null;
-    for (; e === pi; ) pi = en[--tn], en[tn] = null, Ln = en[--tn], en[tn] = null, bn = en[--tn], en[tn] = null;
+    for (; e === pi; ) pi = en[--tn], en[tn] = null, Ln = en[--tn], en[tn] = null, Pn = en[--tn], en[tn] = null;
   }
   var Ht = null, Gt = null, rt = !1, cn = null;
   function Gu(e, t) {
@@ -2333,7 +2333,7 @@ function Gm() {
       case 6:
         return t = e.pendingProps === "" || t.nodeType !== 3 ? null : t, t !== null ? (e.stateNode = t, Ht = e, Gt = null, !0) : !1;
       case 13:
-        return t = t.nodeType !== 8 ? null : t, t !== null ? (n = pi !== null ? { id: bn, overflow: Ln } : null, e.memoizedState = { dehydrated: t, treeContext: n, retryLane: 1073741824 }, n = an(18, null, null, 0), n.stateNode = t, n.return = e, e.child = n, Ht = e, Gt = null, !0) : !1;
+        return t = t.nodeType !== 8 ? null : t, t !== null ? (n = pi !== null ? { id: Pn, overflow: Ln } : null, e.memoizedState = { dehydrated: t, treeContext: n, retryLane: 1073741824 }, n = an(18, null, null, 0), n.stateNode = t, n.return = e, e.child = n, Ht = e, Gt = null, !0) : !1;
       default:
         return !1;
     }
@@ -2362,7 +2362,7 @@ function Gm() {
     for (e = e.return; e !== null && e.tag !== 5 && e.tag !== 3 && e.tag !== 13; ) e = e.return;
     Ht = e;
   }
-  function Os(e) {
+  function $s(e) {
     if (e !== Ht) return !1;
     if (!rt) return Qu(e), rt = !0, !1;
     var t;
@@ -2420,7 +2420,7 @@ function Gm() {
     }
     return e;
   }
-  function $s(e, t) {
+  function Os(e, t) {
     throw e = Object.prototype.toString.call(t), Error(o(31, e === "[object Object]" ? "object with keys {" + Object.keys(t).join(", ") + "}" : e));
   }
   function Ju(e) {
@@ -2430,8 +2430,8 @@ function Gm() {
   function Xu(e) {
     function t(b, N) {
       if (e) {
-        var R = b.deletions;
-        R === null ? (b.deletions = [N], b.flags |= 16) : R.push(N);
+        var L = b.deletions;
+        L === null ? (b.deletions = [N], b.flags |= 16) : L.push(N);
       }
     }
     function n(b, N) {
@@ -2446,156 +2446,156 @@ function Gm() {
     function l(b, N) {
       return b = si(b, N), b.index = 0, b.sibling = null, b;
     }
-    function u(b, N, R) {
-      return b.index = R, e ? (R = b.alternate, R !== null ? (R = R.index, R < N ? (b.flags |= 2, N) : R) : (b.flags |= 2, N)) : (b.flags |= 1048576, N);
+    function u(b, N, L) {
+      return b.index = L, e ? (L = b.alternate, L !== null ? (L = L.index, L < N ? (b.flags |= 2, N) : L) : (b.flags |= 2, N)) : (b.flags |= 1048576, N);
     }
     function h(b) {
       return e && b.alternate === null && (b.flags |= 2), b;
     }
-    function k(b, N, R, re) {
-      return N === null || N.tag !== 6 ? (N = so(R, b.mode, re), N.return = b, N) : (N = l(N, R), N.return = b, N);
+    function k(b, N, L, se) {
+      return N === null || N.tag !== 6 ? (N = so(L, b.mode, se), N.return = b, N) : (N = l(N, L), N.return = b, N);
     }
-    function g(b, N, R, re) {
-      var xe = R.type;
-      return xe === _ ? Y(b, N, R.props.children, re, R.key) : N !== null && (N.elementType === xe || typeof xe == "object" && xe !== null && xe.$$typeof === ae && Ju(xe) === N.type) ? (re = l(N, R.props), re.ref = Rr(b, N, R), re.return = b, re) : (re = aa(R.type, R.key, R.props, null, b.mode, re), re.ref = Rr(b, N, R), re.return = b, re);
+    function g(b, N, L, se) {
+      var xe = L.type;
+      return xe === M ? Y(b, N, L.props.children, se, L.key) : N !== null && (N.elementType === xe || typeof xe == "object" && xe !== null && xe.$$typeof === ce && Ju(xe) === N.type) ? (se = l(N, L.props), se.ref = Rr(b, N, L), se.return = b, se) : (se = aa(L.type, L.key, L.props, null, b.mode, se), se.ref = Rr(b, N, L), se.return = b, se);
     }
-    function F(b, N, R, re) {
-      return N === null || N.tag !== 4 || N.stateNode.containerInfo !== R.containerInfo || N.stateNode.implementation !== R.implementation ? (N = ao(R, b.mode, re), N.return = b, N) : (N = l(N, R.children || []), N.return = b, N);
+    function O(b, N, L, se) {
+      return N === null || N.tag !== 4 || N.stateNode.containerInfo !== L.containerInfo || N.stateNode.implementation !== L.implementation ? (N = ao(L, b.mode, se), N.return = b, N) : (N = l(N, L.children || []), N.return = b, N);
     }
-    function Y(b, N, R, re, xe) {
-      return N === null || N.tag !== 7 ? (N = Ni(R, b.mode, re, xe), N.return = b, N) : (N = l(N, R), N.return = b, N);
+    function Y(b, N, L, se, xe) {
+      return N === null || N.tag !== 7 ? (N = Ni(L, b.mode, se, xe), N.return = b, N) : (N = l(N, L), N.return = b, N);
     }
-    function q(b, N, R) {
-      if (typeof N == "string" && N !== "" || typeof N == "number") return N = so("" + N, b.mode, R), N.return = b, N;
+    function q(b, N, L) {
+      if (typeof N == "string" && N !== "" || typeof N == "number") return N = so("" + N, b.mode, L), N.return = b, N;
       if (typeof N == "object" && N !== null) {
         switch (N.$$typeof) {
-          case H:
-            return R = aa(N.type, N.key, N.props, null, b.mode, R), R.ref = Rr(b, null, N), R.return = b, R;
-          case I:
-            return N = ao(N, b.mode, R), N.return = b, N;
-          case ae:
-            var re = N._init;
-            return q(b, re(N._payload), R);
+          case U:
+            return L = aa(N.type, N.key, N.props, null, b.mode, L), L.ref = Rr(b, null, N), L.return = b, L;
+          case F:
+            return N = ao(N, b.mode, L), N.return = b, N;
+          case ce:
+            var se = N._init;
+            return q(b, se(N._payload), L);
         }
-        if (Ge(N) || le(N)) return N = Ni(N, b.mode, R, null), N.return = b, N;
-        $s(b, N);
+        if (We(N) || ue(N)) return N = Ni(N, b.mode, L, null), N.return = b, N;
+        Os(b, N);
       }
       return null;
     }
-    function Q(b, N, R, re) {
+    function Q(b, N, L, se) {
       var xe = N !== null ? N.key : null;
-      if (typeof R == "string" && R !== "" || typeof R == "number") return xe !== null ? null : k(b, N, "" + R, re);
-      if (typeof R == "object" && R !== null) {
-        switch (R.$$typeof) {
-          case H:
-            return R.key === xe ? g(b, N, R, re) : null;
-          case I:
-            return R.key === xe ? F(b, N, R, re) : null;
-          case ae:
-            return xe = R._init, Q(
+      if (typeof L == "string" && L !== "" || typeof L == "number") return xe !== null ? null : k(b, N, "" + L, se);
+      if (typeof L == "object" && L !== null) {
+        switch (L.$$typeof) {
+          case U:
+            return L.key === xe ? g(b, N, L, se) : null;
+          case F:
+            return L.key === xe ? O(b, N, L, se) : null;
+          case ce:
+            return xe = L._init, Q(
               b,
               N,
-              xe(R._payload),
-              re
+              xe(L._payload),
+              se
             );
         }
-        if (Ge(R) || le(R)) return xe !== null ? null : Y(b, N, R, re, null);
-        $s(b, R);
+        if (We(L) || ue(L)) return xe !== null ? null : Y(b, N, L, se, null);
+        Os(b, L);
       }
       return null;
     }
-    function de(b, N, R, re, xe) {
-      if (typeof re == "string" && re !== "" || typeof re == "number") return b = b.get(R) || null, k(N, b, "" + re, xe);
-      if (typeof re == "object" && re !== null) {
-        switch (re.$$typeof) {
-          case H:
-            return b = b.get(re.key === null ? R : re.key) || null, g(N, b, re, xe);
-          case I:
-            return b = b.get(re.key === null ? R : re.key) || null, F(N, b, re, xe);
-          case ae:
-            var Ee = re._init;
-            return de(b, N, R, Ee(re._payload), xe);
+    function me(b, N, L, se, xe) {
+      if (typeof se == "string" && se !== "" || typeof se == "number") return b = b.get(L) || null, k(N, b, "" + se, xe);
+      if (typeof se == "object" && se !== null) {
+        switch (se.$$typeof) {
+          case U:
+            return b = b.get(se.key === null ? L : se.key) || null, g(N, b, se, xe);
+          case F:
+            return b = b.get(se.key === null ? L : se.key) || null, O(N, b, se, xe);
+          case ce:
+            var Te = se._init;
+            return me(b, N, L, Te(se._payload), xe);
         }
-        if (Ge(re) || le(re)) return b = b.get(R) || null, Y(N, b, re, xe, null);
-        $s(N, re);
+        if (We(se) || ue(se)) return b = b.get(L) || null, Y(N, b, se, xe, null);
+        Os(N, se);
       }
       return null;
     }
-    function ke(b, N, R, re) {
-      for (var xe = null, Ee = null, Ce = N, _e = N = 0, gt = null; Ce !== null && _e < R.length; _e++) {
-        Ce.index > _e ? (gt = Ce, Ce = null) : gt = Ce.sibling;
-        var Ke = Q(b, Ce, R[_e], re);
+    function ke(b, N, L, se) {
+      for (var xe = null, Te = null, Me = N, Ae = N = 0, gt = null; Me !== null && Ae < L.length; Ae++) {
+        Me.index > Ae ? (gt = Me, Me = null) : gt = Me.sibling;
+        var Ke = Q(b, Me, L[Ae], se);
         if (Ke === null) {
-          Ce === null && (Ce = gt);
+          Me === null && (Me = gt);
           break;
         }
-        e && Ce && Ke.alternate === null && t(b, Ce), N = u(Ke, N, _e), Ee === null ? xe = Ke : Ee.sibling = Ke, Ee = Ke, Ce = gt;
+        e && Me && Ke.alternate === null && t(b, Me), N = u(Ke, N, Ae), Te === null ? xe = Ke : Te.sibling = Ke, Te = Ke, Me = gt;
       }
-      if (_e === R.length) return n(b, Ce), rt && vi(b, _e), xe;
-      if (Ce === null) {
-        for (; _e < R.length; _e++) Ce = q(b, R[_e], re), Ce !== null && (N = u(Ce, N, _e), Ee === null ? xe = Ce : Ee.sibling = Ce, Ee = Ce);
-        return rt && vi(b, _e), xe;
+      if (Ae === L.length) return n(b, Me), rt && vi(b, Ae), xe;
+      if (Me === null) {
+        for (; Ae < L.length; Ae++) Me = q(b, L[Ae], se), Me !== null && (N = u(Me, N, Ae), Te === null ? xe = Me : Te.sibling = Me, Te = Me);
+        return rt && vi(b, Ae), xe;
       }
-      for (Ce = i(b, Ce); _e < R.length; _e++) gt = de(Ce, b, _e, R[_e], re), gt !== null && (e && gt.alternate !== null && Ce.delete(gt.key === null ? _e : gt.key), N = u(gt, N, _e), Ee === null ? xe = gt : Ee.sibling = gt, Ee = gt);
-      return e && Ce.forEach(function(ai) {
+      for (Me = i(b, Me); Ae < L.length; Ae++) gt = me(Me, b, Ae, L[Ae], se), gt !== null && (e && gt.alternate !== null && Me.delete(gt.key === null ? Ae : gt.key), N = u(gt, N, Ae), Te === null ? xe = gt : Te.sibling = gt, Te = gt);
+      return e && Me.forEach(function(ai) {
         return t(b, ai);
-      }), rt && vi(b, _e), xe;
+      }), rt && vi(b, Ae), xe;
     }
-    function je(b, N, R, re) {
-      var xe = le(R);
+    function ge(b, N, L, se) {
+      var xe = ue(L);
       if (typeof xe != "function") throw Error(o(150));
-      if (R = xe.call(R), R == null) throw Error(o(151));
-      for (var Ee = xe = null, Ce = N, _e = N = 0, gt = null, Ke = R.next(); Ce !== null && !Ke.done; _e++, Ke = R.next()) {
-        Ce.index > _e ? (gt = Ce, Ce = null) : gt = Ce.sibling;
-        var ai = Q(b, Ce, Ke.value, re);
+      if (L = xe.call(L), L == null) throw Error(o(151));
+      for (var Te = xe = null, Me = N, Ae = N = 0, gt = null, Ke = L.next(); Me !== null && !Ke.done; Ae++, Ke = L.next()) {
+        Me.index > Ae ? (gt = Me, Me = null) : gt = Me.sibling;
+        var ai = Q(b, Me, Ke.value, se);
         if (ai === null) {
-          Ce === null && (Ce = gt);
+          Me === null && (Me = gt);
           break;
         }
-        e && Ce && ai.alternate === null && t(b, Ce), N = u(ai, N, _e), Ee === null ? xe = ai : Ee.sibling = ai, Ee = ai, Ce = gt;
+        e && Me && ai.alternate === null && t(b, Me), N = u(ai, N, Ae), Te === null ? xe = ai : Te.sibling = ai, Te = ai, Me = gt;
       }
       if (Ke.done) return n(
         b,
-        Ce
-      ), rt && vi(b, _e), xe;
-      if (Ce === null) {
-        for (; !Ke.done; _e++, Ke = R.next()) Ke = q(b, Ke.value, re), Ke !== null && (N = u(Ke, N, _e), Ee === null ? xe = Ke : Ee.sibling = Ke, Ee = Ke);
-        return rt && vi(b, _e), xe;
+        Me
+      ), rt && vi(b, Ae), xe;
+      if (Me === null) {
+        for (; !Ke.done; Ae++, Ke = L.next()) Ke = q(b, Ke.value, se), Ke !== null && (N = u(Ke, N, Ae), Te === null ? xe = Ke : Te.sibling = Ke, Te = Ke);
+        return rt && vi(b, Ae), xe;
       }
-      for (Ce = i(b, Ce); !Ke.done; _e++, Ke = R.next()) Ke = de(Ce, b, _e, Ke.value, re), Ke !== null && (e && Ke.alternate !== null && Ce.delete(Ke.key === null ? _e : Ke.key), N = u(Ke, N, _e), Ee === null ? xe = Ke : Ee.sibling = Ke, Ee = Ke);
-      return e && Ce.forEach(function(Dm) {
+      for (Me = i(b, Me); !Ke.done; Ae++, Ke = L.next()) Ke = me(Me, b, Ae, Ke.value, se), Ke !== null && (e && Ke.alternate !== null && Me.delete(Ke.key === null ? Ae : Ke.key), N = u(Ke, N, Ae), Te === null ? xe = Ke : Te.sibling = Ke, Te = Ke);
+      return e && Me.forEach(function(Dm) {
         return t(b, Dm);
-      }), rt && vi(b, _e), xe;
+      }), rt && vi(b, Ae), xe;
     }
-    function ft(b, N, R, re) {
-      if (typeof R == "object" && R !== null && R.type === _ && R.key === null && (R = R.props.children), typeof R == "object" && R !== null) {
-        switch (R.$$typeof) {
-          case H:
+    function ft(b, N, L, se) {
+      if (typeof L == "object" && L !== null && L.type === M && L.key === null && (L = L.props.children), typeof L == "object" && L !== null) {
+        switch (L.$$typeof) {
+          case U:
             e: {
-              for (var xe = R.key, Ee = N; Ee !== null; ) {
-                if (Ee.key === xe) {
-                  if (xe = R.type, xe === _) {
-                    if (Ee.tag === 7) {
-                      n(b, Ee.sibling), N = l(Ee, R.props.children), N.return = b, b = N;
+              for (var xe = L.key, Te = N; Te !== null; ) {
+                if (Te.key === xe) {
+                  if (xe = L.type, xe === M) {
+                    if (Te.tag === 7) {
+                      n(b, Te.sibling), N = l(Te, L.props.children), N.return = b, b = N;
                       break e;
                     }
-                  } else if (Ee.elementType === xe || typeof xe == "object" && xe !== null && xe.$$typeof === ae && Ju(xe) === Ee.type) {
-                    n(b, Ee.sibling), N = l(Ee, R.props), N.ref = Rr(b, Ee, R), N.return = b, b = N;
+                  } else if (Te.elementType === xe || typeof xe == "object" && xe !== null && xe.$$typeof === ce && Ju(xe) === Te.type) {
+                    n(b, Te.sibling), N = l(Te, L.props), N.ref = Rr(b, Te, L), N.return = b, b = N;
                     break e;
                   }
-                  n(b, Ee);
+                  n(b, Te);
                   break;
-                } else t(b, Ee);
-                Ee = Ee.sibling;
+                } else t(b, Te);
+                Te = Te.sibling;
               }
-              R.type === _ ? (N = Ni(R.props.children, b.mode, re, R.key), N.return = b, b = N) : (re = aa(R.type, R.key, R.props, null, b.mode, re), re.ref = Rr(b, N, R), re.return = b, b = re);
+              L.type === M ? (N = Ni(L.props.children, b.mode, se, L.key), N.return = b, b = N) : (se = aa(L.type, L.key, L.props, null, b.mode, se), se.ref = Rr(b, N, L), se.return = b, b = se);
             }
             return h(b);
-          case I:
+          case F:
             e: {
-              for (Ee = R.key; N !== null; ) {
-                if (N.key === Ee) if (N.tag === 4 && N.stateNode.containerInfo === R.containerInfo && N.stateNode.implementation === R.implementation) {
-                  n(b, N.sibling), N = l(N, R.children || []), N.return = b, b = N;
+              for (Te = L.key; N !== null; ) {
+                if (N.key === Te) if (N.tag === 4 && N.stateNode.containerInfo === L.containerInfo && N.stateNode.implementation === L.implementation) {
+                  n(b, N.sibling), N = l(N, L.children || []), N.return = b, b = N;
                   break e;
                 } else {
                   n(b, N);
@@ -2604,17 +2604,17 @@ function Gm() {
                 else t(b, N);
                 N = N.sibling;
               }
-              N = ao(R, b.mode, re), N.return = b, b = N;
+              N = ao(L, b.mode, se), N.return = b, b = N;
             }
             return h(b);
-          case ae:
-            return Ee = R._init, ft(b, N, Ee(R._payload), re);
+          case ce:
+            return Te = L._init, ft(b, N, Te(L._payload), se);
         }
-        if (Ge(R)) return ke(b, N, R, re);
-        if (le(R)) return je(b, N, R, re);
-        $s(b, R);
+        if (We(L)) return ke(b, N, L, se);
+        if (ue(L)) return ge(b, N, L, se);
+        Os(b, L);
       }
-      return typeof R == "string" && R !== "" || typeof R == "number" ? (R = "" + R, N !== null && N.tag === 6 ? (n(b, N.sibling), N = l(N, R), N.return = b, b = N) : (n(b, N), N = so(R, b.mode, re), N.return = b, b = N), h(b)) : n(b, N);
+      return typeof L == "string" && L !== "" || typeof L == "number" ? (L = "" + L, N !== null && N.tag === 6 ? (n(b, N.sibling), N = l(N, L), N.return = b, b = N) : (n(b, N), N = so(L, b.mode, se), N.return = b, b = N), h(b)) : n(b, N);
     }
     return ft;
   }
@@ -2665,7 +2665,7 @@ function Gm() {
   function ec(e, t) {
     e = e.updateQueue, t.updateQueue === e && (t.updateQueue = { baseState: e.baseState, firstBaseUpdate: e.firstBaseUpdate, lastBaseUpdate: e.lastBaseUpdate, shared: e.shared, effects: e.effects });
   }
-  function On(e, t) {
+  function $n(e, t) {
     return { eventTime: e, lane: t, tag: 0, payload: null, callback: null, next: null };
   }
   function qn(e, t, n) {
@@ -2705,19 +2705,19 @@ function Gm() {
     var u = l.firstBaseUpdate, h = l.lastBaseUpdate, k = l.shared.pending;
     if (k !== null) {
       l.shared.pending = null;
-      var g = k, F = g.next;
-      g.next = null, h === null ? u = F : h.next = F, h = g;
+      var g = k, O = g.next;
+      g.next = null, h === null ? u = O : h.next = O, h = g;
       var Y = e.alternate;
-      Y !== null && (Y = Y.updateQueue, k = Y.lastBaseUpdate, k !== h && (k === null ? Y.firstBaseUpdate = F : k.next = F, Y.lastBaseUpdate = g));
+      Y !== null && (Y = Y.updateQueue, k = Y.lastBaseUpdate, k !== h && (k === null ? Y.firstBaseUpdate = O : k.next = O, Y.lastBaseUpdate = g));
     }
     if (u !== null) {
       var q = l.baseState;
-      h = 0, Y = F = g = null, k = u;
+      h = 0, Y = O = g = null, k = u;
       do {
-        var Q = k.lane, de = k.eventTime;
+        var Q = k.lane, me = k.eventTime;
         if ((i & Q) === Q) {
           Y !== null && (Y = Y.next = {
-            eventTime: de,
+            eventTime: me,
             lane: 0,
             tag: k.tag,
             payload: k.payload,
@@ -2725,11 +2725,11 @@ function Gm() {
             next: null
           });
           e: {
-            var ke = e, je = k;
-            switch (Q = t, de = n, je.tag) {
+            var ke = e, ge = k;
+            switch (Q = t, me = n, ge.tag) {
               case 1:
-                if (ke = je.payload, typeof ke == "function") {
-                  q = ke.call(de, q, Q);
+                if (ke = ge.payload, typeof ke == "function") {
+                  q = ke.call(me, q, Q);
                   break e;
                 }
                 q = ke;
@@ -2737,7 +2737,7 @@ function Gm() {
               case 3:
                 ke.flags = ke.flags & -65537 | 128;
               case 0:
-                if (ke = je.payload, Q = typeof ke == "function" ? ke.call(de, q, Q) : ke, Q == null) break e;
+                if (ke = ge.payload, Q = typeof ke == "function" ? ke.call(me, q, Q) : ke, Q == null) break e;
                 q = ee({}, q, Q);
                 break e;
               case 2:
@@ -2745,13 +2745,13 @@ function Gm() {
             }
           }
           k.callback !== null && k.lane !== 0 && (e.flags |= 64, Q = l.effects, Q === null ? l.effects = [k] : Q.push(k));
-        } else de = { eventTime: de, lane: Q, tag: k.tag, payload: k.payload, callback: k.callback, next: null }, Y === null ? (F = Y = de, g = q) : Y = Y.next = de, h |= Q;
+        } else me = { eventTime: me, lane: Q, tag: k.tag, payload: k.payload, callback: k.callback, next: null }, Y === null ? (O = Y = me, g = q) : Y = Y.next = me, h |= Q;
         if (k = k.next, k === null) {
           if (k = l.shared.pending, k === null) break;
           Q = k, k = Q.next, Q.next = null, l.lastBaseUpdate = Q, l.shared.pending = null;
         }
       } while (!0);
-      if (Y === null && (g = q), l.baseState = g, l.firstBaseUpdate = F, l.lastBaseUpdate = Y, t = l.shared.interleaved, t !== null) {
+      if (Y === null && (g = q), l.baseState = g, l.firstBaseUpdate = O, l.lastBaseUpdate = Y, t = l.shared.interleaved, t !== null) {
         l = t;
         do
           h |= l.lane, l = l.next;
@@ -2769,13 +2769,13 @@ function Gm() {
       }
     }
   }
-  var Or = {}, jn = Yn(Or), $r = Yn(Or), Fr = Yn(Or);
+  var $r = {}, jn = Yn($r), Or = Yn($r), Fr = Yn($r);
   function yi(e) {
-    if (e === Or) throw Error(o(174));
+    if (e === $r) throw Error(o(174));
     return e;
   }
   function xl(e, t) {
-    switch (qe(Fr, t), qe($r, e), qe(jn, Or), e = t.nodeType, e) {
+    switch (qe(Fr, t), qe(Or, e), qe(jn, $r), e = t.nodeType, e) {
       case 9:
       case 11:
         t = (t = t.documentElement) ? t.namespaceURI : Yt(null, "");
@@ -2786,15 +2786,15 @@ function Gm() {
     nt(jn), qe(jn, t);
   }
   function Wi() {
-    nt(jn), nt($r), nt(Fr);
+    nt(jn), nt(Or), nt(Fr);
   }
   function ic(e) {
     yi(Fr.current);
     var t = yi(jn.current), n = Yt(t, e.type);
-    t !== n && (qe($r, e), qe(jn, n));
+    t !== n && (qe(Or, e), qe(jn, n));
   }
   function Sl(e) {
-    $r.current === e && (nt(jn), nt($r));
+    Or.current === e && (nt(jn), nt(Or));
   }
   var at = Yn(0);
   function Bs(e) {
@@ -2880,22 +2880,22 @@ function Gm() {
     }
     if (l !== null) {
       u = l.next, i = i.baseState;
-      var k = h = null, g = null, F = u;
+      var k = h = null, g = null, O = u;
       do {
-        var Y = F.lane;
-        if ((gi & Y) === Y) g !== null && (g = g.next = { lane: 0, action: F.action, hasEagerState: F.hasEagerState, eagerState: F.eagerState, next: null }), i = F.hasEagerState ? F.eagerState : e(i, F.action);
+        var Y = O.lane;
+        if ((gi & Y) === Y) g !== null && (g = g.next = { lane: 0, action: O.action, hasEagerState: O.hasEagerState, eagerState: O.eagerState, next: null }), i = O.hasEagerState ? O.eagerState : e(i, O.action);
         else {
           var q = {
             lane: Y,
-            action: F.action,
-            hasEagerState: F.hasEagerState,
-            eagerState: F.eagerState,
+            action: O.action,
+            hasEagerState: O.hasEagerState,
+            eagerState: O.eagerState,
             next: null
           };
           g === null ? (k = g = q, h = i) : g = g.next = q, lt.lanes |= Y, ji |= Y;
         }
-        F = F.next;
-      } while (F !== null && F !== u);
+        O = O.next;
+      } while (O !== null && O !== u);
       g === null ? h = i : g.next = k, un(i, t.memoizedState) || (Ft = !0), t.memoizedState = i, t.baseState = h, t.baseQueue = g, n.lastRenderedState = i;
     }
     if (e = n.interleaved, e !== null) {
@@ -2925,7 +2925,7 @@ function Gm() {
   }
   function sc(e, t) {
     var n = lt, i = rn(), l = t(), u = !un(i.memoizedState, l);
-    if (u && (i.memoizedState = l, Ft = !0), i = i.queue, Pl(oc.bind(null, n, i, e), [e]), i.getSnapshot !== t || u || kt !== null && kt.memoizedState.tag & 1) {
+    if (u && (i.memoizedState = l, Ft = !0), i = i.queue, bl(oc.bind(null, n, i, e), [e]), i.getSnapshot !== t || u || kt !== null && kt.memoizedState.tag & 1) {
       if (n.flags |= 2048, Br(9, lc.bind(null, n, i, l, t), void 0, null), yt === null) throw Error(o(349));
       (gi & 30) !== 0 || ac(n, t, l);
     }
@@ -2986,7 +2986,7 @@ function Gm() {
   function hc(e, t) {
     return Us(8390656, 8, e, t);
   }
-  function Pl(e, t) {
+  function bl(e, t) {
     return Hs(2048, 8, e, t);
   }
   function mc(e, t) {
@@ -3006,7 +3006,7 @@ function Gm() {
   function kc(e, t, n) {
     return n = n != null ? n.concat([e]) : null, Hs(4, 4, vc.bind(null, t, e), n);
   }
-  function bl() {
+  function Pl() {
   }
   function yc(e, t) {
     var n = rn();
@@ -3024,14 +3024,14 @@ function Gm() {
     return (gi & 21) === 0 ? (e.baseState && (e.baseState = !1, Ft = !0), e.memoizedState = n) : (un(n, t) || (n = Jo(), lt.lanes |= n, ji |= n, e.baseState = !0), t);
   }
   function om(e, t) {
-    var n = We;
-    We = n !== 0 && 4 > n ? n : 4, e(!0);
+    var n = Qe;
+    Qe = n !== 0 && 4 > n ? n : 4, e(!0);
     var i = El.transition;
     El.transition = {};
     try {
       e(!1), t();
     } finally {
-      We = n, El.transition = i;
+      Qe = n, El.transition = i;
     }
   }
   function xc() {
@@ -3041,7 +3041,7 @@ function Gm() {
     var i = ii(e);
     if (n = { lane: i, action: n, hasEagerState: !1, eagerState: null, next: null }, Sc(e)) wc(t, n);
     else if (n = qu(e, t, n, i), n !== null) {
-      var l = Pt();
+      var l = bt();
       mn(n, e, i, l), Nc(n, t, i);
     }
   }
@@ -3059,7 +3059,7 @@ function Gm() {
         }
       } catch {
       }
-      n = qu(e, t, l, i), n !== null && (l = Pt(), mn(n, e, i, l), Nc(n, t, i));
+      n = qu(e, t, l, i), n !== null && (l = bt(), mn(n, e, i, l), Nc(n, t, i));
     }
   }
   function Sc(e) {
@@ -3099,7 +3099,7 @@ function Gm() {
   }, useRef: function(e) {
     var t = xn();
     return e = { current: e }, t.memoizedState = e;
-  }, useState: dc, useDebugValue: bl, useDeferredValue: function(e) {
+  }, useState: dc, useDebugValue: Pl, useDeferredValue: function(e) {
     return xn().memoizedState = e;
   }, useTransition: function() {
     var e = dc(!1), t = e[0];
@@ -3125,7 +3125,7 @@ function Gm() {
   }, useId: function() {
     var e = xn(), t = yt.identifierPrefix;
     if (rt) {
-      var n = Ln, i = bn;
+      var n = Ln, i = Pn;
       n = (i & ~(1 << 32 - on(i) - 1)).toString(32) + n, t = ":" + t + "R" + n, n = Dr++, 0 < n && (t += "H" + n.toString(32)), t += ":";
     } else n = lm++, t = ":" + t + "r" + n.toString(32) + ":";
     return e.memoizedState = t;
@@ -3133,7 +3133,7 @@ function Gm() {
     readContext: nn,
     useCallback: yc,
     useContext: nn,
-    useEffect: Pl,
+    useEffect: bl,
     useImperativeHandle: kc,
     useInsertionEffect: mc,
     useLayoutEffect: pc,
@@ -3143,7 +3143,7 @@ function Gm() {
     useState: function() {
       return _l(zr);
     },
-    useDebugValue: bl,
+    useDebugValue: Pl,
     useDeferredValue: function(e) {
       var t = rn();
       return jc(t, mt.memoizedState, e);
@@ -3156,9 +3156,9 @@ function Gm() {
     useSyncExternalStore: sc,
     useId: xc,
     unstable_isNewReconciler: !1
-  }, hm = { readContext: nn, useCallback: yc, useContext: nn, useEffect: Pl, useImperativeHandle: kc, useInsertionEffect: mc, useLayoutEffect: pc, useMemo: gc, useReducer: Al, useRef: fc, useState: function() {
+  }, hm = { readContext: nn, useCallback: yc, useContext: nn, useEffect: bl, useImperativeHandle: kc, useInsertionEffect: mc, useLayoutEffect: pc, useMemo: gc, useReducer: Al, useRef: fc, useState: function() {
     return Al(zr);
-  }, useDebugValue: bl, useDeferredValue: function(e) {
+  }, useDebugValue: Pl, useDeferredValue: function(e) {
     var t = rn();
     return mt === null ? t.memoizedState = e : jc(t, mt.memoizedState, e);
   }, useTransition: function() {
@@ -3180,15 +3180,15 @@ function Gm() {
     return (e = e._reactInternals) ? Tn(e) === e : !1;
   }, enqueueSetState: function(e, t, n) {
     e = e._reactInternals;
-    var i = Pt(), l = ii(e), u = On(i, l);
+    var i = bt(), l = ii(e), u = $n(i, l);
     u.payload = t, n != null && (u.callback = n), t = qn(e, u, l), t !== null && (mn(t, e, l, i), Ds(t, e, l));
   }, enqueueReplaceState: function(e, t, n) {
     e = e._reactInternals;
-    var i = Pt(), l = ii(e), u = On(i, l);
+    var i = bt(), l = ii(e), u = $n(i, l);
     u.tag = 1, u.payload = t, n != null && (u.callback = n), t = qn(e, u, l), t !== null && (mn(t, e, l, i), Ds(t, e, l));
   }, enqueueForceUpdate: function(e, t) {
     e = e._reactInternals;
-    var n = Pt(), i = ii(e), l = On(n, i);
+    var n = bt(), i = ii(e), l = $n(n, i);
     l.tag = 2, t != null && (l.callback = t), t = qn(e, l, i), t !== null && (mn(t, e, i, n), Ds(t, e, i));
   } };
   function Ec(e, t, n, i, l, u, h) {
@@ -3196,7 +3196,7 @@ function Gm() {
   }
   function Cc(e, t, n) {
     var i = !1, l = Jn, u = t.contextType;
-    return typeof u == "object" && u !== null ? u = nn(u) : (l = $t(t) ? mi : Et.current, i = t.contextTypes, u = (i = i != null) ? zi(e, l) : Jn), t = new t(n, u), e.memoizedState = t.state !== null && t.state !== void 0 ? t.state : null, t.updater = Ws, e.stateNode = t, t._reactInternals = e, i && (e = e.stateNode, e.__reactInternalMemoizedUnmaskedChildContext = l, e.__reactInternalMemoizedMaskedChildContext = u), t;
+    return typeof u == "object" && u !== null ? u = nn(u) : (l = Ot(t) ? mi : Et.current, i = t.contextTypes, u = (i = i != null) ? zi(e, l) : Jn), t = new t(n, u), e.memoizedState = t.state !== null && t.state !== void 0 ? t.state : null, t.updater = Ws, e.stateNode = t, t._reactInternals = e, i && (e = e.stateNode, e.__reactInternalMemoizedUnmaskedChildContext = l, e.__reactInternalMemoizedMaskedChildContext = u), t;
   }
   function Tc(e, t, n, i) {
     e = t.state, typeof t.componentWillReceiveProps == "function" && t.componentWillReceiveProps(n, i), typeof t.UNSAFE_componentWillReceiveProps == "function" && t.UNSAFE_componentWillReceiveProps(n, i), t.state !== e && Ws.enqueueReplaceState(t, t.state, null);
@@ -3205,13 +3205,13 @@ function Gm() {
     var l = e.stateNode;
     l.props = n, l.state = e.memoizedState, l.refs = {}, jl(e);
     var u = t.contextType;
-    typeof u == "object" && u !== null ? l.context = nn(u) : (u = $t(t) ? mi : Et.current, l.context = zi(e, u)), l.state = e.memoizedState, u = t.getDerivedStateFromProps, typeof u == "function" && (Ll(e, t, u, n), l.state = e.memoizedState), typeof t.getDerivedStateFromProps == "function" || typeof l.getSnapshotBeforeUpdate == "function" || typeof l.UNSAFE_componentWillMount != "function" && typeof l.componentWillMount != "function" || (t = l.state, typeof l.componentWillMount == "function" && l.componentWillMount(), typeof l.UNSAFE_componentWillMount == "function" && l.UNSAFE_componentWillMount(), t !== l.state && Ws.enqueueReplaceState(l, l.state, null), zs(e, n, l, i), l.state = e.memoizedState), typeof l.componentDidMount == "function" && (e.flags |= 4194308);
+    typeof u == "object" && u !== null ? l.context = nn(u) : (u = Ot(t) ? mi : Et.current, l.context = zi(e, u)), l.state = e.memoizedState, u = t.getDerivedStateFromProps, typeof u == "function" && (Ll(e, t, u, n), l.state = e.memoizedState), typeof t.getDerivedStateFromProps == "function" || typeof l.getSnapshotBeforeUpdate == "function" || typeof l.UNSAFE_componentWillMount != "function" && typeof l.componentWillMount != "function" || (t = l.state, typeof l.componentWillMount == "function" && l.componentWillMount(), typeof l.UNSAFE_componentWillMount == "function" && l.UNSAFE_componentWillMount(), t !== l.state && Ws.enqueueReplaceState(l, l.state, null), zs(e, n, l, i), l.state = e.memoizedState), typeof l.componentDidMount == "function" && (e.flags |= 4194308);
   }
   function Qi(e, t) {
     try {
       var n = "", i = t;
       do
-        n += we(i), i = i.return;
+        n += Se(i), i = i.return;
       while (i);
       var l = n;
     } catch (u) {
@@ -3221,10 +3221,10 @@ Error generating stack: ` + u.message + `
     }
     return { value: e, source: t, stack: l, digest: null };
   }
-  function Ol(e, t, n) {
+  function $l(e, t, n) {
     return { value: e, source: null, stack: n ?? null, digest: t ?? null };
   }
-  function $l(e, t) {
+  function Ol(e, t) {
     try {
       console.error(t.value);
     } catch (n) {
@@ -3235,26 +3235,26 @@ Error generating stack: ` + u.message + `
   }
   var mm = typeof WeakMap == "function" ? WeakMap : Map;
   function Mc(e, t, n) {
-    n = On(-1, n), n.tag = 3, n.payload = { element: null };
+    n = $n(-1, n), n.tag = 3, n.payload = { element: null };
     var i = t.value;
     return n.callback = function() {
-      ea || (ea = !0, Xl = i), $l(e, t);
+      ea || (ea = !0, Xl = i), Ol(e, t);
     }, n;
   }
   function _c(e, t, n) {
-    n = On(-1, n), n.tag = 3;
+    n = $n(-1, n), n.tag = 3;
     var i = e.type.getDerivedStateFromError;
     if (typeof i == "function") {
       var l = t.value;
       n.payload = function() {
         return i(l);
       }, n.callback = function() {
-        $l(e, t);
+        Ol(e, t);
       };
     }
     var u = e.stateNode;
     return u !== null && typeof u.componentDidCatch == "function" && (n.callback = function() {
-      $l(e, t), typeof i != "function" && (ti === null ? ti = /* @__PURE__ */ new Set([this]) : ti.add(this));
+      Ol(e, t), typeof i != "function" && (ti === null ? ti = /* @__PURE__ */ new Set([this]) : ti.add(this));
       var h = t.stack;
       this.componentDidCatch(t.value, { componentStack: h !== null ? h : "" });
     }), n;
@@ -3268,7 +3268,7 @@ Error generating stack: ` + u.message + `
     } else l = i.get(t), l === void 0 && (l = /* @__PURE__ */ new Set(), i.set(t, l));
     l.has(n) || (l.add(n), e = Mm.bind(null, e, t, n), t.then(e, e));
   }
-  function Pc(e) {
+  function bc(e) {
     do {
       var t;
       if ((t = e.tag === 13) && (t = e.memoizedState, t = t !== null ? t.dehydrated !== null : !0), t) return e;
@@ -3276,8 +3276,8 @@ Error generating stack: ` + u.message + `
     } while (e !== null);
     return null;
   }
-  function bc(e, t, n, i, l) {
-    return (e.mode & 1) === 0 ? (e === t ? e.flags |= 65536 : (e.flags |= 128, n.flags |= 131072, n.flags &= -52805, n.tag === 1 && (n.alternate === null ? n.tag = 17 : (t = On(-1, 1), t.tag = 2, qn(n, t, 1))), n.lanes |= 1), e) : (e.flags |= 65536, e.lanes = l, e);
+  function Pc(e, t, n, i, l) {
+    return (e.mode & 1) === 0 ? (e === t ? e.flags |= 65536 : (e.flags |= 128, n.flags |= 131072, n.flags &= -52805, n.tag === 1 && (n.alternate === null ? n.tag = 17 : (t = $n(-1, 1), t.tag = 2, qn(n, t, 1))), n.lanes |= 1), e) : (e.flags |= 65536, e.lanes = l, e);
   }
   var pm = B.ReactCurrentOwner, Ft = !1;
   function At(e, t, n, i) {
@@ -3286,28 +3286,28 @@ Error generating stack: ` + u.message + `
   function Lc(e, t, n, i, l) {
     n = n.render;
     var u = t.ref;
-    return Gi(t, l), i = Tl(e, t, n, i, u, l), n = Ml(), e !== null && !Ft ? (t.updateQueue = e.updateQueue, t.flags &= -2053, e.lanes &= ~l, $n(e, t, l)) : (rt && n && cl(t), t.flags |= 1, At(e, t, i, l), t.child);
+    return Gi(t, l), i = Tl(e, t, n, i, u, l), n = Ml(), e !== null && !Ft ? (t.updateQueue = e.updateQueue, t.flags &= -2053, e.lanes &= ~l, On(e, t, l)) : (rt && n && cl(t), t.flags |= 1, At(e, t, i, l), t.child);
   }
   function Rc(e, t, n, i, l) {
     if (e === null) {
       var u = n.type;
-      return typeof u == "function" && !ro(u) && u.defaultProps === void 0 && n.compare === null && n.defaultProps === void 0 ? (t.tag = 15, t.type = u, Oc(e, t, u, i, l)) : (e = aa(n.type, null, i, t, t.mode, l), e.ref = t.ref, e.return = t, t.child = e);
+      return typeof u == "function" && !ro(u) && u.defaultProps === void 0 && n.compare === null && n.defaultProps === void 0 ? (t.tag = 15, t.type = u, $c(e, t, u, i, l)) : (e = aa(n.type, null, i, t, t.mode, l), e.ref = t.ref, e.return = t, t.child = e);
     }
     if (u = e.child, (e.lanes & l) === 0) {
       var h = u.memoizedProps;
-      if (n = n.compare, n = n !== null ? n : Tr, n(h, i) && e.ref === t.ref) return $n(e, t, l);
+      if (n = n.compare, n = n !== null ? n : Tr, n(h, i) && e.ref === t.ref) return On(e, t, l);
     }
     return t.flags |= 1, e = si(u, i), e.ref = t.ref, e.return = t, t.child = e;
   }
-  function Oc(e, t, n, i, l) {
+  function $c(e, t, n, i, l) {
     if (e !== null) {
       var u = e.memoizedProps;
       if (Tr(u, i) && e.ref === t.ref) if (Ft = !1, t.pendingProps = i = u, (e.lanes & l) !== 0) (e.flags & 131072) !== 0 && (Ft = !0);
-      else return t.lanes = e.lanes, $n(e, t, l);
+      else return t.lanes = e.lanes, On(e, t, l);
     }
     return Fl(e, t, n, i, l);
   }
-  function $c(e, t, n) {
+  function Oc(e, t, n) {
     var i = t.pendingProps, l = i.children, u = e !== null ? e.memoizedState : null;
     if (i.mode === "hidden") if ((t.mode & 1) === 0) t.memoizedState = { baseLanes: 0, cachePool: null, transitions: null }, qe(Ji, Wt), Wt |= n;
     else {
@@ -3322,37 +3322,37 @@ Error generating stack: ` + u.message + `
     (e === null && n !== null || e !== null && e.ref !== n) && (t.flags |= 512, t.flags |= 2097152);
   }
   function Fl(e, t, n, i, l) {
-    var u = $t(n) ? mi : Et.current;
-    return u = zi(t, u), Gi(t, l), n = Tl(e, t, n, i, u, l), i = Ml(), e !== null && !Ft ? (t.updateQueue = e.updateQueue, t.flags &= -2053, e.lanes &= ~l, $n(e, t, l)) : (rt && i && cl(t), t.flags |= 1, At(e, t, n, l), t.child);
+    var u = Ot(n) ? mi : Et.current;
+    return u = zi(t, u), Gi(t, l), n = Tl(e, t, n, i, u, l), i = Ml(), e !== null && !Ft ? (t.updateQueue = e.updateQueue, t.flags &= -2053, e.lanes &= ~l, On(e, t, l)) : (rt && i && cl(t), t.flags |= 1, At(e, t, n, l), t.child);
   }
   function Ic(e, t, n, i, l) {
-    if ($t(n)) {
+    if (Ot(n)) {
       var u = !0;
-      Ps(t);
+      bs(t);
     } else u = !1;
     if (Gi(t, l), t.stateNode === null) Ys(e, t), Cc(t, n, i), Rl(t, n, i, l), i = !0;
     else if (e === null) {
       var h = t.stateNode, k = t.memoizedProps;
       h.props = k;
-      var g = h.context, F = n.contextType;
-      typeof F == "object" && F !== null ? F = nn(F) : (F = $t(n) ? mi : Et.current, F = zi(t, F));
+      var g = h.context, O = n.contextType;
+      typeof O == "object" && O !== null ? O = nn(O) : (O = Ot(n) ? mi : Et.current, O = zi(t, O));
       var Y = n.getDerivedStateFromProps, q = typeof Y == "function" || typeof h.getSnapshotBeforeUpdate == "function";
-      q || typeof h.UNSAFE_componentWillReceiveProps != "function" && typeof h.componentWillReceiveProps != "function" || (k !== i || g !== F) && Tc(t, h, i, F), Zn = !1;
+      q || typeof h.UNSAFE_componentWillReceiveProps != "function" && typeof h.componentWillReceiveProps != "function" || (k !== i || g !== O) && Tc(t, h, i, O), Zn = !1;
       var Q = t.memoizedState;
-      h.state = Q, zs(t, i, h, l), g = t.memoizedState, k !== i || Q !== g || Ot.current || Zn ? (typeof Y == "function" && (Ll(t, n, Y, i), g = t.memoizedState), (k = Zn || Ec(t, n, k, i, Q, g, F)) ? (q || typeof h.UNSAFE_componentWillMount != "function" && typeof h.componentWillMount != "function" || (typeof h.componentWillMount == "function" && h.componentWillMount(), typeof h.UNSAFE_componentWillMount == "function" && h.UNSAFE_componentWillMount()), typeof h.componentDidMount == "function" && (t.flags |= 4194308)) : (typeof h.componentDidMount == "function" && (t.flags |= 4194308), t.memoizedProps = i, t.memoizedState = g), h.props = i, h.state = g, h.context = F, i = k) : (typeof h.componentDidMount == "function" && (t.flags |= 4194308), i = !1);
+      h.state = Q, zs(t, i, h, l), g = t.memoizedState, k !== i || Q !== g || $t.current || Zn ? (typeof Y == "function" && (Ll(t, n, Y, i), g = t.memoizedState), (k = Zn || Ec(t, n, k, i, Q, g, O)) ? (q || typeof h.UNSAFE_componentWillMount != "function" && typeof h.componentWillMount != "function" || (typeof h.componentWillMount == "function" && h.componentWillMount(), typeof h.UNSAFE_componentWillMount == "function" && h.UNSAFE_componentWillMount()), typeof h.componentDidMount == "function" && (t.flags |= 4194308)) : (typeof h.componentDidMount == "function" && (t.flags |= 4194308), t.memoizedProps = i, t.memoizedState = g), h.props = i, h.state = g, h.context = O, i = k) : (typeof h.componentDidMount == "function" && (t.flags |= 4194308), i = !1);
     } else {
-      h = t.stateNode, ec(e, t), k = t.memoizedProps, F = t.type === t.elementType ? k : dn(t.type, k), h.props = F, q = t.pendingProps, Q = h.context, g = n.contextType, typeof g == "object" && g !== null ? g = nn(g) : (g = $t(n) ? mi : Et.current, g = zi(t, g));
-      var de = n.getDerivedStateFromProps;
-      (Y = typeof de == "function" || typeof h.getSnapshotBeforeUpdate == "function") || typeof h.UNSAFE_componentWillReceiveProps != "function" && typeof h.componentWillReceiveProps != "function" || (k !== q || Q !== g) && Tc(t, h, i, g), Zn = !1, Q = t.memoizedState, h.state = Q, zs(t, i, h, l);
+      h = t.stateNode, ec(e, t), k = t.memoizedProps, O = t.type === t.elementType ? k : dn(t.type, k), h.props = O, q = t.pendingProps, Q = h.context, g = n.contextType, typeof g == "object" && g !== null ? g = nn(g) : (g = Ot(n) ? mi : Et.current, g = zi(t, g));
+      var me = n.getDerivedStateFromProps;
+      (Y = typeof me == "function" || typeof h.getSnapshotBeforeUpdate == "function") || typeof h.UNSAFE_componentWillReceiveProps != "function" && typeof h.componentWillReceiveProps != "function" || (k !== q || Q !== g) && Tc(t, h, i, g), Zn = !1, Q = t.memoizedState, h.state = Q, zs(t, i, h, l);
       var ke = t.memoizedState;
-      k !== q || Q !== ke || Ot.current || Zn ? (typeof de == "function" && (Ll(t, n, de, i), ke = t.memoizedState), (F = Zn || Ec(t, n, F, i, Q, ke, g) || !1) ? (Y || typeof h.UNSAFE_componentWillUpdate != "function" && typeof h.componentWillUpdate != "function" || (typeof h.componentWillUpdate == "function" && h.componentWillUpdate(i, ke, g), typeof h.UNSAFE_componentWillUpdate == "function" && h.UNSAFE_componentWillUpdate(i, ke, g)), typeof h.componentDidUpdate == "function" && (t.flags |= 4), typeof h.getSnapshotBeforeUpdate == "function" && (t.flags |= 1024)) : (typeof h.componentDidUpdate != "function" || k === e.memoizedProps && Q === e.memoizedState || (t.flags |= 4), typeof h.getSnapshotBeforeUpdate != "function" || k === e.memoizedProps && Q === e.memoizedState || (t.flags |= 1024), t.memoizedProps = i, t.memoizedState = ke), h.props = i, h.state = ke, h.context = g, i = F) : (typeof h.componentDidUpdate != "function" || k === e.memoizedProps && Q === e.memoizedState || (t.flags |= 4), typeof h.getSnapshotBeforeUpdate != "function" || k === e.memoizedProps && Q === e.memoizedState || (t.flags |= 1024), i = !1);
+      k !== q || Q !== ke || $t.current || Zn ? (typeof me == "function" && (Ll(t, n, me, i), ke = t.memoizedState), (O = Zn || Ec(t, n, O, i, Q, ke, g) || !1) ? (Y || typeof h.UNSAFE_componentWillUpdate != "function" && typeof h.componentWillUpdate != "function" || (typeof h.componentWillUpdate == "function" && h.componentWillUpdate(i, ke, g), typeof h.UNSAFE_componentWillUpdate == "function" && h.UNSAFE_componentWillUpdate(i, ke, g)), typeof h.componentDidUpdate == "function" && (t.flags |= 4), typeof h.getSnapshotBeforeUpdate == "function" && (t.flags |= 1024)) : (typeof h.componentDidUpdate != "function" || k === e.memoizedProps && Q === e.memoizedState || (t.flags |= 4), typeof h.getSnapshotBeforeUpdate != "function" || k === e.memoizedProps && Q === e.memoizedState || (t.flags |= 1024), t.memoizedProps = i, t.memoizedState = ke), h.props = i, h.state = ke, h.context = g, i = O) : (typeof h.componentDidUpdate != "function" || k === e.memoizedProps && Q === e.memoizedState || (t.flags |= 4), typeof h.getSnapshotBeforeUpdate != "function" || k === e.memoizedProps && Q === e.memoizedState || (t.flags |= 1024), i = !1);
     }
     return Il(e, t, n, i, u, l);
   }
   function Il(e, t, n, i, l, u) {
     Fc(e, t);
     var h = (t.flags & 128) !== 0;
-    if (!i && !h) return l && Ku(t, n, !1), $n(e, t, u);
+    if (!i && !h) return l && Ku(t, n, !1), On(e, t, u);
     i = t.stateNode, pm.current = t;
     var k = h && typeof n.getDerivedStateFromError != "function" ? null : i.render();
     return t.flags |= 1, e !== null && h ? (t.child = Ui(t, e.child, null, u), t.child = Ui(t, null, k, u)) : At(e, t, k, u), t.memoizedState = i.state, l && Ku(t, n, !0), t.child;
@@ -3388,11 +3388,11 @@ Error generating stack: ` + u.message + `
   }
   function vm(e, t, n, i, l, u, h) {
     if (n)
-      return t.flags & 256 ? (t.flags &= -257, i = Ol(Error(o(422))), Qs(e, t, h, i)) : t.memoizedState !== null ? (t.child = e.child, t.flags |= 128, null) : (u = i.fallback, l = t.mode, i = la({ mode: "visible", children: i.children }, l, 0, null), u = Ni(u, l, h, null), u.flags |= 2, i.return = t, u.return = t, i.sibling = u, t.child = i, (t.mode & 1) !== 0 && Ui(t, e.child, null, h), t.child.memoizedState = zl(h), t.memoizedState = Dl, u);
+      return t.flags & 256 ? (t.flags &= -257, i = $l(Error(o(422))), Qs(e, t, h, i)) : t.memoizedState !== null ? (t.child = e.child, t.flags |= 128, null) : (u = i.fallback, l = t.mode, i = la({ mode: "visible", children: i.children }, l, 0, null), u = Ni(u, l, h, null), u.flags |= 2, i.return = t, u.return = t, i.sibling = u, t.child = i, (t.mode & 1) !== 0 && Ui(t, e.child, null, h), t.child.memoizedState = zl(h), t.memoizedState = Dl, u);
     if ((t.mode & 1) === 0) return Qs(e, t, h, null);
     if (l.data === "$!") {
       if (i = l.nextSibling && l.nextSibling.dataset, i) var k = i.dgst;
-      return i = k, u = Error(o(419)), i = Ol(u, i, void 0), Qs(e, t, h, i);
+      return i = k, u = Error(o(419)), i = $l(u, i, void 0), Qs(e, t, h, i);
     }
     if (k = (h & e.childLanes) !== 0, Ft || k) {
       if (i = yt, i !== null) {
@@ -3434,9 +3434,9 @@ Error generating stack: ` + u.message + `
         }
         l = (l & (i.suspendedLanes | h)) !== 0 ? 0 : l, l !== 0 && l !== u.retryLane && (u.retryLane = l, Rn(e, l), mn(i, e, l, -1));
       }
-      return io(), i = Ol(Error(o(421))), Qs(e, t, h, i);
+      return io(), i = $l(Error(o(421))), Qs(e, t, h, i);
     }
-    return l.data === "$?" ? (t.flags |= 128, t.child = e.child, t = _m.bind(null, e), l._reactRetry = t, null) : (e = u.treeContext, Gt = Qn(l.nextSibling), Ht = t, rt = !0, cn = null, e !== null && (en[tn++] = bn, en[tn++] = Ln, en[tn++] = pi, bn = e.id, Ln = e.overflow, pi = t), t = Bl(t, i.children), t.flags |= 4096, t);
+    return l.data === "$?" ? (t.flags |= 128, t.child = e.child, t = _m.bind(null, e), l._reactRetry = t, null) : (e = u.treeContext, Gt = Qn(l.nextSibling), Ht = t, rt = !0, cn = null, e !== null && (en[tn++] = Pn, en[tn++] = Ln, en[tn++] = pi, Pn = e.id, Ln = e.overflow, pi = t), t = Bl(t, i.children), t.flags |= 4096, t);
   }
   function Vc(e, t, n) {
     e.lanes |= t;
@@ -3494,7 +3494,7 @@ Error generating stack: ` + u.message + `
   function Ys(e, t) {
     (t.mode & 1) === 0 && e !== null && (e.alternate = null, t.alternate = null, t.flags |= 2);
   }
-  function $n(e, t, n) {
+  function On(e, t, n) {
     if (e !== null && (t.dependencies = e.dependencies), ji |= t.lanes, (n & t.childLanes) === 0) return null;
     if (e !== null && t.child !== e.child) throw Error(o(153));
     if (t.child !== null) {
@@ -3512,7 +3512,7 @@ Error generating stack: ` + u.message + `
         ic(t);
         break;
       case 1:
-        $t(t.type) && Ps(t);
+        Ot(t.type) && bs(t);
         break;
       case 4:
         xl(t, t.stateNode.containerInfo);
@@ -3523,7 +3523,7 @@ Error generating stack: ` + u.message + `
         break;
       case 13:
         if (i = t.memoizedState, i !== null)
-          return i.dehydrated !== null ? (qe(at, at.current & 1), t.flags |= 128, null) : (n & t.child.childLanes) !== 0 ? Bc(e, t, n) : (qe(at, at.current & 1), e = $n(e, t, n), e !== null ? e.sibling : null);
+          return i.dehydrated !== null ? (qe(at, at.current & 1), t.flags |= 128, null) : (n & t.child.childLanes) !== 0 ? Bc(e, t, n) : (qe(at, at.current & 1), e = On(e, t, n), e !== null ? e.sibling : null);
         qe(at, at.current & 1);
         break;
       case 19:
@@ -3535,9 +3535,9 @@ Error generating stack: ` + u.message + `
         return null;
       case 22:
       case 23:
-        return t.lanes = 0, $c(e, t, n);
+        return t.lanes = 0, Oc(e, t, n);
     }
-    return $n(e, t, n);
+    return On(e, t, n);
   }
   var Uc, Kl, Hc, Gc;
   Uc = function(e, t) {
@@ -3562,7 +3562,7 @@ Error generating stack: ` + u.message + `
       var u = null;
       switch (n) {
         case "input":
-          l = ye(e, l), i = ye(e, i), u = [];
+          l = fe(e, l), i = fe(e, i), u = [];
           break;
         case "select":
           l = ee({}, l, { value: void 0 }), i = ee({}, i, { value: void 0 }), u = [];
@@ -3573,27 +3573,27 @@ Error generating stack: ` + u.message + `
         default:
           typeof l.onClick != "function" && typeof i.onClick == "function" && (e.onclick = Ms);
       }
-      Pe(n, i);
+      be(n, i);
       var h;
       n = null;
-      for (F in l) if (!i.hasOwnProperty(F) && l.hasOwnProperty(F) && l[F] != null) if (F === "style") {
-        var k = l[F];
+      for (O in l) if (!i.hasOwnProperty(O) && l.hasOwnProperty(O) && l[O] != null) if (O === "style") {
+        var k = l[O];
         for (h in k) k.hasOwnProperty(h) && (n || (n = {}), n[h] = "");
-      } else F !== "dangerouslySetInnerHTML" && F !== "children" && F !== "suppressContentEditableWarning" && F !== "suppressHydrationWarning" && F !== "autoFocus" && (d.hasOwnProperty(F) ? u || (u = []) : (u = u || []).push(F, null));
-      for (F in i) {
-        var g = i[F];
-        if (k = l?.[F], i.hasOwnProperty(F) && g !== k && (g != null || k != null)) if (F === "style") if (k) {
+      } else O !== "dangerouslySetInnerHTML" && O !== "children" && O !== "suppressContentEditableWarning" && O !== "suppressHydrationWarning" && O !== "autoFocus" && (d.hasOwnProperty(O) ? u || (u = []) : (u = u || []).push(O, null));
+      for (O in i) {
+        var g = i[O];
+        if (k = l?.[O], i.hasOwnProperty(O) && g !== k && (g != null || k != null)) if (O === "style") if (k) {
           for (h in k) !k.hasOwnProperty(h) || g && g.hasOwnProperty(h) || (n || (n = {}), n[h] = "");
           for (h in g) g.hasOwnProperty(h) && k[h] !== g[h] && (n || (n = {}), n[h] = g[h]);
         } else n || (u || (u = []), u.push(
-          F,
+          O,
           n
         )), n = g;
-        else F === "dangerouslySetInnerHTML" ? (g = g ? g.__html : void 0, k = k ? k.__html : void 0, g != null && k !== g && (u = u || []).push(F, g)) : F === "children" ? typeof g != "string" && typeof g != "number" || (u = u || []).push(F, "" + g) : F !== "suppressContentEditableWarning" && F !== "suppressHydrationWarning" && (d.hasOwnProperty(F) ? (g != null && F === "onScroll" && tt("scroll", e), u || k === g || (u = [])) : (u = u || []).push(F, g));
+        else O === "dangerouslySetInnerHTML" ? (g = g ? g.__html : void 0, k = k ? k.__html : void 0, g != null && k !== g && (u = u || []).push(O, g)) : O === "children" ? typeof g != "string" && typeof g != "number" || (u = u || []).push(O, "" + g) : O !== "suppressContentEditableWarning" && O !== "suppressHydrationWarning" && (d.hasOwnProperty(O) ? (g != null && O === "onScroll" && tt("scroll", e), u || k === g || (u = [])) : (u = u || []).push(O, g));
       }
       n && (u = u || []).push("style", n);
-      var F = u;
-      (t.updateQueue = F) && (t.flags |= 4);
+      var O = u;
+      (t.updateQueue = O) && (t.flags |= 4);
     }
   }, Gc = function(e, t, n, i) {
     n !== i && (t.flags |= 4);
@@ -3632,9 +3632,9 @@ Error generating stack: ` + u.message + `
       case 14:
         return Tt(t), null;
       case 1:
-        return $t(t.type) && As(), Tt(t), null;
+        return Ot(t.type) && As(), Tt(t), null;
       case 3:
-        return i = t.stateNode, Wi(), nt(Ot), nt(Et), Nl(), i.pendingContext && (i.context = i.pendingContext, i.pendingContext = null), (e === null || e.child === null) && (Os(t) ? t.flags |= 4 : e === null || e.memoizedState.isDehydrated && (t.flags & 256) === 0 || (t.flags |= 1024, cn !== null && (eo(cn), cn = null))), Kl(e, t), Tt(t), null;
+        return i = t.stateNode, Wi(), nt($t), nt(Et), Nl(), i.pendingContext && (i.context = i.pendingContext, i.pendingContext = null), (e === null || e.child === null) && ($s(t) ? t.flags |= 4 : e === null || e.memoizedState.isDehydrated && (t.flags & 256) === 0 || (t.flags |= 1024, cn !== null && (eo(cn), cn = null))), Kl(e, t), Tt(t), null;
       case 5:
         Sl(t);
         var l = yi(Fr.current);
@@ -3644,10 +3644,10 @@ Error generating stack: ` + u.message + `
             if (t.stateNode === null) throw Error(o(166));
             return Tt(t), null;
           }
-          if (e = yi(jn.current), Os(t)) {
+          if (e = yi(jn.current), $s(t)) {
             i = t.stateNode, n = t.type;
             var u = t.memoizedProps;
-            switch (i[gn] = t, i[br] = u, e = (t.mode & 1) !== 0, n) {
+            switch (i[gn] = t, i[Pr] = u, e = (t.mode & 1) !== 0, n) {
               case "dialog":
                 tt("cancel", i), tt("close", i);
                 break;
@@ -3675,7 +3675,7 @@ Error generating stack: ` + u.message + `
                 tt("toggle", i);
                 break;
               case "input":
-                Ae(i, u), tt("invalid", i);
+                Ne(i, u), tt("invalid", i);
                 break;
               case "select":
                 i._wrapperState = { wasMultiple: !!u.multiple }, tt("invalid", i);
@@ -3683,7 +3683,7 @@ Error generating stack: ` + u.message + `
               case "textarea":
                 Je(i, u), tt("invalid", i);
             }
-            Pe(n, u), l = null;
+            be(n, u), l = null;
             for (var h in u) if (u.hasOwnProperty(h)) {
               var k = u[h];
               h === "children" ? typeof k == "string" ? i.textContent !== k && (u.suppressHydrationWarning !== !0 && Ts(i.textContent, k, e), l = ["children", k]) : typeof k == "number" && i.textContent !== "" + k && (u.suppressHydrationWarning !== !0 && Ts(
@@ -3694,10 +3694,10 @@ Error generating stack: ` + u.message + `
             }
             switch (n) {
               case "input":
-                oe(i), Qe(i, u, !0);
+                I(i), He(i, u, !0);
                 break;
               case "textarea":
-                oe(i), it(i);
+                I(i), it(i);
                 break;
               case "select":
               case "option":
@@ -3707,9 +3707,9 @@ Error generating stack: ` + u.message + `
             }
             i = l, t.updateQueue = i, i !== null && (t.flags |= 4);
           } else {
-            h = l.nodeType === 9 ? l : l.ownerDocument, e === "http://www.w3.org/1999/xhtml" && (e = Bt(n)), e === "http://www.w3.org/1999/xhtml" ? n === "script" ? (e = h.createElement("div"), e.innerHTML = "<script><\/script>", e = e.removeChild(e.firstChild)) : typeof i.is == "string" ? e = h.createElement(n, { is: i.is }) : (e = h.createElement(n), n === "select" && (h = e, i.multiple ? h.multiple = !0 : i.size && (h.size = i.size))) : e = h.createElementNS(e, n), e[gn] = t, e[br] = i, Uc(e, t, !1, !1), t.stateNode = e;
+            h = l.nodeType === 9 ? l : l.ownerDocument, e === "http://www.w3.org/1999/xhtml" && (e = Bt(n)), e === "http://www.w3.org/1999/xhtml" ? n === "script" ? (e = h.createElement("div"), e.innerHTML = "<script><\/script>", e = e.removeChild(e.firstChild)) : typeof i.is == "string" ? e = h.createElement(n, { is: i.is }) : (e = h.createElement(n), n === "select" && (h = e, i.multiple ? h.multiple = !0 : i.size && (h.size = i.size))) : e = h.createElementNS(e, n), e[gn] = t, e[Pr] = i, Uc(e, t, !1, !1), t.stateNode = e;
             e: {
-              switch (h = Le(n, i), n) {
+              switch (h = Re(n, i), n) {
                 case "dialog":
                   tt("cancel", e), tt("close", e), l = i;
                   break;
@@ -3738,7 +3738,7 @@ Error generating stack: ` + u.message + `
                   tt("toggle", e), l = i;
                   break;
                 case "input":
-                  Ae(e, i), l = ye(e, i), tt("invalid", e);
+                  Ne(e, i), l = fe(e, i), tt("invalid", e);
                   break;
                 case "option":
                   l = i;
@@ -3752,20 +3752,20 @@ Error generating stack: ` + u.message + `
                 default:
                   l = i;
               }
-              Pe(n, l), k = l;
+              be(n, l), k = l;
               for (u in k) if (k.hasOwnProperty(u)) {
                 var g = k[u];
                 u === "style" ? Vt(e, g) : u === "dangerouslySetInnerHTML" ? (g = g ? g.__html : void 0, g != null && ln(e, g)) : u === "children" ? typeof g == "string" ? (n !== "textarea" || g !== "") && Jt(e, g) : typeof g == "number" && Jt(e, "" + g) : u !== "suppressContentEditableWarning" && u !== "suppressHydrationWarning" && u !== "autoFocus" && (d.hasOwnProperty(u) ? g != null && u === "onScroll" && tt("scroll", e) : g != null && K(e, u, g, h));
               }
               switch (n) {
                 case "input":
-                  oe(e), Qe(e, i, !1);
+                  I(e), He(e, i, !1);
                   break;
                 case "textarea":
-                  oe(e), it(e);
+                  I(e), it(e);
                   break;
                 case "option":
-                  i.value != null && e.setAttribute("value", "" + ne(i.value));
+                  i.value != null && e.setAttribute("value", "" + te(i.value));
                   break;
                 case "select":
                   e.multiple = !!i.multiple, u = i.value, u != null ? Xe(e, !!i.multiple, u, !1) : i.defaultValue != null && Xe(
@@ -3801,7 +3801,7 @@ Error generating stack: ` + u.message + `
         if (e && t.stateNode != null) Gc(e, t, e.memoizedProps, i);
         else {
           if (typeof i != "string" && t.stateNode === null) throw Error(o(166));
-          if (n = yi(Fr.current), yi(jn.current), Os(t)) {
+          if (n = yi(Fr.current), yi(jn.current), $s(t)) {
             if (i = t.stateNode, n = t.memoizedProps, i[gn] = t, (u = i.nodeValue !== n) && (e = Ht, e !== null)) switch (e.tag) {
               case 3:
                 Ts(i.nodeValue, n, (e.mode & 1) !== 0);
@@ -3816,7 +3816,7 @@ Error generating stack: ` + u.message + `
       case 13:
         if (nt(at), i = t.memoizedState, e === null || e.memoizedState !== null && e.memoizedState.dehydrated !== null) {
           if (rt && Gt !== null && (t.mode & 1) !== 0 && (t.flags & 128) === 0) Yu(), Ki(), t.flags |= 98560, u = !1;
-          else if (u = Os(t), i !== null && i.dehydrated !== null) {
+          else if (u = $s(t), i !== null && i.dehydrated !== null) {
             if (e === null) {
               if (!u) throw Error(o(318));
               if (u = t.memoizedState, u = u !== null ? u.dehydrated : null, !u) throw Error(o(317));
@@ -3832,7 +3832,7 @@ Error generating stack: ` + u.message + `
       case 10:
         return kl(t.type._context), Tt(t), null;
       case 17:
-        return $t(t.type) && As(), Tt(t), null;
+        return Ot(t.type) && As(), Tt(t), null;
       case 19:
         if (nt(at), u = t.memoizedState, u === null) return Tt(t), null;
         if (i = (t.flags & 128) !== 0, h = u.rendering, h === null) if (i) Vr(u, !1);
@@ -3844,15 +3844,15 @@ Error generating stack: ` + u.message + `
             }
             e = e.sibling;
           }
-          u.tail !== null && se() > Xi && (t.flags |= 128, i = !0, Vr(u, !1), t.lanes = 4194304);
+          u.tail !== null && le() > Xi && (t.flags |= 128, i = !0, Vr(u, !1), t.lanes = 4194304);
         }
         else {
           if (!i) if (e = Bs(h), e !== null) {
             if (t.flags |= 128, i = !0, n = e.updateQueue, n !== null && (t.updateQueue = n, t.flags |= 4), Vr(u, !0), u.tail === null && u.tailMode === "hidden" && !h.alternate && !rt) return Tt(t), null;
-          } else 2 * se() - u.renderingStartTime > Xi && n !== 1073741824 && (t.flags |= 128, i = !0, Vr(u, !1), t.lanes = 4194304);
+          } else 2 * le() - u.renderingStartTime > Xi && n !== 1073741824 && (t.flags |= 128, i = !0, Vr(u, !1), t.lanes = 4194304);
           u.isBackwards ? (h.sibling = t.child, t.child = h) : (n = u.last, n !== null ? n.sibling = h : t.child = h, u.last = h);
         }
-        return u.tail !== null ? (t = u.tail, u.rendering = t, u.tail = t.sibling, u.renderingStartTime = se(), t.sibling = null, n = at.current, qe(at, i ? n & 1 | 2 : n & 1), t) : (Tt(t), null);
+        return u.tail !== null ? (t = u.tail, u.rendering = t, u.tail = t.sibling, u.renderingStartTime = le(), t.sibling = null, n = at.current, qe(at, i ? n & 1 | 2 : n & 1), t) : (Tt(t), null);
       case 22:
       case 23:
         return no(), i = t.memoizedState !== null, e !== null && e.memoizedState !== null !== i && (t.flags |= 8192), i && (t.mode & 1) !== 0 ? (Wt & 1073741824) !== 0 && (Tt(t), t.subtreeFlags & 6 && (t.flags |= 8192)) : Tt(t), null;
@@ -3866,9 +3866,9 @@ Error generating stack: ` + u.message + `
   function gm(e, t) {
     switch (dl(t), t.tag) {
       case 1:
-        return $t(t.type) && As(), e = t.flags, e & 65536 ? (t.flags = e & -65537 | 128, t) : null;
+        return Ot(t.type) && As(), e = t.flags, e & 65536 ? (t.flags = e & -65537 | 128, t) : null;
       case 3:
-        return Wi(), nt(Ot), nt(Et), Nl(), e = t.flags, (e & 65536) !== 0 && (e & 128) === 0 ? (t.flags = e & -65537 | 128, t) : null;
+        return Wi(), nt($t), nt(Et), Nl(), e = t.flags, (e & 65536) !== 0 && (e & 128) === 0 ? (t.flags = e & -65537 | 128, t) : null;
       case 5:
         return Sl(t), null;
       case 13:
@@ -3926,16 +3926,16 @@ Error generating stack: ` + u.message + `
             n = null;
             break e;
           }
-          var h = 0, k = -1, g = -1, F = 0, Y = 0, q = e, Q = null;
+          var h = 0, k = -1, g = -1, O = 0, Y = 0, q = e, Q = null;
           t: for (; ; ) {
-            for (var de; q !== n || l !== 0 && q.nodeType !== 3 || (k = h + l), q !== u || i !== 0 && q.nodeType !== 3 || (g = h + i), q.nodeType === 3 && (h += q.nodeValue.length), (de = q.firstChild) !== null; )
-              Q = q, q = de;
+            for (var me; q !== n || l !== 0 && q.nodeType !== 3 || (k = h + l), q !== u || i !== 0 && q.nodeType !== 3 || (g = h + i), q.nodeType === 3 && (h += q.nodeValue.length), (me = q.firstChild) !== null; )
+              Q = q, q = me;
             for (; ; ) {
               if (q === e) break t;
-              if (Q === n && ++F === l && (k = h), Q === u && ++Y === i && (g = h), (de = q.nextSibling) !== null) break;
+              if (Q === n && ++O === l && (k = h), Q === u && ++Y === i && (g = h), (me = q.nextSibling) !== null) break;
               q = Q, Q = q.parentNode;
             }
-            q = de;
+            q = me;
           }
           n = k === -1 || g === -1 ? null : { start: k, end: g };
         } else n = null;
@@ -3954,13 +3954,13 @@ Error generating stack: ` + u.message + `
             break;
           case 1:
             if (ke !== null) {
-              var je = ke.memoizedProps, ft = ke.memoizedState, b = t.stateNode, N = b.getSnapshotBeforeUpdate(t.elementType === t.type ? je : dn(t.type, je), ft);
+              var ge = ke.memoizedProps, ft = ke.memoizedState, b = t.stateNode, N = b.getSnapshotBeforeUpdate(t.elementType === t.type ? ge : dn(t.type, ge), ft);
               b.__reactInternalSnapshotBeforeUpdate = N;
             }
             break;
           case 3:
-            var R = t.stateNode.containerInfo;
-            R.nodeType === 1 ? R.textContent = "" : R.nodeType === 9 && R.documentElement && R.removeChild(R.documentElement);
+            var L = t.stateNode.containerInfo;
+            L.nodeType === 1 ? L.textContent = "" : L.nodeType === 9 && L.documentElement && L.removeChild(L.documentElement);
             break;
           case 5:
           case 6:
@@ -3970,8 +3970,8 @@ Error generating stack: ` + u.message + `
           default:
             throw Error(o(163));
         }
-      } catch (re) {
-        ot(t, t.return, re);
+      } catch (se) {
+        ot(t, t.return, se);
       }
       if (e = t.sibling, e !== null) {
         e.return = t.return, pe = e;
@@ -4015,7 +4015,7 @@ Error generating stack: ` + u.message + `
   }
   function Qc(e) {
     var t = e.alternate;
-    t !== null && (e.alternate = null, Qc(t)), e.child = null, e.deletions = null, e.sibling = null, e.tag === 5 && (t = e.stateNode, t !== null && (delete t[gn], delete t[br], delete t[ll], delete t[im], delete t[rm])), e.stateNode = null, e.return = null, e.dependencies = null, e.memoizedProps = null, e.memoizedState = null, e.pendingProps = null, e.stateNode = null, e.updateQueue = null;
+    t !== null && (e.alternate = null, Qc(t)), e.child = null, e.deletions = null, e.sibling = null, e.tag === 5 && (t = e.stateNode, t !== null && (delete t[gn], delete t[Pr], delete t[ll], delete t[im], delete t[rm])), e.stateNode = null, e.return = null, e.dependencies = null, e.memoizedProps = null, e.memoizedState = null, e.pendingProps = null, e.stateNode = null, e.updateQueue = null;
   }
   function Yc(e) {
     return e.tag === 5 || e.tag === 3 || e.tag === 4;
@@ -4131,8 +4131,8 @@ Error generating stack: ` + u.message + `
         Xc(u, h, l), xt = null, fn = !1;
         var g = l.alternate;
         g !== null && (g.return = null), l.return = null;
-      } catch (F) {
-        ot(l, t, F);
+      } catch (O) {
+        ot(l, t, O);
       }
     }
     if (t.subtreeFlags & 12854) for (t = t.child; t !== null; ) qc(t, e), t = t.sibling;
@@ -4147,13 +4147,13 @@ Error generating stack: ` + u.message + `
         if (hn(t, e), Sn(e), i & 4) {
           try {
             Kr(3, e, e.return), Xs(3, e);
-          } catch (je) {
-            ot(e, e.return, je);
+          } catch (ge) {
+            ot(e, e.return, ge);
           }
           try {
             Kr(5, e, e.return);
-          } catch (je) {
-            ot(e, e.return, je);
+          } catch (ge) {
+            ot(e, e.return, ge);
           }
         }
         break;
@@ -4165,22 +4165,22 @@ Error generating stack: ` + u.message + `
           var l = e.stateNode;
           try {
             Jt(l, "");
-          } catch (je) {
-            ot(e, e.return, je);
+          } catch (ge) {
+            ot(e, e.return, ge);
           }
         }
         if (i & 4 && (l = e.stateNode, l != null)) {
           var u = e.memoizedProps, h = n !== null ? n.memoizedProps : u, k = e.type, g = e.updateQueue;
           if (e.updateQueue = null, g !== null) try {
-            k === "input" && u.type === "radio" && u.name != null && Me(l, u), Le(k, h);
-            var F = Le(k, u);
+            k === "input" && u.type === "radio" && u.name != null && we(l, u), Re(k, h);
+            var O = Re(k, u);
             for (h = 0; h < g.length; h += 2) {
               var Y = g[h], q = g[h + 1];
-              Y === "style" ? Vt(l, q) : Y === "dangerouslySetInnerHTML" ? ln(l, q) : Y === "children" ? Jt(l, q) : K(l, Y, q, F);
+              Y === "style" ? Vt(l, q) : Y === "dangerouslySetInnerHTML" ? ln(l, q) : Y === "children" ? Jt(l, q) : K(l, Y, q, O);
             }
             switch (k) {
               case "input":
-                Ie(l, u);
+                Le(l, u);
                 break;
               case "textarea":
                 Ve(l, u);
@@ -4188,17 +4188,17 @@ Error generating stack: ` + u.message + `
               case "select":
                 var Q = l._wrapperState.wasMultiple;
                 l._wrapperState.wasMultiple = !!u.multiple;
-                var de = u.value;
-                de != null ? Xe(l, !!u.multiple, de, !1) : Q !== !!u.multiple && (u.defaultValue != null ? Xe(
+                var me = u.value;
+                me != null ? Xe(l, !!u.multiple, me, !1) : Q !== !!u.multiple && (u.defaultValue != null ? Xe(
                   l,
                   !!u.multiple,
                   u.defaultValue,
                   !0
                 ) : Xe(l, !!u.multiple, u.multiple ? [] : "", !1));
             }
-            l[br] = u;
-          } catch (je) {
-            ot(e, e.return, je);
+            l[Pr] = u;
+          } catch (ge) {
+            ot(e, e.return, ge);
           }
         }
         break;
@@ -4208,29 +4208,29 @@ Error generating stack: ` + u.message + `
           l = e.stateNode, u = e.memoizedProps;
           try {
             l.nodeValue = u;
-          } catch (je) {
-            ot(e, e.return, je);
+          } catch (ge) {
+            ot(e, e.return, ge);
           }
         }
         break;
       case 3:
         if (hn(t, e), Sn(e), i & 4 && n !== null && n.memoizedState.isDehydrated) try {
           xr(t.containerInfo);
-        } catch (je) {
-          ot(e, e.return, je);
+        } catch (ge) {
+          ot(e, e.return, ge);
         }
         break;
       case 4:
         hn(t, e), Sn(e);
         break;
       case 13:
-        hn(t, e), Sn(e), l = e.child, l.flags & 8192 && (u = l.memoizedState !== null, l.stateNode.isHidden = u, !u || l.alternate !== null && l.alternate.memoizedState !== null || (Jl = se())), i & 4 && Zc(e);
+        hn(t, e), Sn(e), l = e.child, l.flags & 8192 && (u = l.memoizedState !== null, l.stateNode.isHidden = u, !u || l.alternate !== null && l.alternate.memoizedState !== null || (Jl = le())), i & 4 && Zc(e);
         break;
       case 22:
-        if (Y = n !== null && n.memoizedState !== null, e.mode & 1 ? (Mt = (F = Mt) || Y, hn(t, e), Mt = F) : hn(t, e), Sn(e), i & 8192) {
-          if (F = e.memoizedState !== null, (e.stateNode.isHidden = F) && !Y && (e.mode & 1) !== 0) for (pe = e, Y = e.child; Y !== null; ) {
+        if (Y = n !== null && n.memoizedState !== null, e.mode & 1 ? (Mt = (O = Mt) || Y, hn(t, e), Mt = O) : hn(t, e), Sn(e), i & 8192) {
+          if (O = e.memoizedState !== null, (e.stateNode.isHidden = O) && !Y && (e.mode & 1) !== 0) for (pe = e, Y = e.child; Y !== null; ) {
             for (q = pe = Y; pe !== null; ) {
-              switch (Q = pe, de = Q.child, Q.tag) {
+              switch (Q = pe, me = Q.child, Q.tag) {
                 case 0:
                 case 11:
                 case 14:
@@ -4244,8 +4244,8 @@ Error generating stack: ` + u.message + `
                     i = Q, n = Q.return;
                     try {
                       t = i, ke.props = t.memoizedProps, ke.state = t.memoizedState, ke.componentWillUnmount();
-                    } catch (je) {
-                      ot(i, n, je);
+                    } catch (ge) {
+                      ot(i, n, ge);
                     }
                   }
                   break;
@@ -4258,7 +4258,7 @@ Error generating stack: ` + u.message + `
                     continue;
                   }
               }
-              de !== null ? (de.return = Q, pe = de) : nd(q);
+              me !== null ? (me.return = Q, pe = me) : nd(q);
             }
             Y = Y.sibling;
           }
@@ -4267,16 +4267,16 @@ Error generating stack: ` + u.message + `
               if (Y === null) {
                 Y = q;
                 try {
-                  l = q.stateNode, F ? (u = l.style, typeof u.setProperty == "function" ? u.setProperty("display", "none", "important") : u.display = "none") : (k = q.stateNode, g = q.memoizedProps.style, h = g != null && g.hasOwnProperty("display") ? g.display : null, k.style.display = Ne("display", h));
-                } catch (je) {
-                  ot(e, e.return, je);
+                  l = q.stateNode, O ? (u = l.style, typeof u.setProperty == "function" ? u.setProperty("display", "none", "important") : u.display = "none") : (k = q.stateNode, g = q.memoizedProps.style, h = g != null && g.hasOwnProperty("display") ? g.display : null, k.style.display = Ce("display", h));
+                } catch (ge) {
+                  ot(e, e.return, ge);
                 }
               }
             } else if (q.tag === 6) {
               if (Y === null) try {
-                q.stateNode.nodeValue = F ? "" : q.memoizedProps;
-              } catch (je) {
-                ot(e, e.return, je);
+                q.stateNode.nodeValue = O ? "" : q.memoizedProps;
+              } catch (ge) {
+                ot(e, e.return, ge);
               }
             } else if ((q.tag !== 22 && q.tag !== 23 || q.memoizedState === null || q === e) && q.child !== null) {
               q.child.return = q, q = q.child;
@@ -4350,10 +4350,10 @@ Error generating stack: ` + u.message + `
         if (!h) {
           var k = l.alternate, g = k !== null && k.memoizedState !== null || Mt;
           k = Js;
-          var F = Mt;
-          if (Js = h, (Mt = g) && !F) for (pe = l; pe !== null; ) h = pe, g = h.child, h.tag === 22 && h.memoizedState !== null ? id(l) : g !== null ? (g.return = h, pe = g) : id(l);
+          var O = Mt;
+          if (Js = h, (Mt = g) && !O) for (pe = l; pe !== null; ) h = pe, g = h.child, h.tag === 22 && h.memoizedState !== null ? id(l) : g !== null ? (g.return = h, pe = g) : id(l);
           for (; u !== null; ) pe = u, ed(u), u = u.sibling;
-          pe = l, Js = k, Mt = F;
+          pe = l, Js = k, Mt = O;
         }
         td(e);
       } else (l.subtreeFlags & 8772) !== 0 && u !== null ? (u.return = l, pe = u) : td(e);
@@ -4419,9 +4419,9 @@ Error generating stack: ` + u.message + `
               break;
             case 13:
               if (t.memoizedState === null) {
-                var F = t.alternate;
-                if (F !== null) {
-                  var Y = F.memoizedState;
+                var O = t.alternate;
+                if (O !== null) {
+                  var Y = O.memoizedState;
                   if (Y !== null) {
                     var q = Y.dehydrated;
                     q !== null && xr(q);
@@ -4526,15 +4526,15 @@ Error generating stack: ` + u.message + `
     }
   }
   var wm = Math.ceil, Zs = B.ReactCurrentDispatcher, Ql = B.ReactCurrentOwner, sn = B.ReactCurrentBatchConfig, ze = 0, yt = null, ht = null, St = 0, Wt = 0, Ji = Yn(0), pt = 0, Ur = null, ji = 0, qs = 0, Yl = 0, Hr = null, It = null, Jl = 0, Xi = 1 / 0, Fn = null, ea = !1, Xl = null, ti = null, ta = !1, ni = null, na = 0, Gr = 0, Zl = null, ia = -1, ra = 0;
-  function Pt() {
-    return (ze & 6) !== 0 ? se() : ia !== -1 ? ia : ia = se();
+  function bt() {
+    return (ze & 6) !== 0 ? le() : ia !== -1 ? ia : ia = le();
   }
   function ii(e) {
-    return (e.mode & 1) === 0 ? 1 : (ze & 2) !== 0 && St !== 0 ? St & -St : am.transition !== null ? (ra === 0 && (ra = Jo()), ra) : (e = We, e !== 0 || (e = window.event, e = e === void 0 ? 16 : su(e.type)), e);
+    return (e.mode & 1) === 0 ? 1 : (ze & 2) !== 0 && St !== 0 ? St & -St : am.transition !== null ? (ra === 0 && (ra = Jo()), ra) : (e = Qe, e !== 0 || (e = window.event, e = e === void 0 ? 16 : su(e.type)), e);
   }
   function mn(e, t, n, i) {
     if (50 < Gr) throw Gr = 0, Zl = null, Error(o(185));
-    vr(e, n, i), ((ze & 2) === 0 || e !== yt) && (e === yt && ((ze & 2) === 0 && (qs |= n), pt === 4 && ri(e, St)), Dt(e, i), n === 1 && ze === 0 && (t.mode & 1) === 0 && (Xi = se() + 500, bs && Xn()));
+    vr(e, n, i), ((ze & 2) === 0 || e !== yt) && (e === yt && ((ze & 2) === 0 && (qs |= n), pt === 4 && ri(e, St)), Dt(e, i), n === 1 && ze === 0 && (t.mode & 1) === 0 && (Xi = le() + 500, Ps && Xn()));
   }
   function Dt(e, t) {
     var n = e.callbackNode;
@@ -4579,7 +4579,7 @@ Error generating stack: ` + u.message + `
       var l = ze;
       ze |= 2;
       var u = ld();
-      (yt !== e || St !== t) && (Fn = null, Xi = se() + 500, Si(e, t));
+      (yt !== e || St !== t) && (Fn = null, Xi = le() + 500, Si(e, t));
       do
         try {
           Cm();
@@ -4591,10 +4591,10 @@ Error generating stack: ` + u.message + `
       vl(), Zs.current = u, ze = l, ht !== null ? t = 0 : (yt = null, St = 0, t = pt);
     }
     if (t !== 0) {
-      if (t === 2 && (l = ba(e), l !== 0 && (i = l, t = ql(e, l))), t === 1) throw n = Ur, Si(e, 0), ri(e, i), Dt(e, se()), n;
+      if (t === 2 && (l = Pa(e), l !== 0 && (i = l, t = ql(e, l))), t === 1) throw n = Ur, Si(e, 0), ri(e, i), Dt(e, le()), n;
       if (t === 6) ri(e, i);
       else {
-        if (l = e.current.alternate, (i & 30) === 0 && !Nm(l) && (t = sa(e, i), t === 2 && (u = ba(e), u !== 0 && (i = u, t = ql(e, u))), t === 1)) throw n = Ur, Si(e, 0), ri(e, i), Dt(e, se()), n;
+        if (l = e.current.alternate, (i & 30) === 0 && !Nm(l) && (t = sa(e, i), t === 2 && (u = Pa(e), u !== 0 && (i = u, t = ql(e, u))), t === 1)) throw n = Ur, Si(e, 0), ri(e, i), Dt(e, le()), n;
         switch (e.finishedWork = l, e.finishedLanes = i, t) {
           case 0:
           case 1:
@@ -4603,10 +4603,10 @@ Error generating stack: ` + u.message + `
             wi(e, It, Fn);
             break;
           case 3:
-            if (ri(e, i), (i & 130023424) === i && (t = Jl + 500 - se(), 10 < t)) {
+            if (ri(e, i), (i & 130023424) === i && (t = Jl + 500 - le(), 10 < t)) {
               if (hs(e, 0) !== 0) break;
               if (l = e.suspendedLanes, (l & i) !== i) {
-                Pt(), e.pingedLanes |= e.suspendedLanes & l;
+                bt(), e.pingedLanes |= e.suspendedLanes & l;
                 break;
               }
               e.timeoutHandle = sl(wi.bind(null, e, It, Fn), t);
@@ -4620,7 +4620,7 @@ Error generating stack: ` + u.message + `
               var h = 31 - on(i);
               u = 1 << h, h = t[h], h > l && (l = h), i &= ~u;
             }
-            if (i = l, i = se() - i, i = (120 > i ? 120 : 480 > i ? 480 : 1080 > i ? 1080 : 1920 > i ? 1920 : 3e3 > i ? 3e3 : 4320 > i ? 4320 : 1960 * wm(i / 1960)) - i, 10 < i) {
+            if (i = l, i = le() - i, i = (120 > i ? 120 : 480 > i ? 480 : 1080 > i ? 1080 : 1920 > i ? 1920 : 3e3 > i ? 3e3 : 4320 > i ? 4320 : 1960 * wm(i / 1960)) - i, 10 < i) {
               e.timeoutHandle = sl(wi.bind(null, e, It, Fn), i);
               break;
             }
@@ -4634,7 +4634,7 @@ Error generating stack: ` + u.message + `
         }
       }
     }
-    return Dt(e, se()), e.callbackNode === n ? rd.bind(null, e) : null;
+    return Dt(e, le()), e.callbackNode === n ? rd.bind(null, e) : null;
   }
   function ql(e, t) {
     var n = Hr;
@@ -4679,15 +4679,15 @@ Error generating stack: ` + u.message + `
     if ((ze & 6) !== 0) throw Error(o(327));
     Zi();
     var t = hs(e, 0);
-    if ((t & 1) === 0) return Dt(e, se()), null;
+    if ((t & 1) === 0) return Dt(e, le()), null;
     var n = sa(e, t);
     if (e.tag !== 0 && n === 2) {
-      var i = ba(e);
+      var i = Pa(e);
       i !== 0 && (t = i, n = ql(e, i));
     }
-    if (n === 1) throw n = Ur, Si(e, 0), ri(e, t), Dt(e, se()), n;
+    if (n === 1) throw n = Ur, Si(e, 0), ri(e, t), Dt(e, le()), n;
     if (n === 6) throw Error(o(345));
-    return e.finishedWork = e.current.alternate, e.finishedLanes = t, wi(e, It, Fn), Dt(e, se()), null;
+    return e.finishedWork = e.current.alternate, e.finishedLanes = t, wi(e, It, Fn), Dt(e, le()), null;
   }
   function to(e, t) {
     var n = ze;
@@ -4695,18 +4695,18 @@ Error generating stack: ` + u.message + `
     try {
       return e(t);
     } finally {
-      ze = n, ze === 0 && (Xi = se() + 500, bs && Xn());
+      ze = n, ze === 0 && (Xi = le() + 500, Ps && Xn());
     }
   }
   function xi(e) {
     ni !== null && ni.tag === 0 && (ze & 6) === 0 && Zi();
     var t = ze;
     ze |= 1;
-    var n = sn.transition, i = We;
+    var n = sn.transition, i = Qe;
     try {
-      if (sn.transition = null, We = 1, e) return e();
+      if (sn.transition = null, Qe = 1, e) return e();
     } finally {
-      We = i, sn.transition = n, ze = t, (ze & 6) === 0 && Xn();
+      Qe = i, sn.transition = n, ze = t, (ze & 6) === 0 && Xn();
     }
   }
   function no() {
@@ -4722,7 +4722,7 @@ Error generating stack: ` + u.message + `
           i = i.type.childContextTypes, i != null && As();
           break;
         case 3:
-          Wi(), nt(Ot), nt(Et), Nl();
+          Wi(), nt($t), nt(Et), Nl();
           break;
         case 5:
           Sl(i);
@@ -4777,31 +4777,31 @@ Error generating stack: ` + u.message + `
         e: {
           var u = e, h = n.return, k = n, g = t;
           if (t = St, k.flags |= 32768, g !== null && typeof g == "object" && typeof g.then == "function") {
-            var F = g, Y = k, q = Y.tag;
+            var O = g, Y = k, q = Y.tag;
             if ((Y.mode & 1) === 0 && (q === 0 || q === 11 || q === 15)) {
               var Q = Y.alternate;
               Q ? (Y.updateQueue = Q.updateQueue, Y.memoizedState = Q.memoizedState, Y.lanes = Q.lanes) : (Y.updateQueue = null, Y.memoizedState = null);
             }
-            var de = Pc(h);
-            if (de !== null) {
-              de.flags &= -257, bc(de, h, k, u, t), de.mode & 1 && Ac(u, F, t), t = de, g = F;
+            var me = bc(h);
+            if (me !== null) {
+              me.flags &= -257, Pc(me, h, k, u, t), me.mode & 1 && Ac(u, O, t), t = me, g = O;
               var ke = t.updateQueue;
               if (ke === null) {
-                var je = /* @__PURE__ */ new Set();
-                je.add(g), t.updateQueue = je;
+                var ge = /* @__PURE__ */ new Set();
+                ge.add(g), t.updateQueue = ge;
               } else ke.add(g);
               break e;
             } else {
               if ((t & 1) === 0) {
-                Ac(u, F, t), io();
+                Ac(u, O, t), io();
                 break e;
               }
               g = Error(o(426));
             }
           } else if (rt && k.mode & 1) {
-            var ft = Pc(h);
+            var ft = bc(h);
             if (ft !== null) {
-              (ft.flags & 65536) === 0 && (ft.flags |= 256), bc(ft, h, k, u, t), ml(Qi(g, k));
+              (ft.flags & 65536) === 0 && (ft.flags |= 256), Pc(ft, h, k, u, t), ml(Qi(g, k));
               break e;
             }
           }
@@ -4815,11 +4815,11 @@ Error generating stack: ` + u.message + `
                 break e;
               case 1:
                 k = g;
-                var N = u.type, R = u.stateNode;
-                if ((u.flags & 128) === 0 && (typeof N.getDerivedStateFromError == "function" || R !== null && typeof R.componentDidCatch == "function" && (ti === null || !ti.has(R)))) {
+                var N = u.type, L = u.stateNode;
+                if ((u.flags & 128) === 0 && (typeof N.getDerivedStateFromError == "function" || L !== null && typeof L.componentDidCatch == "function" && (ti === null || !ti.has(L)))) {
                   u.flags |= 65536, t &= -t, u.lanes |= t;
-                  var re = _c(u, k, t);
-                  tc(u, re);
+                  var se = _c(u, k, t);
+                  tc(u, se);
                   break e;
                 }
             }
@@ -4896,11 +4896,11 @@ Error generating stack: ` + u.message + `
     pt === 0 && (pt = 5);
   }
   function wi(e, t, n) {
-    var i = We, l = sn.transition;
+    var i = Qe, l = sn.transition;
     try {
-      sn.transition = null, We = 1, Tm(e, t, n, i);
+      sn.transition = null, Qe = 1, Tm(e, t, n, i);
     } finally {
-      sn.transition = l, We = i;
+      sn.transition = l, Qe = i;
     }
     return null;
   }
@@ -4919,20 +4919,20 @@ Error generating stack: ` + u.message + `
       return Zi(), null;
     })), u = (n.flags & 15990) !== 0, (n.subtreeFlags & 15990) !== 0 || u) {
       u = sn.transition, sn.transition = null;
-      var h = We;
-      We = 1;
+      var h = Qe;
+      Qe = 1;
       var k = ze;
-      ze |= 4, Ql.current = null, xm(e, n), qc(n, e), Wh(il), vs = !!nl, il = nl = null, e.current = n, Sm(n), D(), ze = k, We = h, sn.transition = u;
+      ze |= 4, Ql.current = null, xm(e, n), qc(n, e), Wh(il), vs = !!nl, il = nl = null, e.current = n, Sm(n), D(), ze = k, Qe = h, sn.transition = u;
     } else e.current = n;
-    if (ta && (ta = !1, ni = e, na = l), u = e.pendingLanes, u === 0 && (ti = null), th(n.stateNode), Dt(e, se()), t !== null) for (i = e.onRecoverableError, n = 0; n < t.length; n++) l = t[n], i(l.value, { componentStack: l.stack, digest: l.digest });
+    if (ta && (ta = !1, ni = e, na = l), u = e.pendingLanes, u === 0 && (ti = null), th(n.stateNode), Dt(e, le()), t !== null) for (i = e.onRecoverableError, n = 0; n < t.length; n++) l = t[n], i(l.value, { componentStack: l.stack, digest: l.digest });
     if (ea) throw ea = !1, e = Xl, Xl = null, e;
     return (na & 1) !== 0 && e.tag !== 0 && Zi(), u = e.pendingLanes, (u & 1) !== 0 ? e === Zl ? Gr++ : (Gr = 0, Zl = e) : Gr = 0, Xn(), null;
   }
   function Zi() {
     if (ni !== null) {
-      var e = Xo(na), t = sn.transition, n = We;
+      var e = Xo(na), t = sn.transition, n = Qe;
       try {
-        if (sn.transition = null, We = 16 > e ? 16 : e, ni === null) var i = !1;
+        if (sn.transition = null, Qe = 16 > e ? 16 : e, ni === null) var i = !1;
         else {
           if (e = ni, ni = null, na = 0, (ze & 6) !== 0) throw Error(o(331));
           var l = ze;
@@ -4942,8 +4942,8 @@ Error generating stack: ` + u.message + `
               var k = u.deletions;
               if (k !== null) {
                 for (var g = 0; g < k.length; g++) {
-                  var F = k[g];
-                  for (pe = F; pe !== null; ) {
+                  var O = k[g];
+                  for (pe = O; pe !== null; ) {
                     var Y = pe;
                     switch (Y.tag) {
                       case 0:
@@ -4955,28 +4955,28 @@ Error generating stack: ` + u.message + `
                     if (q !== null) q.return = Y, pe = q;
                     else for (; pe !== null; ) {
                       Y = pe;
-                      var Q = Y.sibling, de = Y.return;
-                      if (Qc(Y), Y === F) {
+                      var Q = Y.sibling, me = Y.return;
+                      if (Qc(Y), Y === O) {
                         pe = null;
                         break;
                       }
                       if (Q !== null) {
-                        Q.return = de, pe = Q;
+                        Q.return = me, pe = Q;
                         break;
                       }
-                      pe = de;
+                      pe = me;
                     }
                   }
                 }
                 var ke = u.alternate;
                 if (ke !== null) {
-                  var je = ke.child;
-                  if (je !== null) {
+                  var ge = ke.child;
+                  if (ge !== null) {
                     ke.child = null;
                     do {
-                      var ft = je.sibling;
-                      je.sibling = null, je = ft;
-                    } while (je !== null);
+                      var ft = ge.sibling;
+                      ge.sibling = null, ge = ft;
+                    } while (ge !== null);
                   }
                 }
                 pe = u;
@@ -5001,8 +5001,8 @@ Error generating stack: ` + u.message + `
           var N = e.current;
           for (pe = N; pe !== null; ) {
             h = pe;
-            var R = h.child;
-            if ((h.subtreeFlags & 2064) !== 0 && R !== null) R.return = h, pe = R;
+            var L = h.child;
+            if ((h.subtreeFlags & 2064) !== 0 && L !== null) L.return = h, pe = L;
             else e: for (h = N; pe !== null; ) {
               if (k = pe, (k.flags & 2048) !== 0) try {
                 switch (k.tag) {
@@ -5018,9 +5018,9 @@ Error generating stack: ` + u.message + `
                 pe = null;
                 break e;
               }
-              var re = k.sibling;
-              if (re !== null) {
-                re.return = k.return, pe = re;
+              var se = k.sibling;
+              if (se !== null) {
+                se.return = k.return, pe = se;
                 break e;
               }
               pe = k.return;
@@ -5034,13 +5034,13 @@ Error generating stack: ` + u.message + `
         }
         return i;
       } finally {
-        We = n, sn.transition = t;
+        Qe = n, sn.transition = t;
       }
     }
     return !1;
   }
   function cd(e, t, n) {
-    t = Qi(n, t), t = Mc(e, t, 1), e = qn(e, t, 1), t = Pt(), e !== null && (vr(e, 1, t), Dt(e, t));
+    t = Qi(n, t), t = Mc(e, t, 1), e = qn(e, t, 1), t = bt(), e !== null && (vr(e, 1, t), Dt(e, t));
   }
   function ot(e, t, n) {
     if (e.tag === 3) cd(e, e, n);
@@ -5051,7 +5051,7 @@ Error generating stack: ` + u.message + `
       } else if (t.tag === 1) {
         var i = t.stateNode;
         if (typeof t.type.getDerivedStateFromError == "function" || typeof i.componentDidCatch == "function" && (ti === null || !ti.has(i))) {
-          e = Qi(n, e), e = _c(t, e, 1), t = qn(t, e, 1), e = Pt(), t !== null && (vr(t, 1, e), Dt(t, e));
+          e = Qi(n, e), e = _c(t, e, 1), t = qn(t, e, 1), e = bt(), t !== null && (vr(t, 1, e), Dt(t, e));
           break;
         }
       }
@@ -5060,11 +5060,11 @@ Error generating stack: ` + u.message + `
   }
   function Mm(e, t, n) {
     var i = e.pingCache;
-    i !== null && i.delete(t), t = Pt(), e.pingedLanes |= e.suspendedLanes & n, yt === e && (St & n) === n && (pt === 4 || pt === 3 && (St & 130023424) === St && 500 > se() - Jl ? Si(e, 0) : Yl |= n), Dt(e, t);
+    i !== null && i.delete(t), t = bt(), e.pingedLanes |= e.suspendedLanes & n, yt === e && (St & n) === n && (pt === 4 || pt === 3 && (St & 130023424) === St && 500 > le() - Jl ? Si(e, 0) : Yl |= n), Dt(e, t);
   }
   function dd(e, t) {
     t === 0 && ((e.mode & 1) === 0 ? t = 1 : (t = fs, fs <<= 1, (fs & 130023424) === 0 && (fs = 4194304)));
-    var n = Pt();
+    var n = bt();
     e = Rn(e, t), e !== null && (vr(e, t, n), Dt(e, n));
   }
   function _m(e) {
@@ -5088,7 +5088,7 @@ Error generating stack: ` + u.message + `
   }
   var fd;
   fd = function(e, t, n) {
-    if (e !== null) if (e.memoizedProps !== t.pendingProps || Ot.current) Ft = !0;
+    if (e !== null) if (e.memoizedProps !== t.pendingProps || $t.current) Ft = !0;
     else {
       if ((e.lanes & n) === 0 && (t.flags & 128) === 0) return Ft = !1, km(e, t, n);
       Ft = (e.flags & 131072) !== 0;
@@ -5101,11 +5101,11 @@ Error generating stack: ` + u.message + `
         var l = zi(t, Et.current);
         Gi(t, n), l = Tl(null, t, i, e, l, n);
         var u = Ml();
-        return t.flags |= 1, typeof l == "object" && l !== null && typeof l.render == "function" && l.$$typeof === void 0 ? (t.tag = 1, t.memoizedState = null, t.updateQueue = null, $t(i) ? (u = !0, Ps(t)) : u = !1, t.memoizedState = l.state !== null && l.state !== void 0 ? l.state : null, jl(t), l.updater = Ws, t.stateNode = l, l._reactInternals = t, Rl(t, i, e, n), t = Il(null, t, i, !0, u, n)) : (t.tag = 0, rt && u && cl(t), At(null, t, l, n), t = t.child), t;
+        return t.flags |= 1, typeof l == "object" && l !== null && typeof l.render == "function" && l.$$typeof === void 0 ? (t.tag = 1, t.memoizedState = null, t.updateQueue = null, Ot(i) ? (u = !0, bs(t)) : u = !1, t.memoizedState = l.state !== null && l.state !== void 0 ? l.state : null, jl(t), l.updater = Ws, t.stateNode = l, l._reactInternals = t, Rl(t, i, e, n), t = Il(null, t, i, !0, u, n)) : (t.tag = 0, rt && u && cl(t), At(null, t, l, n), t = t.child), t;
       case 16:
         i = t.elementType;
         e: {
-          switch (Ys(e, t), e = t.pendingProps, l = i._init, i = l(i._payload), t.type = i, l = t.tag = bm(i), e = dn(i, e), l) {
+          switch (Ys(e, t), e = t.pendingProps, l = i._init, i = l(i._payload), t.type = i, l = t.tag = Pm(i), e = dn(i, e), l) {
             case 0:
               t = Fl(null, t, i, e, n);
               break e;
@@ -5144,7 +5144,7 @@ Error generating stack: ` + u.message + `
           } else for (Gt = Qn(t.stateNode.containerInfo.firstChild), Ht = t, rt = !0, cn = null, n = Zu(t, null, i, n), t.child = n; n; ) n.flags = n.flags & -3 | 4096, n = n.sibling;
           else {
             if (Ki(), i === l) {
-              t = $n(e, t, n);
+              t = On(e, t, n);
               break e;
             }
             At(e, t, i, n);
@@ -5171,8 +5171,8 @@ Error generating stack: ` + u.message + `
       case 10:
         e: {
           if (i = t.type._context, l = t.pendingProps, u = t.memoizedProps, h = l.value, qe(Fs, i._currentValue), i._currentValue = h, u !== null) if (un(u.value, h)) {
-            if (u.children === l.children && !Ot.current) {
-              t = $n(e, t, n);
+            if (u.children === l.children && !$t.current) {
+              t = On(e, t, n);
               break e;
             }
           } else for (u = t.child, u !== null && (u.return = t); u !== null; ) {
@@ -5182,12 +5182,12 @@ Error generating stack: ` + u.message + `
               for (var g = k.firstContext; g !== null; ) {
                 if (g.context === i) {
                   if (u.tag === 1) {
-                    g = On(-1, n & -n), g.tag = 2;
-                    var F = u.updateQueue;
-                    if (F !== null) {
-                      F = F.shared;
-                      var Y = F.pending;
-                      Y === null ? g.next = g : (g.next = Y.next, Y.next = g), F.pending = g;
+                    g = $n(-1, n & -n), g.tag = 2;
+                    var O = u.updateQueue;
+                    if (O !== null) {
+                      O = O.shared;
+                      var Y = O.pending;
+                      Y === null ? g.next = g : (g.next = Y.next, Y.next = g), O.pending = g;
                     }
                   }
                   u.lanes |= n, g = u.alternate, g !== null && (g.lanes |= n), yl(
@@ -5226,33 +5226,33 @@ Error generating stack: ` + u.message + `
       case 14:
         return i = t.type, l = dn(i, t.pendingProps), l = dn(i.type, l), Rc(e, t, i, l, n);
       case 15:
-        return Oc(e, t, t.type, t.pendingProps, n);
+        return $c(e, t, t.type, t.pendingProps, n);
       case 17:
-        return i = t.type, l = t.pendingProps, l = t.elementType === i ? l : dn(i, l), Ys(e, t), t.tag = 1, $t(i) ? (e = !0, Ps(t)) : e = !1, Gi(t, n), Cc(t, i, l), Rl(t, i, l, n), Il(null, t, i, !0, e, n);
+        return i = t.type, l = t.pendingProps, l = t.elementType === i ? l : dn(i, l), Ys(e, t), t.tag = 1, Ot(i) ? (e = !0, bs(t)) : e = !1, Gi(t, n), Cc(t, i, l), Rl(t, i, l, n), Il(null, t, i, !0, e, n);
       case 19:
         return Kc(e, t, n);
       case 22:
-        return $c(e, t, n);
+        return Oc(e, t, n);
     }
     throw Error(o(156, t.tag));
   };
   function hd(e, t) {
     return us(e, t);
   }
-  function Pm(e, t, n, i) {
+  function bm(e, t, n, i) {
     this.tag = e, this.key = n, this.sibling = this.child = this.return = this.stateNode = this.type = this.elementType = null, this.index = 0, this.ref = null, this.pendingProps = t, this.dependencies = this.memoizedState = this.updateQueue = this.memoizedProps = null, this.mode = i, this.subtreeFlags = this.flags = 0, this.deletions = null, this.childLanes = this.lanes = 0, this.alternate = null;
   }
   function an(e, t, n, i) {
-    return new Pm(e, t, n, i);
+    return new bm(e, t, n, i);
   }
   function ro(e) {
     return e = e.prototype, !(!e || !e.isReactComponent);
   }
-  function bm(e) {
+  function Pm(e) {
     if (typeof e == "function") return ro(e) ? 1 : 0;
     if (e != null) {
-      if (e = e.$$typeof, e === Se) return 11;
-      if (e === U) return 14;
+      if (e = e.$$typeof, e === Ee) return 11;
+      if (e === H) return 14;
     }
     return 2;
   }
@@ -5265,34 +5265,34 @@ Error generating stack: ` + u.message + `
     if (i = e, typeof e == "function") ro(e) && (h = 1);
     else if (typeof e == "string") h = 5;
     else e: switch (e) {
-      case _:
+      case M:
         return Ni(n.children, l, u, t);
       case $:
         h = 8, l |= 8;
         break;
       case ie:
         return e = an(12, n, t, l | 2), e.elementType = ie, e.lanes = u, e;
-      case X:
-        return e = an(13, n, t, l), e.elementType = X, e.lanes = u, e;
-      case fe:
-        return e = an(19, n, t, l), e.elementType = fe, e.lanes = u, e;
-      case ue:
+      case J:
+        return e = an(13, n, t, l), e.elementType = J, e.lanes = u, e;
+      case de:
+        return e = an(19, n, t, l), e.elementType = de, e.lanes = u, e;
+      case oe:
         return la(n, l, u, t);
       default:
         if (typeof e == "object" && e !== null) switch (e.$$typeof) {
-          case J:
+          case Z:
             h = 10;
             break e;
-          case ve:
+          case je:
             h = 9;
             break e;
-          case Se:
+          case Ee:
             h = 11;
             break e;
-          case U:
+          case H:
             h = 14;
             break e;
-          case ae:
+          case ce:
             h = 16, i = null;
             break e;
         }
@@ -5304,7 +5304,7 @@ Error generating stack: ` + u.message + `
     return e = an(7, e, i, t), e.lanes = n, e;
   }
   function la(e, t, n, i) {
-    return e = an(22, e, i, t), e.elementType = ue, e.lanes = n, e.stateNode = { isHidden: !1 }, e;
+    return e = an(22, e, i, t), e.elementType = oe, e.lanes = n, e.stateNode = { isHidden: !1 }, e;
   }
   function so(e, t, n) {
     return e = an(6, e, null, t), e.lanes = n, e;
@@ -5320,7 +5320,7 @@ Error generating stack: ` + u.message + `
   }
   function Rm(e, t, n) {
     var i = 3 < arguments.length && arguments[3] !== void 0 ? arguments[3] : null;
-    return { $$typeof: I, key: i == null ? null : "" + i, children: e, containerInfo: t, implementation: n };
+    return { $$typeof: F, key: i == null ? null : "" + i, children: e, containerInfo: t, implementation: n };
   }
   function md(e) {
     if (!e) return Jn;
@@ -5334,7 +5334,7 @@ Error generating stack: ` + u.message + `
             t = t.stateNode.context;
             break e;
           case 1:
-            if ($t(t.type)) {
+            if (Ot(t.type)) {
               t = t.stateNode.__reactInternalMemoizedMergedChildContext;
               break e;
             }
@@ -5345,16 +5345,16 @@ Error generating stack: ` + u.message + `
     }
     if (e.tag === 1) {
       var n = e.type;
-      if ($t(n)) return Vu(e, n, t);
+      if (Ot(n)) return Vu(e, n, t);
     }
     return t;
   }
   function pd(e, t, n, i, l, u, h, k, g) {
-    return e = lo(n, i, !0, e, l, u, h, k, g), e.context = md(null), n = e.current, i = Pt(), l = ii(n), u = On(i, l), u.callback = t ?? null, qn(n, u, l), e.current.lanes = l, vr(e, l, i), Dt(e, i), e;
+    return e = lo(n, i, !0, e, l, u, h, k, g), e.context = md(null), n = e.current, i = bt(), l = ii(n), u = $n(i, l), u.callback = t ?? null, qn(n, u, l), e.current.lanes = l, vr(e, l, i), Dt(e, i), e;
   }
   function oa(e, t, n, i) {
-    var l = t.current, u = Pt(), h = ii(l);
-    return n = md(n), t.context === null ? t.context = n : t.pendingContext = n, t = On(u, h), t.payload = { element: e }, i = i === void 0 ? null : i, i !== null && (t.callback = i), e = qn(l, t, h), e !== null && (mn(e, l, h, u), Ds(e, l, h)), h;
+    var l = t.current, u = bt(), h = ii(l);
+    return n = md(n), t.context === null ? t.context = n : t.pendingContext = n, t = $n(u, h), t.payload = { element: e }, i = i === void 0 ? null : i, i !== null && (t.callback = i), e = qn(l, t, h), e !== null && (mn(e, l, h, u), Ds(e, l, h)), h;
   }
   function ua(e) {
     return e = e.current, e.child ? (e.child.tag === 5, e.child.stateNode) : null;
@@ -5368,7 +5368,7 @@ Error generating stack: ` + u.message + `
   function oo(e, t) {
     vd(e, t), (e = e.alternate) && vd(e, t);
   }
-  function Om() {
+  function $m() {
     return null;
   }
   var kd = typeof reportError == "function" ? reportError : function(e) {
@@ -5410,13 +5410,13 @@ Error generating stack: ` + u.message + `
   }
   function yd() {
   }
-  function $m(e, t, n, i, l) {
+  function Om(e, t, n, i, l) {
     if (l) {
       if (typeof i == "function") {
         var u = i;
         i = function() {
-          var F = ua(h);
-          u.call(F);
+          var O = ua(h);
+          u.call(O);
         };
       }
       var h = pd(t, i, e, 0, null, !1, !1, "", yd);
@@ -5426,8 +5426,8 @@ Error generating stack: ` + u.message + `
     if (typeof i == "function") {
       var k = i;
       i = function() {
-        var F = ua(g);
-        k.call(F);
+        var O = ua(g);
+        k.call(O);
       };
     }
     var g = lo(e, 0, !1, null, null, !1, !1, "", yd);
@@ -5447,7 +5447,7 @@ Error generating stack: ` + u.message + `
         };
       }
       oa(t, h, e, l);
-    } else h = $m(n, t, e, l, i);
+    } else h = Om(n, t, e, l, i);
     return ua(h);
   }
   Zo = function(e) {
@@ -5456,23 +5456,23 @@ Error generating stack: ` + u.message + `
         var t = e.stateNode;
         if (t.current.memoizedState.isDehydrated) {
           var n = pr(t.pendingLanes);
-          n !== 0 && (Ra(t, n | 1), Dt(t, se()), (ze & 6) === 0 && (Xi = se() + 500, Xn()));
+          n !== 0 && (Ra(t, n | 1), Dt(t, le()), (ze & 6) === 0 && (Xi = le() + 500, Xn()));
         }
         break;
       case 13:
         xi(function() {
           var i = Rn(e, 1);
           if (i !== null) {
-            var l = Pt();
+            var l = bt();
             mn(i, e, 1, l);
           }
         }), oo(e, 1);
     }
-  }, Oa = function(e) {
+  }, $a = function(e) {
     if (e.tag === 13) {
       var t = Rn(e, 134217728);
       if (t !== null) {
-        var n = Pt();
+        var n = bt();
         mn(t, e, 134217728, n);
       }
       oo(e, 134217728);
@@ -5481,31 +5481,31 @@ Error generating stack: ` + u.message + `
     if (e.tag === 13) {
       var t = ii(e), n = Rn(e, t);
       if (n !== null) {
-        var i = Pt();
+        var i = bt();
         mn(n, e, t, i);
       }
       oo(e, t);
     }
   }, eu = function() {
-    return We;
+    return Qe;
   }, tu = function(e, t) {
-    var n = We;
+    var n = Qe;
     try {
-      return We = e, t();
+      return Qe = e, t();
     } finally {
-      We = n;
+      Qe = n;
     }
   }, Lt = function(e, t, n) {
     switch (t) {
       case "input":
-        if (Ie(e, n), t = n.name, n.type === "radio" && t != null) {
+        if (Le(e, n), t = n.name, n.type === "radio" && t != null) {
           for (n = e; n.parentNode; ) n = n.parentNode;
           for (n = n.querySelectorAll("input[name=" + JSON.stringify("" + t) + '][type="radio"]'), t = 0; t < n.length; t++) {
             var i = n[t];
             if (i !== e && i.form === e.form) {
               var l = _s(i);
               if (!l) throw Error(o(90));
-              ce(i), Ie(i, l);
+              ne(i), Le(i, l);
             }
           }
         }
@@ -5516,10 +5516,10 @@ Error generating stack: ` + u.message + `
       case "select":
         t = n.value, t != null && Xe(e, !!n.multiple, t, !1);
     }
-  }, ss = to, $e = xi;
+  }, ss = to, Fe = xi;
   var Fm = { usingClientEntryPoint: !1, Events: [Lr, Ii, _s, vn, kn, to] }, Wr = { findFiberByHostInstance: hi, bundleType: 0, version: "18.3.1", rendererPackageName: "react-dom" }, Im = { bundleType: Wr.bundleType, version: Wr.version, rendererPackageName: Wr.rendererPackageName, rendererConfig: Wr.rendererConfig, overrideHookState: null, overrideHookStateDeletePath: null, overrideHookStateRenamePath: null, overrideProps: null, overridePropsDeletePath: null, overridePropsRenamePath: null, setErrorHandler: null, setSuspenseHandler: null, scheduleUpdate: null, currentDispatcherRef: B.ReactCurrentDispatcher, findHostInstanceByFiber: function(e) {
     return e = hr(e), e === null ? null : e.stateNode;
-  }, findFiberByHostInstance: Wr.findFiberByHostInstance || Om, findHostInstancesForRefresh: null, scheduleRefresh: null, scheduleRoot: null, setRefreshHandler: null, getCurrentFiber: null, reconcilerVersion: "18.3.1-next-f1338f8080-20240426" };
+  }, findFiberByHostInstance: Wr.findFiberByHostInstance || $m, findHostInstancesForRefresh: null, scheduleRefresh: null, scheduleRoot: null, setRefreshHandler: null, getCurrentFiber: null, reconcilerVersion: "18.3.1-next-f1338f8080-20240426" };
   if (typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ < "u") {
     var ha = __REACT_DEVTOOLS_GLOBAL_HOOK__;
     if (!ha.isDisabled && ha.supportsFiber) try {
@@ -5600,7 +5600,7 @@ const Jm = (() => {
     [[10, 12], [10, 13], [9, 12], [10, 12], [10, 12], [10, 12]],
     [[12, 15], [13, 15], [12, 14], [12, 14], [12, 15], [12, 15]],
     [[15, 17], [15, 17], [14, 17], [14, 17], [15, 17], [15, 17]]
-  ], E = ["e", "B", "G", "D", "A", "E"], L = ["ohut e", "B", "G", "D", "A", "paksu E"], v = [[0, "1"], [3, "♭3"], [5, "4"], [7, "5"], [10, "♭7"]], j = [[0, "1"], [2, "2"], [4, "3"], [7, "5"], [9, "6"]], M = {
+  ], E = ["e", "B", "G", "D", "A", "E"], P = ["ohut e", "B", "G", "D", "A", "paksu E"], v = [[0, "1"], [3, "♭3"], [5, "4"], [7, "5"], [10, "♭7"]], j = [[0, "1"], [2, "2"], [4, "3"], [7, "5"], [9, "6"]], T = {
     mp: {
       name: "mollipentatoninen",
       base: v,
@@ -5655,120 +5655,120 @@ const Jm = (() => {
       add: [[5, "4"], [10, "♭7"]],
       hint: "Alennettu 7. aste on tuttu bluesista ja rockista."
     }
-  }, O = 26, P = 72, w = 30, S = 54, z = 34, T = 11, K = (O + P) / 2, B = w + (c.length - 1) * z + 30, H = (V) => P + V * S, I = (V) => V === 0 ? K : H(V) - S / 2, _ = (V) => w + V * z;
-  function $(V, ne, C) {
-    const Z = a.indexOf(s[V][0]) + Number(C.slice(-1)) - 1, oe = Z % a.length, ce = o[oe] + 12 * Math.floor(Z / a.length), me = V + ne - ce;
-    return a[oe] + (me < 0 ? "♭" : "♯").repeat(Math.abs(me));
+  }, R = 26, A = 72, w = 30, S = 54, z = 34, C = 11, K = (R + A) / 2, B = w + (c.length - 1) * z + 30, U = (V) => A + V * S, F = (V) => V === 0 ? K : U(V) - S / 2, M = (V) => w + V * z;
+  function $(V, te, X) {
+    const ve = a.indexOf(s[V][0]) + Number(X.slice(-1)) - 1, I = ve % a.length, ne = o[I] + 12 * Math.floor(ve / a.length), ae = V + te - ne;
+    return a[I] + (ae < 0 ? "♭" : "♯").repeat(Math.abs(ae));
   }
   function ie(V) {
-    return [...V.base, ...V.add].sort((ne, C) => ne[0] - C[0]);
+    return [...V.base, ...V.add].sort((te, X) => te[0] - X[0]);
   }
-  function J(V, ne, C) {
-    const Z = ne + (C ? 1 : 0), oe = m[Z % m.length], ce = Math.min(...oe.map(([Ie]) => Ie)), me = Math.max(...oe.map(([, Ie]) => Ie));
-    let Me = (V - d % 12 + 12) % 12 - (C ? 8 : 5) + 12 * Math.floor(Z / m.length);
-    return ce + Me < 0 && (Me += 12), me + Me > f.pentatonic && (Me -= 12), {
-      strings: oe.map((Ie) => Ie.map((Qe) => Qe + Me)),
-      start: ce + Me,
-      end: me + Me
+  function Z(V, te, X) {
+    const ve = te + (X ? 1 : 0), I = m[ve % m.length], ne = Math.min(...I.map(([Le]) => Le)), ae = Math.max(...I.map(([, Le]) => Le));
+    let we = (V - d % 12 + 12) % 12 - (X ? 8 : 5) + 12 * Math.floor(ve / m.length);
+    return ne + we < 0 && (we += 12), ae + we > f.pentatonic && (we -= 12), {
+      strings: I.map((Le) => Le.map((He) => He + we)),
+      start: ne + we,
+      end: ae + we
     };
   }
-  function ve(V, ne, C) {
-    const Z = C[ne], oe = (V + Z - d % 12 + 12) % 12, ce = d + oe - Z, me = c.map((ye, Ae) => {
-      const Me = ne + (c.length - 1 - Ae) * 3;
-      return [Me, Me + 1, Me + 2].map((Ie) => {
-        const Qe = Math.floor(Ie / C.length), Ye = C[Ie % C.length];
-        return ce + Ye + 12 * Qe - ye;
+  function je(V, te, X) {
+    const ve = X[te], I = (V + ve - d % 12 + 12) % 12, ne = d + I - ve, ae = c.map((fe, Ne) => {
+      const we = te + (c.length - 1 - Ne) * 3;
+      return [we, we + 1, we + 2].map((Le) => {
+        const He = Math.floor(Le / X.length), Ye = X[Le % X.length];
+        return ne + Ye + 12 * He - fe;
       });
     });
     return {
-      strings: me,
-      start: Math.min(...me.map((ye) => ye[0])),
-      end: Math.max(...me.map((ye) => ye.at(-1)))
+      strings: ae,
+      start: Math.min(...ae.map((fe) => fe[0])),
+      end: Math.max(...ae.map((fe) => fe.at(-1)))
     };
   }
-  function Se(V, ne) {
-    const C = [], Z = Math.ceil(-V.end / 12) * 12;
-    for (let ce = Z; V.start + ce <= ne; ce += 12) {
-      const me = V.strings.map((Ae) => Ae.map((Me) => Me + ce).filter((Me) => Me >= 0 && Me <= ne)), ye = me.flat();
-      C.push({
-        strings: me,
-        start: Math.min(...ye),
-        end: Math.max(...ye),
-        partial: V.start + ce < 0 || V.end + ce > ne
+  function Ee(V, te) {
+    const X = [], ve = Math.ceil(-V.end / 12) * 12;
+    for (let ne = ve; V.start + ne <= te; ne += 12) {
+      const ae = V.strings.map((Ne) => Ne.map((we) => we + ne).filter((we) => we >= 0 && we <= te)), fe = ae.flat();
+      X.push({
+        strings: ae,
+        start: Math.min(...fe),
+        end: Math.max(...fe),
+        partial: V.start + ne < 0 || V.end + ne > te
       });
     }
-    const oe = C.filter((ce) => !ce.partial);
-    return oe.length ? oe : C;
+    const I = X.filter((ne) => !ne.partial);
+    return I.length ? I : X;
   }
-  function X(V) {
+  function J(V) {
     return ie(V).length === p;
   }
-  function fe(V, ne, C) {
-    const Z = X(ne);
-    V.querySelector('[value="3nps"]').disabled = !Z, V.value = Z ? C ?? "3nps" : "pentatonic";
+  function de(V, te, X) {
+    const ve = J(te);
+    V.querySelector('[value="3nps"]').disabled = !ve, V.value = ve ? X ?? "3nps" : "pentatonic";
   }
-  function U(V, ne, C, Z, oe) {
-    const ce = ie(ne).map(([me]) => me);
-    return Z.map((me) => {
-      const ye = me - 1, Ae = C === "3nps" ? ve(V, ye, ce) : J(V, ye, ne.base === j), Me = oe === void 0 ? [Ae] : Se(Ae, oe);
-      return { number: me, positions: Me };
+  function H(V, te, X, ve, I) {
+    const ne = ie(te).map(([ae]) => ae);
+    return ve.map((ae) => {
+      const fe = ae - 1, Ne = X === "3nps" ? je(V, fe, ne) : Z(V, fe, te.base === j), we = I === void 0 ? [Ne] : Ee(Ne, I);
+      return { number: ae, positions: we };
     });
   }
-  function ae(V, ne) {
-    const C = V.getBoundingClientRect(), Z = V.querySelectorAll(ne);
-    let oe = 1 / 0;
-    Z.forEach((ce) => {
-      const me = ce.getBoundingClientRect();
-      let ye = 0;
-      me.left < C.left ? ye = me.left - C.left - 8 : me.right > C.right && (ye = me.right - C.right + 8), Math.abs(ye) < Math.abs(oe) && (oe = ye);
-    }), Number.isFinite(oe) && (V.scrollLeft += oe);
+  function ce(V, te) {
+    const X = V.getBoundingClientRect(), ve = V.querySelectorAll(te);
+    let I = 1 / 0;
+    ve.forEach((ne) => {
+      const ae = ne.getBoundingClientRect();
+      let fe = 0;
+      ae.left < X.left ? fe = ae.left - X.left - 8 : ae.right > X.right && (fe = ae.right - X.right + 8), Math.abs(fe) < Math.abs(I) && (I = fe);
+    }), Number.isFinite(I) && (V.scrollLeft += I);
   }
-  function ue(V, ne = !1) {
-    const C = V === "3nps" ? p : m.length;
-    return Array.from({ length: C }, (Z, oe) => {
-      const ce = oe + 1;
-      return '<label class="box-toggle" data-box="' + ce + '"><input type="checkbox" value="' + ce + '"' + (ne && oe === 0 ? " checked" : "") + "> Boksi " + ce + "</label>";
+  function oe(V, te = !1) {
+    const X = V === "3nps" ? p : m.length;
+    return Array.from({ length: X }, (ve, I) => {
+      const ne = I + 1;
+      return '<label class="box-toggle" data-box="' + ne + '"><input type="checkbox" value="' + ne + '"' + (te && I === 0 ? " checked" : "") + "> Boksi " + ne + "</label>";
     }).join("");
   }
-  function W(V, ne) {
-    const C = ie(ne), Z = new Map(C.map(([ce, me]) => [ce, $(V, ce, me)])), oe = [
+  function W(V, te) {
+    const X = ie(te), ve = new Map(X.map(([ne, ae]) => [ne, $(V, ne, ae)])), I = [
       { suffix: "", base: [[0, "1"], [4, "3"], [7, "5"]] },
       { suffix: "m", base: [[0, "1"], [3, "♭3"], [7, "5"]] },
       { suffix: "°", base: [[0, "1"], [3, "♭3"], [6, "♭5"]] }
     ];
-    return C.flatMap(([ce, me]) => oe.flatMap(({ suffix: ye, base: Ae }) => {
-      const Me = Ae.map(([Ie]) => Z.get((ce + Ie) % 12));
-      return Me.every(Boolean) ? {
-        root: (V + ce) % 12,
-        degree: Number(String(me).replace(/\D/g, "")),
-        name: Me[0] + ye,
-        notes: Me,
-        base: Ae,
+    return X.flatMap(([ne, ae]) => I.flatMap(({ suffix: fe, base: Ne }) => {
+      const we = Ne.map(([Le]) => ve.get((ne + Le) % 12));
+      return we.every(Boolean) ? {
+        root: (V + ne) % 12,
+        degree: Number(String(ae).replace(/\D/g, "")),
+        name: we[0] + fe,
+        notes: we,
+        base: Ne,
         add: []
       } : [];
     }));
   }
-  function le(V, ne) {
-    const C = V.base.map(([ce]) => (V.root + ce) % 12), Z = c.map((ce) => {
-      const me = [];
-      for (let ye = 0; ye <= ne; ye++) {
-        const Ae = (ce + ye) % 12;
-        C.includes(Ae) && me.push({ fret: ye, pitch: Ae });
+  function ue(V, te) {
+    const X = V.base.map(([ne]) => (V.root + ne) % 12), ve = c.map((ne) => {
+      const ae = [];
+      for (let fe = 0; fe <= te; fe++) {
+        const Ne = (ne + fe) % 12;
+        X.includes(Ne) && ae.push({ fret: fe, pitch: Ne });
       }
-      return me;
-    }), oe = [];
-    for (let ce = 0; ce <= Z.length - 3; ce++)
-      for (const me of Z[ce])
-        for (const ye of Z[ce + 1])
-          if (me.pitch !== ye.pitch)
-            for (const Ae of Z[ce + 2]) {
-              if (Ae.pitch === me.pitch || Ae.pitch === ye.pitch) continue;
-              const Me = [me.fret, ye.fret, Ae.fret], Ie = Math.min(...Me), Qe = Math.max(...Me);
-              if (Qe - Ie > 3) continue;
+      return ae;
+    }), I = [];
+    for (let ne = 0; ne <= ve.length - 3; ne++)
+      for (const ae of ve[ne])
+        for (const fe of ve[ne + 1])
+          if (ae.pitch !== fe.pitch)
+            for (const Ne of ve[ne + 2]) {
+              if (Ne.pitch === ae.pitch || Ne.pitch === fe.pitch) continue;
+              const we = [ae.fret, fe.fret, Ne.fret], Le = Math.min(...we), He = Math.max(...we);
+              if (He - Le > 3) continue;
               const Ye = Array(c.length).fill(null);
-              Ye.splice(ce, 3, ...Me), oe.push({ strings: Ye, low: Ie, high: Qe });
+              Ye.splice(ne, 3, ...we), I.push({ strings: Ye, low: Le, high: He });
             }
-    return oe.sort((ce, me) => ce.high - me.high || ce.low - me.low);
+    return I.sort((ne, ae) => ne.high - ae.high || ne.low - ae.low);
   }
   const ee = {
     "0:": [null, 3, 2, 0, 1, 0],
@@ -5821,139 +5821,139 @@ const Jm = (() => {
       "5♭5": [null, 0, 1, 2, null, null]
     } }
   ];
-  function y(V, ne) {
-    const C = ee[V + ":" + ne];
-    if (C) return { frets: C, barre: null };
-    let Z = null;
-    return x.forEach(({ string: oe, openPC: ce, shapes: me }) => {
-      const ye = me[ne];
-      if (!ye) return;
-      let Ae = (V - ce + 12) % 12;
-      if (Ae + Math.min(...ye.filter((Qe) => Qe !== null)) < 0 && (Ae += 12), Z && Z.fret <= Ae) return;
-      const Me = ye.map((Qe) => Qe === null ? null : Ae + Qe), Ie = Ae > 0 && ye.at(-1) === 0 ? { fret: Ae, from: oe, to: ye.length - 1 } : null;
-      Z = { fret: Ae, frets: Me, barre: Ie };
-    }), Z && { frets: Z.frets, barre: Z.barre };
+  function y(V, te) {
+    const X = ee[V + ":" + te];
+    if (X) return { frets: X, barre: null };
+    let ve = null;
+    return x.forEach(({ string: I, openPC: ne, shapes: ae }) => {
+      const fe = ae[te];
+      if (!fe) return;
+      let Ne = (V - ne + 12) % 12;
+      if (Ne + Math.min(...fe.filter((He) => He !== null)) < 0 && (Ne += 12), ve && ve.fret <= Ne) return;
+      const we = fe.map((He) => He === null ? null : Ne + He), Le = Ne > 0 && fe.at(-1) === 0 ? { fret: Ne, from: I, to: fe.length - 1 } : null;
+      ve = { fret: Ne, frets: we, barre: Le };
+    }), ve && { frets: ve.frets, barre: ve.barre };
   }
-  function te(V, { frets: ne, barre: C }, Z) {
-    const Me = [...c].reverse(), Ie = ne.filter((Ve) => Ve > 0), Ye = !Ie.length || Math.max(...Ie) <= 4 && (ne.includes(0) || Math.min(...Ie) === 1) ? 1 : Math.min(...Ie), Ge = (Ve) => 24 + Ve * 14, Xe = (Ve) => 30 + (Ve - Ye) * 18 + 18 / 2, ut = 102;
-    let Je = '<svg class="chord-svg" viewBox="0 0 108 ' + (ut + 8) + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' + Z + "-ote paksusta kielestä ohueen: " + ne.map((Ve) => Ve ?? "x").join(" ") + '">';
+  function re(V, { frets: te, barre: X }, ve) {
+    const we = [...c].reverse(), Le = te.filter((Ve) => Ve > 0), Ye = !Le.length || Math.max(...Le) <= 4 && (te.includes(0) || Math.min(...Le) === 1) ? 1 : Math.min(...Le), We = (Ve) => 24 + Ve * 14, Xe = (Ve) => 30 + (Ve - Ye) * 18 + 18 / 2, ut = 102;
+    let Je = '<svg class="chord-svg" viewBox="0 0 108 ' + (ut + 8) + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' + ve + "-ote paksusta kielestä ohueen: " + te.map((Ve) => Ve ?? "x").join(" ") + '">';
     for (let Ve = 0; Ve <= 4; Ve++)
-      Je += '<line class="' + (Ve === 0 && Ye === 1 ? "nut" : "fret") + '" x1="' + Ge(0) + '" y1="' + (30 + Ve * 18) + '" x2="' + Ge(5) + '" y2="' + (30 + Ve * 18) + '"/>';
-    return ne.forEach((Ve, it) => {
-      Je += '<line class="string" x1="' + Ge(it) + '" y1="30" x2="' + Ge(it) + '" y2="' + ut + '"/>';
-    }), Ye > 1 && (Je += '<text class="fret-label" x="15" y="' + (Xe(Ye) + 4) + '">' + Ye + "</text>"), C && (Je += '<rect class="barre" x="' + (Ge(C.from) - 6.5) + '" y="' + (Xe(C.fret) - 6.5) + '" width="' + ((C.to - C.from) * 14 + 13) + '" height="13" rx="6.5"/>'), ne.forEach((Ve, it) => {
+      Je += '<line class="' + (Ve === 0 && Ye === 1 ? "nut" : "fret") + '" x1="' + We(0) + '" y1="' + (30 + Ve * 18) + '" x2="' + We(5) + '" y2="' + (30 + Ve * 18) + '"/>';
+    return te.forEach((Ve, it) => {
+      Je += '<line class="string" x1="' + We(it) + '" y1="30" x2="' + We(it) + '" y2="' + ut + '"/>';
+    }), Ye > 1 && (Je += '<text class="fret-label" x="15" y="' + (Xe(Ye) + 4) + '">' + Ye + "</text>"), X && (Je += '<rect class="barre" x="' + (We(X.from) - 6.5) + '" y="' + (Xe(X.fret) - 6.5) + '" width="' + ((X.to - X.from) * 14 + 13) + '" height="13" rx="6.5"/>'), te.forEach((Ve, it) => {
       if (Ve === null) {
-        Je += '<text class="marker" x="' + Ge(it) + '" y="22">×</text>';
+        Je += '<text class="marker" x="' + We(it) + '" y="22">×</text>';
         return;
       }
-      const Bt = (Me[it] + Ve) % 12 === V;
+      const Bt = (we[it] + Ve) % 12 === V;
       if (Ve === 0) {
-        Je += '<circle class="open' + (Bt ? " root-open" : "") + '" cx="' + Ge(it) + '" cy="18" r="4.5"/>';
+        Je += '<circle class="open' + (Bt ? " root-open" : "") + '" cx="' + We(it) + '" cy="18" r="4.5"/>';
         return;
       }
-      C && Ve === C.fret && it >= C.from && it <= C.to && !Bt || (Je += '<circle class="' + (Bt ? "root" : "tone") + '" cx="' + Ge(it) + '" cy="' + Xe(Ve) + '" r="6.5"/>');
+      X && Ve === X.fret && it >= X.from && it <= X.to && !Bt || (Je += '<circle class="' + (Bt ? "root" : "tone") + '" cx="' + We(it) + '" cy="' + Xe(Ve) + '" r="6.5"/>');
     }), Je + "</svg>";
   }
-  function he(V, ne) {
-    const C = new URLSearchParams(location.search), Z = s.indexOf(C.get("toonikka")), oe = C.get("asteikko");
+  function he(V, te) {
+    const X = new URLSearchParams(location.search), ve = s.indexOf(X.get("toonikka")), I = X.get("asteikko");
     return {
-      rootPC: Z === -1 ? V : Z,
-      scaleId: Object.hasOwn(M, oe) ? oe : ne
+      rootPC: ve === -1 ? V : ve,
+      scaleId: Object.hasOwn(T, I) ? I : te
     };
   }
-  function we(V, ne, C) {
-    return V + "?" + new URLSearchParams({ toonikka: s[ne], asteikko: C });
+  function Se(V, te, X) {
+    return V + "?" + new URLSearchParams({ toonikka: s[te], asteikko: X });
   }
-  function G(V, ne, C, {
-    boxes: Z = [],
-    onlyBoxNotes: oe = !1,
-    automatic: ce = !0,
-    focusDegree: me = "",
-    grip: ye = null,
-    barre: Ae = null,
-    label: Me = s[V] + " " + ne.name,
-    notes: Ie = null,
-    targets: Qe = !1,
+  function G(V, te, X, {
+    boxes: ve = [],
+    onlyBoxNotes: I = !1,
+    automatic: ne = !0,
+    focusDegree: ae = "",
+    grip: fe = null,
+    barre: Ne = null,
+    label: we = s[V] + " " + te.name,
+    notes: Le = null,
+    targets: He = !1,
     muteFret: Ye = null
   } = {}) {
-    const Ge = H(C), Xe = Ge + 48, ut = Xe + 28, Je = w - 14, Ve = _(c.length - 1) + 14, it = Ve - Je, Bt = ce ? 680 : Math.ceil(ut * 0.64), Yt = Z.flatMap((Te) => Te.positions), Nt = {};
-    ne.base.forEach(([Te, Pe]) => Nt[(V + Te) % 12] = { deg: Pe, added: !1 }), ne.add.forEach(([Te, Pe]) => Nt[(V + Te) % 12] = { deg: Pe, added: !0 });
-    const ln = c.map((Te, Pe) => !!ye && ye[Pe] === null), Jt = !!ye && Ye !== null, Xt = L.filter((Te, Pe) => ln[Pe]).reverse(), _t = Me + ". " + C + " nauhaa. Vapaat kielet satulan vasemmalla puolella." + (Xt.length ? " Soittamatta jäävät kielet: " + Xt.join(", ") + "." : "");
-    let Ne = '<svg viewBox="0 0 ' + ut + " " + B + '" style="min-width:' + Bt + 'px" xmlns="http://www.w3.org/2000/svg" role="' + (Qe ? "group" : "img") + '" aria-label="' + _t + '">';
-    Ne += '<rect x="' + O + '" y="' + Je + '" width="' + (P - O) + '" height="' + it + '" rx="6" fill="#2a2338"/>', Ne += '<rect x="' + P + '" y="' + Je + '" width="' + (Ge - P) + '" height="' + it + '" fill="#231a12"/>', Ne += '<rect x="' + Ge + '" y="' + Je + '" width="' + (ut - Ge - 4) + '" height="' + it + '" rx="8" fill="#32251e"/>';
-    for (let Te = 1; Te <= C; Te++)
-      Ne += '<line x1="' + H(Te) + '" y1="' + Je + '" x2="' + H(Te) + '" y2="' + Ve + '" stroke="#6f5b47" stroke-width="2"/>';
-    Ne += '<rect x="' + (P - 3) + '" y="' + Je + '" width="6" height="' + it + '" rx="2" fill="#d8cbb6"/>', Ne += '<rect x="' + (Xe - 11) + '" y="' + (Je + 3) + '" width="22" height="' + (it - 6) + '" rx="7" fill="#49434f" stroke="#a49b9d"/>', Ne += '<rect x="' + (Xe - 4) + '" y="' + (Je + 7) + '" width="3" height="' + (it - 14) + '" rx="1.5" fill="#d8cbb6"/>';
+    const We = U(X), Xe = We + 48, ut = Xe + 28, Je = w - 14, Ve = M(c.length - 1) + 14, it = Ve - Je, Bt = ne ? 680 : Math.ceil(ut * 0.64), Yt = ve.flatMap((_e) => _e.positions), Nt = {};
+    te.base.forEach(([_e, be]) => Nt[(V + _e) % 12] = { deg: be, added: !1 }), te.add.forEach(([_e, be]) => Nt[(V + _e) % 12] = { deg: be, added: !0 });
+    const ln = c.map((_e, be) => !!fe && fe[be] === null), Jt = !!fe && Ye !== null, Xt = P.filter((_e, be) => ln[be]).reverse(), _t = we + ". " + X + " nauhaa. Vapaat kielet satulan vasemmalla puolella." + (Xt.length ? " Soittamatta jäävät kielet: " + Xt.join(", ") + "." : "");
+    let Ce = '<svg viewBox="0 0 ' + ut + " " + B + '" style="min-width:' + Bt + 'px" xmlns="http://www.w3.org/2000/svg" role="' + (He ? "group" : "img") + '" aria-label="' + _t + '">';
+    Ce += '<rect x="' + R + '" y="' + Je + '" width="' + (A - R) + '" height="' + it + '" rx="6" fill="#2a2338"/>', Ce += '<rect x="' + A + '" y="' + Je + '" width="' + (We - A) + '" height="' + it + '" fill="#231a12"/>', Ce += '<rect x="' + We + '" y="' + Je + '" width="' + (ut - We - 4) + '" height="' + it + '" rx="8" fill="#32251e"/>';
+    for (let _e = 1; _e <= X; _e++)
+      Ce += '<line x1="' + U(_e) + '" y1="' + Je + '" x2="' + U(_e) + '" y2="' + Ve + '" stroke="#6f5b47" stroke-width="2"/>';
+    Ce += '<rect x="' + (A - 3) + '" y="' + Je + '" width="6" height="' + it + '" rx="2" fill="#d8cbb6"/>', Ce += '<rect x="' + (Xe - 11) + '" y="' + (Je + 3) + '" width="22" height="' + (it - 6) + '" rx="7" fill="#49434f" stroke="#a49b9d"/>', Ce += '<rect x="' + (Xe - 4) + '" y="' + (Je + 7) + '" width="3" height="' + (it - 14) + '" rx="1.5" fill="#d8cbb6"/>';
     const Vt = (Je + Ve) / 2;
-    [3, 5, 7, 9, 15, 17, 19, 21].filter((Te) => Te <= C).forEach((Te) => Ne += '<circle cx="' + I(Te) + '" cy="' + Vt + '" r="5.5" fill="#7a6550"/>');
-    for (let Te = 12; Te <= C; Te += 12)
-      Ne += '<circle cx="' + I(Te) + '" cy="' + (Vt - z) + '" r="5.5" fill="#7a6550"/>', Ne += '<circle cx="' + I(Te) + '" cy="' + (Vt + z) + '" r="5.5" fill="#7a6550"/>';
-    Ne += '<text x="' + K + '" y="' + (B - 6) + '" font-size="12" fill="#a89fc4" text-anchor="middle">Vapaa</text>', Ne += '<text x="' + P + '" y="12" font-size="12" fill="#a89fc4" text-anchor="middle">Satula</text>', Ne += '<text x="' + Xe + '" y="' + (B - 6) + '" font-size="12" fill="#a89fc4" text-anchor="middle">Talla</text>';
-    for (let Te = 1; Te <= C; Te++)
-      Ne += '<text x="' + I(Te) + '" y="' + (B - 6) + '" font-size="11" fill="#a89fc4" text-anchor="middle">' + Te + "</text>";
-    if (Z.forEach(({ number: Te, positions: Pe }) => {
-      Pe.forEach((Le) => {
-        const He = Le.partial ? "box-highlight box-partial" : "box-highlight";
-        Ne += '<g class="' + He + '" data-box="' + Te + '" aria-hidden="true">';
-        const st = Le.strings.find((vt) => vt.length), Lt = (I(st[0]) + I(st.at(-1))) / 2;
-        Ne += '<text class="box-number" x="' + Lt + '" y="12">' + Te + "</text>", Le.strings.forEach((vt, Zt) => {
+    [3, 5, 7, 9, 15, 17, 19, 21].filter((_e) => _e <= X).forEach((_e) => Ce += '<circle cx="' + F(_e) + '" cy="' + Vt + '" r="5.5" fill="#7a6550"/>');
+    for (let _e = 12; _e <= X; _e += 12)
+      Ce += '<circle cx="' + F(_e) + '" cy="' + (Vt - z) + '" r="5.5" fill="#7a6550"/>', Ce += '<circle cx="' + F(_e) + '" cy="' + (Vt + z) + '" r="5.5" fill="#7a6550"/>';
+    Ce += '<text x="' + K + '" y="' + (B - 6) + '" font-size="12" fill="#a89fc4" text-anchor="middle">Vapaa</text>', Ce += '<text x="' + A + '" y="12" font-size="12" fill="#a89fc4" text-anchor="middle">Satula</text>', Ce += '<text x="' + Xe + '" y="' + (B - 6) + '" font-size="12" fill="#a89fc4" text-anchor="middle">Talla</text>';
+    for (let _e = 1; _e <= X; _e++)
+      Ce += '<text x="' + F(_e) + '" y="' + (B - 6) + '" font-size="11" fill="#a89fc4" text-anchor="middle">' + _e + "</text>";
+    if (ve.forEach(({ number: _e, positions: be }) => {
+      be.forEach((Re) => {
+        const Ge = Re.partial ? "box-highlight box-partial" : "box-highlight";
+        Ce += '<g class="' + Ge + '" data-box="' + _e + '" aria-hidden="true">';
+        const st = Re.strings.find((vt) => vt.length), Lt = (F(st[0]) + F(st.at(-1))) / 2;
+        Ce += '<text class="box-number" x="' + Lt + '" y="12">' + _e + "</text>", Re.strings.forEach((vt, Zt) => {
           if (!vt.length) return;
-          const En = I(vt[0]) - 16, vn = I(vt.at(-1)) - I(vt[0]) + 32;
-          Ne += '<rect class="box-band" x="' + En + '" y="' + (_(Zt) - 14) + '" width="' + vn + '" height="28" rx="14"/>';
-        }), Ne += "</g>";
+          const En = F(vt[0]) - 16, vn = F(vt.at(-1)) - F(vt[0]) + 32;
+          Ce += '<rect class="box-band" x="' + En + '" y="' + (M(Zt) - 14) + '" width="' + vn + '" height="28" rx="14"/>';
+        }), Ce += "</g>";
       });
-    }), c.forEach((Te, Pe) => {
-      const Le = 1 + Pe * 0.45, He = _(Pe), st = ln[Pe] && !Jt;
-      st ? Ne += '<text class="muted-mark" x="' + K + '" y="' + (He + 6) + '" font-size="18" font-weight="700" fill="#efeaff" text-anchor="middle">×</text>' : ln[Pe] && Ye === 0 || (Ne += '<line x1="' + (O + 4) + '" y1="' + He + '" x2="' + (P - 4) + '" y2="' + He + '" stroke="#8b809d" stroke-dasharray="3 3"/>'), Ne += "<g" + (st ? ' opacity=".35"' : "") + ">", Ne += '<line x1="' + P + '" y1="' + He + '" x2="' + (Xe + 5) + '" y2="' + He + '" stroke="#b9b9c4" stroke-width="' + Le.toFixed(2) + '"/>', Ne += '<circle cx="' + (Xe + 5) + '" cy="' + He + '" r="3" fill="#211c26" stroke="#b9b9c4"/>', Ne += "</g>", Ne += '<text x="13" y="' + (He + 4) + '" font-size="14" fill="#efeaff" text-anchor="middle">' + E[Pe] + "</text>";
-    }), ye && Ae && Ae.fret >= 1 && Ae.fret <= C) {
-      const Te = _(Ae.from), Pe = _(Ae.to), Le = Math.min(Te, Pe) - 6, He = Math.max(Te, Pe) + 6;
-      Ne += '<rect class="barre-indicator" x="' + (I(Ae.fret) - 7) + '" y="' + Le + '" width="14" height="' + (He - Le) + '" rx="7" fill="#d5b5ff" opacity=".53"/>';
+    }), c.forEach((_e, be) => {
+      const Re = 1 + be * 0.45, Ge = M(be), st = ln[be] && !Jt;
+      st ? Ce += '<text class="muted-mark" x="' + K + '" y="' + (Ge + 6) + '" font-size="18" font-weight="700" fill="#efeaff" text-anchor="middle">×</text>' : ln[be] && Ye === 0 || (Ce += '<line x1="' + (R + 4) + '" y1="' + Ge + '" x2="' + (A - 4) + '" y2="' + Ge + '" stroke="#8b809d" stroke-dasharray="3 3"/>'), Ce += "<g" + (st ? ' opacity=".35"' : "") + ">", Ce += '<line x1="' + A + '" y1="' + Ge + '" x2="' + (Xe + 5) + '" y2="' + Ge + '" stroke="#b9b9c4" stroke-width="' + Re.toFixed(2) + '"/>', Ce += '<circle cx="' + (Xe + 5) + '" cy="' + Ge + '" r="3" fill="#211c26" stroke="#b9b9c4"/>', Ce += "</g>", Ce += '<text x="13" y="' + (Ge + 4) + '" font-size="14" fill="#efeaff" text-anchor="middle">' + E[be] + "</text>";
+    }), fe && Ne && Ne.fret >= 1 && Ne.fret <= X) {
+      const _e = M(Ne.from), be = M(Ne.to), Re = Math.min(_e, be) - 6, Ge = Math.max(_e, be) + 6;
+      Ce += '<rect class="barre-indicator" x="' + (F(Ne.fret) - 7) + '" y="' + Re + '" width="14" height="' + (Ge - Re) + '" rx="7" fill="#d5b5ff" opacity=".53"/>';
     }
-    return Qe && (Ne += '<g class="fret-targets">', c.forEach((Te, Pe) => {
-      for (let Le = 0; Le <= C; Le++) {
-        const He = Le ? L[Pe] + "-kieli, " + Le + ". nauha" : "vapaa " + L[Pe] + "-kieli", st = Le ? S : P - O - 6;
-        Ne += '<rect class="fret-target" role="button" tabindex="0" data-string="' + Pe + '" data-fret="' + Le + '" data-midi="' + (Te + Le) + '" aria-label="' + He + '" x="' + (I(Le) - st / 2) + '" y="' + (_(Pe) - z / 2) + '" width="' + st + '" height="' + z + '" fill="transparent"/>';
+    return He && (Ce += '<g class="fret-targets">', c.forEach((_e, be) => {
+      for (let Re = 0; Re <= X; Re++) {
+        const Ge = Re ? P[be] + "-kieli, " + Re + ". nauha" : "vapaa " + P[be] + "-kieli", st = Re ? S : A - R - 6;
+        Ce += '<rect class="fret-target" role="button" tabindex="0" data-string="' + be + '" data-fret="' + Re + '" data-midi="' + (_e + Re) + '" aria-label="' + Ge + '" x="' + (F(Re) - st / 2) + '" y="' + (M(be) - z / 2) + '" width="' + st + '" height="' + z + '" fill="transparent"/>';
       }
-    }), Ne += "</g>"), (Ie ?? []).forEach(({ string: Te, fret: Pe, label: Le, kind: He }) => {
-      Ne += '<g class="octave-note octave-' + He + '">', Ne += '<circle cx="' + I(Pe) + '" cy="' + _(Te) + '" r="' + T + '"/>', Ne += '<text x="' + I(Pe) + '" y="' + (_(Te) + 3.5) + '" font-size="' + (Le.length > 1 ? 9.5 : 11) + '" font-weight="700" text-anchor="middle">' + Le + "</text>", Ne += "</g>";
-    }), ye && (Ne += '<g class="grip-notes">'), (Ie ? [] : c).forEach((Te, Pe) => {
-      for (let Le = 0; Le <= C; Le++) {
-        const He = (Te + Le) % 12;
-        if (!(He in Nt) || ye && ye[Pe] !== Le || oe && !Yt.some(({ strings: vn }) => {
-          const kn = vn[Pe];
-          return kn.length > 0 && Le >= kn[0] && Le <= kn.at(-1);
+    }), Ce += "</g>"), (Le ?? []).forEach(({ string: _e, fret: be, label: Re, kind: Ge }) => {
+      Ce += '<g class="octave-note octave-' + Ge + '">', Ce += '<circle cx="' + F(be) + '" cy="' + M(_e) + '" r="' + C + '"/>', Ce += '<text x="' + F(be) + '" y="' + (M(_e) + 3.5) + '" font-size="' + (Re.length > 1 ? 9.5 : 11) + '" font-weight="700" text-anchor="middle">' + Re + "</text>", Ce += "</g>";
+    }), fe && (Ce += '<g class="grip-notes">'), (Le ? [] : c).forEach((_e, be) => {
+      for (let Re = 0; Re <= X; Re++) {
+        const Ge = (_e + Re) % 12;
+        if (!(Ge in Nt) || fe && fe[be] !== Re || I && !Yt.some(({ strings: vn }) => {
+          const kn = vn[be];
+          return kn.length > 0 && Re >= kn[0] && Re <= kn.at(-1);
         })) continue;
-        const st = Nt[He], Lt = st.deg === "1", vt = st.added ? "#f0a13c" : Lt ? "#4b2fd6" : "#6d4aff", Zt = st.added ? "#1a1430" : "#fff";
-        st.deg === me && (Ne += '<circle class="focus-note" cx="' + I(Le) + '" cy="' + _(Pe) + '" r="14.5"/>');
-        const En = ye ? ' data-string="' + (Pe + 1) + '" data-fret="' + Le + '" data-degree="' + st.deg + '"' : "";
-        Ne += "<circle" + En + ' cx="' + I(Le) + '" cy="' + _(Pe) + '" r="' + T + '" fill="' + vt + '" stroke="' + (Lt ? "#fff" : "#1a1430") + '" stroke-width="' + (Lt ? 2.5 : 1) + '"/>', Ne += '<text x="' + I(Le) + '" y="' + (_(Pe) + 3.5) + '" font-size="' + (st.deg.length > 1 ? 9.5 : 11) + '" font-weight="700" fill="' + Zt + '" text-anchor="middle">' + st.deg + "</text>";
+        const st = Nt[Ge], Lt = st.deg === "1", vt = st.added ? "#f0a13c" : Lt ? "#4b2fd6" : "#6d4aff", Zt = st.added ? "#1a1430" : "#fff";
+        st.deg === ae && (Ce += '<circle class="focus-note" cx="' + F(Re) + '" cy="' + M(be) + '" r="14.5"/>');
+        const En = fe ? ' data-string="' + (be + 1) + '" data-fret="' + Re + '" data-degree="' + st.deg + '"' : "";
+        Ce += "<circle" + En + ' cx="' + F(Re) + '" cy="' + M(be) + '" r="' + C + '" fill="' + vt + '" stroke="' + (Lt ? "#fff" : "#1a1430") + '" stroke-width="' + (Lt ? 2.5 : 1) + '"/>', Ce += '<text x="' + F(Re) + '" y="' + (M(be) + 3.5) + '" font-size="' + (st.deg.length > 1 ? 9.5 : 11) + '" font-weight="700" fill="' + Zt + '" text-anchor="middle">' + st.deg + "</text>";
       }
-    }), ye && (Ne += "</g>"), Jt && ln.forEach((Te, Pe) => {
-      if (!Te) return;
-      const Le = I(Ye), He = _(Pe);
-      Ne += '<g class="muted-mark grip-mute" data-string="' + (Pe + 1) + '" data-fret="' + Ye + '">', Ne += '<circle cx="' + Le + '" cy="' + He + '" r="9" fill="' + (Ye === 0 ? "#2a2338" : "#231a12") + '"/>', Ne += '<text x="' + Le + '" y="' + (He + 6) + '" font-size="18" font-weight="700" fill="#efeaff" text-anchor="middle">×</text>', Ne += "</g>";
-    }), Ne += "</svg>", Ne;
+    }), fe && (Ce += "</g>"), Jt && ln.forEach((_e, be) => {
+      if (!_e) return;
+      const Re = F(Ye), Ge = M(be);
+      Ce += '<g class="muted-mark grip-mute" data-string="' + (be + 1) + '" data-fret="' + Ye + '">', Ce += '<circle cx="' + Re + '" cy="' + Ge + '" r="9" fill="' + (Ye === 0 ? "#2a2338" : "#231a12") + '"/>', Ce += '<text x="' + Re + '" y="' + (Ge + 6) + '" font-size="18" font-weight="700" fill="#efeaff" text-anchor="middle">×</text>', Ce += "</g>";
+    }), Ce += "</svg>", Ce;
   }
   return {
     CHROM: s,
     OPEN_PITCHES: c,
     PENT_MAJ: j,
-    SCALES: M,
+    SCALES: T,
     noteName: $,
     scaleNotes: ie,
     scaleTriads: W,
-    triadGrips: le,
+    triadGrips: ue,
     chordGrip: y,
-    renderChordDiagram: te,
+    renderChordDiagram: re,
     selectionFromURL: he,
-    selectionHref: we,
+    selectionHref: Se,
     renderBoard: G,
     BOX_FRETS: f,
-    supportsThreeNoteBoxes: X,
-    syncBoxSystem: fe,
-    fingeringBoxes: U,
-    boxOptions: ue,
-    revealPositions: ae
+    supportsThreeNoteBoxes: J,
+    syncBoxSystem: de,
+    fingeringBoxes: H,
+    boxOptions: oe,
+    revealPositions: ce
   };
 })();
 globalThis.MusicMapFretboard = Jm;
@@ -5967,12 +5967,12 @@ function Zm(s) {
   const a = Xm(s), o = Math.round(a), c = (a - o) * 100;
   return { midi: o, cents: c };
 }
-const Fe = globalThis.MusicMapFretboard, Be = (s) => (s % 12 + 12) % 12, qm = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"], ep = ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B♭", "B"], be = (s, a = !1, o = !1) => (a ? ep : qm)[Be(s)] + (o ? Math.floor(s / 12) - 1 : ""), oi = (s) => Fe.CHROM[Be(s)], Zr = (s, a, o) => Fe.noteName(Be(s), a, o);
+const Ie = globalThis.MusicMapFretboard, Be = (s) => (s % 12 + 12) % 12, qm = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"], ep = ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B♭", "B"], Pe = (s, a = !1, o = !1) => (a ? ep : qm)[Be(s)] + (o ? Math.floor(s / 12) - 1 : ""), oi = (s) => Ie.CHROM[Be(s)], Zr = (s, a, o) => Ie.noteName(Be(s), a, o);
 function tp(s, a) {
   const o = Math.floor(s / 12) - 1;
   return a[0] === "B" && Be(s) < 2 ? o - 1 : a[0] === "C" && Be(s) > 9 ? o + 1 : o;
 }
-const Qt = ["ohut E", "B", "G", "D", "A", "paksu E"], Uo = ["ohuelta E-kieleltä", "B-kieleltä", "G-kieleltä", "D-kieleltä", "A-kieleltä", "paksulta E-kieleltä"], yf = ["ohuella E-kielellä", "B-kielellä", "G-kielellä", "D-kielellä", "A-kielellä", "paksulla E-kielellä"], np = ["ohuen E-kielen", "B-kielen", "G-kielen", "D-kielen", "A-kielen", "paksun E-kielen"], Ti = (s) => s === 0 ? "vapaa kieli" : `${s}. nauha`, Oe = (s, a) => ({ string: s, fret: a, midi: Fe.OPEN_PITCHES[s] + a });
+const Qt = ["ohut E", "B", "G", "D", "A", "paksu E"], Uo = ["ohuelta E-kieleltä", "B-kieleltä", "G-kieleltä", "D-kieleltä", "A-kieleltä", "paksulta E-kieleltä"], yf = ["ohuella E-kielellä", "B-kielellä", "G-kielellä", "D-kielellä", "A-kielellä", "paksulla E-kielellä"], np = ["ohuen E-kielen", "B-kielen", "G-kielen", "D-kielen", "A-kielen", "paksun E-kielen"], Ti = (s) => s === 0 ? "vapaa kieli" : `${s}. nauha`, Oe = (s, a) => ({ string: s, fret: a, midi: Ie.OPEN_PITCHES[s] + a });
 function ur(s, a, o) {
   return [...s].sort((c, d) => c - d).flatMap((c) => Array.from({ length: Math.max(0, o - a + 1) }, (d, f) => Oe(c, a + f)));
 }
@@ -6043,7 +6043,7 @@ function Na(s) {
   const a = { ...ya };
   a.mode = wn(s.mode, ["notes", "ear-note", "repeat", "scale", "chord", "caged", "interval"], a.mode), a.strings = Array.isArray(s.strings) ? [...new Set(s.strings.filter((o) => Number.isInteger(o) && o >= 0 && o <= 5))].sort((o, c) => o - c) : a.strings, a.strings.length || (a.strings = [...ya.strings]), a.min = Math.round(li(s.min, 0, 24, a.min)), a.max = Math.round(li(s.max, a.min, 24, Math.max(a.min, a.max)));
   for (const o of ["accidentals", "flats", "weak", "advance", "reference"]) typeof s[o] == "boolean" && (a[o] = s[o]);
-  return a.check = wn(s.check, ["class", "pitch"], a.check), a.input = wn(s.input, ["mic", "board"], a.input), a.rounds = [0, 10, 20].includes(s.rounds) ? s.rounds : a.rounds, a.root = Math.round(li(s.root, 0, 11, a.root)), a.scale = typeof s.scale == "string" && Object.hasOwn(Fe.SCALES, s.scale) ? s.scale : a.scale, a.box = Math.round(li(s.box, 0, 5, a.box)), a.order = wn(s.order, ["random", "up", "down"], a.order), a.chord = wn(s.chord, ["maj", "min", "dom7"], a.chord), a.chordTone = wn(s.chordTone, ["build", "random", "1", "3", "5", "7"], a.chordTone), a.chord !== "dom7" && a.chordTone === "7" && (a.chordTone = "build"), a.shape = wn(s.shape, ["C", "A", "G", "E", "D"], a.shape), a.intervals = Array.isArray(s.intervals) ? [...new Set(s.intervals.filter((o) => Number.isInteger(o) && o >= 1 && o <= 12))].sort((o, c) => o - c) : a.intervals, a.intervals.length || (a.intervals = [...ya.intervals]), a.direction = wn(s.direction, ["up", "down", "both"], a.direction), a.hints = wn(s.hints, ["off", "always", "fade"], a.hints), a.activity = wn(s.activity, ["play", "degree"], a.activity), a.minRms = li(s.minRms, 1e-3, 0.15, a.minRms), a.clarity = li(s.clarity, 0.85, 0.99, a.clarity), a.stability = li(s.stability, 120, 800, a.stability), a.cents = li(s.cents, 10, 45, a.cents), a.device = typeof s.device == "string" ? s.device.slice(0, 256) : "", a;
+  return a.check = wn(s.check, ["class", "pitch"], a.check), a.input = wn(s.input, ["mic", "board"], a.input), a.rounds = [0, 10, 20].includes(s.rounds) ? s.rounds : a.rounds, a.root = Math.round(li(s.root, 0, 11, a.root)), a.scale = typeof s.scale == "string" && Object.hasOwn(Ie.SCALES, s.scale) ? s.scale : a.scale, a.box = Math.round(li(s.box, 0, 5, a.box)), a.order = wn(s.order, ["random", "up", "down"], a.order), a.chord = wn(s.chord, ["maj", "min", "dom7"], a.chord), a.chordTone = wn(s.chordTone, ["build", "random", "1", "3", "5", "7"], a.chordTone), a.chord !== "dom7" && a.chordTone === "7" && (a.chordTone = "build"), a.shape = wn(s.shape, ["C", "A", "G", "E", "D"], a.shape), a.intervals = Array.isArray(s.intervals) ? [...new Set(s.intervals.filter((o) => Number.isInteger(o) && o >= 1 && o <= 12))].sort((o, c) => o - c) : a.intervals, a.intervals.length || (a.intervals = [...ya.intervals]), a.direction = wn(s.direction, ["up", "down", "both"], a.direction), a.hints = wn(s.hints, ["off", "always", "fade"], a.hints), a.activity = wn(s.activity, ["play", "degree"], a.activity), a.minRms = li(s.minRms, 1e-3, 0.15, a.minRms), a.clarity = li(s.clarity, 0.85, 0.99, a.clarity), a.stability = li(s.stability, 120, 800, a.stability), a.cents = li(s.cents, 10, 45, a.cents), a.device = typeof s.device == "string" ? s.device.slice(0, 256) : "", a;
 }
 function ip(s, a) {
   const o = new URLSearchParams(s), c = { ...a };
@@ -6055,7 +6055,7 @@ function ip(s, a) {
   for (const [d, f] of [["kromaattinen", "accidentals"], ["alennukset", "flats"], ["kertaus", "weak"], ["vertailu", "reference"]])
     o.has(d) && (c[f] = o.get(d) === "1");
   if (o.has("toonikka")) {
-    const d = o.get("toonikka").trim().replace("#", "♯").replace(/^([A-Ga-g])b$/, "$1♭"), f = d.charAt(0).toUpperCase() + d.slice(1), p = ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B♭", "B"], m = Math.max(Fe.CHROM.indexOf(f), p.indexOf(f), ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"].indexOf(f));
+    const d = o.get("toonikka").trim().replace("#", "♯").replace(/^([A-Ga-g])b$/, "$1♭"), f = d.charAt(0).toUpperCase() + d.slice(1), p = ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B♭", "B"], m = Math.max(Ie.CHROM.indexOf(f), p.indexOf(f), ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"].indexOf(f));
     m >= 0 && (c.root = m);
   }
   return Na(c);
@@ -6063,7 +6063,7 @@ function ip(s, a) {
 function rp(s) {
   return "kitaraharjoittelija.html?" + new URLSearchParams({
     tila: s.mode,
-    toonikka: Fe.CHROM[s.root],
+    toonikka: Ie.CHROM[s.root],
     asteikko: s.scale,
     alku: String(s.min),
     loppu: String(s.max),
@@ -6111,10 +6111,10 @@ function Ad(s) {
   };
   return (d || a.notice === "hints-default") && (f.notice = "hints-default"), f;
 }
-const Pd = 2500, lp = 8e3, bd = 0.3, es = (s) => s.ema ?? s.correct / s.attempts, ts = (s) => s.emaMs ?? s.totalMs / s.attempts;
+const bd = 2500, lp = 8e3, Pd = 0.3, es = (s) => s.ema ?? s.correct / s.attempts, ts = (s) => s.emaMs ?? s.totalMs / s.attempts;
 function Ho(s) {
   if (!s?.attempts) return null;
-  const a = Math.max(0, Math.min(1, 1 - (ts(s) - Pd) / (lp - Pd)));
+  const a = Math.max(0, Math.min(1, 1 - (ts(s) - bd) / (lp - bd)));
   return es(s) * 0.65 + a * 0.35;
 }
 function op(s) {
@@ -6156,8 +6156,8 @@ class Ld {
       errors: c.errors + a.errors,
       totalMs: c.totalMs + a.ms,
       lastSeen: a.at,
-      ema: c.attempts ? es(c) + bd * (d - es(c)) : d,
-      emaMs: c.attempts ? ts(c) + bd * (a.ms - ts(c)) : a.ms
+      ema: c.attempts ? es(c) + Pd * (d - es(c)) : d,
+      emaMs: c.attempts ? ts(c) + Pd * (a.ms - ts(c)) : a.ms
     };
     Object.defineProperty(this.data.stats, o, { value: f, writable: !0, configurable: !0, enumerable: !0 }), this.data.recent = [...this.data.recent, a].slice(-500), this.save();
   }
@@ -6187,41 +6187,41 @@ function fp(s, a) {
   return a.right <= s.left + s.stickyLeft || a.left >= s.right;
 }
 function Nf(s, a, o, { stickySelector: c, enabled: d = !0, playback: f } = {}) {
-  const p = A.useRef(0), m = A.useRef(!1), E = A.useRef(""), L = A.useRef(0), v = A.useRef(f);
-  A.useEffect(() => {
+  const p = _.useRef(0), m = _.useRef(!1), E = _.useRef(""), P = _.useRef(0), v = _.useRef(f);
+  _.useEffect(() => {
     const j = s.current;
     if (!j || !d) return;
-    const M = () => {
+    const T = () => {
       p.current = Date.now() + up;
-    }, O = () => {
-      m.current = !0, M();
-    }, P = () => {
-      m.current && (m.current = !1, M());
+    }, R = () => {
+      m.current = !0, T();
+    }, A = () => {
+      m.current && (m.current = !1, T());
     }, w = (S) => {
-      ["ArrowLeft", "ArrowRight", "Home", "End", "PageUp", "PageDown"].includes(S.key) && M();
+      ["ArrowLeft", "ArrowRight", "Home", "End", "PageUp", "PageDown"].includes(S.key) && T();
     };
-    return j.addEventListener("pointerdown", O, { passive: !0 }), j.addEventListener("touchstart", O, { passive: !0 }), j.addEventListener("wheel", M, { passive: !0 }), j.addEventListener("keydown", w), window.addEventListener("pointerup", P, { passive: !0 }), window.addEventListener("pointercancel", P, { passive: !0 }), window.addEventListener("touchend", P, { passive: !0 }), window.addEventListener("touchcancel", P, { passive: !0 }), () => {
-      j.removeEventListener("pointerdown", O), j.removeEventListener("touchstart", O), j.removeEventListener("wheel", M), j.removeEventListener("keydown", w), window.removeEventListener("pointerup", P), window.removeEventListener("pointercancel", P), window.removeEventListener("touchend", P), window.removeEventListener("touchcancel", P);
+    return j.addEventListener("pointerdown", R, { passive: !0 }), j.addEventListener("touchstart", R, { passive: !0 }), j.addEventListener("wheel", T, { passive: !0 }), j.addEventListener("keydown", w), window.addEventListener("pointerup", A, { passive: !0 }), window.addEventListener("pointercancel", A, { passive: !0 }), window.addEventListener("touchend", A, { passive: !0 }), window.addEventListener("touchcancel", A, { passive: !0 }), () => {
+      j.removeEventListener("pointerdown", R), j.removeEventListener("touchstart", R), j.removeEventListener("wheel", T), j.removeEventListener("keydown", w), window.removeEventListener("pointerup", A), window.removeEventListener("pointercancel", A), window.removeEventListener("touchend", A), window.removeEventListener("touchcancel", A);
     };
-  }, [s, d]), A.useLayoutEffect(() => {
+  }, [s, d]), _.useLayoutEffect(() => {
     const j = f !== void 0 && !!f && f !== v.current;
     v.current = f, j && !m.current && (p.current = 0);
-  }, [f]), A.useLayoutEffect(() => {
-    f === void 0 && E.current === "" && o !== "" && Date.now() - L.current > cp && !m.current && (p.current = 0), E.current !== "" && o === "" && (L.current = Date.now()), E.current = o;
+  }, [f]), _.useLayoutEffect(() => {
+    f === void 0 && E.current === "" && o !== "" && Date.now() - P.current > cp && !m.current && (p.current = 0), E.current !== "" && o === "" && (P.current = Date.now()), E.current = o;
     const j = s.current;
     if (!j || !d || !o || m.current || Date.now() < p.current) return;
-    const M = j.querySelector(a);
-    if (!M) return;
-    const O = j.getBoundingClientRect(), P = M.getBoundingClientRect(), w = c ? j.querySelector(c) : null, S = w && getComputedStyle(w).position === "sticky" ? w.getBoundingClientRect().width : 0, z = {
-      left: O.left,
-      right: O.left + j.clientWidth,
+    const T = j.querySelector(a);
+    if (!T) return;
+    const R = j.getBoundingClientRect(), A = T.getBoundingClientRect(), w = c ? j.querySelector(c) : null, S = w && getComputedStyle(w).position === "sticky" ? w.getBoundingClientRect().width : 0, z = {
+      left: R.left,
+      right: R.left + j.clientWidth,
       scrollLeft: j.scrollLeft,
       maxScroll: j.scrollWidth - j.clientWidth,
       stickyLeft: S
-    }, T = dp(z, P);
-    if (T === null) return;
-    const B = typeof matchMedia == "function" && matchMedia("(prefers-reduced-motion: reduce)").matches || fp(z, P);
-    typeof j.scrollTo == "function" ? j.scrollTo({ left: T, behavior: B ? "auto" : "smooth" }) : j.scrollLeft = T;
+    }, C = dp(z, A);
+    if (C === null) return;
+    const B = typeof matchMedia == "function" && matchMedia("(prefers-reduced-motion: reduce)").matches || fp(z, A);
+    typeof j.scrollTo == "function" ? j.scrollTo({ left: C, behavior: B ? "auto" : "smooth" }) : j.scrollLeft = C;
   }, [s, a, o, c, d, f]);
 }
 const hp = /* @__PURE__ */ new Set([3, 5, 7, 9, 15, 17, 19, 21]), mp = ["e", "B", "G", "D", "A", "E"];
@@ -6249,73 +6249,73 @@ function Tf({ min: s, max: a }) {
   ] }) });
 }
 function ui({ area: s, marks: a = [], mutedStrings: o = [], disabled: c = !1, onAnswer: d, caption: f = "Otelauta", follow: p = "hints", playback: m }) {
-  const E = { "--cols": s.max - s.min + 1 }, { strings: L, min: v, max: j } = s, [M, O] = A.useState({ string: Math.min(...L), fret: v }), P = A.useRef(null), w = new Map(a.map((H) => [Ue(H), H])), S = a.map((H) => `${Ue(H)}${H.kind}`).join(",");
-  A.useEffect(() => {
+  const E = { "--cols": s.max - s.min + 1 }, { strings: P, min: v, max: j } = s, [T, R] = _.useState({ string: Math.min(...P), fret: v }), A = _.useRef(null), w = new Map(a.map((U) => [Ue(U), U])), S = a.map((U) => `${Ue(U)}${U.kind}`).join(",");
+  _.useEffect(() => {
     if (p !== "hints") return;
-    const H = P.current, I = H?.querySelector(".target, .anchor");
-    H && I && (H.scrollLeft += I.getBoundingClientRect().left - H.getBoundingClientRect().left - H.clientWidth / 2 + I.clientWidth / 2);
-  }, [S, p]), A.useEffect(() => {
-    p === "playing" && P.current && (P.current.scrollLeft = 0);
+    const U = A.current, F = U?.querySelector(".target, .anchor");
+    U && F && (U.scrollLeft += F.getBoundingClientRect().left - U.getBoundingClientRect().left - U.clientWidth / 2 + F.clientWidth / 2);
+  }, [S, p]), _.useEffect(() => {
+    p === "playing" && A.current && (A.current.scrollLeft = 0);
   }, [p, v, j]);
-  const z = a.find((H) => H.kind === "playing");
-  Nf(P, ".playing", z ? Ue(z) : "", { stickySelector: "tbody th", enabled: p === "playing", playback: m });
-  const [T, K] = A.useState({ left: !1, right: !1 });
-  A.useEffect(() => {
-    const H = P.current;
-    if (!H) return;
-    const I = () => {
-      const $ = H.scrollLeft > 2, ie = H.scrollLeft + H.clientWidth < H.scrollWidth - 2;
-      K((J) => J.left === $ && J.right === ie ? J : { left: $, right: ie });
+  const z = a.find((U) => U.kind === "playing");
+  Nf(A, ".playing", z ? Ue(z) : "", { stickySelector: "tbody th", enabled: p === "playing", playback: m });
+  const [C, K] = _.useState({ left: !1, right: !1 });
+  _.useEffect(() => {
+    const U = A.current;
+    if (!U) return;
+    const F = () => {
+      const $ = U.scrollLeft > 2, ie = U.scrollLeft + U.clientWidth < U.scrollWidth - 2;
+      K((Z) => Z.left === $ && Z.right === ie ? Z : { left: $, right: ie });
     };
-    I(), H.addEventListener("scroll", I, { passive: !0 });
-    const _ = typeof ResizeObserver > "u" ? null : new ResizeObserver(I);
-    return _?.observe(H), () => {
-      H.removeEventListener("scroll", I), _?.disconnect();
+    F(), U.addEventListener("scroll", F, { passive: !0 });
+    const M = typeof ResizeObserver > "u" ? null : new ResizeObserver(F);
+    return M?.observe(U), () => {
+      U.removeEventListener("scroll", F), M?.disconnect();
     };
   }, [S, v, j]);
-  const B = L.includes(M.string) && M.fret >= v && M.fret <= j ? M : { string: Math.min(...L), fret: v };
-  return /* @__PURE__ */ r.jsxs("div", { className: "fret-wrap" + (T.left ? " more-left" : "") + (T.right ? " more-right" : ""), children: [
-    (T.left || T.right) && /* @__PURE__ */ r.jsxs("p", { className: "fret-scroll-hint", children: [
-      T.left && /* @__PURE__ */ r.jsx("span", { "aria-hidden": "true", children: "← " }),
+  const B = P.includes(T.string) && T.fret >= v && T.fret <= j ? T : { string: Math.min(...P), fret: v };
+  return /* @__PURE__ */ r.jsxs("div", { className: "fret-wrap" + (C.left ? " more-left" : "") + (C.right ? " more-right" : ""), children: [
+    (C.left || C.right) && /* @__PURE__ */ r.jsxs("p", { className: "fret-scroll-hint", children: [
+      C.left && /* @__PURE__ */ r.jsx("span", { "aria-hidden": "true", children: "← " }),
       "Vieritä otelautaa sivusuunnassa: nauhoja on lisää ",
-      T.left && T.right ? "molemmilla puolilla" : T.right ? "oikealla" : "vasemmalla",
-      T.right && /* @__PURE__ */ r.jsx("span", { "aria-hidden": "true", children: " →" })
+      C.left && C.right ? "molemmilla puolilla" : C.right ? "oikealla" : "vasemmalla",
+      C.right && /* @__PURE__ */ r.jsx("span", { "aria-hidden": "true", children: " →" })
     ] }),
-    /* @__PURE__ */ r.jsx("div", { ref: P, className: "fret-scroll", tabIndex: 0, role: "region", "aria-label": "Otelaudan vastausruudukko", children: /* @__PURE__ */ r.jsxs("table", { className: "practice-board", style: E, children: [
+    /* @__PURE__ */ r.jsx("div", { ref: A, className: "fret-scroll", tabIndex: 0, role: "region", "aria-label": "Otelaudan vastausruudukko", children: /* @__PURE__ */ r.jsxs("table", { className: "practice-board", style: E, children: [
       /* @__PURE__ */ r.jsxs("caption", { children: [
         f,
         " · ohut e ylhäällä, paksu E alhaalla"
       ] }),
       /* @__PURE__ */ r.jsx(Tf, { min: v, max: j }),
-      /* @__PURE__ */ r.jsx("tbody", { children: Fe.OPEN_PITCHES.map((H, I) => /* @__PURE__ */ r.jsxs("tr", { className: L.includes(I) ? "" : "unused", style: Cf(I), children: [
-        /* @__PURE__ */ r.jsxs("th", { scope: "row", "aria-label": `${I + 1}. kieli: ${Qt[I]}${o.includes(I) ? ", ei soiteta" : ""}`, children: [
-          /* @__PURE__ */ r.jsx(Ef, { string: I }),
-          o.includes(I) && /* @__PURE__ */ r.jsx("span", { className: "string-muted", "aria-hidden": "true", children: "×" })
+      /* @__PURE__ */ r.jsx("tbody", { children: Ie.OPEN_PITCHES.map((U, F) => /* @__PURE__ */ r.jsxs("tr", { className: P.includes(F) ? "" : "unused", style: Cf(F), children: [
+        /* @__PURE__ */ r.jsxs("th", { scope: "row", "aria-label": `${F + 1}. kieli: ${Qt[F]}${o.includes(F) ? ", ei soiteta" : ""}`, children: [
+          /* @__PURE__ */ r.jsx(Ef, { string: F }),
+          o.includes(F) && /* @__PURE__ */ r.jsx("span", { className: "string-muted", "aria-hidden": "true", children: "×" })
         ] }),
-        ur([I], v, j).map((_) => {
-          const $ = w.get(Ue(_)), ie = `${Qt[I]}-kieli, ${Ti(_.fret)}`;
-          return /* @__PURE__ */ r.jsx("td", { className: `${_.fret === 0 ? "open-fret " : ""}${$ ? $.kind === "answer" ? "target" : $.kind : ""}`, children: /* @__PURE__ */ r.jsx(
+        ur([F], v, j).map((M) => {
+          const $ = w.get(Ue(M)), ie = `${Qt[F]}-kieli, ${Ti(M.fret)}`;
+          return /* @__PURE__ */ r.jsx("td", { className: `${M.fret === 0 ? "open-fret " : ""}${$ ? $.kind === "answer" ? "target" : $.kind : ""}`, children: /* @__PURE__ */ r.jsx(
             "button",
             {
               type: "button",
-              "data-string": I,
-              "data-fret": _.fret,
-              tabIndex: B.string === I && B.fret === _.fret ? 0 : -1,
-              onFocus: () => O(_),
-              onKeyDown: (J) => {
-                if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(J.key)) return;
-                J.preventDefault();
-                const ve = [...L].sort((U, ae) => U - ae), Se = ve.indexOf(I), X = J.key === "ArrowUp" ? ve[Math.max(0, Se - 1)] : J.key === "ArrowDown" ? ve[Math.min(ve.length - 1, Se + 1)] : I, fe = J.key === "Home" ? v : J.key === "End" ? j : Math.max(v, Math.min(j, _.fret + (J.key === "ArrowRight" ? 1 : J.key === "ArrowLeft" ? -1 : 0)));
-                J.currentTarget.closest("table")?.querySelector(`button[data-string="${X}"][data-fret="${fe}"]`)?.focus();
+              "data-string": F,
+              "data-fret": M.fret,
+              tabIndex: B.string === F && B.fret === M.fret ? 0 : -1,
+              onFocus: () => R(M),
+              onKeyDown: (Z) => {
+                if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(Z.key)) return;
+                Z.preventDefault();
+                const je = [...P].sort((H, ce) => H - ce), Ee = je.indexOf(F), J = Z.key === "ArrowUp" ? je[Math.max(0, Ee - 1)] : Z.key === "ArrowDown" ? je[Math.min(je.length - 1, Ee + 1)] : F, de = Z.key === "Home" ? v : Z.key === "End" ? j : Math.max(v, Math.min(j, M.fret + (Z.key === "ArrowRight" ? 1 : Z.key === "ArrowLeft" ? -1 : 0)));
+                Z.currentTarget.closest("table")?.querySelector(`button[data-string="${J}"][data-fret="${de}"]`)?.focus();
               },
-              disabled: c || !L.includes(I),
+              disabled: c || !P.includes(F),
               "aria-label": ie + ($ ? `, ${pp[$.kind]}${$.label ? " " + $.label : ""}` : ""),
-              onClick: () => d?.(_),
+              onClick: () => d?.(M),
               children: $ ? /* @__PURE__ */ r.jsx("span", { className: "dot", children: $.label || "●" }) : null
             }
-          ) }, _.fret);
+          ) }, M.fret);
         })
-      ] }, I)) })
+      ] }, F)) })
     ] }) })
   ] });
 }
@@ -6324,12 +6324,12 @@ function vp({ area: s, stats: a, input: o, check: c, flats: d }) {
   return /* @__PURE__ */ r.jsx("div", { className: "fret-scroll", tabIndex: 0, role: "region", "aria-label": "Harjoiteltujen kohteiden osaamiskartta", children: /* @__PURE__ */ r.jsxs("table", { className: "practice-board mastery", style: { "--cols": m - p + 1 }, children: [
     /* @__PURE__ */ r.jsx("caption", { children: "Osaamiskartta · ohut e ylhäällä, paksu E alhaalla" }),
     /* @__PURE__ */ r.jsx(Tf, { min: p, max: m }),
-    /* @__PURE__ */ r.jsx("tbody", { children: Fe.OPEN_PITCHES.map((L, v) => /* @__PURE__ */ r.jsxs("tr", { className: f.includes(v) ? "" : "unused", style: Cf(v), children: [
+    /* @__PURE__ */ r.jsx("tbody", { children: Ie.OPEN_PITCHES.map((P, v) => /* @__PURE__ */ r.jsxs("tr", { className: f.includes(v) ? "" : "unused", style: Cf(v), children: [
       /* @__PURE__ */ r.jsx("th", { scope: "row", "aria-label": `${v + 1}. kieli: ${Qt[v]}`, children: /* @__PURE__ */ r.jsx(Ef, { string: v }) }),
       ur([v], p, m).map((j) => {
-        const M = Object.hasOwn(a, E + Ue(j)) ? a[E + Ue(j)] : void 0, O = Ho(M), P = O === null ? "unseen" : M.attempts < 3 ? "few" : O >= 0.8 ? "strong" : O >= 0.5 ? "growing" : "weak", w = `${Qt[v]}-kieli, ${Ti(j.fret)}, ${be(j.midi, d)}`, S = M ? `${Math.round(O * 100)} %, ${M.correct}/${M.attempts} heti oikein, viime aikoina ${Math.round(es(M) * 100)} % ja ${(ts(M) / 1e3).toFixed(1)} s` : "ei vastauksia";
-        return /* @__PURE__ */ r.jsxs("td", { className: `${j.fret === 0 ? "open-fret " : ""}${P}`, title: `${w}: ${S}`, children: [
-          /* @__PURE__ */ r.jsx("span", { "aria-hidden": "true", children: O === null ? "·" : M.attempts < 3 ? "?" : Math.round(O * 100) }),
+        const T = Object.hasOwn(a, E + Ue(j)) ? a[E + Ue(j)] : void 0, R = Ho(T), A = R === null ? "unseen" : T.attempts < 3 ? "few" : R >= 0.8 ? "strong" : R >= 0.5 ? "growing" : "weak", w = `${Qt[v]}-kieli, ${Ti(j.fret)}, ${Pe(j.midi, d)}`, S = T ? `${Math.round(R * 100)} %, ${T.correct}/${T.attempts} heti oikein, viime aikoina ${Math.round(es(T) * 100)} % ja ${(ts(T) / 1e3).toFixed(1)} s` : "ei vastauksia";
+        return /* @__PURE__ */ r.jsxs("td", { className: `${j.fret === 0 ? "open-fret " : ""}${A}`, title: `${w}: ${S}`, children: [
+          /* @__PURE__ */ r.jsx("span", { "aria-hidden": "true", children: R === null ? "·" : T.attempts < 3 ? "?" : Math.round(R * 100) }),
           /* @__PURE__ */ r.jsxs("span", { className: "sr-only", children: [
             w,
             ": ",
@@ -6340,7 +6340,7 @@ function vp({ area: s, stats: a, input: o, check: c, flats: d }) {
     ] }, v)) })
   ] }) });
 }
-const kp = (s) => s.mode === "scale" || s.mode === "chord" || s.mode === "caged", _a = (s) => s.mode === "scale" ? Fe.scaleNotes(Fe.SCALES[s.scale]) : Ci[s.mode === "caged" ? "maj" : s.chord].tones, Mf = (s) => Fe.fingeringBoxes(s.root, Fe.SCALES[s.scale], "pentatonic", [s.box])[0].positions[0];
+const kp = (s) => s.mode === "scale" || s.mode === "chord" || s.mode === "caged", _a = (s) => s.mode === "scale" ? Ie.scaleNotes(Ie.SCALES[s.scale]) : Ci[s.mode === "caged" ? "maj" : s.chord].tones, Mf = (s) => Ie.fingeringBoxes(s.root, Ie.SCALES[s.scale], "pentatonic", [s.box])[0].positions[0];
 function _i(s) {
   if (s.mode === "caged") {
     const a = jf(s.root, s.shape).map((o) => o.fret);
@@ -6410,7 +6410,7 @@ function qi(s, a, o = Math.random) {
     if (f -= a[p], f < 0) return s[p];
   return s.at(-1);
 }
-const Od = (s, a) => s.mode === "caged" ? `caged:${s.root}:${s.shape}:${a}` : s.mode === "chord" ? `chord:${s.root}:${s.chord}:${a}:${s.activity}` : `scale:${s.root}:${s.scale}:${a}:${s.activity}`;
+const $d = (s, a) => s.mode === "caged" ? `caged:${s.root}:${s.shape}:${a}` : s.mode === "chord" ? `chord:${s.root}:${s.chord}:${a}:${s.activity}` : `scale:${s.root}:${s.scale}:${a}:${s.activity}`;
 function Ei(s, a) {
   const o = s.filter((c) => !a(c));
   return o.length ? o : s;
@@ -6418,11 +6418,11 @@ function Ei(s, a) {
 function Sp(s, a, o = {}, c, d = Math.random) {
   const f = Mo(s);
   if (f) throw new Error(f);
-  const p = xf(s), m = Mi(s), E = p === "pitch", L = (_) => s.weak ? op(o[wf({ input: m, check: p, hint: !1, item: _ })]) : 1, v = (_) => qi(_, _.map(() => 1), d), j = is(s), M = { check: p, sound: [], choices: "position" };
+  const p = xf(s), m = Mi(s), E = p === "pitch", P = (M) => s.weak ? op(o[wf({ input: m, check: p, hint: !1, item: M })]) : 1, v = (M) => qi(M, M.map(() => 1), d), j = is(s), T = { check: p, sound: [], choices: "position" };
   if (s.mode === "notes") {
-    const _ = Ei(j, (J) => !!c && Ue(J) === Ue(c.position)), $ = qi(_, _.map((J) => L(`notes:${Ue(J)}`)), d), ie = be($.midi, s.flats, E);
+    const M = Ei(j, (Z) => !!c && Ue(Z) === Ue(c.position)), $ = qi(M, M.map((Z) => P(`notes:${Ue(Z)}`)), d), ie = Pe($.midi, s.flats, E);
     return {
-      ...M,
+      ...T,
       position: $,
       midi: $.midi,
       name: ie,
@@ -6431,77 +6431,77 @@ function Sp(s, a, o = {}, c, d = Math.random) {
     };
   }
   if (s.mode === "ear-note") {
-    const _ = (ve) => `ear-note:${Be(ve.midi)}${s.reference ? ":ref" : ""}`, $ = Ei(j, (ve) => !!c && Be(ve.midi) === Be(c.midi)), ie = qi($, $.map((ve) => L(_(ve))), d), J = s.reference ? 57 + 12 * Math.round((ie.midi - 57) / 12) : void 0;
+    const M = (je) => `ear-note:${Be(je.midi)}${s.reference ? ":ref" : ""}`, $ = Ei(j, (je) => !!c && Be(je.midi) === Be(c.midi)), ie = qi($, $.map((je) => P(M(je))), d), Z = s.reference ? 57 + 12 * Math.round((ie.midi - 57) / 12) : void 0;
     return {
-      ...M,
+      ...T,
       position: ie,
       midi: ie.midi,
-      name: be(ie.midi, s.flats),
-      item: _(ie),
+      name: Pe(ie.midi, s.flats),
+      item: M(ie),
       choices: "note",
-      reference: J,
-      sound: J === void 0 ? [ie.midi] : [J, ie.midi],
+      reference: Z,
+      sound: Z === void 0 ? [ie.midi] : [Z, ie.midi],
       prompt: s.reference ? "Kuulet ensin vertailusävelen A ja sitten kysytyn sävelen. Mikä jälkimmäinen sävel on?" : "Mikä sävel soi?"
     };
   }
   if (s.mode === "repeat") {
-    const _ = Ei(j, (ie) => !!c && ie.midi === c.midi), $ = qi(_, _.map((ie) => L(`repeat:${ie.midi}`)), d);
+    const M = Ei(j, (ie) => !!c && ie.midi === c.midi), $ = qi(M, M.map((ie) => P(`repeat:${ie.midi}`)), d);
     return {
-      ...M,
+      ...T,
       position: $,
       midi: $.midi,
-      name: be($.midi, s.flats, !0),
+      name: Pe($.midi, s.flats, !0),
       item: `repeat:${$.midi}`,
       sound: [$.midi],
       prompt: "Kuuntele sävel ja etsi se kitarasta."
     };
   }
   if (s.mode === "interval") {
-    const _ = Ei(_f(s, j), (J) => c?.interval === J.iv && c?.direction === J.direction), $ = qi(_, _.map((J) => L(`interval:${J.iv}:${J.direction}`)), d), ie = v(Ei($.pairs, (J) => c?.reference === J.reference.midi));
+    const M = Ei(_f(s, j), (Z) => c?.interval === Z.iv && c?.direction === Z.direction), $ = qi(M, M.map((Z) => P(`interval:${Z.iv}:${Z.direction}`)), d), ie = v(Ei($.pairs, (Z) => c?.reference === Z.reference.midi));
     return {
-      ...M,
+      ...T,
       position: ie.target,
       midi: ie.target.midi,
-      name: be(ie.target.midi, s.flats, !0),
+      name: Pe(ie.target.midi, s.flats, !0),
       item: `interval:${$.iv}:${$.direction}`,
       interval: $.iv,
       direction: $.direction,
       reference: ie.reference.midi,
       sound: [ie.reference.midi, ie.target.midi],
-      prompt: `Kuulet ${$.direction === "up" ? "nousevan" : "laskevan"} intervallin. Alkusävel on ${be(ie.reference.midi, s.flats, !0)}. Etsi jälkimmäinen sävel.`
+      prompt: `Kuulet ${$.direction === "up" ? "nousevan" : "laskevan"} intervallin. Alkusävel on ${Pe(ie.reference.midi, s.flats, !0)}. Etsi jälkimmäinen sävel.`
     };
   }
-  const O = _a(s);
-  let P, w = 0;
+  const R = _a(s);
+  let A, w = 0;
   if (In(s)) {
-    const _ = jp(s, j);
-    w = _.length, P = _[a % _.length];
+    const M = jp(s, j);
+    w = M.length, A = M[a % M.length];
   } else {
-    const _ = O.filter(([J]) => j.some((ve) => Be(ve.midi - s.root) === J)), $ = s.mode === "chord" && s.chordTone !== "random" ? s.chordTone === "build" ? [O[a % O.length]] : O.filter(([, J]) => J.endsWith(s.chordTone)) : Ei(_, ([J]) => c?.interval === J), [ie] = qi($, $.map(([J]) => L(Od(s, J))), d);
-    P = v(Ei(j.filter((J) => Be(J.midi - s.root) === ie), (J) => !!c && Ue(J) === Ue(c.position)));
+    const M = R.filter(([Z]) => j.some((je) => Be(je.midi - s.root) === Z)), $ = s.mode === "chord" && s.chordTone !== "random" ? s.chordTone === "build" ? [R[a % R.length]] : R.filter(([, Z]) => Z.endsWith(s.chordTone)) : Ei(M, ([Z]) => c?.interval === Z), [ie] = qi($, $.map(([Z]) => P($d(s, Z))), d);
+    A = v(Ei(j.filter((Z) => Be(Z.midi - s.root) === ie), (Z) => !!c && Ue(Z) === Ue(c.position)));
   }
-  const S = Be(P.midi - s.root), z = O.find(([_]) => _ === S)[1], T = Zr(s.root, S, z), K = E ? T + tp(P.midi, T) : T, B = s.mode === "scale" ? `${oi(s.root)}-${Fe.SCALES[s.scale].name}${s.box ? `, boksi ${s.box}` : ""}` : s.mode === "caged" ? `${oi(s.root)}-duurisointu, ${s.shape}-muoto` : gf(s.root, s.chord), H = s.mode !== "caged" && s.activity === "degree", I = H ? `${B}: mikä aste on ${T}?` : w ? `${B} ${s.order === "up" ? "ylöspäin" : "alaspäin"}, sävel ${a % w + 1}/${w}: ${z}. aste (${K}).` : `${B}: etsi ${z}. aste${E ? ` (${K})` : ""}.`;
+  const S = Be(A.midi - s.root), z = R.find(([M]) => M === S)[1], C = Zr(s.root, S, z), K = E ? C + tp(A.midi, C) : C, B = s.mode === "scale" ? `${oi(s.root)}-${Ie.SCALES[s.scale].name}${s.box ? `, boksi ${s.box}` : ""}` : s.mode === "caged" ? `${oi(s.root)}-duurisointu, ${s.shape}-muoto` : gf(s.root, s.chord), U = s.mode !== "caged" && s.activity === "degree", F = U ? `${B}: mikä aste on ${C}?` : w ? `${B} ${s.order === "up" ? "ylöspäin" : "alaspäin"}, sävel ${a % w + 1}/${w}: ${z}. aste (${K}).` : `${B}: etsi ${z}. aste${E ? ` (${K})` : ""}.`;
   return {
-    ...M,
-    position: P,
-    midi: P.midi,
+    ...T,
+    position: A,
+    midi: A.midi,
     name: K,
-    item: Od(s, S),
-    prompt: I,
+    item: $d(s, S),
+    prompt: F,
     degree: z,
     interval: S,
-    choices: H ? "degree" : "position"
+    choices: U ? "degree" : "position"
   };
 }
 function _o(s, a, o) {
   return Number.isInteger(a) && (o === "class" ? Be(s) === Be(a) : s === a);
 }
-function Pf(s, a, o) {
+function bf(s, a, o) {
   return _o(a.midi, o.midi, a.check) ? s.mode === "notes" ? o.string === a.position.string : kp(s) ? is(s).some((c) => Ue(c) === Ue(o)) : !0 : !1;
 }
 function wp(s, a) {
   const o = _i(s);
-  return ur(o.strings, o.min, o.max).filter((c) => Pf(s, a, c));
+  return ur(o.strings, o.min, o.max).filter((c) => bf(s, a, c));
 }
 const wt = (s, a, o) => ({ ...s, label: a, kind: o }), Np = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 function Ep(s, a, o) {
@@ -6509,7 +6509,7 @@ function Ep(s, a, o) {
   const c = o >= 2, d = _i(s), f = ur(d.strings, d.min, d.max), p = wp(s, a);
   if (s.mode === "notes") {
     if (c) return { marks: p.map((z) => wt(z, a.name, "answer")), text: `${a.name} on ${yf[a.position.string]}: ${Ti(a.position.fret)}.` };
-    const w = f.find((z) => z.string === a.position.string), S = be(w.midi, s.flats);
+    const w = f.find((z) => z.string === a.position.string), S = Pe(w.midi, s.flats);
     return {
       marks: [wt(w, S, "anchor")],
       text: `Apupiste: ${np[w.string]} ${w.fret === 0 ? "vapaa sävel" : w.fret + ". nauhan sävel"} on ${S}. Jokainen nauha nostaa säveltä puoliaskeleen. Vain E–F ja B–C ovat vierekkäisillä nauhoilla.`
@@ -6518,26 +6518,26 @@ function Ep(s, a, o) {
   if (s.mode === "ear-note")
     return c ? { marks: [wt(a.position, a.name, "answer")], text: `Sävel on ${a.name}.` } : { marks: [wt(a.position, "?", "anchor")], text: `Sävel soi tässä kohdassa: ${Qt[a.position.string]}-kieli, ${Ti(a.position.fret)}.` };
   if (s.mode === "repeat")
-    return c ? { marks: p.map((w) => wt(w, be(w.midi, s.flats, a.check === "pitch"), "answer")), text: `Sävel on ${a.name}.` } : { marks: [], text: `Sävel löytyy ${Uo[a.position.string]}.` };
+    return c ? { marks: p.map((w) => wt(w, Pe(w.midi, s.flats, a.check === "pitch"), "answer")), text: `Sävel on ${a.name}.` } : { marks: [], text: `Sävel löytyy ${Uo[a.position.string]}.` };
   if (s.mode === "interval") {
-    const w = be(a.reference, s.flats, !0), S = f.filter((z) => z.midi === a.reference).map((z) => wt(z, w, "anchor"));
+    const w = Pe(a.reference, s.flats, !0), S = f.filter((z) => z.midi === a.reference).map((z) => wt(z, w, "anchor"));
     return c ? {
-      marks: [...S, ...p.map((z) => wt(z, be(z.midi, s.flats, !0), "answer"))],
+      marks: [...S, ...p.map((z) => wt(z, Pe(z.midi, s.flats, !0), "answer"))],
       text: `${Np(qr[a.interval])} ${a.direction === "up" ? "ylöspäin" : "alaspäin"}: ${w} → ${a.name}.`
     } : { marks: S, text: `Alkusävel ${w} näkyy otelaudalla. Jälkimmäinen sävel on sitä ${a.direction === "up" ? "korkeampi" : "matalampi"}.` };
   }
-  const m = is(s), E = _a(s), L = (w) => E.find(([S]) => S === Be(w.midi - s.root))?.[1] ?? "", v = Zr(s.root, a.interval, a.degree), j = m.filter((w) => Be(w.midi - s.root) === 0), M = (w) => p.some((S) => Ue(S) === Ue(w)), O = `${a.degree}. aste on ${v}.`;
+  const m = is(s), E = _a(s), P = (w) => E.find(([S]) => S === Be(w.midi - s.root))?.[1] ?? "", v = Zr(s.root, a.interval, a.degree), j = m.filter((w) => Be(w.midi - s.root) === 0), T = (w) => p.some((S) => Ue(S) === Ue(w)), R = `${a.degree}. aste on ${v}.`;
   if (s.mode === "caged")
-    return c ? { marks: m.map((w) => wt(w, L(w), M(w) ? "answer" : "shape")), text: O } : { marks: m.map((w) => wt(w, "", "shape")), text: `${s.shape}-muodon sävelet näkyvät pisteinä. Mikä niistä on ${a.degree}. aste?` };
-  const P = s.mode === "scale" ? "asteikon" : "soinnun";
+    return c ? { marks: m.map((w) => wt(w, P(w), T(w) ? "answer" : "shape")), text: R } : { marks: m.map((w) => wt(w, "", "shape")), text: `${s.shape}-muodon sävelet näkyvät pisteinä. Mikä niistä on ${a.degree}. aste?` };
+  const A = s.mode === "scale" ? "asteikon" : "soinnun";
   if (a.choices === "degree") {
     const w = m.filter((S) => Be(S.midi) === Be(a.midi));
-    return c ? { marks: [...(a.interval === 0 ? [] : j).map((S) => wt(S, "1", "anchor")), ...w.map((S) => wt(S, a.degree, "answer"))], text: `${v} on ${a.degree}. aste.` } : a.interval === 0 ? { marks: w.map((S) => wt(S, v, "shape")), text: `Katso ${P} nimeä: mikä on sen perussävel?` } : {
+    return c ? { marks: [...(a.interval === 0 ? [] : j).map((S) => wt(S, "1", "anchor")), ...w.map((S) => wt(S, a.degree, "answer"))], text: `${v} on ${a.degree}. aste.` } : a.interval === 0 ? { marks: w.map((S) => wt(S, v, "shape")), text: `Katso ${A} nimeä: mikä on sen perussävel?` } : {
       marks: [...j.map((S) => wt(S, "1", "anchor")), ...w.map((S) => wt(S, v, "shape"))],
       text: `Laske puoliaskeleet lähimmästä perussävelestä (1) sävelen ${v} kohdalle.`
     };
   }
-  return c ? { marks: [...j.filter((w) => !M(w)).map((w) => wt(w, "1", "anchor")), ...p.map((w) => wt(w, a.degree, "answer"))], text: O } : a.interval === 0 ? { marks: [], text: `1. aste on ${P} perussävel ${oi(s.root)}.` } : { marks: j.map((w) => wt(w, "1", "anchor")), text: `Apupiste: perussävelet (1). ${a.degree}. aste on ${a.interval} puoliaskelta perussävelen yläpuolella.` };
+  return c ? { marks: [...j.filter((w) => !T(w)).map((w) => wt(w, "1", "anchor")), ...p.map((w) => wt(w, a.degree, "answer"))], text: R } : a.interval === 0 ? { marks: [], text: `1. aste on ${A} perussävel ${oi(s.root)}.` } : { marks: j.map((w) => wt(w, "1", "anchor")), text: `Apupiste: perussävelet (1). ${a.degree}. aste on ${a.interval} puoliaskelta perussävelen yläpuolella.` };
 }
 class Cp {
   constructor(a, o, c, d = () => performance.now(), f = Math.random) {
@@ -6597,7 +6597,7 @@ class Cp {
   answer(a, o, c, d = 0) {
     if (this.phase !== "active" || !this.question) return "ignored";
     const f = this.question;
-    if (!(o === "degree" ? a === f.interval : o === "note" ? _o(f.midi, a, "class") : o === "board" ? !!c && Pf(this.settings, f, c) : _o(f.midi, a, f.check)))
+    if (!(o === "degree" ? a === f.interval : o === "note" ? _o(f.midi, a, "class") : o === "board" ? !!c && bf(this.settings, f, c) : _o(f.midi, a, f.check)))
       return o === "mic" ? (this.mismatches++, this.pendingMismatch = !0, "candidate") : (this.errors++, "wrong");
     const m = o === "board" ? c : void 0, E = {
       id: `${this.id}:${this.index}`,
@@ -6636,7 +6636,7 @@ function Ao(s) {
     ms: s.reduce((o, c) => o + c.ms, 0)
   };
 }
-const Po = [
+const bo = [
   ["notes", "Otelaudan sävelet", "Etsi sävel annetulta kieleltä ja opi kaulan rakenne."],
   ["ear-note", "Tunnista kuultu sävel", "Kuuntele sävel ja valitse sen nimi. Vertailusävel A auttaa kuulemaan välin."],
   ["repeat", "Kuule ja toista", "Kuuntele sävel ja etsi se kitarasta."],
@@ -6644,15 +6644,15 @@ const Po = [
   ["chord", "Sointusävelet", "Rakenna sointu sävel kerrallaan tai etsi yksittäisiä asteita."],
   ["caged", "CAGED", "Etsi duurisoinnun sävelet viidestä siirrettävästä muodosta."],
   ["interval", "Kuule ja toista intervalli", "Kuuntele kaksi säveltä ja etsi niistä jälkimmäinen."]
-], ir = (s) => Po.find(([a]) => a === s)?.[1] ?? s;
-function bt({ label: s, children: a }) {
-  const o = A.useId();
+], ir = (s) => bo.find(([a]) => a === s)?.[1] ?? s;
+function Pt({ label: s, children: a }) {
+  const o = _.useId();
   return /* @__PURE__ */ r.jsxs("div", { className: "field", children: [
     /* @__PURE__ */ r.jsx("label", { htmlFor: o, children: s }),
-    A.cloneElement(a, { id: o })
+    _.cloneElement(a, { id: o })
   ] });
 }
-function $d({ legend: s, name: a, value: o, options: c, onChange: d, disabled: f }) {
+function Od({ legend: s, name: a, value: o, options: c, onChange: d, disabled: f }) {
   return /* @__PURE__ */ r.jsxs("fieldset", { className: "choice", disabled: f, children: [
     /* @__PURE__ */ r.jsx("legend", { children: s }),
     /* @__PURE__ */ r.jsx("div", { className: "choice-row", children: c.map((p) => /* @__PURE__ */ r.jsxs("label", { className: p.value === o ? "selected" : "", children: [
@@ -6669,33 +6669,33 @@ function Fd(s) {
   return `${Ma[s.hints].title} · ${d} · ${In(s) ? `yksi läpisoitto, ${o} säveltä` : o ? `${o} kysymystä` : "vapaa harjoittelu"} · ${f}${p}`;
 }
 function Id({ s, change: a, locked: o, problem: c }) {
-  const d = A.useId(), f = (v, j) => a({ ...s, [v]: j }), p = _i(s), m = Mi(s) === "note" || Mi(s) === "degree", E = ["scale", "chord", "caged"].includes(s.mode), L = ["notes", "ear-note", "repeat"].includes(s.mode);
+  const d = _.useId(), f = (v, j) => a({ ...s, [v]: j }), p = _i(s), m = Mi(s) === "note" || Mi(s) === "degree", E = ["scale", "chord", "caged"].includes(s.mode), P = ["notes", "ear-note", "repeat"].includes(s.mode);
   return /* @__PURE__ */ r.jsxs("fieldset", { className: "settings", disabled: o, children: [
     /* @__PURE__ */ r.jsx("legend", { children: "Valitse harjoitus" }),
     /* @__PURE__ */ r.jsxs("div", { className: "settings-grid", children: [
-      /* @__PURE__ */ r.jsx(bt, { label: "Harjoitus", children: /* @__PURE__ */ r.jsx("select", { value: s.mode, onChange: (v) => f("mode", v.target.value), children: Po.map(([v, j]) => /* @__PURE__ */ r.jsx("option", { value: v, children: j }, v)) }) }),
-      /* @__PURE__ */ r.jsx("p", { className: "mode-note", children: Po.find(([v]) => v === s.mode)[2] })
+      /* @__PURE__ */ r.jsx(Pt, { label: "Harjoitus", children: /* @__PURE__ */ r.jsx("select", { value: s.mode, onChange: (v) => f("mode", v.target.value), children: bo.map(([v, j]) => /* @__PURE__ */ r.jsx("option", { value: v, children: j }, v)) }) }),
+      /* @__PURE__ */ r.jsx("p", { className: "mode-note", children: bo.find(([v]) => v === s.mode)[2] })
     ] }),
     E && /* @__PURE__ */ r.jsxs("div", { className: "settings-grid", children: [
-      /* @__PURE__ */ r.jsx(bt, { label: s.mode === "scale" ? "Toonika" : "Soinnun perussävel", children: /* @__PURE__ */ r.jsx("select", { value: s.root, onChange: (v) => f("root", Number(v.target.value)), children: Fe.CHROM.map((v, j) => /* @__PURE__ */ r.jsx("option", { value: j, children: v }, v)) }) }),
+      /* @__PURE__ */ r.jsx(Pt, { label: s.mode === "scale" ? "Toonika" : "Soinnun perussävel", children: /* @__PURE__ */ r.jsx("select", { value: s.root, onChange: (v) => f("root", Number(v.target.value)), children: Ie.CHROM.map((v, j) => /* @__PURE__ */ r.jsx("option", { value: j, children: v }, v)) }) }),
       s.mode === "scale" && /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
-        /* @__PURE__ */ r.jsx(bt, { label: "Asteikko", children: /* @__PURE__ */ r.jsx("select", { value: s.scale, onChange: (v) => f("scale", v.target.value), children: Object.entries(Fe.SCALES).map(([v, j]) => /* @__PURE__ */ r.jsx("option", { value: v, children: j.name }, v)) }) }),
-        /* @__PURE__ */ r.jsx(bt, { label: "Pentatoninen sormitusboksi", children: /* @__PURE__ */ r.jsxs("select", { value: s.box, onChange: (v) => f("box", Number(v.target.value)), children: [
+        /* @__PURE__ */ r.jsx(Pt, { label: "Asteikko", children: /* @__PURE__ */ r.jsx("select", { value: s.scale, onChange: (v) => f("scale", v.target.value), children: Object.entries(Ie.SCALES).map(([v, j]) => /* @__PURE__ */ r.jsx("option", { value: v, children: j.name }, v)) }) }),
+        /* @__PURE__ */ r.jsx(Pt, { label: "Pentatoninen sormitusboksi", children: /* @__PURE__ */ r.jsxs("select", { value: s.box, onChange: (v) => f("box", Number(v.target.value)), children: [
           /* @__PURE__ */ r.jsx("option", { value: "0", children: "Ei boksia · koko valittu alue" }),
           [1, 2, 3, 4, 5].map((v) => /* @__PURE__ */ r.jsxs("option", { value: v, children: [
             "Boksi ",
             v
           ] }, v))
         ] }) }),
-        /* @__PURE__ */ r.jsx(bt, { label: "Sävelten järjestys", children: /* @__PURE__ */ r.jsxs("select", { value: s.order, onChange: (v) => f("order", v.target.value), children: [
+        /* @__PURE__ */ r.jsx(Pt, { label: "Sävelten järjestys", children: /* @__PURE__ */ r.jsxs("select", { value: s.order, onChange: (v) => f("order", v.target.value), children: [
           /* @__PURE__ */ r.jsx("option", { value: "random", children: "Satunnainen" }),
           /* @__PURE__ */ r.jsx("option", { value: "up", children: "Matalasta korkeaan" }),
           /* @__PURE__ */ r.jsx("option", { value: "down", children: "Korkeasta matalaan" })
         ] }) })
       ] }),
       s.mode === "chord" && /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
-        /* @__PURE__ */ r.jsx(bt, { label: "Sointutyyppi", children: /* @__PURE__ */ r.jsx("select", { value: s.chord, onChange: (v) => f("chord", v.target.value), children: Object.entries(Ci).map(([v, j]) => /* @__PURE__ */ r.jsx("option", { value: v, children: j.name }, v)) }) }),
-        /* @__PURE__ */ r.jsx(bt, { label: "Harjoiteltava sointusävel", children: /* @__PURE__ */ r.jsxs("select", { value: s.chordTone, onChange: (v) => f("chordTone", v.target.value), children: [
+        /* @__PURE__ */ r.jsx(Pt, { label: "Sointutyyppi", children: /* @__PURE__ */ r.jsx("select", { value: s.chord, onChange: (v) => f("chord", v.target.value), children: Object.entries(Ci).map(([v, j]) => /* @__PURE__ */ r.jsx("option", { value: v, children: j.name }, v)) }) }),
+        /* @__PURE__ */ r.jsx(Pt, { label: "Harjoiteltava sointusävel", children: /* @__PURE__ */ r.jsxs("select", { value: s.chordTone, onChange: (v) => f("chordTone", v.target.value), children: [
           /* @__PURE__ */ r.jsxs("option", { value: "build", children: [
             "Rakenna: 1 → 3 → 5",
             s.chord === "dom7" ? " → ♭7" : ""
@@ -6710,10 +6710,10 @@ function Id({ s, change: a, locked: o, problem: c }) {
           s.chord === "dom7" && /* @__PURE__ */ r.jsx("option", { value: "7", children: "Septimi · ♭7" })
         ] }) })
       ] }),
-      s.mode === "caged" ? /* @__PURE__ */ r.jsx(bt, { label: "CAGED-duurimuoto", children: /* @__PURE__ */ r.jsx("select", { value: s.shape, onChange: (v) => f("shape", v.target.value), children: ["C", "A", "G", "E", "D"].map((v) => /* @__PURE__ */ r.jsxs("option", { value: v, children: [
+      s.mode === "caged" ? /* @__PURE__ */ r.jsx(Pt, { label: "CAGED-duurimuoto", children: /* @__PURE__ */ r.jsx("select", { value: s.shape, onChange: (v) => f("shape", v.target.value), children: ["C", "A", "G", "E", "D"].map((v) => /* @__PURE__ */ r.jsxs("option", { value: v, children: [
         v,
         "-muoto"
-      ] }, v)) }) }) : /* @__PURE__ */ r.jsx(bt, { label: "Tehtävä", children: /* @__PURE__ */ r.jsxs("select", { value: s.activity, onChange: (v) => f("activity", v.target.value), children: [
+      ] }, v)) }) }) : /* @__PURE__ */ r.jsx(Pt, { label: "Tehtävä", children: /* @__PURE__ */ r.jsxs("select", { value: s.activity, onChange: (v) => f("activity", v.target.value), children: [
         /* @__PURE__ */ r.jsx("option", { value: "play", children: "Etsi aste otelaudalta" }),
         /* @__PURE__ */ r.jsx("option", { value: "degree", children: "Tunnista sävelen aste" })
       ] }) })
@@ -6721,17 +6721,17 @@ function Id({ s, change: a, locked: o, problem: c }) {
     s.mode === "interval" && /* @__PURE__ */ r.jsxs("fieldset", { className: "plain", children: [
       /* @__PURE__ */ r.jsx("legend", { children: "Harjoiteltavat intervallit" }),
       /* @__PURE__ */ r.jsx("div", { className: "check-row", children: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((v) => /* @__PURE__ */ r.jsxs("label", { children: [
-        /* @__PURE__ */ r.jsx("input", { type: "checkbox", checked: s.intervals.includes(v), onChange: (j) => f("intervals", j.target.checked ? [...s.intervals, v] : s.intervals.filter((M) => M !== v)) }),
+        /* @__PURE__ */ r.jsx("input", { type: "checkbox", checked: s.intervals.includes(v), onChange: (j) => f("intervals", j.target.checked ? [...s.intervals, v] : s.intervals.filter((T) => T !== v)) }),
         qr[v]
       ] }, v)) }),
-      /* @__PURE__ */ r.jsx("div", { className: "settings-grid", children: /* @__PURE__ */ r.jsx(bt, { label: "Intervallin suunta", children: /* @__PURE__ */ r.jsxs("select", { value: s.direction, onChange: (v) => f("direction", v.target.value), children: [
+      /* @__PURE__ */ r.jsx("div", { className: "settings-grid", children: /* @__PURE__ */ r.jsx(Pt, { label: "Intervallin suunta", children: /* @__PURE__ */ r.jsxs("select", { value: s.direction, onChange: (v) => f("direction", v.target.value), children: [
         /* @__PURE__ */ r.jsx("option", { value: "both", children: "Nouseva ja laskeva" }),
         /* @__PURE__ */ r.jsx("option", { value: "up", children: "Nouseva" }),
         /* @__PURE__ */ r.jsx("option", { value: "down", children: "Laskeva" })
       ] }) }) })
     ] }),
     /* @__PURE__ */ r.jsx(
-      $d,
+      Od,
       {
         legend: "Harjoittelutapa",
         name: `${d}-way`,
@@ -6740,23 +6740,23 @@ function Id({ s, change: a, locked: o, problem: c }) {
         options: ["off", "always", "fade"].map((v) => ({ value: v, ...Ma[v] }))
       }
     ),
-    m ? /* @__PURE__ */ r.jsx("p", { className: "tools-note", "data-testid": "input-note", children: "Tässä tehtävässä vastataan painikkeilla. Mikrofonia ei tarvita." }) : /* @__PURE__ */ r.jsx($d, { legend: "Vastaustapa", name: `${d}-input`, value: s.input, onChange: (v) => f("input", v), options: [
+    m ? /* @__PURE__ */ r.jsx("p", { className: "tools-note", "data-testid": "input-note", children: "Tässä tehtävässä vastataan painikkeilla. Mikrofonia ei tarvita." }) : /* @__PURE__ */ r.jsx(Od, { legend: "Vastaustapa", name: `${d}-input`, value: s.input, onChange: (v) => f("input", v), options: [
       { value: "board", title: "Napauta otelaudalta", summary: "Vastaa ruudun otelaudalla. Toimii ilman kitaraa ja mikrofonia." },
       { value: "mic", title: "Soita kitaralla", summary: "Mikrofoni tai äänikortti kuuntelee sävelen. Testaa mikrofoni ensin." }
     ] }),
     /* @__PURE__ */ r.jsxs("details", { children: [
       /* @__PURE__ */ r.jsx("summary", { children: "Lisäasetukset: alue, kierroksen pituus ja tarkistus" }),
       /* @__PURE__ */ r.jsxs("div", { className: "settings-grid", children: [
-        /* @__PURE__ */ r.jsx(bt, { label: "Kierroksen pituus", children: /* @__PURE__ */ r.jsxs("select", { value: s.rounds, disabled: In(s), onChange: (v) => f("rounds", Number(v.target.value)), children: [
+        /* @__PURE__ */ r.jsx(Pt, { label: "Kierroksen pituus", children: /* @__PURE__ */ r.jsxs("select", { value: s.rounds, disabled: In(s), onChange: (v) => f("rounds", Number(v.target.value)), children: [
           /* @__PURE__ */ r.jsx("option", { value: "10", children: "10 kysymystä" }),
           /* @__PURE__ */ r.jsx("option", { value: "20", children: "20 kysymystä" }),
           /* @__PURE__ */ r.jsx("option", { value: "0", children: "Vapaa harjoittelu" })
         ] }) }),
-        !m && /* @__PURE__ */ r.jsx(bt, { label: "Vastausten tarkistus", children: /* @__PURE__ */ r.jsxs("select", { value: In(s) ? "pitch" : s.check, disabled: In(s), onChange: (v) => f("check", v.target.value), children: [
+        !m && /* @__PURE__ */ r.jsx(Pt, { label: "Vastausten tarkistus", children: /* @__PURE__ */ r.jsxs("select", { value: In(s) ? "pitch" : s.check, disabled: In(s), onChange: (v) => f("check", v.target.value), children: [
           /* @__PURE__ */ r.jsx("option", { value: "class", children: "Sävelnimi · mikä tahansa oktaavi kelpaa" }),
           /* @__PURE__ */ r.jsx("option", { value: "pitch", children: "Tarkka sävelkorkeus · myös oktaavin on täsmättävä" })
         ] }) }),
-        /* @__PURE__ */ r.jsx(bt, { label: "Sävelnimien kirjoitusasu", children: /* @__PURE__ */ r.jsxs("select", { value: String(s.flats), onChange: (v) => f("flats", v.target.value === "true"), children: [
+        /* @__PURE__ */ r.jsx(Pt, { label: "Sävelnimien kirjoitusasu", children: /* @__PURE__ */ r.jsxs("select", { value: String(s.flats), onChange: (v) => f("flats", v.target.value === "true"), children: [
           /* @__PURE__ */ r.jsx("option", { value: "false", children: "Ylennykset · C♯, D♯…" }),
           /* @__PURE__ */ r.jsx("option", { value: "true", children: "Alennukset · D♭, E♭…" })
         ] }) })
@@ -6776,21 +6776,21 @@ function Id({ s, change: a, locked: o, problem: c }) {
           v === 24 ? " · koko otelauta" : ""
         ] }, v)) }),
         /* @__PURE__ */ r.jsxs("div", { className: "settings-grid", children: [
-          /* @__PURE__ */ r.jsx(bt, { label: "Ensimmäinen nauha", children: /* @__PURE__ */ r.jsx("input", { type: "number", min: "0", max: "24", value: s.min, onChange: (v) => f("min", Number(v.target.value)) }) }),
-          /* @__PURE__ */ r.jsx(bt, { label: "Viimeinen nauha", children: /* @__PURE__ */ r.jsx("input", { type: "number", min: s.min, max: "24", value: s.max, onChange: (v) => f("max", Number(v.target.value)) }) })
+          /* @__PURE__ */ r.jsx(Pt, { label: "Ensimmäinen nauha", children: /* @__PURE__ */ r.jsx("input", { type: "number", min: "0", max: "24", value: s.min, onChange: (v) => f("min", Number(v.target.value)) }) }),
+          /* @__PURE__ */ r.jsx(Pt, { label: "Viimeinen nauha", children: /* @__PURE__ */ r.jsx("input", { type: "number", min: s.min, max: "24", value: s.max, onChange: (v) => f("max", Number(v.target.value)) }) })
         ] })
       ] }),
       p.fixed !== "shape" && /* @__PURE__ */ r.jsxs("fieldset", { className: "plain", children: [
         /* @__PURE__ */ r.jsx("legend", { children: "Harjoiteltavat kielet · 1 = ohut E" }),
         /* @__PURE__ */ r.jsx("div", { className: "check-row", children: Qt.map((v, j) => /* @__PURE__ */ r.jsxs("label", { children: [
-          /* @__PURE__ */ r.jsx("input", { type: "checkbox", checked: s.strings.includes(j), onChange: (M) => f("strings", M.target.checked ? [...s.strings, j] : s.strings.filter((O) => O !== j)) }),
+          /* @__PURE__ */ r.jsx("input", { type: "checkbox", checked: s.strings.includes(j), onChange: (T) => f("strings", T.target.checked ? [...s.strings, j] : s.strings.filter((R) => R !== j)) }),
           j + 1,
           " · ",
           v
         ] }, v)) })
       ] }),
       /* @__PURE__ */ r.jsxs("div", { className: "check-row", children: [
-        L && /* @__PURE__ */ r.jsxs("label", { children: [
+        P && /* @__PURE__ */ r.jsxs("label", { children: [
           /* @__PURE__ */ r.jsx("input", { type: "checkbox", checked: s.accidentals, onChange: (v) => f("accidentals", v.target.checked) }),
           " Myös ylennetyt ja alennetut sävelet"
         ] }),
@@ -6836,22 +6836,22 @@ function _p({ onSelect: s }) {
     ] }, a.id)) })
   ] });
 }
-const Ap = { backing: 0.85, guitar: 0.78, vocals: 0.78 }, bo = 100, bf = "musiikin-kartta:kappale-aanenvoimakkuus:v1";
+const Ap = { backing: 0.85, guitar: 0.78, vocals: 0.78 }, Po = 100, Pf = "musiikin-kartta:kappale-aanenvoimakkuus:v1";
 function Go(s) {
-  if (s === null || s.trim() === "") return bo;
+  if (s === null || s.trim() === "") return Po;
   const a = Number(s);
-  return Number.isFinite(a) ? Math.round(Math.min(100, Math.max(0, a))) : bo;
+  return Number.isFinite(a) ? Math.round(Math.min(100, Math.max(0, a))) : Po;
 }
-function Pp() {
+function bp() {
   try {
-    return Go(localStorage.getItem(bf));
+    return Go(localStorage.getItem(Pf));
   } catch {
-    return bo;
+    return Po;
   }
 }
-function bp(s) {
+function Pp(s) {
   try {
-    localStorage.setItem(bf, String(Go(String(s))));
+    localStorage.setItem(Pf, String(Go(String(s))));
   } catch {
   }
 }
@@ -6866,9 +6866,9 @@ function Lf(s = () => new Audio()) {
     return !1;
   }
 }
-const Lp = 0.12, Rp = 2e3, Op = 3;
-function $p(s, a = !1) {
-  return a ? !0 : s.atLoopBoundary || s.drift <= Lp || s.seeking || s.readyState < Op ? !1 : s.msSinceLastFix >= Rp;
+const Lp = 0.12, Rp = 2e3, $p = 3;
+function Op(s, a = !1) {
+  return a ? !0 : s.atLoopBoundary || s.drift <= Lp || s.seeking || s.readyState < $p ? !1 : s.msSinceLastFix >= Rp;
 }
 const Fp = 1.5, Ip = 0.4, Dp = 0.5;
 let Lo = null, zp = null;
@@ -6885,44 +6885,67 @@ class Rf {
   align(a, o, c = !1, d = performance.now()) {
     if (o.readyState < 1 || a.readyState < 1 || !c && (o.paused || a.paused)) return !1;
     const f = o.currentTime - a.currentTime, p = Math.abs(f), m = a.loop && Number.isFinite(a.duration) && Math.abs(p - a.duration) < 0.35, E = this.lastFix.get(o);
-    if (!$p({
+    if (!Op({
       drift: p,
       atLoopBoundary: m,
       seeking: o.seeking,
       readyState: o.readyState,
       msSinceLastFix: E === void 0 ? 1 / 0 : d - E
     }, c)) return !1;
-    const L = !a.paused;
-    !c && L && E !== void 0 && (this.latency = Math.min(Fp, Math.max(0, this.latency - Dp * f)), Lo = this.latency);
-    let v = a.currentTime + (L ? this.latency : 0);
+    const P = !a.paused;
+    !c && P && E !== void 0 && (this.latency = Math.min(Fp, Math.max(0, this.latency - Dp * f)), Lo = this.latency);
+    let v = a.currentTime + (P ? this.latency : 0);
     Number.isFinite(o.duration) && (v = Math.min(v, Math.max(0, o.duration - 0.05)));
     try {
       o.currentTime = v;
     } catch {
       return !1;
     }
-    return L ? this.lastFix.set(o, d) : this.lastFix.delete(o), !0;
+    return P ? this.lastFix.set(o, d) : this.lastFix.delete(o), !0;
   }
 }
-const Vp = () => {
+function Vp(s = globalThis.navigator) {
+  return s ? /iPhone|iPad|iPod/.test(s.userAgent) || s.platform === "MacIntel" && s.maxTouchPoints > 1 : !1;
+}
+function Kp(s = Vp(), a = () => Lf()) {
+  return s ? "webaudio" : a() ? "element" : "webaudio";
+}
+function Up(s = globalThis.navigator) {
+  const a = s?.audioSession;
+  a && a.type !== "playback" && (a.type = "playback");
+}
+const Hp = () => {
   const s = globalThis.AudioContext ?? globalThis.webkitAudioContext;
   if (!s) throw new Error("Web Audio API puuttuu");
   return new s();
 };
-class Kp {
-  constructor(a = Vp) {
-    this.create = a;
+class Gp {
+  constructor(a = Hp, o = globalThis.navigator) {
+    this.create = a, this.nav = o;
   }
   create;
+  nav;
   context = null;
   gains = /* @__PURE__ */ new WeakMap();
+  /** Viimeisin virhe käyttäjälle ja diagnostiikalle: virheitä ei niellä hiljaa. */
+  lastError = "";
+  /** Web Audion tila ('running', 'suspended', 'interrupted' iOS:llä, 'closed') tai 'none'. */
+  get state() {
+    return this.context?.state ?? "none";
+  }
   /** Kutsutaan käyttäjän painalluksesta ennen play()-kutsuja. */
   unlock() {
     try {
-      return (!this.context || this.context.state === "closed") && (this.context = this.create(), this.gains = /* @__PURE__ */ new WeakMap()), this.context.state !== "running" && this.context.resume().catch(() => {
+      try {
+        Up(this.nav);
+      } catch (a) {
+        this.lastError = "Ääni-istunnon asetus epäonnistui: " + String(a);
+      }
+      return (!this.context || this.context.state === "closed") && (this.context = this.create(), this.gains = /* @__PURE__ */ new WeakMap()), this.context.state !== "running" && this.context.resume().catch((a) => {
+        this.lastError = "Web Audio ei käynnistynyt: " + String(a);
       }), !0;
-    } catch {
-      return !1;
+    } catch (a) {
+      return this.lastError = "Web Audio ei ole käytettävissä: " + String(a), !1;
     }
   }
   /** Kytkee elementin yhden kerran: elementin oma ääni kulkee sen jälkeen vain GainNoden kautta. */
@@ -6932,8 +6955,8 @@ class Kp {
     try {
       const o = this.context.createMediaElementSource(a), c = this.context.createGain();
       return o.connect(c), c.connect(this.context.destination), this.gains.set(a, c), !0;
-    } catch {
-      return !1;
+    } catch (o) {
+      return this.lastError = "Raidan kytkentä äänenvoimakkuussäätimeen epäonnistui: " + String(o), !1;
     }
   }
   routed(a) {
@@ -6943,64 +6966,69 @@ class Kp {
     const c = this.gains.get(a);
     c && (c.gain.value = o);
   }
+  /** Raidan nykyinen GainNode-taso tai null, jos raitaa ei ole kytketty. */
+  level(a) {
+    const o = a ? this.gains.get(a) : void 0;
+    return o ? o.gain.value : null;
+  }
   close() {
     const a = this.context;
     this.context = null, this.gains = /* @__PURE__ */ new WeakMap(), a?.close().catch(() => {
     });
   }
 }
-const Up = "assets/audio/harjoittelija/am-vamp-without-guitar.mp3", Hp = "assets/audio/harjoittelija/am-vamp-electric-guitar.mp3";
+const Wp = "assets/audio/harjoittelija/am-vamp-without-guitar.mp3", Qp = "assets/audio/harjoittelija/am-vamp-electric-guitar.mp3";
 function Bd(s) {
   if (!Number.isFinite(s) || s < 0) return "0:00";
   const a = Math.floor(s);
   return String(Math.floor(a / 60)) + ":" + String(a % 60).padStart(2, "0");
 }
-function Of() {
-  const s = A.useRef(null), a = A.useRef(null), [o, c] = A.useState(!1), [d, f] = A.useState(!1), [p, m] = A.useState(!1), [E, L] = A.useState(0), [v, j] = A.useState(0), [M, O] = A.useState(""), P = A.useRef(new Rf());
+function $f() {
+  const s = _.useRef(null), a = _.useRef(null), [o, c] = _.useState(!1), [d, f] = _.useState(!1), [p, m] = _.useState(!1), [E, P] = _.useState(0), [v, j] = _.useState(0), [T, R] = _.useState(""), A = _.useRef(new Rf());
   function w(B = !1) {
-    const H = s.current, I = a.current;
-    !H || !I || !Number.isFinite(H.currentTime) || P.current.align(H, I, B);
+    const U = s.current, F = a.current;
+    !U || !F || !Number.isFinite(U.currentTime) || A.current.align(U, F, B);
   }
   function S() {
     s.current?.pause(), a.current?.pause(), c(!1);
   }
   async function z() {
-    const B = s.current, H = a.current;
-    if (!(!B || !H)) {
+    const B = s.current, U = a.current;
+    if (!(!B || !U)) {
       if (o) {
         S();
         return;
       }
-      O(""), H.muted = !d, H.volume = 0.55, B.volume = 0.75, w(!0);
+      R(""), U.muted = !d, U.volume = 0.55, B.volume = 0.75, w(!0);
       try {
-        await Promise.all(d ? [B.play(), H.play()] : [B.play()]), w(), c(!0);
+        await Promise.all(d ? [B.play(), U.play()] : [B.play()]), w(), c(!0);
       } catch {
-        S(), O("Ääniraitoja ei voitu käynnistää. Varmista, että molemmat MP3-tiedostot ovat paikallaan.");
+        S(), R("Ääniraitoja ei voitu käynnistää. Varmista, että molemmat MP3-tiedostot ovat paikallaan.");
       }
     }
   }
-  function T(B) {
-    const H = s.current, I = a.current;
-    if (!(!H || !I || !Number.isFinite(B))) {
-      H.currentTime = B;
+  function C(B) {
+    const U = s.current, F = a.current;
+    if (!(!U || !F || !Number.isFinite(B))) {
+      U.currentTime = B;
       try {
-        I.currentTime = B;
+        F.currentTime = B;
       } catch {
       }
-      L(B);
+      P(B);
     }
   }
   function K(B) {
-    const H = s.current, I = a.current;
-    if (f(B), !!I) {
-      if (I.muted = !B, !B) {
-        I.pause();
+    const U = s.current, F = a.current;
+    if (f(B), !!F) {
+      if (F.muted = !B, !B) {
+        F.pause();
         return;
       }
-      !H || !o || (w(!0), I.play().catch(() => O("Mallikitaraa ei voitu käynnistää. Kokeile pysäyttää ja soittaa uudelleen.")));
+      !U || !o || (w(!0), F.play().catch(() => R("Mallikitaraa ei voitu käynnistää. Kokeile pysäyttää ja soittaa uudelleen.")));
     }
   }
-  return A.useEffect(() => {
+  return _.useEffect(() => {
     const B = () => {
       document.hidden && (s.current?.pause(), a.current?.pause(), c(!1));
     };
@@ -7050,7 +7078,7 @@ function Of() {
           step: 0.1,
           value: Math.min(E, v > 0 ? v : 1),
           disabled: !v,
-          onChange: (B) => T(Number(B.target.value))
+          onChange: (B) => C(Number(B.target.value))
         }
       ),
       /* @__PURE__ */ r.jsxs("output", { className: "backing-time", "aria-live": "off", children: [
@@ -7064,19 +7092,19 @@ function Of() {
       {
         ref: s,
         preload: "metadata",
-        src: Up,
+        src: Wp,
         loop: p,
         onLoadedMetadata: (B) => j(B.currentTarget.duration),
         onTimeUpdate: (B) => {
-          L(B.currentTarget.currentTime), B.currentTarget.paused || w();
+          P(B.currentTarget.currentTime), B.currentTarget.paused || w();
         },
         onEnded: () => {
-          s.current?.loop || (a.current?.pause(), c(!1), L(v));
+          s.current?.loop || (a.current?.pause(), c(!1), P(v));
         },
         onPause: () => {
           a.current?.pause(), c(!1);
         },
-        onError: () => O("Taustaraita puuttuu tai sitä ei voida toistaa. Tarkista am-vamp-without-guitar.mp3.")
+        onError: () => R("Taustaraita puuttuu tai sitä ei voida toistaa. Tarkista am-vamp-without-guitar.mp3.")
       }
     ),
     /* @__PURE__ */ r.jsx(
@@ -7084,25 +7112,25 @@ function Of() {
       {
         ref: a,
         preload: "metadata",
-        src: Hp,
+        src: Qp,
         muted: !0,
         loop: p,
         onLoadedMetadata: () => {
-          const B = s.current, H = a.current;
-          B?.duration && H?.duration && Math.abs(B.duration - H.duration) > 0.15 && O("Ääniraitojen kestot poikkeavat toisistaan. Käytä samaan aikaan vietyjä raitoja.");
+          const B = s.current, U = a.current;
+          B?.duration && U?.duration && Math.abs(B.duration - U.duration) > 0.15 && R("Ääniraitojen kestot poikkeavat toisistaan. Käytä samaan aikaan vietyjä raitoja.");
         },
-        onError: () => O("Mallikitaran ääniraita puuttuu tai sitä ei voida toistaa. Tarkista am-vamp-electric-guitar.mp3.")
+        onError: () => R("Mallikitaran ääniraita puuttuu tai sitä ei voida toistaa. Tarkista am-vamp-electric-guitar.mp3.")
       }
     ),
-    M && /* @__PURE__ */ r.jsx("p", { className: "backing-error", role: "alert", children: M }),
+    T && /* @__PURE__ */ r.jsx("p", { className: "backing-error", role: "alert", children: T }),
     /* @__PURE__ */ r.jsx("p", { className: "tools-note", children: "Molemmat raidat etenevät samaan aikaan. Mallikitaran tai loopin voi kytkeä päälle ja pois myös toiston aikana." })
   ] });
 }
-const Gp = 4e3;
+const Yp = 4e3;
 class Vd extends Error {
   name = "MicSetupError";
 }
-async function Wp(s, a) {
+async function Jp(s, a) {
   if (!navigator.mediaDevices?.getUserMedia) throw new Vd("Mikrofoni tarvitsee HTTPS-yhteyden tai localhost-osoitteen ja sitä tukevan selaimen.");
   const o = {
     audio: {
@@ -7119,13 +7147,13 @@ async function Wp(s, a) {
   let d;
   try {
     if (d = a ? a() : new AudioContext(), d.state !== "running") {
-      let L;
+      let P;
       await Promise.race([
         d.resume(),
         new Promise((v, j) => {
-          L = setTimeout(() => j(new Vd("Äänen käsittely ei käynnistynyt. Napauta painiketta uudelleen tai lataa sivu.")), Gp);
+          P = setTimeout(() => j(new Vd("Äänen käsittely ei käynnistynyt. Napauta painiketta uudelleen tai lataa sivu.")), Yp);
         })
-      ]).finally(() => clearTimeout(L));
+      ]).finally(() => clearTimeout(P));
     }
     const f = d.createMediaStreamSource(c), p = d, m = c.getAudioTracks?.()[0] ?? c.getTracks()[0], E = m?.getSettings?.() ?? {};
     return {
@@ -7136,7 +7164,7 @@ async function Wp(s, a) {
       deviceId: E.deviceId ?? "",
       channelCount: E.channelCount ?? 1,
       stop: () => {
-        c.getTracks().forEach((L) => L.stop()), f.disconnect(), a || p.close().catch(() => {
+        c.getTracks().forEach((P) => P.stop()), f.disconnect(), a || p.close().catch(() => {
         });
       }
     };
@@ -7145,11 +7173,11 @@ async function Wp(s, a) {
     }), f;
   }
 }
-async function Qp() {
+async function Xp() {
   return navigator.mediaDevices?.enumerateDevices ? (await navigator.mediaDevices.enumerateDevices()).filter((a) => a.kind === "audioinput" && a.deviceId) : [];
 }
 var yo, Kd;
-function Yp() {
+function Zp() {
   if (Kd) return yo;
   Kd = 1;
   function s(a) {
@@ -7157,8 +7185,8 @@ function Yp() {
       throw new Error("FFT size must be a power of two and bigger than 1");
     this._csize = a << 1;
     for (var o = new Array(this.size * 2), c = 0; c < o.length; c += 2) {
-      const L = Math.PI * c / this.size;
-      o[c] = Math.cos(L), o[c + 1] = -Math.sin(L);
+      const P = Math.PI * c / this.size;
+      o[c] = Math.cos(P), o[c + 1] = -Math.sin(P);
     }
     this.table = o;
     for (var d = 0, f = 1; this.size > f; f <<= 1)
@@ -7205,73 +7233,73 @@ function Yp() {
       o[d] /= this.size;
     this._out = null, this._data = null;
   }, s.prototype._transform4 = function() {
-    var o = this._out, c = this._csize, d = this._width, f = 1 << d, p = c / f << 1, m, E, L = this._bitrev;
+    var o = this._out, c = this._csize, d = this._width, f = 1 << d, p = c / f << 1, m, E, P = this._bitrev;
     if (p === 4)
       for (m = 0, E = 0; m < c; m += p, E++) {
-        const S = L[E];
+        const S = P[E];
         this._singleTransform2(m, S, f);
       }
     else
       for (m = 0, E = 0; m < c; m += p, E++) {
-        const S = L[E];
+        const S = P[E];
         this._singleTransform4(m, S, f);
       }
     var v = this._inv ? -1 : 1, j = this.table;
     for (f >>= 2; f >= 2; f >>= 2) {
       p = c / f << 1;
-      var M = p >>> 2;
+      var T = p >>> 2;
       for (m = 0; m < c; m += p)
-        for (var O = m + M, P = m, w = 0; P < O; P += 2, w += f) {
-          const S = P, z = S + M, T = z + M, K = T + M, B = o[S], H = o[S + 1], I = o[z], _ = o[z + 1], $ = o[T], ie = o[T + 1], J = o[K], ve = o[K + 1], Se = B, X = H, fe = j[w], U = v * j[w + 1], ae = I * fe - _ * U, ue = I * U + _ * fe, W = j[2 * w], le = v * j[2 * w + 1], ee = $ * W - ie * le, x = $ * le + ie * W, y = j[3 * w], te = v * j[3 * w + 1], he = J * y - ve * te, we = J * te + ve * y, G = Se + ee, V = X + x, ne = Se - ee, C = X - x, Z = ae + he, oe = ue + we, ce = v * (ae - he), me = v * (ue - we), ye = G + Z, Ae = V + oe, Me = G - Z, Ie = V - oe, Qe = ne + me, Ye = C - ce, Ge = ne - me, Xe = C + ce;
-          o[S] = ye, o[S + 1] = Ae, o[z] = Qe, o[z + 1] = Ye, o[T] = Me, o[T + 1] = Ie, o[K] = Ge, o[K + 1] = Xe;
+        for (var R = m + T, A = m, w = 0; A < R; A += 2, w += f) {
+          const S = A, z = S + T, C = z + T, K = C + T, B = o[S], U = o[S + 1], F = o[z], M = o[z + 1], $ = o[C], ie = o[C + 1], Z = o[K], je = o[K + 1], Ee = B, J = U, de = j[w], H = v * j[w + 1], ce = F * de - M * H, oe = F * H + M * de, W = j[2 * w], ue = v * j[2 * w + 1], ee = $ * W - ie * ue, x = $ * ue + ie * W, y = j[3 * w], re = v * j[3 * w + 1], he = Z * y - je * re, Se = Z * re + je * y, G = Ee + ee, V = J + x, te = Ee - ee, X = J - x, ve = ce + he, I = oe + Se, ne = v * (ce - he), ae = v * (oe - Se), fe = G + ve, Ne = V + I, we = G - ve, Le = V - I, He = te + ae, Ye = X - ne, We = te - ae, Xe = X + ne;
+          o[S] = fe, o[S + 1] = Ne, o[z] = He, o[z + 1] = Ye, o[C] = we, o[C + 1] = Le, o[K] = We, o[K + 1] = Xe;
         }
     }
   }, s.prototype._singleTransform2 = function(o, c, d) {
-    const f = this._out, p = this._data, m = p[c], E = p[c + 1], L = p[c + d], v = p[c + d + 1], j = m + L, M = E + v, O = m - L, P = E - v;
-    f[o] = j, f[o + 1] = M, f[o + 2] = O, f[o + 3] = P;
+    const f = this._out, p = this._data, m = p[c], E = p[c + 1], P = p[c + d], v = p[c + d + 1], j = m + P, T = E + v, R = m - P, A = E - v;
+    f[o] = j, f[o + 1] = T, f[o + 2] = R, f[o + 3] = A;
   }, s.prototype._singleTransform4 = function(o, c, d) {
-    const f = this._out, p = this._data, m = this._inv ? -1 : 1, E = d * 2, L = d * 3, v = p[c], j = p[c + 1], M = p[c + d], O = p[c + d + 1], P = p[c + E], w = p[c + E + 1], S = p[c + L], z = p[c + L + 1], T = v + P, K = j + w, B = v - P, H = j - w, I = M + S, _ = O + z, $ = m * (M - S), ie = m * (O - z), J = T + I, ve = K + _, Se = B + ie, X = H - $, fe = T - I, U = K - _, ae = B - ie, ue = H + $;
-    f[o] = J, f[o + 1] = ve, f[o + 2] = Se, f[o + 3] = X, f[o + 4] = fe, f[o + 5] = U, f[o + 6] = ae, f[o + 7] = ue;
+    const f = this._out, p = this._data, m = this._inv ? -1 : 1, E = d * 2, P = d * 3, v = p[c], j = p[c + 1], T = p[c + d], R = p[c + d + 1], A = p[c + E], w = p[c + E + 1], S = p[c + P], z = p[c + P + 1], C = v + A, K = j + w, B = v - A, U = j - w, F = T + S, M = R + z, $ = m * (T - S), ie = m * (R - z), Z = C + F, je = K + M, Ee = B + ie, J = U - $, de = C - F, H = K - M, ce = B - ie, oe = U + $;
+    f[o] = Z, f[o + 1] = je, f[o + 2] = Ee, f[o + 3] = J, f[o + 4] = de, f[o + 5] = H, f[o + 6] = ce, f[o + 7] = oe;
   }, s.prototype._realTransform4 = function() {
-    var o = this._out, c = this._csize, d = this._width, f = 1 << d, p = c / f << 1, m, E, L = this._bitrev;
+    var o = this._out, c = this._csize, d = this._width, f = 1 << d, p = c / f << 1, m, E, P = this._bitrev;
     if (p === 4)
       for (m = 0, E = 0; m < c; m += p, E++) {
-        const Te = L[E];
-        this._singleRealTransform2(m, Te >>> 1, f >>> 1);
+        const _e = P[E];
+        this._singleRealTransform2(m, _e >>> 1, f >>> 1);
       }
     else
       for (m = 0, E = 0; m < c; m += p, E++) {
-        const Te = L[E];
-        this._singleRealTransform4(m, Te >>> 1, f >>> 1);
+        const _e = P[E];
+        this._singleRealTransform4(m, _e >>> 1, f >>> 1);
       }
     var v = this._inv ? -1 : 1, j = this.table;
     for (f >>= 2; f >= 2; f >>= 2) {
       p = c / f << 1;
-      var M = p >>> 1, O = M >>> 1, P = O >>> 1;
+      var T = p >>> 1, R = T >>> 1, A = R >>> 1;
       for (m = 0; m < c; m += p)
-        for (var w = 0, S = 0; w <= P; w += 2, S += f) {
-          var z = m + w, T = z + O, K = T + O, B = K + O, H = o[z], I = o[z + 1], _ = o[T], $ = o[T + 1], ie = o[K], J = o[K + 1], ve = o[B], Se = o[B + 1], X = H, fe = I, U = j[S], ae = v * j[S + 1], ue = _ * U - $ * ae, W = _ * ae + $ * U, le = j[2 * S], ee = v * j[2 * S + 1], x = ie * le - J * ee, y = ie * ee + J * le, te = j[3 * S], he = v * j[3 * S + 1], we = ve * te - Se * he, G = ve * he + Se * te, V = X + x, ne = fe + y, C = X - x, Z = fe - y, oe = ue + we, ce = W + G, me = v * (ue - we), ye = v * (W - G), Ae = V + oe, Me = ne + ce, Ie = C + ye, Qe = Z - me;
-          if (o[z] = Ae, o[z + 1] = Me, o[T] = Ie, o[T + 1] = Qe, w === 0) {
-            var Ye = V - oe, Ge = ne - ce;
-            o[K] = Ye, o[K + 1] = Ge;
+        for (var w = 0, S = 0; w <= A; w += 2, S += f) {
+          var z = m + w, C = z + R, K = C + R, B = K + R, U = o[z], F = o[z + 1], M = o[C], $ = o[C + 1], ie = o[K], Z = o[K + 1], je = o[B], Ee = o[B + 1], J = U, de = F, H = j[S], ce = v * j[S + 1], oe = M * H - $ * ce, W = M * ce + $ * H, ue = j[2 * S], ee = v * j[2 * S + 1], x = ie * ue - Z * ee, y = ie * ee + Z * ue, re = j[3 * S], he = v * j[3 * S + 1], Se = je * re - Ee * he, G = je * he + Ee * re, V = J + x, te = de + y, X = J - x, ve = de - y, I = oe + Se, ne = W + G, ae = v * (oe - Se), fe = v * (W - G), Ne = V + I, we = te + ne, Le = X + fe, He = ve - ae;
+          if (o[z] = Ne, o[z + 1] = we, o[C] = Le, o[C + 1] = He, w === 0) {
+            var Ye = V - I, We = te - ne;
+            o[K] = Ye, o[K + 1] = We;
             continue;
           }
-          if (w !== P) {
-            var Xe = C, ut = -Z, Je = V, Ve = -ne, it = -v * ye, Bt = -v * me, Yt = -v * ce, Nt = -v * oe, ln = Xe + it, Jt = ut + Bt, Xt = Je + Nt, _t = Ve - Yt, Ne = m + O - w, Vt = m + M - w;
-            o[Ne] = ln, o[Ne + 1] = Jt, o[Vt] = Xt, o[Vt + 1] = _t;
+          if (w !== A) {
+            var Xe = X, ut = -ve, Je = V, Ve = -te, it = -v * fe, Bt = -v * ae, Yt = -v * ne, Nt = -v * I, ln = Xe + it, Jt = ut + Bt, Xt = Je + Nt, _t = Ve - Yt, Ce = m + R - w, Vt = m + T - w;
+            o[Ce] = ln, o[Ce + 1] = Jt, o[Vt] = Xt, o[Vt + 1] = _t;
           }
         }
     }
   }, s.prototype._singleRealTransform2 = function(o, c, d) {
-    const f = this._out, p = this._data, m = p[c], E = p[c + d], L = m + E, v = m - E;
-    f[o] = L, f[o + 1] = 0, f[o + 2] = v, f[o + 3] = 0;
+    const f = this._out, p = this._data, m = p[c], E = p[c + d], P = m + E, v = m - E;
+    f[o] = P, f[o + 1] = 0, f[o + 2] = v, f[o + 3] = 0;
   }, s.prototype._singleRealTransform4 = function(o, c, d) {
-    const f = this._out, p = this._data, m = this._inv ? -1 : 1, E = d * 2, L = d * 3, v = p[c], j = p[c + d], M = p[c + E], O = p[c + L], P = v + M, w = v - M, S = j + O, z = m * (j - O), T = P + S, K = w, B = -z, H = P - S, I = w, _ = z;
-    f[o] = T, f[o + 1] = 0, f[o + 2] = K, f[o + 3] = B, f[o + 4] = H, f[o + 5] = 0, f[o + 6] = I, f[o + 7] = _;
+    const f = this._out, p = this._data, m = this._inv ? -1 : 1, E = d * 2, P = d * 3, v = p[c], j = p[c + d], T = p[c + E], R = p[c + P], A = v + T, w = v - T, S = j + R, z = m * (j - R), C = A + S, K = w, B = -z, U = A - S, F = w, M = z;
+    f[o] = C, f[o + 1] = 0, f[o + 2] = K, f[o + 3] = B, f[o + 4] = U, f[o + 5] = 0, f[o + 6] = F, f[o + 7] = M;
   }, yo;
 }
-var Jp = Yp();
-const Xp = /* @__PURE__ */ zm(Jp);
+var qp = Zp();
+const ev = /* @__PURE__ */ zm(qp);
 class Yr {
   /** @private @readonly @type {number} */
   _inputLength;
@@ -7335,7 +7363,7 @@ class Yr {
   constructor(a, o) {
     if (a < 1)
       throw new Error("Input length must be at least one");
-    this._inputLength = a, this._fft = new Xp(ev(2 * a)), this._bufferSupplier = o, this._paddedInputBuffer = this._bufferSupplier(this._fft.size), this._transformBuffer = this._bufferSupplier(2 * this._fft.size), this._inverseBuffer = this._bufferSupplier(2 * this._fft.size);
+    this._inputLength = a, this._fft = new ev(iv(2 * a)), this._bufferSupplier = o, this._paddedInputBuffer = this._bufferSupplier(this._fft.size), this._transformBuffer = this._bufferSupplier(2 * this._fft.size), this._inverseBuffer = this._bufferSupplier(2 * this._fft.size);
   }
   /**
    * Returns the supported input length.
@@ -7372,16 +7400,16 @@ class Yr {
     return o;
   }
 }
-function Zp(s) {
+function tv(s) {
   const a = [];
   let o = !1, c = -1 / 0, d = -1;
   for (let f = 1; f < s.length - 1; f++)
     s[f - 1] <= 0 && s[f] > 0 ? (o = !0, d = f, c = s[f]) : s[f - 1] > 0 && s[f] <= 0 ? (o = !1, d !== -1 && a.push(d)) : o && s[f] > c && (c = s[f], d = f);
   return a;
 }
-function qp(s, a) {
-  const [o, c, d] = [s - 1, s, s + 1], [f, p, m] = [a[o], a[c], a[d]], E = f / 2 - p + m / 2, L = -(f / 2) * (c + d) + p * (o + d) - m / 2 * (o + c), v = f * c * d / 2 - p * o * d + m * o * c / 2, j = -L / (2 * E), M = E * j * j + L * j + v;
-  return [j, M];
+function nv(s, a) {
+  const [o, c, d] = [s - 1, s, s + 1], [f, p, m] = [a[o], a[c], a[d]], E = f / 2 - p + m / 2, P = -(f / 2) * (c + d) + p * (o + d) - m / 2 * (o + c), v = f * c * d / 2 - p * o * d + m * o * c / 2, j = -P / (2 * E), T = E * j * j + P * j + v;
+  return [j, T];
 }
 class Jr {
   /** @private @type {Autocorrelator<T>} */
@@ -7518,12 +7546,12 @@ class Jr {
   findPitch(a, o) {
     if (this._belowMinimumVolume(a)) return [0, 0];
     this._nsdf(a);
-    const c = Zp(this._nsdfBuffer);
+    const c = tv(this._nsdfBuffer);
     if (c.length === 0)
       return [0, 0];
     const d = Math.max(...c.map((E) => this._nsdfBuffer[E])), f = c.find(
       (E) => this._nsdfBuffer[E] >= this._clarityThreshold * d
-    ), [p, m] = qp(
+    ), [p, m] = nv(
       // @ts-expect-error resultIndex is guaranteed to be defined
       f,
       this._nsdfBuffer
@@ -7561,26 +7589,26 @@ class Jr {
       this._nsdfBuffer[c] = 0;
   }
 }
-function ev(s) {
+function iv(s) {
   return s--, s |= s >> 1, s |= s >> 2, s |= s >> 4, s |= s >> 8, s |= s >> 16, s++, s;
 }
-function tv(s) {
+function rv(s) {
   const a = s * 0.17;
   let o = 2048;
   for (; o < a && o < 32768; ) o *= 2;
   return o;
 }
-const nv = 0.05, iv = 1.5;
-class rv {
+const sv = 0.05, av = 1.5;
+class lv {
   constructor(a, o = {}) {
     this.mic = a, this.opts = o;
-    const c = a.context, d = tv(c.sampleRate), f = Math.max(1, Math.min(2, a.channelCount ?? 1));
+    const c = a.context, d = rv(c.sampleRate), f = Math.max(1, Math.min(2, a.channelCount ?? 1));
     f > 1 && typeof c.createChannelSplitter == "function" && (this.splitter = c.createChannelSplitter(f), a.source.connect(this.splitter));
     for (let p = 0; p < (this.splitter ? f : 1); p++) {
       const m = c.createAnalyser();
       m.fftSize = d, m.smoothingTimeConstant = 0, this.splitter ? this.splitter.connect(m, p) : a.source.connect(m), this.analysers.push(m), this.buffers.push(new Float32Array(new ArrayBuffer(d * 4)));
     }
-    this.shortLength = Math.min(d, Math.max(256, Math.round(c.sampleRate * nv))), this.detector = Jr.forFloat32Array(d), this.detector.minVolumeDecibels = -60;
+    this.shortLength = Math.min(d, Math.max(256, Math.round(c.sampleRate * sv))), this.detector = Jr.forFloat32Array(d), this.detector.minVolumeDecibels = -60;
   }
   mic;
   opts;
@@ -7593,8 +7621,8 @@ class rv {
   running = !1;
   paused = !1;
   channel = 0;
-  gate = new sv();
-  onset = new av();
+  gate = new ov();
+  onset = new uv();
   /** Kynnysten muuttaminen kesken kuuntelun, esimerkiksi mikrofonitestin liukusäätimistä. */
   setOptions(a) {
     Object.assign(this.opts, a);
@@ -7632,34 +7660,34 @@ class rv {
       minFreq: p = 70,
       maxFreq: m = 1450,
       onFrame: E,
-      onStableNote: L
-    } = this.opts, v = this.analysers.map((_, $) => (_.getFloatTimeDomainData(this.buffers[$]), Ud(this.buffers[$], this.buffers[$].length - this.shortLength))), j = v.indexOf(Math.max(...v));
-    j !== this.channel && v[j] > (v[this.channel] ?? 0) * iv && (this.channel = j);
-    const M = this.buffers[this.channel], O = v[this.channel], P = lv(M, M.length - this.shortLength), w = { rms: O, peak: P, channel: this.channel, levels: v }, S = O < c, z = this.onset.feed(O, a, c);
-    if (S && Ud(M, 0) < c) {
+      onStableNote: P
+    } = this.opts, v = this.analysers.map((M, $) => (M.getFloatTimeDomainData(this.buffers[$]), Ud(this.buffers[$], this.buffers[$].length - this.shortLength))), j = v.indexOf(Math.max(...v));
+    j !== this.channel && v[j] > (v[this.channel] ?? 0) * av && (this.channel = j);
+    const T = this.buffers[this.channel], R = v[this.channel], A = cv(T, T.length - this.shortLength), w = { rms: R, peak: A, channel: this.channel, levels: v }, S = R < c, z = this.onset.feed(R, a, c);
+    if (S && Ud(T, 0) < c) {
       this.gate.feed(null, a, d, !0, !1), E?.({ ...w, status: "silent" });
       return;
     }
-    const [T, K] = this.detector.findPitch(M, this.mic.context.sampleRate);
-    if (!isFinite(T) || K < o) {
+    const [C, K] = this.detector.findPitch(T, this.mic.context.sampleRate);
+    if (!isFinite(C) || K < o) {
       this.gate.feed(null, a, d, S, z), E?.({ ...w, status: S ? "silent" : "unclear", clarity: isFinite(K) ? K : 0 });
       return;
     }
-    if (T < p || T > m) {
-      this.gate.feed(null, a, d, S, z), E?.({ ...w, status: "out-of-range", frequency: T, clarity: K });
+    if (C < p || C > m) {
+      this.gate.feed(null, a, d, S, z), E?.({ ...w, status: "out-of-range", frequency: C, clarity: K });
       return;
     }
-    const { midi: B, cents: H } = Zm(T);
-    if (Math.abs(H) > f) {
-      this.gate.feed(null, a, d, S, z), E?.({ ...w, status: "off-pitch", frequency: T, clarity: K, midi: B, cents: H });
+    const { midi: B, cents: U } = Zm(C);
+    if (Math.abs(U) > f) {
+      this.gate.feed(null, a, d, S, z), E?.({ ...w, status: "off-pitch", frequency: C, clarity: K, midi: B, cents: U });
       return;
     }
-    E?.({ ...w, status: "pitch", frequency: T, clarity: K, midi: B, cents: H });
-    const I = this.gate.feed(B, a, d, S, z);
-    I !== null && L?.({ midi: B, frequency: T, cents: H, clarity: K, timestamp: a, heldMs: I.heldMs });
+    E?.({ ...w, status: "pitch", frequency: C, clarity: K, midi: B, cents: U });
+    const F = this.gate.feed(B, a, d, S, z);
+    F !== null && P?.({ midi: B, frequency: C, cents: U, clarity: K, timestamp: a, heldMs: F.heldMs });
   }
 }
-class sv {
+class ov {
   constructor(a = 120, o = 80) {
     this.releaseMs = a, this.gapMs = o;
   }
@@ -7680,7 +7708,7 @@ class sv {
     return p < c ? null : (this.armed = !1, this.current = null, { midi: a, heldMs: p });
   }
 }
-class av {
+class uv {
   constructor(a = 2, o = 300, c = 150) {
     this.ratio = a, this.windowMs = o, this.refractoryMs = c;
   }
@@ -7706,7 +7734,7 @@ function Ud(s, a = 0) {
   for (let d = o; d < s.length; d++) c += s[d] * s[d];
   return Math.sqrt(c / Math.max(1, s.length - o));
 }
-function lv(s, a = 0) {
+function cv(s, a = 0) {
   let o = 0;
   for (let c = Math.max(0, a); c < s.length; c++) {
     const d = Math.abs(s[c]);
@@ -7716,21 +7744,21 @@ function lv(s, a = 0) {
 }
 const or = (s) => s > 0 ? Math.max(-90, 20 * Math.log10(s)) : -90;
 let tr;
-function $f() {
+function Of() {
   return (!tr || tr.state === "closed") && (tr = new AudioContext()), tr;
 }
-function ov() {
+function dv() {
   const s = tr;
   tr = void 0, s?.close().catch(() => {
   });
 }
 const Ff = (s) => s instanceof Error ? s.name : "";
-function uv(s) {
+function fv(s) {
   const a = Ff(s);
   return ["NotAllowedError", "SecurityError", "PermissionDeniedError"].includes(a) ? "Mikrofonilupa evättiin. Salli mikrofoni selaimen osoiterivin lukko- tai mikrofonikuvakkeesta ja yritä uudelleen. Voit myös vastata otelaudalta." : a === "NotFoundError" || a === "OverconstrainedError" ? "Äänituloa ei löydy. Kytke mikrofoni tai äänikortti, valitse se Mikrofonin asetuksista ja yritä uudelleen." : a === "NotReadableError" || a === "AbortError" ? "Äänituloa ei voitu avata. Sulje muut laitetta käyttävät ohjelmat, irrota ja kytke äänikortti uudelleen ja yritä sitten uudestaan." : a === "MicSetupError" ? s.message : "Mikrofonia ei voitu käynnistää. Lataa sivu uudelleen ja yritä vielä kerran.";
 }
-class cv {
-  constructor(a = (o) => Wp(o, $f)) {
+class hv {
+  constructor(a = (o) => Jp(o, Of)) {
     this.opener = a;
   }
   opener;
@@ -7756,11 +7784,11 @@ class cv {
       return f.stop(), null;
     this.mic = f;
     try {
-      this.loop = new rv(f, { ...o });
+      this.loop = new lv(f, { ...o });
       const m = () => {
         this.mic === f && (this.stop(), c());
       }, E = this.listeners = new AbortController();
-      return f.stream.getTracks().forEach((L) => L.addEventListener("ended", m, { once: !0, signal: E.signal })), f.context.addEventListener?.("statechange", () => {
+      return f.stream.getTracks().forEach((P) => P.addEventListener("ended", m, { once: !0, signal: E.signal })), f.context.addEventListener?.("statechange", () => {
         f.context.state !== "running" && m();
       }, { signal: E.signal }), this.loop.start(), { label: f.label, deviceId: f.deviceId, channels: f.channelCount, sampleRate: f.context.sampleRate, fallback: p };
     } catch (m) {
@@ -7790,7 +7818,7 @@ function If(s, a) {
   return s !== "on" ? s : !a || a.status === "silent" ? "silent" : a.status === "pitch" ? "pitch" : a.status === "off-pitch" ? "untuned" : "noise";
 }
 const Hd = (s) => Math.max(0, Math.min(1, (or(s) + 60) / 60));
-function dv(s) {
+function mv(s) {
   const a = [...s].sort((c, d) => c - d), o = a[Math.min(a.length - 1, Math.floor(a.length * 0.95))] ?? 2e-3;
   return { threshold: Math.min(0.15, Math.max(3e-3, o * 3)), noise: o, loud: o > 0.04 };
 }
@@ -7815,7 +7843,7 @@ function Aa(s) {
   return a === "reference-audio-resume-timeout" || a === "reference-audio-not-running" ? "Selaimen äänimoottori ei käynnistynyt. Tarkista, ettei Safari-välilehti ole mykistetty, ja kokeile mallisoittoa uudelleen. Tarvittaessa lataa sivu uudelleen." : s instanceof Error && s.name === "NotAllowedError" ? "Safari esti äänentoiston käynnistämisen. Käynnistä soitto uudelleen painikkeesta ja tarkista sivuston ääniasetukset." : "Mallisoitto ei käynnistynyt. Tarkista selaimen ja tietokoneen ääniasetukset ja yritä uudelleen.";
 }
 class rs {
-  constructor(a = $f) {
+  constructor(a = Of) {
     this.provide = a;
   }
   provide;
@@ -7836,14 +7864,14 @@ class rs {
     if (await go(d), c !== this.token) return !1;
     const f = d.createGain();
     f.connect(d.destination), this.master = f;
-    const p = Array.from({ length: 12 }, (L, v) => 1 / (v + 1) ** 1.3), m = d.createPeriodicWave?.(new Float32Array([0, ...p.map(() => 0)]), new Float32Array([0, ...p]));
-    return a.forEach((L, v) => {
-      const j = d.createOscillator(), M = d.createGain(), O = d.currentTime + 0.05 + v * 0.8;
-      m ? j.setPeriodicWave(m) : j.type = "triangle", j.frequency.value = ko(L), M.gain.setValueAtTime(0, O), M.gain.linearRampToValueAtTime(0.22, O + 0.012), M.gain.exponentialRampToValueAtTime(1e-3, O + 0.7), j.connect(M), M.connect(f), j.start(O), j.stop(O + 0.72), o && this.noteTimers.push(setTimeout(() => {
+    const p = Array.from({ length: 12 }, (P, v) => 1 / (v + 1) ** 1.3), m = d.createPeriodicWave?.(new Float32Array([0, ...p.map(() => 0)]), new Float32Array([0, ...p]));
+    return a.forEach((P, v) => {
+      const j = d.createOscillator(), T = d.createGain(), R = d.currentTime + 0.05 + v * 0.8;
+      m ? j.setPeriodicWave(m) : j.type = "triangle", j.frequency.value = ko(P), T.gain.setValueAtTime(0, R), T.gain.linearRampToValueAtTime(0.22, R + 0.012), T.gain.exponentialRampToValueAtTime(1e-3, R + 0.7), j.connect(T), T.connect(f), j.start(R), j.stop(R + 0.72), o && this.noteTimers.push(setTimeout(() => {
         c === this.token && o(v);
       }, 50 + v * 800));
-    }), !await new Promise((L) => {
-      this.settle = L, this.timer = setTimeout(() => L(!0), a.length * 800 + 350);
+    }), !await new Promise((P) => {
+      this.settle = P, this.timer = setTimeout(() => P(!0), a.length * 800 + 350);
     }) || c !== this.token ? !1 : (this.settle = void 0, this.noteTimers.forEach(clearTimeout), this.noteTimers = [], f.disconnect(), this.master = void 0, !0);
   }
   /**
@@ -7858,24 +7886,24 @@ class rs {
     if (await go(p), f !== this.token) return !1;
     const m = 60 / Math.max(40, Math.min(140, o)), E = p.createGain();
     E.connect(p.destination), this.master = E;
-    const L = Array.from({ length: 12 }, (P, w) => 1 / (w + 1) ** 1.3), v = p.createPeriodicWave?.(
-      new Float32Array([0, ...L.map(() => 0)]),
-      new Float32Array([0, ...L])
+    const P = Array.from({ length: 12 }, (A, w) => 1 / (w + 1) ** 1.3), v = p.createPeriodicWave?.(
+      new Float32Array([0, ...P.map(() => 0)]),
+      new Float32Array([0, ...P])
     ), j = p.currentTime + 0.05;
-    let M = 0;
-    return a.forEach((P, w) => {
-      if (!Number.isFinite(P.beat) || P.beat < 0 || !Number.isFinite(P.duration) || P.duration <= 0)
+    let T = 0;
+    return a.forEach((A, w) => {
+      if (!Number.isFinite(A.beat) || A.beat < 0 || !Number.isFinite(A.duration) || A.duration <= 0)
         throw new Error("Virheellinen melodian aika-arvo.");
-      const S = j + P.beat * m, z = P.duration * m, T = S + Math.max(0.08, z * 0.94), K = p.createOscillator(), B = p.createGain();
-      v ? K.setPeriodicWave(v) : K.type = "triangle", K.frequency.value = ko(P.midi), B.gain.setValueAtTime(0, S), B.gain.linearRampToValueAtTime(0.22, S + 0.012), B.gain.exponentialRampToValueAtTime(1e-3, T - 0.01), K.connect(B), B.connect(E), K.start(S), K.stop(T), c && this.noteTimers.push(setTimeout(() => {
+      const S = j + A.beat * m, z = A.duration * m, C = S + Math.max(0.08, z * 0.94), K = p.createOscillator(), B = p.createGain();
+      v ? K.setPeriodicWave(v) : K.type = "triangle", K.frequency.value = ko(A.midi), B.gain.setValueAtTime(0, S), B.gain.linearRampToValueAtTime(0.22, S + 0.012), B.gain.exponentialRampToValueAtTime(1e-3, C - 0.01), K.connect(B), B.connect(E), K.start(S), K.stop(C), c && this.noteTimers.push(setTimeout(() => {
         f === this.token && c(w);
-      }, 50 + P.beat * m * 1e3));
-      const H = a[w + 1]?.beat ?? 1 / 0;
-      d && H > P.beat + P.duration + 0.02 && this.noteTimers.push(setTimeout(() => {
+      }, 50 + A.beat * m * 1e3));
+      const U = a[w + 1]?.beat ?? 1 / 0;
+      d && U > A.beat + A.duration + 0.02 && this.noteTimers.push(setTimeout(() => {
         f === this.token && d();
-      }, 50 + P.beat * m * 1e3 + z * 1e3)), M = Math.max(M, P.beat + P.duration);
-    }), !await new Promise((P) => {
-      this.settle = P, this.timer = setTimeout(() => P(!0), 50 + M * m * 1e3 + 150);
+      }, 50 + A.beat * m * 1e3 + z * 1e3)), T = Math.max(T, A.beat + A.duration);
+    }), !await new Promise((A) => {
+      this.settle = A, this.timer = setTimeout(() => A(!0), 50 + T * m * 1e3 + 150);
     }) || f !== this.token ? !1 : (this.settle = void 0, this.noteTimers.forEach(clearTimeout), this.noteTimers = [], E.disconnect(), this.master = void 0, !0);
   }
   /**
@@ -7895,29 +7923,29 @@ class rs {
     const p = f.createGain();
     p.connect(f.destination), this.master = p;
     const m = Array.from({ length: 12 }, (w, S) => 1 / (S + 1) ** 1.3), E = f.createPeriodicWave?.(new Float32Array([0, ...m.map(() => 0)]), new Float32Array([0, ...m]));
-    let L = 60 / Math.max(40, Math.min(140, c));
+    let P = 60 / Math.max(40, Math.min(140, c));
     this.adjustLoopTempo = (w) => {
-      d === this.token && Number.isFinite(w) && (L = 60 / Math.max(40, Math.min(140, w)));
+      d === this.token && Number.isFinite(w) && (P = 60 / Math.max(40, Math.min(140, w)));
     };
     const v = 1.6;
-    let j = f.currentTime + 0.05, M = 0;
-    const O = [], P = () => {
+    let j = f.currentTime + 0.05, T = 0;
+    const R = [], A = () => {
       if (d === this.token) {
         if (j < f.currentTime - 0.02) {
-          const w = Math.ceil((f.currentTime - j) / L);
-          j += w * L, M = (M + w) % a.length, O.length = 0;
+          const w = Math.ceil((f.currentTime - j) / P);
+          j += w * P, T = (T + w) % a.length, R.length = 0;
         }
         for (; j < f.currentTime + v; ) {
-          const w = a[M], S = M, z = j, T = f.createOscillator(), K = f.createGain();
-          E ? T.setPeriodicWave(E) : T.type = "triangle", T.frequency.value = ko(w), K.gain.setValueAtTime(0, z), K.gain.linearRampToValueAtTime(0.22, z + 0.012), K.gain.exponentialRampToValueAtTime(1e-3, z + L * 0.975), T.connect(K), K.connect(p), T.start(z), T.stop(z + L * 0.985), O.push({ at: z, index: S }), j += L, M = (M + 1) % a.length;
+          const w = a[T], S = T, z = j, C = f.createOscillator(), K = f.createGain();
+          E ? C.setPeriodicWave(E) : C.type = "triangle", C.frequency.value = ko(w), K.gain.setValueAtTime(0, z), K.gain.linearRampToValueAtTime(0.22, z + 0.012), K.gain.exponentialRampToValueAtTime(1e-3, z + P * 0.975), C.connect(K), K.connect(p), C.start(z), C.stop(z + P * 0.985), R.push({ at: z, index: S }), j += P, T = (T + 1) % a.length;
         }
-        for (; O.length && O[0].at <= f.currentTime + 0.01; ) {
-          const w = O.shift();
+        for (; R.length && R[0].at <= f.currentTime + 0.01; ) {
+          const w = R.shift();
           o?.(w.index);
         }
       }
     };
-    return P(), this.loopTick = setInterval(P, 25), new Promise((w) => {
+    return A(), this.loopTick = setInterval(A, 25), new Promise((w) => {
       this.settle = w;
     });
   }
@@ -7951,7 +7979,7 @@ const Gd = ci("A · Melodian alku", [
   [2, 5, 1],
   [3, 7, 1],
   [3, 7, 4]
-]), fv = ci("C · Jatko", [
+]), pv = ci("C · Jatko", [
   [2, 5, 1],
   [2, 7, 1],
   [2, 7, 1],
@@ -7972,7 +8000,7 @@ const Gd = ci("A · Melodian alku", [
   [4, 5, 1],
   [4, 5, 1],
   [4, 3, 4]
-]), hv = ci("Oma lisä: B ratkeaa C:hen", [
+]), vv = ci("Oma lisä: B ratkeaa C:hen", [
   [3, 5, 1],
   [2, 2, 1],
   [2, 4, 1],
@@ -7995,7 +8023,7 @@ const Gd = ci("A · Melodian alku", [
   [5, 10, 1],
   [5, 8, 1],
   [5, 5, 4]
-]), mv = {
+]), kv = {
   wayfaring: {
     id: "wayfaring",
     title: "Wayfaring Stranger",
@@ -8004,7 +8032,7 @@ const Gd = ci("A · Melodian alku", [
     tonic: 9,
     permitted: [9, 0, 2, 4, 7],
     fragments: [Gd, Wd],
-    whole: jo("Melodia · A + B + C", Gd, Wd, fv),
+    whole: jo("Melodia · A + B + C", Gd, Wd, pv),
     source: "https://hymnary.org/tune/wayfaring_stranger",
     note: "Sävelkulku perustuu perinteisen melodian 15-säveliseen alkumotiiviin. Rytmi on tätä harjoitusta varten itse laadittu: kyse ei ole tietyn levytyksen tai nuottisovituksen tarkasta versiosta."
   },
@@ -8017,7 +8045,7 @@ const Gd = ci("A · Melodian alku", [
     permitted: [0, 2, 4, 5, 7, 9, 11],
     fragments: [Qd, Yd],
     whole: jo("Ukko Nooa · A + B", Qd, Yd),
-    bonus: hv,
+    bonus: vv,
     source: "https://aoe.fi/api/v1/download/file/opisavellajitjaasteikothankkeentehtavapaketti1-1701684466136.pdf",
     note: "Lähde: Opi sävellajit ja asteikot (2023), s. 56, Ukko Nooan alku C-duurissa. Tässä soitetaan oktaavia alempaa samalla säveljonolla ja rytmillä. Erillinen B → C -täydennys on itse sävelletty."
   },
@@ -8034,75 +8062,75 @@ const Gd = ci("A · Melodian alku", [
     note: "Alkuperäinen harjoitusmelodia opettaa liikkumaan A-mollipentatonisen position 1 ja position 2 välillä. Ei ole osa Wayfaring Stranger -sävelmää."
   }
 };
-function pv(s) {
+function yv(s) {
   return s.events.filter((a) => a.position !== null).map((a) => ({ midi: a.position.midi, beat: a.beat, duration: a.duration }));
 }
 const Zd = ["e", "B", "G", "D", "A", "E"];
 function Wo({ pieceId: s, stage: a, onBeforePlay: o, stopHandleRef: c }) {
-  const d = mv[s], [f, p] = A.useState(a === "fingering" ? "a" : "whole"), [m, E] = A.useState(d.tempo), [L, v] = A.useState(!1), [j, M] = A.useState(!1), [O, P] = A.useState(a !== "memory"), [w, S] = A.useState(!1), [z, T] = A.useState(null), [K, B] = A.useState(""), H = A.useRef(new rs()), I = A.useRef(0);
-  function _() {
-    I.current++, H.current.stop(), S(!1), T(null);
+  const d = kv[s], [f, p] = _.useState(a === "fingering" ? "a" : "whole"), [m, E] = _.useState(d.tempo), [P, v] = _.useState(!1), [j, T] = _.useState(!1), [R, A] = _.useState(a !== "memory"), [w, S] = _.useState(!1), [z, C] = _.useState(null), [K, B] = _.useState(""), U = _.useRef(new rs()), F = _.useRef(0);
+  function M() {
+    F.current++, U.current.stop(), S(!1), C(null);
   }
-  A.useEffect(() => {
-    c && (c.current = _);
+  _.useEffect(() => {
+    c && (c.current = M);
     const y = () => {
-      document.hidden && _();
+      document.hidden && M();
     };
     return document.addEventListener("visibilitychange", y), () => {
-      document.removeEventListener("visibilitychange", y), I.current++, H.current.stop(), c && (c.current = null);
+      document.removeEventListener("visibilitychange", y), F.current++, U.current.stop(), c && (c.current = null);
     };
   }, [c]);
   const $ = a === "memory" ? [{ id: "whole", name: "Koko melodia", clip: d.whole }] : [
     { id: "a", name: "Osa A", clip: d.fragments[0] },
     { id: "b", name: "Osa B", clip: d.fragments[1] },
     ...d.bonus ? [{ id: "bonus", name: "Oma B → C -lisä", clip: d.bonus }] : []
-  ], ie = $.find((y) => y.id === f) ?? $[0], J = ie.clip, ve = pv(J), Se = z === null ? null : ve[z]?.beat ?? null, X = Se === null ? null : J.events.find((y) => y.beat === Se)?.position ?? null, fe = A.useRef(null);
-  Nf(fe, ".melody-playing", w && Se !== null ? String(Se) : "", { enabled: L && j, playback: w });
-  const U = J.beats / 4, ae = [...new Map(J.events.filter((y) => y.position).map((y) => [Ue(y.position), y.position])).values()], ue = ae.map((y) => y.fret), W = ae.filter((y) => O || X?.string === y.string && X.fret === y.fret).map((y) => ({
+  ], ie = $.find((y) => y.id === f) ?? $[0], Z = ie.clip, je = yv(Z), Ee = z === null ? null : je[z]?.beat ?? null, J = Ee === null ? null : Z.events.find((y) => y.beat === Ee)?.position ?? null, de = _.useRef(null);
+  Nf(de, ".melody-playing", w && Ee !== null ? String(Ee) : "", { enabled: P && j, playback: w });
+  const H = Z.beats / 4, ce = [...new Map(Z.events.filter((y) => y.position).map((y) => [Ue(y.position), y.position])).values()], oe = ce.map((y) => y.fret), W = ce.filter((y) => R || J?.string === y.string && J.fret === y.fret).map((y) => ({
     ...y,
-    label: be(y.midi),
-    kind: X?.string === y.string && X.fret === y.fret ? "playing" : Be(y.midi) === d.tonic ? "answer" : "shape"
-  })), le = {
-    strings: [...new Set(ae.map((y) => y.string))],
-    min: Math.min(...ue),
-    max: Math.max(...ue),
+    label: Pe(y.midi),
+    kind: J?.string === y.string && J.fret === y.fret ? "playing" : Be(y.midi) === d.tonic ? "answer" : "shape"
+  })), ue = {
+    strings: [...new Set(ce.map((y) => y.string))],
+    min: Math.min(...oe),
+    max: Math.max(...oe),
     fixed: "box"
   };
   async function ee() {
     if (w) {
-      _();
+      M();
       return;
     }
     o?.();
-    const y = ++I.current;
-    H.current.stop(), S(!0), T(null), B("");
+    const y = ++F.current;
+    U.current.stop(), S(!0), C(null), B("");
     try {
-      await H.current.playTimed(ve, m, (te) => {
-        y === I.current && T(te);
+      await U.current.playTimed(je, m, (re) => {
+        y === F.current && C(re);
       }, () => {
-        y === I.current && T(null);
+        y === F.current && C(null);
       });
-    } catch (te) {
-      y === I.current && B(Aa(te));
+    } catch (re) {
+      y === F.current && B(Aa(re));
     } finally {
-      y === I.current && (S(!1), T(null));
+      y === F.current && (S(!1), C(null));
     }
   }
   function x(y) {
-    _(), B(""), p(y);
+    M(), B(""), p(y);
   }
   return /* @__PURE__ */ r.jsx("section", { className: "melody-practice", "aria-label": `Melodiaharjoitus: ${d.title}`, children: /* @__PURE__ */ r.jsxs("details", { onToggle: (y) => {
-    const te = y.currentTarget.open;
-    v(te), te || _();
+    const re = y.currentTarget.open;
+    v(re), re || M();
   }, children: [
     /* @__PURE__ */ r.jsx("summary", { children: a === "memory" ? `Valinnainen: pidempi melodia muistista · ${d.title}` : `Valinnainen melodiaharjoitus · ${d.title}` }),
-    L && /* @__PURE__ */ r.jsxs("div", { className: "melody-practice-content", children: [
+    P && /* @__PURE__ */ r.jsxs("div", { className: "melody-practice-content", children: [
       /* @__PURE__ */ r.jsx("p", { className: "eyebrow", children: a === "memory" ? "PIDEMPI MELODIA · MUISTISTA" : "HARJOITTELE MELODIAA OTELAUDALLA" }),
       /* @__PURE__ */ r.jsx("h4", { children: d.title }),
       /* @__PURE__ */ r.jsxs("p", { className: "melody-subtitle", children: [
         d.qualifier,
         " · 4/4 · ",
-        U.toString().replace(".", ","),
+        H.toString().replace(".", ","),
         " tahtia ",
         a === "memory" ? "yhdistetyssä melodiassa" : "valitussa osassa"
       ] }),
@@ -8131,55 +8159,55 @@ function Wo({ pieceId: s, stage: a, onBeforePlay: o, stopHandleRef: c }) {
         /* @__PURE__ */ r.jsxs("label", { children: [
           "Tempo",
           /* @__PURE__ */ r.jsx("select", { value: m, onChange: (y) => {
-            _(), E(Number(y.target.value));
-          }, children: [60, 75, 84, 96, 108].concat([d.tempo]).sort((y, te) => y - te).filter((y, te, he) => he.indexOf(y) === te).map((y) => /* @__PURE__ */ r.jsxs("option", { value: y, children: [
+            M(), E(Number(y.target.value));
+          }, children: [60, 75, 84, 96, 108].concat([d.tempo]).sort((y, re) => y - re).filter((y, re, he) => he.indexOf(y) === re).map((y) => /* @__PURE__ */ r.jsxs("option", { value: y, children: [
             y,
             " BPM"
           ] }, y)) })
         ] }),
-        /* @__PURE__ */ r.jsx("button", { type: "button", "aria-pressed": j, onClick: () => M((y) => !y), children: j ? "Piilota tabulatuuri" : "Näytä tabulatuuri" })
+        /* @__PURE__ */ r.jsx("button", { type: "button", "aria-pressed": j, onClick: () => T((y) => !y), children: j ? "Piilota tabulatuuri" : "Näytä tabulatuuri" })
       ] }),
       K && /* @__PURE__ */ r.jsx("p", { role: "alert", className: "error", children: K }),
-      /* @__PURE__ */ r.jsx("p", { className: "melody-now", "aria-live": "polite", children: w && z !== null ? `Nyt soi ${be(ve[z].midi)} · ${Zd[X.string]}-kieli, ${X.fret}. nauha` : w ? "Melodia soi kerran ja pysähtyy itsestään." : "Kuuntele malli tai soita katkelma itse." }),
+      /* @__PURE__ */ r.jsx("p", { className: "melody-now", "aria-live": "polite", children: w && z !== null ? `Nyt soi ${Pe(je[z].midi)} · ${Zd[J.string]}-kieli, ${J.fret}. nauha` : w ? "Melodia soi kerran ja pysähtyy itsestään." : "Kuuntele malli tai soita katkelma itse." }),
       /* @__PURE__ */ r.jsxs("div", { className: "melody-board", "aria-label": "Melodian sävelet otelaudalla", children: [
-        /* @__PURE__ */ r.jsx(ui, { area: le, marks: W, disabled: !0, follow: "playing", playback: w, caption: `${d.title}, ${ie.name}` }),
+        /* @__PURE__ */ r.jsx(ui, { area: ue, marks: W, disabled: !0, follow: "playing", playback: w, caption: `${d.title}, ${ie.name}` }),
         /* @__PURE__ */ r.jsxs("div", { className: "melody-board-actions", children: [
           /* @__PURE__ */ r.jsx(
             "button",
             {
               type: "button",
-              "aria-pressed": O,
-              onClick: () => P((y) => !y),
-              children: O ? "Piilota otelaudan sävelvihjeet" : "Näytä otelaudan sävelvihjeet"
+              "aria-pressed": R,
+              onClick: () => A((y) => !y),
+              children: R ? "Piilota otelaudan sävelvihjeet" : "Näytä otelaudan sävelvihjeet"
             }
           ),
           /* @__PURE__ */ r.jsx("p", { className: "tools-note", children: "Keltainen korostus kertoo soivan sävelen sekä oikean kielen ja nauhan. Muistiharjoituksessa muut sävelet voi pitää piilossa." })
         ] })
       ] }),
-      j && /* @__PURE__ */ r.jsxs("div", { ref: fe, className: "melody-tab-scroll", tabIndex: 0, role: "region", "aria-label": "Melodian tabulatuuri", children: [
+      j && /* @__PURE__ */ r.jsxs("div", { ref: de, className: "melody-tab-scroll", tabIndex: 0, role: "region", "aria-label": "Melodian tabulatuuri", children: [
         /* @__PURE__ */ r.jsxs("table", { className: "melody-tab", "aria-label": `${d.title}, ${ie.name}, kitaratabulatuuri`, children: [
           /* @__PURE__ */ r.jsx("thead", { children: /* @__PURE__ */ r.jsxs("tr", { children: [
             /* @__PURE__ */ r.jsx("th", { scope: "col", children: "Kieli" }),
-            J.events.map((y, te) => /* @__PURE__ */ r.jsxs("th", { scope: "col", className: y.beat % 4 === 0 ? "bar-start" : "", children: [
+            Z.events.map((y, re) => /* @__PURE__ */ r.jsxs("th", { scope: "col", className: y.beat % 4 === 0 ? "bar-start" : "", children: [
               /* @__PURE__ */ r.jsx("span", { className: "melody-bar", children: y.beat % 4 === 0 ? `T${Math.floor(y.beat / 4) + 1}` : "·" }),
               /* @__PURE__ */ r.jsx("span", { className: "melody-duration", children: y.duration === 1 ? "♩" : `${y.duration} iskua` })
-            ] }, te))
+            ] }, re))
           ] }) }),
-          /* @__PURE__ */ r.jsx("tbody", { children: Zd.map((y, te) => /* @__PURE__ */ r.jsxs("tr", { children: [
+          /* @__PURE__ */ r.jsx("tbody", { children: Zd.map((y, re) => /* @__PURE__ */ r.jsxs("tr", { children: [
             /* @__PURE__ */ r.jsx("th", { scope: "row", children: y }),
-            J.events.map((he, we) => {
-              const G = he.position?.string === te, V = G && Se === he.beat;
+            Z.events.map((he, Se) => {
+              const G = he.position?.string === re, V = G && Ee === he.beat;
               return /* @__PURE__ */ r.jsx(
                 "td",
                 {
                   className: `${he.beat % 4 === 0 ? "bar-start " : ""}${V ? "melody-playing " : ""}${G && Be(he.position.midi) === d.tonic ? "melody-root" : ""}`,
-                  "aria-label": G ? `${y}-kieli, ${he.position.fret}. nauha, ${be(he.position.midi)}` : void 0,
+                  "aria-label": G ? `${y}-kieli, ${he.position.fret}. nauha, ${Pe(he.position.midi)}` : void 0,
                   children: G ? he.position.fret : "—"
                 },
-                we
+                Se
               );
             })
-          ] }, te)) })
+          ] }, re)) })
         ] }),
         /* @__PURE__ */ r.jsx("p", { className: "tools-note", children: "e = ohut kieli, E = paksu kieli. ♩ = yksi isku. Muut arvot ilmoittavat keston iskuina; tyhjät kentät tarkoittavat ettei kyseistä kieltä soiteta. Sävelen soidessa sen nauha korostuu." })
       ] }),
@@ -8188,18 +8216,18 @@ function Wo({ pieceId: s, stage: a, onBeforePlay: o, stopHandleRef: c }) {
     ] })
   ] }) });
 }
-const Ro = Fe.fingeringBoxes(9, Fe.SCALES.mp, "pentatonic", [1, 2]), Df = [...new Map(Ro.flatMap((s) => s.positions[0].strings.flatMap((a, o) => a.map((c) => {
+const Ro = Ie.fingeringBoxes(9, Ie.SCALES.mp, "pentatonic", [1, 2]), Df = [...new Map(Ro.flatMap((s) => s.positions[0].strings.flatMap((a, o) => a.map((c) => {
   const d = Oe(o, c);
   return [Ue(d), d];
-})))).values()].sort((s, a) => s.midi - a.midi || a.string - s.string), Ea = [5, 4, 3, 2, 1, 0].flatMap((s) => Df.filter((a) => a.string === s).sort((a, o) => a.fret - o.fret)), Oo = [
+})))).values()].sort((s, a) => s.midi - a.midi || a.string - s.string), Ea = [5, 4, 3, 2, 1, 0].flatMap((s) => Df.filter((a) => a.string === s).sort((a, o) => a.fret - o.fret)), $o = [
   ...Ea,
   ...Ea.slice(1, -1).reverse()
-], vv = [...Oo, Ea[0]], qd = new Set(
+], gv = [...$o, Ea[0]], qd = new Set(
   Ro[0].positions[0].strings.flatMap((s, a) => s.map((o) => {
     const c = Oe(a, o);
     return Ue(c);
   })).filter((s) => Ro[1].positions[0].strings.flatMap((a, o) => a.map((c) => Ue(Oe(o, c)))).includes(s))
-), kv = [
+), jv = [
   Oe(5, 5),
   Oe(5, 8),
   Oe(5, 10),
@@ -8228,7 +8256,7 @@ function tf() {
     return 0;
   }
 }
-function yv() {
+function xv() {
   try {
     const s = Number(localStorage.getItem(Bf));
     return Number.isInteger(s) && s >= 40 && s <= 140 && s % 5 === 0 ? s : 75;
@@ -8236,63 +8264,63 @@ function yv() {
     return 75;
   }
 }
-function gv({ onBack: s, onPosition: a }) {
-  const [o, c] = A.useState(tf), [d, f] = A.useState(tf), [p, m] = A.useState(!1), [E, L] = A.useState("roots"), [v, j] = A.useState(yv), [M, O] = A.useState(null), [P, w] = A.useState(null), [S, z] = A.useState(""), T = A.useRef(new rs()), K = A.useRef(0), B = A.useRef(null), H = P === null ? null : Oo[P];
-  function I() {
-    B.current?.(), K.current++, T.current.stop(), O(null), w(null);
+function Sv({ onBack: s, onPosition: a }) {
+  const [o, c] = _.useState(tf), [d, f] = _.useState(tf), [p, m] = _.useState(!1), [E, P] = _.useState("roots"), [v, j] = _.useState(xv), [T, R] = _.useState(null), [A, w] = _.useState(null), [S, z] = _.useState(""), C = _.useRef(new rs()), K = _.useRef(0), B = _.useRef(null), U = A === null ? null : $o[A];
+  function F() {
+    B.current?.(), K.current++, C.current.stop(), R(null), w(null);
   }
-  A.useEffect(() => {
-    const X = () => {
-      document.hidden && (K.current++, T.current.stop(), O(null), w(null));
+  _.useEffect(() => {
+    const J = () => {
+      document.hidden && (K.current++, C.current.stop(), R(null), w(null));
     };
-    return document.addEventListener("visibilitychange", X), () => {
-      document.removeEventListener("visibilitychange", X), K.current++, T.current.stop();
+    return document.addEventListener("visibilitychange", J), () => {
+      document.removeEventListener("visibilitychange", J), K.current++, C.current.stop();
     };
   }, []);
-  async function _(X) {
+  async function M(J) {
     B.current?.();
-    const fe = ++K.current;
-    T.current.stop(), w(null), z(""), O(X);
+    const de = ++K.current;
+    C.current.stop(), w(null), z(""), R(J);
     try {
-      X === "transition" ? await T.current.play(kv.map((U) => U.midi)) : X === "once" ? await T.current.play(vv.map((U) => U.midi)) : await T.current.loop(Oo.map((U) => U.midi), (U) => {
-        fe === K.current && w(U);
+      J === "transition" ? await C.current.play(jv.map((H) => H.midi)) : J === "once" ? await C.current.play(gv.map((H) => H.midi)) : await C.current.loop($o.map((H) => H.midi), (H) => {
+        de === K.current && w(H);
       }, v);
-    } catch (U) {
-      fe === K.current && z(Aa(U));
+    } catch (H) {
+      de === K.current && z(Aa(H));
     } finally {
-      fe === K.current && (O(null), w(null));
+      de === K.current && (R(null), w(null));
     }
   }
-  function $(X) {
-    const fe = Math.max(40, Math.min(140, X));
-    j(fe), T.current.setLoopTempo(fe);
+  function $(J) {
+    const de = Math.max(40, Math.min(140, J));
+    j(de), C.current.setLoopTempo(de);
     try {
-      localStorage.setItem(Bf, String(fe));
+      localStorage.setItem(Bf, String(de));
     } catch {
     }
   }
-  function ie(X) {
-    X > o || (I(), f(X), m(!1), L("roots"));
+  function ie(J) {
+    J > o || (F(), f(J), m(!1), P("roots"));
   }
-  function J() {
-    I();
-    const X = Math.min(4, d + 1);
-    if (f(X), m(!1), L("roots"), X > o) {
-      c(X);
+  function Z() {
+    F();
+    const J = Math.min(4, d + 1);
+    if (f(J), m(!1), P("roots"), J > o) {
+      c(J);
       try {
-        localStorage.setItem(zf, String(X));
+        localStorage.setItem(zf, String(J));
       } catch {
       }
     }
   }
-  const ve = (X, fe) => d < 2 || d === 2 && p && qd.has(fe) || d === 3 && (E === "all" || E === "roots" && ef(X)), Se = Df.filter((X) => ve(X.midi, Ue(X))).map((X) => ({
-    ...X,
-    label: d < 2 || d === 2 && p || d === 3 && E === "all" ? be(X.midi) : "A",
-    kind: d < 2 && H?.string === X.string && H?.fret === X.fret ? "playing" : ef(X.midi) ? "answer" : qd.has(Ue(X)) ? "anchor" : "shape"
+  const je = (J, de) => d < 2 || d === 2 && p && qd.has(de) || d === 3 && (E === "all" || E === "roots" && ef(J)), Ee = Df.filter((J) => je(J.midi, Ue(J))).map((J) => ({
+    ...J,
+    label: d < 2 || d === 2 && p || d === 3 && E === "all" ? Pe(J.midi) : "A",
+    kind: d < 2 && U?.string === J.string && U?.fret === J.fret ? "playing" : ef(J.midi) ? "answer" : qd.has(Ue(J)) ? "anchor" : "shape"
   }));
   return /* @__PURE__ */ r.jsxs("section", { className: "scale-journey scale-bridge", "aria-labelledby": "scale-path-title", children: [
     /* @__PURE__ */ r.jsx("button", { type: "button", className: "back-link", onClick: () => {
-      I(), s();
+      F(), s();
     }, children: "← Oppimispolut" }),
     /* @__PURE__ */ r.jsx("p", { className: "eyebrow", children: "SKAALAT JA MOODIT · VAIHE 3" }),
     /* @__PURE__ */ r.jsx("h2", { id: "scale-path-title", children: "A-mollipentatoninen · positioiden 1 ja 2 yhdistäminen" }),
@@ -8304,27 +8332,27 @@ function gv({ onBack: s, onPosition: a }) {
     ] }),
     /* @__PURE__ */ r.jsxs("div", { className: "action-row", role: "group", "aria-label": "Valitse opeteltava positio", children: [
       /* @__PURE__ */ r.jsx("button", { type: "button", onClick: () => {
-        I(), a(1);
+        F(), a(1);
       }, children: "Positio 1" }),
       /* @__PURE__ */ r.jsx("button", { type: "button", onClick: () => {
-        I(), a(2);
+        F(), a(2);
       }, children: "Positio 2" }),
       /* @__PURE__ */ r.jsx("button", { type: "button", "aria-pressed": "true", onClick: () => ie(0), children: "Yhdistä 1 + 2" })
     ] }),
-    /* @__PURE__ */ r.jsx("nav", { className: "journey-steps", "aria-label": "Positioiden 1 ja 2 yhdistämisen harjoitukset", children: xo.map((X, fe) => /* @__PURE__ */ r.jsxs(
+    /* @__PURE__ */ r.jsx("nav", { className: "journey-steps", "aria-label": "Positioiden 1 ja 2 yhdistämisen harjoitukset", children: xo.map((J, de) => /* @__PURE__ */ r.jsxs(
       "button",
       {
         type: "button",
-        className: fe === d ? "journey-step current" : "journey-step",
-        "aria-current": fe === d ? "step" : void 0,
-        disabled: fe > o,
-        onClick: () => ie(fe),
+        className: de === d ? "journey-step current" : "journey-step",
+        "aria-current": de === d ? "step" : void 0,
+        disabled: de > o,
+        onClick: () => ie(de),
         children: [
-          /* @__PURE__ */ r.jsx("span", { className: "journey-index", children: fe > o ? "🔒" : fe < o ? "✓" : fe + 1 }),
-          /* @__PURE__ */ r.jsx("span", { children: X.title })
+          /* @__PURE__ */ r.jsx("span", { className: "journey-index", children: de > o ? "🔒" : de < o ? "✓" : de + 1 }),
+          /* @__PURE__ */ r.jsx("span", { children: J.title })
         ]
       },
-      X.title
+      J.title
     )) }),
     /* @__PURE__ */ r.jsxs("section", { className: "journey-lesson", "aria-labelledby": "lesson-title", children: [
       /* @__PURE__ */ r.jsxs("div", { className: "session-top", children: [
@@ -8373,32 +8401,32 @@ function gv({ onBack: s, onPosition: a }) {
             "button",
             {
               type: "button",
-              "aria-pressed": M === "whole",
-              onClick: () => M === "whole" ? I() : void _("whole"),
-              children: M === "whole" ? "■ Pysäytä koko asteikko" : "▶ Toista koko asteikko jatkuvasti"
+              "aria-pressed": T === "whole",
+              onClick: () => T === "whole" ? F() : void M("whole"),
+              children: T === "whole" ? "■ Pysäytä koko asteikko" : "▶ Toista koko asteikko jatkuvasti"
             }
           ),
           /* @__PURE__ */ r.jsx(
             "button",
             {
               type: "button",
-              "aria-pressed": M === "once",
-              onClick: () => M === "once" ? I() : void _("once"),
-              children: M === "once" ? "■ Pysäytä mallisoitto" : "▶ Kuuntele koko asteikko kerran"
+              "aria-pressed": T === "once",
+              onClick: () => T === "once" ? F() : void M("once"),
+              children: T === "once" ? "■ Pysäytä mallisoitto" : "▶ Kuuntele koko asteikko kerran"
             }
           ),
           /* @__PURE__ */ r.jsx(
             "button",
             {
               type: "button",
-              "aria-pressed": M === "transition",
-              onClick: () => M === "transition" ? I() : void _("transition"),
-              children: M === "transition" ? "■ Pysäytä siirtymäfraasi" : "▶ Kuuntele lyhyt siirtymäfraasi"
+              "aria-pressed": T === "transition",
+              onClick: () => T === "transition" ? F() : void M("transition"),
+              children: T === "transition" ? "■ Pysäytä siirtymäfraasi" : "▶ Kuuntele lyhyt siirtymäfraasi"
             }
           )
         ] }),
         d === 2 && /* @__PURE__ */ r.jsxs("div", { className: "action-row", children: [
-          /* @__PURE__ */ r.jsx("button", { type: "button", "aria-pressed": p, onClick: () => m((X) => !X), children: p ? "Piilota yhteiset sävelet" : "Näytä yhteiset sävelet" }),
+          /* @__PURE__ */ r.jsx("button", { type: "button", "aria-pressed": p, onClick: () => m((J) => !J), children: p ? "Piilota yhteiset sävelet" : "Näytä yhteiset sävelet" }),
           /* @__PURE__ */ r.jsx("button", { type: "button", onClick: () => ie(1), children: "← Palaa sormitukseen" })
         ] }),
         d === 3 && /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
@@ -8408,26 +8436,26 @@ function gv({ onBack: s, onPosition: a }) {
               { value: "roots", name: "Vain A-pohjasävelet" },
               { value: "all", name: "Molemmat positiot" },
               { value: "none", name: "Ei vihjeitä" }
-            ].map((X) => /* @__PURE__ */ r.jsxs("label", { children: [
+            ].map((J) => /* @__PURE__ */ r.jsxs("label", { children: [
               /* @__PURE__ */ r.jsx(
                 "input",
                 {
                   type: "radio",
                   name: "bridge-hints",
-                  value: X.value,
-                  checked: E === X.value,
-                  onChange: () => L(X.value)
+                  value: J.value,
+                  checked: E === J.value,
+                  onChange: () => P(J.value)
                 }
               ),
-              /* @__PURE__ */ r.jsx("span", { children: X.name })
-            ] }, X.value))
+              /* @__PURE__ */ r.jsx("span", { children: J.name })
+            ] }, J.value))
           ] }),
           /* @__PURE__ */ r.jsxs("div", { className: "action-row", children: [
-            /* @__PURE__ */ r.jsx("button", { type: "button", onClick: () => M === "once" ? I() : void _("once"), children: M === "once" ? "■ Pysäytä koko asteikko" : "▶ Kuuntele koko asteikko kerran" }),
-            /* @__PURE__ */ r.jsx("button", { type: "button", onClick: () => M === "transition" ? I() : void _("transition"), children: M === "transition" ? "■ Pysäytä siirtymäfraasi" : "▶ Kuuntele siirtymäfraasi" })
+            /* @__PURE__ */ r.jsx("button", { type: "button", onClick: () => T === "once" ? F() : void M("once"), children: T === "once" ? "■ Pysäytä koko asteikko" : "▶ Kuuntele koko asteikko kerran" }),
+            /* @__PURE__ */ r.jsx("button", { type: "button", onClick: () => T === "transition" ? F() : void M("transition"), children: T === "transition" ? "■ Pysäytä siirtymäfraasi" : "▶ Kuuntele siirtymäfraasi" })
           ] })
         ] }),
-        d !== 3 && /* @__PURE__ */ r.jsx("p", { className: "tools-note", role: "status", "aria-live": "polite", children: M === "whole" ? H && d < 2 ? `Nyt soi ${be(H.midi, !1, !0)} · ${Qt[H.string]}-kieli, nauha ${H.fret}.` : "Koko yhdistetyn asteikon toisto käynnissä. Pysäytä painikkeesta." : M === "once" ? "Koko asteikko soi kerran kuudella kielellä ylös ja alas." : M === "transition" ? "Lyhyt siirtymäfraasi soi kolmella paksuimmalla kielellä." : "Koko mallisoitto kattaa kaikki kuusi kieltä. Lyhyt siirtymäfraasi harjoittaa vain käsiaseman vaihtoa." }),
+        d !== 3 && /* @__PURE__ */ r.jsx("p", { className: "tools-note", role: "status", "aria-live": "polite", children: T === "whole" ? U && d < 2 ? `Nyt soi ${Pe(U.midi, !1, !0)} · ${Qt[U.string]}-kieli, nauha ${U.fret}.` : "Koko yhdistetyn asteikon toisto käynnissä. Pysäytä painikkeesta." : T === "once" ? "Koko asteikko soi kerran kuudella kielellä ylös ja alas." : T === "transition" ? "Lyhyt siirtymäfraasi soi kolmella paksuimmalla kielellä." : "Koko mallisoitto kattaa kaikki kuusi kieltä. Lyhyt siirtymäfraasi harjoittaa vain käsiaseman vaihtoa." }),
         S && /* @__PURE__ */ r.jsx("p", { role: "alert", className: "error", children: S }),
         /* @__PURE__ */ r.jsx(
           ui,
@@ -8435,8 +8463,8 @@ function gv({ onBack: s, onPosition: a }) {
             area: { strings: [0, 1, 2, 3, 4, 5], min: 5, max: 10, fixed: "box" },
             disabled: !0,
             follow: "playing",
-            playback: M,
-            marks: Se,
+            playback: T,
+            marks: Ee,
             caption: "A-mollipentatoninen, positiot 1 ja 2"
           }
         ),
@@ -8449,15 +8477,15 @@ function gv({ onBack: s, onPosition: a }) {
           {
             pieceId: "pentatonic-bridge",
             stage: d === 1 ? "fingering" : "memory",
-            onBeforePlay: I,
+            onBeforePlay: F,
             stopHandleRef: B
           },
           `bridge:${d}`
         ),
-        d === 3 && /* @__PURE__ */ r.jsx(Of, {}),
+        d === 3 && /* @__PURE__ */ r.jsx($f, {}),
         /* @__PURE__ */ r.jsxs("div", { className: "journey-next", children: [
           /* @__PURE__ */ r.jsx("p", { children: d === 0 ? "Etsi yhteiset sävelet jokaiselta kieleltä ennen siirtymistä varsinaiseen soittoon." : d === 1 ? "Jatka, kun pääset kolmella kielellä kumpaankin suuntaan ilman pysähdyksiä." : d === 2 ? "Jatka, kun löydät siirtymäkohdat ilman koko asteikon kuvaa." : "Jatka, kun olet soittanut kahden position välisiä fraaseja taustan päälle." }),
-          /* @__PURE__ */ r.jsx("button", { type: "button", className: "primary", onClick: J, children: d === 3 ? "Kirjaa yhdistäminen harjoitelluksi" : "Harjoiteltu, seuraava vaihe →" }),
+          /* @__PURE__ */ r.jsx("button", { type: "button", className: "primary", onClick: Z, children: d === 3 ? "Kirjaa yhdistäminen harjoitelluksi" : "Harjoiteltu, seuraava vaihe →" }),
           /* @__PURE__ */ r.jsx("p", { className: "tools-note", children: "Eteneminen perustuu omaan arvioosi, ei mikrofonilla mitattuun soittotulokseen." })
         ] })
       ] }),
@@ -8479,13 +8507,13 @@ function gv({ onBack: s, onPosition: a }) {
     ] })
   ] });
 }
-const Xr = "musiikin-kartta:skaalapolku:v1", ga = "musiikin-kartta:skaalapolku:position-2:v1", So = "musiikin-kartta:skaalapolku:position-3:v1", ja = "musiikin-kartta:skaalapolku:bridge-1-2:v1", Ca = "musiikin-kartta:skaalapolku:active-position:v1", Vf = "musiikin-kartta:skaalapolku:tempo:v1", rr = 75, $o = 40, Fo = 140;
-function jv() {
+const Xr = "musiikin-kartta:skaalapolku:v1", ga = "musiikin-kartta:skaalapolku:position-2:v1", So = "musiikin-kartta:skaalapolku:position-3:v1", ja = "musiikin-kartta:skaalapolku:bridge-1-2:v1", Ca = "musiikin-kartta:skaalapolku:active-position:v1", Vf = "musiikin-kartta:skaalapolku:tempo:v1", rr = 75, Oo = 40, Fo = 140;
+function wv() {
   try {
     const s = localStorage.getItem(Vf);
     if (s === null) return rr;
     const a = Number(s);
-    return Number.isInteger(a) && a >= $o && a <= Fo && a % 5 === 0 ? a : rr;
+    return Number.isInteger(a) && a >= Oo && a <= Fo && a % 5 === 0 ? a : rr;
   } catch {
     return rr;
   }
@@ -8517,62 +8545,62 @@ function No() {
     return 1;
   }
 }
-function xv() {
+function Nv() {
   try {
     return Nn(ga) === 4 && localStorage.getItem(Ca) === "bridge";
   } catch {
     return !1;
   }
 }
-function Sv({ onBack: s }) {
-  const [a, o] = A.useState(No), [c, d] = A.useState(xv), [f, p] = A.useState(() => ({
+function Ev({ onBack: s }) {
+  const [a, o] = _.useState(No), [c, d] = _.useState(Nv), [f, p] = _.useState(() => ({
     1: Nn(Xr),
     2: Nn(ga),
     3: Nn(So)
-  })), [m, E] = A.useState(() => Nn(No() === 3 ? So : No() === 2 ? ga : Xr)), L = f[a], [v, j] = A.useState(!1), [M, O] = A.useState("roots"), [P, w] = A.useState(jv), [S, z] = A.useState(null), [T, K] = A.useState(null), [B, H] = A.useState(""), I = A.useRef(new rs()), _ = A.useRef(0), $ = A.useRef(null);
+  })), [m, E] = _.useState(() => Nn(No() === 3 ? So : No() === 2 ? ga : Xr)), P = f[a], [v, j] = _.useState(!1), [T, R] = _.useState("roots"), [A, w] = _.useState(wv), [S, z] = _.useState(null), [C, K] = _.useState(null), [B, U] = _.useState(""), F = _.useRef(new rs()), M = _.useRef(0), $ = _.useRef(null);
   function ie(G) {
-    const V = Math.max($o, Math.min(Fo, G));
-    w(V), I.current.setLoopTempo(V);
+    const V = Math.max(Oo, Math.min(Fo, G));
+    w(V), F.current.setLoopTempo(V);
     try {
       localStorage.setItem(Vf, String(V));
     } catch {
     }
   }
-  function J() {
-    $.current?.(), _.current++, I.current.stop(), z(null), K(null);
+  function Z() {
+    $.current?.(), M.current++, F.current.stop(), z(null), K(null);
   }
-  A.useEffect(() => {
+  _.useEffect(() => {
     const G = () => {
-      document.hidden && (_.current++, I.current.stop(), z(null), K(null));
+      document.hidden && (M.current++, F.current.stop(), z(null), K(null));
     };
     return document.addEventListener("visibilitychange", G), () => {
-      document.removeEventListener("visibilitychange", G), _.current++, I.current.stop();
+      document.removeEventListener("visibilitychange", G), M.current++, F.current.stop();
     };
   }, []);
-  const ve = Fe.fingeringBoxes(9, Fe.SCALES.mp, "pentatonic", [a])[0].positions[0], Se = ve.strings.flatMap((G, V) => G.map((ne) => Oe(V, ne))).sort((G, V) => G.midi - V.midi || V.string - G.string), X = [...Se, ...Se.slice(1, -1).reverse()], fe = T === null ? null : X[T], U = a === 1 ? [69, 72, 69, 67, 64, 67, 69] : a === 2 ? [69, 72, 74, 72, 69, 67, 69] : [69, 72, 74, 76, 74, 72, 69], ae = ve.start, ue = ve.end, W = (G) => Be(G) === 9, le = (G) => m < 2 ? !0 : m === 2 ? v && W(G) : M === "scale" || M === "roots" && W(G), ee = Se.filter((G) => le(G.midi)).map((G) => ({
+  const je = Ie.fingeringBoxes(9, Ie.SCALES.mp, "pentatonic", [a])[0].positions[0], Ee = je.strings.flatMap((G, V) => G.map((te) => Oe(V, te))).sort((G, V) => G.midi - V.midi || V.string - G.string), J = [...Ee, ...Ee.slice(1, -1).reverse()], de = C === null ? null : J[C], H = a === 1 ? [69, 72, 69, 67, 64, 67, 69] : a === 2 ? [69, 72, 74, 72, 69, 67, 69] : [69, 72, 74, 76, 74, 72, 69], ce = je.start, oe = je.end, W = (G) => Be(G) === 9, ue = (G) => m < 2 ? !0 : m === 2 ? v && W(G) : T === "scale" || T === "roots" && W(G), ee = Ee.filter((G) => ue(G.midi)).map((G) => ({
     ...G,
-    label: m < 2 || m === 3 && M === "scale" ? be(G.midi) : "A",
-    kind: m < 2 && fe?.string === G.string && fe.fret === G.fret ? "playing" : W(G.midi) ? "answer" : "shape"
+    label: m < 2 || m === 3 && T === "scale" ? Pe(G.midi) : "A",
+    kind: m < 2 && de?.string === G.string && de.fret === G.fret ? "playing" : W(G.midi) ? "answer" : "shape"
   }));
   async function x(G) {
     $.current?.();
-    const V = ++_.current;
-    I.current.stop(), K(null), H(""), z(G);
+    const V = ++M.current;
+    F.current.stop(), K(null), U(""), z(G);
     try {
-      G === "phrase" ? await I.current.play(U) : await I.current.loop(X.map((ne) => ne.midi), (ne) => {
-        V === _.current && K(ne);
-      }, m === 2 ? P : rr);
-    } catch (ne) {
-      V === _.current && H(Aa(ne));
+      G === "phrase" ? await F.current.play(H) : await F.current.loop(J.map((te) => te.midi), (te) => {
+        V === M.current && K(te);
+      }, m === 2 ? A : rr);
+    } catch (te) {
+      V === M.current && U(Aa(te));
     } finally {
-      V === _.current && (z(null), K(null));
+      V === M.current && (z(null), K(null));
     }
   }
   function y() {
-    J();
+    Z();
     const G = Math.min(4, m + 1);
-    if (E(G), j(!1), O("roots"), G > L) {
-      p((ne) => ({ ...ne, [a]: G }));
+    if (E(G), j(!1), R("roots"), G > P) {
+      p((te) => ({ ...te, [a]: G }));
       const V = a === 1 ? Xr : a === 2 ? ga : So;
       try {
         localStorage.setItem(V, String(G));
@@ -8580,30 +8608,30 @@ function Sv({ onBack: s }) {
       }
     }
   }
-  function te(G) {
-    G > L || (J(), E(G), j(!1), O("roots"));
+  function re(G) {
+    G > P || (Z(), E(G), j(!1), R("roots"));
   }
   function he(G) {
     if (!(G === 2 && f[1] < 4) && !(G === 3 && Nn(ja) < 4)) {
-      J(), d(!1), o(G), E(f[G]), j(!1), O("roots"), H("");
+      Z(), d(!1), o(G), E(f[G]), j(!1), R("roots"), U("");
       try {
         localStorage.setItem(Ca, String(G));
       } catch {
       }
     }
   }
-  function we() {
+  function Se() {
     if (!(f[2] < 4)) {
-      J(), d(!0), j(!1), H("");
+      Z(), d(!0), j(!1), U("");
       try {
         localStorage.setItem(Ca, "bridge");
       } catch {
       }
     }
   }
-  return c ? /* @__PURE__ */ r.jsx(gv, { onBack: s, onPosition: he }) : /* @__PURE__ */ r.jsxs("section", { className: "scale-journey", "aria-labelledby": "scale-path-title", children: [
+  return c ? /* @__PURE__ */ r.jsx(Sv, { onBack: s, onPosition: he }) : /* @__PURE__ */ r.jsxs("section", { className: "scale-journey", "aria-labelledby": "scale-path-title", children: [
     /* @__PURE__ */ r.jsx("button", { type: "button", className: "back-link", onClick: () => {
-      J(), s();
+      Z(), s();
     }, children: "← Valitse harjoittelupolku" }),
     /* @__PURE__ */ r.jsxs("p", { className: "eyebrow", children: [
       "SKAALAT JA MOODIT · VAIHE ",
@@ -8619,9 +8647,9 @@ function Sv({ onBack: s }) {
       "Sävelet: ",
       /* @__PURE__ */ r.jsx("strong", { children: "A · C · D · E · G" }),
       " · Nauhat ",
-      ae,
+      ce,
       "–",
-      ue,
+      oe,
       " · 6 kieltä"
     ] }),
     /* @__PURE__ */ r.jsxs("div", { className: "action-row", role: "group", "aria-label": "Valitse opeteltava positio", children: [
@@ -8641,7 +8669,7 @@ function Sv({ onBack: s }) {
         {
           type: "button",
           disabled: f[2] < 4,
-          onClick: we,
+          onClick: Se,
           children: "Yhdistä 1 + 2"
         }
       ),
@@ -8662,10 +8690,10 @@ function Sv({ onBack: s }) {
         type: "button",
         className: V === m ? "journey-step current" : "journey-step",
         "aria-current": V === m ? "step" : void 0,
-        disabled: V > L,
-        onClick: () => te(V),
+        disabled: V > P,
+        onClick: () => re(V),
         children: [
-          /* @__PURE__ */ r.jsx("span", { className: "journey-index", children: V > L ? "🔒" : V < L ? "✓" : V + 1 }),
+          /* @__PURE__ */ r.jsx("span", { className: "journey-index", children: V > P ? "🔒" : V < P ? "✓" : V + 1 }),
           /* @__PURE__ */ r.jsx("span", { children: V === 4 ? `Positio ${a} harjoiteltu` : G.title })
         ]
       },
@@ -8698,13 +8726,13 @@ function Sv({ onBack: s }) {
             {
               type: "button",
               "aria-label": "Hidasta tempoa 5 BPM",
-              disabled: P <= $o,
-              onClick: () => ie(P - 5),
+              disabled: A <= Oo,
+              onClick: () => ie(A - 5),
               children: "− 5"
             }
           ),
           /* @__PURE__ */ r.jsxs("output", { "aria-live": "polite", "aria-label": "Nykyinen tempo", children: [
-            P,
+            A,
             " BPM"
           ] }),
           /* @__PURE__ */ r.jsx(
@@ -8712,12 +8740,12 @@ function Sv({ onBack: s }) {
             {
               type: "button",
               "aria-label": "Nopeuta tempoa 5 BPM",
-              disabled: P >= Fo,
-              onClick: () => ie(P + 5),
+              disabled: A >= Fo,
+              onClick: () => ie(A + 5),
               children: "+ 5"
             }
           ),
-          P !== rr && /* @__PURE__ */ r.jsx(
+          A !== rr && /* @__PURE__ */ r.jsx(
             "button",
             {
               type: "button",
@@ -8734,18 +8762,18 @@ function Sv({ onBack: s }) {
             {
               type: "button",
               "aria-pressed": S === "loop",
-              onClick: () => S === "loop" ? J() : void x("loop"),
+              onClick: () => S === "loop" ? Z() : void x("loop"),
               children: S === "loop" ? "■ Pysäytä asteikon toisto" : "▶ Toista asteikkoa jatkuvasti"
             }
           ),
-          a !== 1 && /* @__PURE__ */ r.jsx("button", { type: "button", onClick: () => S === "phrase" ? J() : void x("phrase"), children: S === "phrase" ? "■ Pysäytä fraasi" : "▶ Kuuntele mallifraasi" })
+          a !== 1 && /* @__PURE__ */ r.jsx("button", { type: "button", onClick: () => S === "phrase" ? Z() : void x("phrase"), children: S === "phrase" ? "■ Pysäytä fraasi" : "▶ Kuuntele mallifraasi" })
         ] }),
-        m !== 3 && /* @__PURE__ */ r.jsx("p", { className: "tools-note", role: "status", "aria-live": "polite", children: S === "loop" ? fe && m < 2 ? `Jatkuva toisto käynnissä · Nyt soi: ${be(fe.midi, !1, !0)} · ${Qt[fe.string]}-kieli, nauha ${fe.fret}.` : "Jatkuva toisto käynnissä. Pysäytä se painikkeesta." : "Toista asteikkoa ilman taukoa kierrosten välillä. Pysäytä painikkeesta tai vaihda vaihetta." }),
+        m !== 3 && /* @__PURE__ */ r.jsx("p", { className: "tools-note", role: "status", "aria-live": "polite", children: S === "loop" ? de && m < 2 ? `Jatkuva toisto käynnissä · Nyt soi: ${Pe(de.midi, !1, !0)} · ${Qt[de.string]}-kieli, nauha ${de.fret}.` : "Jatkuva toisto käynnissä. Pysäytä se painikkeesta." : "Toista asteikkoa ilman taukoa kierrosten välillä. Pysäytä painikkeesta tai vaihda vaihetta." }),
         B && /* @__PURE__ */ r.jsx("p", { className: "error", role: "alert", children: B }),
         m >= 1 && m <= 3 && /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
           m === 2 && /* @__PURE__ */ r.jsxs("div", { className: "action-row", children: [
             /* @__PURE__ */ r.jsx("button", { type: "button", "aria-pressed": v, onClick: () => j((G) => !G), children: v ? "Piilota pohjasävelet" : "Näytä pohjasävelet" }),
-            /* @__PURE__ */ r.jsx("button", { type: "button", onClick: () => te(1), children: "← Palaa edelliseen opetukseen" })
+            /* @__PURE__ */ r.jsx("button", { type: "button", onClick: () => re(1), children: "← Palaa edelliseen opetukseen" })
           ] }),
           m === 3 && /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
             /* @__PURE__ */ r.jsxs("fieldset", { className: "hint-segments", children: [
@@ -8757,8 +8785,8 @@ function Sv({ onBack: s }) {
                     type: "radio",
                     name: "impro-hints",
                     value: G.value,
-                    checked: M === G.value,
-                    onChange: () => O(G.value)
+                    checked: T === G.value,
+                    onChange: () => R(G.value)
                   }
                 ),
                 /* @__PURE__ */ r.jsx("span", { children: G.label })
@@ -8768,14 +8796,14 @@ function Sv({ onBack: s }) {
               x("phrase");
             }, children: "▶ Mallifraasi" }) })
           ] }),
-          /* @__PURE__ */ r.jsx(ui, { area: { strings: [0, 1, 2, 3, 4, 5], min: ae, max: ue, fixed: "box" }, marks: ee, disabled: !0, follow: "playing", playback: S, caption: `A-mollipentatoninen, positio ${a}` }),
+          /* @__PURE__ */ r.jsx(ui, { area: { strings: [0, 1, 2, 3, 4, 5], min: ce, max: oe, fixed: "box" }, marks: ee, disabled: !0, follow: "playing", playback: S, caption: `A-mollipentatoninen, positio ${a}` }),
           /* @__PURE__ */ r.jsxs("p", { className: "tools-note", children: [
-            m < 2 ? "Vihreällä merkitty A on pohjasävel." : m === 3 ? nf.find((G) => G.value === M).note : v ? "Näkyvissä ovat vain A-pohjasävelet." : "Otelauta on ilman vihjemerkintöjä.",
+            m < 2 ? "Vihreällä merkitty A on pohjasävel." : m === 3 ? nf.find((G) => G.value === T).note : v ? "Näkyvissä ovat vain A-pohjasävelet." : "Otelauta on ilman vihjemerkintöjä.",
             " Sovellus ei mittaa soittoasi: arvioit itse, miten harjoitus sujui."
           ] })
         ] }),
         m === 0 && /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
-          /* @__PURE__ */ r.jsx(ui, { area: { strings: [0, 1, 2, 3, 4, 5], min: ae, max: ue, fixed: "box" }, marks: ee, disabled: !0, follow: "playing", playback: S, caption: `Position ${a} sävelet` }),
+          /* @__PURE__ */ r.jsx(ui, { area: { strings: [0, 1, 2, 3, 4, 5], min: ce, max: oe, fixed: "box" }, marks: ee, disabled: !0, follow: "playing", playback: S, caption: `Position ${a} sävelet` }),
           /* @__PURE__ */ r.jsx("p", { className: "tools-note", children: "Sama sormitus ja samat viisi säveltä palaavat seuraavissa tehtävissä." })
         ] }),
         a === 1 && (m === 1 || m === 2) && /* @__PURE__ */ r.jsx(
@@ -8783,12 +8811,12 @@ function Sv({ onBack: s }) {
           {
             pieceId: "wayfaring",
             stage: m === 1 ? "fingering" : "memory",
-            onBeforePlay: J,
+            onBeforePlay: Z,
             stopHandleRef: $
           },
           `wayfaring:${m}`
         ),
-        m === 3 && /* @__PURE__ */ r.jsx(Of, {}, a),
+        m === 3 && /* @__PURE__ */ r.jsx($f, {}, a),
         /* @__PURE__ */ r.jsxs("div", { className: "journey-next", children: [
           /* @__PURE__ */ r.jsx("p", { children: m === 0 ? "Kun tunnistat äänen ja löydät sävelet kuvasta, jatka sormitukseen." : m === 1 ? "Jatka, kun saat kuljettua position molempiin suuntiin rauhallisesti." : m === 2 ? "Jatka, kun pystyt soittamaan ilman kaikkia vihjeitä." : "Jatka, kun olet kokeillut lyhyitä omia fraaseja taustan päälle." }),
           /* @__PURE__ */ r.jsx("button", { type: "button", className: "primary", onClick: y, children: m === 3 ? "Kirjaa harjoitelluksi" : "Harjoiteltu, seuraava vaihe →" }),
@@ -8798,8 +8826,8 @@ function Sv({ onBack: s }) {
       m === 4 && /* @__PURE__ */ r.jsxs("div", { className: "journey-next", role: "status", children: [
         /* @__PURE__ */ r.jsx("h3", { children: a === 1 ? "Valmis seuraavaan positioon" : a === 2 ? "Kaksi positiota harjoiteltu" : "Kolmas positio harjoiteltu" }),
         /* @__PURE__ */ r.jsx("p", { children: a === 1 ? "Kertaa asteikko muistista myös myöhemmin. Voit nyt jatkaa positioon 2." : a === 2 ? "Kertaa molempia positioita erikseen tai harjoittele nyt siirtymään niiden välillä." : "Kertaa kolmannen position kuvio muistista. Positiot 2 ja 3 liittyvät toisiinsa 10. nauhan ympärillä." }),
-        /* @__PURE__ */ r.jsx("button", { type: "button", onClick: () => te(2), children: "Kertaa muistiharjoitus" }),
-        a === 1 ? /* @__PURE__ */ r.jsx("button", { type: "button", className: "primary", onClick: () => he(2), children: "Siirry positioon 2 →" }) : a === 2 ? /* @__PURE__ */ r.jsx("button", { type: "button", className: "primary", onClick: we, children: "Yhdistä positiot 1 ja 2 →" }) : /* @__PURE__ */ r.jsx("button", { type: "button", onClick: () => he(2), children: "Kertaa positio 2" })
+        /* @__PURE__ */ r.jsx("button", { type: "button", onClick: () => re(2), children: "Kertaa muistiharjoitus" }),
+        a === 1 ? /* @__PURE__ */ r.jsx("button", { type: "button", className: "primary", onClick: () => he(2), children: "Siirry positioon 2 →" }) : a === 2 ? /* @__PURE__ */ r.jsx("button", { type: "button", className: "primary", onClick: Se, children: "Yhdistä positiot 1 ja 2 →" }) : /* @__PURE__ */ r.jsx("button", { type: "button", onClick: () => he(2), children: "Kertaa positio 2" })
       ] })
     ] }),
     /* @__PURE__ */ r.jsxs("div", { className: "journey-below", children: [
@@ -8815,7 +8843,7 @@ function Sv({ onBack: s }) {
     ] })
   ] });
 }
-const wv = ["ionian", "aeolian"], nr = {
+const Cv = ["ionian", "aeolian"], nr = {
   ionian: {
     id: "ionian",
     title: "C-jooninen",
@@ -8866,10 +8894,10 @@ const wv = ["ionian", "aeolian"], nr = {
     phrase: [45, 48, 52, 55, 57, 55, 52, 48, 45],
     accompaniment: [45, 48, 52, 48]
   }
-}, Kf = (s) => "musiikin-kartta:moodipolku:" + s + ":v1", Uf = "musiikin-kartta:moodipolku:active:v1", Nv = (s) => {
+}, Kf = (s) => "musiikin-kartta:moodipolku:" + s + ":v1", Uf = "musiikin-kartta:moodipolku:active:v1", Tv = (s) => {
   const a = nr[s].positions;
   return [...a, ...a.slice(1, -1).reverse()];
-}, Ev = (s) => [...Nv(s), nr[s].positions[0]], rf = [
+}, Mv = (s) => [...Tv(s), nr[s].positions[0]], rf = [
   "Kuuntele ja tunnista",
   "Soita yksi oktaavi",
   "Soita muistista",
@@ -8891,77 +8919,77 @@ function sf() {
     return "ionian";
   }
 }
-function Cv({ onBack: s }) {
-  const [a, o] = A.useState(sf), [c, d] = A.useState(() => ({
+function _v({ onBack: s }) {
+  const [a, o] = _.useState(sf), [c, d] = _.useState(() => ({
     ionian: xa("ionian"),
     aeolian: xa("aeolian")
-  })), [f, p] = A.useState(() => xa(sf())), [m, E] = A.useState(null), [L, v] = A.useState(null), [j, M] = A.useState(!1), [O, P] = A.useState("roots"), [w, S] = A.useState(""), [z, T] = A.useState(null), [K, B] = A.useState(null), H = A.useRef(new rs()), I = A.useRef(0), _ = A.useRef(null), $ = nr[a], ie = Ev(a), J = m === "scale" && L !== null ? ie[L] : null;
-  function ve() {
-    _.current?.(), I.current++, H.current.stop(), E(null), v(null);
+  })), [f, p] = _.useState(() => xa(sf())), [m, E] = _.useState(null), [P, v] = _.useState(null), [j, T] = _.useState(!1), [R, A] = _.useState("roots"), [w, S] = _.useState(""), [z, C] = _.useState(null), [K, B] = _.useState(null), U = _.useRef(new rs()), F = _.useRef(0), M = _.useRef(null), $ = nr[a], ie = Mv(a), Z = m === "scale" && P !== null ? ie[P] : null;
+  function je() {
+    M.current?.(), F.current++, U.current.stop(), E(null), v(null);
   }
-  A.useEffect(() => {
+  _.useEffect(() => {
     const y = () => {
-      document.hidden && (I.current++, H.current.stop(), E(null), v(null));
+      document.hidden && (F.current++, U.current.stop(), E(null), v(null));
     };
     return document.addEventListener("visibilitychange", y), () => {
-      document.removeEventListener("visibilitychange", y), I.current++, H.current.stop();
+      document.removeEventListener("visibilitychange", y), F.current++, U.current.stop();
     };
   }, []);
-  async function Se(y, te, he = !1) {
-    _.current?.();
-    const we = ++I.current;
-    H.current.stop(), v(null), S(""), E(y);
+  async function Ee(y, re, he = !1) {
+    M.current?.();
+    const Se = ++F.current;
+    U.current.stop(), v(null), S(""), E(y);
     try {
-      const G = he ? await H.current.loop(te, void 0, 75) : await H.current.play(te, (V) => {
-        we === I.current && y === "scale" && v(V);
+      const G = he ? await U.current.loop(re, void 0, 75) : await U.current.play(re, (V) => {
+        Se === F.current && y === "scale" && v(V);
       });
-      return we === I.current && G;
+      return Se === F.current && G;
     } catch (G) {
-      return we === I.current && S(Aa(G)), !1;
+      return Se === F.current && S(Aa(G)), !1;
     } finally {
-      we === I.current && (E(null), v(null));
+      Se === F.current && (E(null), v(null));
     }
   }
-  function X(y) {
-    y > c[a] || (ve(), p(y), T(null), B(null), M(!1), P("roots"), S(""));
+  function J(y) {
+    y > c[a] || (je(), p(y), C(null), B(null), T(!1), A("roots"), S(""));
   }
-  function fe() {
-    ve();
+  function de() {
+    je();
     const y = Math.min(5, f + 1);
-    if (p(y), T(null), B(null), M(!1), P("roots"), y > c[a]) {
-      d((te) => ({ ...te, [a]: y }));
+    if (p(y), C(null), B(null), T(!1), A("roots"), y > c[a]) {
+      d((re) => ({ ...re, [a]: y }));
       try {
         localStorage.setItem(Kf(a), String(y));
       } catch {
       }
     }
   }
-  function U(y) {
+  function H(y) {
     if (!(y === "aeolian" && c.ionian < 5)) {
-      ve(), o(y), p(c[y]), T(null), B(null), M(!1), P("roots"), S("");
+      je(), o(y), p(c[y]), C(null), B(null), T(!1), A("roots"), S("");
       try {
         localStorage.setItem(Uf, y);
       } catch {
       }
     }
   }
-  async function ae() {
-    ve(), B(null), T(null);
+  async function ce() {
+    je(), B(null), C(null);
     const y = Math.random() < 0.5 ? "ionian" : "aeolian";
-    await Se("comparison", nr[y].phrase) && T(y);
+    await Ee("comparison", nr[y].phrase) && C(y);
   }
-  const ue = (y) => Be(y) === $.tonic, W = $.positions.filter((y) => f < 2 ? !0 : f === 2 ? j && ue(y.midi) : f === 4 ? O === "all" || O === "roots" && ue(y.midi) : !1).map((y) => ({
+  const oe = (y) => Be(y) === $.tonic, W = $.positions.filter((y) => f < 2 ? !0 : f === 2 ? j && oe(y.midi) : f === 4 ? R === "all" || R === "roots" && oe(y.midi) : !1).map((y) => ({
     ...y,
-    label: f === 2 || f === 4 && O === "roots" ? $.tonicName : be(y.midi),
-    kind: J?.string === y.string && J.fret === y.fret ? "playing" : ue(y.midi) ? "answer" : "shape"
-  })), le = [...new Set($.positions.map((y) => y.string))], ee = Math.min(...$.positions.map((y) => y.fret)), x = Math.max(...$.positions.map((y) => y.fret));
+    label: f === 2 || f === 4 && R === "roots" ? $.tonicName : Pe(y.midi),
+    kind: Z?.string === y.string && Z.fret === y.fret ? "playing" : oe(y.midi) ? "answer" : "shape"
+  })), ue = [...new Set($.positions.map((y) => y.string))], ee = Math.min(...$.positions.map((y) => y.fret)), x = Math.max(...$.positions.map((y) => y.fret));
   return /* @__PURE__ */ r.jsxs("section", { className: "scale-journey mode-journey", "aria-labelledby": "mode-path-title", children: [
     /* @__PURE__ */ r.jsx("button", { type: "button", className: "back-link", onClick: () => {
-      ve(), s();
+      je(), s();
     }, children: "← Valitse harjoittelupolku" }),
     /* @__PURE__ */ r.jsxs("p", { className: "eyebrow", children: [
       "SKAALAT JA MOODIT · MOODIT ",
-      wv.indexOf(a) + 1,
+      Cv.indexOf(a) + 1,
       " / 7"
     ] }),
     /* @__PURE__ */ r.jsxs("h2", { id: "mode-path-title", children: [
@@ -8979,14 +9007,14 @@ function Cv({ onBack: s }) {
       " · Yksi oktaavi"
     ] }),
     /* @__PURE__ */ r.jsxs("div", { className: "action-row", role: "group", "aria-label": "Valitse opeteltava moodi", children: [
-      /* @__PURE__ */ r.jsx("button", { type: "button", "aria-pressed": a === "ionian", onClick: () => U("ionian"), children: "1. C-jooninen" }),
+      /* @__PURE__ */ r.jsx("button", { type: "button", "aria-pressed": a === "ionian", onClick: () => H("ionian"), children: "1. C-jooninen" }),
       /* @__PURE__ */ r.jsxs(
         "button",
         {
           type: "button",
           "aria-pressed": a === "aeolian",
           disabled: c.ionian < 5,
-          onClick: () => U("aeolian"),
+          onClick: () => H("aeolian"),
           children: [
             "2. A-aiolinen ",
             c.ionian < 5 ? "🔒" : ""
@@ -8996,16 +9024,16 @@ function Cv({ onBack: s }) {
     ] }),
     /* @__PURE__ */ r.jsx("p", { className: "tools-note", children: "Etenemisjärjestys: C-jooninen → A-aiolinen → myöhemmin A-doorinen ja muut moodit. Nykyinen pentatonisten eteneminen ei muutu." }),
     /* @__PURE__ */ r.jsxs("nav", { className: "journey-steps", "aria-label": "Moodin oppimisvaiheet", children: [
-      rf.map((y, te) => /* @__PURE__ */ r.jsxs(
+      rf.map((y, re) => /* @__PURE__ */ r.jsxs(
         "button",
         {
           type: "button",
-          className: f === te ? "journey-step current" : "journey-step",
-          "aria-current": f === te ? "step" : void 0,
-          disabled: te > c[a],
-          onClick: () => X(te),
+          className: f === re ? "journey-step current" : "journey-step",
+          "aria-current": f === re ? "step" : void 0,
+          disabled: re > c[a],
+          onClick: () => J(re),
           children: [
-            /* @__PURE__ */ r.jsx("span", { className: "journey-index", children: te > c[a] ? "🔒" : te < c[a] ? "✓" : te + 1 }),
+            /* @__PURE__ */ r.jsx("span", { className: "journey-index", children: re > c[a] ? "🔒" : re < c[a] ? "✓" : re + 1 }),
             /* @__PURE__ */ r.jsx("span", { children: y })
           ]
         },
@@ -9018,7 +9046,7 @@ function Cv({ onBack: s }) {
           className: f === 5 ? "journey-step current" : "journey-step",
           disabled: c[a] < 5,
           "aria-current": f === 5 ? "step" : void 0,
-          onClick: () => X(5),
+          onClick: () => J(5),
           children: [
             /* @__PURE__ */ r.jsx("span", { className: "journey-index", children: c[a] === 5 ? "✓" : "🔒" }),
             /* @__PURE__ */ r.jsx("span", { children: "Moodi harjoiteltu" })
@@ -9062,13 +9090,13 @@ function Cv({ onBack: s }) {
               type: "button",
               disabled: m !== null,
               onClick: () => {
-                ae();
+                ce();
               },
               children: "▶ Kuuntele satunnainen fraasi"
             }
           ),
           z !== null && /* @__PURE__ */ r.jsx("button", { type: "button", onClick: () => {
-            Se("comparison", nr[z].phrase);
+            Ee("comparison", nr[z].phrase);
           }, children: "▶ Kuuntele uudelleen" })
         ] }),
         z !== null && /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
@@ -9120,28 +9148,28 @@ function Cv({ onBack: s }) {
             ["roots", "Vain pohjasävelet"],
             ["all", "Kaikki sävelet"],
             ["none", "Ei vihjeitä"]
-          ].map(([y, te]) => /* @__PURE__ */ r.jsxs("label", { children: [
+          ].map(([y, re]) => /* @__PURE__ */ r.jsxs("label", { children: [
             /* @__PURE__ */ r.jsx(
               "input",
               {
                 type: "radio",
                 name: "mode-hints",
                 value: y,
-                checked: O === y,
-                onChange: () => P(y)
+                checked: R === y,
+                onChange: () => A(y)
               }
             ),
-            /* @__PURE__ */ r.jsx("span", { children: te })
+            /* @__PURE__ */ r.jsx("span", { children: re })
           ] }, y))
         ] })
       ] }),
-      f === 2 && /* @__PURE__ */ r.jsx("button", { type: "button", onClick: () => M((y) => !y), children: j ? "Piilota pohjasävelet" : "Näytä pohjasävelet" }),
+      f === 2 && /* @__PURE__ */ r.jsx("button", { type: "button", onClick: () => T((y) => !y), children: j ? "Piilota pohjasävelet" : "Näytä pohjasävelet" }),
       f < 3 && /* @__PURE__ */ r.jsx("div", { className: "action-row", children: /* @__PURE__ */ r.jsx(
         "button",
         {
           type: "button",
           "aria-pressed": m === "scale",
-          onClick: () => m === "scale" ? ve() : void Se("scale", ie.map((y) => y.midi)),
+          onClick: () => m === "scale" ? je() : void Ee("scale", ie.map((y) => y.midi)),
           children: m === "scale" ? "■ Pysäytä asteikon toisto" : "▶ Soita asteikko kerran"
         }
       ) }),
@@ -9150,23 +9178,23 @@ function Cv({ onBack: s }) {
         {
           type: "button",
           "aria-pressed": m === "accompaniment",
-          onClick: () => m === "accompaniment" ? ve() : void Se("accompaniment", $.accompaniment, !0),
+          onClick: () => m === "accompaniment" ? je() : void Ee("accompaniment", $.accompaniment, !0),
           children: m === "accompaniment" ? "■ Pysäytä sointupulssi" : "▶ Käynnistä sointupulssi"
         }
       ) }),
-      f < 2 && m === "scale" && J && /* @__PURE__ */ r.jsxs("p", { className: "tools-note", role: "status", children: [
+      f < 2 && m === "scale" && Z && /* @__PURE__ */ r.jsxs("p", { className: "tools-note", role: "status", children: [
         "Nyt soi: ",
-        be(J.midi, !1, !0),
+        Pe(Z.midi, !1, !0),
         " · ",
-        Qt[J.string],
+        Qt[Z.string],
         "-kieli, nauha ",
-        J.fret,
+        Z.fret,
         "."
       ] }),
       f !== 3 && f !== 5 && /* @__PURE__ */ r.jsx(
         ui,
         {
-          area: { strings: le, min: ee, max: x, fixed: "box" },
+          area: { strings: ue, min: ee, max: x, fixed: "box" },
           marks: W,
           follow: "playing",
           playback: m,
@@ -9179,15 +9207,15 @@ function Cv({ onBack: s }) {
         {
           pieceId: "nooa",
           stage: f === 1 ? "fingering" : "memory",
-          onBeforePlay: ve,
-          stopHandleRef: _
+          onBeforePlay: je,
+          stopHandleRef: M
         },
         `nooa:${f}`
       ),
       w && /* @__PURE__ */ r.jsx("p", { className: "error", role: "alert", children: w }),
       f < 5 && /* @__PURE__ */ r.jsxs("div", { className: "journey-next", children: [
         /* @__PURE__ */ r.jsx("p", { children: "Kun harjoitus sujuu omasta mielestäsi, kirjaa se suoritetuksi. Sovellus ei arvioi kitaransoittoa automaattisesti." }),
-        /* @__PURE__ */ r.jsx("button", { type: "button", className: "primary", onClick: fe, children: f === 4 ? "Kirjaa moodi harjoitelluksi" : "Harjoiteltu, seuraava vaihe →" })
+        /* @__PURE__ */ r.jsx("button", { type: "button", className: "primary", onClick: de, children: f === 4 ? "Kirjaa moodi harjoitelluksi" : "Harjoiteltu, seuraava vaihe →" })
       ] }),
       f === 5 && /* @__PURE__ */ r.jsxs("div", { className: "journey-next", role: "status", children: [
         /* @__PURE__ */ r.jsxs("h3", { children: [
@@ -9195,13 +9223,13 @@ function Cv({ onBack: s }) {
           " harjoiteltu"
         ] }),
         /* @__PURE__ */ r.jsx("p", { children: "Kertaa melodian sävelkeskus ja sormitus myös myöhemmin." }),
-        /* @__PURE__ */ r.jsx("button", { type: "button", onClick: () => X(2), children: "Kertaa muistiharjoitus" }),
+        /* @__PURE__ */ r.jsx("button", { type: "button", onClick: () => J(2), children: "Kertaa muistiharjoitus" }),
         a === "ionian" && /* @__PURE__ */ r.jsx(
           "button",
           {
             type: "button",
             className: "primary",
-            onClick: () => U("aeolian"),
+            onClick: () => H("aeolian"),
             children: "Jatka A-aioliseen →"
           }
         ),
@@ -9210,9 +9238,9 @@ function Cv({ onBack: s }) {
     ] })
   ] });
 }
-function Tv({ onBack: s }) {
-  const [a, o] = A.useState(null);
-  return a === "pentatonic" ? /* @__PURE__ */ r.jsx(Sv, { onBack: () => o(null) }) : a === "modes" ? /* @__PURE__ */ r.jsx(Cv, { onBack: () => o(null) }) : /* @__PURE__ */ r.jsxs("section", { className: "scale-tracks", "aria-labelledby": "scale-tracks-title", children: [
+function Av({ onBack: s }) {
+  const [a, o] = _.useState(null);
+  return a === "pentatonic" ? /* @__PURE__ */ r.jsx(Ev, { onBack: () => o(null) }) : a === "modes" ? /* @__PURE__ */ r.jsx(_v, { onBack: () => o(null) }) : /* @__PURE__ */ r.jsxs("section", { className: "scale-tracks", "aria-labelledby": "scale-tracks-title", children: [
     /* @__PURE__ */ r.jsx("button", { type: "button", className: "back-link", onClick: s, children: "← Oppimispolut" }),
     /* @__PURE__ */ r.jsx("p", { className: "eyebrow", children: "SKAALAT JA MOODIT" }),
     /* @__PURE__ */ r.jsx("h2", { id: "scale-tracks-title", children: "Mitä haluat opetella?" }),
@@ -9239,25 +9267,25 @@ function Tv({ onBack: s }) {
     ] })
   ] });
 }
-const er = [0, 2, 4, 5, 7, 9, 11], Mv = 1200, va = { strings: [0, 1, 2, 3, 4, 5], min: 0, max: 5, fixed: "" };
-function _v({ onBack: s }) {
-  const [a, o] = A.useState(0), [c, d] = A.useState([]), [f, p] = A.useState(!1), [m, E] = A.useState(""), [L, v] = A.useState(0), [j, M] = A.useState(!1), O = a >= er.length, P = er[Math.min(a, er.length - 1)], w = ur(va.strings, va.min, va.max).filter((_) => Be(_.midi) === P), S = w.filter((_) => !c.includes(Ue(_))), z = S.length === 0 && !O, T = !z && f ? S[0] : void 0;
-  A.useEffect(() => {
+const er = [0, 2, 4, 5, 7, 9, 11], bv = 1200, va = { strings: [0, 1, 2, 3, 4, 5], min: 0, max: 5, fixed: "" };
+function Pv({ onBack: s }) {
+  const [a, o] = _.useState(0), [c, d] = _.useState([]), [f, p] = _.useState(!1), [m, E] = _.useState(""), [P, v] = _.useState(0), [j, T] = _.useState(!1), R = a >= er.length, A = er[Math.min(a, er.length - 1)], w = ur(va.strings, va.min, va.max).filter((M) => Be(M.midi) === A), S = w.filter((M) => !c.includes(Ue(M))), z = S.length === 0 && !R, C = !z && f ? S[0] : void 0;
+  _.useEffect(() => {
     if (!j || !z) return;
-    const _ = window.setTimeout(() => {
+    const M = window.setTimeout(() => {
       o(($) => $ + 1), d([]), p(!1), E("");
-    }, Mv);
-    return () => window.clearTimeout(_);
+    }, bv);
+    return () => window.clearTimeout(M);
   }, [j, z]);
   const K = [
-    ...w.filter((_) => c.includes(Ue(_))).map((_) => ({ ..._, kind: "answer", label: be(_.midi) })),
-    ...T ? [{ ...T, kind: "anchor", label: "?" }] : []
+    ...w.filter((M) => c.includes(Ue(M))).map((M) => ({ ...M, kind: "answer", label: Pe(M.midi) })),
+    ...C ? [{ ...C, kind: "anchor", label: "?" }] : []
   ];
-  function B(_) {
-    if (O || z) return;
-    const $ = Ue(_);
-    if (Be(_.midi) !== P) {
-      v((ve) => ve + 1), E(`Valitsit sävelen ${be(_.midi)}. Etsi ${be(P)}.`);
+  function B(M) {
+    if (R || z) return;
+    const $ = Ue(M);
+    if (Be(M.midi) !== A) {
+      v((je) => je + 1), E(`Valitsit sävelen ${Pe(M.midi)}. Etsi ${Pe(A)}.`);
       return;
     }
     if (c.includes($)) {
@@ -9266,13 +9294,13 @@ function _v({ onBack: s }) {
     }
     const ie = [...c, $];
     d(ie), p(!1);
-    const J = w.length - ie.length;
-    E(J ? `Oikein! ${be(P)} löytyi ${Qt[_.string]}-kieleltä (${Ti(_.fret)}). Vielä ${J}.` : `Löysit kaikki ${w.length} ${be(P)}-säveltä tällä alueella.`);
+    const Z = w.length - ie.length;
+    E(Z ? `Oikein! ${Pe(A)} löytyi ${Qt[M.string]}-kieleltä (${Ti(M.fret)}). Vielä ${Z}.` : `Löysit kaikki ${w.length} ${Pe(A)}-säveltä tällä alueella.`);
   }
-  function H() {
-    z && (o((_) => _ + 1), d([]), p(!1), E(""));
+  function U() {
+    z && (o((M) => M + 1), d([]), p(!1), E(""));
   }
-  function I() {
+  function F() {
     o(0), d([]), p(!1), E(""), v(0);
   }
   return /* @__PURE__ */ r.jsxs("section", { className: "note-journey", "aria-labelledby": "note-journey-title", children: [
@@ -9281,29 +9309,29 @@ function _v({ onBack: s }) {
     /* @__PURE__ */ r.jsx("h2", { id: "note-journey-title", children: "Etsi sävelet otelaudalta" }),
     /* @__PURE__ */ r.jsx("p", { className: "exercise-theory", children: /* @__PURE__ */ r.jsx("a", { href: "book/osa-5.html#otelauta", children: "Lue tämän harjoituksen teoria: Otelauta ja sävelet →" }) }),
     /* @__PURE__ */ r.jsx("p", { className: "learning-lead", children: "Aloita sävelnimistä. Etsi kaikki saman sävelen sijainnit nauhoilta 0–5. Kuuntelemalla tunnistaminen tulee myöhemmissä vaiheissa." }),
-    !O && /* @__PURE__ */ r.jsxs("label", { className: "note-autoadvance", children: [
+    !R && /* @__PURE__ */ r.jsxs("label", { className: "note-autoadvance", children: [
       /* @__PURE__ */ r.jsx(
         "input",
         {
           type: "checkbox",
           checked: j,
-          onChange: (_) => M(_.target.checked)
+          onChange: (M) => T(M.target.checked)
         }
       ),
       /* @__PURE__ */ r.jsx("span", { children: "Jatka automaattisesti" })
     ] }),
-    /* @__PURE__ */ r.jsx("div", { className: "journey-lesson", children: O ? /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
+    /* @__PURE__ */ r.jsx("div", { className: "journey-lesson", children: R ? /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
       /* @__PURE__ */ r.jsx("h3", { children: "Otelautakierros valmis" }),
       /* @__PURE__ */ r.jsxs("p", { children: [
         "Löysit kaikkien seitsemän luonnollisen sävelen sijainnit. ",
-        L ? `Vääriä valintoja yhteensä ${L}.` : "Kaikki valinnat osuivat oikeaan."
+        P ? `Vääriä valintoja yhteensä ${P}.` : "Kaikki valinnat osuivat oikeaan."
       ] }),
-      /* @__PURE__ */ r.jsx("div", { className: "action-row", children: /* @__PURE__ */ r.jsx("button", { type: "button", className: "primary", onClick: I, children: "Harjoittele uudelleen" }) })
+      /* @__PURE__ */ r.jsx("div", { className: "action-row", children: /* @__PURE__ */ r.jsx("button", { type: "button", className: "primary", onClick: F, children: "Harjoittele uudelleen" }) })
     ] }) : /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
       /* @__PURE__ */ r.jsxs("div", { className: "session-top", children: [
         /* @__PURE__ */ r.jsxs("h3", { children: [
           "Etsi kaikki ",
-          be(P),
+          Pe(A),
           "-sävelet"
         ] }),
         /* @__PURE__ */ r.jsxs("span", { children: [
@@ -9315,7 +9343,7 @@ function _v({ onBack: s }) {
       ] }),
       /* @__PURE__ */ r.jsxs("p", { children: [
         "Napauta otelaudalta kaikki ",
-        be(P),
+        Pe(A),
         "-sävelet. Löydetyt kohdat jäävät näkyviin. Voit käyttää vihjettä tarvittaessa."
       ] }),
       /* @__PURE__ */ r.jsxs("p", { className: "note-progress", role: "status", "aria-live": "polite", children: [
@@ -9350,7 +9378,7 @@ function _v({ onBack: s }) {
           {
             type: "button",
             "aria-pressed": f,
-            onClick: () => p((_) => !_),
+            onClick: () => p((M) => !M),
             children: f ? "Piilota vihje" : "Näytä vihje"
           }
         ),
@@ -9358,13 +9386,13 @@ function _v({ onBack: s }) {
           "Siirrytään automaattisesti ",
           a === er.length - 1 ? "yhteenvetoon" : "seuraavaan säveleen",
           "…"
-        ] }) : /* @__PURE__ */ r.jsx("button", { type: "button", className: "primary", onClick: H, children: a === er.length - 1 ? "Näytä yhteenveto" : "Seuraava sävel →" }))
+        ] }) : /* @__PURE__ */ r.jsx("button", { type: "button", className: "primary", onClick: U, children: a === er.length - 1 ? "Näytä yhteenveto" : "Seuraava sävel →" }))
       ] })
     ] }) }),
     /* @__PURE__ */ r.jsx("p", { className: "tools-note", children: "Seuraavissa oppimispolun vaiheissa voidaan harjoitella sävelten tunnistamista kuuntelemalla. Ne eivät vielä ole käytössä." })
   ] });
 }
-const Av = {
+const Lv = {
   C: { name: "C", frets: [0, 1, 0, 2, 3, null] },
   G: { name: "G", frets: [3, 0, 0, 0, 2, 3] },
   D: { name: "D", frets: [2, 3, 2, 0, null, null] },
@@ -9372,7 +9400,7 @@ const Av = {
   Am: { name: "Am", frets: [0, 1, 2, 2, 0, null] },
   E: { name: "E", frets: [0, 0, 1, 2, 2, 0] },
   A: { name: "A", frets: [0, 2, 2, 2, 0, null] }
-}, Eo = ["C", "G", "D", "Em"], af = ["C", "G", "D", "Em", "Am", "E", "A"], Pv = { min: 0, max: 3, fixed: "" };
+}, Eo = ["C", "G", "D", "Em"], af = ["C", "G", "D", "Em", "Am", "E", "A"], Rv = { min: 0, max: 3, fixed: "" };
 function lf(s) {
   const a = [...s];
   for (let o = a.length - 1; o > 0; o--) {
@@ -9381,20 +9409,20 @@ function lf(s) {
   }
   return a;
 }
-function bv({ onBack: s }) {
-  const [a, o] = A.useState(4), [c, d] = A.useState(() => lf(Eo)), [f, p] = A.useState(0), [m, E] = A.useState(null), [L, v] = A.useState([]), [j, M] = A.useState(0), O = f >= c.length, P = Av[c[Math.min(f, c.length - 1)]], w = a === 4 ? Eo : af, S = P.frets.flatMap((_, $) => _ === null ? [] : [$]), z = P.frets.flatMap((_, $) => _ === null ? [$] : []), T = { ...Pv, strings: S }, K = P.frets.flatMap((_, $) => _ === null ? [] : [{
-    ...Oe($, _),
-    kind: _ === 0 ? "anchor" : "shape",
-    label: _ === 0 ? "○" : "●"
+function $v({ onBack: s }) {
+  const [a, o] = _.useState(4), [c, d] = _.useState(() => lf(Eo)), [f, p] = _.useState(0), [m, E] = _.useState(null), [P, v] = _.useState([]), [j, T] = _.useState(0), R = f >= c.length, A = Lv[c[Math.min(f, c.length - 1)]], w = a === 4 ? Eo : af, S = A.frets.flatMap((M, $) => M === null ? [] : [$]), z = A.frets.flatMap((M, $) => M === null ? [$] : []), C = { ...Rv, strings: S }, K = A.frets.flatMap((M, $) => M === null ? [] : [{
+    ...Oe($, M),
+    kind: M === 0 ? "anchor" : "shape",
+    label: M === 0 ? "○" : "●"
   }]);
-  function B(_ = a) {
-    o(_), d(lf(_ === 4 ? Eo : af)), p(0), E(null), v([]), M(0);
+  function B(M = a) {
+    o(M), d(lf(M === 4 ? Eo : af)), p(0), E(null), v([]), T(0);
   }
-  function H(_) {
-    m || O || L.includes(_) || (_ === P.name ? E(_) : (v(($) => [...$, _]), M(($) => $ + 1)));
+  function U(M) {
+    m || R || P.includes(M) || (M === A.name ? E(M) : (v(($) => [...$, M]), T(($) => $ + 1)));
   }
-  function I() {
-    m && (p((_) => _ + 1), E(null), v([]));
+  function F() {
+    m && (p((M) => M + 1), E(null), v([]));
   }
   return /* @__PURE__ */ r.jsxs("section", { className: "chord-journey", "aria-labelledby": "chord-journey-title", children: [
     /* @__PURE__ */ r.jsx("button", { type: "button", className: "back-link", onClick: s, children: "← Oppimispolut" }),
@@ -9430,7 +9458,7 @@ function bv({ onBack: s }) {
       ] }),
       /* @__PURE__ */ r.jsx("p", { className: "tools-note", children: "Valinnan vaihtaminen aloittaa harjoituksen alusta." })
     ] }),
-    /* @__PURE__ */ r.jsx("div", { className: "journey-lesson", children: O ? /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
+    /* @__PURE__ */ r.jsx("div", { className: "journey-lesson", children: R ? /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
       /* @__PURE__ */ r.jsx("h3", { children: "Avosointukierros valmis" }),
       /* @__PURE__ */ r.jsxs("p", { children: [
         "Tunnistit kaikki ",
@@ -9453,7 +9481,7 @@ function bv({ onBack: s }) {
       /* @__PURE__ */ r.jsx(
         ui,
         {
-          area: T,
+          area: C,
           marks: K,
           mutedStrings: z,
           disabled: !0,
@@ -9461,47 +9489,47 @@ function bv({ onBack: s }) {
         }
       ),
       /* @__PURE__ */ r.jsx("p", { className: "tools-note", children: "○ = vapaa kieli · ● = painettu nauha · × = älä soita tätä kieltä." }),
-      /* @__PURE__ */ r.jsx("div", { className: "chord-answers", role: "group", "aria-label": "Valitse soinnun nimi", children: w.map((_) => /* @__PURE__ */ r.jsx(
+      /* @__PURE__ */ r.jsx("div", { className: "chord-answers", role: "group", "aria-label": "Valitse soinnun nimi", children: w.map((M) => /* @__PURE__ */ r.jsx(
         "button",
         {
           type: "button",
-          className: m === _ ? "right" : L.includes(_) ? "wrong" : "",
-          disabled: !!m || L.includes(_),
-          "aria-pressed": m === _,
-          onClick: () => H(_),
-          children: _
+          className: m === M ? "right" : P.includes(M) ? "wrong" : "",
+          disabled: !!m || P.includes(M),
+          "aria-pressed": m === M,
+          onClick: () => U(M),
+          children: M
         },
-        _
+        M
       )) }),
       /* @__PURE__ */ r.jsx(
         "p",
         {
-          className: m ? "feedback good" : L.length ? "feedback bad" : "feedback",
+          className: m ? "feedback good" : P.length ? "feedback bad" : "feedback",
           role: "status",
           "aria-live": "polite",
           "data-testid": "chord-feedback",
-          children: m ? `Oikein! Tämä on ${P.name}-sointu.` : L.length ? "Ei aivan. Katso, mitkä kielet soivat vapaina ja missä nauhoissa sormet ovat." : ""
+          children: m ? `Oikein! Tämä on ${A.name}-sointu.` : P.length ? "Ei aivan. Katso, mitkä kielet soivat vapaina ja missä nauhoissa sormet ovat." : ""
         }
       ),
-      m && /* @__PURE__ */ r.jsx("div", { className: "action-row", children: /* @__PURE__ */ r.jsx("button", { type: "button", className: "primary", onClick: I, children: f === c.length - 1 ? "Näytä yhteenveto" : "Seuraava sointu →" }) })
+      m && /* @__PURE__ */ r.jsx("div", { className: "action-row", children: /* @__PURE__ */ r.jsx("button", { type: "button", className: "primary", onClick: F, children: f === c.length - 1 ? "Näytä yhteenveto" : "Seuraava sointu →" }) })
     ] }) }),
     /* @__PURE__ */ r.jsx("p", { className: "tools-note", children: "Sointujen sävelten rakentamista ja vaikeampia sointumuotoja harjoitellaan myöhemmissä vaiheissa." })
   ] });
 }
-const ge = (s, a) => ({ first: s, ...a ? { second: a } : {} }), sr = () => [
-  ge("Gm", "F"),
-  ge("Gm"),
-  ge("B♭", "F"),
-  ge("Gm"),
-  ge("Gm", "F"),
-  ge("Gm"),
-  ge("E♭", "F"),
-  ge("Gm")
+const ye = (s, a) => ({ first: s, ...a ? { second: a } : {} }), sr = () => [
+  ye("Gm", "F"),
+  ye("Gm"),
+  ye("B♭", "F"),
+  ye("Gm"),
+  ye("Gm", "F"),
+  ye("Gm"),
+  ye("E♭", "F"),
+  ye("Gm")
 ], ar = () => [
-  ge("B♭", "F"),
-  ge("Gm", "Dm"),
-  ge("E♭", "F"),
-  ge("Gm", "Dm")
+  ye("B♭", "F"),
+  ye("Gm", "Dm"),
+  ye("E♭", "F"),
+  ye("Gm", "Dm")
 ], lr = [
   "Yksi sointu, kaksi askelta",
   "sama riffi palaa taas",
@@ -9512,8 +9540,8 @@ const ge = (s, a) => ({ first: s, ...a ? { second: a } : {} }), sr = () => [
   "kuuntelen ja hengitän",
   "pienestäkin sävelestä",
   "löytyy tie eteenpäin"
-], Lv = [
-  { id: "intro", title: "Intro", start: 0, bars: [ge("Gm", "F"), ge("Gm"), ge("B♭", "F"), ge("Gm")] },
+], Ov = [
+  { id: "intro", title: "Intro", start: 0, bars: [ye("Gm", "F"), ye("Gm"), ye("B♭", "F"), ye("Gm")] },
   { id: "verse1", title: "Säkeistö 1", start: 14, bars: sr(), lyrics: [
     "Aamu piirtää viivan seinään",
     "kahvi jäähtyy pöydälle",
@@ -9524,11 +9552,11 @@ const ge = (s, a) => ({ first: s, ...a ? { second: a } : {} }), sr = () => [
     id: "chorus1",
     title: "Kertosäe 1",
     start: 43,
-    bars: [...ar(), ge("E♭"), { ...ge("E♭"), passingBass: "F" }],
+    bars: [...ar(), ye("E♭"), { ...ye("E♭"), passingBass: "F" }],
     lyrics: lr,
     note: "Lopun F kuullaan basson viimeisellä iskulla. Sitä ei ole vahvistettu erilliseksi F-soinnuksi."
   },
-  { id: "interlude", title: "Välisoitto", start: 65, bars: [ge("Gm", "F"), ge("Gm")] },
+  { id: "interlude", title: "Välisoitto", start: 65, bars: [ye("Gm", "F"), ye("Gm")] },
   { id: "verse2", title: "Säkeistö 2", start: 72, bars: sr(), lyrics: [
     "Ei tarvitse kiirehtiä",
     "ei tarvitse osata kaikkea",
@@ -9539,14 +9567,14 @@ const ge = (s, a) => ({ first: s, ...a ? { second: a } : {} }), sr = () => [
     id: "chorus2",
     title: "Kertosäe 2",
     start: 101,
-    bars: [...ar(), ge("E♭"), ge("F")],
+    bars: [...ar(), ye("E♭"), ye("F")],
     lyrics: lr
   },
   {
     id: "bridge",
     title: "Kitarasoolo",
     start: 122,
-    bars: [ge("Gm"), ge("Dm"), ge("F"), ge("C"), ge("Gm"), ge("Dm"), ge("E♭"), ge("F")]
+    bars: [ye("Gm"), ye("Dm"), ye("F"), ye("C"), ye("Gm"), ye("Dm"), ye("E♭"), ye("F")]
   },
   {
     id: "verse3",
@@ -9559,7 +9587,7 @@ const ge = (s, a) => ({ first: s, ...a ? { second: a } : {} }), sr = () => [
     id: "chorus3",
     title: "Kertosäe 3",
     start: 179,
-    bars: [...ar(), ge("E♭", "F"), ge("Gm")],
+    bars: [...ar(), ye("E♭", "F"), ye("Gm")],
     lyrics: lr
   },
   {
@@ -9567,19 +9595,19 @@ const ge = (s, a) => ({ first: s, ...a ? { second: a } : {} }), sr = () => [
     title: "Outro",
     start: 201,
     bars: [
-      ge("E♭", "F"),
-      { ...ge("Gm"), possibleChord: "Dm" },
-      ge("E♭", "F"),
-      ge("Gm", "F"),
-      { ...ge("Gm"), possibleChord: "Dm" },
-      ge("Gm", "F"),
-      ge("Gm")
+      ye("E♭", "F"),
+      { ...ye("Gm"), possibleChord: "Dm" },
+      ye("E♭", "F"),
+      ye("Gm", "F"),
+      { ...ye("Gm"), possibleChord: "Dm" },
+      ye("Gm", "F"),
+      ye("Gm")
     ],
     lyrics: ["Yksi sointu, kaksi askelta", "sama riffi palaa taas"],
     note: "Merkintä Dm? on epävarma kitaran sävelistä tehty tulkinta, ei vahvistettu sointu."
   }
-], Rv = [
-  { id: "intro", title: "Intro", start: 0, bars: [ge("Gm", "F"), ge("Gm"), ge("B♭", "F"), ge("Gm")] },
+], Fv = [
+  { id: "intro", title: "Intro", start: 0, bars: [ye("Gm", "F"), ye("Gm"), ye("B♭", "F"), ye("Gm")] },
   { id: "verse1", title: "Säkeistö 1", start: 14, bars: sr(), lyrics: [
     "Aamu piirtää viivan seinään",
     "kahvi jäähtyy pöydälle",
@@ -9590,7 +9618,7 @@ const ge = (s, a) => ({ first: s, ...a ? { second: a } : {} }), sr = () => [
     id: "chorus1",
     title: "Kertosäe 1",
     start: 42,
-    bars: [...ar(), ge("E♭"), ge("E♭")],
+    bars: [...ar(), ye("E♭"), ye("E♭")],
     lyrics: lr
   },
   // Kertosäkeen jälkeen ei ole akustisen version kahden tahdin välisoittoa.
@@ -9604,14 +9632,14 @@ const ge = (s, a) => ({ first: s, ...a ? { second: a } : {} }), sr = () => [
     id: "chorus2",
     title: "Kertosäe 2",
     start: 91,
-    bars: [...ar(), ge("E♭"), ge("F")],
+    bars: [...ar(), ye("E♭"), ye("F")],
     lyrics: lr
   },
   {
     id: "bridge",
     title: "Kitarasoolo",
     start: 111,
-    bars: [ge("Gm"), ge("Dm"), ge("F"), ge("C"), ge("Gm"), ge("Dm"), ge("E♭"), ge("F")]
+    bars: [ye("Gm"), ye("Dm"), ye("F"), ye("C"), ye("Gm"), ye("Dm"), ye("E♭"), ye("F")]
   },
   // Tekninen huomio (ei näytetä käyttäjälle): basso on tauolla noin 2:23–2:44,
   // ja laulu sijoittuu tämän kitaravetoisen jakson päälle.
@@ -9626,29 +9654,29 @@ const ge = (s, a) => ({ first: s, ...a ? { second: a } : {} }), sr = () => [
     id: "chorus3",
     title: "Kertosäe 3",
     start: 167,
-    bars: [...ar(), ge("B♭", "F"), ge("Gm"), ge("E♭", "F"), ge("Gm")],
+    bars: [...ar(), ye("B♭", "F"), ye("Gm"), ye("E♭", "F"), ye("Gm")],
     lyrics: lr
   },
   {
     id: "outro",
     title: "Outro",
     start: 195,
-    bars: [ge("E♭", "F"), ge("Gm", "F"), ge("E♭", "F"), ge("Gm")],
+    bars: [ye("E♭", "F"), ye("Gm", "F"), ye("E♭", "F"), ye("Gm")],
     lyrics: ["Yksi sointu, kaksi askelta", "sama riffi palaa taas"],
     note: "Viimeinen Gm jää soimaan kappaleen loppuun."
   }
 ], cr = {
-  acoustic: Lv,
-  normal: Rv
-}, Ov = "normal", Io = "yksi-sointu-kaksi-askelta", Qo = {
+  acoustic: Ov,
+  normal: Fv
+}, Iv = "normal", Io = "yksi-sointu-kaksi-askelta", Qo = {
   acoustic: Io + "-akustinen",
   normal: Io + "-normaali"
 }, Gf = (s) => s === Io || Object.values(Qo).includes(s ?? "");
-function $v(s) {
+function Dv(s) {
   const a = Object.entries(Qo).find(([, o]) => o === s);
   return a ? a[0] : null;
 }
-const Fv = (s) => Qo[s], of = (s) => {
+const zv = (s) => Qo[s], of = (s) => {
   const a = Math.max(0, Math.floor(Number.isFinite(s) ? s : 0));
   return `${Math.floor(a / 60)}:${String(a % 60).padStart(2, "0")}`;
 };
@@ -9666,21 +9694,21 @@ function Wf(s, a = "acoustic") {
   for (; p + 1 < f.bars.length && c >= ns(d, p + 1, a); )
     p++;
   const m = ns(d, p, a), E = Yo(d, a) / 4;
-  let L = 1;
-  for (; L < 4 && c >= m + L * E; ) L++;
+  let P = 1;
+  for (; P < 4 && c >= m + P * E; ) P++;
   const v = f.bars[p];
   return {
     section: f,
     sectionIndex: d,
     barIndex: p,
-    beat: L,
-    chord: v.second && L >= 3 ? v.second : v.first
+    beat: P,
+    chord: v.second && P >= 3 ? v.second : v.first
   };
 }
 function ns(s, a, o = "acoustic") {
   return cr[o][s].start + Yo(s, o) * a;
 }
-function Iv(s) {
+function Bv(s) {
   return cr[s].flatMap((a, o) => a.bars.flatMap((c, d) => {
     const f = ns(o, d, s), p = { section: a, sectionIndex: o, barIndex: d, part: "first", chord: c.first, time: f };
     if (!c.second) return [p];
@@ -9688,26 +9716,26 @@ function Iv(s) {
     return [p, { ...p, part: "second", chord: c.second, time: f + m }];
   }));
 }
-function Dv(s, a = "acoustic", o = !1) {
-  const c = cr[a], d = Wf(s, a), f = d.section.bars[d.barIndex], p = d.beat >= 3 && f.second ? "second" : "first", m = Iv(a), E = m.findIndex((O) => O.sectionIndex === d.sectionIndex && O.barIndex === d.barIndex && O.part === p), v = [
-    ...m.slice(E + 1).map((O) => ({ ...O, wrapped: !1 })),
-    ...o ? m.slice(0, E + 1).map((O) => ({ ...O, wrapped: !0 })) : []
-  ].find((O) => O.chord !== d.chord) ?? null;
+function Vv(s, a = "acoustic", o = !1) {
+  const c = cr[a], d = Wf(s, a), f = d.section.bars[d.barIndex], p = d.beat >= 3 && f.second ? "second" : "first", m = Bv(a), E = m.findIndex((R) => R.sectionIndex === d.sectionIndex && R.barIndex === d.barIndex && R.part === p), v = [
+    ...m.slice(E + 1).map((R) => ({ ...R, wrapped: !1 })),
+    ...o ? m.slice(0, E + 1).map((R) => ({ ...R, wrapped: !0 })) : []
+  ].find((R) => R.chord !== d.chord) ?? null;
   let j = null;
-  const M = d.sectionIndex === c.length - 1;
-  if (d.barIndex === d.section.bars.length - 1 && (!M || o)) {
-    const O = M ? 0 : d.sectionIndex + 1, P = c[O], w = P.bars[0].first;
+  const T = d.sectionIndex === c.length - 1;
+  if (d.barIndex === d.section.bars.length - 1 && (!T || o)) {
+    const R = T ? 0 : d.sectionIndex + 1, A = c[R], w = A.bars[0].first;
     j = {
-      section: P,
-      sectionIndex: O,
+      section: A,
+      sectionIndex: R,
       firstChord: w,
-      wrapped: M,
+      wrapped: T,
       continues: w === (f.second ?? f.first)
     };
   }
   return { nextChord: v, nextSection: j };
 }
-function zv(s) {
+function Kv(s) {
   const a = s.filter((m) => m.lyrics?.length), o = (m) => 1 + (m.lyrics?.length ?? 0), c = a.reduce((m, E) => m + o(E), 0);
   let d = 0, f = 1 / 0, p = 0;
   for (let m = 0; m <= a.length; m++) {
@@ -9751,37 +9779,37 @@ function cf(s) {
     return { ...uf, fadeOrder: { ...Sa } };
   }
 }
-function Bv() {
+function Uv() {
   try {
     return cf(localStorage.getItem(Qf));
   } catch {
     return cf(null);
   }
 }
-const Vv = /^([A-H](?:[♭♯b#]*))([^/?]*)(\/[A-H][♭♯b#]*)?(\?)?$/;
-function Kv(s) {
-  const a = Vv.exec(s.trim());
+const Hv = /^([A-H](?:[♭♯b#]*))([^/?]*)(\/[A-H][♭♯b#]*)?(\?)?$/;
+function Gv(s) {
+  const a = Hv.exec(s.trim());
   if (!a) return s;
   const [, o, , c = "", d = ""] = a;
   return o + "5" + c + d;
 }
-const Uv = (s, a) => a === "power" ? Kv(s) : s, Hv = [
+const Wv = (s, a) => a === "power" ? Gv(s) : s, Qv = [
   { value: 0, label: "0 · Kaikki näkyvät" },
   { value: 1, label: "1 · Helppo: tutut pois" },
   { value: 2, label: "2 · Keskitaso: lisää pois" },
   { value: 3, label: "3 · Vaikea: viimeiset vihjeet" },
   { value: 4, label: "4 · Muistista: kaikki piilossa" }
-], Gv = [
+], Yv = [
   { value: 1, label: "1 · Piilota ensimmäisenä" },
   { value: 2, label: "2 · Piilota toisena" },
   { value: 3, label: "3 · Piilota kolmantena" },
   { value: 4, label: "4 · Piilota viimeisenä" }
 ];
-function Wv({ version: s, position: a, loop: o = !1, onSeek: c }) {
-  const [d, f] = A.useState(Bv), [p, m] = A.useState(null), [E, L] = A.useState(!1), [v, j] = A.useState("full"), M = (U) => Uv(U, v), O = cr[s], P = Wf(a, s), { section: w, sectionIndex: S, barIndex: z, beat: T, chord: K } = P, B = T >= 3 && w.bars[z].second ? "second" : "first", H = (U, ae, ue) => `${s}:${U}:${ae}:${ue}`, I = (U, ae) => H(w.id, U, ae), _ = I(z, B), $ = ka(K, d), ie = $ && p === _, J = (U, ae, ue) => !ka(U, d) || p === I(ae, ue), ve = d.showChords && d.level === 0, Se = Do.filter((U) => ka(U, d)).length, { nextSection: X } = Dv(a, s, o), fe = !!X && ka(X.firstChord, d);
-  return A.useEffect(() => {
+function Jv({ version: s, position: a, loop: o = !1, onSeek: c }) {
+  const [d, f] = _.useState(Uv), [p, m] = _.useState(null), [E, P] = _.useState(!1), [v, j] = _.useState("full"), T = (H) => Wv(H, v), R = cr[s], A = Wf(a, s), { section: w, sectionIndex: S, barIndex: z, beat: C, chord: K } = A, B = C >= 3 && w.bars[z].second ? "second" : "first", U = (H, ce, oe) => `${s}:${H}:${ce}:${oe}`, F = (H, ce) => U(w.id, H, ce), M = F(z, B), $ = ka(K, d), ie = $ && p === M, Z = (H, ce, oe) => !ka(H, d) || p === F(ce, oe), je = d.showChords && d.level === 0, Ee = Do.filter((H) => ka(H, d)).length, { nextSection: J } = Vv(a, s, o), de = !!J && ka(J.firstChord, d);
+  return _.useEffect(() => {
     m(null);
-  }, [_]), A.useEffect(() => {
+  }, [M]), _.useEffect(() => {
     try {
       localStorage.setItem(Qf, JSON.stringify(d));
     } catch {
@@ -9801,8 +9829,8 @@ function Wv({ version: s, position: a, loop: o = !1, onSeek: c }) {
           {
             type: "checkbox",
             checked: d.showChords,
-            onChange: (U) => {
-              f((ae) => ({ ...ae, showChords: U.target.checked })), m(null);
+            onChange: (H) => {
+              f((ce) => ({ ...ce, showChords: H.target.checked })), m(null);
             }
           }
         ),
@@ -9814,26 +9842,26 @@ function Wv({ version: s, position: a, loop: o = !1, onSeek: c }) {
           {
             type: "checkbox",
             checked: E,
-            onChange: (U) => L(U.target.checked)
+            onChange: (H) => P(H.target.checked)
           }
         ),
         "Näytä koko sanoitus"
       ] }),
       /* @__PURE__ */ r.jsxs("fieldset", { className: "song-chord-display", children: [
         /* @__PURE__ */ r.jsx("legend", { children: "Sointumerkinnät" }),
-        [["full", "Täydet soinnut"], ["power", "Power-soinnut"]].map(([U, ae]) => /* @__PURE__ */ r.jsxs("label", { children: [
+        [["full", "Täydet soinnut"], ["power", "Power-soinnut"]].map(([H, ce]) => /* @__PURE__ */ r.jsxs("label", { children: [
           /* @__PURE__ */ r.jsx(
             "input",
             {
               type: "radio",
               name: "song-chord-display",
-              value: U,
-              checked: v === U,
-              onChange: () => j(U)
+              value: H,
+              checked: v === H,
+              onChange: () => j(H)
             }
           ),
-          /* @__PURE__ */ r.jsx("span", { children: ae })
-        ] }, U))
+          /* @__PURE__ */ r.jsx("span", { children: ce })
+        ] }, H))
       ] }),
       /* @__PURE__ */ r.jsxs("label", { className: "song-hint-level", htmlFor: "song-hint-level", children: [
         "Harjoitustaso",
@@ -9843,34 +9871,34 @@ function Wv({ version: s, position: a, loop: o = !1, onSeek: c }) {
             id: "song-hint-level",
             value: d.level,
             disabled: !d.showChords,
-            onChange: (U) => {
-              const ae = Number(U.target.value);
-              f((ue) => ({ ...ue, level: ae })), m(null);
+            onChange: (H) => {
+              const ce = Number(H.target.value);
+              f((oe) => ({ ...oe, level: ce })), m(null);
             },
-            children: Hv.map((U) => /* @__PURE__ */ r.jsx("option", { value: U.value, children: U.label }, U.value))
+            children: Qv.map((H) => /* @__PURE__ */ r.jsx("option", { value: H.value, children: H.label }, H.value))
           }
         )
       ] }),
-      /* @__PURE__ */ r.jsx("span", { className: "song-hint-progress", "aria-live": "polite", children: Se === 0 ? "Kaikki kuusi sointua näkyvät" : `Piilossa ${Se}/6 sointua` })
+      /* @__PURE__ */ r.jsx("span", { className: "song-hint-progress", "aria-live": "polite", children: Ee === 0 ? "Kaikki kuusi sointua näkyvät" : `Piilossa ${Ee}/6 sointua` })
     ] }),
     d.showChords && d.level < 4 && /* @__PURE__ */ r.jsxs("details", { className: "song-fade-customize", children: [
       /* @__PURE__ */ r.jsx("summary", { children: "Muokkaa sointujen piilotusjärjestystä" }),
       /* @__PURE__ */ r.jsx("p", { children: "Järjestys perustuu aluksi siihen, kuinka usein sointu toistuu kappaleessa, ei otteen tekniseen vaikeuteen. Muuta järjestys oman osaamisesi mukaan. Valinta säilyy molemmissa versioissa." }),
-      /* @__PURE__ */ r.jsx("div", { className: "song-fade-order", children: Do.map((U) => /* @__PURE__ */ r.jsxs("label", { children: [
-        U,
+      /* @__PURE__ */ r.jsx("div", { className: "song-fade-order", children: Do.map((H) => /* @__PURE__ */ r.jsxs("label", { children: [
+        H,
         /* @__PURE__ */ r.jsx(
           "select",
           {
-            "aria-label": U + ": piilotusvaihe",
-            value: d.fadeOrder[U],
-            onChange: (ae) => {
-              const ue = Number(ae.target.value);
-              f((W) => ({ ...W, fadeOrder: { ...W.fadeOrder, [U]: ue } })), m(null);
+            "aria-label": H + ": piilotusvaihe",
+            value: d.fadeOrder[H],
+            onChange: (ce) => {
+              const oe = Number(ce.target.value);
+              f((W) => ({ ...W, fadeOrder: { ...W.fadeOrder, [H]: oe } })), m(null);
             },
-            children: Gv.map((ae) => /* @__PURE__ */ r.jsx("option", { value: ae.value, children: ae.label }, ae.value))
+            children: Yv.map((ce) => /* @__PURE__ */ r.jsx("option", { value: ce.value, children: ce.label }, ce.value))
           }
         )
-      ] }, U)) })
+      ] }, H)) })
     ] }),
     /* @__PURE__ */ r.jsxs("div", { className: "song-chord-toolbar", children: [
       /* @__PURE__ */ r.jsxs("label", { htmlFor: "song-section-jump", children: [
@@ -9880,28 +9908,28 @@ function Wv({ version: s, position: a, loop: o = !1, onSeek: c }) {
           {
             id: "song-section-jump",
             value: w.id,
-            onChange: (U) => {
-              const ae = O.find((ue) => ue.id === U.target.value);
-              ae && c(ae.start);
+            onChange: (H) => {
+              const ce = R.find((oe) => oe.id === H.target.value);
+              ce && c(ce.start);
             },
-            children: O.map((U) => /* @__PURE__ */ r.jsxs("option", { value: U.id, children: [
-              of(U.start),
+            children: R.map((H) => /* @__PURE__ */ r.jsxs("option", { value: H.id, children: [
+              of(H.start),
               " · ",
-              U.title
-            ] }, U.id))
+              H.title
+            ] }, H.id))
           }
         )
       ] }),
       /* @__PURE__ */ r.jsxs("div", { className: "song-now-next", children: [
         /* @__PURE__ */ r.jsxs("p", { className: "song-current-chord", children: [
           $ && !ie ? "Piilotettu sointu" : "Soiva sointu",
-          /* @__PURE__ */ r.jsx("strong", { children: $ && !ie ? "?" : M(K) }),
+          /* @__PURE__ */ r.jsx("strong", { children: $ && !ie ? "?" : T(K) }),
           /* @__PURE__ */ r.jsxs("span", { children: [
             w.title,
             ", tahti ",
             z + 1,
             ", isku ",
-            T,
+            C,
             "/4"
           ] }),
           $ && /* @__PURE__ */ r.jsx(
@@ -9909,122 +9937,122 @@ function Wv({ version: s, position: a, loop: o = !1, onSeek: c }) {
             {
               type: "button",
               className: "song-reveal-chord",
-              onClick: () => m(ie ? null : _),
+              onClick: () => m(ie ? null : M),
               children: ie ? "Piilota vihje" : "Paljasta sointu"
             }
           )
         ] }),
-        X && /* @__PURE__ */ r.jsxs("p", { className: "song-ahead song-next-chord", children: [
+        J && /* @__PURE__ */ r.jsxs("p", { className: "song-ahead song-next-chord", children: [
           "Seuraava sointu ",
-          /* @__PURE__ */ r.jsx("strong", { children: fe ? "?" : M(X.firstChord) })
+          /* @__PURE__ */ r.jsx("strong", { children: de ? "?" : T(J.firstChord) })
         ] })
       ] })
     ] }),
-    /* @__PURE__ */ r.jsx("div", { className: "song-bar-grid", role: "group", "aria-label": w.title + ": tahdit", children: w.bars.map((U, ae) => {
-      const ue = ae === z, W = ue && (T < 3 || !U.second), le = ue && T >= 3 && !!U.second, ee = J(U.first, ae, "first"), x = U.second ? J(U.second, ae, "second") : !1, y = (ee ? M(U.first) : "sointu piilossa") + (U.second ? " " + (x ? M(U.second) : "sointu piilossa") : "") + (ve && U.passingBass ? " (basson kulku " + U.passingBass + ")" : "") + (ve && U.possibleChord ? " (" + M(U.possibleChord + "?") + ")" : "");
+    /* @__PURE__ */ r.jsx("div", { className: "song-bar-grid", role: "group", "aria-label": w.title + ": tahdit", children: w.bars.map((H, ce) => {
+      const oe = ce === z, W = oe && (C < 3 || !H.second), ue = oe && C >= 3 && !!H.second, ee = Z(H.first, ce, "first"), x = H.second ? Z(H.second, ce, "second") : !1, y = (ee ? T(H.first) : "sointu piilossa") + (H.second ? " " + (x ? T(H.second) : "sointu piilossa") : "") + (je && H.passingBass ? " (basson kulku " + H.passingBass + ")" : "") + (je && H.possibleChord ? " (" + T(H.possibleChord + "?") + ")" : "");
       return /* @__PURE__ */ r.jsxs(
         "button",
         {
           type: "button",
-          className: "song-measure" + (ue ? " active" : ""),
-          "aria-pressed": ue,
-          "aria-label": "Tahti " + (ae + 1) + ": " + y + ". Siirry kohtaan " + of(ns(S, ae, s)),
-          onClick: () => c(ns(S, ae, s)),
+          className: "song-measure" + (oe ? " active" : ""),
+          "aria-pressed": oe,
+          "aria-label": "Tahti " + (ce + 1) + ": " + y + ". Siirry kohtaan " + of(ns(S, ce, s)),
+          onClick: () => c(ns(S, ce, s)),
           children: [
             /* @__PURE__ */ r.jsxs("span", { className: "song-measure-number", children: [
               "Tahti ",
-              ae + 1
+              ce + 1
             ] }),
             /* @__PURE__ */ r.jsxs("span", { className: "song-measure-chords", children: [
-              /* @__PURE__ */ r.jsx("strong", { className: W && ee ? "now" : "", children: ee ? M(U.first) : "?" }),
-              U.second && /* @__PURE__ */ r.jsx("strong", { className: le && x ? "now" : "", children: x ? M(U.second) : "?" })
+              /* @__PURE__ */ r.jsx("strong", { className: W && ee ? "now" : "", children: ee ? T(H.first) : "?" }),
+              H.second && /* @__PURE__ */ r.jsx("strong", { className: ue && x ? "now" : "", children: x ? T(H.second) : "?" })
             ] }),
-            ve && U.passingBass && /* @__PURE__ */ r.jsxs("small", { children: [
+            je && H.passingBass && /* @__PURE__ */ r.jsxs("small", { children: [
               "Basso: (",
-              U.passingBass,
+              H.passingBass,
               "), isku 4"
             ] }),
-            ve && U.possibleChord && /* @__PURE__ */ r.jsxs("small", { children: [
+            je && H.possibleChord && /* @__PURE__ */ r.jsxs("small", { children: [
               "Mahdollinen (",
-              M(U.possibleChord + "?"),
+              T(H.possibleChord + "?"),
               ")"
             ] })
           ]
         },
-        ae
+        ce
       );
     }) }),
     E ? /* @__PURE__ */ r.jsxs("div", { className: "song-all-lyrics", "aria-label": "Koko kappaleen sanat", children: [
       /* @__PURE__ */ r.jsx("h4", { children: "Koko kappaleen sanat" }),
-      /* @__PURE__ */ r.jsx("div", { className: "song-all-lyrics-grid", children: zv(O).map((U, ae) => /* @__PURE__ */ r.jsx("div", { className: "song-lyrics-column", children: U.map((ue) => /* @__PURE__ */ r.jsxs("section", { className: "song-lyrics-stanza", children: [
-        /* @__PURE__ */ r.jsx("h5", { children: ue.title }),
-        ue.lyrics?.map((W, le) => /* @__PURE__ */ r.jsx("p", { children: W }, le))
-      ] }, ue.id)) }, ae)) }),
+      /* @__PURE__ */ r.jsx("div", { className: "song-all-lyrics-grid", children: Kv(R).map((H, ce) => /* @__PURE__ */ r.jsx("div", { className: "song-lyrics-column", children: H.map((oe) => /* @__PURE__ */ r.jsxs("section", { className: "song-lyrics-stanza", children: [
+        /* @__PURE__ */ r.jsx("h5", { children: oe.title }),
+        oe.lyrics?.map((W, ue) => /* @__PURE__ */ r.jsx("p", { children: W }, ue))
+      ] }, oe.id)) }, ce)) }),
       /* @__PURE__ */ r.jsx("p", { className: "tools-note", children: "Instrumentaaliosissa ei ole laulunsanoja. Kolmannen säkeistökierron sanat ovat vahvistamatta." })
     ] }) : w.lyrics && /* @__PURE__ */ r.jsxs("div", { className: "song-section-lyrics", children: [
       /* @__PURE__ */ r.jsxs("h4", { children: [
         w.title,
         ": sanat"
       ] }),
-      w.lyrics.map((U, ae) => /* @__PURE__ */ r.jsx("p", { children: U }, ae))
+      w.lyrics.map((H, ce) => /* @__PURE__ */ r.jsx("p", { children: H }, ce))
     ] }),
-    ve && w.note && /* @__PURE__ */ r.jsx("p", { className: "song-chord-note", children: w.note })
+    je && w.note && /* @__PURE__ */ r.jsx("p", { className: "song-chord-note", children: w.note })
   ] });
 }
-const Ta = 7, Qv = { name: "bluesasteikko", base: Fe.SCALES.mp.base, add: [[6, "♭5"]] }, Co = [
+const Ta = 7, Xv = { name: "bluesasteikko", base: Ie.SCALES.mp.base, add: [[6, "♭5"]] }, Co = [
   {
     id: "mp",
     title: "G-mollipentatoninen",
-    scale: Fe.SCALES.mp,
+    scale: Ie.SCALES.mp,
     system: "pentatonic",
     note: "G-mollipentatoninen on hyvä lähtökohta kappaleen improvisointiin. Kuuntele, miten eri sävelet sopivat kulloinkin soivaan sointuun."
   },
   {
     id: "blues",
     title: "G-bluesasteikko",
-    scale: Qv,
+    scale: Xv,
     system: "pentatonic",
     note: "Bluesille ominainen lisäsävel D♭ (♭5) on jännite- ja ohitussävel: soita se ohimennen C:n ja D:n välissä, älä jää siihen pitkäksi kohdesäveleksi."
   },
   {
     id: "aeolian",
     title: "G-luonnollinen molli (aiolinen)",
-    scale: Fe.SCALES.aeolian,
+    scale: Ie.SCALES.aeolian,
     system: "3nps",
     note: "Kappaleen mollisävellajin kaikki seitsemän säveltä. Kitarasoolon C-soinnun aikana E♭ hankaa soinnun E-säveltä vastaan."
   }
 ];
-function Yv(s) {
-  return Fe.scaleNotes(s).map(([a, o]) => Fe.noteName(Ta, a, o));
+function Zv(s) {
+  return Ie.scaleNotes(s).map(([a, o]) => Ie.noteName(Ta, a, o));
 }
 const Yf = (s) => s === "pentatonic" ? 5 : 7;
-function Jv(s, a, o) {
-  const c = a.filter((m) => m >= 1 && m <= Yf(s.system)), d = Fe.fingeringBoxes(Ta, s.scale, s.system, c, o);
+function qv(s, a, o) {
+  const c = a.filter((m) => m >= 1 && m <= Yf(s.system)), d = Ie.fingeringBoxes(Ta, s.scale, s.system, c, o);
   if (s.id !== "blues") return d;
-  const f = s.scale.add.map(([m]) => (Ta + m) % 12), p = (m, E) => E >= 0 && E <= o && f.includes((Fe.OPEN_PITCHES[m] + E) % 12);
+  const f = s.scale.add.map(([m]) => (Ta + m) % 12), p = (m, E) => E >= 0 && E <= o && f.includes((Ie.OPEN_PITCHES[m] + E) % 12);
   return d.map((m) => ({ ...m, positions: m.positions.map((E) => {
-    const L = E.strings.map((j, M) => {
+    const P = E.strings.map((j, T) => {
       if (!j.length) return j;
-      const O = j[j.length - 1];
-      return p(M, O + 1) ? [...j.slice(0, -1), O + 1] : j;
-    }), v = L.flat();
-    return { ...E, strings: L, start: Math.min(...v), end: Math.max(...v) };
+      const R = j[j.length - 1];
+      return p(T, R + 1) ? [...j.slice(0, -1), R + 1] : j;
+    }), v = P.flat();
+    return { ...E, strings: P, start: Math.min(...v), end: Math.max(...v) };
   }) }));
 }
 const df = 17;
-function Xv({ open: s }) {
-  const [a, o] = A.useState("mp"), [c, d] = A.useState({ pentatonic: [], "3nps": [] }), [f, p] = A.useState(!1), [m, E] = A.useState(!1), L = A.useRef(null), v = Co.find((S) => S.id === a) ?? Co[0], j = c[v.system], M = Jv(v, j, df), O = M.some((S) => S.positions.length > 0), P = Fe.renderBoard(Ta, v.scale, df, {
+function ek({ open: s }) {
+  const [a, o] = _.useState("mp"), [c, d] = _.useState({ pentatonic: [], "3nps": [] }), [f, p] = _.useState(!1), [m, E] = _.useState(!1), P = _.useRef(null), v = Co.find((S) => S.id === a) ?? Co[0], j = c[v.system], T = qv(v, j, df), R = T.some((S) => S.positions.length > 0), A = Ie.renderBoard(Ta, v.scale, df, {
     automatic: !0,
-    boxes: M,
-    onlyBoxNotes: O && f,
+    boxes: T,
+    onlyBoxNotes: R && f,
     label: v.title + (j.length ? ", " + j.map((S) => "boksi " + S).join(", ") : "")
   });
-  A.useEffect(() => {
-    const S = L.current;
-    !S || !s || M.length === 1 && Fe.revealPositions(S, ".box-highlight");
-  }, [P, s]);
+  _.useEffect(() => {
+    const S = P.current;
+    !S || !s || T.length === 1 && Ie.revealPositions(S, ".box-highlight");
+  }, [A, s]);
   function w(S, z) {
-    d((T) => ({ ...T, [v.system]: z ? [...T[v.system], S].sort((K, B) => K - B) : T[v.system].filter((K) => K !== S) }));
+    d((C) => ({ ...C, [v.system]: z ? [...C[v.system], S].sort((K, B) => K - B) : C[v.system].filter((K) => K !== S) }));
   }
   return /* @__PURE__ */ r.jsxs("section", { className: "song-scales-panel", "aria-label": "Kappaleeseen sopivat asteikot", children: [
     /* @__PURE__ */ r.jsx("div", { className: "song-scale-controls", children: /* @__PURE__ */ r.jsxs("label", { children: [
@@ -10033,18 +10061,18 @@ function Xv({ open: s }) {
     ] }) }),
     /* @__PURE__ */ r.jsxs("p", { className: "song-scale-notes", children: [
       /* @__PURE__ */ r.jsx("strong", { children: v.title }),
-      /* @__PURE__ */ r.jsx("span", { children: Yv(v.scale).join(" · ") })
+      /* @__PURE__ */ r.jsx("span", { children: Zv(v.scale).join(" · ") })
     ] }),
     /* @__PURE__ */ r.jsx("p", { className: "song-scale-note", children: v.note }),
     /* @__PURE__ */ r.jsx(
       "div",
       {
         className: "song-scale-board",
-        ref: L,
+        ref: P,
         role: "region",
         tabIndex: 0,
         "aria-label": "Asteikko otelaudalla",
-        dangerouslySetInnerHTML: { __html: P }
+        dangerouslySetInnerHTML: { __html: A }
       }
     ),
     /* @__PURE__ */ r.jsxs("div", { className: "legend", children: [
@@ -10084,27 +10112,27 @@ function Xv({ open: s }) {
           "input",
           {
             type: "checkbox",
-            checked: O && f,
-            disabled: !O,
+            checked: R && f,
+            disabled: !R,
             onChange: (S) => p(S.target.checked)
           }
         ),
         "Näytä vain valittujen boksien sävelet"
       ] }),
-      /* @__PURE__ */ r.jsx("p", { className: "tools-note", children: O ? "Voit valita useita bokseja ja halutessasi piilottaa niiden ulkopuoliset sävelet." : "Valitse boksi, jos haluat korostaa sen sormituksen. Voit valita myös useita." })
+      /* @__PURE__ */ r.jsx("p", { className: "tools-note", children: R ? "Voit valita useita bokseja ja halutessasi piilottaa niiden ulkopuoliset sävelet." : "Valitse boksi, jos haluat korostaa sen sormituksen. Voit valita myös useita." })
     ] })
   ] });
 }
 let Jf = null;
-function Zv() {
-  return $v(new URLSearchParams(location.search).get("kappale")) ?? Jf ?? Ov;
+function tk() {
+  return Dv(new URLSearchParams(location.search).get("kappale")) ?? Jf ?? Iv;
 }
-function qv(s) {
+function nk(s) {
   Jf = s;
   const a = new URL(location.href);
-  Gf(a.searchParams.get("kappale")) && (a.searchParams.set("kappale", Fv(s)), history.replaceState(history.state, "", a.pathname + a.search + a.hash));
+  Gf(a.searchParams.get("kappale")) && (a.searchParams.set("kappale", zv(s)), history.replaceState(history.state, "", a.pathname + a.search + a.hash));
 }
-const ek = {
+const ik = {
   acoustic: {
     label: "Akustinen versio",
     length: "3:53",
@@ -10137,127 +10165,134 @@ function mf(s) {
   const a = Math.floor(s);
   return String(Math.floor(a / 60)) + ":" + String(a % 60).padStart(2, "0");
 }
-function tk({ onBack: s }) {
-  const a = A.useRef(null), o = A.useRef(null), c = A.useRef(null), d = A.useRef(0), f = A.useRef(new Rf()), p = A.useRef(null), [m, E] = A.useState(Zv), L = ek[m], [v, j] = A.useState(!1), [M, O] = A.useState(!0), [P, w] = A.useState(!0), [S, z] = A.useState(!1), [T, K] = A.useState(!1), [B, H] = A.useState(!1), [I, _] = A.useState(Pp), [$] = A.useState(() => Lf() ? "element" : "webaudio"), ie = A.useRef(null), [J, ve] = A.useState(0), [Se, X] = A.useState(0), [fe, U] = A.useState("");
-  function ae(C = !1, Z) {
-    const oe = a.current;
-    if (oe)
-      for (const ce of [o.current, c.current])
-        ce && (!Z || ce === Z) && f.current.align(oe, ce, C);
+function rk({ onBack: s }) {
+  const a = _.useRef(null), o = _.useRef(null), c = _.useRef(null), d = _.useRef(0), f = _.useRef(new Rf()), p = _.useRef(null), [m, E] = _.useState(tk), P = ik[m], [v, j] = _.useState(!1), [T, R] = _.useState(!0), [A, w] = _.useState(!0), [S, z] = _.useState(!1), [C, K] = _.useState(!1), [B, U] = _.useState(!1), [F, M] = _.useState(bp), [$] = _.useState(() => Kp()), ie = _.useRef(null), [Z, je] = _.useState(""), [Ee, J] = _.useState(0), [de, H] = _.useState(0), [ce, oe] = _.useState("");
+  function W(I = !1, ne) {
+    const ae = a.current;
+    if (ae)
+      for (const fe of [o.current, c.current])
+        fe && (!ne || fe === ne) && f.current.align(ae, fe, I);
   }
   function ue() {
     return [
       ["backing", a.current, !0],
-      ["guitar", o.current, M],
-      ["vocals", c.current, P]
+      ["guitar", o.current, T],
+      ["vocals", c.current, A]
     ];
   }
-  function W(C = I, Z) {
-    for (const [oe, ce, me] of ue()) {
-      if (!ce) continue;
-      const ye = zd(oe, C, Z?.[oe] ?? me);
-      if ($ === "webaudio" && ie.current?.routed(ce))
-        ie.current.setLevel(ce, ye);
+  function ee(I = F, ne) {
+    for (const [ae, fe, Ne] of ue()) {
+      if (!fe) continue;
+      const we = zd(ae, I, ne?.[ae] ?? Ne);
+      if ($ === "webaudio" && ie.current?.routed(fe))
+        ie.current.setLevel(fe, we);
       else
         try {
-          ce.volume = zd(oe, C);
+          fe.volume = zd(ae, I);
         } catch {
         }
     }
   }
-  function le(C) {
-    _(C), bp(C), W(C);
+  function x(I) {
+    M(I), Pp(I), ee(I);
   }
-  function ee() {
+  function y() {
     d.current++, a.current?.pause(), o.current?.pause(), c.current?.pause(), j(!1);
   }
-  function x(C) {
-    if (C !== m) {
-      p.current = null, ee();
-      for (const Z of [a.current, o.current, c.current])
-        if (Z)
+  function re(I) {
+    if (I !== m) {
+      p.current = null, y();
+      for (const ne of [a.current, o.current, c.current])
+        if (ne)
           try {
-            Z.currentTime = 0;
+            ne.currentTime = 0;
           } catch {
           }
-      ve(0), X(0), U(""), E(C), qv(C);
+      J(0), H(0), oe(""), E(I), nk(I);
     }
   }
-  function y(C) {
-    const Z = a.current;
-    if (!Z || !Number.isFinite(C)) return;
-    const oe = Math.max(0, Math.min(C, Number.isFinite(Z.duration) ? Z.duration : C));
-    p.current = oe, ve(oe), hf(Z, oe);
+  function he(I) {
+    const ne = a.current;
+    if (!ne || !Number.isFinite(I)) return;
+    const ae = Math.max(0, Math.min(I, Number.isFinite(ne.duration) ? ne.duration : I));
+    p.current = ae, J(ae), hf(ne, ae);
   }
-  function te(C) {
-    const Z = p.current;
-    if (Z === null || C !== a.current || C.seeking) return;
-    const oe = Number.isFinite(C.duration) ? Math.min(Z, C.duration) : Z;
-    if (oe !== Z && (p.current = oe, ve(oe)), Math.abs(C.currentTime - oe) < ff) return;
-    const ce = C.seekable;
-    for (let me = 0; me < ce.length; me++)
-      if (ce.start(me) <= oe && oe <= ce.end(me)) {
-        hf(C, oe);
+  function Se(I) {
+    const ne = p.current;
+    if (ne === null || I !== a.current || I.seeking) return;
+    const ae = Number.isFinite(I.duration) ? Math.min(ne, I.duration) : ne;
+    if (ae !== ne && (p.current = ae, J(ae)), Math.abs(I.currentTime - ae) < ff) return;
+    const fe = I.seekable;
+    for (let Ne = 0; Ne < fe.length; Ne++)
+      if (fe.start(Ne) <= ae && ae <= fe.end(Ne)) {
+        hf(I, ae);
         return;
       }
   }
-  function he(C) {
-    if (C !== a.current) return;
-    const Z = p.current;
-    if (Z === null)
-      ve(C.currentTime);
-    else if (C.readyState >= 1 && !C.seeking && Math.abs(C.currentTime - Z) < ff) {
-      p.current = null, ae(!0);
+  function G(I) {
+    if (I !== a.current) return;
+    const ne = p.current;
+    if (ne === null)
+      J(I.currentTime);
+    else if (I.readyState >= 1 && !I.seeking && Math.abs(I.currentTime - ne) < ff) {
+      p.current = null, W(!0);
       return;
     }
-    C.paused || ae();
+    I.paused || W();
   }
-  async function we() {
-    const C = a.current, Z = o.current, oe = c.current;
-    if (!C || !Z || !oe) return;
+  async function V() {
+    const I = a.current, ne = o.current, ae = c.current;
+    if (!I || !ne || !ae) return;
     if (v) {
-      ee();
+      y();
       return;
     }
-    U("");
-    const ce = p.current ?? C.currentTime;
-    if (Number.isFinite(C.duration) && ce >= C.duration - 0.05 && y(0), te(C), $ === "webaudio" && (ie.current ??= new Kp(), ie.current.unlock()))
-      for (const ye of [C, Z, oe]) ie.current.route(ye);
-    W(), Z.muted = !M, oe.muted = !P, ae(!0);
-    const me = ++d.current;
+    oe("");
+    const fe = p.current ?? I.currentTime;
+    if (Number.isFinite(I.duration) && fe >= I.duration - 0.05 && he(0), Se(I), $ === "webaudio") {
+      const we = ie.current ??= new Gp(), Le = we.unlock() && [I, ne, ae].map((He) => we.route(He)).every(Boolean);
+      je(Le ? "" : "Äänenvoimakkuutta ei voi säätää tässä selaimessa. Käytä laitteen äänenvoimakkuuspainikkeita. " + we.lastError);
+    }
+    ee(), ne.muted = !T, ae.muted = !A, W(!0);
+    const Ne = ++d.current;
     try {
-      M || Z.pause(), P || oe.pause();
-      const ye = [C.play(), ...M ? [Z.play()] : [], ...P ? [oe.play()] : []];
-      if (await Promise.all(ye), me !== d.current) return;
-      ae(), j(!0);
+      T || ne.pause(), A || ae.pause();
+      const we = [I.play(), ...T ? [ne.play()] : [], ...A ? [ae.play()] : []];
+      if (await Promise.all(we), Ne !== d.current) return;
+      if (W(), j(!0), $ === "webaudio" && ie.current?.routed(I)) {
+        const Le = ie.current;
+        setTimeout(() => {
+          Ne === d.current && Le.state !== "running" && oe(`Ääni ei käynnistynyt (Web Audio: ${Le.state}). Pysäytä ja soita uudelleen.${Le.lastError ? " " + Le.lastError : ""}`);
+        }, 800);
+      }
     } catch {
-      if (me !== d.current) return;
-      ee(), U("Toisto epäonnistui. Tarkista, että valitun version kaikki kolme MP3-raitaa ovat paikallaan.");
+      if (Ne !== d.current) return;
+      y(), oe("Toisto epäonnistui. Tarkista, että valitun version kaikki kolme MP3-raitaa ovat paikallaan.");
     }
   }
-  function G(C, Z, oe) {
-    if (!C) return;
-    if (C.muted = !Z, !Z) {
-      C.pause();
+  function te(I, ne, ae) {
+    if (!I) return;
+    if (I.muted = !ne, !ne) {
+      I.pause();
       return;
     }
-    !a.current || !v || (ae(!0, C), C.play().catch(() => U(oe + " ei käynnistynyt. Pysäytä ja soita uudelleen.")));
+    !a.current || !v || (W(!0, I), I.play().catch(() => oe(ae + " ei käynnistynyt. Pysäytä ja soita uudelleen.")));
   }
-  function V(C) {
-    O(C), W(I, { guitar: C }), G(o.current, C, "Kitararaita");
+  function X(I) {
+    R(I), ee(F, { guitar: I }), te(o.current, I, "Kitararaita");
   }
-  function ne(C) {
-    w(C), W(I, { vocals: C }), G(c.current, C, "Lauluraita");
+  function ve(I) {
+    w(I), ee(F, { vocals: I }), te(c.current, I, "Lauluraita");
   }
-  return A.useEffect(() => {
-    const C = () => {
-      document.hidden && ee();
+  return _.useEffect(() => {
+    const I = () => {
+      document.hidden && y();
     };
-    return document.addEventListener("visibilitychange", C), () => {
-      document.removeEventListener("visibilitychange", C), d.current++, a.current?.pause(), o.current?.pause(), c.current?.pause(), ie.current?.close();
+    return document.addEventListener("visibilitychange", I), () => {
+      document.removeEventListener("visibilitychange", I), d.current++, a.current?.pause(), o.current?.pause(), c.current?.pause(), ie.current?.close();
     };
-  }, []), A.useEffect(() => {
-    W();
+  }, []), _.useEffect(() => {
+    ee();
   }, [m]), /* @__PURE__ */ r.jsxs("section", { className: "song-journey", "aria-labelledby": "song-journey-title", children: [
     /* @__PURE__ */ r.jsx("button", { type: "button", className: "back-link", onClick: s, children: "← Oppimispolut" }),
     /* @__PURE__ */ r.jsx("p", { className: "eyebrow", children: "KAPPALEHARJOITTELU · MALLIKAPPALE 01" }),
@@ -10270,7 +10305,7 @@ function tk({ onBack: s }) {
         {
           id: "song-version-select",
           value: m,
-          onChange: (C) => x(C.target.value),
+          onChange: (I) => re(I.target.value),
           children: [
             /* @__PURE__ */ r.jsx("option", { value: "normal", children: "Normaali versio" }),
             /* @__PURE__ */ r.jsx("option", { value: "acoustic", children: "Akustinen versio" })
@@ -10282,15 +10317,15 @@ function tk({ onBack: s }) {
       /* @__PURE__ */ r.jsxs("div", { className: "session-top", children: [
         /* @__PURE__ */ r.jsx("h3", { children: "Kappaleen soitin" }),
         /* @__PURE__ */ r.jsxs("span", { children: [
-          L.label,
+          P.label,
           " · ",
-          L.length,
+          P.length,
           " · kolme ääniraitaa"
         ] })
       ] }),
       /* @__PURE__ */ r.jsxs("div", { className: "song-player-controls", role: "group", "aria-label": "Kappaleen soitin", children: [
         /* @__PURE__ */ r.jsx("button", { type: "button", className: "primary song-play", onClick: () => {
-          we();
+          V();
         }, children: v ? "■ Tauko" : "▶ Soita kappale" }),
         /* @__PURE__ */ r.jsx(
           "input",
@@ -10298,17 +10333,17 @@ function tk({ onBack: s }) {
             type: "range",
             "aria-label": "Siirry kappaleessa",
             min: 0,
-            max: Se > 0 ? Se : 1,
+            max: de > 0 ? de : 1,
             step: 0.1,
-            value: Math.min(J, Se > 0 ? Se : 1),
-            disabled: Se <= 0,
-            onChange: (C) => y(Number(C.target.value))
+            value: Math.min(Ee, de > 0 ? de : 1),
+            disabled: de <= 0,
+            onChange: (I) => he(Number(I.target.value))
           }
         ),
         /* @__PURE__ */ r.jsxs("output", { "aria-live": "off", className: "song-time", children: [
-          mf(J),
+          mf(Ee),
           " / ",
-          mf(Se)
+          mf(de)
         ] })
       ] }),
       /* @__PURE__ */ r.jsxs("div", { className: "song-toggles", children: [
@@ -10317,8 +10352,8 @@ function tk({ onBack: s }) {
             "input",
             {
               type: "checkbox",
-              checked: M,
-              onChange: (C) => V(C.target.checked)
+              checked: T,
+              onChange: (I) => X(I.target.checked)
             }
           ),
           " Kitara kuuluu"
@@ -10328,8 +10363,8 @@ function tk({ onBack: s }) {
             "input",
             {
               type: "checkbox",
-              checked: P,
-              onChange: (C) => ne(C.target.checked)
+              checked: A,
+              onChange: (I) => ve(I.target.checked)
             }
           ),
           " Laulu kuuluu"
@@ -10340,7 +10375,7 @@ function tk({ onBack: s }) {
             {
               type: "checkbox",
               checked: S,
-              onChange: (C) => z(C.target.checked)
+              onChange: (I) => z(I.target.checked)
             }
           ),
           " Soita looppina"
@@ -10348,8 +10383,8 @@ function tk({ onBack: s }) {
         /* @__PURE__ */ r.jsxs("label", { className: "song-volume", "data-volume-mode": $, children: [
           /* @__PURE__ */ r.jsxs("svg", { "aria-hidden": "true", viewBox: "0 0 24 24", width: "20", height: "20", children: [
             /* @__PURE__ */ r.jsx("path", { d: "M4 9h4l5-4v14l-5-4H4z", fill: "currentColor" }),
-            I > 0 && /* @__PURE__ */ r.jsx("path", { d: "M16 9.5a3.5 3.5 0 0 1 0 5", stroke: "currentColor", strokeWidth: "2", fill: "none", strokeLinecap: "round" }),
-            I > 50 && /* @__PURE__ */ r.jsx("path", { d: "M18.5 7a7 7 0 0 1 0 10", stroke: "currentColor", strokeWidth: "2", fill: "none", strokeLinecap: "round" })
+            F > 0 && /* @__PURE__ */ r.jsx("path", { d: "M16 9.5a3.5 3.5 0 0 1 0 5", stroke: "currentColor", strokeWidth: "2", fill: "none", strokeLinecap: "round" }),
+            F > 50 && /* @__PURE__ */ r.jsx("path", { d: "M18.5 7a7 7 0 0 1 0 10", stroke: "currentColor", strokeWidth: "2", fill: "none", strokeLinecap: "round" })
           ] }),
           /* @__PURE__ */ r.jsx(
             "input",
@@ -10358,50 +10393,51 @@ function tk({ onBack: s }) {
               min: 0,
               max: 100,
               step: 1,
-              value: I,
+              value: F,
               "aria-label": "Äänenvoimakkuus",
-              "aria-valuetext": I + " %",
-              onChange: (C) => le(Number(C.target.value))
+              "aria-valuetext": F + " %",
+              onChange: (I) => x(Number(I.target.value))
             }
           ),
           /* @__PURE__ */ r.jsxs("output", { "aria-hidden": "true", children: [
-            I,
+            F,
             " %"
           ] })
         ] })
       ] }),
+      Z && /* @__PURE__ */ r.jsx("p", { className: "tools-note", role: "status", children: Z }),
       /* @__PURE__ */ r.jsxs("p", { className: "song-download", children: [
-        /* @__PURE__ */ r.jsxs("a", { href: L.download, download: L.download.split("/").pop(), type: "audio/mpeg", children: [
+        /* @__PURE__ */ r.jsxs("a", { href: P.download, download: P.download.split("/").pop(), type: "audio/mpeg", children: [
           /* @__PURE__ */ r.jsx("svg", { "aria-hidden": "true", viewBox: "0 0 24 24", width: "18", height: "18", children: /* @__PURE__ */ r.jsx("path", { d: "M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14", stroke: "currentColor", strokeWidth: "2", fill: "none", strokeLinecap: "round", strokeLinejoin: "round" }) }),
           "Lataa MP3"
         ] }),
         /* @__PURE__ */ r.jsxs("span", { children: [
-          L.label,
+          P.label,
           ", koko kappale · ",
-          L.downloadSize
+          P.downloadSize
         ] })
       ] }),
-      fe && /* @__PURE__ */ r.jsx("p", { className: "backing-error", role: "alert", children: fe }),
+      ce && /* @__PURE__ */ r.jsx("p", { className: "backing-error", role: "alert", children: ce }),
       /* @__PURE__ */ r.jsx(
         "audio",
         {
           ref: a,
-          src: L.backing,
+          src: P.backing,
           preload: "metadata",
           loop: S,
-          onLoadedMetadata: (C) => {
-            C.currentTarget === a.current && (X(C.currentTarget.duration), te(C.currentTarget));
+          onLoadedMetadata: (I) => {
+            I.currentTarget === a.current && (H(I.currentTarget.duration), Se(I.currentTarget));
           },
-          onProgress: (C) => te(C.currentTarget),
-          onCanPlay: (C) => te(C.currentTarget),
-          onTimeUpdate: (C) => he(C.currentTarget),
-          onEnded: (C) => {
-            C.currentTarget !== a.current || C.currentTarget.loop || (p.current = null, o.current?.pause(), c.current?.pause(), j(!1), ve(C.currentTarget.duration));
+          onProgress: (I) => Se(I.currentTarget),
+          onCanPlay: (I) => Se(I.currentTarget),
+          onTimeUpdate: (I) => G(I.currentTarget),
+          onEnded: (I) => {
+            I.currentTarget !== a.current || I.currentTarget.loop || (p.current = null, o.current?.pause(), c.current?.pause(), j(!1), J(I.currentTarget.duration));
           },
-          onPause: (C) => {
-            C.currentTarget === a.current && j(!1);
+          onPause: (I) => {
+            I.currentTarget === a.current && j(!1);
           },
-          onError: () => U(L.label + ": säestysraita puuttuu. Pura kyseisen version ZIP-paketti projektin juureen.")
+          onError: () => oe(P.label + ": säestysraita puuttuu. Pura kyseisen version ZIP-paketti projektin juureen.")
         },
         m + "-backing"
       ),
@@ -10409,14 +10445,14 @@ function tk({ onBack: s }) {
         "audio",
         {
           ref: o,
-          src: L.guitar,
+          src: P.guitar,
           preload: "metadata",
-          muted: !M,
+          muted: !T,
           loop: S,
           onLoadedMetadata: () => {
-            a.current?.paused && ae(!0);
+            a.current?.paused && W(!0);
           },
-          onError: () => U(L.label + ": kitararaita puuttuu tai ei lataudu.")
+          onError: () => oe(P.label + ": kitararaita puuttuu tai ei lataudu.")
         },
         m + "-guitar"
       ),
@@ -10424,29 +10460,29 @@ function tk({ onBack: s }) {
         "audio",
         {
           ref: c,
-          src: L.vocals,
+          src: P.vocals,
           preload: "metadata",
-          muted: !P,
+          muted: !A,
           loop: S,
           onLoadedMetadata: () => {
-            a.current?.paused && ae(!0);
+            a.current?.paused && W(!0);
           },
-          onError: () => U(L.label + ": lauluraita puuttuu tai ei lataudu.")
+          onError: () => oe(P.label + ": lauluraita puuttuu tai ei lataudu.")
         },
         m + "-vocals"
       )
     ] }),
-    /* @__PURE__ */ r.jsxs("details", { className: "song-chart-collapse", open: T, children: [
-      /* @__PURE__ */ r.jsx("summary", { onClick: (C) => {
-        C.preventDefault(), K((Z) => !Z);
+    /* @__PURE__ */ r.jsxs("details", { className: "song-chart-collapse", open: C, children: [
+      /* @__PURE__ */ r.jsx("summary", { onClick: (I) => {
+        I.preventDefault(), K((ne) => !ne);
       }, children: "Soinnut ja sanat" }),
-      /* @__PURE__ */ r.jsx(Wv, { version: m, position: J, loop: S, onSeek: y })
+      /* @__PURE__ */ r.jsx(Jv, { version: m, position: Ee, loop: S, onSeek: he })
     ] }),
     /* @__PURE__ */ r.jsxs("details", { className: "song-scales-collapse", open: B, children: [
-      /* @__PURE__ */ r.jsx("summary", { onClick: (C) => {
-        C.preventDefault(), H((Z) => !Z);
+      /* @__PURE__ */ r.jsx("summary", { onClick: (I) => {
+        I.preventDefault(), U((ne) => !ne);
       }, children: "Skaalat ja moodit" }),
-      /* @__PURE__ */ r.jsx(Xv, { open: B })
+      /* @__PURE__ */ r.jsx(ek, { open: B })
     ] })
   ] });
 }
@@ -10462,7 +10498,7 @@ const zo = {
   const a = Math.round(s);
   return (a > 0 ? "+" : a < 0 ? "−" : "±") + Math.abs(a);
 }, Bo = (s) => s ? s.label || "Järjestelmän oletustulo" : "";
-function nk(s, a, o, c) {
+function sk(s, a, o, c) {
   if (c) return ["Signaali on liian voimakas ja leikkautuu. Laske äänikortin gain-säädintä, kunnes mittari ei käy täydessä."];
   switch (s) {
     case "silent":
@@ -10505,25 +10541,25 @@ function Zf({ frame: s, threshold: a }) {
     }
   );
 }
-function ik({ mic: s, frame: a, heard: o, s: c, now: d }) {
-  const f = If(s.phase, a), p = o && d - o.at < 1500 ? o : null, m = f === "pitch" || f === "untuned" || p ? p ? `Kuulen: ${be(p.midi, c.flats, !0)} · ${Xf(p.cents)} senttiä${p.tuned ? "" : " · viritä"}` : "Kuulen sävelen" : f === "noise" ? "Ääntä kuuluu, sävel ei vielä selvä" : f === "silent" ? "Kuuntelen… soita sävel" : zo[f];
+function ak({ mic: s, frame: a, heard: o, s: c, now: d }) {
+  const f = If(s.phase, a), p = o && d - o.at < 1500 ? o : null, m = f === "pitch" || f === "untuned" || p ? p ? `Kuulen: ${Pe(p.midi, c.flats, !0)} · ${Xf(p.cents)} senttiä${p.tuned ? "" : " · viritä"}` : "Kuulen sävelen" : f === "noise" ? "Ääntä kuuluu, sävel ei vielä selvä" : f === "silent" ? "Kuuntelen… soita sävel" : zo[f];
   return /* @__PURE__ */ r.jsxs("div", { className: `mic-live ${f}`, children: [
     /* @__PURE__ */ r.jsx("span", { className: "mic-dot", "aria-hidden": "true" }),
     /* @__PURE__ */ r.jsx("span", { className: "mic-live-text", "data-testid": "mic-live", children: m }),
     s.phase === "on" && /* @__PURE__ */ r.jsx(Zf, { frame: a, threshold: c.minRms })
   ] });
 }
-function rk({ mic: s, frame: a, heard: o, accepted: c, now: d, s: f, change: p, devices: m, locked: E, calibrating: L, calibration: v, onTest: j, onStop: M, onCalibrate: O }) {
-  const P = A.useId(), w = If(s.phase, a), S = s.purpose === "test" && s.phase !== "off" && s.phase !== "error", z = s.phase === "on", T = o && d - o.at < 1500 ? o : null, K = T && (w === "pitch" || w === "untuned"), B = z && (a?.peak ?? 0) >= 0.98, H = s.phase === "error" ? [] : nk(w, f, s.info, B), I = !f.device || m.some(($) => $.deviceId === f.device), _ = ($, ie) => p({ ...f, [$]: ie });
-  return /* @__PURE__ */ r.jsxs("section", { className: "mic-panel", "aria-labelledby": `${P}-title`, children: [
+function lk({ mic: s, frame: a, heard: o, accepted: c, now: d, s: f, change: p, devices: m, locked: E, calibrating: P, calibration: v, onTest: j, onStop: T, onCalibrate: R }) {
+  const A = _.useId(), w = If(s.phase, a), S = s.purpose === "test" && s.phase !== "off" && s.phase !== "error", z = s.phase === "on", C = o && d - o.at < 1500 ? o : null, K = C && (w === "pitch" || w === "untuned"), B = z && (a?.peak ?? 0) >= 0.98, U = s.phase === "error" ? [] : sk(w, f, s.info, B), F = !f.device || m.some(($) => $.deviceId === f.device), M = ($, ie) => p({ ...f, [$]: ie });
+  return /* @__PURE__ */ r.jsxs("section", { className: "mic-panel", "aria-labelledby": `${A}-title`, children: [
     /* @__PURE__ */ r.jsxs("div", { className: "session-top", children: [
-      /* @__PURE__ */ r.jsx("h2", { id: `${P}-title`, children: "Mikrofoni" }),
+      /* @__PURE__ */ r.jsx("h2", { id: `${A}-title`, children: "Mikrofoni" }),
       /* @__PURE__ */ r.jsx("span", { children: f.input === "mic" ? "Valittu vastaustavaksi" : "Ei tarvita otelautavastauksissa" })
     ] }),
     /* @__PURE__ */ r.jsxs("p", { className: `mic-state ${w}`, "data-testid": "mic-state", "data-reading": w, children: [
       /* @__PURE__ */ r.jsx("span", { className: "mic-dot", "aria-hidden": "true" }),
       s.phase === "error" ? s.error : zo[w],
-      w === "pitch" && T ? ` ${be(T.midi, f.flats, !0)}.` : ""
+      w === "pitch" && C ? ` ${Pe(C.midi, f.flats, !0)}.` : ""
     ] }),
     /* @__PURE__ */ r.jsx("p", { className: "sr-only", role: "status", "aria-live": "polite", children: s.phase === "on" ? `Mikrofoni kuuntelee: ${Bo(s.info)}.` : s.phase === "error" ? s.error : zo[s.phase] }),
     s.phase === "off" && /* @__PURE__ */ r.jsx("p", { className: "tools-note", children: "Testi näyttää, kuuleeko selain kitarasi ja tunnistuuko sävel. Ääni käsitellään vain tässä selaimessa: sitä ei tallenneta eikä lähetetä. Testi ei vaikuta harjoitustuloksiin." }),
@@ -10548,36 +10584,36 @@ function rk({ mic: s, frame: a, heard: o, accepted: c, now: d, s: f, change: p, 
       ] }),
       /* @__PURE__ */ r.jsxs("div", { className: K ? "" : "stale", children: [
         /* @__PURE__ */ r.jsx("dt", { children: "Sävel" }),
-        /* @__PURE__ */ r.jsx("dd", { className: "mic-note", "data-testid": "mic-note", children: T ? be(T.midi, f.flats, !0) : "–" })
+        /* @__PURE__ */ r.jsx("dd", { className: "mic-note", "data-testid": "mic-note", children: C ? Pe(C.midi, f.flats, !0) : "–" })
       ] }),
       /* @__PURE__ */ r.jsxs("div", { className: K ? "" : "stale", children: [
         /* @__PURE__ */ r.jsx("dt", { children: "Taajuus" }),
-        /* @__PURE__ */ r.jsx("dd", { "data-testid": "mic-frequency", children: T ? `${wa(T.frequency)} Hz` : "–" })
+        /* @__PURE__ */ r.jsx("dd", { "data-testid": "mic-frequency", children: C ? `${wa(C.frequency)} Hz` : "–" })
       ] }),
       /* @__PURE__ */ r.jsxs("div", { className: K ? "" : "stale", children: [
         /* @__PURE__ */ r.jsx("dt", { children: "Vire" }),
-        /* @__PURE__ */ r.jsx("dd", { "data-testid": "mic-cents", children: T ? /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
-          Xf(T.cents),
+        /* @__PURE__ */ r.jsx("dd", { "data-testid": "mic-cents", children: C ? /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
+          Xf(C.cents),
           " senttiä",
-          /* @__PURE__ */ r.jsx("span", { className: `cents ${T.tuned ? "in" : "out"}`, "aria-hidden": "true", children: /* @__PURE__ */ r.jsx("span", { style: { left: `${50 + Math.max(-50, Math.min(50, T.cents))}%` } }) })
+          /* @__PURE__ */ r.jsx("span", { className: `cents ${C.tuned ? "in" : "out"}`, "aria-hidden": "true", children: /* @__PURE__ */ r.jsx("span", { style: { left: `${50 + Math.max(-50, Math.min(50, C.cents))}%` } }) })
         ] }) : "–" })
       ] }),
       /* @__PURE__ */ r.jsxs("div", { className: K ? "" : "stale", children: [
         /* @__PURE__ */ r.jsx("dt", { children: "Tunnistuksen varmuus" }),
-        /* @__PURE__ */ r.jsx("dd", { "data-testid": "mic-clarity", children: T ? `${Math.round(T.clarity * 100)} %` : a?.clarity !== void 0 && w === "noise" ? `${Math.round(a.clarity * 100)} % · alle rajan ${Math.round(f.clarity * 100)} %` : "–" })
+        /* @__PURE__ */ r.jsx("dd", { "data-testid": "mic-clarity", children: C ? `${Math.round(C.clarity * 100)} %` : a?.clarity !== void 0 && w === "noise" ? `${Math.round(a.clarity * 100)} % · alle rajan ${Math.round(f.clarity * 100)} %` : "–" })
       ] })
     ] }),
     z && c && d - c.timestamp < 4e3 && /* @__PURE__ */ r.jsxs("p", { className: "mic-accepted", "data-testid": "mic-accepted", children: [
       "Vakaa sävel ",
-      be(c.midi, f.flats, !0),
+      Pe(c.midi, f.flats, !0),
       " kelpaisi vastaukseksi."
     ] }),
-    H.length > 0 && z && /* @__PURE__ */ r.jsx("ul", { className: "mic-advice", children: H.map(($) => /* @__PURE__ */ r.jsx("li", { children: $ }, $)) }),
+    U.length > 0 && z && /* @__PURE__ */ r.jsx("ul", { className: "mic-advice", children: U.map(($) => /* @__PURE__ */ r.jsx("li", { children: $ }, $)) }),
     s.phase === "error" && /* @__PURE__ */ r.jsx("p", { className: "tools-note", children: "Voit harjoitella ilman mikrofonia valitsemalla vastaustavaksi otelaudan." }),
     v && /* @__PURE__ */ r.jsx("p", { className: "tools-note", role: "status", children: v }),
     /* @__PURE__ */ r.jsxs("div", { className: "action-row", children: [
-      S ? /* @__PURE__ */ r.jsx("button", { type: "button", onClick: M, children: "Lopeta testi" }) : /* @__PURE__ */ r.jsx("button", { type: "button", className: f.input === "mic" && s.phase !== "on" ? "primary" : "", disabled: E, onClick: j, children: "Testaa mikrofoni" }),
-      S && z && /* @__PURE__ */ r.jsx("button", { type: "button", disabled: L, onClick: O, children: L ? "Mitataan… ole hiljaa" : "Mittaa taustakohina" })
+      S ? /* @__PURE__ */ r.jsx("button", { type: "button", onClick: T, children: "Lopeta testi" }) : /* @__PURE__ */ r.jsx("button", { type: "button", className: f.input === "mic" && s.phase !== "on" ? "primary" : "", disabled: E, onClick: j, children: "Testaa mikrofoni" }),
+      S && z && /* @__PURE__ */ r.jsx("button", { type: "button", disabled: P, onClick: R, children: P ? "Mitataan… ole hiljaa" : "Mittaa taustakohina" })
     ] }),
     E && s.purpose !== "test" && /* @__PURE__ */ r.jsx("p", { className: "tools-note", children: "Mikrofonitesti on käytettävissä, kun harjoitus ei ole käynnissä." }),
     /* @__PURE__ */ r.jsxs("details", { children: [
@@ -10585,44 +10621,44 @@ function rk({ mic: s, frame: a, heard: o, accepted: c, now: d, s: f, change: p, 
       /* @__PURE__ */ r.jsxs("fieldset", { className: "plain", disabled: E, children: [
         /* @__PURE__ */ r.jsxs("div", { className: "settings-grid", children: [
           /* @__PURE__ */ r.jsxs("div", { className: "field", children: [
-            /* @__PURE__ */ r.jsx("label", { htmlFor: `${P}-device`, children: "Äänitulo" }),
-            /* @__PURE__ */ r.jsxs("select", { id: `${P}-device`, value: f.device, onChange: ($) => _("device", $.target.value), children: [
+            /* @__PURE__ */ r.jsx("label", { htmlFor: `${A}-device`, children: "Äänitulo" }),
+            /* @__PURE__ */ r.jsxs("select", { id: `${A}-device`, value: f.device, onChange: ($) => M("device", $.target.value), children: [
               /* @__PURE__ */ r.jsx("option", { value: "", children: "Järjestelmän oletustulo" }),
-              !I && /* @__PURE__ */ r.jsx("option", { value: f.device, children: "Aiemmin valittu laite" }),
+              !F && /* @__PURE__ */ r.jsx("option", { value: f.device, children: "Aiemmin valittu laite" }),
               m.map(($, ie) => /* @__PURE__ */ r.jsx("option", { value: $.deviceId, children: $.label || `Äänitulo ${ie + 1}` }, $.deviceId))
             ] })
           ] }),
           /* @__PURE__ */ r.jsxs("div", { className: "field", children: [
-            /* @__PURE__ */ r.jsxs("label", { htmlFor: `${P}-rms`, children: [
+            /* @__PURE__ */ r.jsxs("label", { htmlFor: `${A}-rms`, children: [
               "Äänikynnys · ",
               wa(or(f.minRms), 0),
               " dB"
             ] }),
-            /* @__PURE__ */ r.jsx("input", { id: `${P}-rms`, type: "range", min: "0.001", max: "0.15", step: "0.001", value: f.minRms, onChange: ($) => _("minRms", Number($.target.value)) })
+            /* @__PURE__ */ r.jsx("input", { id: `${A}-rms`, type: "range", min: "0.001", max: "0.15", step: "0.001", value: f.minRms, onChange: ($) => M("minRms", Number($.target.value)) })
           ] }),
           /* @__PURE__ */ r.jsxs("div", { className: "field", children: [
-            /* @__PURE__ */ r.jsxs("label", { htmlFor: `${P}-clarity`, children: [
+            /* @__PURE__ */ r.jsxs("label", { htmlFor: `${A}-clarity`, children: [
               "Varmuuskynnys · ",
               Math.round(f.clarity * 100),
               " %"
             ] }),
-            /* @__PURE__ */ r.jsx("input", { id: `${P}-clarity`, type: "range", min: "0.85", max: "0.99", step: "0.01", value: f.clarity, onChange: ($) => _("clarity", Number($.target.value)) })
+            /* @__PURE__ */ r.jsx("input", { id: `${A}-clarity`, type: "range", min: "0.85", max: "0.99", step: "0.01", value: f.clarity, onChange: ($) => M("clarity", Number($.target.value)) })
           ] }),
           /* @__PURE__ */ r.jsxs("div", { className: "field", children: [
-            /* @__PURE__ */ r.jsxs("label", { htmlFor: `${P}-stability`, children: [
+            /* @__PURE__ */ r.jsxs("label", { htmlFor: `${A}-stability`, children: [
               "Vakaa sävel vähintään · ",
               f.stability,
               " ms"
             ] }),
-            /* @__PURE__ */ r.jsx("input", { id: `${P}-stability`, type: "range", min: "120", max: "800", step: "20", value: f.stability, onChange: ($) => _("stability", Number($.target.value)) })
+            /* @__PURE__ */ r.jsx("input", { id: `${A}-stability`, type: "range", min: "120", max: "800", step: "20", value: f.stability, onChange: ($) => M("stability", Number($.target.value)) })
           ] }),
           /* @__PURE__ */ r.jsxs("div", { className: "field", children: [
-            /* @__PURE__ */ r.jsxs("label", { htmlFor: `${P}-cents`, children: [
+            /* @__PURE__ */ r.jsxs("label", { htmlFor: `${A}-cents`, children: [
               "Vireen toleranssi · ±",
               f.cents,
               " senttiä"
             ] }),
-            /* @__PURE__ */ r.jsx("input", { id: `${P}-cents`, type: "range", min: "10", max: "45", step: "1", value: f.cents, onChange: ($) => _("cents", Number($.target.value)) })
+            /* @__PURE__ */ r.jsx("input", { id: `${A}-cents`, type: "range", min: "10", max: "45", step: "1", value: f.cents, onChange: ($) => M("cents", Number($.target.value)) })
           ] })
         ] }),
         /* @__PURE__ */ r.jsxs("p", { className: "tools-note", children: [
@@ -10633,28 +10669,28 @@ function rk({ mic: s, frame: a, heard: o, accepted: c, now: d, s: f, change: p, 
     ] })
   ] });
 }
-const sk = (s) => s.mode === "scale" ? Fe.scaleNotes(Fe.SCALES[s.scale]) : Ci[s.mode === "caged" ? "maj" : s.chord].tones, pf = (s, a) => sk(s).find(([o]) => o === a)?.[1], qf = (s) => s.mode === "scale" || s.mode === "chord" || s.mode === "caged", ak = (s) => s.direction === "up" ? "ylöspäin" : "alaspäin";
-function lk(s, a) {
+const ok = (s) => s.mode === "scale" ? Ie.scaleNotes(Ie.SCALES[s.scale]) : Ci[s.mode === "caged" ? "maj" : s.chord].tones, pf = (s, a) => ok(s).find(([o]) => o === a)?.[1], qf = (s) => s.mode === "scale" || s.mode === "chord" || s.mode === "caged", uk = (s) => s.direction === "up" ? "ylöspäin" : "alaspäin";
+function ck(s, a) {
   return a.choices === "note" ? "Valitse sävelnimi." : a.choices === "degree" ? "Valitse aste." : s.input === "mic" ? "Soita sävel kitaralla. Mikrofoni kuulee sävelkorkeuden, ei kieltä tai nauhaa." : "Napauta oikeaa kohtaa otelaudalla.";
 }
-function ok(s, a, o, c, d) {
-  return a.choices === "degree" ? `Oikein! ${Zr(s.root, a.interval, a.degree)} on ${a.degree}. aste.` : qf(s) ? `Oikein! ${a.degree}. aste on ${Zr(s.root, a.interval, a.degree)}.` : s.mode === "interval" ? `Oikein! ${be(a.reference, s.flats, !0)} → ${a.name} on ${qr[a.interval]} ${ak(a)}.` : s.mode === "notes" ? o === "board" && d ? `Oikein! ${be(d.midi, s.flats)} on ${yf[d.string]}: ${Ti(d.fret)}.` : `Oikein! Soitit sävelen ${be(c, s.flats, !0)}.` : `Oikein! Sävel oli ${a.name}.`;
+function dk(s, a, o, c, d) {
+  return a.choices === "degree" ? `Oikein! ${Zr(s.root, a.interval, a.degree)} on ${a.degree}. aste.` : qf(s) ? `Oikein! ${a.degree}. aste on ${Zr(s.root, a.interval, a.degree)}.` : s.mode === "interval" ? `Oikein! ${Pe(a.reference, s.flats, !0)} → ${a.name} on ${qr[a.interval]} ${uk(a)}.` : s.mode === "notes" ? o === "board" && d ? `Oikein! ${Pe(d.midi, s.flats)} on ${yf[d.string]}: ${Ti(d.fret)}.` : `Oikein! Soitit sävelen ${Pe(c, s.flats, !0)}.` : `Oikein! Sävel oli ${a.name}.`;
 }
-function uk(s, a, o, c, d) {
-  if (o === "note") return `Ei ${be(c, s.flats)}. Kuuntele uudelleen ja yritä vielä.`;
+function fk(s, a, o, c, d) {
+  if (o === "note") return `Ei ${Pe(c, s.flats)}. Kuuntele uudelleen ja yritä vielä.`;
   if (o === "degree") return `Ei ${pf(s, c) ?? "?"}. aste. Yritä uudelleen tai pyydä vihje.`;
   if (!d) return "Vastaus ei osunut. Yritä uudelleen.";
   const f = Be(d.midi) === Be(a.midi);
   if (s.mode === "notes")
-    return d.string !== a.position.string ? `Tuo on ${Qt[d.string]}-kieli. Etsi sävel ${Uo[a.position.string]}.` : f ? `Oikea sävelnimi, mutta eri oktaavi. Etsi ${a.name}.` : `Tuo on ${be(d.midi, s.flats)}. Etsi ${a.name}.`;
+    return d.string !== a.position.string ? `Tuo on ${Qt[d.string]}-kieli. Etsi sävel ${Uo[a.position.string]}.` : f ? `Oikea sävelnimi, mutta eri oktaavi. Etsi ${a.name}.` : `Tuo on ${Pe(d.midi, s.flats)}. Etsi ${a.name}.`;
   if (qf(s)) {
     const p = Be(d.midi - s.root), m = pf(s, p), E = s.mode === "scale" ? "asteikkoon" : "sointuun";
-    return m ? f && a.check === "pitch" && d.midi !== a.midi ? `Oikea aste, mutta eri oktaavi. Etsi ${a.name}.` : f ? `Oikea sävel, mutta ${s.mode === "caged" ? "muodon" : s.box ? "boksin" : "harjoitusalueen"} ulkopuolelta. Etsi ${a.degree}. aste sen sisältä.` : `Tuo on ${Zr(s.root, p, m)} eli ${m}. aste. Etsi ${a.degree}. aste.` : `Tuo on ${be(d.midi, s.flats)}, joka ei kuulu ${E}. Etsi ${a.degree}. aste.`;
+    return m ? f && a.check === "pitch" && d.midi !== a.midi ? `Oikea aste, mutta eri oktaavi. Etsi ${a.name}.` : f ? `Oikea sävel, mutta ${s.mode === "caged" ? "muodon" : s.box ? "boksin" : "harjoitusalueen"} ulkopuolelta. Etsi ${a.degree}. aste sen sisältä.` : `Tuo on ${Zr(s.root, p, m)} eli ${m}. aste. Etsi ${a.degree}. aste.` : `Tuo on ${Pe(d.midi, s.flats)}, joka ei kuulu ${E}. Etsi ${a.degree}. aste.`;
   }
-  return f ? "Oikea sävelnimi, mutta eri oktaavi. Kuuntele uudelleen." : `Tuo on ${be(d.midi, s.flats, !0)}. Kuuntele uudelleen ja etsi oikea sävel.`;
+  return f ? "Oikea sävelnimi, mutta eri oktaavi. Kuuntele uudelleen." : `Tuo on ${Pe(d.midi, s.flats, !0)}. Kuuntele uudelleen ja etsi oikea sävel.`;
 }
-function ck(s, a, o) {
-  const c = be(o, s.flats, !0);
+function hk(s, a, o) {
+  const c = Pe(o, s.flats, !0);
   return Be(o) === Be(a.midi) ? `Kuulin sävelen ${c}: oikea sävelnimi, mutta eri oktaavi. Soita uudelleen. Tätä ei kirjattu virheeksi.` : `Kuulin sävelen ${c}. Se ei vastaa tehtävää. Vaimenna kielet ja soita uudelleen. Tätä ei kirjattu virheeksi.`;
 }
 function eh(s, a = !1) {
@@ -10663,9 +10699,9 @@ function eh(s, a = !1) {
     case "notes":
       return d(1, 2) ? f(c(1), c(2)) : null;
     case "ear-note":
-      return d(1) ? `Kuultu sävel ${be(c(1), a)}${o[2] === "ref" ? " (vertailusävelen kanssa)" : ""}` : null;
+      return d(1) ? `Kuultu sävel ${Pe(c(1), a)}${o[2] === "ref" ? " (vertailusävelen kanssa)" : ""}` : null;
     case "repeat":
-      return o.length === 2 && d(1) ? `Kuule ja toista: ${be(c(1), a, !0)}` : d(1, 2) && f(c(1), c(2)) ? `Kuule ja toista: ${f(c(1), c(2))}` : null;
+      return o.length === 2 && d(1) ? `Kuule ja toista: ${Pe(c(1), a, !0)}` : d(1, 2) && f(c(1), c(2)) ? `Kuule ja toista: ${f(c(1), c(2))}` : null;
     case "interval":
       return d(1) && qr[c(1)] ? `${qr[c(1)]} ${o[2] === "up" ? "ylöspäin" : "alaspäin"}` : null;
     case "chord": {
@@ -10675,11 +10711,11 @@ function eh(s, a = !1) {
       return m ? `${gf(c(1), p)}: ${m}. aste${o[4] === "degree" ? " (asteen tunnistus)" : ""}` : null;
     }
     case "scale": {
-      const p = Fe.SCALES[o[2]];
+      const p = Ie.SCALES[o[2]];
       if (!d(1) || !p) return null;
       const m = `${oi(c(1))}-${p.name}`;
       if (o.length === 5 && d(3)) {
-        const E = Fe.scaleNotes(p).find(([L]) => L === c(3))?.[1];
+        const E = Ie.scaleNotes(p).find(([P]) => P === c(3))?.[1];
         return E ? `${m}: ${E}. aste${o[4] === "degree" ? " (asteen tunnistus)" : ""}` : null;
       }
       return d(3, 4) && f(c(3), c(4)) ? `${m}: ${f(c(3), c(4))}` : null;
@@ -10703,25 +10739,25 @@ function vf(s) {
     return !p.length || !["solo", "guided"].includes(f) ? [] : [{ key: a, input: c, check: d, guided: f === "guided", item: p.join(":"), mode: p[0], stat: o }];
   });
 }
-const Vo = (s) => (s / 1e3).toFixed(1).replace(".", ",") + " s", dk = { mic: "mikrofoni", board: "otelauta", note: "sävelnimet", degree: "asteet" };
-function fk(s) {
+const Vo = (s) => (s / 1e3).toFixed(1).replace(".", ",") + " s", mk = { mic: "mikrofoni", board: "otelauta", note: "sävelnimet", degree: "asteet" };
+function pk(s) {
   const a = s.solo === void 0 ? `${s.first}/${s.count} heti oikein` : s.solo ? `itsenäisesti ${s.soloFirst ?? 0}/${s.solo} heti oikein${s.count > s.solo ? ` · ${s.count - s.solo} vihjeen kanssa` : ""}` : `${s.count} vastausta vihjeen kanssa`;
   return `${new Date(s.at).toLocaleString("fi-FI", { dateStyle: "short", timeStyle: "short" })} · ${ir(s.mode)}${s.hints ? ` · ${Ma[s.hints].title}` : ""} · ${a} · keskimäärin ${Vo(s.ms / Math.max(1, s.count))}${s.complete ? "" : " · keskeytetty"}`;
 }
-function hk({ store: s, s: a, locked: o, changed: c }) {
-  const [d, f] = A.useState(""), p = A.useRef(null), { recent: m, sessions: E, stats: L } = s.data, v = Mi(a), j = xf(a), M = [...new Set(m.map((T) => T.mode))].map((T) => {
-    const K = m.filter((B) => B.mode === T);
-    return { mode: T, ...Ao(K), last: Math.max(...K.map((B) => B.at)) };
-  }).sort((T, K) => K.last - T.last), O = vf(L).filter((T) => !T.guided && T.mode === a.mode && T.input === v && T.check === j && T.stat.attempts >= 3).map((T) => ({ ...T, score: Ho(T.stat), text: eh(T.item, a.flats) })).filter((T) => T.text && T.score < 0.8).sort((T, K) => T.score - K.score).slice(0, 5), P = vf(L).reduce((T, K) => T + K.stat.attempts, 0);
+function vk({ store: s, s: a, locked: o, changed: c }) {
+  const [d, f] = _.useState(""), p = _.useRef(null), { recent: m, sessions: E, stats: P } = s.data, v = Mi(a), j = xf(a), T = [...new Set(m.map((C) => C.mode))].map((C) => {
+    const K = m.filter((B) => B.mode === C);
+    return { mode: C, ...Ao(K), last: Math.max(...K.map((B) => B.at)) };
+  }).sort((C, K) => K.last - C.last), R = vf(P).filter((C) => !C.guided && C.mode === a.mode && C.input === v && C.check === j && C.stat.attempts >= 3).map((C) => ({ ...C, score: Ho(C.stat), text: eh(C.item, a.flats) })).filter((C) => C.text && C.score < 0.8).sort((C, K) => C.score - K.score).slice(0, 5), A = vf(P).reduce((C, K) => C + K.stat.attempts, 0);
   function w() {
-    const T = new Blob([JSON.stringify(s.data, null, 2)], { type: "application/json" }), K = URL.createObjectURL(T), B = document.createElement("a");
+    const C = new Blob([JSON.stringify(s.data, null, 2)], { type: "application/json" }), K = URL.createObjectURL(C), B = document.createElement("a");
     B.href = K, B.download = "musiikin-kartta-harjoittelu.json", B.click(), setTimeout(() => URL.revokeObjectURL(K), 1e3);
   }
-  async function S(T) {
-    if (T)
+  async function S(C) {
+    if (C)
       try {
-        const K = await T.text();
-        if (P && !window.confirm("Varmuuskopio korvaa tämän selaimen nykyiset harjoitustulokset ja asetukset. Jatketaanko?")) return;
+        const K = await C.text();
+        if (A && !window.confirm("Varmuuskopio korvaa tämän selaimen nykyiset harjoitustulokset ja asetukset. Jatketaanko?")) return;
         s.restore(K), f("Varmuuskopio palautettu."), c();
       } catch {
         f("Tiedostoa ei voitu lukea. Valitse tästä harjoittelijasta ladattu varmuuskopio.");
@@ -10734,9 +10770,9 @@ function hk({ store: s, s: a, locked: o, changed: c }) {
   }
   return /* @__PURE__ */ r.jsxs("section", { className: "progress-panel", "aria-labelledby": "progress-title", children: [
     /* @__PURE__ */ r.jsx("h2", { id: "progress-title", children: "Edistymisesi" }),
-    P === 0 ? /* @__PURE__ */ r.jsx("p", { children: "Kun vastaat ensimmäiseen kysymykseen, näet tässä, mitä osaat jo ja mitä kannattaa kerrata. Tulokset tallentuvat vain tähän selaimeen." }) : /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
+    A === 0 ? /* @__PURE__ */ r.jsx("p", { children: "Kun vastaat ensimmäiseen kysymykseen, näet tässä, mitä osaat jo ja mitä kannattaa kerrata. Tulokset tallentuvat vain tähän selaimeen." }) : /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
       /* @__PURE__ */ r.jsxs("p", { children: [
-        P,
+        A,
         " vastattua kysymystä · ",
         E.length,
         " harjoituskertaa. ",
@@ -10754,45 +10790,45 @@ function hk({ store: s, s: a, locked: o, changed: c }) {
           /* @__PURE__ */ r.jsx("th", { scope: "col", children: "Vihjeen kanssa" }),
           /* @__PURE__ */ r.jsx("th", { scope: "col", children: "Keskiaika" })
         ] }) }),
-        /* @__PURE__ */ r.jsx("tbody", { children: M.map((T) => /* @__PURE__ */ r.jsxs("tr", { children: [
-          /* @__PURE__ */ r.jsx("th", { scope: "row", children: ir(T.mode) }),
-          /* @__PURE__ */ r.jsx("td", { children: T.count }),
-          /* @__PURE__ */ r.jsx("td", { children: T.solo ? `${T.soloFirst}/${T.solo} · ${Math.round(T.soloFirst / T.solo * 100)} %` : "–" }),
-          /* @__PURE__ */ r.jsx("td", { children: T.guided }),
-          /* @__PURE__ */ r.jsx("td", { children: Vo(T.ms / T.count) })
-        ] }, T.mode)) })
+        /* @__PURE__ */ r.jsx("tbody", { children: T.map((C) => /* @__PURE__ */ r.jsxs("tr", { children: [
+          /* @__PURE__ */ r.jsx("th", { scope: "row", children: ir(C.mode) }),
+          /* @__PURE__ */ r.jsx("td", { children: C.count }),
+          /* @__PURE__ */ r.jsx("td", { children: C.solo ? `${C.soloFirst}/${C.solo} · ${Math.round(C.soloFirst / C.solo * 100)} %` : "–" }),
+          /* @__PURE__ */ r.jsx("td", { children: C.guided }),
+          /* @__PURE__ */ r.jsx("td", { children: Vo(C.ms / C.count) })
+        ] }, C.mode)) })
       ] }) })
     ] }),
     /* @__PURE__ */ r.jsx("h3", { children: "Seuraavaksi" }),
-    O.length ? /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
+    R.length ? /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
       /* @__PURE__ */ r.jsxs("p", { children: [
         "Nämä kohteet ovat harjoituksessa ",
         ir(a.mode),
         " vielä epävarmoja. Kun asetus ”Kysy useammin heikkoja kohteita” on päällä, ne tulevat vastaan muita useammin."
       ] }),
-      /* @__PURE__ */ r.jsx("ul", { children: O.map((T) => /* @__PURE__ */ r.jsxs("li", { children: [
-        T.text,
+      /* @__PURE__ */ r.jsx("ul", { children: R.map((C) => /* @__PURE__ */ r.jsxs("li", { children: [
+        C.text,
         " · viime aikoina ",
-        Math.round(es(T.stat) * 100),
+        Math.round(es(C.stat) * 100),
         " % heti oikein · ",
-        Vo(ts(T.stat))
-      ] }, T.key)) })
-    ] }) : /* @__PURE__ */ r.jsx("p", { children: P ? `Harjoituksessa ${ir(a.mode)} ei ole vielä kohteita, joista olisi vähintään kolme itsenäistä vastausta ja jotka olisivat epävarmoja. Jatka samalla alueella tai laajenna sitä.` : "Aloita otelaudan sävelistä nauhoilla 0–5. Laajenna aluetta, kun sävelet löytyvät varmasti." }),
+        Vo(ts(C.stat))
+      ] }, C.key)) })
+    ] }) : /* @__PURE__ */ r.jsx("p", { children: A ? `Harjoituksessa ${ir(a.mode)} ei ole vielä kohteita, joista olisi vähintään kolme itsenäistä vastausta ja jotka olisivat epävarmoja. Jatka samalla alueella tai laajenna sitä.` : "Aloita otelaudan sävelistä nauhoilla 0–5. Laajenna aluetta, kun sävelet löytyvät varmasti." }),
     /* @__PURE__ */ r.jsxs("details", { children: [
       /* @__PURE__ */ r.jsx("summary", { children: "Otelaudan sävelten osaamiskartta" }),
       /* @__PURE__ */ r.jsxs("p", { children: [
         "Kartta näyttää harjoituksen Otelaudan sävelet itsenäiset vastaukset nykyisellä vastaustavalla (",
-        dk[a.input],
+        mk[a.input],
         ") ja tarkistuksella (",
         a.check === "class" ? "sävelnimi" : "tarkka sävelkorkeus",
         "). Mikrofonivastaus kertoo, että soitit oikean sävelen, ei sitä, miltä kieleltä."
       ] }),
       /* @__PURE__ */ r.jsx("p", { children: "Luku on osaamisarvio 0–100: heti oikein -osuus (65 %) ja nopeus (35 %), viimeisimmät vastaukset painottuvat. · = ei vastauksia, ? = alle kolme vastausta. Vihreä vähintään 80, violetti vähintään 50, ruskea alle 50." }),
-      /* @__PURE__ */ r.jsx(vp, { area: { strings: a.strings, min: a.min, max: a.max, fixed: "" }, stats: L, input: a.input, check: a.check, flats: a.flats })
+      /* @__PURE__ */ r.jsx(vp, { area: { strings: a.strings, min: a.min, max: a.max, fixed: "" }, stats: P, input: a.input, check: a.check, flats: a.flats })
     ] }),
     /* @__PURE__ */ r.jsxs("details", { children: [
       /* @__PURE__ */ r.jsx("summary", { children: "Viimeisimmät harjoituskerrat" }),
-      E.length ? /* @__PURE__ */ r.jsx("ul", { children: E.slice(-10).reverse().map((T) => /* @__PURE__ */ r.jsx("li", { children: fk(T) }, T.id)) }) : /* @__PURE__ */ r.jsx("p", { children: "Ensimmäisen vastauksen jälkeen harjoituskerta näkyy tässä." })
+      E.length ? /* @__PURE__ */ r.jsx("ul", { children: E.slice(-10).reverse().map((C) => /* @__PURE__ */ r.jsx("li", { children: pk(C) }, C.id)) }) : /* @__PURE__ */ r.jsx("p", { children: "Ensimmäisen vastauksen jälkeen harjoituskerta näkyy tässä." })
     ] }),
     /* @__PURE__ */ r.jsxs("details", { children: [
       /* @__PURE__ */ r.jsx("summary", { children: "Varmuuskopio ja tietojen poisto" }),
@@ -10800,110 +10836,110 @@ function hk({ store: s, s: a, locked: o, changed: c }) {
       /* @__PURE__ */ r.jsxs("div", { className: "action-row", children: [
         /* @__PURE__ */ r.jsx("button", { type: "button", onClick: w, children: "Lataa varmuuskopio" }),
         /* @__PURE__ */ r.jsx("button", { type: "button", disabled: o, onClick: () => p.current?.click(), children: "Palauta varmuuskopio" }),
-        /* @__PURE__ */ r.jsx("input", { ref: p, type: "file", accept: "application/json,.json", hidden: !0, "aria-label": "Varmuuskopiotiedosto", onChange: (T) => {
-          S(T.target.files?.[0]);
+        /* @__PURE__ */ r.jsx("input", { ref: p, type: "file", accept: "application/json,.json", hidden: !0, "aria-label": "Varmuuskopiotiedosto", onChange: (C) => {
+          S(C.target.files?.[0]);
         } }),
-        /* @__PURE__ */ r.jsx("button", { type: "button", disabled: o || !P, onClick: z, children: "Poista harjoitustulokset" })
+        /* @__PURE__ */ r.jsx("button", { type: "button", disabled: o || !A, onClick: z, children: "Poista harjoitustulokset" })
       ] }),
       d && /* @__PURE__ */ r.jsx("p", { role: "status", children: d })
     ] }),
     s.warning && /* @__PURE__ */ r.jsx("p", { role: "status", className: "error", children: s.warning })
   ] });
 }
-function mk() {
+function kk() {
   try {
     return new Ld(localStorage);
   } catch {
     return new Ld();
   }
 }
-const kf = (s) => ({ minRms: s.minRms, minClarity: s.clarity, stabilityMs: s.stability, centsTolerance: s.cents }), pk = (s) => (s / 1e3).toFixed(1).replace(".", ",") + " s", vk = [0, 2, 4, 5, 7, 9, 11];
-function kk(s) {
+const kf = (s) => ({ minRms: s.minRms, minClarity: s.clarity, stabilityMs: s.stability, centsTolerance: s.cents }), yk = (s) => (s / 1e3).toFixed(1).replace(".", ",") + " s", gk = [0, 2, 4, 5, 7, 9, 11];
+function jk(s) {
   return s.mode === "notes" ? ["book/osa-5.html#otelauta", "Otelauta ja oktaavimuodot"] : s.mode === "caged" ? ["book/osa-6.html#caged", "CAGED"] : s.mode === "chord" ? s.chord === "dom7" ? ["book/osa-10.html#septimisoinnut", "Septimisoinnut"] : ["book/osa-3.html#harmoninen-kentta", "Harmoninen kenttä"] : s.mode === "scale" ? ["mp", "majp"].includes(s.scale) ? ["book/osa-8.html#pentatoniikka", "Pentatoniikka"] : ["book/osa-11.html#moodit", "Moodit käytännössä"] : ["book/osa-7.html#intervallit", "Asteet ja intervallit korvalla"];
 }
-function yk() {
-  const [s] = A.useState(mk), [a, o] = A.useState(() => ip(location.search, s.data.settings)), [, c] = A.useReducer((D) => D + 1, 0), d = A.useRef(null), f = A.useRef(new cv()), p = A.useRef(new rs()), m = A.useRef(0), E = A.useRef(), L = A.useRef(), v = A.useRef(null), j = A.useRef(0), M = A.useRef(null), O = A.useRef(a);
-  O.current = a;
-  const [P, w] = A.useState({ phase: "off", purpose: "none" }), S = A.useRef(P), z = (D) => {
+function xk() {
+  const [s] = _.useState(kk), [a, o] = _.useState(() => ip(location.search, s.data.settings)), [, c] = _.useReducer((D) => D + 1, 0), d = _.useRef(null), f = _.useRef(new hv()), p = _.useRef(new rs()), m = _.useRef(0), E = _.useRef(), P = _.useRef(), v = _.useRef(null), j = _.useRef(0), T = _.useRef(null), R = _.useRef(a);
+  R.current = a;
+  const [A, w] = _.useState({ phase: "off", purpose: "none" }), S = _.useRef(A), z = (D) => {
     S.current = D, w(D);
-  }, [T, K] = A.useState(null), [B, H] = A.useState(null), [I, _] = A.useState(null), [$, ie] = A.useState(0), [J, ve] = A.useState([]), [Se, X] = A.useState(!1), [fe, U] = A.useState(!1), [ae, ue] = A.useState(""), [W, le] = A.useState("info"), [ee, x] = A.useState(""), [y, te] = A.useState(0), [he, we] = A.useState([]), [G, V] = A.useState([]), [ne, C] = A.useState(null), [Z, oe] = A.useState(!1), [ce, me] = A.useState(""), [ye, Ae] = A.useState(""), [Me, Ie] = A.useState(() => {
+  }, [C, K] = _.useState(null), [B, U] = _.useState(null), [F, M] = _.useState(null), [$, ie] = _.useState(0), [Z, je] = _.useState([]), [Ee, J] = _.useState(!1), [de, H] = _.useState(!1), [ce, oe] = _.useState(""), [W, ue] = _.useState("info"), [ee, x] = _.useState(""), [y, re] = _.useState(0), [he, Se] = _.useState([]), [G, V] = _.useState([]), [te, X] = _.useState(null), [ve, I] = _.useState(!1), [ne, ae] = _.useState(""), [fe, Ne] = _.useState(""), [we, Le] = _.useState(() => {
     const D = new URLSearchParams(location.search);
     return D.has("tila") || D.has("vanha") ? "legacy" : Gf(D.get("kappale")) ? "songs" : Tp(D.get("polku"));
   });
-  function Qe() {
-    Ie(null);
+  function He() {
+    Le(null);
     const D = new URL(location.href);
     D.searchParams.has("polku") && (D.searchParams.delete("polku"), history.replaceState(history.state, "", D.pathname + D.search + D.hash));
   }
   const Ye = () => {
-    Qp().then(ve).catch(() => {
+    Xp().then(je).catch(() => {
     });
   };
-  function Ge() {
-    clearTimeout(L.current), v.current = null, oe(!1);
+  function We() {
+    clearTimeout(P.current), v.current = null, I(!1);
   }
   function Xe() {
-    K(null), H(null), _(null);
+    K(null), U(null), M(null);
   }
   function ut() {
-    f.current.stop(), Ge(), z({ phase: "off", purpose: "none" }), Xe();
+    f.current.stop(), We(), z({ phase: "off", purpose: "none" }), Xe();
   }
   async function Je(D) {
     if (f.current.active && S.current.phase === "on")
-      return Ge(), z({ ...S.current, purpose: D }), f.current.rearm(), !0;
+      return We(), z({ ...S.current, purpose: D }), f.current.rearm(), !0;
     z({ phase: "requesting", purpose: D }), Xe();
     try {
-      const se = await f.current.start(O.current.device, {
-        ...kf(O.current),
+      const le = await f.current.start(R.current.device, {
+        ...kf(R.current),
         onFrame: (De) => Yt.current.frame(De),
         onStableNote: (De) => Yt.current.stable(De)
       }, () => Yt.current.lost());
-      return se ? (z({ phase: "on", purpose: D, info: se }), Ye(), !0) : !1;
-    } catch (se) {
-      return z({ phase: "error", purpose: "none", error: uv(se) }), !1;
+      return le ? (z({ phase: "on", purpose: D, info: le }), Ye(), !0) : !1;
+    } catch (le) {
+      return z({ phase: "error", purpose: "none", error: fv(le) }), !1;
     }
   }
   function Ve(D) {
     v.current?.push(D.rms);
-    const se = performance.now();
-    se - j.current < 66 || (j.current = se, K(D), ie(se), D.midi !== void 0 && D.frequency !== void 0 && H({ midi: D.midi, frequency: D.frequency, cents: D.cents ?? 0, clarity: D.clarity ?? 0, tuned: D.status === "pitch", at: se }));
+    const le = performance.now();
+    le - j.current < 66 || (j.current = le, K(D), ie(le), D.midi !== void 0 && D.frequency !== void 0 && U({ midi: D.midi, frequency: D.frequency, cents: D.cents ?? 0, clarity: D.clarity ?? 0, tuned: D.status === "pitch", at: le }));
   }
   function it(D) {
-    S.current.purpose === "test" ? _(D) : S.current.purpose === "round" && He(D.midi, "mic", void 0, D.heldMs);
+    S.current.purpose === "test" ? M(D) : S.current.purpose === "round" && Ge(D.midi, "mic", void 0, D.heldMs);
   }
   function Bt() {
     const D = S.current.purpose === "round";
-    Ge(), Xe(), z({ phase: "error", purpose: "none", error: "Äänitulo katkesi. Kytke mikrofoni tai äänikortti takaisin ja yritä uudelleen." });
-    const se = d.current;
-    D && se && ["active", "feedback", "paused"].includes(se.phase) && (_t(), U(!1), se.pause(), x("Äänitulo katkesi, joten harjoitus on tauolla. Kytke laite takaisin ja jatka, tai lopeta harjoitus."), c());
+    We(), Xe(), z({ phase: "error", purpose: "none", error: "Äänitulo katkesi. Kytke mikrofoni tai äänikortti takaisin ja yritä uudelleen." });
+    const le = d.current;
+    D && le && ["active", "feedback", "paused"].includes(le.phase) && (_t(), H(!1), le.pause(), x("Äänitulo katkesi, joten harjoitus on tauolla. Kytke laite takaisin ja jatka, tai lopeta harjoitus."), c());
   }
-  const Yt = A.useRef({ frame: Ve, stable: it, lost: Bt });
+  const Yt = _.useRef({ frame: Ve, stable: it, lost: Bt });
   Yt.current = { frame: Ve, stable: it, lost: Bt };
   function Nt(D) {
-    const se = Na(D), De = se.device !== O.current.device;
-    O.current = se, o(se), s.settings(se), x(""), f.current.active && (De && S.current.purpose === "test" ? (ut(), Je("test")) : f.current.setOptions(kf(se)));
+    const le = Na(D), De = le.device !== R.current.device;
+    R.current = le, o(le), s.settings(le), x(""), f.current.active && (De && S.current.purpose === "test" ? (ut(), Je("test")) : f.current.setOptions(kf(le)));
   }
   function ln(D) {
-    Ae(""), d.current = null, Ie(D);
+    Ne(""), d.current = null, Le(D);
   }
   function Jt() {
-    me(""), Je("test");
+    ae(""), Je("test");
   }
   function Xt() {
-    S.current.phase !== "on" || S.current.purpose !== "test" || (Ge(), v.current = [], oe(!0), me("Mitataan taustakohinaa kolme sekuntia. Älä soita."), L.current = setTimeout(() => {
+    S.current.phase !== "on" || S.current.purpose !== "test" || (We(), v.current = [], I(!0), ae("Mitataan taustakohinaa kolme sekuntia. Älä soita."), P.current = setTimeout(() => {
       const D = v.current ?? [];
-      if (Ge(), D.length < 10) {
-        me("Mittaus ei onnistunut. Yritä uudelleen.");
+      if (We(), D.length < 10) {
+        ae("Mittaus ei onnistunut. Yritä uudelleen.");
         return;
       }
-      const { threshold: se, noise: De, loud: Rt } = dv(D);
-      Nt({ ...O.current, minRms: se }), me(`Taustakohina on ${Math.round(or(De))} dB ja äänikynnys nyt ${Math.round(or(se))} dB. ${Rt ? "Ympäristö on äänekäs: vähennä taustamelua ja mittaa uudelleen." : "Soita yksi sävel ja tarkista, että mittari nousee kynnysviivan yli."}`);
+      const { threshold: le, noise: De, loud: Rt } = mv(D);
+      Nt({ ...R.current, minRms: le }), ae(`Taustakohina on ${Math.round(or(De))} dB ja äänikynnys nyt ${Math.round(or(le))} dB. ${Rt ? "Ympäristö on äänekäs: vähennä taustamelua ja mittaa uudelleen." : "Soita yksi sävel ja tarkista, että mittari nousee kynnysviivan yli."}`);
     }, 3e3));
   }
   function _t() {
     m.current++, clearTimeout(E.current), p.current.stop();
   }
-  function Ne(D, se) {
+  function Ce(D, le) {
     if (!D.results.length) return;
     const De = Ao(D.results);
     s.session({
@@ -10916,37 +10952,37 @@ function yk() {
       soloFirst: De.soloFirst,
       hints: D.settings.hints,
       at: Date.now(),
-      complete: se
+      complete: le
     });
   }
   async function Vt(D) {
     if (!D.question?.sound.length || D.phase !== "active") return;
     _t();
-    const se = m.current;
-    D.pause(), f.current.pause(), U(!0), le("info"), ue("Kuuntele…"), c();
+    const le = m.current;
+    D.pause(), f.current.pause(), H(!0), ue("info"), oe("Kuuntele…"), c();
     try {
       await p.current.play(D.question.sound);
     } catch {
-      se === m.current && x("Esimerkkiääntä ei voitu soittaa. Tarkista laitteen äänenvoimakkuus ja paina Kuuntele uudelleen.");
+      le === m.current && x("Esimerkkiääntä ei voitu soittaa. Tarkista laitteen äänenvoimakkuus ja paina Kuuntele uudelleen.");
     }
-    se !== m.current || d.current !== D || (D.resume(), f.current.resume(), U(!1), ue(""), c());
+    le !== m.current || d.current !== D || (D.resume(), f.current.resume(), H(!1), oe(""), c());
   }
-  async function Te(D) {
-    we([]), V([]), C(null), x(""), te(D.hintLevel), f.current.rearm(), le("info"), ue(""), c(), D.question?.sound.length && await Vt(D);
+  async function _e(D) {
+    Se([]), V([]), X(null), x(""), re(D.hintLevel), f.current.rearm(), ue("info"), oe(""), c(), D.question?.sound.length && await Vt(D);
   }
-  async function Pe() {
-    const D = O.current, se = Mo(D);
-    if (se) {
-      x(se);
+  async function be() {
+    const D = R.current, le = Mo(D);
+    if (le) {
+      x(le);
       return;
     }
     _t();
     const De = m.current;
-    if (x(""), me(""), Ae(""), pa(D)) {
-      X(!0);
+    if (x(""), ae(""), Ne(""), pa(D)) {
+      J(!0);
       const dt = await Je("round");
       if (De !== m.current) return;
-      if (X(!1), !dt) {
+      if (J(!1), !dt) {
         x("Mikrofoni ei käynnistynyt, joten harjoitus ei alkanut. Katso ohje kohdasta Mikrofoni tai vaihda vastaustavaksi otelauta.");
         return;
       }
@@ -10958,25 +10994,25 @@ function yk() {
       S.current.purpose === "round" && ut(), x(dt instanceof Error ? dt.message : "Harjoitusta ei voitu aloittaa.");
       return;
     }
-    d.current = Rt, requestAnimationFrame(() => M.current?.scrollIntoView({ block: "start", behavior: "auto" })), await Te(Rt);
+    d.current = Rt, requestAnimationFrame(() => T.current?.scrollIntoView({ block: "start", behavior: "auto" })), await _e(Rt);
   }
-  function Le() {
-    _t(), X(!1), ut();
+  function Re() {
+    _t(), J(!1), ut();
   }
-  function He(D, se, De, Rt = 0) {
+  function Ge(D, le, De, Rt = 0) {
     const dt = d.current, _n = dt?.question;
     if (!dt || !_n || dt.phase !== "active") return;
-    const mr = dt.answer(D, se, De, Rt);
+    const mr = dt.answer(D, le, De, Rt);
     if (mr !== "ignored") {
       if (mr === "candidate")
-        C(D), le("bad"), ue(ck(dt.settings, _n, D));
+        X(D), ue("bad"), oe(hk(dt.settings, _n, D));
       else if (mr === "wrong")
-        De ? we((Bn) => [...Bn, De]) : V((Bn) => [...Bn, D]), le("bad"), ue(uk(dt.settings, _n, se, D, De));
-      else if (C(null), le("good"), ue(ok(dt.settings, _n, se, D, De)), Ne(dt, !1), dt.settings.advance) {
+        De ? Se((Bn) => [...Bn, De]) : V((Bn) => [...Bn, D]), ue("bad"), oe(fk(dt.settings, _n, le, D, De));
+      else if (X(null), ue("good"), oe(dk(dt.settings, _n, le, D, De)), Ce(dt, !1), dt.settings.advance) {
         const Bn = m.current;
         E.current = setTimeout(() => {
           Bn === m.current && st();
-        }, se === "mic" ? 1800 : 1400);
+        }, le === "mic" ? 1800 : 1400);
       }
       c();
     }
@@ -10987,81 +11023,81 @@ function yk() {
       _t();
       try {
         D.next();
-      } catch (se) {
-        Lt(!1), x(se instanceof Error ? se.message : "Seuraavaa kysymystä ei voitu muodostaa.");
+      } catch (le) {
+        Lt(!1), x(le instanceof Error ? le.message : "Seuraavaa kysymystä ei voitu muodostaa.");
         return;
       }
       if (D.phase === "done") {
         Lt(!0);
         return;
       }
-      await Te(D);
+      await _e(D);
     }
   }
   function Lt(D = !1) {
-    _t(), U(!1), X(!1), (S.current.purpose === "round" || S.current.phase === "requesting") && ut();
-    const se = d.current;
-    se && (se.stop(), Ne(se, D)), C(null), te(0), we([]), V([]), x(""), Ae(D ? "complete" : "stopped"), le("info"), ue(""), c();
+    _t(), H(!1), J(!1), (S.current.purpose === "round" || S.current.phase === "requesting") && ut();
+    const le = d.current;
+    le && (le.stop(), Ce(le, D)), X(null), re(0), Se([]), V([]), x(""), Ne(D ? "complete" : "stopped"), ue("info"), oe(""), c();
   }
   function vt() {
     const D = d.current;
     if (!D || !["active", "feedback", "paused"].includes(D.phase)) return;
-    _t(), U(!1), D.pause();
-    const se = S.current.purpose === "round";
-    se && ut(), le("info"), ue(`Harjoitus on tauolla.${se ? " Mikrofoni on suljettu." : ""}`), c();
+    _t(), H(!1), D.pause();
+    const le = S.current.purpose === "round";
+    le && ut(), ue("info"), oe(`Harjoitus on tauolla.${le ? " Mikrofoni on suljettu." : ""}`), c();
   }
   async function Zt() {
     const D = d.current;
-    if (!D || D.phase !== "paused" || fe) return;
+    if (!D || D.phase !== "paused" || de) return;
     _t();
-    const se = m.current;
+    const le = m.current;
     if (x(""), pa(D.settings)) {
-      X(!0);
+      J(!0);
       const De = await Je("round");
-      if (se !== m.current) return;
-      if (X(!1), !De) {
+      if (le !== m.current) return;
+      if (J(!1), !De) {
         x("Mikrofoni ei käynnistynyt. Harjoitus on yhä tauolla.");
         return;
       }
     }
-    D.resume(), le("info"), ue(""), c(), D.phase === "active" && (f.current.rearm(), D.question?.sound.length && await Vt(D));
+    D.resume(), ue("info"), oe(""), c(), D.phase === "active" && (f.current.rearm(), D.question?.sound.length && await Vt(D));
   }
   function En(D) {
-    const se = d.current;
-    !se || se.phase !== "active" || (se.useHint(D), te(D), c());
+    const le = d.current;
+    !le || le.phase !== "active" || (le.useHint(D), re(D), c());
   }
-  const vn = A.useRef({ hidden: () => {
+  const vn = _.useRef({ hidden: () => {
   }, restored: () => {
   } });
   vn.current = {
     hidden: () => {
       const D = d.current;
-      D && ["active", "feedback"].includes(D.phase) || fe ? vt() : S.current.phase !== "off" && S.current.phase !== "error" && (_t(), X(!1), ut());
+      D && ["active", "feedback"].includes(D.phase) || de ? vt() : S.current.phase !== "off" && S.current.phase !== "error" && (_t(), J(!1), ut());
     },
     restored: () => {
-      X(!1), U(!1), z({ phase: "off", purpose: "none" }), Xe(), c();
+      J(!1), H(!1), z({ phase: "off", purpose: "none" }), Xe(), c();
     }
-  }, A.useEffect(() => {
+  }, _.useEffect(() => {
     Ye();
     const D = () => Ye();
     navigator.mediaDevices?.addEventListener?.("devicechange", D);
-    const se = () => {
-      m.current++, clearTimeout(E.current), clearTimeout(L.current), f.current.stop(), p.current.stop(), ov(), d.current?.pause();
+    const le = () => {
+      m.current++, clearTimeout(E.current), clearTimeout(P.current), f.current.stop(), p.current.stop(), dv(), d.current?.pause();
     }, De = () => {
       document.hidden && vn.current.hidden();
     }, Rt = (dt) => {
       dt.persisted && vn.current.restored();
     };
-    return document.addEventListener("visibilitychange", De), window.addEventListener("pagehide", se), window.addEventListener("pageshow", Rt), () => {
-      se(), navigator.mediaDevices?.removeEventListener?.("devicechange", D), document.removeEventListener("visibilitychange", De), window.removeEventListener("pagehide", se), window.removeEventListener("pageshow", Rt);
+    return document.addEventListener("visibilitychange", De), window.addEventListener("pagehide", le), window.addEventListener("pageshow", Rt), () => {
+      le(), navigator.mediaDevices?.removeEventListener?.("devicechange", D), document.removeEventListener("visibilitychange", De), window.removeEventListener("pagehide", le), window.removeEventListener("pageshow", Rt);
     };
   }, []);
-  const kn = A.useRef(null), ss = `${d.current?.id}:${d.current?.index}:${d.current?.phase}:${fe}`;
-  A.useEffect(() => {
-    const D = d.current, se = M.current, De = document.activeElement;
-    !D || !se || !(De === document.body || se.contains(De)) || (D.phase === "feedback" ? kn.current?.focus({ preventScroll: !0 }) : D.phase === "active" && !fe && (De === document.body || De === kn.current) && se.querySelector('.practice-board button[tabindex="0"]:not(:disabled), .answer-choices button:not(:disabled)')?.focus({ preventScroll: !0 }));
+  const kn = _.useRef(null), ss = `${d.current?.id}:${d.current?.index}:${d.current?.phase}:${de}`;
+  _.useEffect(() => {
+    const D = d.current, le = T.current, De = document.activeElement;
+    !D || !le || !(De === document.body || le.contains(De)) || (D.phase === "feedback" ? kn.current?.focus({ preventScroll: !0 }) : D.phase === "active" && !de && (De === document.body || De === kn.current) && le.querySelector('.practice-board button[tabindex="0"]:not(:disabled), .answer-choices button:not(:disabled)')?.focus({ preventScroll: !0 }));
   }, [ss]);
-  const $e = d.current, et = !!$e && ["active", "paused", "feedback"].includes($e.phase), Ze = et ? $e.settings : a, ct = et ? $e.question : void 0, Kt = !!ct && !!$e?.answered, qt = et && $e.phase === "paused" && !fe && !Kt, Ai = et && $e.phase === "active" && !fe, Cn = et ? null : Mo(a), Dn = et || Se, di = _i(Ze), dr = yp(Ze), fi = ct && !Kt ? y : 0, fr = ct ? Ep(Ze, ct, Kt ? 2 : fi) : { marks: [], text: "" }, as = [...new Map([...fr.marks, ...Kt ? [] : he.map((D) => ({ ...D, label: be(D.midi, Ze.flats), kind: "wrong" }))].map((D) => [Ue(D), D])).values()], Tn = et && pa(Ze), ls = !!ct && !qt && (ct.choices === "position" || as.length > 0), jt = $e ? Ao($e.results) : null, Pa = !$e || Ze.hints !== "fade" ? "" : $e.index <= 3 ? " · vastaus näkyy" : $e.index <= 6 ? " · apupiste näkyy" : " · ilman vihjettä", hr = $e && !et ? $e.results.filter((D) => D.errors > 0 || D.hint) : [], [os, us] = kk(Ze), Mn = /* @__PURE__ */ r.jsxs("div", { className: "intro", children: [
+  const Fe = d.current, et = !!Fe && ["active", "paused", "feedback"].includes(Fe.phase), Ze = et ? Fe.settings : a, ct = et ? Fe.question : void 0, Kt = !!ct && !!Fe?.answered, qt = et && Fe.phase === "paused" && !de && !Kt, Ai = et && Fe.phase === "active" && !de, Cn = et ? null : Mo(a), Dn = et || Ee, di = _i(Ze), dr = yp(Ze), fi = ct && !Kt ? y : 0, fr = ct ? Ep(Ze, ct, Kt ? 2 : fi) : { marks: [], text: "" }, as = [...new Map([...fr.marks, ...Kt ? [] : he.map((D) => ({ ...D, label: Pe(D.midi, Ze.flats), kind: "wrong" }))].map((D) => [Ue(D), D])).values()], Tn = et && pa(Ze), ls = !!ct && !qt && (ct.choices === "position" || as.length > 0), jt = Fe ? Ao(Fe.results) : null, ba = !Fe || Ze.hints !== "fade" ? "" : Fe.index <= 3 ? " · vastaus näkyy" : Fe.index <= 6 ? " · apupiste näkyy" : " · ilman vihjettä", hr = Fe && !et ? Fe.results.filter((D) => D.errors > 0 || D.hint) : [], [os, us] = jk(Ze), Mn = /* @__PURE__ */ r.jsxs("div", { className: "intro", children: [
     /* @__PURE__ */ r.jsx("p", { className: "eyebrow", children: "LÖYDÄ · KUUNTELE · SOITA" }),
     /* @__PURE__ */ r.jsx("h1", { children: "Kitaraharjoittelija" }),
     /* @__PURE__ */ r.jsx("p", { children: "Harjoittele yksi taito kerrallaan: opi otelauta, kuuntele ja soita." })
@@ -11080,26 +11116,26 @@ function yk() {
       s.dismissNotice(), c();
     }, children: "Selvä" })
   ] });
-  return !et && Me === null ? /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
+  return !et && we === null ? /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
     Mn,
     zn,
     /* @__PURE__ */ r.jsx(_p, { onSelect: ln })
-  ] }) : !et && Me === "scales" ? /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
+  ] }) : !et && we === "scales" ? /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
     Mn,
     zn,
-    /* @__PURE__ */ r.jsx(Tv, { onBack: Qe })
-  ] }) : !et && Me === "ear" ? /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
+    /* @__PURE__ */ r.jsx(Av, { onBack: He })
+  ] }) : !et && we === "ear" ? /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
     Mn,
     zn,
-    /* @__PURE__ */ r.jsx(_v, { onBack: Qe })
-  ] }) : !et && Me === "chords" ? /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
+    /* @__PURE__ */ r.jsx(Pv, { onBack: He })
+  ] }) : !et && we === "chords" ? /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
     Mn,
     zn,
-    /* @__PURE__ */ r.jsx(bv, { onBack: Qe })
-  ] }) : !et && Me === "songs" ? /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
+    /* @__PURE__ */ r.jsx($v, { onBack: He })
+  ] }) : !et && we === "songs" ? /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
     Mn,
     zn,
-    /* @__PURE__ */ r.jsx(tk, { onBack: Qe })
+    /* @__PURE__ */ r.jsx(rk, { onBack: He })
   ] }) : /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
     Mn,
     zn,
@@ -11108,49 +11144,49 @@ function yk() {
       us,
       " →"
     ] }) }),
-    Me !== "legacy" && /* @__PURE__ */ r.jsxs("section", { className: "selected-track", "aria-label": "Valittu oppimispolku", children: [
+    we !== "legacy" && /* @__PURE__ */ r.jsxs("section", { className: "selected-track", "aria-label": "Valittu oppimispolku", children: [
       /* @__PURE__ */ r.jsx("button", { type: "button", className: "back-link", onClick: () => {
-        et && Lt(), Qe();
+        et && Lt(), He();
       }, children: "← Oppimispolut" }),
-      /* @__PURE__ */ r.jsx("h2", { children: Me === "ear" ? "Sävelkorva ja otelauta" : "Soinnut ja musiikin rakenne" }),
-      /* @__PURE__ */ r.jsx("p", { children: Me === "ear" ? "Ensimmäinen harjoitus: Kuule sävel ja etsi se kitarasta. Sama vanha kuunteluharjoitus selkeässä aloitusnäkymässä." : "Ensimmäinen harjoitus: Rakenna C-duurisointua sen sävelistä C, E ja G. Tämä käyttää nykyistä Sointusävelet-harjoitusta." }),
+      /* @__PURE__ */ r.jsx("h2", { children: we === "ear" ? "Sävelkorva ja otelauta" : "Soinnut ja musiikin rakenne" }),
+      /* @__PURE__ */ r.jsx("p", { children: we === "ear" ? "Ensimmäinen harjoitus: Kuule sävel ja etsi se kitarasta. Sama vanha kuunteluharjoitus selkeässä aloitusnäkymässä." : "Ensimmäinen harjoitus: Rakenna C-duurisointua sen sävelistä C, E ja G. Tämä käyttää nykyistä Sointusävelet-harjoitusta." }),
       /* @__PURE__ */ r.jsx("p", { className: "tools-note", children: "Muut tämän polun harjoitukset lisätään myöhemmin. Alla on yksi oikeasti toimiva vanha harjoitus." })
     ] }),
     et ? /* @__PURE__ */ r.jsxs("p", { className: "round-setup", "data-testid": "round-setup", children: [
       /* @__PURE__ */ r.jsx("strong", { children: ir(Ze.mode) }),
       " · ",
       Fd(Ze)
-    ] }) : Me === "legacy" ? /* @__PURE__ */ r.jsx(Id, { s: a, change: Nt, locked: Dn, problem: Cn }) : /* @__PURE__ */ r.jsxs("details", { className: "track-settings", children: [
+    ] }) : we === "legacy" ? /* @__PURE__ */ r.jsx(Id, { s: a, change: Nt, locked: Dn, problem: Cn }) : /* @__PURE__ */ r.jsxs("details", { className: "track-settings", children: [
       /* @__PURE__ */ r.jsx("summary", { children: "Muuta harjoituksen asetuksia" }),
       /* @__PURE__ */ r.jsx(Id, { s: a, change: Nt, locked: Dn, problem: Cn })
     ] }),
-    !et && (Me === "legacy" || pa(a)) && /* @__PURE__ */ r.jsx(
-      rk,
+    !et && (we === "legacy" || pa(a)) && /* @__PURE__ */ r.jsx(
+      lk,
       {
-        mic: P,
-        frame: T,
+        mic: A,
+        frame: C,
         heard: B,
-        accepted: I,
+        accepted: F,
         now: $,
         s: a,
         change: Nt,
-        devices: J,
-        locked: Se,
-        calibrating: Z,
-        calibration: ce,
+        devices: Z,
+        locked: Ee,
+        calibrating: ve,
+        calibration: ne,
         onTest: Jt,
         onStop: ut,
         onCalibrate: Xt
       }
     ),
-    /* @__PURE__ */ r.jsxs("section", { className: "session-panel", "aria-labelledby": "session-title", ref: M, children: [
+    /* @__PURE__ */ r.jsxs("section", { className: "session-panel", "aria-labelledby": "session-title", ref: T, children: [
       /* @__PURE__ */ r.jsxs("div", { className: "session-top", children: [
         /* @__PURE__ */ r.jsx("h2", { id: "session-title", children: ir(Ze.mode) }),
-        /* @__PURE__ */ r.jsx("span", { "data-testid": "round-status", children: et ? `Kysymys ${$e.index}${$e.total ? " / " + $e.total : " · vapaa harjoittelu"} · ${Ma[Ze.hints].title}${Pa}${$e.phase === "paused" && !fe ? " · tauolla" : ""}` : ye === "complete" ? "Kierros valmis" : "Valmis aloittamaan" })
+        /* @__PURE__ */ r.jsx("span", { "data-testid": "round-status", children: et ? `Kysymys ${Fe.index}${Fe.total ? " / " + Fe.total : " · vapaa harjoittelu"} · ${Ma[Ze.hints].title}${ba}${Fe.phase === "paused" && !de ? " · tauolla" : ""}` : fe === "complete" ? "Kierros valmis" : "Valmis aloittamaan" })
       ] }),
       !et && /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
-        $e && $e.results.length > 0 && jt ? /* @__PURE__ */ r.jsxs("div", { className: "round-summary", "data-testid": "round-summary", children: [
-          /* @__PURE__ */ r.jsx("h3", { children: ye === "complete" ? "Kierros valmis" : "Harjoitus lopetettu" }),
+        Fe && Fe.results.length > 0 && jt ? /* @__PURE__ */ r.jsxs("div", { className: "round-summary", "data-testid": "round-summary", children: [
+          /* @__PURE__ */ r.jsx("h3", { children: fe === "complete" ? "Kierros valmis" : "Harjoitus lopetettu" }),
           /* @__PURE__ */ r.jsxs("dl", { children: [
             /* @__PURE__ */ r.jsxs("div", { children: [
               /* @__PURE__ */ r.jsx("dt", { children: "Itsenäisesti heti oikein" }),
@@ -11162,7 +11198,7 @@ function yk() {
             ] }),
             /* @__PURE__ */ r.jsxs("div", { children: [
               /* @__PURE__ */ r.jsx("dt", { children: "Keskimääräinen aika" }),
-              /* @__PURE__ */ r.jsx("dd", { children: pk(jt.ms / jt.count) })
+              /* @__PURE__ */ r.jsx("dd", { children: yk(jt.ms / jt.count) })
             ] })
           ] }),
           jt.solo === 0 && /* @__PURE__ */ r.jsx("p", { className: "tools-note", children: "Kaikissa vastauksissa oli vihje näkyvissä. Kokeile seuraavaksi tapaa Testaa osaamistasi tai Vähennä vihjeitä." }),
@@ -11171,70 +11207,70 @@ function yk() {
             /* @__PURE__ */ r.jsx("ul", { children: [...new Set(hr.map((D) => eh(D.item, a.flats)).filter(Boolean))].slice(0, 6).map((D) => /* @__PURE__ */ r.jsx("li", { children: D }, D)) })
           ] })
         ] }) : /* @__PURE__ */ r.jsx("p", { className: "question idle", children: Fd(a) }),
-        /* @__PURE__ */ r.jsx("div", { className: "action-row", children: Se ? /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
+        /* @__PURE__ */ r.jsx("div", { className: "action-row", children: Ee ? /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
           /* @__PURE__ */ r.jsx("button", { type: "button", className: "primary", disabled: !0, children: "Avataan mikrofonia…" }),
-          /* @__PURE__ */ r.jsx("button", { type: "button", onClick: Le, children: "Peru" })
+          /* @__PURE__ */ r.jsx("button", { type: "button", onClick: Re, children: "Peru" })
         ] }) : /* @__PURE__ */ r.jsx("button", { type: "button", className: "primary", disabled: !!Cn, onClick: () => {
-          Pe();
-        }, children: $e?.results.length ? "Aloita uusi kierros" : "Aloita harjoitus" }) }),
-        !$e && /* @__PURE__ */ r.jsx("p", { className: "tools-note", children: "Harjoitus ei näytä oikeaa vastausta, ellet valitse tapaa Opettele tai pyydä vihjettä." })
+          be();
+        }, children: Fe?.results.length ? "Aloita uusi kierros" : "Aloita harjoitus" }) }),
+        !Fe && /* @__PURE__ */ r.jsx("p", { className: "tools-note", children: "Harjoitus ei näytä oikeaa vastausta, ellet valitse tapaa Opettele tai pyydä vihjettä." })
       ] }),
       et && ct && /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
         /* @__PURE__ */ r.jsx("p", { className: "question", id: "question", "aria-live": "polite", children: qt ? "Harjoitus on tauolla." : ct.prompt }),
-        /* @__PURE__ */ r.jsx("p", { className: "how", "data-testid": "instruction", children: qt ? "Kysymys palaa näkyviin, kun jatkat." : fe ? "Kuuntele esimerkki. Vastaa, kun ääni on päättynyt." : lk(Ze, ct) }),
-        $e.hintLevel > 0 && !Kt && /* @__PURE__ */ r.jsx("p", { className: "hint-note", "data-testid": "hint-note", children: Ze.hints === "always" ? "Opettelutila: vastaus näkyy, eikä tätä lasketa itsenäiseksi osaamiseksi." : "Vihje käytetty: tämä vastaus tilastoidaan vihjeen kanssa annetuksi." }),
-        Tn && /* @__PURE__ */ r.jsx(ik, { mic: P, frame: T, heard: B, s: Ze, now: $ }),
-        ct.choices === "note" && !qt && /* @__PURE__ */ r.jsx("div", { className: "answer-choices", role: "group", "aria-label": "Sävelnimet", children: (Ze.accidentals ? Array.from({ length: 12 }, (D, se) => se) : vk).map((D) => /* @__PURE__ */ r.jsx("button", { type: "button", className: G.includes(D) ? "wrong" : Kt && D === ct.midi % 12 ? "right" : "", disabled: !Ai || G.includes(D), onClick: () => He(D, "note"), children: be(D, Ze.flats) }, D)) }),
-        ct.choices === "degree" && !qt && /* @__PURE__ */ r.jsx("div", { className: "answer-choices", role: "group", "aria-label": "Asteet", children: (Ze.mode === "scale" ? Fe.scaleNotes(Fe.SCALES[Ze.scale]) : Ci[Ze.chord].tones).map(([D, se]) => /* @__PURE__ */ r.jsx("button", { type: "button", className: G.includes(D) ? "wrong" : Kt && D === ct.interval ? "right" : "", disabled: !Ai || G.includes(D), onClick: () => He(D, "degree"), children: se }, D)) }),
+        /* @__PURE__ */ r.jsx("p", { className: "how", "data-testid": "instruction", children: qt ? "Kysymys palaa näkyviin, kun jatkat." : de ? "Kuuntele esimerkki. Vastaa, kun ääni on päättynyt." : ck(Ze, ct) }),
+        Fe.hintLevel > 0 && !Kt && /* @__PURE__ */ r.jsx("p", { className: "hint-note", "data-testid": "hint-note", children: Ze.hints === "always" ? "Opettelutila: vastaus näkyy, eikä tätä lasketa itsenäiseksi osaamiseksi." : "Vihje käytetty: tämä vastaus tilastoidaan vihjeen kanssa annetuksi." }),
+        Tn && /* @__PURE__ */ r.jsx(ak, { mic: A, frame: C, heard: B, s: Ze, now: $ }),
+        ct.choices === "note" && !qt && /* @__PURE__ */ r.jsx("div", { className: "answer-choices", role: "group", "aria-label": "Sävelnimet", children: (Ze.accidentals ? Array.from({ length: 12 }, (D, le) => le) : gk).map((D) => /* @__PURE__ */ r.jsx("button", { type: "button", className: G.includes(D) ? "wrong" : Kt && D === ct.midi % 12 ? "right" : "", disabled: !Ai || G.includes(D), onClick: () => Ge(D, "note"), children: Pe(D, Ze.flats) }, D)) }),
+        ct.choices === "degree" && !qt && /* @__PURE__ */ r.jsx("div", { className: "answer-choices", role: "group", "aria-label": "Asteet", children: (Ze.mode === "scale" ? Ie.scaleNotes(Ie.SCALES[Ze.scale]) : Ci[Ze.chord].tones).map(([D, le]) => /* @__PURE__ */ r.jsx("button", { type: "button", className: G.includes(D) ? "wrong" : Kt && D === ct.interval ? "right" : "", disabled: !Ai || G.includes(D), onClick: () => Ge(D, "degree"), children: le }, D)) }),
         ls && /* @__PURE__ */ r.jsx(
           ui,
           {
             area: dr,
             marks: as,
             disabled: !Ai || ct.choices !== "position" || Ze.input === "mic",
-            onAnswer: (D) => He(D.midi, "board", D),
+            onAnswer: (D) => Ge(D.midi, "board", D),
             caption: di.fixed === "shape" ? `${Ze.shape}-muodon alue` : di.fixed === "box" ? `Boksin ${Ze.box} alue` : "Otelauta"
           }
         ),
         !Kt && !qt && fi > 0 && fr.text && /* @__PURE__ */ r.jsx("p", { className: "hint-text", "data-testid": "hint-text", children: fr.text }),
-        /* @__PURE__ */ r.jsx("p", { className: `feedback ${W}`, role: "status", "aria-live": "polite", "data-testid": "feedback", children: ae }),
-        ne !== null && $e.phase === "active" && /* @__PURE__ */ r.jsxs("div", { className: "candidate", children: [
+        /* @__PURE__ */ r.jsx("p", { className: `feedback ${W}`, role: "status", "aria-live": "polite", "data-testid": "feedback", children: ce }),
+        te !== null && Fe.phase === "active" && /* @__PURE__ */ r.jsxs("div", { className: "candidate", children: [
           /* @__PURE__ */ r.jsx("button", { type: "button", onClick: () => {
-            $e.confirmWrong(), C(null), ue("Kirjattu virheeksi. Etsi sävel uudelleen."), c();
+            Fe.confirmWrong(), X(null), oe("Kirjattu virheeksi. Etsi sävel uudelleen."), c();
           }, children: "Soitin väärän sävelen · kirjaa virhe" }),
           /* @__PURE__ */ r.jsx("span", { className: "tools-note", children: "Jos havainto oli ylä-ääni tai toisen kielen resonanssi, soita vain uudelleen." })
         ] }),
         ee && /* @__PURE__ */ r.jsx("p", { className: "error", role: "alert", children: ee }),
         /* @__PURE__ */ r.jsxs("div", { className: "action-row", children: [
-          $e.phase === "feedback" && /* @__PURE__ */ r.jsx("button", { type: "button", className: "primary", ref: kn, onClick: () => {
+          Fe.phase === "feedback" && /* @__PURE__ */ r.jsx("button", { type: "button", className: "primary", ref: kn, onClick: () => {
             st();
-          }, children: $e.isLast ? "Näytä kierroksen tulokset" : "Seuraava kysymys" }),
-          $e.phase === "active" && !Kt && !fe && /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
-            fi === 0 && /* @__PURE__ */ r.jsx("button", { type: "button", onClick: () => En(Math.max(1, $e.hintLevel)), children: $e.hintLevel ? "Näytä vihje uudelleen" : "Näytä vihje" }),
+          }, children: Fe.isLast ? "Näytä kierroksen tulokset" : "Seuraava kysymys" }),
+          Fe.phase === "active" && !Kt && !de && /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
+            fi === 0 && /* @__PURE__ */ r.jsx("button", { type: "button", onClick: () => En(Math.max(1, Fe.hintLevel)), children: Fe.hintLevel ? "Näytä vihje uudelleen" : "Näytä vihje" }),
             fi === 1 && /* @__PURE__ */ r.jsx("button", { type: "button", onClick: () => En(2), children: "Näytä vastaus" }),
-            fi > 0 && /* @__PURE__ */ r.jsx("button", { type: "button", onClick: () => te(0), children: "Piilota vihje" })
+            fi > 0 && /* @__PURE__ */ r.jsx("button", { type: "button", onClick: () => re(0), children: "Piilota vihje" })
           ] }),
           ct.sound.length > 0 && /* @__PURE__ */ r.jsx("button", { type: "button", disabled: !Ai, onClick: () => {
-            Vt($e);
+            Vt(Fe);
           }, children: "Kuuntele uudelleen" }),
-          $e.phase === "paused" && !fe ? /* @__PURE__ */ r.jsx("button", { type: "button", className: "primary", disabled: Se, onClick: () => {
+          Fe.phase === "paused" && !de ? /* @__PURE__ */ r.jsx("button", { type: "button", className: "primary", disabled: Ee, onClick: () => {
             Zt();
-          }, children: Se ? "Avataan mikrofonia…" : "Jatka harjoitusta" }) : /* @__PURE__ */ r.jsx("button", { type: "button", onClick: vt, children: "Tauko" }),
+          }, children: Ee ? "Avataan mikrofonia…" : "Jatka harjoitusta" }) : /* @__PURE__ */ r.jsx("button", { type: "button", onClick: vt, children: "Tauko" }),
           /* @__PURE__ */ r.jsx("button", { type: "button", onClick: () => Lt(), children: "Lopeta harjoitus" })
         ] }),
-        $e.phase === "feedback" && Ze.advance && /* @__PURE__ */ r.jsx("p", { className: "tools-note", children: "Seuraava kysymys tulee hetken kuluttua itsestään." }),
+        Fe.phase === "feedback" && Ze.advance && /* @__PURE__ */ r.jsx("p", { className: "tools-note", children: "Seuraava kysymys tulee hetken kuluttua itsestään." }),
         /* @__PURE__ */ r.jsx("p", { className: "tools-note", "data-testid": "tally", children: jt?.count ? `Vastattu ${jt.count} · itsenäisesti heti oikein ${jt.soloFirst}/${jt.solo}${jt.guided ? ` · vihjeen kanssa ${jt.guided}` : ""}` : "Ei vielä vastattuja kysymyksiä." })
       ] }),
       !et && ee && /* @__PURE__ */ r.jsx("p", { className: "error", role: "alert", children: ee })
     ] }),
     !et && /* @__PURE__ */ r.jsxs(r.Fragment, { children: [
       /* @__PURE__ */ r.jsxs("p", { className: "link-row", children: [
-        a.mode === "scale" && /* @__PURE__ */ r.jsx("a", { href: `otelautaharjoittelija.html?toonikka=${encodeURIComponent(Fe.CHROM[a.root])}&asteikko=${a.scale}`, children: "Katso asteikko otelautakartassa" }),
+        a.mode === "scale" && /* @__PURE__ */ r.jsx("a", { href: `otelautaharjoittelija.html?toonikka=${encodeURIComponent(Ie.CHROM[a.root])}&asteikko=${a.scale}`, children: "Katso asteikko otelautakartassa" }),
         /* @__PURE__ */ r.jsx("a", { href: rp(a), children: "Linkki tähän harjoitukseen" })
       ] }),
-      /* @__PURE__ */ r.jsx(hk, { store: s, s: a, locked: Dn, changed: () => {
+      /* @__PURE__ */ r.jsx(vk, { store: s, s: a, locked: Dn, changed: () => {
         const D = Na(s.data.settings);
-        O.current = D, o(D), c();
+        R.current = D, o(D), c();
       } }),
       /* @__PURE__ */ r.jsxs("details", { className: "privacy", children: [
         /* @__PURE__ */ r.jsx("summary", { children: "Miten tunnistus ja tallennus toimivat?" }),
@@ -11254,5 +11290,5 @@ function yk() {
     ] })
   ] });
 }
-Ym.createRoot(document.getElementById("guitar-practice")).render(/* @__PURE__ */ r.jsx(yk, {}));
+Ym.createRoot(document.getElementById("guitar-practice")).render(/* @__PURE__ */ r.jsx(xk, {}));
 //# sourceMappingURL=app.js.map
