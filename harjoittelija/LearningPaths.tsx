@@ -7,7 +7,7 @@ export function trackFromURL(value: string | null): LearningTrack | null {
 }
 
 const tracks: { id: LearningTrack; number: string; title: string; description: string; example: string }[] = [
-  { id: 'ear', number: '01', title: 'Sävelkorva ja otelauta', description: 'Opi ensin sävelten paikat. Korvakuulotehtävät tulevat myöhemmin.', example: 'Ensimmäinen harjoitus: Etsi sävelet otelaudalta' },
+  { id: 'ear', number: '01', title: 'Sävelkorva ja otelauta', description: 'Opi ensin sävelten paikat ja tunnista sitten korvalla, missä sävel soi.', example: 'Etsi sävelet otelaudalta · Kuuntele ja paikanna sävel' },
   { id: 'scales', number: '02', title: 'Skaalat ja moodit', description: 'Valitse pentatoniset tai moodit ja etene kuuntelemisesta improvisointiin.', example: 'A-mollipentatoninen tai C-jooninen' },
   { id: 'chords', number: '03', title: 'Soinnut ja musiikin rakenne', description: 'Tunnista ensin tavalliset avoimet sointuotteet. Opettele rakenne niiden jälkeen.', example: 'Ensimmäinen harjoitus: Tunnista avoin sointu' },
   { id: 'songs', number: '04', title: 'Kappaleharjoittelu', description: 'Soita oikean kappaleen mukana ja säädä mallikitaran sekä laulun kuuluvuutta.', example: 'Yksi sointu, kaksi askelta (normaali / akustinen)' },

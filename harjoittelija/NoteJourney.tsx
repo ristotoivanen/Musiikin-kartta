@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Board } from './Board';
 import { fretName, note, pc, positionKey, positions, stringName, type Position } from './music';
 import type { Area, Mark } from './engine';
@@ -9,7 +9,8 @@ const NOTES = [0, 2, 4, 5, 7, 9, 11];
 const AUTO_ADVANCE_DELAY_MS = 1200;
 const AREA: Area = { strings: [0, 1, 2, 3, 4, 5], min: 0, max: 5, fixed: '' };
 
-export function NoteJourney({ onBack }: { onBack: () => void }) {
+/** `children`: polun muut harjoitukset (EarTrack), näytetään harjoituksen alla. */
+export function NoteJourney({ onBack, children }: { onBack: () => void; children?: ReactNode }) {
   const [step, setStep] = useState(0);
   const [found, setFound] = useState<string[]>([]);
   const [hintShown, setHintShown] = useState(false);
@@ -85,7 +86,7 @@ export function NoteJourney({ onBack }: { onBack: () => void }) {
     <p className="eyebrow">SÄVELKORVA JA OTELAUTA · VAIHE 1</p>
     <h2 id="note-journey-title">Etsi sävelet otelaudalta</h2>
     <p className="exercise-theory"><a href="book/osa-5.html#otelauta">Lue tämän harjoituksen teoria: Otelauta ja sävelet →</a></p>
-    <p className="learning-lead">Aloita sävelnimistä. Etsi kaikki saman sävelen sijainnit nauhoilta 0–5. Kuuntelemalla tunnistaminen tulee myöhemmissä vaiheissa.</p>
+    <p className="learning-lead">Aloita sävelnimistä. Etsi kaikki saman sävelen sijainnit nauhoilta 0–5. Kuuntelemalla tunnistaminen on tämän harjoituksen alla.</p>
     {!finished && <label className="note-autoadvance">
       <input type="checkbox" checked={autoAdvance}
         onChange={event => setAutoAdvance(event.target.checked)} />
@@ -122,6 +123,6 @@ export function NoteJourney({ onBack }: { onBack: () => void }) {
         </div>
       </>}
     </div>
-    <p className="tools-note">Seuraavissa oppimispolun vaiheissa voidaan harjoitella sävelten tunnistamista kuuntelemalla. Ne eivät vielä ole käytössä.</p>
+    {children}
   </section>;
 }

@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { ScaleJourney } from './ScaleJourney';
 import { ModeJourney } from './ModeJourney';
+import { ModeCompareJourney } from './ModeCompareJourney';
 
-type ScaleTrack = 'pentatonic' | 'modes';
+type ScaleTrack = 'pentatonic' | 'modes' | 'compare';
 
 /** Molemmat oppimispolut samassa osiossa, mutta itsenäiset etenemistiedot. */
 export function ScaleTracks({ onBack }: { onBack: () => void }) {
   const [selected, setSelected] = useState<ScaleTrack | null>(null);
   if (selected === 'pentatonic') return <ScaleJourney onBack={() => setSelected(null)} />;
   if (selected === 'modes') return <ModeJourney onBack={() => setSelected(null)} />;
+  if (selected === 'compare') return <ModeCompareJourney onBack={() => setSelected(null)} backLabel="← Skaalat ja moodit" />;
 
   return <section className="scale-tracks" aria-labelledby="scale-tracks-title">
     <button type="button" className="back-link" onClick={onBack}>← Oppimispolut</button>
@@ -31,6 +33,15 @@ export function ScaleTracks({ onBack }: { onBack: () => void }) {
           <strong>Moodit</strong>
           <span>Opettele tunnistamaan sävelkeskus, soittamaan yksi oktaavi ja improvisoimaan.</span>
           <small>Aloita C-joonisesta; seuraavaksi A-aiolinen</small>
+        </span>
+        <span className="learning-arrow" aria-hidden="true">→</span>
+      </button>
+      <button type="button" className="learning-card" onClick={() => setSelected('compare')}>
+        <span className="learning-number" aria-hidden="true">03</span>
+        <span className="learning-card-body">
+          <strong>Kuuntele moodien ero</strong>
+          <span>Sama toonika, yksi eri sävelaste: A-aiolinen ja A-doorinen, C-jooninen ja C-miksolyydinen.</span>
+          <small>Kuunteluharjoitus, ei tallennettua etenemistä</small>
         </span>
         <span className="learning-arrow" aria-hidden="true">→</span>
       </button>

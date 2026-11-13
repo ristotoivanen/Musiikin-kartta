@@ -712,3 +712,15 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
 .melody-compare-table th, .melody-compare-table td { padding: 6px 12px 6px 0; text-align: left; border-bottom: 1px solid var(--line); }
 .melody-compare-table thead th { color: var(--muted); font-weight: 500; font-size: 13px; }
 .melody-compare-table tr.moved td:last-child strong { color: var(--text); }
+
+/* Kuunteluharjoitukset (issue #30): kielivalinta kolmena vaiheena, vastausvaihtoehdot rivinä. */
+.ear-strings { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.mode-compare-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.ear-results { margin: 8px 0 12px; padding-left: 20px; }
+.ear-results li { margin: 4px 0; }
+.ear-results li.bad { color: var(--wrong); }
+.ear-more .learning-grid { margin-top: 10px; }
+.degree-choices button { font-size: 16px; }
+@media (max-width: 470px) {
+  .ear-strings, .mode-compare-steps { grid-template-columns: 1fr; }
+}
