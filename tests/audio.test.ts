@@ -295,6 +295,23 @@ describe('esimerkkisävelet ja yhteinen äänikonteksti', () => {
       expect(context.resume).toHaveBeenCalledOnce(); expect(context.close).not.toHaveBeenCalled();
     } finally { vi.useRealTimers(); }
   });
+  it('rytmisoitin poistaa aktiivisävelen tauon ajaksi mutta ei katkaise seuraavaa nuottia', async () => {
+    vi.useFakeTimers();
+    try {
+      const { context } = fakeOutput();
+      const player = new ReferencePlayer(() => context as unknown as AudioContext);
+      const seen: string[] = [];
+      const promise = player.playTimed([
+        { midi: 48, beat: 0, duration: 1 },
+        { midi: 52, beat: 3, duration: 1 },
+      ], 120, index => seen.push('note' + index), () => seen.push('silence'));
+      await vi.advanceTimersByTimeAsync(0);
+      await vi.advanceTimersByTimeAsync(3100);
+      expect(await promise).toBe(true);
+      expect(seen).toEqual(['note0', 'silence', 'note1', 'silence']);
+    } finally { vi.useRealTimers(); }
+  });
+
   it('rytmisoitin ajastaa eripituiset sävelet ja säilyttää tauot sekä pysäyttää kertatoiston', async () => {
     vi.useFakeTimers();
     try {
