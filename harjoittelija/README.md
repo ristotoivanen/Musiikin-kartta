@@ -10,6 +10,7 @@ Ajantasainen tilanne, testitulokset, rajoitukset ja oikealla kitaralla tehtävä
 hyväksyntätestit: [`../reviews/kitaraharjoittelija-auditointi.md`](../reviews/kitaraharjoittelija-auditointi.md).
 
 **Seuraavan vaiheen suunnitelma (ei vielä toteutettu):**
+[Beta-pilotit: Wayfaring Stranger, Ukko Nooa ja oma siirtymämelodia](suunnitelmat/melodiset-pilotit-2026-11.md) ·
 [Melodiapohjaiset oppimispolut pentatonisille ja moodeille](suunnitelmat/melodinen-oppimispolku.md)
 sekä [tekijänoikeuksiltaan arvioidut sävelmäehdokkaat ja omien melodioiden vaihtoehto](suunnitelmat/savelmaehdokkaat.md).
 Lyhyistä musiikillisista pätkistä rakennetaan pidempi harjoitus **ennen improvisointia**;
