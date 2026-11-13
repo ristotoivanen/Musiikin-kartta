@@ -201,7 +201,7 @@ export class ReferencePlayer {
    * Tauot sisältyvät tapahtumien aloituskohtiin; audio ajoitetaan AudioContextin
    * kellolla ja kuvakorostuksen ajastimet siivotaan myös keskeytyksessä.
    */
-  async playTimed(notes: { midi: number; beat: number; duration: number }[], bpm: number,
+  async playTimed(notes: { midi: number; beat: number; duration: number; level?: number }[], bpm: number,
     onNote?: (index: number) => void, onSilence?: () => void): Promise<boolean> {
     this.stop();
     if (!notes.length) return false;
@@ -228,7 +228,8 @@ export class ReferencePlayer {
       if (wave) oscillator.setPeriodicWave(wave); else oscillator.type = 'triangle';
       oscillator.frequency.value = midiToFreq(event.midi);
       gain.gain.setValueAtTime(0, start);
-      gain.gain.linearRampToValueAtTime(.22, start + .012);
+      // level: valinnainen hiljaisempi taso (esimerkiksi moodivertailun toonikan urkupiste).
+      gain.gain.linearRampToValueAtTime(event.level ?? .22, start + .012);
       gain.gain.exponentialRampToValueAtTime(.001, end - .01);
       oscillator.connect(gain); gain.connect(master);
       oscillator.start(start); oscillator.stop(end);

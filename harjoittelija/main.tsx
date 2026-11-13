@@ -4,7 +4,7 @@ import { Board } from './Board';
 import { Controls, modeTitle, settingsSummary } from './Controls';
 import { LearningPaths, trackFromURL, type LearningTrack } from './LearningPaths';
 import { ScaleTracks } from './ScaleTracks';
-import { NoteJourney } from './NoteJourney';
+import { EarTrack } from './EarTrack';
 import { ChordJourney } from './ChordJourney';
 import { SongJourney } from './SongJourney';
 import { isSongLink } from './songChart';
@@ -341,7 +341,7 @@ function App() {
   if (!inRound && track === 'scales') return <>{introduction}{notice}
     <ScaleTracks onBack={backToPaths} /></>;
   if (!inRound && track === 'ear') return <>{introduction}{notice}
-    <NoteJourney onBack={backToPaths} /></>;
+    <EarTrack onBack={backToPaths} /></>;
   if (!inRound && track === 'chords') return <>{introduction}{notice}
     <ChordJourney onBack={backToPaths} /></>;
   if (!inRound && track === 'songs') return <>{introduction}{notice}
