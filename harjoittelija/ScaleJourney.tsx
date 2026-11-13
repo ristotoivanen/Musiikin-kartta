@@ -246,7 +246,7 @@ export function ScaleJourney({ onBack }: { onBack: () => void }) {
         {step === 0 && positionNumber === 3 && <p>Positio 3 alkaa paksun E-kielen D-sävelestä 10. nauhalta ja jatkuu nauhoille 9–13. B-kielen 10. ja A-kielen 12. nauha ovat A-pohjasäveliä. Position 2 ylimmät sävelet ovat tämän position alempia säveliä, joten voit liikkua tutun yhteisen sävelen kautta ilman sävellajin vaihtumista.</p>}
         {step === 1 && <p>Soita paksulta E-kieleltä alkaen jokaisen kielen alempi ja ylempi sävel, kunnes saavut ohuelle E-kielelle. Palaa samaa reittiä alas. Jatkuva mallisoitto etenee tasaisessa sykkeessä, ja otelauta näyttää juuri soivan sävelen. Soita mukana ja pysäytä toisto tarvittaessa.</p>}
         {step === 2 && <p>Soita positio ylös ja alas ulkomuistista. Otelauta on aluksi ilman merkintöjä. Säädä mallisoiton tempo itsellesi sopivaksi. Jos tarvitset apua, näytä vain A-pohjasävelet. Jos koko kuvio unohtui, palaa edelliseen opetukseen.</p>}
-        {step === 3 && <p>{positionNumber === 1 ? 'Halutessasi avaa pidempi melodia ennen improvisointia. ' : 'Kuuntele mallifraasi. '}Käynnistä sitten Am-tausta ilman sähkökitaraa ja soita aluksi vain 2–3 eri säveltä. Halutessasi voit kytkeä mallikitaran mukaan kesken toiston. Kokeile taukoja, toistoa ja pitkää lopetussäveltä A.</p>}
+        {step === 3 && <p>{positionNumber === 1 ? 'Käytä aiemmin muistista soitettua melodiaa omien fraasien lähtökohtana. ' : 'Kuuntele mallifraasi. '}Käynnistä sitten Am-tausta ilman sähkökitaraa ja soita aluksi vain 2–3 eri säveltä. Halutessasi voit kytkeä mallikitaran mukaan kesken toiston. Kokeile taukoja, toistoa ja pitkää lopetussäveltä A.</p>}
         {step === 2 && <div className="scale-tempo" role="group" aria-label="Asteikon toiston tempo">
           <span>Tempo</span>
           <button type="button" aria-label="Hidasta tempoa 5 BPM" disabled={tempo <= MIN_TEMPO}
@@ -304,9 +304,9 @@ export function ScaleJourney({ onBack }: { onBack: () => void }) {
           <Board area={{ strings: [0,1,2,3,4,5], min, max, fixed: 'box' }} marks={marks} disabled caption={`Position ${positionNumber} sävelet`} />
           <p className="tools-note">Sama sormitus ja samat viisi säveltä palaavat seuraavissa tehtävissä.</p>
         </>}
-        {positionNumber === 1 && step >= 1 && step <= 3 && <MelodyPractice
+        {positionNumber === 1 && (step === 1 || step === 2) && <MelodyPractice
           key={`wayfaring:${step}`} pieceId="wayfaring"
-          stage={step === 1 ? 'fingering' : step === 2 ? 'memory' : 'full'}
+          stage={step === 1 ? 'fingering' : 'memory'}
           onBeforePlay={stopPlayback} stopHandleRef={melodyStop} />}
         {step === 3 && <BackingTrackMixer key={positionNumber} />}
         <div className="journey-next">
