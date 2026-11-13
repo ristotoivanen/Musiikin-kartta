@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
-  DEGREE_CHOICES, MODE_PAIRS, QUESTIONS_PER_STRING, changeQuestion, degreeMidi, locateQuestions, naturalPositions,
-  phraseNotes, scaleNotes, whichQuestion, withDrone,
+  DEGREE_CHOICES, MODE_PAIRS, QUESTIONS_PER_STRING, QUESTION_PAUSE_BEATS, changeQuestion, degreeMidi, locateQuestions, naturalPositions,
+  phraseNotes, questionSequence, scaleNotes, whichQuestion, withDrone,
 } from '../harjoittelija/earData';
 import { music, pc } from '../harjoittelija/music';
 
@@ -39,6 +39,33 @@ describe('Kuuntele ja paikanna sävel: kolme ohuinta kieltä, nauhat 0–5', () 
       expect(new Set(questions.map(q => q.fret)).size).toBe(allowed.size);
       for (let i = 1; i < questions.length; i++) expect(questions[i].fret).not.toBe(questions[i - 1].fret);
     }
+  });
+});
+
+describe('Kuuntelutestin kysymysjärjestys: mallisarja, tauko, kysytty sävel', () => {
+  const SERIES: Record<number, string[]> = { 0: ['E4', 'F4', 'G4', 'A4'], 1: ['B3', 'C4', 'D4', 'E4'], 2: ['G3', 'A3', 'B3', 'C4'] };
+  it.each([0, 1, 2])('kieli %i: koko mallisarja nousevasti, sitten tauko ja yksi kysytty sävel samasta sarjasta', string => {
+    for (const target of naturalPositions(string)) {
+      const steps = questionSequence(string, target);
+      const model = steps.filter(s => s.role === 'model');
+      expect(model.map(s => named(s.midi))).toEqual(SERIES[string]);
+      expect(model.map(s => s.position.fret)).toEqual(naturalPositions(string).map(p => p.fret));
+      expect(model.map(s => s.beat)).toEqual(model.map((_, i) => i)); // tasainen syke, ei aukkoja
+      expect(steps.filter(s => s.role === 'target')).toHaveLength(1);
+      const last = steps.at(-1)!;
+      expect(last.role).toBe('target');
+      expect(last.midi).toBe(target.midi);
+      // Tauko: mallisarjan viimeisen sävelen lopusta kysyttyyn säveleen on QUESTION_PAUSE_BEATS iskua.
+      const modelEnd = model.at(-1)!.beat + model.at(-1)!.duration;
+      expect(last.beat - modelEnd).toBe(QUESTION_PAUSE_BEATS);
+      expect(QUESTION_PAUSE_BEATS).toBeGreaterThanOrEqual(2);
+      // Mikään sävel ei soi tauon aikana.
+      expect(steps.some(s => s.beat < last.beat && s.beat + s.duration > modelEnd)).toBe(false);
+    }
+  });
+  it('kysytyn sävelen on kuuluttava valitun kielen mallisarjaan', () => {
+    expect(() => questionSequence(0, naturalPositions(1)[0])).toThrow();
+    expect(() => questionSequence(0, { string: 0, fret: 2, midi: 66 })).toThrow(); // F♯4 ei ole luonnollinen
   });
 });
 

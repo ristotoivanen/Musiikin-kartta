@@ -2,17 +2,24 @@ import { useEffect, useRef, useState } from 'react';
 import { Board } from './Board';
 import { ReferencePlayer, referenceAudioError } from './audio';
 import type { Mark } from './engine';
-import { LOCATE_MAX_FRET, LOCATE_MIN_FRET, LOCATE_STRINGS, QUESTIONS_PER_STRING, locateQuestions, naturalPositions } from './earData';
-import { fretName, music, note, stringName, stringOf, stringOn, type Position } from './music';
+import {
+  LOCATE_MAX_FRET, LOCATE_MIN_FRET, LOCATE_STRINGS, QUESTIONS_PER_STRING, QUESTION_TEMPO, locateQuestions, naturalPositions,
+  questionSequence, type QuestionStep,
+} from './earData';
+import { fretName, note, stringName, stringOf, stringOn, type Position } from './music';
 
 type Phase = 'learn' | 'quiz' | 'string-done' | 'finished';
 type Result = { string: number; asked: Position; chosen: Position; correct: boolean };
+/** Kysymyksen toiston vaihe: mallisarjan sävel (indeksi), tauko tai kysytty sävel. */
+type Cue = { kind: 'model'; position: Position } | { kind: 'pause' } | { kind: 'target' } | null;
 const named = (midi: number) => note(midi, false, true);
 
 /**
  * Kuuntele ja paikanna sävel (issue #30 A). Yksi kieli kerrallaan: ensin kielen luonnolliset
- * sävelet kuunnellen ja nähden, sitten kuuntelutesti, jossa vastataan napauttamalla nauhaa.
- * Vastausta ei näytetä ennen yritystä. Tulokset eivät tallennu: olemassa oleva eteneminen ennallaan.
+ * sävelet kuunnellen ja nähden, sitten kuuntelutesti. Jokainen kysymys soittaa mallisarjan
+ * (soiva sävel korostuu), tauon ja satunnaisen kysytyn sävelen, jonka nimeä tai paikkaa ei
+ * näytetä ennen vastausta. Vastata voi vasta, kun kysytty sävel on soinut.
+ * Tulokset eivät tallennu: olemassa oleva eteneminen ennallaan.
  */
 export function EarLocateJourney({ onBack, backLabel }: { onBack: () => void; backLabel: string }) {
   const [stringIndex, setStringIndex] = useState(0);
@@ -21,8 +28,10 @@ export function EarLocateJourney({ onBack, backLabel }: { onBack: () => void; ba
   const [question, setQuestion] = useState(0);
   const [chosen, setChosen] = useState<Position | null>(null);
   const [results, setResults] = useState<Result[]>([]);
-  const [playing, setPlaying] = useState<'scale' | 'question' | 'reference' | null>(null);
+  const [playing, setPlaying] = useState<'scale' | 'question' | 'target' | null>(null);
   const [active, setActive] = useState<number | null>(null);
+  const [cue, setCue] = useState<Cue>(null);
+  const [heard, setHeard] = useState(false);
   const [error, setError] = useState('');
   const player = useRef(new ReferencePlayer());
   const token = useRef(0);
@@ -30,13 +39,13 @@ export function EarLocateJourney({ onBack, backLabel }: { onBack: () => void; ba
   const string = LOCATE_STRINGS[Math.min(stringIndex, LOCATE_STRINGS.length - 1)];
   const naturals = naturalPositions(string);
   const target = questions[question];
-  const openMidi = music.OPEN_PITCHES[string];
 
   function stop() {
     token.current++;
     player.current.stop();
     setPlaying(null);
     setActive(null);
+    setCue(null);
   }
   useEffect(() => {
     // Piilotettu välilehti tai poistuminen pysäyttää äänen.
@@ -45,18 +54,45 @@ export function EarLocateJourney({ onBack, backLabel }: { onBack: () => void; ba
     return () => { document.removeEventListener('visibilitychange', hidden); token.current++; player.current.stop(); };
   }, []);
 
-  async function play(kind: 'scale' | 'question' | 'reference', notes: number[]) {
-    if (playing === kind) { stop(); return; }
+  /** Opettelu: kielen sävelet kerran nousevasti. Uusi painallus samasta painikkeesta pysäyttää. */
+  async function playScale() {
+    if (playing === 'scale') { stop(); return; }
     const current = ++token.current;
-    setError('');
-    setActive(null);
-    setPlaying(kind);
+    setError(''); setActive(null); setCue(null); setPlaying('scale');
     try {
-      await player.current.play(notes, index => { if (current === token.current) setActive(index); });
+      await player.current.play(naturals.map(p => p.midi), index => { if (current === token.current) setActive(index); });
     } catch (cause) {
       if (current === token.current) setError(referenceAudioError(cause));
     } finally {
       if (current === token.current) { setPlaying(null); setActive(null); }
+    }
+  }
+
+  /**
+   * Kysymys: koko järjestys (mallisarja, tauko, kysytty sävel) tai pelkkä kysytty sävel.
+   * Jokainen käynnistys kasvattaa sukupolvea ja pysäyttää edellisen toiston (ReferencePlayer.stop),
+   * joten nopea eteneminen tai uusintapainallus ei soita ääniä päällekkäin.
+   */
+  async function playQuestion(kind: 'question' | 'target', asked: Position, toggle = true) {
+    if (toggle && playing === kind) { stop(); return; }
+    const all = questionSequence(string, asked);
+    const steps: QuestionStep[] = kind === 'question' ? all : all.filter(step => step.role === 'target').map(step => ({ ...step, beat: 0 }));
+    const current = ++token.current;
+    setError(''); setActive(null); setCue(null); setPlaying(kind);
+    try {
+      await player.current.playTimed(steps, QUESTION_TEMPO, index => {
+        if (current !== token.current) return;
+        const step = steps[index];
+        if (step.role === 'target') { setCue({ kind: 'target' }); setHeard(true); }
+        else setCue({ kind: 'model', position: step.position });
+      }, () => {
+        // Mallisarjan jälkeen tauko: korostus pois ennen kysyttyä säveltä.
+        if (current === token.current) setCue(previous => previous?.kind === 'model' ? { kind: 'pause' } : previous);
+      });
+    } catch (cause) {
+      if (current === token.current) setError(referenceAudioError(cause));
+    } finally {
+      if (current === token.current) { setPlaying(null); setCue(null); }
     }
   }
 
@@ -66,11 +102,12 @@ export function EarLocateJourney({ onBack, backLabel }: { onBack: () => void; ba
     setQuestions(next);
     setQuestion(0);
     setChosen(null);
+    setHeard(false);
     setPhase('quiz');
-    void play('question', [next[0].midi]);
+    void playQuestion('question', next[0], false);
   }
   function answer(position: Position) {
-    if (phase !== 'quiz' || chosen || !target) return;
+    if (phase !== 'quiz' || chosen || !target || !heard) return;
     stop();
     setChosen(position);
     setResults(previous => [...previous, { string, asked: target, chosen: position, correct: position.fret === target.fret }]);
@@ -79,7 +116,8 @@ export function EarLocateJourney({ onBack, backLabel }: { onBack: () => void; ba
     if (question + 1 >= questions.length) { stop(); setPhase('string-done'); return; }
     setQuestion(question + 1);
     setChosen(null);
-    void play('question', [questions[question + 1].midi]);
+    setHeard(false);
+    void playQuestion('question', questions[question + 1], false);
   }
   function chooseString(index: number) {
     stop();
@@ -87,6 +125,7 @@ export function EarLocateJourney({ onBack, backLabel }: { onBack: () => void; ba
     setPhase('learn');
     setQuestions([]);
     setChosen(null);
+    setHeard(false);
   }
   function nextString() {
     if (stringIndex + 1 >= LOCATE_STRINGS.length) { stop(); setPhase('finished'); return; }
@@ -102,13 +141,22 @@ export function EarLocateJourney({ onBack, backLabel }: { onBack: () => void; ba
   const correct = chosen && target ? chosen.fret === target.fret : null;
   const playingPosition = playing === 'scale' && active !== null ? naturals[active] : null;
 
+  // Ennen vastausta otelaudalla näkyy vain mallisarjan soiva sävel. Tauon ja kysytyn sävelen
+  // aikana otelauta on tyhjä, joten kysytty sävel ei paljastu kuvasta eikä aria-labeleista.
   const marks: Mark[] = phase === 'learn'
     ? naturals.map(position => ({ ...position, label: note(position.midi),
       kind: playingPosition?.fret === position.fret ? 'playing' as const : 'shape' as const }))
     : phase === 'quiz' && chosen && target
       ? [{ ...target, kind: 'answer' as const, label: note(target.midi) },
         ...(correct ? [] : [{ ...chosen, kind: 'wrong' as const, label: note(chosen.midi) }])]
-      : [];
+      : phase === 'quiz' && cue?.kind === 'model'
+        ? [{ ...cue.position, kind: 'playing' as const, label: note(cue.position.midi) }]
+        : [];
+  const cueText = cue?.kind === 'model' ? `Mallisarja: ${named(cue.position.midi)} · ${fretName(cue.position.fret)}.`
+    : cue?.kind === 'pause' ? 'Tauko. Seuraavaksi kysytty sävel.'
+    : cue?.kind === 'target' ? 'Kysytty sävel soi. Millä nauhalla se soi?'
+    : heard ? 'Valitse nauha. Voit kuunnella kysymyksen uudelleen.'
+    : 'Kuuntele ensin mallisarja ja kysytty sävel. Vastaaminen avautuu, kun kysytty sävel on soinut.';
 
   const summaryByString = LOCATE_STRINGS.map(s => {
     const own = results.filter(result => result.string === s).slice(-QUESTIONS_PER_STRING);
@@ -139,7 +187,7 @@ export function EarLocateJourney({ onBack, backLabel }: { onBack: () => void; ba
         <p>Kuuntele {stringOf[string]} luonnolliset sävelet alhaalta ylös: {naturals.map(p => `${named(p.midi)} (${fretName(p.fret)})`).join(', ')}.
           Juuri soiva paikka korostuu otelaudalla. Toista niin monta kertaa kuin haluat.</p>
         <div className="action-row">
-          <button type="button" aria-pressed={playing === 'scale'} onClick={() => void play('scale', naturals.map(p => p.midi))}>
+          <button type="button" aria-pressed={playing === 'scale'} onClick={() => void playScale()}>
             {playing === 'scale' ? '■ Pysäytä' : '▶ Kuuntele kielen sävelet'}
           </button>
         </div>
@@ -150,21 +198,22 @@ export function EarLocateJourney({ onBack, backLabel }: { onBack: () => void; ba
 
       {phase === 'quiz' && target && <>
         <div className="session-top"><h3 id="ear-lesson-title">Kysymys {question + 1} / {questions.length}</h3><span>{stringName[string]}-kieli</span></div>
-        <p>Kuuntele sävel ja napauta, millä {stringOn[string]} nauhalla {LOCATE_MIN_FRET}–{LOCATE_MAX_FRET} se soi.
-          Kaikki kysytyt sävelet ovat luonnollisia säveliä tältä kieleltä.</p>
+        <p>Ensin soi {stringOf[string]} mallisarja alhaalta ylös, sitten lyhyen tauon jälkeen yksi kysytty sävel
+          samasta sarjasta. Napauta, millä {stringOn[string]} nauhalla {LOCATE_MIN_FRET}–{LOCATE_MAX_FRET} kysytty sävel soi.</p>
         <div className="action-row">
-          <button type="button" className="primary" onClick={() => void play('question', [target.midi])}>
+          <button type="button" className="primary" aria-pressed={playing === 'question'} onClick={() => void playQuestion('question', target)}>
             {playing === 'question' ? '■ Pysäytä' : '▶ Kuuntele uudelleen'}
           </button>
-          <button type="button" onClick={() => void play('reference', [openMidi])}>
-            {playing === 'reference' ? '■ Pysäytä' : `▶ Vertailusävel: vapaa kieli (${named(openMidi)})`}
+          <button type="button" aria-pressed={playing === 'target'} onClick={() => void playQuestion('target', target)}>
+            {playing === 'target' ? '■ Pysäytä' : '▶ Vain kysytty sävel'}
           </button>
         </div>
+        <p className="tools-note ear-cue" role="status" aria-live="polite" data-testid="ear-cue">{chosen ? '' : cueText}</p>
       </>}
 
       {(phase === 'learn' || phase === 'quiz') && <Board
         area={{ strings: [string], min: LOCATE_MIN_FRET, max: LOCATE_MAX_FRET, fixed: '' }} marks={marks}
-        disabled={phase !== 'quiz' || !!chosen} onAnswer={phase === 'quiz' ? answer : undefined}
+        disabled={phase !== 'quiz' || !!chosen || !heard} onAnswer={phase === 'quiz' ? answer : undefined}
         follow={phase === 'learn' ? 'playing' : 'hints'} playback={playing}
         caption={`${stringName[string]}-kieli, nauhat ${LOCATE_MIN_FRET}–${LOCATE_MAX_FRET}`} />}
 
@@ -173,7 +222,7 @@ export function EarLocateJourney({ onBack, backLabel }: { onBack: () => void; ba
           {chosen && target ? correct
             ? `Oikein! ${named(target.midi)} soi ${stringOn[string]}, ${fretName(target.fret)}.`
             : `Ei aivan. Valitsit ${fretName(chosen.fret)} (${named(chosen.midi)}). Kuulemasi sävel oli ${named(target.midi)}: ${fretName(target.fret)}.`
-            : 'Vastaa napauttamalla nauhaa. Oikea paikka näytetään vasta vastauksen jälkeen.'}
+            : 'Oikea sävel ja paikka näytetään vasta vastauksen jälkeen.'}
         </p>
         {chosen && <div className="action-row">
           <button type="button" className="primary" onClick={nextQuestion}>

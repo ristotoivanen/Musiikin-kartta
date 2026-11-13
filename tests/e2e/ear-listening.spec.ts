@@ -8,19 +8,62 @@ async function deterministic(page: Page) {
 const fret = (page: Page, string: number, f: number) =>
   page.locator(`.ear-locate .practice-board button[data-string="${string}"][data-fret="${f}"]`);
 
+// Kysymyksen ajoitus (QUESTION_TEMPO 80 = 750 ms / isku, korostus +50 ms): mallisarja iskuilla 0–3,
+// tauko iskut 4–5, kysytty sävel iskusta 6 (4 550 ms) kahden iskun ajan, toisto päättyy ~6 200 ms.
+const MODEL_MS = [50, 800, 1550, 2300], PAUSE_MS = 3200, TARGET_MS = 4600, END_MS = 6400;
+
+/**
+ * Laskee sivun äänilähdöt: ReferencePlayer kytkee jokaiselle toistolle yhden master-GainNoden
+ * kohteeseen destination ja irrottaa sen pysäytettäessä. Yhtäaikaisia toistoja ei saa olla yli yhtä.
+ */
+async function countOutputs(page: Page) {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __outputs: number; __maxOutputs: number };
+    w.__outputs = 0; w.__maxOutputs = 0;
+    const live = new WeakSet<AudioNode>();
+    const connect = AudioNode.prototype.connect as (...a: unknown[]) => unknown;
+    const disconnect = AudioNode.prototype.disconnect as (...a: unknown[]) => unknown;
+    AudioNode.prototype.connect = function (this: AudioNode, ...args: unknown[]) {
+      if (args[0] === this.context.destination && !live.has(this)) { live.add(this); w.__outputs++; w.__maxOutputs = Math.max(w.__maxOutputs, w.__outputs); }
+      return connect.apply(this, args);
+    } as typeof AudioNode.prototype.connect;
+    AudioNode.prototype.disconnect = function (this: AudioNode, ...args: unknown[]) {
+      if (live.has(this)) { live.delete(this); w.__outputs--; }
+      return disconnect.apply(this, args);
+    } as typeof AudioNode.prototype.disconnect;
+  });
+}
+const outputs = (page: Page) => page.evaluate(() => {
+  const w = window as unknown as { __outputs: number; __maxOutputs: number };
+  return { now: w.__outputs, max: w.__maxOutputs };
+});
+
+/** Kysymystilan näkyvä ja saavutettava sisältö ei saa paljastaa kysyttyä säveltä. */
+async function expectNotRevealed(page: Page, asked: string) {
+  const lesson = page.locator('.ear-locate .journey-lesson');
+  await expect(lesson.locator('.practice-board .dot')).toHaveCount(0);
+  await expect(lesson.locator('.practice-board td.target, .practice-board td.playing, .practice-board td.wrong')).toHaveCount(0);
+  expect(await lesson.innerText()).not.toContain(asked);
+  const labels = await lesson.locator('[aria-label]').evaluateAll(els => els.map(e => e.getAttribute('aria-label')).join(' | '));
+  expect(labels).not.toContain(asked);
+  expect(labels).not.toMatch(/, (nyt soi|vastaus|valintasi)/);
+}
+
+async function openLocate(page: Page) {
+  await page.goto('/kitaraharjoittelija.html?polku=otelauta');
+  await page.getByRole('button', { name: /Kuuntele ja paikanna sävel/ }).click();
+  await expect(page.getByRole('heading', { name: 'Kuuntele ja paikanna sävel' })).toBeVisible();
+}
+
 test.describe('Kuuntele ja paikanna sävel', () => {
-  test('opettelu, kuuntelutesti, palaute ja yhteenveto ilman vastauksen paljastamista', async ({ page }) => {
+  test('opettelu: kielen sävelet ja polku ennallaan', async ({ page }) => {
     await page.clock.install();
     await deterministic(page);
     await page.goto('/kitaraharjoittelija.html');
     await expect(page.getByRole('button', { name: /Sävelkorva ja otelauta/ })).toContainText('Kuuntele ja paikanna sävel');
     await page.getByRole('button', { name: /Sävelkorva ja otelauta/ }).click();
-    // Polku avautuu edelleen sävelten etsintään; kuuntelu on sen alla.
     await expect(page.getByRole('heading', { name: 'Etsi sävelet otelaudalta' })).toBeVisible();
     await page.getByRole('button', { name: /Kuuntele ja paikanna sävel/ }).click();
-    await expect(page.getByRole('heading', { name: 'Kuuntele ja paikanna sävel' })).toBeVisible();
-
-    // Opettelu: ohuen e-kielen luonnolliset sävelet E F G A näkyvät, muut kielet himmennettyinä.
     const board = page.locator('.ear-locate .practice-board');
     await expect(board.locator('.dot')).toHaveText(['E', 'F', 'G', 'A']);
     await expect(board.locator('tbody tr:not(.unused)')).toHaveCount(1);
@@ -30,58 +73,138 @@ test.describe('Kuuntele ja paikanna sävel', () => {
     await expect(page.locator('.ear-locate [role="status"]').first()).toContainText('Nyt soi: E4');
     await page.clock.fastForward(4000);
     await expect(board.locator('.playing')).toHaveCount(0);
+    await page.getByRole('button', { name: '← Sävelkorva ja otelauta' }).click();
+    await expect(page.getByRole('heading', { name: 'Etsi sävelet otelaudalta' })).toBeVisible();
+  });
 
-    // Testi: ei merkintöjä ennen vastausta.
+  test('kysymys: mallisarja korostettuna, tauko, kysytty sävel piilossa; vastaus vasta sen jälkeen', async ({ page }) => {
+    await page.clock.install();
+    await deterministic(page); // e-kielen kysymykset: F4 (1), G4 (3), A4 (5), E4 (0), F4 (1)
+    await countOutputs(page);
+    await openLocate(page);
+    const board = page.locator('.ear-locate .practice-board');
+    const cue = page.getByTestId('ear-cue');
     await page.getByRole('button', { name: 'Aloita kuuntelutesti →' }).click();
     await expect(page.getByRole('heading', { name: 'Kysymys 1 / 5' })).toBeVisible();
-    await expect(board.locator('.dot')).toHaveCount(0);
-    await expect(page.getByRole('button', { name: '▶ Kuuntele uudelleen' }).or(page.getByRole('button', { name: '■ Pysäytä' }).first())).toBeVisible();
-    await expect(page.getByRole('button', { name: /Vertailusävel: vapaa kieli \(E4\)/ })).toBeVisible();
-    await expect(page.getByTestId('ear-feedback')).toContainText('Oikea paikka näytetään vasta vastauksen jälkeen');
 
-    // Väärä vastaus: sekä valinta että oikea paikka näkyvät, ja sävel nimetään.
-    await fret(page, 0, 0).click();
+    // 1–2. Mallisarja E4 F4 G4 A4 nousevasti; soiva sävel ja nauha korostuvat.
+    const seen: string[] = [];
+    let elapsed = 0;
+    for (const [i, at] of MODEL_MS.entries()) {
+      await page.clock.fastForward(at + 60 - elapsed); elapsed = at + 60;
+      await expect(board.locator('td.playing .dot')).toHaveCount(1);
+      const button = board.locator('td.playing button');
+      seen.push(`${await button.getAttribute('data-fret')}:${await board.locator('td.playing .dot').innerText()}`);
+      await expect(cue).toContainText(['E4', 'F4', 'G4', 'A4'][i]);
+      // Vastaaminen ei ole vielä mahdollista.
+      await expect(board.locator('button[data-string="0"][data-fret="1"]')).toBeDisabled();
+    }
+    expect(seen).toEqual(['0:E', '1:F', '3:G', '5:A']);
+
+    // 3. Tauko: ei korostusta, ei ääntä.
+    await page.clock.fastForward(PAUSE_MS - elapsed); elapsed = PAUSE_MS;
+    await expect(cue).toHaveText('Tauko. Seuraavaksi kysytty sävel.');
+    await expectNotRevealed(page, 'F4');
+
+    // 4. Kysytty sävel soi: nimi ja paikka piilossa tekstistä, kuvasta ja aria-labeleista.
+    await page.clock.fastForward(TARGET_MS - elapsed); elapsed = TARGET_MS;
+    await expect(cue).toHaveText('Kysytty sävel soi. Millä nauhalla se soi?');
+    await expectNotRevealed(page, 'F4');
+    await expect(board.locator('button[data-string="0"][data-fret="1"]')).toBeEnabled();
+    await page.clock.fastForward(END_MS - elapsed); elapsed = END_MS;
+    await expect(page.getByRole('button', { name: '▶ Kuuntele uudelleen' })).toBeVisible();
+    await expectNotRevealed(page, 'F4');
+    expect((await outputs(page)).max).toBe(1);
+
+    // 5–6. Vastaus ja palaute.
+    await board.locator('button[data-string="0"][data-fret="0"]').click();
     await expect(page.getByTestId('ear-feedback')).toContainText('Ei aivan. Valitsit vapaa kieli (E4). Kuulemasi sävel oli F4: 1. nauha.');
     await expect(board.locator('.target .dot')).toHaveText('F');
     await expect(board.locator('.wrong .dot')).toHaveText('E');
-    await expect(fret(page, 0, 3)).toBeDisabled();
 
-    // Loput oikein, myös kromaattista nauhaa voi kokeilla vain vääränä vastauksena.
-    for (const [f, n] of [[3, 'G4'], [5, 'A4'], [0, 'E4'], [1, 'F4']] as const) {
-      await page.getByRole('button', { name: /Seuraava kysymys|Näytä kielen tulos/ }).click();
-      await expect(board.locator('.dot')).toHaveCount(0);
-      await fret(page, 0, f).click();
+    // 7. Seuraava kysymys aloittaa saman mallisarjan alusta; uusi kysytty sävel on G4.
+    await page.getByRole('button', { name: 'Seuraava kysymys →' }).click();
+    await expect(page.getByRole('heading', { name: 'Kysymys 2 / 5' })).toBeVisible();
+    await expect(board.locator('.target, .wrong')).toHaveCount(0);
+    await page.clock.fastForward(110);
+    await expect(board.locator('td.playing button')).toHaveAttribute('data-fret', '0');
+    await expect(board.locator('button[data-string="0"][data-fret="3"]')).toBeDisabled();
+    await page.clock.fastForward(TARGET_MS);
+    await expectNotRevealed(page, 'G4');
+    await board.locator('button[data-string="0"][data-fret="3"]').click();
+    await expect(page.getByTestId('ear-feedback')).toContainText('Oikein! G4');
+
+    // Loput kysymykset ja kielen tulos.
+    for (const [f, n] of [[5, 'A4'], [0, 'E4'], [1, 'F4']] as const) {
+      await page.getByRole('button', { name: 'Seuraava kysymys →' }).click();
+      await page.clock.fastForward(TARGET_MS + 100);
+      await board.locator(`button[data-string="0"][data-fret="${f}"]`).click();
       await expect(page.getByTestId('ear-feedback')).toContainText(`Oikein! ${n}`);
     }
     await page.getByRole('button', { name: 'Näytä kielen tulos →' }).click();
     await expect(page.getByRole('heading', { name: 'ohut E-kieli: 4 / 5 oikein' })).toBeVisible();
     await page.getByRole('button', { name: 'Seuraava kieli: B →' }).click();
-    await expect(page.getByRole('heading', { name: 'B-kieli: tutustu säveliin' })).toBeVisible();
     await expect(board.locator('.dot')).toHaveText(['B', 'C', 'D', 'E']);
-    await expect(page.getByRole('button', { name: /ohut E-kieli · 4\/5/ })).toBeVisible();
-
-    // G-kieli suoraan valinnasta: G A B C.
-    await page.getByRole('button', { name: /^3 G-kieli/ }).click();
-    await expect(board.locator('.dot')).toHaveText(['G', 'A', 'B', 'C']);
-    await page.getByRole('button', { name: '← Sävelkorva ja otelauta' }).click();
-    await expect(page.getByRole('heading', { name: 'Etsi sävelet otelaudalta' })).toBeVisible();
+    expect((await outputs(page)).max, 'ei päällekkäisiä toistoja').toBe(1);
   });
 
-  test('kromaattinen nauha on väärä vastaus, ja toisto pysähtyy välilehden piiloutuessa', async ({ page }) => {
+  test('Kuuntele uudelleen toistaa koko järjestyksen, toiston voi keskeyttää, eikä nopea eteneminen soita päällekkäin', async ({ page }) => {
     await page.clock.install();
     await deterministic(page);
-    await page.goto('/kitaraharjoittelija.html?polku=otelauta');
-    await page.getByRole('button', { name: /Kuuntele ja paikanna sävel/ }).click();
-    await page.getByRole('button', { name: '▶ Kuuntele kielen sävelet' }).click();
-    await page.clock.fastForward(120);
-    await expect(page.getByRole('button', { name: '■ Pysäytä' })).toBeVisible();
+    await countOutputs(page);
+    await openLocate(page);
+    const board = page.locator('.ear-locate .practice-board');
+    const cue = page.getByTestId('ear-cue');
+    await page.getByRole('button', { name: 'Aloita kuuntelutesti →' }).click();
+    await page.clock.fastForward(END_MS);
+    await expect(page.getByRole('button', { name: '▶ Kuuntele uudelleen' })).toBeVisible();
+
+    // Uusinta alkaa mallisarjan ensimmäisestä sävelestä, ei pelkästä kysytystä sävelestä.
+    await page.getByRole('button', { name: '▶ Kuuntele uudelleen' }).click();
+    await page.clock.fastForward(110);
+    await expect(board.locator('td.playing button')).toHaveAttribute('data-fret', '0');
+    await expect(cue).toContainText('Mallisarja: E4');
+    // Keskeytys: sama painike pysäyttää heti, korostus ja ääni loppuvat.
+    await page.getByRole('button', { name: '■ Pysäytä' }).first().click();
+    await expect(board.locator('td.playing')).toHaveCount(0);
+    expect((await outputs(page)).now).toBe(0);
+    await page.clock.fastForward(END_MS);
+    await expect(board.locator('td.playing')).toHaveCount(0);
+
+    // Toissijainen painike soittaa vain kysytyn sävelen, ilman korostusta.
+    await page.getByRole('button', { name: '▶ Vain kysytty sävel' }).click();
+    await page.clock.fastForward(110);
+    await expect(cue).toHaveText('Kysytty sävel soi. Millä nauhalla se soi?');
+    await expectNotRevealed(page, 'F4');
+
+    // Nopea eteneminen: vastaus kesken toiston ja heti seuraava kysymys useita kertoja.
+    await board.locator('button[data-string="0"][data-fret="1"]').click();
+    expect((await outputs(page)).now, 'vastaus pysäyttää toiston').toBe(0);
+    for (let i = 0; i < 3; i++) {
+      await page.getByRole('button', { name: 'Seuraava kysymys →' }).click();
+      await page.clock.fastForward(TARGET_MS + 60);
+      expect((await outputs(page)).now).toBeLessThanOrEqual(1);
+      await board.locator('button[data-string="0"][data-fret="0"]').click();
+    }
+    expect((await outputs(page)).max, 'enintään yksi toisto kerrallaan').toBe(1);
+
+    // Välilehden piiloutuminen pysäyttää.
+    await page.getByRole('button', { name: 'Seuraava kysymys →' }).click();
+    await page.clock.fastForward(110);
     await page.evaluate(() => {
       Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
       document.dispatchEvent(new Event('visibilitychange'));
     });
-    await expect(page.getByRole('button', { name: '▶ Kuuntele kielen sävelet' })).toBeVisible();
-    await page.evaluate(() => { Object.defineProperty(document, 'hidden', { configurable: true, get: () => false }); });
+    await expect(board.locator('td.playing')).toHaveCount(0);
+    expect((await outputs(page)).now).toBe(0);
+  });
+
+  test('kromaattinen nauha on väärä vastaus', async ({ page }) => {
+    await page.clock.install();
+    await deterministic(page);
+    await openLocate(page);
     await page.getByRole('button', { name: 'Aloita kuuntelutesti →' }).click();
+    await page.clock.fastForward(TARGET_MS + 60);
     await fret(page, 0, 2).click(); // F♯4 ei ole kysyttävä sävel
     await expect(page.getByTestId('ear-feedback')).toContainText('Valitsit 2. nauha (F♯4). Kuulemasi sävel oli F4');
   });

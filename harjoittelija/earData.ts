@@ -40,6 +40,25 @@ export function locateQuestions(string: number, count = QUESTIONS_PER_STRING, ra
   return out;
 }
 
+/**
+ * Kuuntelutestin yksi kysymys (pedagoginen vaatimus päivitetty 14.11.2026, issue #30):
+ * 1) mallisarja: kielen kaikki luonnolliset sävelet nauhoilta 0–5 nousevasti, yksi isku kukin,
+ * 2) selvä tauko QUESTION_PAUSE_BEATS iskua, 3) kysytty sävel kahden iskun mittaisena.
+ * Sama järjestys soi jokaisen kysymyksen alussa ja Kuuntele uudelleen -painikkeesta.
+ */
+export const QUESTION_TEMPO = 80;
+export const QUESTION_PAUSE_BEATS = 2;
+export const QUESTION_TARGET_BEATS = 2;
+export type QuestionStep = { midi: number; beat: number; duration: number; role: 'model' | 'target'; position: Position };
+export function questionSequence(string: number, target: Position): QuestionStep[] {
+  const model = naturalPositions(string);
+  if (target.string !== string || !model.some(p => p.fret === target.fret))
+    throw new Error('Kysytyn sävelen pitää kuulua valitun kielen mallisarjaan.');
+  const steps: QuestionStep[] = model.map((position, beat) => ({ midi: position.midi, beat, duration: 1, role: 'model', position }));
+  steps.push({ midi: target.midi, beat: model.length + QUESTION_PAUSE_BEATS, duration: QUESTION_TARGET_BEATS, role: 'target', position: target });
+  return steps;
+}
+
 // ---------------------------------------------------------------------------------------------
 // B. Kuuntele ja vertaile moodeja: sama toonika, yksi eroava sävelaste.
 // ---------------------------------------------------------------------------------------------
