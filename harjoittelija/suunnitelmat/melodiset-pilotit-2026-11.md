@@ -109,6 +109,30 @@ lähteen mukainen, mutta kitaralle oktaavia alempaa.
   nuottien kestot. Selaintestit kattavat näkyvyyden,
   käyttöliittymän etenemisen ja rytmisoiton uudelleenkäynnistyksen.
 
+## Käytettävyyskorjaus 2026-11-13: näkyvyys ja otelauta
+
+- Ensimmäisessä **Kuuntele ja tunnista / Kuuntele ja tutustu** -vaiheessa
+  ei näytetä melodiaharjoitusta: keskitytään asteikkoon.
+- Moodien **Soita yksi oktaavi** ja pentatonisten
+  **Soita ylös ja alas** sisältävät melodiaharjoituksen, mutta se on
+  oletuksena suljetussa avattavassa osiossa.
+- **Soita muistista** -vaiheessa melodiaharjoitus on myös suljettu.
+  Avattaessa tabulatuuri sekä sävelten valmiit otelautavihjeet ovat
+  piilossa. Ne voi näyttää erillisillä painikkeilla.
+- **Improvisointi** säilyy varsinaisena harjoituksena. Pidempi
+  melodia on siinä erillinen, **oletuksena suljettu valinnainen
+  harjoitus ennen improvisointia**. Säestys ei edellytä melodian avaamista.
+- Avatussa melodiaharjoituksessa näytetään sama `Board`-otelauta
+  kuin asteikon sormituksessa: melodiaan kuuluvat kieli+nauha-paikat
+  ja parhaillaan soiva paikka korostuvat keltaisella. Tauoissa
+  korostus poistetaan, eikä vanha nuotti jää virheellisesti näkyviin.
+- Tabulatuuri jää vaihtoehtoiseksi tueksi, ei ainoaksi tavaksi
+  seurata soittoa. Otelaudan alue rajautuu valitun katkelman
+  todellisiin kieliin ja nauhoihin, mutta kaikki kuusi kieltä
+  näkyvät myös muilla opetussivuilla käytettyyn tapaan.
+- Muutos koskee myös pentatonisen 1+2-siirtymäharjoituksen omaa
+  melodiaa. Progress-avaimia ja vaiheiden lukumäärää ei muuteta.
+
 ## Beta-käyttöarvio, jota automaattitesti ei voi korvata
 
 1. Onko Wayfaring Strangerin alkumotiivi riittävän tunnistettava
