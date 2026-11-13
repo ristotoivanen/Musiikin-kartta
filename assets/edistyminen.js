@@ -231,7 +231,9 @@
     function openTarget() {
       let id = location.hash.slice(1);
       try { id = decodeURIComponent(id); } catch { /* käytetään sellaisenaan */ }
-      const target = id && document.getElementById(id);
+      // Ilman ankkuria id on tyhjä merkkijono: ilman tätä tarkistusta ''.closest kaatoi skriptin
+      // ennen hashchange-kuuntelijan rekisteröintiä.
+      const target = id ? document.getElementById(id) : null;
       const details = target?.closest('details');
       if (details) details.open = true;
     }

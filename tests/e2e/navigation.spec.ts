@@ -210,6 +210,22 @@ test.describe('Musiikin teoria -aloitusnäkymä', () => {
     await expect(page).toHaveURL(/\/book\/osa-1\.html$/);
   });
 
+  test('avaus ilman ankkuria ei kaada skriptiä, ja ankkurin vaihto avaa kokonaisuuden myöhemmin', async ({ page }) => {
+    // Mobiiliauditointi K6: ilman ankkuria skripti kaatui ennen hashchange-kuuntelijan rekisteröintiä.
+    const errors: string[] = [];
+    page.on('pageerror', error => errors.push(error.message));
+    await page.addInitScript(key => localStorage.setItem(key, JSON.stringify(['pulssi-ja-komppi', 'sointukierrot', 'musiikki-on-kieli'])), LUVUT);
+    await page.goto('/book/index.html');
+    await expect(page.locator('#jatka')).toContainText('Seuraavana luku 4 · Sävelet ja intervallit');
+    await expect(page.locator('#jatka').getByRole('link', { name: 'Jatka opiskelua' })).toHaveAttribute('href', 'osa-2.html#savelet-ja-intervallit');
+    await expect(page.locator('[data-part="osa-1"] .part-status')).toHaveText('✓ Valmis');
+    await page.evaluate(() => { location.hash = 'kokonaisuus-3'; });
+    await expect(page.locator('#kokonaisuus-3')).toHaveAttribute('open', '');
+    await page.evaluate(() => { location.hash = 'lahtotaso'; });
+    await expect(page.locator('#lahtotaso')).toHaveAttribute('open', '');
+    expect(errors).toEqual([]);
+  });
+
   test('suora linkki kokonaisuuteen avaa sen ja lähtötaso johtaa oikeaan sisältöön', async ({ page }) => {
     await page.goto('/book/index.html#kokonaisuus-3');
     await expect(page.locator('#kokonaisuus-3')).toHaveAttribute('open', '');
