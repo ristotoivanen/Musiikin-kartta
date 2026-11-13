@@ -561,10 +561,9 @@ test.describe('Uudet oppimispolut', () => {
     await choose('Ei sävelvihjeitä');
     await expect(page.locator('.journey-lesson > .fret-wrap .practice-board .dot')).toHaveCount(0);
     await expect(mixer.getByRole('button', { name: '■ Tauko' })).toBeVisible();
-    // Pilotti käyttää lähdemelodian rytmitettyä mallia aiemman irrallisen fraasin sijasta.
-    const melody = page.getByRole('region', { name: /Melodiaharjoitus: Wayfaring Stranger/ });
-    await melody.locator('summary').click();
-    await melody.getByRole('button', { name: '▶ Kuuntele valittu melodia kerran' }).click();
+    // Koko melodia harjoiteltiin jo muistivaiheessa. Improvisoinnissa ei ole
+    // toista kappalelohkoa, vaan säestys ja vapaa soittaminen.
+    await expect(page.getByRole('region', { name: /Melodiaharjoitus: Wayfaring Stranger/ })).toHaveCount(0);
     await expect(page.getByRole('alert')).toHaveCount(0);
     await choose('Vain pohjasävelet');
     await expect(page.locator('.journey-lesson > .fret-wrap .practice-board .dot')).toHaveCount(3);
