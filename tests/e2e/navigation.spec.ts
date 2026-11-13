@@ -39,7 +39,7 @@ test.describe('Yhteinen päävalikko', () => {
   test('jokainen päävalikon linkki vie oikeaan pääosioon', async ({ page }) => {
     const targets = [
       [LABELS.teoria, /\/book\/(index\.html)?$/, 'Musiikin teoria'],
-      [LABELS.otelauta, /\/otelautaharjoittelija\.html$/, 'Otelautakartta'],
+      [LABELS.otelauta, /\/otelautaharjoittelija\.html$/, 'Otelautaopas'],
       [LABELS.kitara, /\/kitaraharjoittelija\.html$/, 'Kitaraharjoittelija'],
     ] as const;
     for (const start of ['/index.html', '/book/osa-5.html', '/kitaraharjoittelija.html']) {
