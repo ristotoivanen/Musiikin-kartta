@@ -76,6 +76,8 @@ Avaa kloonatun repon `index.html` selaimessa. Oppaan sivut ovat [book-kansiossa]
 
 Sivuston kolmella pääosiolla (Musiikin teoria, Otelautaopas ja Kitaraharjoittelu) on sama päävalikko. Sen merkintä toistuu jokaisen sivun alussa, ja tyylit ovat tiedostossa `assets/paavalikko.css`. Musiikin teorian aloitusnäkymä on `book/index.html`: osat on ryhmitelty siinä neljäksi avattavaksi kokonaisuudeksi, ja `assets/edistyminen.js` täydentää jatkamiskortin ja osien merkinnät tallennetuista lukumerkinnöistä. Kun oppaaseen lisätään osa, lisää se sekä `edistyminen.js`:n PARTS-taulukkoon että aloitusnäkymän kokonaisuuteen; `npm test` tarkistaa, että ne vastaavat `book/osa-*.html`-tiedostoja.
 
+Sivujen tyylitiedostolinkeissä on versiotunniste (`reader.css?v=…`), joka lasketaan tiedoston sisällöstä. Näin palaava kävijä ei saa uutta sivua vanhalla, välimuistissa olevalla CSS:llä. Kun muutat CSS-tiedostoa, aja `node tools/versioi-tyylit.mjs`. `npm run build` ajaa sen automaattisesti, ja `npm test` huomauttaa vanhentuneesta tunnisteesta.
+
 ## Interaktiivinen kitaraharjoittelu
 
 [Kitaraharjoittelija](kitaraharjoittelija.html) yhdistää otelaudan sävelet,
