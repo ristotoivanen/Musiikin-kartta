@@ -1,37 +1,52 @@
-/* Yksi yksinkertainen otelautakartta. Ei harjoitus- tai soitintoimintoja. */
-.visualizer { max-width: 1100px; }
-.visualizer-intro { max-width: 730px; color: var(--muted); margin: 0 0 24px; }
-.visualizer-controls {
-  display: flex; flex-wrap: wrap; align-items: end; gap: 12px 16px;
-  padding: 16px; background: var(--panel); border: 1px solid #453854;
-  border-radius: 12px; margin: 16px 0 12px;
+/* Otelautaopas: yksi työskentelykortti, jossa ovat valinnat, säveltiedot ja otelauta.
+ * Kortin värit, reunat, pyöristykset ja typografia seuraavat Kitaraharjoittelijaa
+ * (harjoittelija/style.css: .intro, .learning-card ja .session-panel).
+ * Ei harjoitus- tai soitintoimintoja. */
+/* 1102 px: sisältöalue 1066 px, joten kortin reunoihin ulottuva otelauta on yhtä leveä kuin
+ * ennen uudistusta (1064 px) ja vasen reuna osuu päävalikon kohdalle. */
+.visualizer { max-width: 1102px; }
+.visualizer .intro { max-width: 740px; margin-bottom: 24px; }
+.visualizer .eyebrow { margin: 0 0 6px; color: var(--lavender); font-size: 12px; letter-spacing: .16em; font-weight: 700; }
+.visualizer .intro > p:last-child { margin: 0; color: var(--muted); font-size: 18px; }
+
+.workspace {
+  --pad: clamp(14px, 2.4vw, 24px);
+  padding: var(--pad); border: 1px solid #71638c; border-radius: 16px; background: var(--panel);
 }
+.workspace-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 16px; margin-bottom: 18px; }
+.workspace-head h2 { margin: 0; font-size: 21px; line-height: 1.25; }
+.workspace select { background: var(--bg); }
+.visualizer-controls { display: flex; flex-wrap: wrap; align-items: end; gap: 12px 16px; }
 .visualizer-field { display: grid; gap: 5px; min-width: 160px; }
 .visualizer-field label, .visualizer-field > span {
   color: var(--muted); font-size: 13px; font-weight: 650;
 }
 .visualizer-field select { width: 100%; min-height: 44px; }
-.visualizer-views { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
-.visualizer-views button { min-height: 44px; }
-.visualizer-settings {
-  background: var(--panel); border: 1px solid #453854;
-  border-radius: 10px; margin: 12px 0;
+/* Näkymän valinta segmenttipainikkeina, kuten polkujen valinnat Kitaraharjoittelijassa. */
+.visualizer-views {
+  display: flex; gap: 4px; padding: 4px;
+  background: var(--bg); border: 1px solid #453854; border-radius: 12px;
 }
+.visualizer-views button { min-height: 40px; min-width: 96px; border-color: transparent; background: transparent; border-radius: 9px; }
+.visualizer-views button:hover { background: #2d2444; }
+.visualizer-views button[aria-pressed="true"] { background: var(--purple-dark); border-color: var(--lavender); color: #fff; }
+/* Asetusosat erotetaan ohuella viivalla eikä sisäkkäisillä korteilla. */
+.visualizer-settings { margin: 18px 0 0; border-top: 1px solid #453854; }
 .visualizer-settings[hidden], .visualizer-field[hidden],
 .visualizer-views[hidden], .visualizer-system[hidden] { display: none; }
 .visualizer-settings > details > summary {
-  cursor: pointer; min-height: 44px; padding: 12px 14px;
+  cursor: pointer; min-height: 44px; padding: 12px 0 0;
   font-weight: 650; color: var(--lavender);
 }
-.visualizer-settings > details > summary:hover { background: #2d2444; }
+.visualizer-settings > details > summary:hover { color: var(--text); }
 .visualizer-summary-hint { color: var(--muted); font-size: 12px; font-weight: 400; margin-left: 6px; }
-.visualizer-settings-body { padding: 6px 14px 14px; }
+.visualizer-settings-body { padding: 10px 0 0; }
 .visualizer-settings .group-label { width: auto; min-width: 125px; }
 .visualizer-system { font-size: 14px; font-weight: 650; }
 .visualizer-settings .box-options { gap: 8px; }
 .visualizer-settings .box-filter { margin-top: 6px; }
 .visualizer-settings #box-help { margin-bottom: 0; }
-#chord-settings { padding: 14px; }
+#chord-settings { padding: 16px 0 0; }
 .visualizer-chord-top { display: flex; align-items: end; flex-wrap: wrap; gap: 12px 22px; }
 .visualizer-chord-top .visualizer-field { flex: 0 0 175px; }
 .visualizer-chord-top .seventh-forms { flex: 0 0 auto; }
@@ -59,31 +74,35 @@
   .chord-position { font-size: 12px; }
   .chord-navigation { gap: 5px; padding: 8px; }
 }
-.visualizer-octaves { padding: 12px 16px; color: var(--muted); }
+.visualizer-octaves { padding: 14px 0 0; color: var(--muted); }
 .visualizer-octaves p { margin: 0; }
-.visualizer-info {
-  display: grid; gap: 4px; margin: 18px 0 10px; padding: 12px 16px;
-  background: var(--panel); border-radius: 10px;
+/* Valitun asteikon tai soinnun nimi ja sävelet sekä nauhamäärä samalla rivillä otelaudan yläpuolella. */
+.workspace-summary {
+  display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 10px 20px;
+  margin: 18px 0 14px; padding-top: 16px; border-top: 1px solid #453854;
 }
-.visualizer-info strong { font-size: 17px; }
+.visualizer-info { display: grid; gap: 2px; min-width: 0; }
+.visualizer-info strong { font-size: 19px; }
 .visualizer-info span { color: var(--muted); font-size: 14px; }
-.visualizer-board-settings {
-  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
-  margin: 12px 0;
-}
+.visualizer-board-settings { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
 .visualizer-board-settings label { color: var(--muted); font-size: 13px; }
 .visualizer-board-settings select { padding: 6px 10px; }
 .visualizer-board-settings .tools-note { margin: 0; }
-.visualizer #board { max-width: 100%; border-radius: 10px; }
+/* Otelauta ulottuu kortin reunoihin, jotta se ei kapene kortin sisävälien vuoksi. */
+.visualizer #board { max-width: none; margin-inline: calc(-1 * var(--pad)); padding-block: 6px; background: var(--bg); }
 .visualizer #board svg { display: block; width: 100%; height: auto; }
-.visualizer .legend { margin-top: 14px; line-height: 1.6; }
+.visualizer .legend { margin-top: 16px; line-height: 1.6; }
 @media (max-width: 750px) {
-  .visualizer-views { width: 100%; margin-left: 0; }
-  .visualizer-views button { flex: 1; }
+  .visualizer-views { width: 100%; }
+  .visualizer-views button { flex: 1; min-width: 0; }
   .visualizer-field { flex: 1 1 170px; }
 }
+@media (max-width: 600px) {
+  .visualizer { padding-inline: 12px; }
+}
 @media (max-width: 430px) {
-  .visualizer-controls { padding: 12px; gap: 10px; }
+  .visualizer-controls { gap: 10px; }
   .visualizer-field { width: 100%; }
   .visualizer-views button { padding: 8px; font-size: 13px; }
+  .workspace-summary { align-items: start; }
 }

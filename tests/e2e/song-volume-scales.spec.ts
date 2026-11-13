@@ -17,7 +17,9 @@ const volumes = (page: Page) => page.locator('.song-player audio').evaluateAll(
   elements => elements.map(element => Math.round((element as HTMLAudioElement).volume * 1000) / 1000));
 
 test.describe('Kappaleharjoittelijan yhteinen äänenvoimakkuus', () => {
-  test('säädin muuttaa kaikkia kolmea raitaa toiston aikana ja säilyttää tasapainon, mykistyksen, loopin ja synkronoinnin', async ({ page }) => {
+  test('säädin muuttaa kaikkia kolmea raitaa toiston aikana ja säilyttää tasapainon, mykistyksen, loopin ja synkronoinnin', async ({ page, isMobile }) => {
+    // Työpöydän volume-tila. Puhelinprojekti käyttää iPhonen user agentia, joten se käyttää GainNode-tilaa (testattu alla).
+    test.skip(isMobile, 'Puhelinprojektissa (iPhone-tunniste) käytetään GainNode-tilaa.');
     await mockPlayback(page);
     await page.goto(SONG);
     const player = page.locator('.song-player');
@@ -314,5 +316,140 @@ test.describe('Skaalat ja moodit', () => {
       expect(highlight.x).toBeGreaterThanOrEqual(boardBox.x - 1);
       expect(highlight.x + highlight.width).toBeLessThanOrEqual(boardBox.x + boardBox.width + 1);
     }
+  });
+});
+
+const IPHONE_UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.7 Mobile/15E148 Safari/604.1';
+
+test.describe('iPhone: äänenvoimakkuus GainNoden kautta (issue #9)', () => {
+  // Nykyinen iOS: volume-arvo tallentuu ja luetaan takaisin, mutta ei vaikuta ääneen.
+  // Ennen korjausta lukutesti valitsi siksi element-tilan, eikä säädin muuttanut ääntä (fyysinen iPhone 13.11.2026).
+  test.use({ userAgent: IPHONE_UA });
+
+  test('säädin muuttaa todellista ääntä 100 %, 50 % ja 0 %, ja raidat pysyvät tahdissa ja kytkettävinä', async ({ page }) => {
+    test.setTimeout(60000);
+    await page.addInitScript(() => {
+      // iOS-käytös: volume tallentuu, mutta todellinen taso pysyy 1:ssä.
+      const stored = new WeakMap<HTMLMediaElement, number>();
+      Object.defineProperty(HTMLMediaElement.prototype, 'volume', { configurable: true,
+        get(this: HTMLMediaElement) { return stored.get(this) ?? 1; },
+        set(this: HTMLMediaElement, value: number) { stored.set(this, value); } });
+      // Mittauspisteet: signaali ennen GainNodea (lähde) ja sen jälkeen (kohti kaiuttimia).
+      const probes: { src: string; pre: AnalyserNode; post?: AnalyserNode; gain?: GainNode }[] = [];
+      (window as unknown as { probes: typeof probes }).probes = probes;
+      const create = AudioContext.prototype.createMediaElementSource;
+      AudioContext.prototype.createMediaElementSource = function (this: AudioContext, element: HTMLMediaElement) {
+        const source = create.call(this, element);
+        const pre = this.createAnalyser(); pre.fftSize = 2048; source.connect(pre);
+        probes.push({ src: element.getAttribute('src') ?? '', pre });
+        (source as unknown as { probe: unknown }).probe = probes.at(-1);
+        return source;
+      };
+      const connect = AudioNode.prototype.connect as (this: AudioNode, ...args: unknown[]) => unknown;
+      AudioNode.prototype.connect = function (this: AudioNode, ...args: unknown[]) {
+        const target = args[0];
+        if (this instanceof GainNode && target === this.context.destination) {
+          const post = this.context.createAnalyser(); post.fftSize = 2048;
+          const probe = probes.find(p => !p.post);
+          if (probe) { probe.post = post; probe.gain = this; }
+          connect.call(this, post);
+        }
+        return connect.apply(this, args);
+      } as typeof AudioNode.prototype.connect;
+    });
+    await page.goto(SONG);
+    const player = page.locator('.song-player');
+    const slider = player.getByRole('slider', { name: 'Äänenvoimakkuus' });
+    await expect(player.locator('.song-volume')).toHaveAttribute('data-volume-mode', 'webaudio');
+    await slider.fill('100');
+    await player.getByRole('button', { name: '▶ Soita kappale' }).click();
+    await expect(player.getByRole('button', { name: '■ Tauko' })).toBeVisible();
+    await expect.poll(() => page.evaluate(() => (window as unknown as { probes: unknown[] }).probes.length)).toBe(3);
+
+    /** Toteutunut vahvistus = signaalin RMS GainNoden jälkeen / ennen, keskiarvo äänekkäistä näytteistä. */
+    const measuredGains = () => page.evaluate(async () => {
+      const probes = (window as unknown as { probes: { src: string; pre: AnalyserNode; post?: AnalyserNode }[] }).probes;
+      const rms = (node: AnalyserNode) => { const data = new Float32Array(node.fftSize); node.getFloatTimeDomainData(data); return Math.sqrt(data.reduce((s, v) => s + v * v, 0) / data.length); };
+      const sums = probes.map(() => ({ ratio: 0, n: 0, pre: 0 }));
+      for (let i = 0; i < 20; i++) {
+        probes.forEach((probe, k) => {
+          const pre = rms(probe.pre), post = probe.post ? rms(probe.post) : NaN;
+          sums[k].pre = Math.max(sums[k].pre, pre);
+          if (pre > 0.001) { sums[k].ratio += post / pre; sums[k].n++; }
+        });
+        await new Promise(resolve => setTimeout(resolve, 60));
+      }
+      return probes.map((probe, k) => ({ track: probe.src.replace(/.*-(saestys|kitara|laulu)\.mp3$/, '$1'),
+        gain: sums[k].n ? Math.round(sums[k].ratio / sums[k].n * 100) / 100 : null, signal: sums[k].pre > 0.001 }));
+    });
+    /**
+     * Mitattu todellinen vahvistus säestykselle ja kitaralle (soivat introssa) sekä kaikkien kolmen
+     * GainNode-taso. Laulu alkaa vasta noin 14 sekunnin kohdalla, joten sen taso luetaan GainNodesta.
+     */
+    const levels = async () => {
+      const [backing, guitar] = await measuredGains();
+      const gainNodes = await page.evaluate(() => (window as unknown as { probes: { gain?: GainNode }[] }).probes
+        .map(p => Math.round((p.gain?.gain.value ?? NaN) * 1000) / 1000));
+      return { saestys: backing.gain, kitara: guitar.gain, gainNodes };
+    };
+    // Kaksi analysaattoria luetaan peräkkäin, ja äänisäie voi edetä välissä yhden 128 näytteen jakson:
+    // mitatulle signaalisuhteelle sallitaan ±0,03. GainNode-arvot tarkistetaan tarkasti.
+    const near = (a: number | null, b: number) => a !== null && Math.abs(a - b) <= 0.03;
+    const expectLevels = (saestys: number, kitara: number, gainNodes: number[]) => expect.poll(async () => {
+      const l = await levels();
+      return { saestys: near(l.saestys, saestys) ? saestys : l.saestys, kitara: near(l.kitara, kitara) ? kitara : l.kitara, gainNodes: l.gainNodes };
+    }).toEqual({ saestys, kitara, gainNodes });
+    const signals = (await measuredGains()).map(g => g.signal);
+    expect(signals.slice(0, 2), 'säestyksessä ja kitarassa on ääntä ennen GainNodea').toEqual([true, true]);
+
+    // Raidan tasapaino 0,85 / 0,78 / 0,78 kerrottuna säätimellä: mitattu signaali ja GainNode-arvot.
+    await expectLevels(0.85, 0.78, [0.85, 0.78, 0.78]);
+    await slider.fill('50');
+    await expectLevels(0.425, 0.39, [0.425, 0.39, 0.39]);
+    await slider.fill('0');
+    await expectLevels(0, 0, [0, 0, 0]);
+    expect((await measuredGains()).slice(0, 2).map(g => g.signal), '0 %: lähteissä on yhä ääntä, mutta ulostulo on hiljaa').toEqual([true, true]);
+    await slider.fill('100');
+    await expectLevels(0.85, 0.78, [0.85, 0.78, 0.78]);
+
+    // Tahdistus ja kytkentä eivät muutu: raidat etenevät yhdessä, kitara pysähtyy ja palaa tahtiin.
+    const times = () => player.locator('audio').evaluateAll(els => els.map(e => ({ t: (e as HTMLAudioElement).currentTime, paused: (e as HTMLAudioElement).paused })));
+    let now = await times();
+    expect(Math.max(...now.map(x => x.t)) - Math.min(...now.map(x => x.t))).toBeLessThan(0.15);
+    await page.getByRole('checkbox', { name: 'Kitara kuuluu' }).uncheck();
+    await expect.poll(async () => (await times())[1].paused).toBe(true);
+    await page.getByRole('checkbox', { name: 'Kitara kuuluu' }).check();
+    await expect.poll(async () => (await times())[1].paused).toBe(false);
+    // Takaisin kytketty raita kelataan taustan kohtaan. Kelaus vaatii HTTP Range -tuen: paikallinen
+    // python-palvelin ei tue sitä (raita alkaisi alusta), Vite ja Cloudflare Pages tukevat.
+    const range = await page.evaluate(async src => (await fetch(src, { headers: { Range: 'bytes=0-1' }, cache: 'no-store' })).status,
+      await player.locator('audio').first().getAttribute('src') ?? '');
+    if (range === 206) {
+      await page.waitForTimeout(2500);
+      now = await times();
+      expect(Math.max(...now.map(x => x.t)) - Math.min(...now.map(x => x.t)), 'kitara palasi tahtiin').toBeLessThan(0.3);
+    } else {
+      test.info().annotations.push({ type: 'rajoitus', description: 'Palvelin ei tue Rangea: takaisin kytketyn raidan tahdistusta ei mitattu.' });
+    }
+    await expectLevels(0.85, 0.78, [0.85, 0.78, 0.78]);
+
+    // Tauko ja uusi toisto eivät kytke raitoja uudelleen (yksi lähde per elementti).
+    await player.getByRole('button', { name: '■ Tauko' }).click();
+    await player.getByRole('button', { name: '▶ Soita kappale' }).click();
+    await expect(player.getByRole('button', { name: '■ Tauko' })).toBeVisible();
+    expect(await page.evaluate(() => (window as unknown as { probes: unknown[] }).probes.length)).toBe(3);
+    await expect(player.locator('.backing-error')).toHaveCount(0);
+    await player.getByRole('button', { name: '■ Tauko' }).click();
+  });
+
+  test('jos GainNode-kytkentä epäonnistuu, käyttäjälle kerrotaan eikä virhe jää piiloon', async ({ page }) => {
+    await mockPlayback(page);
+    await page.addInitScript(() => {
+      AudioContext.prototype.createMediaElementSource = function () { throw new DOMException('Kytkentä estetty', 'InvalidStateError'); };
+    });
+    await page.goto(SONG);
+    const player = page.locator('.song-player');
+    await player.getByRole('button', { name: '▶ Soita kappale' }).click();
+    await expect(player.getByRole('status').filter({ hasText: 'Äänenvoimakkuutta ei voi säätää' })).toContainText('Kytkentä estetty');
   });
 });

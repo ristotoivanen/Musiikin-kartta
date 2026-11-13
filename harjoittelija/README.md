@@ -9,6 +9,45 @@ lisää sivuille oman Web Analytics -skriptinsä; se ei ole tässä repossa.
 Ajantasainen tilanne, testitulokset, rajoitukset ja oikealla kitaralla tehtävät
 hyväksyntätestit: [`../reviews/kitaraharjoittelija-auditointi.md`](../reviews/kitaraharjoittelija-auditointi.md).
 
+**Seuraavan vaiheen suunnitelma (ei vielä toteutettu):**
+[Beta-pilotit: Wayfaring Stranger, Ukko Nooa ja oma siirtymämelodia](suunnitelmat/melodiset-pilotit-2026-11.md) ·
+[Melodiapohjaiset oppimispolut pentatonisille ja moodeille](suunnitelmat/melodinen-oppimispolku.md)
+sekä [tekijänoikeuksiltaan arvioidut sävelmäehdokkaat ja omien melodioiden vaihtoehto](suunnitelmat/savelmaehdokkaat.md).
+Lyhyistä musiikillisista pätkistä rakennetaan pidempi harjoitus **ennen improvisointia**;
+improvisaatio pysyy polun viimeisenä vaiheena.
+
+## Skaalat ja moodit: erilliset oppimispolut (kehitysvaihe)
+
+Skaalat ja moodit -kortin jälkeen valitaan **Pentatoniset** tai **Moodit**.
+Pentatoniset avaa aiemman A-mollipentatonisen harjoituksen, eikä sen
+`musiikin-kartta:skaalapolku:*`-etenemistietoja muuteta.
+
+`ScaleTracks.tsx` tarjoaa polkuvalinnan, `ModeJourney.tsx` moodiharjoitukset
+ja `modeData.ts` musiikilliset mallit. Moodien ensimmäinen versio sisältää
+**C-joonisen (Ionian)** ja **A-aiolisen (Aeolian)**. Molemmissa opetellaan
+ensin vain yksi oktaavi. Harjoitukset ovat: kuuntelu ja kotisävel,
+sormitus, muistiharjoitus, C-/A-sävelkeskusten kuunteluvertailu ja
+improvisointi yksinkertaisen syntetisoidun duuri-/molli-sointupulssin päälle.
+Sointupulssi ei ole oikea MP3-kitaraharjoitustausta. Kuunteluvertailu
+testaa, kumpaan toonikaan fraasi päättyy, ei seitsemän moodin tunnistusta.
+Sävelkeskus opitaan myös saman seitsemän sävelluokan avulla eri
+pohjasävelillä. Lisäksi A-aiolinen avautuu vasta C-joonisen jälkeen.
+
+Moodin kuuntelu-, sormitus- ja muistivaiheessa **Soita asteikko kerran**
+soittaa yhden oktaavin ylös ja alas sekä päättyy alimpaan toonikaan.
+Toisto ei ala uudestaan automaattisesti. Painikkeella voi pysäyttää
+kesken ja käynnistää alusta; otelauta korostaa soivan sävelen
+myös kertatoiston aikana. Erillinen mallifraasi on poistettu näistä
+kolmesta vaiheesta. Sävelkeskusten vertailuharjoituksen lyhyet
+C-/A-päätösfraasit ovat edelleen käytössä omana kuuntelutehtävänään.
+
+Moodi tallentuu omaan `musiikin-kartta:moodipolku:<id>:v1`-avaimeen.
+Käyttäjä kuittaa harjoituksen itse; mikrofonia ei käytetä. Seuraava moodi
+on suunniteltu A-dooriseksi, jonka F♯ eroaa aiolisen F:stä.
+Muut viisi moodia, muut positiot ja oikeat taustanauhoitukset ovat
+jatkokehitystä. Älä esittele nykyistä versiota kaikkien seitsemän moodin
+valmiina oppimispolkuna.
+
 ## Oppimispolut (ensimmäinen toteutus)
 
 Kitaraharjoittelijan etusivu näyttää nykyisin neljä valintaa:
@@ -124,6 +163,14 @@ toisistaan riippumatta. Lisäksi on valinnainen looppi ja aikajana.
 käynnistyy vain erillisestä Soita kappale -painalluksesta.** Mykistys- ja
 looppiasetukset säilyvät vaihdossa.
 
+Soittimen alla oleva **Lataa MP3** -linkki lataa valitun version valmiin
+kokonaisen MP3:n (`…-normaali-kokonainen.mp3` tai `…-akustinen-kokonainen.mp3`)
+tavallisena saman originin linkkinä `download`-attribuutilla. Tiedosto on
+alkuperäinen sellaisenaan, ei soittimen raitojen miksaus, eikä lataus koske
+toistoon, mykistyksiin tai äänenvoimakkuuteen. Testit:
+`tests/e2e/song-download.spec.ts` (työpöytä ja puhelin) ja liiteotsakkeen osalta
+`tests/audioRange.test.ts`.
+
 Suorat osoitteet: `kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta`
 (oletusversio), `…-normaali` ja `…-akustinen`. Linkissä nimetty versio
 ohittaa oletuksen. Käyttäjän valitsema versio säilyy sivulla, vaikka hän
@@ -131,8 +178,8 @@ käy välillä oppimispoluissa; kappalelinkillä avatussa sivussa linkki
 päivittyy valinnan mukaiseksi.
 
 MP3-tiedostot ovat hakemistossa `assets/audio/kappaleet/`. Tarkista asennus komennolla `npm run check:song-audio`, joka edellyttää
-kaikkien kahdeksan MP3-tiedoston löytymistä (kappaleen kuusi raitaa ja
-Am-vamp-taustan kaksi raitaa). Äänitteet on tehty maksullisella Suno-
+kaikkien kymmenen MP3-tiedoston löytymistä (kappaleen kuusi raitaa, kaksi
+ladattavaa kokonaista kappaletta ja Am-vamp-taustan kaksi raitaa). Äänitteet on tehty maksullisella Suno-
 tilauksella, ks. [käyttöehdot](../assets/audio/AANITTEET-LISENSSI.md).
 Katso erilliset [akustisen version tiedot](../assets/audio/kappaleet/yksi-sointu-kaksi-askelta-akustinen/README.md)
 ja [normaalin version tiedot](../assets/audio/kappaleet/yksi-sointu-kaksi-askelta-normaali/README.md).
@@ -186,15 +233,29 @@ versionvaihdossa. Mykistys hoidetaan edelleen `muted`-ominaisuudella.
 
 - Työpöytäselaimissa taso asetetaan `HTMLMediaElement.volume`-arvolla, joten
   toisto, kelaus ja synkronointi toimivat kuten ennen.
-- iOS Safarissa `volume` ei muutu (pysyy 1:nä). Sivu tunnistaa tämän ja
-  ohjaa raidat ensimmäisestä Soita-painalluksesta alkaen Web Audio API:n
-  GainNodeihin. AudioContext luodaan ja käynnistetään painalluksen aikana,
-  ja jokainen audioelementti kytketään vain kerran, jolloin ääni kulkee
-  vain GainNoden kautta eikä kuulu kahteen kertaan. Mykistetyn raidan
-  GainNode asetetaan lisäksi nollaan.
-- **Rajoitus:** GainNode-reitti on testattu Playwrightilla simuloimalla
-  iOS:n toiminta (volume-arvo ei muutu, AudioContext korvattu
-  kirjaavalla tynkäversiolla). Sitä ei ole testattu fyysisellä iPhonella.
+- iOS:llä `volume` ei vaikuta ääneen. Nykyinen iOS kuitenkin tallentaa
+  asetetun arvon ja palauttaa sen luettaessa, joten pelkkä lukutesti ei
+  tunnista iPhonea. Siksi säädin ei toiminut fyysisellä iPhonella
+  13.11.2026 (issue #9). iOS-laitteella (iPhone, iPod, iPad ja iPadOS:n
+  työpöytätila) raidat ohjataan siksi aina ensimmäisestä Soita-painalluksesta
+  alkaen Web Audio API:n GainNodeihin (`songVolumeMode`). AudioContext luodaan
+  ja käynnistetään painalluksen aikana, ja jokainen audioelementti kytketään
+  vain kerran, jolloin ääni kulkee vain GainNoden kautta eikä kuulu kahteen
+  kertaan. Mykistetyn raidan GainNode asetetaan lisäksi nollaan.
+- iOS:n Web Audio noudattaa oletuksena äänetön-kytkintä. Siksi reitityksen
+  yhteydessä asetetaan `navigator.audioSession.type = 'playback'` (iOS 17+),
+  jotta kappale soi äänettömässäkin tilassa kuten ennen. Asetus koskee koko
+  sivua, joten myös skaalojen mallisoitto soi sen jälkeen äänettömässä tilassa.
+- Jos reititys epäonnistuu, säätimen alla kerrotaan, ettei äänenvoimakkuutta
+  voi säätää, ja syy. Jos Web Audio ei käynnisty, näytetään virhe.
+- **Vahvistettu fyysisellä iPhonella** (iOS 18.7, Safari, 13.11.2026):
+  säätö toimii korvakuulolta, tila `webaudio`, AudioContext `running`,
+  ääni-istunto `playback`, kaikki kolme raitaa kytketty ja raitojen aikaero
+  alle 0,1 s. Mittaus tehtiin tilapäisellä diagnostiikkapaneelilla, joka
+  poistettiin sen jälkeen. Playwright-testi (Chromium) mittaa todellisen
+  signaalin ennen GainNodea ja sen jälkeen.
+- `initialSeekLatency` tunnistaa iPhonen yhä lukutestillä, joten tahdistimen
+  aloitusviive on iPhonella todennäköisesti 0 eikä 0,4 s. Tahdistin oppii viiveen, eikä sitä muutettu ilman mittausta.
   Jos iOS keskeyttää AudioContextin (esim. puhelu tai taustalle
   siirtyminen), seuraava Soita-painallus käynnistää sen uudelleen.
 

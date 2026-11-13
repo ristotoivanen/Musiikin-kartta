@@ -295,6 +295,80 @@ describe('esimerkkisävelet ja yhteinen äänikonteksti', () => {
       expect(context.resume).toHaveBeenCalledOnce(); expect(context.close).not.toHaveBeenCalled();
     } finally { vi.useRealTimers(); }
   });
+  it('rytmisoitin poistaa aktiivisävelen tauon ajaksi mutta ei katkaise seuraavaa nuottia', async () => {
+    vi.useFakeTimers();
+    try {
+      const { context } = fakeOutput();
+      const player = new ReferencePlayer(() => context as unknown as AudioContext);
+      const seen: string[] = [];
+      const promise = player.playTimed([
+        { midi: 48, beat: 0, duration: 1 },
+        { midi: 52, beat: 3, duration: 1 },
+      ], 120, index => seen.push('note' + index), () => seen.push('silence'));
+      await vi.advanceTimersByTimeAsync(0);
+      await vi.advanceTimersByTimeAsync(3100);
+      expect(await promise).toBe(true);
+      expect(seen).toEqual(['note0', 'silence', 'note1', 'silence']);
+    } finally { vi.useRealTimers(); }
+  });
+
+  it('rytmisoitin ajastaa eripituiset sävelet ja säilyttää tauot sekä pysäyttää kertatoiston', async () => {
+    vi.useFakeTimers();
+    try {
+      const { context, masters } = fakeOutput();
+      const onNote = vi.fn();
+      const player = new ReferencePlayer(() => context as unknown as AudioContext);
+      const events = [
+        { midi: 48, beat: 0, duration: 1 },
+        { midi: 52, beat: 1, duration: 2 },
+        { midi: 55, beat: 4, duration: 1 },
+      ];
+      const playing = player.playTimed(events, 120, onNote);
+      await vi.advanceTimersByTimeAsync(0);
+      const starts = () => context.createOscillator.mock.results.map(call =>
+        Number(((call.value as { start: ReturnType<typeof vi.fn> }).start.mock.calls[0][0] as number).toFixed(2)));
+      expect(starts()).toEqual([.05, .55, 2.05]); // kahden iskun nuotti ja yhden iskun tauko
+      await vi.advanceTimersByTimeAsync(3200);
+      expect(await playing).toBe(true);
+      expect(onNote.mock.calls.map(([index]) => index)).toEqual([0, 1, 2]);
+      expect(masters[0].disconnect).toHaveBeenCalledOnce();
+      await vi.advanceTimersByTimeAsync(2500);
+      expect(onNote).toHaveBeenCalledTimes(3); // ei automaattista uutta kierrosta
+
+      const stopped = player.playTimed(events, 120, onNote);
+      await vi.advanceTimersByTimeAsync(100);
+      player.stop();
+      expect(await stopped).toBe(false);
+      const count = onNote.mock.calls.length;
+      await vi.advanceTimersByTimeAsync(3500);
+      expect(onNote).toHaveBeenCalledTimes(count);
+    } finally { vi.useRealTimers(); }
+  });
+
+  it('kertatoisto kertoo sävelet kerran, pysähtyy ja poistaa keskeytetyn toiston korostusajastimet', async () => {
+    vi.useFakeTimers();
+    try {
+      const { context } = fakeOutput();
+      const player = new ReferencePlayer(() => context as unknown as AudioContext);
+      const onNote = vi.fn();
+      const once = player.play([48, 50, 52], onNote);
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(onNote.mock.calls.map(([index]) => index)).toEqual([0, 1]);
+      player.stop();
+      expect(await once).toBe(false);
+      await vi.advanceTimersByTimeAsync(3000);
+      expect(onNote.mock.calls.map(([index]) => index)).toEqual([0, 1]);
+
+      const again = player.play([48, 50, 52], onNote);
+      await vi.advanceTimersByTimeAsync(3100);
+      expect(await again).toBe(true);
+      expect(onNote.mock.calls.map(([index]) => index)).toEqual([0, 1, 0, 1, 2]);
+      // Toisto loppui itsestään: uusia merkintöjä ei synny ilman uutta painallusta.
+      await vi.advanceTimersByTimeAsync(4000);
+      expect(onNote).toHaveBeenCalledTimes(5);
+    } finally { vi.useRealTimers(); }
+  });
+
   it('jatkuva asteikkotoisto ajastaa kierrosrajan ilman taukoa ja ilmoittaa soivan sävelen', async () => {
     vi.useFakeTimers();
     try {

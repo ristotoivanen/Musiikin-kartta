@@ -80,7 +80,7 @@ async function expectBoardGrip(page: Page, frets: readonly Fret[], degrees: read
 test.describe('Otelautakartta, vain visualisointi', () => {
   test('etusivulla on yksi otelautakartan linkki vanhan kahden sijaan', async ({ page }) => {
     await page.goto('/index.html');
-    await expect(page.getByRole('link', { name: 'Tutki otelautakarttaa' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Tutki otelautaa' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Soita taustan mukana' })).toHaveCount(0);
   });
 
@@ -178,7 +178,7 @@ test.describe('Otelautakartta, vain visualisointi', () => {
     await expect(page.locator('#selection-title')).toContainText('F-molli');
     await expect(page.locator('#chord-position')).toContainText('Barré · E-muoto');
 
-    await page.getByRole('button', { name: 'Asteikko' }).click();
+    await page.getByRole('button', { name: 'Asteikot' }).click();
     await expect(page.getByRole('combobox', { name: 'Asteikko tai moodi' })).toHaveValue('dorian');
   });
 
@@ -428,7 +428,7 @@ test.describe('Otelautakartta, vain visualisointi', () => {
     await expect(forms).toBeHidden();
     await expect(page.locator('#board .octave-note').first()).toBeVisible();
     await expect(page.locator('#board .grip-notes, #board .muted-mark')).toHaveCount(0);
-    await page.getByRole('button', { name: 'Asteikko' }).click();
+    await page.getByRole('button', { name: 'Asteikot' }).click();
     await expect(page.locator('#selection-title')).toContainText('mollipentatoninen');
     await expect(page.locator('#board .grip-notes, #board .muted-mark')).toHaveCount(0);
   });
@@ -487,7 +487,68 @@ test.describe('Otelautakartta, vain visualisointi', () => {
     await expect(page.getByRole('button', { name: 'Oktaavit' })).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('#board .octave-note')).not.toHaveCount(0);
     await expect(page.getByRole('combobox', { name: 'Näytettävät nauhat' })).toHaveValue('17');
-    await page.getByRole('button', { name: 'Asteikko' }).click();
+    await page.getByRole('button', { name: 'Asteikot' }).click();
     await expect(page.locator('#selection-title')).toContainText('A-mollipentatoninen');
+  });
+});
+
+test.describe('Otelautaoppaan ulkoasu', () => {
+  test('otsikkoalue ja yksi työskentelykortti oikeassa järjestyksessä', async ({ page }) => {
+    await page.goto('/otelautaharjoittelija.html');
+    await expect(page.getByText('LÖYDÄ · YMMÄRRÄ · SOITA')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Otelautaopas' })).toBeVisible();
+    const card = page.getByRole('region', { name: 'Tutki otelautaa' });
+    await expect(card).toBeVisible();
+    await expect(card.getByRole('group', { name: 'Näytä otelaudalla' }).getByRole('button')).toHaveText(['Asteikot', 'Soinnut', 'Oktaavit']);
+    // Valinnat, säveltiedot, nauhamäärä, otelauta ja väriselitteet ovat kaikki samassa kortissa tässä järjestyksessä.
+    const order = await card.evaluate(el => ['#root-select', '#scale-select', '#box-details', '#selection-title', '#fret-count', '#board', '#scale-legend']
+      .map(sel => el.querySelector(sel)!.getBoundingClientRect().top));
+    expect(order).toEqual([...order].sort((a, b) => a - b));
+    await expect(page.locator('#box-details')).not.toHaveAttribute('open');
+    // Alavalikko ja päävalikko säilyvät.
+    await expect(page.getByRole('navigation', { name: 'Otelautaopas' }).getByRole('link', { name: 'Otelautakartta' })).toHaveAttribute('aria-current', 'page');
+  });
+
+  test('otelauta ei kapene: työpöydällä 1064 px, mobiilissa vähintään entinen näkyvä leveys', async ({ page }) => {
+    for (const [width, minimum] of [[1440, 1064], [390, 354], [360, 324]] as const) {
+      await page.setViewportSize({ width, height: 900 });
+      for (const hash of ['', '#soinnut', '#oktaavit']) {
+        await page.goto('/otelautaharjoittelija.html' + hash);
+        await expect(page.locator('#board svg')).toBeVisible();
+        const size = await page.evaluate(() => ({
+          board: document.getElementById('board')!.clientWidth,
+          svg: document.querySelector('#board svg')!.getBoundingClientRect().width,
+          page: document.documentElement.scrollWidth,
+        }));
+        expect(size.board, `${width}${hash}`).toBeGreaterThanOrEqual(minimum);
+        expect(size.svg, `${width}${hash}`).toBeGreaterThanOrEqual(Math.min(minimum, 680));
+        expect(size.page, `${width}${hash}: ei sivun vaakavieritystä`).toBeLessThanOrEqual(width);
+      }
+    }
+  });
+
+  test('näkymät, valinnat ja otelauta toimivat näppäimistöllä', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Sarkainnäppäin testataan työpöytäkoossa.');
+    await page.goto('/otelautaharjoittelija.html');
+    const chords = page.getByRole('button', { name: 'Soinnut' });
+    await chords.focus();
+    await page.keyboard.press('Enter');
+    await expect(chords).toHaveAttribute('aria-pressed', 'true');
+    await expect(page).toHaveURL(/#soinnut$/);
+    await page.getByRole('button', { name: 'Seuraava sointuote' }).focus();
+    await page.keyboard.press('Space');
+    await expect(page.locator('#chord-position')).toContainText('2/');
+    const octaves = page.getByRole('button', { name: 'Oktaavit' });
+    await octaves.focus();
+    await page.keyboard.press('Space');
+    await expect(page).toHaveURL(/#oktaavit$/);
+    await page.getByRole('button', { name: 'Asteikot' }).focus();
+    await page.keyboard.press('Enter');
+    await page.locator('#box-details summary').focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#box-details')).toHaveAttribute('open', '');
+    await page.locator('#board').focus();
+    await expect(page.locator('#board')).toBeFocused();
+    expect(await page.locator('#board').evaluate(el => getComputedStyle(el).outlineStyle)).toBe('solid');
   });
 });

@@ -5,21 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Harjoittele otelaudan säveliä, asteikkoja, sointusäveliä ja korvakuuloa oikealla kitaralla. Mikrofonin ääni käsitellään vain selaimessa.">
   <title>Kitaraharjoittelija – Musiikin kartta</title>
-  <link rel="stylesheet" href="assets/otelauta.css">
-  <link rel="stylesheet" href="assets/harjoittelija/app.css">
+  <link rel="stylesheet" href="assets/otelauta.css?v=36a704ebe6">
+  <link rel="stylesheet" href="assets/harjoittelija/app.css?v=5f22d8426a">
+  <link rel="stylesheet" href="assets/paavalikko.css?v=3138d3e5e8">
 </head>
 <body>
-  <header class="site-header"><nav class="site-nav" aria-label="Sivusto">
-    <a class="brand" href="index.html">Musiikin <span>kartta</span></a>
-    <a href="book/osa-5.html#otelauta">Opas · otelauta</a>
-    <a href="otelautaharjoittelija.html">Otelautaharjoittelija</a>
-    <a href="kitaraharjoittelija.html" aria-current="page">Kitaraharjoittelija</a>
-  </nav></header>
+  <header class="site-top">
+    <nav class="main-nav" aria-label="Päävalikko">
+      <a class="brand" href="index.html">Musiikin <span>kartta</span></a>
+      <ul>
+        <li><a href="book/index.html"><span class="nav-long">Musiikin teoria</span><span class="nav-short">Teoria</span></a></li>
+        <li><a href="otelautaharjoittelija.html">Otelautaopas</a></li>
+        <li><a href="kitaraharjoittelija.html" aria-current="page">Kitaraharjoittelu</a></li>
+      </ul>
+    </nav>
+  </header>
   <main class="practice-main" id="guitar-practice"><p>Ladataan kitaraharjoittelijaa…</p><noscript><p>Harjoittelu tarvitsee JavaScriptin. Voit lukea <a href="book/osa-5.html#otelauta">oppaan kitaraharjoituksia</a> ilman sitä.</p></noscript></main>
   <footer>Musiikin kartta · Harjoitustiedot vain omassa selaimessasi.</footer>
   <script type="module">
     const dev = import.meta.env?.DEV === true;
-    import(/* @vite-ignore */ dev ? './harjoittelija/main.tsx' : './assets/harjoittelija/app.js?v=268c9e1d5e38').catch(error => {
+    import(/* @vite-ignore */ dev ? './harjoittelija/main.tsx' : './assets/harjoittelija/app.js?v=aa5e20bb1504').catch(error => {
       console.error('Harjoittelijan lataus epäonnistui', error);
       document.getElementById('guitar-practice').textContent = 'Harjoittelijan lataus ei onnistunut. Tarkista yhteys ja lataa sivu uudelleen. Kehitysympäristössä aja npm run build.';
     });

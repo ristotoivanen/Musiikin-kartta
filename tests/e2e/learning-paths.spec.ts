@@ -158,6 +158,7 @@ test.describe('Uudet oppimispolut', () => {
   });
 
   test('käyttäjän valitsemaa versiota ei vaihdeta automaattisesti kesken harjoittelun', async ({ page }) => {
+    test.setTimeout(60_000); // Useita media- ja sivulatauksia hitaalla CI-ympäristöllä.
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Kappaleharjoittelu/ }).click();
     const version = page.getByRole('combobox', { name: 'Versio' });
@@ -197,6 +198,7 @@ test.describe('Uudet oppimispolut', () => {
 
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
+    await page.getByRole('button', { name: /Pentatoniset/ }).click();
     await expect(page.getByRole('heading', { name: 'A-mollipentatoninen · positioiden 1 ja 2 yhdistäminen' })).toBeVisible();
     await expect(page.getByText('🔒 Positio 3')).toBeVisible();
     await page.getByRole('button', { name: 'Kirjaa yhdistäminen harjoitelluksi' }).click();
@@ -224,6 +226,7 @@ test.describe('Uudet oppimispolut', () => {
 
     await page.reload();
     await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
+    await page.getByRole('button', { name: /Pentatoniset/ }).click();
     await expect(page.getByRole('heading', { name: 'A-mollipentatoninen · positio 3' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Soita muistista' })).toBeVisible();
     expect(await page.evaluate(() => [
@@ -249,6 +252,7 @@ test.describe('Uudet oppimispolut', () => {
     });
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
+    await page.getByRole('button', { name: /Pentatoniset/ }).click();
     await expect(page.getByRole('heading', { name: 'Soita koko asteikko' })).toBeVisible();
     await expect(page.getByText(/Nauhat 5–10/)).toBeVisible();
     await expect(page.locator('.practice-board .dot')).toHaveCount(18);
@@ -278,6 +282,7 @@ test.describe('Uudet oppimispolut', () => {
     });
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
+    await page.getByRole('button', { name: /Pentatoniset/ }).click();
 
     const combine = page.getByRole('group', { name: 'Valitse opeteltava positio' })
       .getByRole('button', { name: 'Yhdistä 1 + 2' });
@@ -310,6 +315,7 @@ test.describe('Uudet oppimispolut', () => {
 
     await page.reload();
     await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
+    await page.getByRole('button', { name: /Pentatoniset/ }).click();
     await expect(page.getByRole('heading', { name: 'Yhdistä muistista' })).toBeVisible();
     expect(await page.evaluate(() => [
       localStorage.getItem('musiikin-kartta:skaalapolku:v1'),
@@ -338,6 +344,7 @@ test.describe('Uudet oppimispolut', () => {
   test('positio 2 avautuu position 1 jälkeen ja muistaa oman etenemisensä', async ({ page }) => {
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
+    await page.getByRole('button', { name: /Pentatoniset/ }).click();
     const position1 = page.getByRole('button', { name: 'Positio 1', exact: true });
     const position2 = page.getByRole('button', { name: 'Positio 2', exact: true });
 
@@ -370,6 +377,7 @@ test.describe('Uudet oppimispolut', () => {
 
     await page.reload();
     await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
+    await page.getByRole('button', { name: /Pentatoniset/ }).click();
     await expect(page.getByRole('heading', { name: 'A-mollipentatoninen · positio 2' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Soita muistista' })).toBeVisible();
     expect(await page.evaluate(() => [
@@ -386,6 +394,7 @@ test.describe('Uudet oppimispolut', () => {
   test('ensimmäisen skaalaposition vaiheet avautuvat järjestyksessä ja eteneminen tallentuu', async ({ page }) => {
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
+    await page.getByRole('button', { name: /Pentatoniset/ }).click();
     await expect(page.getByRole('heading', { name: 'A-mollipentatoninen · positio 1' })).toBeVisible();
     await expect(page.getByRole('button', { name: /Soita muistista/ })).toBeDisabled();
     await expect(page.getByRole('region', { name: 'Otelaudan vastausruudukko' })).toBeVisible();
@@ -393,6 +402,7 @@ test.describe('Uudet oppimispolut', () => {
     await expect(page.getByRole('heading', { name: 'Soita ylös ja alas' })).toBeVisible();
     await page.reload();
     await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
+    await page.getByRole('button', { name: /Pentatoniset/ }).click();
     await expect(page.getByRole('heading', { name: 'Soita ylös ja alas' })).toBeVisible();
     await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
     await expect(page.getByRole('heading', { name: 'Soita muistista' })).toBeVisible();
@@ -416,6 +426,7 @@ test.describe('Uudet oppimispolut', () => {
   test('asteikon ylös-alas-harjoituksessa mallin saa loopille, pysäytys ja vaiheenvaihto katkaisevat sen', async ({ page }) => {
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
+    await page.getByRole('button', { name: /Pentatoniset/ }).click();
     await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
 
     const loop = page.getByRole('button', { name: '▶ Toista asteikkoa jatkuvasti' });
@@ -439,6 +450,7 @@ test.describe('Uudet oppimispolut', () => {
   test('asteikon toisto näyttää soivan sävelen otelaudalla mutta ei paljasta muistiharjoitusta', async ({ page }) => {
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
+    await page.getByRole('button', { name: /Pentatoniset/ }).click();
 
     // Kuuntele ja tutustu: jatkuva mallisoitto ja liikkuva otelautakorostus.
     await page.getByRole('button', { name: '▶ Toista asteikkoa jatkuvasti' }).click();
@@ -471,6 +483,7 @@ test.describe('Uudet oppimispolut', () => {
   test('muistiharjoituksen tempo säätyy 5 BPM:n askelin kesken toiston ja säilyy reloadissa', async ({ page }) => {
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
+    await page.getByRole('button', { name: /Pentatoniset/ }).click();
     await expect(page.getByRole('group', { name: 'Asteikon toiston tempo' })).toHaveCount(0);
     await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
     await expect(page.getByRole('group', { name: 'Asteikon toiston tempo' })).toHaveCount(0);
@@ -491,6 +504,7 @@ test.describe('Uudet oppimispolut', () => {
 
     await page.reload();
     await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
+    await page.getByRole('button', { name: /Pentatoniset/ }).click();
     await expect(page.getByRole('heading', { name: 'Soita muistista' })).toBeVisible();
     await expect(output).toHaveText('80 BPM');
     await page.getByRole('button', { name: 'Palauta 75 BPM' }).click();
@@ -504,6 +518,7 @@ test.describe('Uudet oppimispolut', () => {
     });
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
+    await page.getByRole('button', { name: /Pentatoniset/ }).click();
     // Vanhaan asteikon sävelharjoitukseen ei ole enää näkyvää linkkiä.
     await expect(page.getByText(/Vanha asteikon sävelharjoitus|vanha asteikkoharjoitus/i)).toHaveCount(0);
     for (let i = 0; i < 3; i++) await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
@@ -544,20 +559,22 @@ test.describe('Uudet oppimispolut', () => {
     await mixer.getByRole('button', { name: '▶ Soita' }).click();
     await expect(mixer.getByRole('button', { name: '■ Tauko' })).toBeVisible();
     await choose('Ei sävelvihjeitä');
-    await expect(page.locator('.practice-board .dot')).toHaveCount(0);
+    await expect(page.locator('.journey-lesson > .fret-wrap .practice-board .dot')).toHaveCount(0);
     await expect(mixer.getByRole('button', { name: '■ Tauko' })).toBeVisible();
-    await page.getByRole('button', { name: '▶ Mallifraasi' }).click();
+    // Koko melodia harjoiteltiin jo muistivaiheessa. Improvisoinnissa ei ole
+    // toista kappalelohkoa, vaan säestys ja vapaa soittaminen.
+    await expect(page.getByRole('region', { name: /Melodiaharjoitus: Wayfaring Stranger/ })).toHaveCount(0);
     await expect(page.getByRole('alert')).toHaveCount(0);
     await choose('Vain pohjasävelet');
-    await expect(page.locator('.practice-board .dot')).toHaveCount(3);
+    await expect(page.locator('.journey-lesson > .fret-wrap .practice-board .dot')).toHaveCount(3);
     await expect(mixer.getByRole('button', { name: '■ Tauko' })).toBeVisible();
 
     // Kapealla näytöllä nauha 8 on vierityksen takana: vihje kertoo sen, ja nauhan saa näkyviin vierittämällä.
-    const scroller = page.locator('.fret-scroll');
-    const hint = page.locator('.fret-scroll-hint');
+    const scroller = page.locator('.journey-lesson > .fret-wrap .fret-scroll');
+    const hint = page.locator('.journey-lesson > .fret-wrap .fret-scroll-hint');
     if (testInfo.project.name === 'phone') {
       await expect(hint).toContainText('nauhoja on lisää');
-      const fret8 = page.locator('.practice-board button[data-string="0"][data-fret="8"]');
+      const fret8 = page.locator('.journey-lesson > .fret-wrap .practice-board button[data-string="0"][data-fret="8"]');
       await scroller.evaluate(element => { element.scrollLeft = element.scrollWidth; });
       await expect(hint).toContainText('vasemmalla');
       const [cell, view] = [(await fret8.boundingBox())!, (await scroller.boundingBox())!];
@@ -565,7 +582,7 @@ test.describe('Uudet oppimispolut', () => {
       expect(cell.x + cell.width).toBeLessThanOrEqual(view.x + view.width + 1);
       await scroller.evaluate(element => { element.scrollLeft = 0; });
       await expect(hint).toContainText('oikealla');
-      expect((await page.locator('.practice-board .dot').first().boundingBox())!.width).toBeGreaterThanOrEqual(24);
+      expect((await page.locator('.journey-lesson > .fret-wrap .practice-board .dot').first().boundingBox())!.width).toBeGreaterThanOrEqual(24);
     } else {
       await expect(hint).toHaveCount(0);
     }
@@ -583,13 +600,13 @@ test.describe('Uudet oppimispolut', () => {
     // Muistiharjoitus 3/4 alkaa edelleen ilman vihjeitä, ja paluu improvisointiin palauttaa oletuksen.
     await choose('Ei sävelvihjeitä');
     await page.getByRole('button', { name: /Soita muistista/ }).click();
-    await expect(page.locator('.practice-board .dot')).toHaveCount(0);
+    await expect(page.locator('.journey-lesson > .fret-wrap .practice-board .dot')).toHaveCount(0);
     await expect(hints).toHaveCount(0);
     await page.getByRole('button', { name: 'Näytä pohjasävelet' }).click();
-    await expect(page.locator('.practice-board .dot')).toHaveCount(3);
+    await expect(page.locator('.journey-lesson > .fret-wrap .practice-board .dot')).toHaveCount(3);
     await page.getByRole('button', { name: /Improvisoi taustan päälle/ }).click();
     await expect(radio('Vain pohjasävelet')).toBeChecked();
-    await expect(page.locator('.practice-board .dot')).toHaveCount(3);
+    await expect(page.locator('.journey-lesson > .fret-wrap .practice-board .dot')).toHaveCount(3);
   });
 
   test('improvisointitaustassa kaksi raitaa kulkee yhdessä ja mallikitaran saa mykistettyä', async ({ page }) => {
@@ -604,6 +621,7 @@ test.describe('Uudet oppimispolut', () => {
     });
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
+    await page.getByRole('button', { name: /Pentatoniset/ }).click();
     for (let i = 0; i < 3; i++) {
       await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
     }
@@ -676,6 +694,7 @@ test.describe('Uudet oppimispolut', () => {
 
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
+    await page.getByRole('button', { name: /Pentatoniset/ }).click();
     await expect(page.getByRole('link', { name: /Lue tämän harjoituksen teoria/ }))
       .toHaveAttribute('href', 'book/osa-8.html#pentatoniikka');
   });

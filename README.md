@@ -2,7 +2,7 @@
 
 Musiikin kartta on avoin suomenkielinen verkko-opas musiikin teoriaan ja kitaransoittoon. Yhdeksän perusosaa etenevät ensimmäisestä kappaleesta sointuihin, otelautaan, korvakuulolta soittamiseen ja oman kappaleen äänittämiseen. Kaksi valinnaista osaa syventää septimisointuihin ja moodeihin. Mukana on kuunteluesimerkkejä, kitaraharjoituksia ja säestystaustoja.
 
-**[Lue opas verkossa](https://rinnepelto.com/)** · [Avaa Otelautakartta](https://rinnepelto.com/otelautaharjoittelija.html)
+**[Lue opas verkossa](https://rinnepelto.com/)** · [Musiikin teoria](https://rinnepelto.com/book/) · [Avaa Otelautakartta](https://rinnepelto.com/otelautaharjoittelija.html)
 
 ## Oppaan osat
 
@@ -62,8 +62,16 @@ akustisena että normaalina versiona. Valitussa sovituksessa säestys, kitara
 ja laulu ovat kolme samanaikaisesti toistettavaa MP3-raitaa. Kitara ja laulu
 voidaan vaimentaa erikseen kesken kappaleen. Version vaihtaminen pysäyttää
 toiston, palauttaa sen alkuun ja edellyttää uutta Soita-painallusta.
-Molempien versioiden äänet toimitetaan erillisinä ZIP-paketteina,
-eivät GitHub-haaran mukana.
+**Lataa MP3** -linkki lataa valitun version valmiin kokonaisen kappaleen.
+Kappaleen äänitiedostot ovat GitHub-repossa hakemistossa
+`assets/audio/kappaleet/`, ja Cloudflare Pages julkaisee ne sieltä. Niitä on
+kahdenlaisia: soittimen **harjoitusraidat** (`…-saestys.mp3`, `…-kitara.mp3`,
+`…-laulu.mp3`) ja **Lataa MP3** -linkin **kokonaiset kappaleet**
+(`…-kokonainen.mp3`). Molemmat tulivat alun perin erillisinä ZIP-paketteina:
+raidat versiokohtaisina raitapaketteina ja kokonaiset kappaleet omana
+latauspakettinaan. Kokonaiset MP3:t ovat alkuperäisiä sellaisenaan, eivätkä
+ne ole raitojen miksaus. Äänitteiden käyttöehdot:
+[AANITTEET-LISENSSI.md](assets/audio/AANITTEET-LISENSSI.md).
 Asennusohje on [harjoittelijan README:ssä](harjoittelija/README.md).
 
 ## Tulostettava versio
@@ -73,6 +81,10 @@ Asennusohje on [harjoittelijan README:ssä](harjoittelija/README.md).
 ## Paikallinen käyttö
 
 Avaa kloonatun repon `index.html` selaimessa. Oppaan sivut ovat [book-kansiossa](book/) ja kuunteluesimerkit [assets/audio-kansiossa](assets/audio/). Sisäiset linkit ja edistymisen lukutaulukon voi tarkistaa komennolla `python3 tools/linkit/tarkista-linkit.py`.
+
+Sivuston kolmella pääosiolla (Musiikin teoria, Otelautaopas ja Kitaraharjoittelu) on sama päävalikko. Sen merkintä toistuu jokaisen sivun alussa, ja tyylit ovat tiedostossa `assets/paavalikko.css`. Musiikin teorian aloitusnäkymä on `book/index.html`: osat on ryhmitelty siinä neljäksi avattavaksi kokonaisuudeksi, ja `assets/edistyminen.js` täydentää jatkamiskortin ja osien merkinnät tallennetuista lukumerkinnöistä. Kun oppaaseen lisätään osa, lisää se sekä `edistyminen.js`:n PARTS-taulukkoon että aloitusnäkymän kokonaisuuteen; `npm test` tarkistaa, että ne vastaavat `book/osa-*.html`-tiedostoja.
+
+Sivujen tyylitiedostolinkeissä on versiotunniste (`reader.css?v=…`), joka lasketaan tiedoston sisällöstä. Näin palaava kävijä ei saa uutta sivua vanhalla, välimuistissa olevalla CSS:llä. Kun muutat CSS-tiedostoa, aja `node tools/versioi-tyylit.mjs`. `npm run build` ajaa sen automaattisesti, ja `npm test` huomauttaa vanhentuneesta tunnisteesta.
 
 ## Interaktiivinen kitaraharjoittelu
 

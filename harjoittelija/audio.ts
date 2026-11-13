@@ -146,6 +146,7 @@ export class ReferencePlayer {
   private master?: GainNode;
   private token = 0;
   private timer?: ReturnType<typeof setTimeout>;
+  private noteTimers: ReturnType<typeof setTimeout>[] = [];
   private loopTick?: ReturnType<typeof setInterval>;
   private adjustLoopTempo?: (bpm: number) => void;
   private settle?: (completed: boolean) => void;
@@ -154,12 +155,13 @@ export class ReferencePlayer {
   stop() {
     this.token++;
     clearTimeout(this.timer);
+    this.noteTimers.forEach(clearTimeout); this.noteTimers = [];
     clearInterval(this.loopTick); this.loopTick = undefined;
     this.adjustLoopTempo = undefined;
     this.settle?.(false); this.settle = undefined;
     this.master?.disconnect(); this.master = undefined;
   }
-  async play(notes: number[]): Promise<boolean> {
+  async play(notes: number[], onNote?: (index: number) => void): Promise<boolean> {
     this.stop();
     const token = this.token;
     const c = this.provide();
@@ -176,13 +178,80 @@ export class ReferencePlayer {
       gain.gain.setValueAtTime(0,start); gain.gain.linearRampToValueAtTime(.22,start+.012);
       gain.gain.exponentialRampToValueAtTime(.001,start+.7);
       oscillator.connect(gain); gain.connect(master); oscillator.start(start); oscillator.stop(start+.72);
+      // Vain käyttöliittymän korostus; äänen ajoitus pysyy AudioContextin kellossa.
+      if (onNote) this.noteTimers.push(setTimeout(() => {
+        if (token === this.token) onNote(i);
+      }, 50 + i * 800));
     });
     const completed = await new Promise<boolean>(resolve => {
       this.settle = resolve;
       this.timer = setTimeout(() => resolve(true), notes.length * 800 + 350);
     });
     if (!completed || token !== this.token) return false;
-    this.settle = undefined; master.disconnect(); this.master = undefined;
+    this.settle = undefined;
+    this.noteTimers.forEach(clearTimeout); this.noteTimers = [];
+    master.disconnect(); this.master = undefined;
+    return true;
+  }
+
+
+  /**
+   * Nuotinnettujen melodioiden kertatoisto.
+   * beat ja duration ovat neljäsosaiskuja, eivät yhtä pitkiä asteikkonuotteja.
+   * Tauot sisältyvät tapahtumien aloituskohtiin; audio ajoitetaan AudioContextin
+   * kellolla ja kuvakorostuksen ajastimet siivotaan myös keskeytyksessä.
+   */
+  async playTimed(notes: { midi: number; beat: number; duration: number }[], bpm: number,
+    onNote?: (index: number) => void, onSilence?: () => void): Promise<boolean> {
+    this.stop();
+    if (!notes.length) return false;
+    const token = this.token;
+    const c = this.provide();
+    await ensureReferenceAudioRunning(c);
+    if (token !== this.token) return false;
+    const secondsPerBeat = 60 / Math.max(40, Math.min(140, bpm));
+    const master = c.createGain(); master.connect(c.destination); this.master = master;
+    const partials = Array.from({ length: 12 }, (_, i) => 1 / (i + 1) ** 1.3);
+    const wave = c.createPeriodicWave?.(new Float32Array([0, ...partials.map(() => 0)]),
+      new Float32Array([0, ...partials]));
+    const origin = c.currentTime + .05;
+    let finalBeat = 0;
+    notes.forEach((event, index) => {
+      if (!Number.isFinite(event.beat) || event.beat < 0 ||
+        !Number.isFinite(event.duration) || event.duration <= 0) {
+        throw new Error('Virheellinen melodian aika-arvo.');
+      }
+      const start = origin + event.beat * secondsPerBeat;
+      const length = event.duration * secondsPerBeat;
+      const end = start + Math.max(.08, length * .94);
+      const oscillator = c.createOscillator(), gain = c.createGain();
+      if (wave) oscillator.setPeriodicWave(wave); else oscillator.type = 'triangle';
+      oscillator.frequency.value = midiToFreq(event.midi);
+      gain.gain.setValueAtTime(0, start);
+      gain.gain.linearRampToValueAtTime(.22, start + .012);
+      gain.gain.exponentialRampToValueAtTime(.001, end - .01);
+      oscillator.connect(gain); gain.connect(master);
+      oscillator.start(start); oscillator.stop(end);
+      if (onNote) this.noteTimers.push(setTimeout(() => {
+        if (token === this.token) onNote(index);
+      }, 50 + event.beat * secondsPerBeat * 1000));
+      // Pitkän tauon aikana edellinen nauhapaikka ei saa jäädä näkyviin.
+      const nextBeat = notes[index + 1]?.beat ?? Infinity;
+      if (onSilence && nextBeat > event.beat + event.duration + .02) {
+        this.noteTimers.push(setTimeout(() => {
+          if (token === this.token) onSilence();
+        }, 50 + event.beat * secondsPerBeat * 1000 + length * 1000));
+      }
+      finalBeat = Math.max(finalBeat, event.beat + event.duration);
+    });
+    const completed = await new Promise<boolean>(resolve => {
+      this.settle = resolve;
+      this.timer = setTimeout(() => resolve(true), 50 + finalBeat * secondsPerBeat * 1000 + 150);
+    });
+    if (!completed || token !== this.token) return false;
+    this.settle = undefined;
+    this.noteTimers.forEach(clearTimeout); this.noteTimers = [];
+    master.disconnect(); this.master = undefined;
     return true;
   }
 

@@ -24,15 +24,13 @@ a:hover { color: var(--text); }
 :focus-visible { outline: 2px solid #75e5c6; outline-offset: 3px; }
 [id] { scroll-margin-top: 1.25rem; }
 .frame { width: min(100% - 2rem, 64rem); margin-inline: auto; }
-.site-nav, .site-footer {
+.site-footer {
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: .5rem 1.5rem;
   padding-block: 1rem;
 }
-.site-nav .brand { color: var(--text); font-weight: 750; text-decoration: none; }
-.site-nav .brand span { color: var(--accent); }
 .hero {
   background: linear-gradient(140deg, #2a2044, var(--bg) 74%);
   border-block: 1px solid var(--line);
@@ -289,7 +287,7 @@ thead th { background: var(--panel); }
     font-size: 10pt;
   }
   body { background: #fff; line-height: 1.5; }
-  .site-nav, .site-footer, .primary-link, .contents, audio { display: none; }
+  .site-footer, .primary-link, .contents, audio { display: none; }
   .frame { width: auto; margin: 0; }
   .hero { background: none; border: 0; padding-block: 0 .5rem; }
   .reading-layout { display: block; padding: 0; }
