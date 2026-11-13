@@ -18,6 +18,8 @@ test.describe('Melodiaharjoitusten näkyvyys ja otelautakorostus', () => {
     await summary.click();
     await expect(melody.getByRole('heading', { name: 'Wayfaring Stranger' })).toBeVisible();
     await expect(melody.getByRole('button', { name: 'Osa B' })).toBeVisible();
+    await expect(melody.locator('.melody-tab')).toHaveCount(0);
+    await melody.getByRole('button', { name: 'Näytä tabulatuuri' }).click();
     await expect(melody.locator('.melody-tab')).toBeVisible();
     await expect(melody.locator('.practice-board .dot')).not.toHaveCount(0);
     await melody.getByRole('button', { name: 'Osa B' }).click();
@@ -28,6 +30,11 @@ test.describe('Melodiaharjoitusten näkyvyys ja otelautakorostus', () => {
     await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
     await expect(melody.locator('summary')).toContainText('melodia muistista');
     await melody.locator('summary').click();
+    await expect(melody.getByRole('group', { name: 'Valitse melodiaharjoituksen osa' })).toHaveCount(0);
+    await expect(melody.getByRole('button', { name: 'Osa A' })).toHaveCount(0);
+    await expect(melody.getByRole('button', { name: 'Osa B' })).toHaveCount(0);
+    await expect(melody.getByText('6 tahtia valitussa osassa')).toBeVisible();
+    await expect(melody.getByRole('button', { name: '▶ Kuuntele koko melodia kerran' })).toBeVisible();
     await expect(melody.locator('.melody-tab')).toHaveCount(0);
     await expect(melody.locator('.practice-board .dot')).toHaveCount(0);
     await melody.getByRole('button', { name: 'Näytä otelaudan sävelvihjeet' }).click();
@@ -57,11 +64,16 @@ test.describe('Melodiaharjoitusten näkyvyys ja otelautakorostus', () => {
     await melody.locator('summary').click();
     await expect(melody.getByRole('heading', { name: 'Ukko Nooa' })).toBeVisible();
     await expect(melody.getByRole('button', { name: 'Osa B' })).toBeVisible();
+    await expect(melody.getByRole('button', { name: 'Näytä tabulatuuri' })).toBeVisible();
+    await expect(melody.locator('.melody-tab')).toHaveCount(0);
     await expect(melody.locator('.practice-board .dot')).not.toHaveCount(0);
     await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
 
     await expect(melody.locator('summary')).toContainText('melodia muistista');
     await melody.locator('summary').click();
+    await expect(melody.getByRole('group', { name: 'Valitse melodiaharjoituksen osa' })).toHaveCount(0);
+    await expect(melody.getByText('4 tahtia valitussa osassa')).toBeVisible();
+    await expect(melody.getByRole('button', { name: '▶ Kuuntele koko melodia kerran' })).toBeVisible();
     await expect(melody.locator('.melody-tab')).toHaveCount(0);
     await expect(melody.locator('.practice-board .dot')).toHaveCount(0);
     await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
@@ -101,6 +113,10 @@ test.describe('Melodiaharjoitusten näkyvyys ja otelautakorostus', () => {
     await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
     await expect(melody.locator('summary')).toContainText('melodia muistista');
     await melody.locator('summary').click();
+    await expect(melody.getByRole('group', { name: 'Valitse melodiaharjoituksen osa' })).toHaveCount(0);
+    await expect(melody.getByRole('button', { name: '▶ Kuuntele koko melodia kerran' })).toBeVisible();
+    await expect(melody.getByText('4 tahtia valitussa osassa')).toBeVisible();
+    await expect(melody.locator('.melody-tab')).toHaveCount(0);
     await expect(melody.locator('.practice-board .dot')).toHaveCount(0);
     await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
     await expect(melody.locator('summary')).toContainText('Ennen improvisointia');
