@@ -6,7 +6,7 @@
   <meta name="description" content="Harjoittele otelaudan säveliä, asteikkoja, sointusäveliä ja korvakuuloa oikealla kitaralla. Mikrofonin ääni käsitellään vain selaimessa.">
   <title>Kitaraharjoittelija – Musiikin kartta</title>
   <link rel="stylesheet" href="assets/otelauta.css?v=36a704ebe6">
-  <link rel="stylesheet" href="assets/harjoittelija/app.css?v=27ad018133">
+  <link rel="stylesheet" href="assets/harjoittelija/app.css?v=dc62ed4a54">
   <link rel="stylesheet" href="assets/paavalikko.css?v=112463e529">
 </head>
 <body>
@@ -24,7 +24,7 @@
   <footer>Musiikin kartta · Harjoitustiedot vain omassa selaimessasi.</footer>
   <script type="module">
     const dev = import.meta.env?.DEV === true;
-    import(/* @vite-ignore */ dev ? './harjoittelija/main.tsx' : './assets/harjoittelija/app.js?v=d391c162c665').catch(error => {
+    import(/* @vite-ignore */ dev ? './harjoittelija/main.tsx' : './assets/harjoittelija/app.js?v=4dcb1fe0a698').catch(error => {
       console.error('Harjoittelijan lataus epäonnistui', error);
       document.getElementById('guitar-practice').textContent = 'Harjoittelijan lataus ei onnistunut. Tarkista yhteys ja lataa sivu uudelleen. Kehitysympäristössä aja npm run build.';
     });

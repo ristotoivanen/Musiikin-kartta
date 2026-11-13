@@ -7,7 +7,7 @@ import { at, type Position } from './music';
  * Ukko Nooan rytmi lähdenuotista; Wayfaring Strangerin rytmi on OMA
  * 4/4-opetussovitus (ei historiallisen lähteen täsmällinen rytmi).
  */
-export type MelodyId = 'wayfaring' | 'nooa' | 'pentatonic-bridge';
+export type MelodyId = 'wayfaring' | 'wayfaring-p2' | 'high-answer' | 'nooa' | 'pentatonic-bridge';
 export type MelodyStep = {
   position: Position | null; // null = tauko
   beat: number;              // suhteellinen aloitus neljäsosaiskuissa
@@ -24,6 +24,8 @@ export type MelodyPiece = {
   fragments: [MelodyClip, MelodyClip];
   whole: MelodyClip;
   bonus?: MelodyClip;
+  /** Sama melodia toisessa käsiasemassa: sormitusvaihe näyttää avattavan vertailun tähän. */
+  compareWith?: { id: MelodyId; label: string; ownLabel: string };
   source: string;
   note: string;
 };
@@ -60,6 +62,32 @@ const wayB = clip('B · Vastaus', [
 ]);
 const wayC = clip('C · Jatko', [
   [2, 5, 1], [2, 7, 1], [2, 7, 1], [3, 7, 1], [2, 5, 4],
+]);
+
+// Sama Wayfaring Stranger -alku A-mollipentatonisen positiossa 2 (nauhat 7–10). Sävelkorkeudet
+// ja rytmi ovat täsmälleen samat kuin positiossa 1: A3 ja D4 pysyvät D-kielen 7. ja G-kielen
+// 7. nauhalla, E4 siirtyy B-kielen 5. nauhalta G-kielen 9. nauhalle ja C4 G-kielen 5. nauhalta
+// D-kielen 10. nauhalle. Ei oktaavisiirtoa.
+const wayA2 = clip('A · Melodian alku', [
+  [3, 7, 1], [3, 7, 1], [2, 9, 1], [2, 9, 1], [2, 7, 2], [null, null, 2],
+]);
+const wayB2 = clip('B · Vastaus', [
+  [2, 9, 1], [2, 7, 1], [3, 10, 1], [3, 7, 1], [3, 7, 4],
+]);
+const wayC2 = clip('C · Jatko', [
+  [3, 10, 1], [2, 7, 1], [2, 7, 1], [3, 7, 1], [3, 10, 4],
+]);
+
+// OMA neljän tahdin harjoitusmelodia ”Korkea vastaus” A-mollipentatonisen positiossa 3
+// (nauhat 9–13, kolme ohuinta kieltä). Kysymys nousee D5:een ja jää G4:ään, vastaus alkaa
+// position ylimmästä E5:stä ja laskeutuu pentatonisesti A4-pohjasäveleen.
+const highA = clip('A · Kysymys', [
+  [1, 10, 1], [1, 13, 1], [0, 10, 2],
+  [1, 13, 1], [1, 10, 1], [2, 12, 2],
+]);
+const highB = clip('B · Vastaus', [
+  [0, 12, 1], [0, 10, 1], [1, 13, 1], [1, 10, 1],
+  [2, 12, 1], [2, 9, 1], [1, 10, 2],
 ]);
 
 // Opi sävellajit ja asteikot (2023), s. 56: C C C E | D D D F |
@@ -99,6 +127,23 @@ export const melodyPieces: Record<MelodyId, MelodyPiece> = {
     source: 'https://hymnary.org/tune/wayfaring_stranger',
     note: 'Sävelkulku perustuu perinteisen melodian 15-säveliseen alkumotiiviin. Rytmi on tätä harjoitusta varten itse laadittu: kyse ei ole tietyn levytyksen tai nuottisovituksen tarkasta versiosta.',
   },
+  'wayfaring-p2': {
+    id: 'wayfaring-p2', title: 'Wayfaring Stranger · positio 2',
+    qualifier: 'Sama perinnesävelmän alku uudessa käsiasemassa · oma harjoitusrytmi',
+    tempo: 78, tonic: 9, permitted: [9, 0, 2, 4, 7],
+    fragments: [wayA2, wayB2], whole: join('Melodia · A + B + C', wayA2, wayB2, wayC2),
+    compareWith: { id: 'wayfaring', label: 'Positio 1', ownLabel: 'Positio 2' },
+    source: 'https://hymnary.org/tune/wayfaring_stranger',
+    note: 'Sama sävelkulku, samat sävelkorkeudet ja sama itse laadittu harjoitusrytmi kuin positiossa 1. Vain sormitus vaihtuu: kaksi säveltä siirtyy toiselle kielelle. Sävelkulku perustuu perinteisen melodian alkumotiiviin.',
+  },
+  'high-answer': {
+    id: 'high-answer', title: 'Korkea vastaus',
+    qualifier: 'Oma sävellys · A-mollipentatoninen · positio 3',
+    tempo: 76, tonic: 9, permitted: [9, 0, 2, 4, 7],
+    fragments: [highA, highB], whole: join('Korkea vastaus · A + B', highA, highB),
+    source: '',
+    note: 'Alkuperäinen tätä harjoitusta varten sävelletty neljän tahdin melodia. Kysymys jää G-säveleen, ja vastaus laskeutuu position ylimmästä E-sävelestä A-pohjasäveleen. Melodia käyttää position 3 kolmea ohuinta kieltä.',
+  },
   nooa: {
     id: 'nooa', title: 'Ukko Nooa',
     qualifier: 'Perinteinen melodia · C-jooninen',
@@ -121,4 +166,18 @@ export const melodyPieces: Record<MelodyId, MelodyPiece> = {
 export function clipSound(clip: MelodyClip) {
   return clip.events.filter((event): event is MelodyStep & { position: Position } => event.position !== null)
     .map(event => ({ midi: event.position.midi, beat: event.beat, duration: event.duration }));
+}
+
+/**
+ * Saman melodian sävelpaikat kahdessa käsiasemassa: jokainen eri sävelkorkeus kerran,
+ * korkeimmasta matalimpaan. `moved` kertoo, soitetaanko sävel uudessa asemassa eri paikasta.
+ */
+export function comparePositions(from: MelodyClip, to: MelodyClip) {
+  const first = (clip: MelodyClip) => new Map(clip.events.filter(e => e.position)
+    .map(e => [e.position!.midi, e.position!] as const).reverse());
+  const before = first(from), after = first(to);
+  return [...after.entries()].sort((a, b) => b[0] - a[0]).map(([midi, position]) => {
+    const old = before.get(midi) ?? null;
+    return { midi, from: old, to: position, moved: !old || old.string !== position.string || old.fret !== position.fret };
+  });
 }

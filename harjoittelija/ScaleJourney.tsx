@@ -3,6 +3,7 @@ import { Board } from './Board';
 import { BackingTrackMixer } from './BackingTrackMixer';
 import { ScaleBridgeJourney } from './ScaleBridgeJourney';
 import { MelodyPractice } from './MelodyPractice';
+import type { MelodyId } from './melodyData';
 import { ReferencePlayer, referenceAudioError } from './audio';
 import { at, music, note, pc, stringName } from './music';
 import type { Mark } from './engine';
@@ -41,6 +42,12 @@ const IMPRO_HINTS: { value: ImproHints; label: string; note: string }[] = [
   { value: 'scale', label: 'Koko pentatoninen', note: 'Näkyvissä on valitun position koko A-mollipentatoninen. A-pohjasävelet on korostettu.' },
   { value: 'none', label: 'Ei sävelvihjeitä', note: 'Otelauta on ilman sävelmerkintöjä: improvisoi muistista.' },
 ];
+
+/**
+ * Kunkin position melodiaharjoitus vaiheissa 2 (A- ja B-osat) ja 3 (koko melodia muistista).
+ * Vaihe 1 on pelkkä asteikko ja vaihe 4 improvisointi ilman melodiaharjoitusta.
+ */
+const POSITION_MELODY = { 1: 'wayfaring', 2: 'wayfaring-p2', 3: 'high-answer' } as const satisfies Record<1 | 2 | 3, MelodyId>;
 
 function readProgress(key = PROGRESS_KEY): number {
   try {
@@ -304,8 +311,8 @@ export function ScaleJourney({ onBack }: { onBack: () => void }) {
           <Board area={{ strings: [0,1,2,3,4,5], min, max, fixed: 'box' }} marks={marks} disabled follow="playing" playback={playing} caption={`Position ${positionNumber} sävelet`} />
           <p className="tools-note">Sama sormitus ja samat viisi säveltä palaavat seuraavissa tehtävissä.</p>
         </>}
-        {positionNumber === 1 && (step === 1 || step === 2) && <MelodyPractice
-          key={`wayfaring:${step}`} pieceId="wayfaring"
+        {(step === 1 || step === 2) && <MelodyPractice
+          key={`${POSITION_MELODY[positionNumber]}:${step}`} pieceId={POSITION_MELODY[positionNumber]}
           stage={step === 1 ? 'fingering' : 'memory'}
           onBeforePlay={stopPlayback} stopHandleRef={melodyStop} />}
         {step === 3 && <BackingTrackMixer key={positionNumber} />}
