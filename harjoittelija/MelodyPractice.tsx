@@ -122,7 +122,7 @@ export function MelodyPractice({ pieceId, stage, onBeforePlay, stopHandleRef }: 
       </button>
     </div>
     {error && <p role="alert" className="error">{error}</p>}
-    <p className="melody-now" aria-live="polite" role="status">
+    <p className="melody-now" aria-live="polite">
       {playing && activeIndex !== null
         ? `Nyt soi ${note(sounding[activeIndex].midi)} · ${STRINGS[activePosition!.string]}-kieli, ${activePosition!.fret}. nauha`
         : playing ? 'Melodia soi kerran ja pysähtyy itsestään.' : 'Kuuntele malli tai soita katkelma itse.'}
