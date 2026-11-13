@@ -281,9 +281,9 @@ export function ModeJourney({ onBack }: { onBack: () => void }) {
       {step !== 3 && step !== 5 && <Board
         area={{ strings, min, max, fixed: 'box' }} marks={marks}
         disabled caption={lesson.title + ' – yhden oktaavin sormitus'} />}
-      {modeId === 'ionian' && step < 3 && <MelodyPractice
+      {modeId === 'ionian' && (step === 1 || step === 2) && <MelodyPractice
         key={`nooa:${step}`} pieceId="nooa"
-        stage={step === 0 ? 'listen' : step === 1 ? 'fingering' : 'memory'}
+        stage={step === 1 ? 'fingering' : 'memory'}
         onBeforePlay={stopPlayback} stopHandleRef={melodyStop} />}
 
       {step < 2 && playing === 'scale' && activePosition && <p className="tools-note" role="status">
