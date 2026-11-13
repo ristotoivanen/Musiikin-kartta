@@ -706,3 +706,11 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
   .practice-board.display-only caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .fret-scroll-hint { margin-top: 4px; }
 }
+
+/* Saman melodian sormitus kahdessa käsiasemassa: pieni avattava taulukko, ei toista otelautaa. */
+.melody-compare { margin: 8px 0 12px; font-size: 14px; }
+.melody-compare > summary { color: var(--lavender); }
+.melody-compare-table { border-collapse: collapse; margin: 4px 0 8px; font-variant-numeric: tabular-nums; }
+.melody-compare-table th, .melody-compare-table td { padding: 6px 12px 6px 0; text-align: left; border-bottom: 1px solid var(--line); }
+.melody-compare-table thead th { color: var(--muted); font-weight: 500; font-size: 13px; }
+.melody-compare-table tr.moved td:last-child strong { color: var(--text); }

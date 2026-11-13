@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type MutableRefObject } from 'react';
 import { ReferencePlayer, referenceAudioError } from './audio';
 import { Board } from './Board';
 import type { Mark } from './engine';
-import { clipSound, melodyPieces, type MelodyClip, type MelodyId } from './melodyData';
+import { clipSound, comparePositions, melodyPieces, type MelodyClip, type MelodyId } from './melodyData';
 import { note, pc, positionKey } from './music';
 import { useFollowScroll } from './followScroll';
 
@@ -70,6 +70,10 @@ export function MelodyPractice({ pieceId, stage, onBeforePlay, stopHandleRef }: 
   const tabScroll = useRef<HTMLDivElement>(null);
   useFollowScroll(tabScroll, '.melody-playing', playing && activeBeat !== null ? String(activeBeat) : '', { enabled: expanded && showTab, playback: playing });
   const bars = clip.beats / 4;
+  // Sama melodia toisessa käsiasemassa: kompakti vertailu, ei toista otelautaa.
+  const comparison = stage === 'fingering' && piece.compareWith
+    ? comparePositions(melodyPieces[piece.compareWith.id].whole, piece.whole) : null;
+  const place = (p: { string: number; fret: number } | null) => p ? `${STRINGS[p.string]}-kieli, ${p.fret}. nauha` : '–';
   const uniquePositions = [...new Map(clip.events.filter(event => event.position)
     .map(event => [positionKey(event.position!), event.position!] as const)).values()];
   const frets = uniquePositions.map(position => position.fret);
@@ -130,10 +134,25 @@ export function MelodyPractice({ pieceId, stage, onBeforePlay, stopHandleRef }: 
     <h4>{piece.title}</h4>
     <p className="melody-subtitle">{piece.qualifier} · 4/4 · {bars.toString().replace('.', ',')} tahtia {stage === 'memory' ? 'yhdistetyssä melodiassa' : 'valitussa osassa'}</p>
     <p className="melody-instruction">
-      {stage === 'fingering'
+      {stage === 'fingering' && piece.compareWith
+        ? `Sama melodia kuin ${piece.compareWith.label.toLowerCase().replace('positio', 'positiossa')}, samoilla sävelkorkeuksilla ja samalla rytmillä. Vain sormitus vaihtuu. Kokeile osia A ja B erikseen ja seuraa keltaista korostusta otelaudalla.`
+        : stage === 'fingering'
         ? 'Kokeile osia A ja B erikseen. Kuuntele ja seuraa keltaisella korostettua säveltä otelaudalla.'
         : 'Yhdistä aiemmin harjoitellut osat ja soita koko melodia alusta loppuun muistista. Sävelvihjeet ja tabulatuuri ovat aluksi piilossa. Kuunnellessa soiva sävel korostuu otelaudalla. Siirry tämän jälkeen improvisoimaan.'}
     </p>
+    {comparison && piece.compareWith && <details className="melody-compare">
+      <summary>Vertaa sormitusta: {piece.compareWith.label.toLowerCase()} ja {piece.compareWith.ownLabel.toLowerCase()}</summary>
+      <table className="melody-compare-table">
+        <caption className="sr-only">Melodian sävelet: paikka {piece.compareWith.label.toLowerCase().replace('positio', 'positiossa')} ja {piece.compareWith.ownLabel.toLowerCase().replace('positio', 'positiossa')}</caption>
+        <thead><tr><th scope="col">Sävel</th><th scope="col">{piece.compareWith.label}</th><th scope="col">{piece.compareWith.ownLabel}</th></tr></thead>
+        <tbody>{comparison.map(row => <tr key={row.midi} className={row.moved ? 'moved' : ''}>
+          <th scope="row">{note(row.midi, false, true)}</th>
+          <td>{place(row.from)}</td>
+          <td>{row.moved ? <strong>{place(row.to)}</strong> : place(row.to)}</td>
+        </tr>)}</tbody>
+      </table>
+      <p className="tools-note">Lihavoidut sävelet soitetaan uudessa käsiasemassa eri kieleltä. Muut pysyvät samassa paikassa.</p>
+    </details>}
     {stage === 'fingering' && piece.bonus && <p className="tools-note">
       Oma B → C -lisä on <strong>erillinen harjoitus</strong>, ei osa {piece.title} -sävelmää.
     </p>}
