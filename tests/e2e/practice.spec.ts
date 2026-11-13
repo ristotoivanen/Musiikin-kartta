@@ -422,7 +422,7 @@ test.describe('sivuston yhtenäisyys', () => {
 
     // Yhdistetty otelautakartta: moodi valitaan pudotusvalikosta, ei enää painikkeesta.
     await page.goto('/otelautaharjoittelija.html');
-    await expect(page.getByRole('link', { name: 'Kitaraharjoittelija', exact: true })).toHaveAttribute('href', 'kitaraharjoittelija.html');
+    await expect(page.getByRole('link', { name: 'Kitaraharjoittelu', exact: true })).toHaveAttribute('href', 'kitaraharjoittelija.html');
     await page.getByRole('combobox', { name: 'Asteikko tai moodi' }).selectOption('dorian');
     await expect(page.locator('#selection-title')).toContainText('A-doorinen');
     await expect(page.locator('#board svg')).toBeVisible();
@@ -490,8 +490,8 @@ test.describe('sivuston yhtenäisyys', () => {
     await theory.click();
     await expect(page).toHaveURL(/osa-11\.html#moodit$/);
     await page.goBack();
-    await page.getByRole('link', { name: 'Opas · otelauta' }).click();
-    await expect(page).toHaveURL(/osa-5\.html#otelauta$/);
+    await page.getByRole('navigation', { name: 'Päävalikko' }).getByRole('link', { name: 'Otelautaopas' }).click();
+    await expect(page).toHaveURL(/otelautaharjoittelija\.html$/);
   });
 });
 
