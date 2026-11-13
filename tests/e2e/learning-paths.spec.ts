@@ -560,7 +560,9 @@ test.describe('Uudet oppimispolut', () => {
     await choose('Ei sävelvihjeitä');
     await expect(page.locator('.practice-board .dot')).toHaveCount(0);
     await expect(mixer.getByRole('button', { name: '■ Tauko' })).toBeVisible();
-    await page.getByRole('button', { name: '▶ Mallifraasi' }).click();
+    // Pilotti käyttää lähdemelodian rytmitettyä mallia aiemman irrallisen fraasin sijasta.
+    await page.getByRole('region', { name: /Melodiaharjoitus: Wayfaring Stranger/ })
+      .getByRole('button', { name: '▶ Kuuntele valittu melodia kerran' }).click();
     await expect(page.getByRole('alert')).toHaveCount(0);
     await choose('Vain pohjasävelet');
     await expect(page.locator('.practice-board .dot')).toHaveCount(3);

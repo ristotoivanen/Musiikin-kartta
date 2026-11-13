@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Board } from './Board';
 import { BackingTrackMixer } from './BackingTrackMixer';
 import { ScaleBridgeJourney } from './ScaleBridgeJourney';
+import { MelodyPractice } from './MelodyPractice';
 import { ReferencePlayer, referenceAudioError } from './audio';
 import { at, music, note, pc, stringName } from './music';
 import type { Mark } from './engine';
@@ -90,6 +91,7 @@ export function ScaleJourney({ onBack }: { onBack: () => void }) {
   const [audioError, setAudioError] = useState('');
   const audio = useRef(new ReferencePlayer());
   const token = useRef(0);
+  const melodyStop = useRef<(() => void) | null>(null);
 
   function changeTempo(next: number) {
     const value = Math.max(MIN_TEMPO, Math.min(MAX_TEMPO, next));
@@ -99,6 +101,7 @@ export function ScaleJourney({ onBack }: { onBack: () => void }) {
   }
 
   function stopPlayback() {
+    melodyStop.current?.();
     token.current++;
     audio.current.stop();
     setPlaying(null);
@@ -148,6 +151,7 @@ export function ScaleJourney({ onBack }: { onBack: () => void }) {
     }));
 
   async function listen(kind: 'phrase' | 'loop') {
+    melodyStop.current?.();
     const current = ++token.current;
     audio.current.stop();
     setActiveIndex(null);
@@ -237,12 +241,12 @@ export function ScaleJourney({ onBack }: { onBack: () => void }) {
       <p>{steps[step].detail}</p>
 
       {step < 4 && <>
-        {step === 0 && <p>Toista asteikkoa jatkuvasti ja seuraa, miten juuri soiva sävel korostuu otelaudalla. Asteikko jatkuu tauotta ylös ja alas, kunnes pysäytät sen. Kuuntele myös lyhyt mallifraasi. Ääni on syntetisoitu.</p>}
+        {step === 0 && <p>Toista asteikkoa jatkuvasti ja seuraa, miten juuri soiva sävel korostuu otelaudalla. Asteikko jatkuu tauotta ylös ja alas, kunnes pysäytät sen. {positionNumber === 1 ? 'Harjoittele myös vanhan perinnemelodian alkua seuraavassa osiossa.' : 'Kuuntele myös lyhyt mallifraasi.'} Ääni on syntetisoitu.</p>}
         {step === 0 && positionNumber === 2 && <p>Positio 2 alkaa paksun E-kielen C-sävelestä (8. nauha), ei A:sta. A-pohjasävelet löytyvät D-kielen 7. ja B-kielen 10. nauhalta. Huomaa, miten kuvio jatkuu position 1 yläreunasta.</p>}
         {step === 0 && positionNumber === 3 && <p>Positio 3 alkaa paksun E-kielen D-sävelestä 10. nauhalta ja jatkuu nauhoille 9–13. B-kielen 10. ja A-kielen 12. nauha ovat A-pohjasäveliä. Position 2 ylimmät sävelet ovat tämän position alempia säveliä, joten voit liikkua tutun yhteisen sävelen kautta ilman sävellajin vaihtumista.</p>}
         {step === 1 && <p>Soita paksulta E-kieleltä alkaen jokaisen kielen alempi ja ylempi sävel, kunnes saavut ohuelle E-kielelle. Palaa samaa reittiä alas. Jatkuva mallisoitto etenee tasaisessa sykkeessä, ja otelauta näyttää juuri soivan sävelen. Soita mukana ja pysäytä toisto tarvittaessa.</p>}
         {step === 2 && <p>Soita positio ylös ja alas ulkomuistista. Otelauta on aluksi ilman merkintöjä. Säädä mallisoiton tempo itsellesi sopivaksi. Jos tarvitset apua, näytä vain A-pohjasävelet. Jos koko kuvio unohtui, palaa edelliseen opetukseen.</p>}
-        {step === 3 && <p>Kuuntele mallifraasi. Käynnistä sitten Am-tausta ilman sähkökitaraa ja soita aluksi vain 2–3 eri säveltä. Halutessasi voit kytkeä mallikitaran mukaan kesken toiston. Kokeile taukoja, toistoa ja pitkää lopetussäveltä A.</p>}
+        {step === 3 && <p>{positionNumber === 1 ? 'Harjoittele ensin alla pidempi melodia osista A, B ja C. ' : 'Kuuntele mallifraasi. '}Käynnistä sitten Am-tausta ilman sähkökitaraa ja soita aluksi vain 2–3 eri säveltä. Halutessasi voit kytkeä mallikitaran mukaan kesken toiston. Kokeile taukoja, toistoa ja pitkää lopetussäveltä A.</p>}
         {step === 2 && <div className="scale-tempo" role="group" aria-label="Asteikon toiston tempo">
           <span>Tempo</span>
           <button type="button" aria-label="Hidasta tempoa 5 BPM" disabled={tempo <= MIN_TEMPO}
@@ -259,9 +263,9 @@ export function ScaleJourney({ onBack }: { onBack: () => void }) {
             onClick={() => playing === 'loop' ? stopPlayback() : void listen('loop')}>
             {playing === 'loop' ? '■ Pysäytä asteikon toisto' : '▶ Toista asteikkoa jatkuvasti'}
           </button>
-          <button type="button" onClick={() => playing === 'phrase' ? stopPlayback() : void listen('phrase')}>
+          {positionNumber !== 1 && <button type="button" onClick={() => playing === 'phrase' ? stopPlayback() : void listen('phrase')}>
             {playing === 'phrase' ? '■ Pysäytä fraasi' : '▶ Kuuntele mallifraasi'}
-          </button>
+          </button>}
         </div>}
         {step !== 3 && <p className="tools-note" role="status" aria-live="polite">
           {playing === 'loop'
@@ -287,9 +291,9 @@ export function ScaleJourney({ onBack }: { onBack: () => void }) {
                 <span>{option.label}</span>
               </label>)}
             </fieldset>
-            <div className="action-row">
+            {positionNumber !== 1 && <div className="action-row">
               <button type="button" onClick={() => void listen('phrase')}>▶ Mallifraasi</button>
-            </div>
+            </div>}
           </>}
           <Board area={{ strings: [0,1,2,3,4,5], min, max, fixed: 'box' }} marks={marks} disabled caption={`A-mollipentatoninen, positio ${positionNumber}`} />
           <p className="tools-note">{step < 2 ? 'Vihreällä merkitty A on pohjasävel.'
@@ -300,6 +304,10 @@ export function ScaleJourney({ onBack }: { onBack: () => void }) {
           <Board area={{ strings: [0,1,2,3,4,5], min, max, fixed: 'box' }} marks={marks} disabled caption={`Position ${positionNumber} sävelet`} />
           <p className="tools-note">Sama sormitus ja samat viisi säveltä palaavat seuraavissa tehtävissä.</p>
         </>}
+        {positionNumber === 1 && step >= 0 && step <= 3 && <MelodyPractice
+          key={`wayfaring:${step}`} pieceId="wayfaring"
+          stage={step === 0 ? 'listen' : step === 1 ? 'fingering' : step === 2 ? 'memory' : 'full'}
+          onBeforePlay={stopPlayback} stopHandleRef={melodyStop} />}
         {step === 3 && <BackingTrackMixer key={positionNumber} />}
         <div className="journey-next">
           <p>{step === 0 ? 'Kun tunnistat äänen ja löydät sävelet kuvasta, jatka sormitukseen.' :
