@@ -2,7 +2,7 @@
 
 Musiikin kartta on avoin suomenkielinen verkko-opas musiikin teoriaan ja kitaransoittoon. Yhdeksän perusosaa etenevät ensimmäisestä kappaleesta sointuihin, otelautaan, korvakuulolta soittamiseen ja oman kappaleen äänittämiseen. Kaksi valinnaista osaa syventää septimisointuihin ja moodeihin. Mukana on kuunteluesimerkkejä, kitaraharjoituksia ja säestystaustoja.
 
-**[Lue opas verkossa](https://rinnepelto.com/)** · [Avaa Otelautakartta](https://rinnepelto.com/otelautaharjoittelija.html)
+**[Lue opas verkossa](https://rinnepelto.com/)** · [Musiikin teoria](https://rinnepelto.com/book/) · [Avaa Otelautakartta](https://rinnepelto.com/otelautaharjoittelija.html)
 
 ## Oppaan osat
 
@@ -73,6 +73,8 @@ Asennusohje on [harjoittelijan README:ssä](harjoittelija/README.md).
 ## Paikallinen käyttö
 
 Avaa kloonatun repon `index.html` selaimessa. Oppaan sivut ovat [book-kansiossa](book/) ja kuunteluesimerkit [assets/audio-kansiossa](assets/audio/). Sisäiset linkit ja edistymisen lukutaulukon voi tarkistaa komennolla `python3 tools/linkit/tarkista-linkit.py`.
+
+Sivuston kolmella pääosiolla (Musiikin teoria, Otelautaopas ja Kitaraharjoittelu) on sama päävalikko. Sen merkintä toistuu jokaisen sivun alussa, ja tyylit ovat tiedostossa `assets/paavalikko.css`. Musiikin teorian aloitusnäkymä on `book/index.html`: osat on ryhmitelty siinä neljäksi avattavaksi kokonaisuudeksi, ja `assets/edistyminen.js` täydentää jatkamiskortin ja osien merkinnät tallennetuista lukumerkinnöistä. Kun oppaaseen lisätään osa, lisää se sekä `edistyminen.js`:n PARTS-taulukkoon että aloitusnäkymän kokonaisuuteen; `npm test` tarkistaa, että ne vastaavat `book/osa-*.html`-tiedostoja.
 
 ## Interaktiivinen kitaraharjoittelu
 

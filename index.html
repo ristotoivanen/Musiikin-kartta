@@ -23,15 +23,15 @@
     font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
     line-height: 1.55;
   }
-  header {
-    padding: 56px 20px 36px;
+  .hero {
+    padding: 48px 20px 32px;
     text-align: center;
     background: linear-gradient(180deg, #1d1730 0%, var(--bg) 100%);
     border-bottom: 1px solid #2d2444;
   }
-  header h1 { font-size: 34px; margin: 0 0 8px; letter-spacing: .5px; }
-  header h1 span { color: var(--lavender); }
-  header p.tagline { color: var(--muted); max-width: 620px; margin: 0 auto; font-size: 16px; }
+  .hero h1 { font-size: 34px; margin: 0 0 8px; letter-spacing: .5px; }
+  .hero h1 span { color: var(--lavender); }
+  .hero p.tagline { color: var(--muted); max-width: 620px; margin: 0 auto; font-size: 16px; }
   a { color: var(--lavender); }
   .hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 18px; }
   .jump-link {
@@ -47,152 +47,89 @@
   h2 { font-size: 22px; margin: 0 0 14px; }
   h3 { font-size: 17px; margin: 30px 0 8px; }
   h2::after { content:""; display:block; width:56px; height:3px; background: var(--purple); border-radius:2px; margin-top:8px; }
-  .parts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 14px; }
-  .part {
-    background: var(--panel);
-    border: 1px solid #2d2444;
-    border-radius: 12px;
-    padding: 16px 18px;
+  .areas { display: grid; gap: 14px; }
+  .area {
+    display: flex; align-items: center; gap: 18px; min-height: 100px;
+    padding: 18px 20px; border: 1px solid #71638c; border-radius: 16px;
+    background: var(--panel); color: var(--text); text-decoration: none;
   }
-  .part b { display:block; margin-bottom: 4px; font-size: 15px; }
-  .part span { color: var(--muted); font-size: 13.5px; }
-  .part .num { color: var(--lavender); font-weight: 700; margin-right: 6px; }
-  .part-link { color: var(--text); text-decoration: none; border-color: #71638c; }
-  .part-link:hover { background: #2d2444; border-color: var(--lavender); }
-  .part-link .part-action { display: block; margin-top: 10px; color: var(--lavender); font-weight: 700; }
+  .area:hover, .area:focus-visible { border-color: var(--lavender); background: #1b1528; }
+  .area-number { display: grid; flex: 0 0 45px; place-items: center; height: 45px; border-radius: 12px;
+    background: var(--bg); color: var(--lavender); font-weight: 750; font-size: 19px; }
+  .area-body { display: grid; flex: 1; gap: 4px; }
+  .area-body strong { font-size: 19px; }
+  .area-body span { color: var(--muted); font-size: 15px; }
+  .area-arrow { font-size: 25px; color: var(--lavender); }
   .tools-note { color: var(--muted); font-size: 14px; max-width: 720px; }
-  .part .part-outcome { display: block; margin-top: 10px; color: var(--text); font-size: 13.5px; }
-  .part .part-meta { display: block; margin-top: 8px; font-size: 12.5px; }
-  .path p { margin: 10px 0 0; font-size: 14px; }
-  .part .part-progress { display: block; margin-top: 8px; color: #79e0ab; font-size: 12.5px; font-weight: 700; }
-  .continue { margin: 16px 0 0; font-weight: 700; }
+  .continue { margin: 14px 0 0; font-size: 15px; font-weight: 700; }
+  @media (max-width: 470px) {
+    .hero { padding: 36px 16px 26px; }
+    .area { padding: 14px; gap: 12px; }
+    .area-number { flex-basis: 35px; height: 35px; font-size: 15px; }
+    .area-body strong { font-size: 17px; }
+    .area-body span { font-size: 14px; }
+  }
   footer {
     margin-top: 60px; padding-top: 20px; border-top: 1px solid #2d2444;
     text-align: center; color: var(--muted); font-size: 13px;
   }
 </style>
+<link rel="stylesheet" href="assets/paavalikko.css">
 </head>
 <body>
 
-<header>
+<header class="site-top">
+  <nav class="main-nav" aria-label="Päävalikko">
+    <a class="brand" href="index.html" aria-current="page">Musiikin <span>kartta</span></a>
+    <ul>
+      <li><a href="book/index.html"><span class="nav-long">Musiikin teoria</span><span class="nav-short">Teoria</span></a></li>
+      <li><a href="otelautaharjoittelija.html">Otelautaopas</a></li>
+      <li><a href="kitaraharjoittelija.html">Kitaraharjoittelu</a></li>
+    </ul>
+  </nav>
+</header>
+
+<header class="hero">
   <h1>Musiikin <span>kartta</span></h1>
   <p class="tagline">Avoin suomenkielinen opas musiikin harmoniasta, korvakuulolta soittamisesta ja kitaran hahmottamisesta.</p>
   <div class="hero-actions">
-    <a class="jump-link" href="book/osa-1.html">Aloita osasta 1</a>
-    <a class="jump-link jump-link-secondary" id="harjoittelija" href="otelautaharjoittelija.html">Tutki otelautakarttaa</a>
+    <a class="jump-link" href="book/index.html">Musiikin teoria</a>
+    <a class="jump-link jump-link-secondary" id="harjoittelija" href="otelautaharjoittelija.html">Tutki otelautaa</a>
     <a class="jump-link jump-link-secondary" href="kitaraharjoittelija.html">Harjoittele kitaralla</a>
   </div>
 </header>
 
 <main>
 
-<section>
-  <h2>Mistä aloitan?</h2>
-  <div class="parts">
-    <div class="part path">
-      <b>Aloitan alusta</b>
-      <span>En vielä osaa kitaraotteita.</span>
-      <p>Aloita <a href="book/osa-1.html">osasta 1</a> ja lue osat 1–9 järjestyksessä. Ensimmäisessä osassa löydät pulssin, opit lukemaan kitaran merkinnät ja soitat ensimmäisen kappaleen neljällä otteella.</p>
-    </div>
-    <div class="part path">
-      <b>Osaan avoimet otteet</b>
-      <span>Soitan esimerkiksi G:n, C:n, D:n ja Em:n.</span>
-      <p>Kokeile <a href="book/osa-1.html#sointukierrot">luvun 2</a> kappaletta harjoitustaustan mukana. Jos se sujuu, jatka osiin <a href="book/osa-2.html">2</a> ja <a href="book/osa-3.html">3</a> ja keskity lukuihin <a href="book/osa-3.html#roomalaiset-numerot">7</a> ja <a href="book/osa-3.html#sointujen-tehtavat">8</a>.</p>
-    </div>
-    <div class="part path">
-      <b>Osaan barré-otteet</b>
-      <span>Haluan hahmottaa otelaudan ja soittaa korvakuulolta.</span>
-      <p>Kertaa <a href="book/osa-6.html#numerokartta">numerokartta</a> ja jatka <a href="book/osa-6.html#caged">CAGEDista</a>. Osia <a href="book/osa-7.html">7</a> ja <a href="book/osa-8.html">8</a> voit lukea rinnakkain. Septimisoinnut ja moodit ovat syventävissä osissa 10 ja 11.</p>
-    </div>
-  </div>
-</section>
-
-<section>
-  <h2>Oppaan osat</h2>
-  <p class="tools-note">Osat 1–9 muodostavat peruspolun, joka päättyy omaan kahdeksan tahdin äänitteeseen. Koko opas on myös <a href="pdf/musiikin-kartta.pdf">tulostettavana PDF:nä</a>. Siinä on lukujen sisällysluettelo, ja ääniesimerkkien kohdalla on linkki verkkoversioon. Oppaan termit on selitetty <a href="book/sanasto.html">sanastossa</a>. Jokaisen osan lopussa on 15 minuutin päivittäinen harjoitusrutiini. Voit merkitä luvut tehdyiksi, ja tämä sivu näyttää, mihin jäit. Merkinnät tallentuvat vain tähän selaimeen.</p>
-  <div class="parts">
-    <a class="part part-link" href="book/osa-1.html">
-      <b><span class="num" aria-hidden="true">1</span> Rytmi, komppi ja ensimmäinen kappale</b>
-      <span>Pulssi, alas–ylös-komppi ja neljä avointa otetta.</span>
-      <span class="part-outcome">Osan jälkeen soitat kokonaisen kappaleen neljällä otteella harjoitustaustan mukana.</span>
-      <span class="part-meta">Lukuaika noin 10 min · 4 harjoitusta · 2 ääniesimerkkiä</span>
-      <span class="part-action">Lue osa 1 <span aria-hidden="true">→</span></span>
+<section aria-labelledby="osiot">
+  <h2 id="osiot">Kolme tapaa oppia</h2>
+  <div class="areas">
+    <a class="area" href="book/index.html">
+      <span class="area-number" aria-hidden="true">01</span>
+      <span class="area-body">
+        <strong>Musiikin teoria</strong>
+        <span>Yhdeksän perusosaa rytmistä ja soinnuista korvakuuloon ja omaan kappaleeseen sekä kaksi syventävää osaa. Voit merkitä luvut tehdyiksi ja jatkaa siitä, mihin jäit.</span>
+      </span>
+      <span class="area-arrow" aria-hidden="true">→</span>
     </a>
-    <a class="part part-link" href="book/osa-2.html">
-      <b><span class="num" aria-hidden="true">2</span> Sävelet ja kotisävel</b>
-      <span>Kotisävel, intervallit ja asteikot.</span>
-      <span class="part-outcome">Osan jälkeen kuulet, miksi melodia palaa kotiin, ja erotat duurin mollista.</span>
-      <span class="part-meta">Lukuaika noin 7 min · 3 harjoitusta · 3 ääniesimerkkiä</span>
-      <span class="part-action">Lue osa 2 <span aria-hidden="true">→</span></span>
+    <a class="area" href="otelautaharjoittelija.html">
+      <span class="area-number" aria-hidden="true">02</span>
+      <span class="area-body">
+        <strong>Otelautaopas</strong>
+        <span>Otelautakartta näyttää asteikot, moodit, soinnut ja oktaavit kitaran kaulalla.</span>
+      </span>
+      <span class="area-arrow" aria-hidden="true">→</span>
     </a>
-    <a class="part part-link" href="book/osa-3.html">
-      <b><span class="num" aria-hidden="true">3</span> Soinnut ja niiden tehtävät</b>
-      <span>Harmoninen kenttä, roomalaiset numerot ja sointujen tehtävät.</span>
-      <span class="part-outcome">Osan jälkeen tunnet soinnut roomalaisina numeroina ja kuulet, milloin dominantti palaa kotiin.</span>
-      <span class="part-meta">Lukuaika noin 13 min · 5 harjoitusta · 1 ääniesimerkki</span>
-      <span class="part-action">Lue osa 3 <span aria-hidden="true">→</span></span>
-    </a>
-    <a class="part part-link" href="book/osa-4.html">
-      <b><span class="num" aria-hidden="true">4</span> Sävellaji ja transponointi</b>
-      <span>Sävellajin kuuleminen, kvinttiympyrä ja kapo.</span>
-      <span class="part-outcome">Osan jälkeen löydät kappaleen sävellajin korvalla ja siirrät kappaleen kapolla laulajalle sopivaksi.</span>
-      <span class="part-meta">Lukuaika noin 8 min · 3 harjoitusta · 2 ääniesimerkkiä</span>
-      <span class="part-action">Lue osa 4 <span aria-hidden="true">→</span></span>
-    </a>
-    <a class="part part-link" href="book/osa-5.html">
-      <b><span class="num" aria-hidden="true">5</span> Otelauta ja oktaavit</b>
-      <span>Oktaavimuodot sekä E- ja A-kielen sävelet.</span>
-      <span class="part-outcome">Osan jälkeen löydät saman sävelen jokaiselta kieleltä ja osaat nimetä sen.</span>
-      <span class="part-meta">Lukuaika noin 7 min · 4 harjoitusta · oktaavikartta otelautanäkymässä</span>
-      <span class="part-action">Lue osa 5 <span aria-hidden="true">→</span></span>
-    </a>
-    <a class="part part-link" href="book/osa-6.html">
-      <b><span class="num" aria-hidden="true">6</span> Siirrettävät soinnut ja CAGED</b>
-      <span>Barré-otteet, numerokartta ja CAGED.</span>
-      <span class="part-outcome">Osan jälkeen soitat tutun sointukierron barré-otteilla missä sävellajissa tahansa.</span>
-      <span class="part-meta">Lukuaika noin 8 min · 4 harjoitusta · 1 ääniesimerkki. Puhtaisiin barré-otteisiin menee usein muutama viikko.</span>
-      <span class="part-action">Lue osa 6 <span aria-hidden="true">→</span></span>
-    </a>
-    <a class="part part-link" href="book/osa-7.html">
-      <b><span class="num" aria-hidden="true">7</span> Korvakuulolta soittaminen</b>
-      <span>Kuuntele, tunnista ja toista – soittaminen ilman nuotteja.</span>
-      <span class="part-outcome">Osan jälkeen selvität korvalla basson, duurin ja mollin sekä lyhyen kappaleen soinnut.</span>
-      <span class="part-meta">Lukuaika noin 8 min · 8 harjoitusta, joista 3 tarkistuu heti · 5 ääniesimerkkiä</span>
-      <span class="part-action">Lue osa 7 <span aria-hidden="true">→</span></span>
-    </a>
-    <a class="part part-link" href="book/osa-8.html">
-      <b><span class="num" aria-hidden="true">8</span> Pentatoniikka ja improvisointi</b>
-      <span>Improvisointi muutamalla sävelellä ja pentatoninen boksi.</span>
-      <span class="part-outcome">Osan jälkeen improvisoit taustan päälle pentatonisella boksilla.</span>
-      <span class="part-meta">Lukuaika noin 7 min · 3 harjoitusta · 3 ääniesimerkkiä</span>
-      <span class="part-action">Lue osa 8 <span aria-hidden="true">→</span></span>
-    </a>
-    <a class="part part-link" href="book/osa-9.html">
-      <b><span class="num" aria-hidden="true">9</span> Sovita ja äänitä oma kappale</b>
-      <span>Sovittaminen ja oma kahdeksan tahdin kappale.</span>
-      <span class="part-outcome">Osan jälkeen sinulla on oma kappale äänitettynä. Peruspolku päättyy tähän.</span>
-      <span class="part-meta">Lukuaika noin 6 min · 2 harjoitusta · 6 ääniesimerkkiä</span>
-      <span class="part-action">Lue osa 9 <span aria-hidden="true">→</span></span>
+    <a class="area" href="kitaraharjoittelija.html">
+      <span class="area-number" aria-hidden="true">03</span>
+      <span class="area-body">
+        <strong>Kitaraharjoittelu</strong>
+        <span>Harjoittele oikealla kitaralla sävelet, asteikot, soinnut ja kappaleet. Mikrofonin ääni käsitellään vain selaimessa.</span>
+      </span>
+      <span class="area-arrow" aria-hidden="true">→</span>
     </a>
   </div>
-  <h3>Syventävät osat</h3>
-  <p class="tools-note">Nämä kaksi osaa ovat valinnaisia. Lue ne peruspolun jälkeen tai silloin, kun tarvitset septimisointuja tai moodeja.</p>
-  <div class="parts">
-    <a class="part part-link" href="book/osa-10.html">
-      <b><span class="num" aria-hidden="true">10</span> Septimisoinnut ja äänenkuljetus</b>
-      <span>Neljän sävelen soinnut, septimin kuuleminen ja ii–V–I.</span>
-      <span class="part-outcome">Osan jälkeen soitat septimisointuja siirrettävillä otteilla ja kuulet, soiko soinnussa septimi.</span>
-      <span class="part-meta">Lukuaika noin 9 min · 4 harjoitusta · 3 ääniesimerkkiä</span>
-      <span class="part-action">Lue osa 10 <span aria-hidden="true">→</span></span>
-    </a>
-    <a class="part part-link" href="book/osa-11.html">
-      <b><span class="num" aria-hidden="true">11</span> Moodit käytännössä</b>
-      <span>Pentatoninen boksi laajenee seitsemäksi moodiksi.</span>
-      <span class="part-outcome">Osan jälkeen kuulet doorisen ja aiolisen eron ja löydät moodin lisäsävelet otelaudalta.</span>
-      <span class="part-meta">Lukuaika noin 5 min · 1 harjoitus · 1 ääniesimerkki</span>
-      <span class="part-action">Lue osa 11 <span aria-hidden="true">→</span></span>
-    </a>
-  </div>
+  <p class="tools-note">Koko opas on myös <a href="pdf/musiikin-kartta.pdf">tulostettavana PDF:nä</a>, ja termit on selitetty <a href="book/sanasto.html">sanastossa</a>.</p>
 </section>
 
 </main>

@@ -6,14 +6,23 @@
   <meta name="description" content="Musiikin kartan kolmas osa. Rakenna asteikosta soinnut, opi roomalaiset numerot ja sointujen tehtävät ja lue tuttu kappale asteina.">
   <title>Soinnut ja niiden tehtävät – Musiikin kartta</title>
   <link rel="stylesheet" href="reader.css">
+  <link rel="stylesheet" href="../assets/paavalikko.css">
 </head>
 <body>
-  <header>
-    <nav class="site-nav frame" aria-label="Sivusto">
+  <header class="site-top">
+    <nav class="main-nav" aria-label="Päävalikko">
       <a class="brand" href="../index.html">Musiikin <span>kartta</span></a>
-      <a href="sanasto.html">Sanasto</a>
-      <a href="../otelautaharjoittelija.html">Otelautakartta</a>
-      <a href="../kitaraharjoittelija.html">Kitaraharjoittelija</a>
+      <ul>
+        <li><a href="index.html" aria-current="true"><span class="nav-long">Musiikin teoria</span><span class="nav-short">Teoria</span></a></li>
+        <li><a href="../otelautaharjoittelija.html">Otelautaopas</a></li>
+        <li><a href="../kitaraharjoittelija.html">Kitaraharjoittelu</a></li>
+      </ul>
+    </nav>
+    <nav class="section-nav" aria-label="Musiikin teoria">
+      <ul>
+        <li><a href="index.html">Kaikki osat</a></li>
+        <li><a href="sanasto.html">Sanasto</a></li>
+      </ul>
     </nav>
   </header>
 
@@ -242,7 +251,7 @@
   </main>
 
   <footer class="site-footer frame">
-    <a href="../index.html">Musiikin kartan etusivulle</a>
+    <a href="index.html">Musiikin teorian kaikki osat</a>
     <a href="#luvut">Palaa lukuluetteloon</a>
     <a href="osa-2.html">Edellinen osa · Sävelet ja kotisävel</a>
     <a href="osa-4.html">Seuraava osa · Sävellaji ja transponointi</a>
