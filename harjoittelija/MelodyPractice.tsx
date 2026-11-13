@@ -68,7 +68,7 @@ export function MelodyPractice({ pieceId, stage, onBeforePlay, stopHandleRef }: 
   const activePosition = activeBeat === null ? null : clip.events.find(e => e.beat === activeBeat)?.position ?? null;
   // Tabulatuuri seuraa soivaa saraketta samoin periaattein kuin otelauta (followScroll.ts).
   const tabScroll = useRef<HTMLDivElement>(null);
-  useFollowScroll(tabScroll, '.melody-playing', playing && activeBeat !== null ? String(activeBeat) : '', { enabled: expanded && showTab });
+  useFollowScroll(tabScroll, '.melody-playing', playing && activeBeat !== null ? String(activeBeat) : '', { enabled: expanded && showTab, playback: playing });
   const bars = clip.beats / 4;
   const uniquePositions = [...new Map(clip.events.filter(event => event.position)
     .map(event => [positionKey(event.position!), event.position!] as const)).values()];
@@ -163,7 +163,7 @@ export function MelodyPractice({ pieceId, stage, onBeforePlay, stopHandleRef }: 
         : playing ? 'Melodia soi kerran ja pysähtyy itsestään.' : 'Kuuntele malli tai soita katkelma itse.'}
     </p>
     <div className="melody-board" aria-label="Melodian sävelet otelaudalla">
-      <Board area={boardArea} marks={marks} disabled follow="playing" caption={`${piece.title}, ${selection.name}`} />
+      <Board area={boardArea} marks={marks} disabled follow="playing" playback={playing} caption={`${piece.title}, ${selection.name}`} />
       <div className="melody-board-actions">
         <button type="button" aria-pressed={showBoardNotes}
           onClick={() => setShowBoardNotes(value => !value)}>

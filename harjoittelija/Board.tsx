@@ -32,10 +32,12 @@ function FretHeader({ min, max }: { min: number; max: number }) {
  * Kapealla näytöllä otelauta vierii sivusuunnassa. `follow` valitsee, mitä se tuo itse näkyviin:
  * - 'hints' (oletus, harjoitustehtävät): vastaus- tai apupiste keskitetään, kun ne muuttuvat.
  * - 'playing' (mallisoitot): otelauta alkaa alueen alusta ja seuraa soivaa säveltä vain tarvittaessa.
- *   Käyttäjän oma vieritys keskeyttää seurannan hetkeksi (followScroll.ts).
+ *   Käyttäjän oma vieritys keskeyttää seurannan hetkeksi (followScroll.ts). `playback` on polun
+ *   toistotila (esimerkiksi 'loop'); sen vaihtuminen uudeksi toistoksi palauttaa seurannan heti.
  */
-export function Board({ area, marks = [], mutedStrings = [], disabled = false, onAnswer, caption = 'Otelauta', follow = 'hints' }:
-  { area: Area; marks?: Mark[]; mutedStrings?: number[]; disabled?: boolean; onAnswer?: (p: Position) => void; caption?: string; follow?: 'hints' | 'playing' }) {
+export function Board({ area, marks = [], mutedStrings = [], disabled = false, onAnswer, caption = 'Otelauta', follow = 'hints', playback }:
+  { area: Area; marks?: Mark[]; mutedStrings?: number[]; disabled?: boolean; onAnswer?: (p: Position) => void; caption?: string;
+    follow?: 'hints' | 'playing'; playback?: string | boolean | null }) {
   const columns = { '--cols': area.max - area.min + 1 } as CSSProperties;
   const { strings, min, max } = area;
   const [cursor, setCursor] = useState({ string: Math.min(...strings), fret: min });
@@ -53,7 +55,7 @@ export function Board({ area, marks = [], mutedStrings = [], disabled = false, o
     if (follow === 'playing' && viewport.current) viewport.current.scrollLeft = 0;
   }, [follow, min, max]);
   const playing = marks.find(m => m.kind === 'playing');
-  useFollowScroll(viewport, '.playing', playing ? positionKey(playing) : '', { stickySelector: 'tbody th', enabled: follow === 'playing' });
+  useFollowScroll(viewport, '.playing', playing ? positionKey(playing) : '', { stickySelector: 'tbody th', enabled: follow === 'playing', playback });
   // Kapealla näytöllä osa nauhoista jää vierityksen taakse: kerro, kummalla puolella niitä on.
   const [more, setMore] = useState({ left: false, right: false });
   useEffect(() => {

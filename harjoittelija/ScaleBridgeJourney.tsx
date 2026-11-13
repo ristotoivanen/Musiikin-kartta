@@ -239,7 +239,7 @@ export function ScaleBridgeJourney({ onBack, onPosition }: {
         </p>}
         {audioError && <p role="alert" className="error">{audioError}</p>}
         <Board area={{ strings: [0, 1, 2, 3, 4, 5], min: 5, max: 10, fixed: 'box' }}
-          disabled follow="playing" marks={marks} caption="A-mollipentatoninen, positiot 1 ja 2" />
+          disabled follow="playing" playback={playing} marks={marks} caption="A-mollipentatoninen, positiot 1 ja 2" />
         <p className="tools-note">{step === 2
           ? showShared ? 'Näkyvissä ovat vain kuusi yhteistä sävelpaikkaa.' : 'Otelauta on ilman sävelvihjeitä.'
           : step === 3 ? hints === 'roots' ? 'Näkyvissä ovat vain A-pohjasävelet.'

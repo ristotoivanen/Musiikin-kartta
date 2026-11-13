@@ -281,7 +281,7 @@ export function ModeJourney({ onBack }: { onBack: () => void }) {
         Nyt soi: {note(activePosition.midi, false, true)} · {stringName[activePosition.string]}-kieli, nauha {activePosition.fret}.
       </p>}
       {step !== 3 && step !== 5 && <Board
-        area={{ strings, min, max, fixed: 'box' }} marks={marks} follow="playing"
+        area={{ strings, min, max, fixed: 'box' }} marks={marks} follow="playing" playback={playing}
         disabled caption={lesson.title + ' – yhden oktaavin sormitus'} />}
       {modeId === 'ionian' && (step === 1 || step === 2) && <MelodyPractice
         key={`nooa:${step}`} pieceId="nooa"

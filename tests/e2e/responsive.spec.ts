@@ -8,7 +8,8 @@ test.skip(({ isMobile }) => isMobile, 'Näyttöko\'ot ja kosketus määritellä�
 const PHONES = [320, 360, 390, 430];
 const PAUSE_MS = 4000;
 
-type Sample = { visible: boolean; key: string; scrollLeft: number; scrollY: number } | null;
+/** visible: piste kokonaan näkyvissä; gone: piste kokonaan näkyvän alueen ulkopuolella. */
+type Sample = { visible: boolean; gone?: boolean; key: string; scrollLeft: number; scrollY: number } | null;
 
 /**
  * Näkyykö soiva sävelpiste kokonaan vierityskehyksessä, kiinnitetyn kielisarakkeen jälkeen?
@@ -25,6 +26,7 @@ function playingSample(scope: string): Promise<Sample> {
     const r = (cell.querySelector('.dot') ?? cell).getBoundingClientRect();
     const button = cell.querySelector('button')!;
     return { visible: r.left >= frame.left + head - 1 && r.right <= frame.left + box.clientWidth + 1,
+      gone: r.right <= frame.left + head || r.left >= frame.left + box.clientWidth,
       key: button.dataset.string + ':' + button.dataset.fret, scrollLeft: Math.round(box.scrollLeft), scrollY: Math.round(scrollY) };
   }, scope);
 }
@@ -36,6 +38,7 @@ function tabSample(): Promise<Sample> {
     const box = cell.closest('.melody-tab-scroll') as HTMLElement;
     const frame = box.getBoundingClientRect(), r = cell.getBoundingClientRect();
     return { visible: r.left >= frame.left - 1 && r.right <= frame.left + box.clientWidth + 1,
+      gone: r.right <= frame.left || r.left >= frame.left + box.clientWidth,
       key: String([...cell.parentElement!.children].indexOf(cell)), scrollLeft: Math.round(box.scrollLeft), scrollY: Math.round(scrollY) };
   });
 }
@@ -201,8 +204,9 @@ test.describe('Käyttäjän oma vieritys saa tilapäisen etusijan', () => {
     await wheel(page, '.scale-journey .fret-scroll', 400);
     await page.getByRole('button', { name: '■ Pysäytä asteikon toisto' }).click();
     await expect(page.locator('.scale-journey td.playing')).toHaveCount(0);
-    await page.waitForTimeout(1700);
-    // Uusi soittopainallus ennen käyttäjän tauon päättymistä: seuranta alkaa heti.
+    // Uusi soittopainallus 0,3 s:n kuluttua: alle 1,5 s ja käyttäjän 4 s tauon aikana. Uuden toiston
+    // tunnistus perustuu toistotilaan, ei sävelten väliseen aikarajaan, joten seuranta alkaa heti.
+    await page.waitForTimeout(300);
     await page.getByRole('button', { name: '▶ Toista asteikkoa jatkuvasti' }).click();
     const samples = await collect(() => playingSample('.scale-journey'), 2000);
     expect(new Set(samples.map(s => s.key)).size).toBeGreaterThan(2);
@@ -232,16 +236,51 @@ test.describe('Liikkeen asetus ja työpöytä', () => {
       await openModes(page);
       await page.getByRole('button', { name: '▶ Soita asteikko kerran' }).click();
       await expect.poll(() => page.evaluate(() => (window as unknown as { __scrolls: string[] }).__scrolls.length), { timeout: 4000 }).toBeGreaterThan(0);
-      const behaviors = await page.evaluate(() => (window as unknown as { __scrolls: string[] }).__scrolls);
-      expect(new Set(behaviors), motion).toEqual(new Set([expected]));
-      if (motion === 'no-preference') {
-        // Pehmeässäkin vierityksessä soiva sävel tulee näkyviin hetkessä: piilossa enintään 3 peräkkäistä näytettä (~0,4 s).
-        const samples = await collect(() => playingSample('.mode-journey'), 2200, 100);
+      if (motion === 'reduce') {
+        const behaviors = await page.evaluate(() => (window as unknown as { __scrolls: string[] }).__scrolls);
+        expect(new Set(behaviors), motion).toEqual(new Set([expected]));
+      } else {
+        // Pehmeä vieritys vain osittain näkyvälle sävelelle; kokonaan piilossa oleva tuodaan heti.
+        const samples = await collect(() => playingSample('.mode-journey'), 2600, 40);
+        const behaviors = await page.evaluate(() => (window as unknown as { __scrolls: string[] }).__scrolls);
+        // 320 px:ssä lähes jokainen siirto koskee kokonaan piilossa olevaa säveltä, joten välitön ('auto') on oikein.
+        expect(behaviors.length, motion).toBeGreaterThan(0);
+        expect(behaviors.every(b => b === expected || b === 'auto'), motion).toBe(true);
+        expect(samples.filter(s => s.gone), 'soiva sävel ei ole koskaan kokonaan piilossa').toEqual([]);
+        // Osittain piilossa enintään pehmeän siirron ajan (noin 0,4 s = 10 peräkkäistä 40 ms:n näytettä).
         let streak = 0, worst = 0;
         for (const s of samples) { streak = s.visible ? 0 : streak + 1; worst = Math.max(worst, streak); }
-        expect(worst).toBeLessThanOrEqual(3);
+        expect(worst, 'osittain piilossa olon pisin jakso näytteinä').toBeLessThanOrEqual(10);
       }
       await context.close();
+    }
+  });
+
+  test('pehmeä vieritys: soiva sävel ei jää kokonaan piiloon (moodit, positio 1, Ukko Nooa, tabulatuuri)', async ({ page }) => {
+    pageRef = page;
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    for (const width of [320, 360]) {
+      await page.setViewportSize({ width, height: 800 });
+      await openModes(page);
+      await page.getByRole('button', { name: '▶ Soita asteikko kerran' }).click();
+      const modes = await collect(() => playingSample('.mode-journey'), 2400, 40);
+      expect(modes.filter(s => s.gone), `${width}: moodit`).toEqual([]);
+      await openPentatonic(page);
+      await page.getByRole('button', { name: '▶ Toista asteikkoa jatkuvasti' }).click();
+      const penta = await collect(() => playingSample('.scale-journey'), 2400, 40);
+      expect(penta.filter(s => s.gone), `${width}: positio 1`).toEqual([]);
+      await page.getByRole('button', { name: '■ Pysäytä asteikon toisto' }).click();
+      const melody = await openNooa(page, true);
+      await melody.getByRole('button', { name: '▶ Kuuntele valittu melodia kerran' }).click();
+      const board: NonNullable<Sample>[] = [], tab: NonNullable<Sample>[] = [];
+      const end = Date.now() + 2400;
+      while (Date.now() < end) {
+        const b = await playingSample('.melody-practice'), c = await tabSample();
+        if (b) board.push(b); if (c) tab.push(c);
+        await page.waitForTimeout(40);
+      }
+      expect(board.filter(s => s.gone), `${width}: Ukko Nooa otelauta`).toEqual([]);
+      expect(tab.filter(s => s.gone), `${width}: Ukko Nooa tabulatuuri`).toEqual([]);
     }
   });
 
@@ -265,4 +304,43 @@ test.describe('Liikkeen asetus ja työpöytä', () => {
       expect(modes.every(s => s.visible && s.scrollLeft === 0)).toBe(true);
     });
   }
+});
+
+test.describe('Harjoitustehtävien vihjeet keskitetään edelleen (ei mallisoittoa)', () => {
+  test.beforeEach(({ page }) => page.emulateMedia({ reducedMotion: 'reduce' }));
+
+  test('vanha sävelharjoitus 320 px: apupiste ja vastaus tulevat näkyviin otelaudalla', async ({ page }) => {
+    pageRef = page;
+    await page.setViewportSize({ width: 320, height: 800 });
+    // Kiinteä arvonta: sama kysymysjärjestys joka ajossa.
+    await page.addInitScript(() => { let seed = 7; Math.random = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646; });
+    await page.goto('/kitaraharjoittelija.html?vanha=1');
+    await page.getByRole('button', { name: /^Aloita (harjoitus|uusi kierros)$/ }).click();
+    const visibleIn = (selector: string) => page.evaluate(selector => {
+      const dot = document.querySelector(selector); if (!dot) return null;
+      const box = dot.closest('.fret-scroll') as HTMLElement; const f = box.getBoundingClientRect();
+      const head = box.querySelector('tbody th')!.getBoundingClientRect().width; const r = dot.getBoundingClientRect();
+      return { visible: r.left >= f.left + head - 1 && r.right <= f.left + box.clientWidth + 1, scrollLeft: Math.round(box.scrollLeft), scrollable: box.scrollWidth > box.clientWidth };
+    }, selector);
+    await page.getByRole('button', { name: 'Näytä vihje', exact: true }).click();
+    const anchor = await visibleIn('.practice-board .anchor .dot');
+    expect(anchor?.scrollable, 'otelauta on 320 px:ssä vieritettävä').toBe(true);
+    expect(anchor?.visible, 'apupiste näkyvissä').toBe(true);
+    await page.getByRole('button', { name: 'Näytä vastaus' }).click();
+    const answer = await visibleIn('.practice-board .target .dot');
+    expect(answer?.visible, 'vastaus näkyvissä').toBe(true);
+  });
+
+  test('sävelkorva 320 px: vihjepiste tulee näkyviin', async ({ page }) => {
+    pageRef = page;
+    await page.setViewportSize({ width: 320, height: 800 });
+    await page.goto('/kitaraharjoittelija.html?polku=otelauta');
+    await page.getByRole('button', { name: 'Näytä vihje' }).click();
+    const r = await page.evaluate(() => {
+      const dot = document.querySelector('.practice-board .anchor .dot')!; const box = dot.closest('.fret-scroll') as HTMLElement;
+      const f = box.getBoundingClientRect(); const head = box.querySelector('tbody th')!.getBoundingClientRect().width; const d = dot.getBoundingClientRect();
+      return d.left >= f.left + head - 1 && d.right <= f.left + box.clientWidth + 1;
+    });
+    expect(r).toBe(true);
+  });
 });
