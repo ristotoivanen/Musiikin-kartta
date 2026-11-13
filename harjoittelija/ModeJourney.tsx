@@ -166,7 +166,6 @@ export function ModeJourney({ onBack }: { onBack: () => void }) {
   const strings = [...new Set(lesson.positions.map(position => position.string))];
   const min = Math.min(...lesson.positions.map(position => position.fret));
   const max = Math.max(...lesson.positions.map(position => position.fret));
-  const notes = lesson.positions.map(position => position.midi);
 
   return <section className="scale-journey mode-journey" aria-labelledby="mode-path-title">
     <button type="button" className="back-link" onClick={() => { stopPlayback(); onBack(); }}>
