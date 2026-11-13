@@ -5,6 +5,11 @@ import { describe,it,expect } from 'vitest';
 import ts from 'typescript';
 const read=(file:string)=>readFileSync(new URL('../'+file,import.meta.url),'utf8');
 describe('staattisen sivuston yhteensopivuus',()=>{
+  it('julkaistun selainpaketin vieressä on kolmansien osapuolten lisenssitiedosto',()=>{
+    // vite build tyhjentää hakemiston; npm run build (tools/trainer-notices.mjs) luo tiedoston uudelleen.
+    const notices=read('assets/harjoittelija/THIRD-PARTY-NOTICES.txt');
+    for(const name of ['FretEcho','react ','react-dom','pitchy','fft.js']) expect(notices).toContain(name);
+  });
   it('muutetut nykyiset skriptit ovat syntaktisesti kelvollisia classic-skriptejä',()=>{
     for(const file of ['assets/otelauta.js','assets/edistyminen.js','assets/harjoitustausta.js','assets/korvatreeni.js']) expect(()=>new Script(read(file))).not.toThrow();
   });
