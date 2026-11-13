@@ -134,7 +134,6 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
 
 @media (prefers-color-scheme: light) {
   :root { color-scheme: light; --bg: #faf8ff; --panel: #f0ebfa; --text: #241b38; --muted: #605574; --lavender: #5533c3; --box: #1c7f66; --line: #b9aed0; --wrong: #a35a00; --good: #1c7f66; --gold: #a35a00; }
-  .site-header { border-color: #d7cce8; }
   .primary { color: white; }
   button:hover { background: #e4dcf3; }
   .primary:hover { background: #38209f; }

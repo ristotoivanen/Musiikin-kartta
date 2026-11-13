@@ -80,7 +80,7 @@ async function expectBoardGrip(page: Page, frets: readonly Fret[], degrees: read
 test.describe('Otelautakartta, vain visualisointi', () => {
   test('etusivulla on yksi otelautakartan linkki vanhan kahden sijaan', async ({ page }) => {
     await page.goto('/index.html');
-    await expect(page.getByRole('link', { name: 'Tutki otelautakarttaa' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Tutki otelautaa' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Soita taustan mukana' })).toHaveCount(0);
   });
 

@@ -7,13 +7,23 @@
   <title>Otelautakartta – Musiikin kartta</title>
   <link rel="stylesheet" href="assets/otelauta.css">
   <link rel="stylesheet" href="assets/visualizer.css">
+  <link rel="stylesheet" href="assets/paavalikko.css">
 </head>
 <body>
-<header class="site-header">
-  <nav class="site-nav" aria-label="Sivusto">
+<header class="site-top">
+  <nav class="main-nav" aria-label="Päävalikko">
     <a class="brand" href="index.html">Musiikin <span>kartta</span></a>
-    <a href="book/osa-1.html">Lue opasta</a>
-    <a href="kitaraharjoittelija.html">Kitaraharjoittelija</a>
+    <ul>
+      <li><a href="book/index.html"><span class="nav-long">Musiikin teoria</span><span class="nav-short">Teoria</span></a></li>
+      <li><a href="otelautaharjoittelija.html" aria-current="page">Otelautaopas</a></li>
+      <li><a href="kitaraharjoittelija.html">Kitaraharjoittelu</a></li>
+    </ul>
+  </nav>
+  <nav class="section-nav" aria-label="Otelautaopas">
+    <ul>
+      <li><a href="otelautaharjoittelija.html" aria-current="page">Otelautakartta</a></li>
+      <li><a href="kitaraharjoittelija.html?polku=otelauta">Otelaudan harjoitukset</a></li>
+    </ul>
   </nav>
 </header>
 <main class="visualizer">
