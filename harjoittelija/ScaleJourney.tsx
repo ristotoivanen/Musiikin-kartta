@@ -207,7 +207,7 @@ export function ScaleJourney({ onBack }: { onBack: () => void }) {
   if (bridgeOpen) return <ScaleBridgeJourney onBack={onBack} onPosition={selectPosition} />;
 
   return <section className="scale-journey" aria-labelledby="scale-path-title">
-    <button type="button" className="back-link" onClick={() => { stopPlayback(); onBack(); }}>← Oppimispolut</button>
+    <button type="button" className="back-link" onClick={() => { stopPlayback(); onBack(); }}>← Valitse harjoittelupolku</button>
     <p className="eyebrow">SKAALAT JA MOODIT · VAIHE {positionNumber}</p>
     <h2 id="scale-path-title">A-mollipentatoninen · positio {positionNumber}</h2>
     <p className="exercise-theory"><a href="book/osa-8.html#pentatoniikka">Lue tämän harjoituksen teoria: Pentatoniikka →</a></p>

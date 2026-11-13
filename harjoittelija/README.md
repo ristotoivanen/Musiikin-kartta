@@ -9,6 +9,30 @@ lisää sivuille oman Web Analytics -skriptinsä; se ei ole tässä repossa.
 Ajantasainen tilanne, testitulokset, rajoitukset ja oikealla kitaralla tehtävät
 hyväksyntätestit: [`../reviews/kitaraharjoittelija-auditointi.md`](../reviews/kitaraharjoittelija-auditointi.md).
 
+## Skaalat ja moodit: erilliset oppimispolut (kehitysvaihe)
+
+Skaalat ja moodit -kortin jälkeen valitaan **Pentatoniset** tai **Moodit**.
+Pentatoniset avaa aiemman A-mollipentatonisen harjoituksen, eikä sen
+`musiikin-kartta:skaalapolku:*`-etenemistietoja muuteta.
+
+`ScaleTracks.tsx` tarjoaa polkuvalinnan, `ModeJourney.tsx` moodiharjoitukset
+ja `modeData.ts` musiikilliset mallit. Moodien ensimmäinen versio sisältää
+**C-joonisen (Ionian)** ja **A-aiolisen (Aeolian)**. Molemmissa opetellaan
+ensin vain yksi oktaavi. Harjoitukset ovat: kuuntelu ja kotisävel,
+sormitus, muistiharjoitus, C-/A-sävelkeskusten kuunteluvertailu ja
+improvisointi yksinkertaisen syntetisoidun duuri-/molli-sointupulssin päälle.
+Sointupulssi ei ole oikea MP3-kitaraharjoitustausta. Kuunteluvertailu
+testaa, kumpaan toonikaan fraasi päättyy, ei seitsemän moodin tunnistusta.
+Sävelkeskus opitaan myös saman seitsemän sävelluokan avulla eri
+pohjasävelillä. Lisäksi A-aiolinen avautuu vasta C-joonisen jälkeen.
+
+Moodi tallentuu omaan `musiikin-kartta:moodipolku:<id>:v1`-avaimeen.
+Käyttäjä kuittaa harjoituksen itse; mikrofonia ei käytetä. Seuraava moodi
+on suunniteltu A-dooriseksi, jonka F♯ eroaa aiolisen F:stä.
+Muut viisi moodia, muut positiot ja oikeat taustanauhoitukset ovat
+jatkokehitystä. Älä esittele nykyistä versiota kaikkien seitsemän moodin
+valmiina oppimispolkuna.
+
 ## Oppimispolut (ensimmäinen toteutus)
 
 Kitaraharjoittelijan etusivu näyttää nykyisin neljä valintaa:

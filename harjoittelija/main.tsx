@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { Board } from './Board';
 import { Controls, modeTitle, settingsSummary } from './Controls';
 import { LearningPaths, type LearningTrack } from './LearningPaths';
-import { ScaleJourney } from './ScaleJourney';
+import { ScaleTracks } from './ScaleTracks';
 import { NoteJourney } from './NoteJourney';
 import { ChordJourney } from './ChordJourney';
 import { SongJourney } from './SongJourney';
@@ -331,7 +331,7 @@ function App() {
   if (!inRound && track === null) return <>{introduction}{notice}
     <LearningPaths onSelect={selectTrack} /></>;
   if (!inRound && track === 'scales') return <>{introduction}{notice}
-    <ScaleJourney onBack={() => setTrack(null)} /></>;
+    <ScaleTracks onBack={() => setTrack(null)} /></>;
   if (!inRound && track === 'ear') return <>{introduction}{notice}
     <NoteJourney onBack={() => setTrack(null)} /></>;
   if (!inRound && track === 'chords') return <>{introduction}{notice}
