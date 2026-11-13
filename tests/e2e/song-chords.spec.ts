@@ -300,6 +300,9 @@ test('Soinnut ja sanat on aluksi suljettu, ja sen saa auki ja kiinni pysäyttäm
   await expect(disclosure).toHaveAttribute('open','');
   await expect(panel).toBeVisible();
   await expect(player.getByRole('button',{name:'■ Tauko'})).toBeVisible();
+  // Harjoituskartan asetukset (K4) ovat puhelimessa aluksi suljettuina.
+  const settings=panel.locator('details.song-chart-settings');
+  if (!(await settings.evaluate(el => (el as HTMLDetailsElement).open))) await settings.locator('> summary').click();
   await panel.getByRole('combobox',{name:'Harjoitustaso'}).selectOption('2');
 
   await summary.click();
