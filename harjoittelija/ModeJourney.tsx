@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Board } from './Board';
+import { MelodyPractice } from './MelodyPractice';
 import { ReferencePlayer, referenceAudioError } from './audio';
 import type { Mark } from './engine';
 import { note, pc } from './music';
@@ -50,11 +51,13 @@ export function ModeJourney({ onBack }: { onBack: () => void }) {
   const [quizAnswer, setQuizAnswer] = useState<ModeId | null>(null);
   const audio = useRef(new ReferencePlayer());
   const generation = useRef(0);
+  const melodyStop = useRef<(() => void) | null>(null);
   const lesson = MODE_LESSONS[modeId];
   const once = modeOnce(modeId);
   const activePosition = playing === 'scale' && activeIndex !== null ? once[activeIndex] : null;
 
   function stopPlayback() {
+    melodyStop.current?.();
     generation.current++;
     audio.current.stop();
     setPlaying(null);
@@ -79,6 +82,7 @@ export function ModeJourney({ onBack }: { onBack: () => void }) {
   }, []);
 
   async function listen(kind: Exclude<Playback, null>, notes: number[], continuous = false): Promise<boolean> {
+    melodyStop.current?.();
     const current = ++generation.current;
     audio.current.stop();
     setActiveIndex(null);
@@ -236,6 +240,8 @@ export function ModeJourney({ onBack }: { onBack: () => void }) {
         </>}
       </>}
       {step === 4 && <>
+        {modeId === 'ionian' && <MelodyPractice key="nooa:full" pieceId="nooa" stage="full"
+          onBeforePlay={stopPlayback} stopHandleRef={melodyStop} />}
         <p>Soita {lesson.chord}-sointupulssin päälle 2–3 sävelen fraaseja. Lopeta välillä {lesson.tonicName}-säveleen. Tausta on yksinkertainen syntetisoitu sointuarpeggio, ei valmis kitarabacking track.</p>
         <p className="tools-note">Tämä säilyttää kuultavan {lesson.tonicName}-sävelkeskuksen. Vertaa myöhemmin, miten samat sävelet kuulostavat toisen moodin sointupulssin päällä.</p>
         <fieldset className="hint-segments">
@@ -275,6 +281,10 @@ export function ModeJourney({ onBack }: { onBack: () => void }) {
       {step !== 3 && step !== 5 && <Board
         area={{ strings, min, max, fixed: 'box' }} marks={marks}
         disabled caption={lesson.title + ' – yhden oktaavin sormitus'} />}
+      {modeId === 'ionian' && step < 3 && <MelodyPractice
+        key={`nooa:${step}`} pieceId="nooa"
+        stage={step === 0 ? 'listen' : step === 1 ? 'fingering' : 'memory'}
+        onBeforePlay={stopPlayback} stopHandleRef={melodyStop} />}
 
       {step < 2 && playing === 'scale' && activePosition && <p className="tools-note" role="status">
         Nyt soi: {note(activePosition.midi)} · nauha {activePosition.fret}.
