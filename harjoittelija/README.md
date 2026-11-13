@@ -163,6 +163,14 @@ toisistaan riippumatta. Lisäksi on valinnainen looppi ja aikajana.
 käynnistyy vain erillisestä Soita kappale -painalluksesta.** Mykistys- ja
 looppiasetukset säilyvät vaihdossa.
 
+Soittimen alla oleva **Lataa MP3** -linkki lataa valitun version valmiin
+kokonaisen MP3:n (`…-normaali-kokonainen.mp3` tai `…-akustinen-kokonainen.mp3`)
+tavallisena saman originin linkkinä `download`-attribuutilla. Tiedosto on
+alkuperäinen sellaisenaan, ei soittimen raitojen miksaus, eikä lataus koske
+toistoon, mykistyksiin tai äänenvoimakkuuteen. Testit:
+`tests/e2e/song-download.spec.ts` (työpöytä ja puhelin) ja liiteotsakkeen osalta
+`tests/audioRange.test.ts`.
+
 Suorat osoitteet: `kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta`
 (oletusversio), `…-normaali` ja `…-akustinen`. Linkissä nimetty versio
 ohittaa oletuksen. Käyttäjän valitsema versio säilyy sivulla, vaikka hän
@@ -170,8 +178,8 @@ käy välillä oppimispoluissa; kappalelinkillä avatussa sivussa linkki
 päivittyy valinnan mukaiseksi.
 
 MP3-tiedostot ovat hakemistossa `assets/audio/kappaleet/`. Tarkista asennus komennolla `npm run check:song-audio`, joka edellyttää
-kaikkien kahdeksan MP3-tiedoston löytymistä (kappaleen kuusi raitaa ja
-Am-vamp-taustan kaksi raitaa). Äänitteet on tehty maksullisella Suno-
+kaikkien kymmenen MP3-tiedoston löytymistä (kappaleen kuusi raitaa, kaksi
+ladattavaa kokonaista kappaletta ja Am-vamp-taustan kaksi raitaa). Äänitteet on tehty maksullisella Suno-
 tilauksella, ks. [käyttöehdot](../assets/audio/AANITTEET-LISENSSI.md).
 Katso erilliset [akustisen version tiedot](../assets/audio/kappaleet/yksi-sointu-kaksi-askelta-akustinen/README.md)
 ja [normaalin version tiedot](../assets/audio/kappaleet/yksi-sointu-kaksi-askelta-normaali/README.md).

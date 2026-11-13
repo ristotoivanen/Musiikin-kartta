@@ -327,6 +327,14 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
 }
 .song-toggles input { width: 19px; height: 19px; margin: 0; }
 .song-player .tools-note { margin: 4px 0; }
+/* Lataa MP3: valitun version valmis kokonainen tiedosto. */
+.song-download { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin: 6px 0 2px; font-size: 14px; color: var(--muted); }
+.song-download a {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px;
+  border: 1px solid var(--line); border-radius: 10px; color: var(--lavender); font-weight: 650; text-decoration: none;
+}
+.song-download a:hover { border-color: var(--lavender); }
+.song-download a:focus-visible { outline: 2px solid var(--lavender); outline-offset: 2px; }
 /* Yksi yhteinen äänenvoimakkuus: kaiutin, liukusäädin ja prosentit samalla rivillä. */
 .song-volume { margin-left: auto; color: var(--muted); }
 .song-volume input[type="range"] { width: min(180px, 46vw); height: auto; accent-color: var(--lavender); }
