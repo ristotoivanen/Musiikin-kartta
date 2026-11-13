@@ -24,6 +24,9 @@ test.describe('Skaalat ja moodit -valinta', () => {
     await expect(page.getByText('C · D · E · F · G · A · B')).toBeVisible();
     await expect(page.getByRole('button', { name: /2\. A-aiolinen/ })).toBeDisabled();
     await expect(page.locator('.practice-board .dot')).toHaveCount(8);
+    await expect(page.getByRole('button', { name: '▶ Soita asteikko kerran' })).toBeVisible();
+    await expect(page.getByRole('button', { name: '▶ Kuuntele mallifraasi' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: '▶ Toista asteikkoa jatkuvasti' })).toHaveCount(0);
 
     await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
     await expect(page.getByRole('heading', { name: 'Soita yksi oktaavi' })).toBeVisible();
@@ -55,6 +58,24 @@ test.describe('Skaalat ja moodit -valinta', () => {
       localStorage.getItem('musiikin-kartta:moodipolku:ionian:v1'),
       localStorage.getItem('musiikin-kartta:moodipolku:aeolian:v1'),
     ])).toEqual(['5', null]);
+  });
+
+  test('moodin asteikko soi vain kerran ja on käynnistettävissä uudestaan', async ({ page }) => {
+    await page.clock.install();
+    await page.goto('/kitaraharjoittelija.html');
+    await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
+    await page.locator('.scale-tracks .learning-card').filter({ hasText: 'Moodit' }).click();
+    const play = page.getByRole('button', { name: '▶ Soita asteikko kerran' });
+    await play.click();
+    const stop = page.getByRole('button', { name: '■ Pysäytä asteikon toisto' });
+    await expect(stop).toBeVisible();
+    await page.clock.fastForward(14000);
+    await expect(play).toBeVisible();
+    await play.click();
+    await expect(stop).toBeVisible();
+    await stop.click();
+    await expect(play).toBeVisible();
+    await expect(page.getByRole('button', { name: /mallifraasi/i })).toHaveCount(0);
   });
 
   test('moodivalinta ei ohita alkuperäisiä tila-linkkejä', async ({ page }) => {

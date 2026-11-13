@@ -81,3 +81,7 @@ export const modeCycle = (id: ModeId): Position[] => {
   const notes = MODE_LESSONS[id].positions;
   return [...notes, ...notes.slice(1, -1).reverse()];
 };
+
+/** Kertatoisto: yksi oktaavi ylös ja takaisin alas alimpaan toonikaan, ei uutta kierrosta. */
+export const modeOnce = (id: ModeId): Position[] =>
+  [...modeCycle(id), MODE_LESSONS[id].positions[0]];

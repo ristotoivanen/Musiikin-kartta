@@ -26,6 +26,14 @@ testaa, kumpaan toonikaan fraasi päättyy, ei seitsemän moodin tunnistusta.
 Sävelkeskus opitaan myös saman seitsemän sävelluokan avulla eri
 pohjasävelillä. Lisäksi A-aiolinen avautuu vasta C-joonisen jälkeen.
 
+Moodin kuuntelu-, sormitus- ja muistivaiheessa **Soita asteikko kerran**
+soittaa yhden oktaavin ylös ja alas sekä päättyy alimpaan toonikaan.
+Toisto ei ala uudestaan automaattisesti. Painikkeella voi pysäyttää
+kesken ja käynnistää alusta; otelauta korostaa soivan sävelen
+myös kertatoiston aikana. Erillinen mallifraasi on poistettu näistä
+kolmesta vaiheesta. Sävelkeskusten vertailuharjoituksen lyhyet
+C-/A-päätösfraasit ovat edelleen käytössä omana kuuntelutehtävänään.
+
 Moodi tallentuu omaan `musiikin-kartta:moodipolku:<id>:v1`-avaimeen.
 Käyttäjä kuittaa harjoituksen itse; mikrofonia ei käytetä. Seuraava moodi
 on suunniteltu A-dooriseksi, jonka F♯ eroaa aiolisen F:stä.

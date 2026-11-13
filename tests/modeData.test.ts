@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MODE_LESSONS, MODE_ORDER, modeCycle, modePitchClasses, modeProgressKey } from '../harjoittelija/modeData';
+import { MODE_LESSONS, MODE_ORDER, modeCycle, modeOnce, modePitchClasses, modeProgressKey } from '../harjoittelija/modeData';
 import { pc } from '../harjoittelija/music';
 
 describe('Moodipolun musiikillinen rakenne', () => {
@@ -35,6 +35,11 @@ describe('Moodipolun musiikillinen rakenne', () => {
     expect(modeCycle(id)).toHaveLength(14);
     expect(modeCycle(id)[0]).toEqual(lesson.positions[0]);
     expect(modeCycle(id).at(-1)).toEqual(lesson.positions[1]);
+    // Yksi soittokerta = 8 säveltä ylös + 7 takaisin alas, lopuksi toonika.
+    expect(modeOnce(id)).toHaveLength(15);
+    expect(modeOnce(id).slice(0, 8)).toEqual(lesson.positions);
+    expect(modeOnce(id).at(-1)).toEqual(lesson.positions[0]);
+    expect(modeOnce(id).filter(position => position.midi === lesson.positions.at(-1)!.midi)).toHaveLength(1);
   });
 
   it('eteneminen ei kirjoita pentatonisen localStorage-avaimiin', () => {

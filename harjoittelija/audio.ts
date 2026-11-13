@@ -146,6 +146,7 @@ export class ReferencePlayer {
   private master?: GainNode;
   private token = 0;
   private timer?: ReturnType<typeof setTimeout>;
+  private noteTimers: ReturnType<typeof setTimeout>[] = [];
   private loopTick?: ReturnType<typeof setInterval>;
   private adjustLoopTempo?: (bpm: number) => void;
   private settle?: (completed: boolean) => void;
@@ -154,12 +155,13 @@ export class ReferencePlayer {
   stop() {
     this.token++;
     clearTimeout(this.timer);
+    this.noteTimers.forEach(clearTimeout); this.noteTimers = [];
     clearInterval(this.loopTick); this.loopTick = undefined;
     this.adjustLoopTempo = undefined;
     this.settle?.(false); this.settle = undefined;
     this.master?.disconnect(); this.master = undefined;
   }
-  async play(notes: number[]): Promise<boolean> {
+  async play(notes: number[], onNote?: (index: number) => void): Promise<boolean> {
     this.stop();
     const token = this.token;
     const c = this.provide();
@@ -176,13 +178,19 @@ export class ReferencePlayer {
       gain.gain.setValueAtTime(0,start); gain.gain.linearRampToValueAtTime(.22,start+.012);
       gain.gain.exponentialRampToValueAtTime(.001,start+.7);
       oscillator.connect(gain); gain.connect(master); oscillator.start(start); oscillator.stop(start+.72);
+      // Vain käyttöliittymän korostus; äänen ajoitus pysyy AudioContextin kellossa.
+      if (onNote) this.noteTimers.push(setTimeout(() => {
+        if (token === this.token) onNote(i);
+      }, 50 + i * 800));
     });
     const completed = await new Promise<boolean>(resolve => {
       this.settle = resolve;
       this.timer = setTimeout(() => resolve(true), notes.length * 800 + 350);
     });
     if (!completed || token !== this.token) return false;
-    this.settle = undefined; master.disconnect(); this.master = undefined;
+    this.settle = undefined;
+    this.noteTimers.forEach(clearTimeout); this.noteTimers = [];
+    master.disconnect(); this.master = undefined;
     return true;
   }
 

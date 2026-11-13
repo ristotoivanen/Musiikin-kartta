@@ -3,7 +3,7 @@ import { Board } from './Board';
 import { ReferencePlayer, referenceAudioError } from './audio';
 import type { Mark } from './engine';
 import { note, pc } from './music';
-import { MODE_ACTIVE_KEY, MODE_LESSONS, MODE_ORDER, modeCycle, modeProgressKey, type ModeId } from './modeData';
+import { MODE_ACTIVE_KEY, MODE_LESSONS, MODE_ORDER, modeOnce, modeProgressKey, type ModeId } from './modeData';
 
 const STEPS = [
   'Kuuntele ja tunnista',
@@ -13,7 +13,7 @@ const STEPS = [
   'Improvisoi sointupulssin päälle',
 ] as const;
 
-type Playback = 'scale' | 'phrase' | 'comparison' | 'accompaniment' | null;
+type Playback = 'scale' | 'comparison' | 'accompaniment' | null;
 type Hints = 'roots' | 'all' | 'none';
 
 function readProgress(id: ModeId): number {
@@ -51,8 +51,8 @@ export function ModeJourney({ onBack }: { onBack: () => void }) {
   const audio = useRef(new ReferencePlayer());
   const generation = useRef(0);
   const lesson = MODE_LESSONS[modeId];
-  const cycle = modeCycle(modeId);
-  const activePosition = playing === 'scale' && activeIndex !== null ? cycle[activeIndex] : null;
+  const once = modeOnce(modeId);
+  const activePosition = playing === 'scale' && activeIndex !== null ? once[activeIndex] : null;
 
   function stopPlayback() {
     generation.current++;
@@ -86,10 +86,10 @@ export function ModeJourney({ onBack }: { onBack: () => void }) {
     setPlaying(kind);
     try {
       const completed = continuous
-        ? await audio.current.loop(notes, index => {
+        ? await audio.current.loop(notes, undefined, 75)
+        : await audio.current.play(notes, index => {
           if (current === generation.current && kind === 'scale') setActiveIndex(index);
-        }, 75)
-        : await audio.current.play(notes);
+        });
       return current === generation.current && completed;
     } catch (cause) {
       if (current === generation.current) setAudioError(referenceAudioError(cause));
@@ -207,10 +207,10 @@ export function ModeJourney({ onBack }: { onBack: () => void }) {
       </div>
 
       {step === 0 && <>
-        <p>Kuuntele ensin asteikko ja sitten fraasi, joka päättyy {lesson.tonicName}-säveleen. Kuule, miten pohjasävel tuntuu melodian päätepisteeltä. Malliääni on syntetisoitu.</p>
+        <p>Kuuntele asteikko ensin ylös ja sitten alas. Toisto päättyy {lesson.tonicName}-pohjasäveleen eikä ala automaattisesti uudelleen. Uuden kierroksen saat painamalla soittopainiketta uudestaan. Malliääni on syntetisoitu.</p>
         <p><strong>Vertailun idea:</strong> {lesson.contrast}</p>
       </>}
-      {step === 1 && <p>Soita kolme kieltä pitkin yksi oktaavi alhaalta ylös ja takaisin. Kuuntele jatkuvaa mallia ja seuraa korostettua säveltä. Älä vielä yritä opetella koko otelautaa.</p>}
+      {step === 1 && <p>Soita kolme kieltä pitkin yksi oktaavi alhaalta ylös ja takaisin. Käynnistä mallisoitto uudelleen painikkeesta ja seuraa korostettua säveltä. Älä vielä yritä opetella koko otelautaa.</p>}
       {step === 2 && <p>Piilota otelaudan sävelet ja soita yksi oktaavi molempiin suuntiin. Voit näyttää vain {lesson.tonicName}-pohjasävelen, jos tarvitset vihjettä.</p>}
       {step === 3 && <>
         <p>Kuuntele satunnainen fraasi. Sen sävelet kuuluvat samaan C-duurin ja A-mollin säveljoukkoon. Päättele, <strong>päättyykö fraasi C:hen vai A:han</strong>. Tämä harjoittaa sävelkeskuksen kuulemista, ei vielä koko moodin automaattista tunnistusta.</p>
@@ -259,12 +259,8 @@ export function ModeJourney({ onBack }: { onBack: () => void }) {
       {step < 3 && <div className="action-row">
         <button type="button" aria-pressed={playing === 'scale'}
           onClick={() => playing === 'scale' ? stopPlayback() :
-            void listen('scale', cycle.map(position => position.midi), true)}>
-          {playing === 'scale' ? '■ Pysäytä asteikon toisto' : '▶ Toista asteikkoa jatkuvasti'}
-        </button>
-        <button type="button" onClick={() => playing === 'phrase' ? stopPlayback() :
-          void listen('phrase', lesson.phrase)}>
-          {playing === 'phrase' ? '■ Pysäytä fraasi' : '▶ Kuuntele mallifraasi'}
+            void listen('scale', once.map(position => position.midi))}>
+          {playing === 'scale' ? '■ Pysäytä asteikon toisto' : '▶ Soita asteikko kerran'}
         </button>
       </div>}
 

@@ -295,6 +295,30 @@ describe('esimerkkisävelet ja yhteinen äänikonteksti', () => {
       expect(context.resume).toHaveBeenCalledOnce(); expect(context.close).not.toHaveBeenCalled();
     } finally { vi.useRealTimers(); }
   });
+  it('kertatoisto kertoo sävelet kerran, pysähtyy ja poistaa keskeytetyn toiston korostusajastimet', async () => {
+    vi.useFakeTimers();
+    try {
+      const { context } = fakeOutput();
+      const player = new ReferencePlayer(() => context as unknown as AudioContext);
+      const onNote = vi.fn();
+      const once = player.play([48, 50, 52], onNote);
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(onNote.mock.calls.map(([index]) => index)).toEqual([0, 1]);
+      player.stop();
+      expect(await once).toBe(false);
+      await vi.advanceTimersByTimeAsync(3000);
+      expect(onNote.mock.calls.map(([index]) => index)).toEqual([0, 1]);
+
+      const again = player.play([48, 50, 52], onNote);
+      await vi.advanceTimersByTimeAsync(3100);
+      expect(await again).toBe(true);
+      expect(onNote.mock.calls.map(([index]) => index)).toEqual([0, 1, 0, 1, 2]);
+      // Toisto loppui itsestään: uusia merkintöjä ei synny ilman uutta painallusta.
+      await vi.advanceTimersByTimeAsync(4000);
+      expect(onNote).toHaveBeenCalledTimes(5);
+    } finally { vi.useRealTimers(); }
+  });
+
   it('jatkuva asteikkotoisto ajastaa kierrosrajan ilman taukoa ja ilmoittaa soivan sävelen', async () => {
     vi.useFakeTimers();
     try {
