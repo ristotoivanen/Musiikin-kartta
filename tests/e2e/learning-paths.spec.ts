@@ -569,23 +569,17 @@ test.describe('Uudet oppimispolut', () => {
     await expect(page.locator('.journey-lesson > .fret-wrap .practice-board .dot')).toHaveCount(3);
     await expect(mixer.getByRole('button', { name: '■ Tauko' })).toBeVisible();
 
-    // Kapealla näytöllä nauha 8 on vierityksen takana: vihje kertoo sen, ja nauhan saa näkyviin vierittämällä.
+    // Mobiiliauditointi K2: myös puhelimessa (iPhone 13, 390 px) position 1 nauhat 5–8 mahtuvat
+    // kokonaan näkyviin. Vierityskehotusta ei tarvita, ja nauha 8 näkyy vierittämättä.
     const scroller = page.locator('.journey-lesson > .fret-wrap .fret-scroll');
     const hint = page.locator('.journey-lesson > .fret-wrap .fret-scroll-hint');
-    if (testInfo.project.name === 'phone') {
-      await expect(hint).toContainText('nauhoja on lisää');
-      const fret8 = page.locator('.journey-lesson > .fret-wrap .practice-board button[data-string="0"][data-fret="8"]');
-      await scroller.evaluate(element => { element.scrollLeft = element.scrollWidth; });
-      await expect(hint).toContainText('vasemmalla');
-      const [cell, view] = [(await fret8.boundingBox())!, (await scroller.boundingBox())!];
-      expect(cell.x).toBeGreaterThanOrEqual(view.x);
-      expect(cell.x + cell.width).toBeLessThanOrEqual(view.x + view.width + 1);
-      await scroller.evaluate(element => { element.scrollLeft = 0; });
-      await expect(hint).toContainText('oikealla');
+    await expect(hint).toHaveCount(0);
+    const fret8 = page.locator('.journey-lesson > .fret-wrap .practice-board button[data-string="0"][data-fret="8"]');
+    const [cell, view] = [(await fret8.boundingBox())!, (await scroller.boundingBox())!];
+    expect(cell.x).toBeGreaterThanOrEqual(view.x);
+    expect(cell.x + cell.width).toBeLessThanOrEqual(view.x + view.width + 1);
+    if (testInfo.project.name === 'phone')
       expect((await page.locator('.journey-lesson > .fret-wrap .practice-board .dot').first().boundingBox())!.width).toBeGreaterThanOrEqual(24);
-    } else {
-      await expect(hint).toHaveCount(0);
-    }
 
     if (testInfo.project.name === 'phone') {
       const width = page.viewportSize()!.width;
