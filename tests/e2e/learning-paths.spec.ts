@@ -558,7 +558,7 @@ test.describe('Uudet oppimispolut', () => {
     await mixer.getByRole('button', { name: '▶ Soita' }).click();
     await expect(mixer.getByRole('button', { name: '■ Tauko' })).toBeVisible();
     await choose('Ei sävelvihjeitä');
-    await expect(page.locator('.practice-board .dot')).toHaveCount(0);
+    await expect(page.locator('.journey-lesson > .fret-wrap .practice-board .dot')).toHaveCount(0);
     await expect(mixer.getByRole('button', { name: '■ Tauko' })).toBeVisible();
     // Pilotti käyttää lähdemelodian rytmitettyä mallia aiemman irrallisen fraasin sijasta.
     const melody = page.getByRole('region', { name: /Melodiaharjoitus: Wayfaring Stranger/ });
@@ -566,7 +566,7 @@ test.describe('Uudet oppimispolut', () => {
     await melody.getByRole('button', { name: '▶ Kuuntele valittu melodia kerran' }).click();
     await expect(page.getByRole('alert')).toHaveCount(0);
     await choose('Vain pohjasävelet');
-    await expect(page.locator('.practice-board .dot')).toHaveCount(3);
+    await expect(page.locator('.journey-lesson > .fret-wrap .practice-board .dot')).toHaveCount(3);
     await expect(mixer.getByRole('button', { name: '■ Tauko' })).toBeVisible();
 
     // Kapealla näytöllä nauha 8 on vierityksen takana: vihje kertoo sen, ja nauhan saa näkyviin vierittämällä.
@@ -582,7 +582,7 @@ test.describe('Uudet oppimispolut', () => {
       expect(cell.x + cell.width).toBeLessThanOrEqual(view.x + view.width + 1);
       await scroller.evaluate(element => { element.scrollLeft = 0; });
       await expect(hint).toContainText('oikealla');
-      expect((await page.locator('.practice-board .dot').first().boundingBox())!.width).toBeGreaterThanOrEqual(24);
+      expect((await page.locator('.journey-lesson > .fret-wrap .practice-board .dot').first().boundingBox())!.width).toBeGreaterThanOrEqual(24);
     } else {
       await expect(hint).toHaveCount(0);
     }
@@ -600,13 +600,13 @@ test.describe('Uudet oppimispolut', () => {
     // Muistiharjoitus 3/4 alkaa edelleen ilman vihjeitä, ja paluu improvisointiin palauttaa oletuksen.
     await choose('Ei sävelvihjeitä');
     await page.getByRole('button', { name: /Soita muistista/ }).click();
-    await expect(page.locator('.practice-board .dot')).toHaveCount(0);
+    await expect(page.locator('.journey-lesson > .fret-wrap .practice-board .dot')).toHaveCount(0);
     await expect(hints).toHaveCount(0);
     await page.getByRole('button', { name: 'Näytä pohjasävelet' }).click();
-    await expect(page.locator('.practice-board .dot')).toHaveCount(3);
+    await expect(page.locator('.journey-lesson > .fret-wrap .practice-board .dot')).toHaveCount(3);
     await page.getByRole('button', { name: /Improvisoi taustan päälle/ }).click();
     await expect(radio('Vain pohjasävelet')).toBeChecked();
-    await expect(page.locator('.practice-board .dot')).toHaveCount(3);
+    await expect(page.locator('.journey-lesson > .fret-wrap .practice-board .dot')).toHaveCount(3);
   });
 
   test('improvisointitaustassa kaksi raitaa kulkee yhdessä ja mallikitaran saa mykistettyä', async ({ page }) => {
