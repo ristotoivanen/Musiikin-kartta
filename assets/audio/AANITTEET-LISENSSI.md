@@ -17,11 +17,19 @@ tilillä. Tilaus oli luontihetkellä maksullinen Pro- tai Premier-taso
 tilauksen aikana luotuja kappaleita saa käyttää myös kaupallisesti.
 
 Kaikki oikeudet pidätetään. Äänitteet ovat mukana vain Musiikin kartan
-kitaraharjoittelijaa varten. Kappaleharjoittelijan **Lataa MP3** -linkki
-antaa käyttäjän tallentaa kokonaisen kappaleen omaa harjoitteluaan varten;
-se ei muuta alla olevaa rajausta. Niitä ei saa kopioida, jakaa edelleen tai
-käyttää muualla ilman ylläpitäjän lupaa. Sunon ehdot eivät takaa, että
-tekoälyllä luotuun äänitteeseen syntyy tekijänoikeus.
+kitaraharjoittelijaa varten.
+
+**Sallittu:** kappaleharjoittelijan **Lataa MP3** -linkillä ladattavat
+kokonaiset kappaleet (`…-kokonainen.mp3`) saa ladata ja tallentaa omalle
+laitteelle henkilökohtaista harjoittelua varten.
+
+**Kielletty ilman ylläpitäjän lupaa:** äänitteiden (myös ladattujen
+kokonaisten MP3-tiedostojen) jakaminen edelleen, julkaiseminen, myyminen,
+käyttäminen muissa palveluissa tai teoksissa sekä muu kuin edellä sallittu
+käyttö.
+
+Sunon ehdot eivät takaa, että tekoälyllä luotuun äänitteeseen syntyy
+tekijänoikeus.
 
 Pääsivuston muut ääniesimerkit (`assets/audio/osa-*`) eivät kuulu tähän
 rajaukseen.
