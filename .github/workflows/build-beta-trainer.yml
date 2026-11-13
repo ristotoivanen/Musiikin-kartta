@@ -1,0 +1,65 @@
+name: Build beta trainer assets
+
+on:
+  push:
+    branches: [beta]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: beta-trainer-build
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout beta
+        uses: actions/checkout@v4
+        with:
+          ref: beta
+          persist-credentials: true
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint and unit tests
+        run: npm run lint && npm test
+      - name: Build browser assets
+        run: npm run build
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Test scale positions and bridge in browser
+        run: npx playwright test tests/e2e/learning-paths.spec.ts --grep "positioiden 1 ja 2 yhdistäminen|positio 3 avautuu|yhdistämisen mallisoitto" --project=desktop
+      - name: Cache-bust compiled browser module
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync, writeFileSync } from 'node:fs';
+          import { createHash } from 'node:crypto';
+          const htmlPath = 'kitaraharjoittelija.html';
+          const compiled = readFileSync('assets/harjoittelija/app.js');
+          const version = createHash('sha256').update(compiled).digest('hex').slice(0, 12);
+          const html = readFileSync(htmlPath, 'utf8');
+          const path = /assets\/harjoittelija\/app\.js(?:\?v=[a-f0-9]{12})?/;
+          if (!path.test(html)) throw new Error('Missing browser app.js import');
+          writeFileSync(htmlPath, html.replace(path, 'assets/harjoittelija/app.js?v=' + version));
+          NODE
+      - name: Commit and push generated browser assets
+        run: |
+          git add -A assets/harjoittelija/ kitaraharjoittelija.html
+          if git diff --cached --quiet; then
+            echo "Browser assets are already up to date."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # GITHUB_TOKEN-push ei käynnistä tätä GitHub Actions -työnkulkua uudestaan.
+          # Älä lisää [skip ci] -merkintää: Cloudflare Pagesin pitää julkaista
+          # vasta tässä vaiheessa syntyneet käännetyt tiedostot.
+          git commit -m "build: publish compiled beta trainer assets"
+          git push origin HEAD:beta
