@@ -29,12 +29,16 @@ const VERSIONS = {
     backing: 'assets/audio/kappaleet/yksi-sointu-kaksi-askelta-akustinen/yksi-sointu-kaksi-askelta-akustinen-saestys.mp3',
     guitar: 'assets/audio/kappaleet/yksi-sointu-kaksi-askelta-akustinen/yksi-sointu-kaksi-askelta-akustinen-kitara.mp3',
     vocals: 'assets/audio/kappaleet/yksi-sointu-kaksi-askelta-akustinen/yksi-sointu-kaksi-askelta-akustinen-laulu.mp3',
+    // Valmis kokonainen MP3 sellaisenaan, ei soittimen raitojen miksausta.
+    download: 'assets/audio/kappaleet/yksi-sointu-kaksi-askelta-akustinen/yksi-sointu-kaksi-askelta-akustinen-kokonainen.mp3', downloadSize: '5,3 Mt',
   },
   normal: {
     label: 'Normaali versio', length: '3:32',
     backing: 'assets/audio/kappaleet/yksi-sointu-kaksi-askelta-normaali/yksi-sointu-kaksi-askelta-normaali-saestys.mp3',
     guitar: 'assets/audio/kappaleet/yksi-sointu-kaksi-askelta-normaali/yksi-sointu-kaksi-askelta-normaali-kitara.mp3',
     vocals: 'assets/audio/kappaleet/yksi-sointu-kaksi-askelta-normaali/yksi-sointu-kaksi-askelta-normaali-laulu.mp3',
+    // Valmis kokonainen MP3 sellaisenaan, ei soittimen raitojen miksausta.
+    download: 'assets/audio/kappaleet/yksi-sointu-kaksi-askelta-normaali/yksi-sointu-kaksi-askelta-normaali-kokonainen.mp3', downloadSize: '4,9 Mt',
   },
 } as const;
 
@@ -303,6 +307,16 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
           <output aria-hidden="true">{volume} %</output>
         </label>
       </div>
+      <p className="song-download">
+        {/* Tavallinen saman originin linkki: lataus ei koske soittimen toistoon, mykistyksiin eikä äänenvoimakkuuteen. */}
+        <a href={song.download} download={song.download.split('/').pop()} type="audio/mpeg">
+          <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18">
+            <path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Lataa MP3
+        </a>
+        <span>{song.label}, koko kappale · {song.downloadSize}</span>
+      </p>
       {error && <p className="backing-error" role="alert">{error}</p>}
       <audio key={version + '-backing'} ref={backingRef} src={song.backing} preload="metadata" loop={loopOn}
         onLoadedMetadata={event => {
