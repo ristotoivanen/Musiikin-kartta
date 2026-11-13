@@ -62,6 +62,7 @@ akustisena että normaalina versiona. Valitussa sovituksessa säestys, kitara
 ja laulu ovat kolme samanaikaisesti toistettavaa MP3-raitaa. Kitara ja laulu
 voidaan vaimentaa erikseen kesken kappaleen. Version vaihtaminen pysäyttää
 toiston, palauttaa sen alkuun ja edellyttää uutta Soita-painallusta.
+**Lataa MP3** -linkki lataa valitun version valmiin kokonaisen kappaleen.
 Molempien versioiden äänet toimitetaan erillisinä ZIP-paketteina,
 eivät GitHub-haaran mukana.
 Asennusohje on [harjoittelijan README:ssä](harjoittelija/README.md).
