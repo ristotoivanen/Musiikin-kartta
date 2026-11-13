@@ -295,13 +295,13 @@ export function ScaleJourney({ onBack }: { onBack: () => void }) {
               <button type="button" onClick={() => void listen('phrase')}>▶ Mallifraasi</button>
             </div>}
           </>}
-          <Board area={{ strings: [0,1,2,3,4,5], min, max, fixed: 'box' }} marks={marks} disabled caption={`A-mollipentatoninen, positio ${positionNumber}`} />
+          <Board area={{ strings: [0,1,2,3,4,5], min, max, fixed: 'box' }} marks={marks} disabled follow="playing" playback={playing} caption={`A-mollipentatoninen, positio ${positionNumber}`} />
           <p className="tools-note">{step < 2 ? 'Vihreällä merkitty A on pohjasävel.'
             : step === 3 ? IMPRO_HINTS.find(option => option.value === improHints)!.note
             : showRoots ? 'Näkyvissä ovat vain A-pohjasävelet.' : 'Otelauta on ilman vihjemerkintöjä.'} Sovellus ei mittaa soittoasi: arvioit itse, miten harjoitus sujui.</p>
         </>}
         {step === 0 && <>
-          <Board area={{ strings: [0,1,2,3,4,5], min, max, fixed: 'box' }} marks={marks} disabled caption={`Position ${positionNumber} sävelet`} />
+          <Board area={{ strings: [0,1,2,3,4,5], min, max, fixed: 'box' }} marks={marks} disabled follow="playing" playback={playing} caption={`Position ${positionNumber} sävelet`} />
           <p className="tools-note">Sama sormitus ja samat viisi säveltä palaavat seuraavissa tehtävissä.</p>
         </>}
         {positionNumber === 1 && (step === 1 || step === 2) && <MelodyPractice
