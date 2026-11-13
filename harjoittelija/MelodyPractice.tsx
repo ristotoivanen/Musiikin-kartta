@@ -90,6 +90,8 @@ export function MelodyPractice({ pieceId, stage, onBeforePlay, stopHandleRef }: 
     try {
       await player.current.playTimed(sounding, tempo, index => {
         if (current === generation.current) setActiveIndex(index);
+      }, () => {
+        if (current === generation.current) setActiveIndex(null);
       });
     } catch (cause) {
       if (current === generation.current) setError(referenceAudioError(cause));
