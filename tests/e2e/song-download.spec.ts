@@ -65,8 +65,9 @@ test.describe('Kappaleharjoittelijan Lataa MP3', () => {
     const acousticFile = await acoustic;
     expect(acousticFile.suggestedFilename()).toBe('yksi-sointu-kaksi-askelta-akustinen-kokonainen.mp3');
     expect(sha(readFileSync(await acousticFile.path()))).toBe(sha(readFileSync(FULL.acoustic)));
-    // Sivu pysyy soittimessa eikä siirry tiedostoon.
-    await expect(page).toHaveURL(/kitaraharjoittelija\.html/);
+    // Sivu pysyy soittimessa eikä siirry tiedostoon (Cloudflare Pages jättää .html-päätteen pois).
+    await expect(page).toHaveURL(/\/kitaraharjoittelija(\.html)?\?/);
+    await expect(player.getByRole('button', { name: '▶ Soita kappale' })).toBeVisible();
   });
 
   test('lataus toimii kesken toiston ja mykistettynä eikä muuta soittimen tilaa', async ({ page }) => {
