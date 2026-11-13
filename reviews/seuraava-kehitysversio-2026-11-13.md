@@ -63,8 +63,11 @@ regressiotestit `tests/e2e/responsive.spec.ts`:ään.
 - **A. Kuuntele ja paikanna sävel:** ohut e-, B- ja G-kieli vuorotellen, nauhat 0–5, vain
   luonnolliset sävelet. Opettelu (kielen sävelet nousevasti, soiva paikka ja nimi näkyvät),
   kuuntelutesti (5 kysymystä/kieli, kaikki kielen luonnolliset sävelet vähintään kerran, ei samaa
-  peräkkäin), *Kuuntele uudelleen*, vapaan kielen vertailusävel, vastaus nauhaa napauttamalla,
-  palaute ja oikea paikka vasta yrityksen jälkeen, kielen tulos ja yhteenveto.
+  peräkkäin), vastaus nauhaa napauttamalla, palaute ja oikea paikka vasta yrityksen jälkeen,
+  kielen tulos ja yhteenveto. **Päivitetty 14.11.2026 omistajan pyynnöstä (commit `513e7d7`):**
+  jokainen kysymys soittaa ensin kielen koko mallisarjan (soiva sävel korostuu), sitten kahden
+  iskun tauon ja vasta sitten kysytyn sävelen. Vastaaminen avautuu, kun kysytty sävel on soinut.
+  *Kuuntele uudelleen* toistaa koko järjestyksen, *Vain kysytty sävel* pelkän sävelen.
 - **B. Kuuntele moodien ero:** A-aiolinen/A-doorinen ja C-jooninen/C-miksolyydinen, sama toonika
   ja hiljainen toonikan urkupiste oktaavia alempana. Kolme harjoitusta: *Kuuntele ero*,
   *Kumpi oli kumpi?* ja *Mikä sävelaste muuttui?*. Selittävä palaute ja eroavan asteen
@@ -116,8 +119,10 @@ muutettiin kysymykseksi, joka jää auki. **[A]**
 - **[F]/[T]** Kysyttävät sävelet issuen taulukon mukaan: e = E4 F4 G4 A4 (0, 1, 3, 5),
   B = B3 C4 D4 E4 (0, 1, 3, 5), G = G3 A3 B3 C4 (0, 2, 4, 5). e-kielellä ei ole C:tä.
   Kromaattisia nauhoja voi napauttaa, mutta ne ovat aina vääriä vastauksia (ne eivät ole kysyttäviä).
-- **[A]** Vertailusäveleksi valittiin vapaa kieli, koska se on tuttu ja samasta rekisteristä eikä
-  paljasta vastausta. Absoluuttista sävelkorvaa ei vaadita.
+- **[F]** Kuuntelutestin vertailukohta on koko mallisarja ennen jokaista kysymystä (päivitetty
+  vaatimus 14.11.2026; ensimmäisen version vapaan kielen vertailusävel poistettiin). Tempo 80 BPM,
+  tauko 2 iskua (1,5 s), kysytty sävel 2 iskua. Absoluuttista sävelkorvaa ei vaadita. Tauon ja
+  tempon sopivuus on arvio, jota ei ole tarkistettu korvakuulolta **[A]**.
 - **[F]** Moodiparien teoria: aiolinen ♭6 (F) / doorinen 6 (F♯); jooninen 7 (B) / miksolyydinen ♭7
   (B♭). Sama toonika (A3, C4), sama rekisteri, sama rytmi. Yksikkötesti varmistaa, että parit
   eroavat täsmälleen yhdessä asteessa ja puolen sävelaskelen verran.
@@ -179,6 +184,7 @@ Ajettu 13.11.2026 kunkin haaran omassa työpuussa (Chrome, `--mute-audio --disab
 | PR 1 `feature/mobiili-k2-k7` | ok, 285/285 | **283 läpi, 31 ohitettu, 0 kaatui** | puhdas |
 | PR 2 `feature/pentatoniset-melodiat-p2-p3` | ok, 291/291 | **289 läpi, 31 ohitettu, 0 kaatui** | puhdas |
 | PR 3 `feature/savelkorva-kuuntelu` | ok, 299/299 | **301 läpi, 31 ohitettu, 0 kaatui** | puhdas |
+| PR 3 päivitys 14.11. (`513e7d7`) | ok, 303/303 | **305 läpi, 0 kaatui** | puhdas |
 
 - Ohitettujen määrä 18 → 31: `responsive.spec.ts` asettaa näyttökoot itse ja ohitetaan siksi
   tarkoituksella puhelinprojektissa; siihen tuli 13 uutta testiä. Muita testejä ei ohitettu tai poistettu.
@@ -311,7 +317,8 @@ Testaa esikatselussa (Cloudflare-esikatselu PR:stä) iPhonella ja tietokoneella.
 
 **Kuunteluharjoitukset (PR 3)**
 13. Sävelkorva ja otelauta → *Kuuntele ja paikanna sävel*: e-, B- ja G-kielen sävelet,
-    kuuntelutesti, väärän vastauksen palaute, kielen tulos ja yhteenveto.
+    kuuntelutesti (mallisarja → tauko → kysytty sävel; onko tauko riittävä?), väärän vastauksen
+    palaute, kielen tulos ja yhteenveto.
 14. Skaalat ja moodit → *Kuuntele moodien ero*: kuuluuko F/F♯- ja B/B♭-ero puhelimen
     kaiuttimesta ja kuulokkeilla; urkupisteen taso sopiva.
 15. *Kumpi oli kumpi?* ja *Mikä sävelaste muuttui?*: vastaus ei näy ennen valintaa.
