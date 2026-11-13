@@ -245,9 +245,9 @@ export function ScaleBridgeJourney({ onBack, onPosition }: {
           : step === 3 ? hints === 'roots' ? 'Näkyvissä ovat vain A-pohjasävelet.'
             : hints === 'all' ? 'Kaikki 18 paikkaa näkyvät, yhteiset sävelet on merkitty.' : 'Otelauta ilman vihjeitä.'
           : 'Yhteiset sävelet on reunustettu, A-pohjasävelet ovat vihreitä.'} Arvioit itse, miten soittaminen sujui.</p>
-        {step >= 1 && step <= 3 && <MelodyPractice
+        {(step === 1 || step === 2) && <MelodyPractice
           key={`bridge:${step}`} pieceId="pentatonic-bridge"
-          stage={step === 1 ? 'fingering' : step === 2 ? 'memory' : 'full'}
+          stage={step === 1 ? 'fingering' : 'memory'}
           onBeforePlay={stopPlayback} stopHandleRef={melodyStop} />}
         {step === 3 && <BackingTrackMixer />}
         <div className="journey-next">

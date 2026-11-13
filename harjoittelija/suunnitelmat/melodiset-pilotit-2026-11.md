@@ -119,13 +119,24 @@ lähteen mukainen, mutta kitaralle oktaavia alempaa.
 - **Soita muistista** -vaiheessa melodiaharjoitus on myös suljettu.
   Avattaessa tabulatuuri sekä sävelten valmiit otelautavihjeet ovat
   piilossa. Ne voi näyttää erillisillä painikkeilla.
-- **Improvisointi** säilyy varsinaisena harjoituksena. Pidempi
-  melodia on siinä erillinen, **oletuksena suljettu valinnainen
-  harjoitus ennen improvisointia**. Säestys ei edellytä melodian avaamista.
+- **Soita muistista** sisältää pidemmän yhdistetyn melodian, jonka
+  oppija on jo opiskellut A- ja B-osina aiemmassa vaiheessa.
+  Tässä ei ole enää A/B-valintaa. Wayfaring Strangerissa kokonaisuus
+  on A+B+C (6 tahtia), Ukko Nooassa A+B (4 tahtia) ja positionvaihdossa
+  A+B (4 tahtia). Koko harjoitus on valinnaisesti avattava.
+- **Improvisointi** säilyy viimeisenä varsinaisena harjoituksena ja
+  sisältää vain improvisointiohjeet sekä oman sointupulssin/taustan.
+  Pidemmälle melodialle ei ole enää siellä toista kopiota.
+- C-joonisen **oma B → C -lisämotiivi** on opetteluvaiheen erillisenä
+  valintana eikä osa Ukko Nooan pidempää melodiaa.
 - Avatussa melodiaharjoituksessa näytetään sama `Board`-otelauta
   kuin asteikon sormituksessa: melodiaan kuuluvat kieli+nauha-paikat
   ja parhaillaan soiva paikka korostuvat keltaisella. Tauoissa
   korostus poistetaan, eikä vanha nuotti jää virheellisesti näkyviin.
+- **Tabulatuuri on oletuksena piilossa** myös sormituksen
+  melodiaharjoituksessa ja muistivaiheessa. `Näytä tabulatuuri`
+  palauttaa sen tarvittaessa, ja `Näytä otelaudan sävelvihjeet`
+  toimii edelleen muistiharjoituksessa.
 - Tabulatuuri jää vaihtoehtoiseksi tueksi, ei ainoaksi tavaksi
   seurata soittoa. Otelaudan alue rajautuu valitun katkelman
   todellisiin kieliin ja nauhoihin, mutta kaikki kuusi kieltä
