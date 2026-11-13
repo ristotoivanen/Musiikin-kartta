@@ -11,7 +11,7 @@ test.describe('Skaalat ja moodit -valinta', () => {
     await page.locator('.scale-tracks .learning-card').filter({ hasText: 'Pentatoniset' }).click();
     await expect(page.getByRole('heading', { name: 'A-mollipentatoninen · positio 1' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Soita muistista' })).toBeVisible();
-    await page.getByRole('button', { name: /Oppimispolut/ }).first().click();
+    await page.getByRole('button', { name: '← Valitse harjoittelupolku' }).click();
     await expect(page.getByRole('heading', { name: 'Mitä haluat opetella?' })).toBeVisible();
     expect(await page.evaluate(() => localStorage.getItem('musiikin-kartta:skaalapolku:v1'))).toBe('2');
   });
