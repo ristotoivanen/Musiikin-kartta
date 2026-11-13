@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { fretName, music, note, positionKey, positions, stringName, type Position } from './music';
 import type { Area, Mark } from './engine';
 import { accuracy, averageMs, proficiency, type Stat } from './storage';
+import { useFollowScroll } from './followScroll';
 
 const INLAYS = new Set([3, 5, 7, 9, 15, 17, 19, 21]);
 const STRING_LABELS = ['e', 'B', 'G', 'D', 'A', 'E'];
@@ -27,9 +28,14 @@ function FretHeader({ min, max }: { min: number; max: number }) {
 /**
  * Vastausotelauta. Semanttinen taulukko: rivit ovat kielet (ohut E ylimpänä, kuten tabulatuurissa),
  * sarakkeet nauhat. Nuolinäppäimet, Home ja End siirtävät kohdistusta, Enter vastaa.
+ *
+ * Kapealla näytöllä otelauta vierii sivusuunnassa. `follow` valitsee, mitä se tuo itse näkyviin:
+ * - 'hints' (oletus, harjoitustehtävät): vastaus- tai apupiste keskitetään, kun ne muuttuvat.
+ * - 'playing' (mallisoitot): otelauta alkaa alueen alusta ja seuraa soivaa säveltä vain tarvittaessa.
+ *   Käyttäjän oma vieritys keskeyttää seurannan hetkeksi (followScroll.ts).
  */
-export function Board({ area, marks = [], mutedStrings = [], disabled = false, onAnswer, caption = 'Otelauta' }:
-  { area: Area; marks?: Mark[]; mutedStrings?: number[]; disabled?: boolean; onAnswer?: (p: Position) => void; caption?: string }) {
+export function Board({ area, marks = [], mutedStrings = [], disabled = false, onAnswer, caption = 'Otelauta', follow = 'hints' }:
+  { area: Area; marks?: Mark[]; mutedStrings?: number[]; disabled?: boolean; onAnswer?: (p: Position) => void; caption?: string; follow?: 'hints' | 'playing' }) {
   const columns = { '--cols': area.max - area.min + 1 } as CSSProperties;
   const { strings, min, max } = area;
   const [cursor, setCursor] = useState({ string: Math.min(...strings), fret: min });
@@ -38,9 +44,16 @@ export function Board({ area, marks = [], mutedStrings = [], disabled = false, o
   const shown = marks.map(m => `${positionKey(m)}${m.kind}`).join(',');
   useEffect(() => {
     // Tuo vihje tai vastaus näkyviin vierittämällä vain otelautaa, ei koko sivua.
+    if (follow !== 'hints') return;
     const box = viewport.current, target = box?.querySelector<HTMLElement>('.target, .anchor');
     if (box && target) box.scrollLeft += target.getBoundingClientRect().left - box.getBoundingClientRect().left - box.clientWidth / 2 + target.clientWidth / 2;
-  }, [shown]);
+  }, [shown, follow]);
+  // Mallisoitossa otelauta alkaa alueen alusta, kun alue vaihtuu, eikä hyppää kotisävelen kohdalle.
+  useEffect(() => {
+    if (follow === 'playing' && viewport.current) viewport.current.scrollLeft = 0;
+  }, [follow, min, max]);
+  const playing = marks.find(m => m.kind === 'playing');
+  useFollowScroll(viewport, '.playing', playing ? positionKey(playing) : '', { stickySelector: 'tbody th', enabled: follow === 'playing' });
   // Kapealla näytöllä osa nauhoista jää vierityksen taakse: kerro, kummalla puolella niitä on.
   const [more, setMore] = useState({ left: false, right: false });
   useEffect(() => {

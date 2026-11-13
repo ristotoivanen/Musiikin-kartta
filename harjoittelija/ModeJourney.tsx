@@ -3,7 +3,7 @@ import { Board } from './Board';
 import { MelodyPractice } from './MelodyPractice';
 import { ReferencePlayer, referenceAudioError } from './audio';
 import type { Mark } from './engine';
-import { note, pc } from './music';
+import { note, pc, stringName } from './music';
 import { MODE_ACTIVE_KEY, MODE_LESSONS, MODE_ORDER, modeOnce, modeProgressKey, type ModeId } from './modeData';
 
 const STEPS = [
@@ -276,17 +276,18 @@ export function ModeJourney({ onBack }: { onBack: () => void }) {
         </button>
       </div>}
 
+      {/* Soiva kohta myös tekstinä otelaudan yläpuolella: sävel, kieli ja nauha soitettavasta positiosta. */}
+      {step < 2 && playing === 'scale' && activePosition && <p className="tools-note" role="status">
+        Nyt soi: {note(activePosition.midi, false, true)} · {stringName[activePosition.string]}-kieli, nauha {activePosition.fret}.
+      </p>}
       {step !== 3 && step !== 5 && <Board
-        area={{ strings, min, max, fixed: 'box' }} marks={marks}
+        area={{ strings, min, max, fixed: 'box' }} marks={marks} follow="playing"
         disabled caption={lesson.title + ' – yhden oktaavin sormitus'} />}
       {modeId === 'ionian' && (step === 1 || step === 2) && <MelodyPractice
         key={`nooa:${step}`} pieceId="nooa"
         stage={step === 1 ? 'fingering' : 'memory'}
         onBeforePlay={stopPlayback} stopHandleRef={melodyStop} />}
 
-      {step < 2 && playing === 'scale' && activePosition && <p className="tools-note" role="status">
-        Nyt soi: {note(activePosition.midi)} · nauha {activePosition.fret}.
-      </p>}
       {audioError && <p className="error" role="alert">{audioError}</p>}
 
       {step < 5 && <div className="journey-next">

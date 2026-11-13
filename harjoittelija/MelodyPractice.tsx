@@ -4,6 +4,7 @@ import { Board } from './Board';
 import type { Mark } from './engine';
 import { clipSound, melodyPieces, type MelodyClip, type MelodyId } from './melodyData';
 import { note, pc, positionKey } from './music';
+import { useFollowScroll } from './followScroll';
 
 type Stage = 'fingering' | 'memory';
 type Choice = 'a' | 'b' | 'whole' | 'bonus';
@@ -65,6 +66,9 @@ export function MelodyPractice({ pieceId, stage, onBeforePlay, stopHandleRef }: 
   const sounding = clipSound(clip);
   const activeBeat = activeIndex === null ? null : sounding[activeIndex]?.beat ?? null;
   const activePosition = activeBeat === null ? null : clip.events.find(e => e.beat === activeBeat)?.position ?? null;
+  // Tabulatuuri seuraa soivaa saraketta samoin periaattein kuin otelauta (followScroll.ts).
+  const tabScroll = useRef<HTMLDivElement>(null);
+  useFollowScroll(tabScroll, '.melody-playing', playing && activeBeat !== null ? String(activeBeat) : '', { enabled: expanded && showTab });
   const bars = clip.beats / 4;
   const uniquePositions = [...new Map(clip.events.filter(event => event.position)
     .map(event => [positionKey(event.position!), event.position!] as const)).values()];
@@ -159,7 +163,7 @@ export function MelodyPractice({ pieceId, stage, onBeforePlay, stopHandleRef }: 
         : playing ? 'Melodia soi kerran ja pysähtyy itsestään.' : 'Kuuntele malli tai soita katkelma itse.'}
     </p>
     <div className="melody-board" aria-label="Melodian sävelet otelaudalla">
-      <Board area={boardArea} marks={marks} disabled caption={`${piece.title}, ${selection.name}`} />
+      <Board area={boardArea} marks={marks} disabled follow="playing" caption={`${piece.title}, ${selection.name}`} />
       <div className="melody-board-actions">
         <button type="button" aria-pressed={showBoardNotes}
           onClick={() => setShowBoardNotes(value => !value)}>
@@ -168,7 +172,7 @@ export function MelodyPractice({ pieceId, stage, onBeforePlay, stopHandleRef }: 
         <p className="tools-note">Keltainen korostus kertoo soivan sävelen sekä oikean kielen ja nauhan. Muistiharjoituksessa muut sävelet voi pitää piilossa.</p>
       </div>
     </div>
-    {showTab && <div className="melody-tab-scroll" tabIndex={0} role="region" aria-label="Melodian tabulatuuri">
+    {showTab && <div ref={tabScroll} className="melody-tab-scroll" tabIndex={0} role="region" aria-label="Melodian tabulatuuri">
       <table className="melody-tab" aria-label={`${piece.title}, ${selection.name}, kitaratabulatuuri`}>
         <thead>
           <tr><th scope="col">Kieli</th>{clip.events.map((event, i) =>
