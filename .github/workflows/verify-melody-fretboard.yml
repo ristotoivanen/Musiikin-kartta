@@ -1,0 +1,34 @@
+name: Verify collapsible melody fretboard lessons
+
+on:
+  push:
+    branches: [fix/melodiaharjoitukset-otelauta-ja-avattavat]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: melody-fretboard-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout feature
+        uses: actions/checkout@v4
+      - name: Node setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Check code, unit tests and browser bundle
+        run: npm run check
+      - name: Check existing MP3 inventory
+        run: npm run check:song-audio
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run all browser tests
+        run: npm run test:e2e -- --workers=2
