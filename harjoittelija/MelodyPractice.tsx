@@ -57,6 +57,7 @@ export function MelodyPractice({ pieceId, stage, onBeforePlay, stopHandleRef }: 
   const clip = selection.clip;
   const sounding = clipSound(clip);
   const activeBeat = activeIndex === null ? null : sounding[activeIndex]?.beat ?? null;
+  const activePosition = activeBeat === null ? null : clip.events.find(e => e.beat === activeBeat)?.position ?? null;
   const bars = clip.beats / 4;
 
   async function play() {
@@ -123,7 +124,7 @@ export function MelodyPractice({ pieceId, stage, onBeforePlay, stopHandleRef }: 
     {error && <p role="alert" className="error">{error}</p>}
     <p className="melody-now" aria-live="polite" role="status">
       {playing && activeIndex !== null
-        ? `Nyt soi ${note(sounding[activeIndex].midi)} · ${STRINGS[sounding[activeIndex].midi === -1 ? 0 : clip.events.find(e => e.beat === activeBeat)?.position?.string ?? 0]}-kieli, ${clip.events.find(e => e.beat === activeBeat)?.position?.fret}. nauha`
+        ? `Nyt soi ${note(sounding[activeIndex].midi)} · ${STRINGS[activePosition!.string]}-kieli, ${activePosition!.fret}. nauha`
         : playing ? 'Melodia soi kerran ja pysähtyy itsestään.' : 'Kuuntele malli tai soita katkelma itse.'}
     </p>
     {showTab && <div className="melody-tab-scroll" tabIndex={0} role="region" aria-label="Melodian tabulatuuri">
