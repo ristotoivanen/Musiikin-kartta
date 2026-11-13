@@ -4,9 +4,11 @@
  * Raitojen keskinäinen tasapaino on sama kuin ennen säädintä. Säädin kertoo kaikki kolme tasoa
  * samalla prosentilla, joten 100 % vastaa aiempaa toistovoimakkuutta.
  *
- * iOS Safari ei salli HTMLMediaElement.volume-arvon muuttamista (arvo pysyy 1:nä). Silloin raidat
- * ohjataan Web Audio API:n GainNodeihin. Ohjaus tehdään vasta käyttäjän painalluksesta, ja jokainen
- * audioelementti kytketään vain kerran, joten raitaa ei kuulu kahteen kertaan.
+ * iOS Safari ei käytä HTMLMediaElement.volume-arvoa äänessä. Arvo kuitenkin tallentuu ja luetaan
+ * takaisin, joten lukutesti ei tunnista iPhonea (havaittu fyysisellä iPhonella 13.11.2026: säädin ei
+ * toiminut). iOS-laitteella raidat ohjataan siksi aina Web Audio API:n GainNodeihin. Ohjaus tehdään
+ * vasta käyttäjän painalluksesta, ja jokainen audioelementti kytketään vain kerran, joten raitaa ei
+ * kuulu kahteen kertaan.
  */
 export type SongTrack = 'backing' | 'guitar' | 'vocals';
 export const TRACK_BALANCE: Record<SongTrack, number> = { backing: 0.85, guitar: 0.78, vocals: 0.78 };
@@ -34,7 +36,11 @@ export function trackLevel(track: SongTrack, volume: number, audible = true): nu
   return TRACK_BALANCE[track] * parseSongVolume(String(volume)) / 100;
 }
 
-/** Tukeeko selain audioelementin volume-arvoa (iOS Safari ei tue). */
+/**
+ * Muuttuuko audioelementin volume-arvo luettaessa? Tämä tunnistaa vanhemman iOS:n (arvo pysyy 1:nä),
+ * mutta ei nykyistä: iOS palauttaa asetetun arvon, vaikka ei käytä sitä. Äänenvoimakkuuden tapa
+ * valitaan siksi funktiolla songVolumeMode.
+ */
 export function elementVolumeWorks(create: () => HTMLMediaElement = () => new Audio()): boolean {
   try {
     const probe = create();
@@ -152,6 +158,29 @@ export class StemAligner {
   }
 }
 
+/** iPhone, iPod tai iPad, myös iPadOS:n työpöytätila (MacIntel ja kosketusnäyttö). Kaikki iOS-selaimet ovat WebKitiä. */
+export function isIOSDevice(nav: Pick<Navigator, 'userAgent' | 'platform' | 'maxTouchPoints'> | undefined = globalThis.navigator): boolean {
+  if (!nav) return false;
+  return /iPhone|iPad|iPod/.test(nav.userAgent) || (nav.platform === 'MacIntel' && nav.maxTouchPoints > 1);
+}
+
+/** Äänenvoimakkuuden toteutus: iOS-laitteella aina GainNode, muualla elementin volume, jos se toimii. */
+export function songVolumeMode(ios = isIOSDevice(), volumeWorks: () => boolean = () => elementVolumeWorks()): 'element' | 'webaudio' {
+  if (ios) return 'webaudio';
+  return volumeWorks() ? 'element' : 'webaudio';
+}
+
+type AudioSessionLike = { type: string };
+/**
+ * iOS:n Web Audio noudattaa oletuksena äänetön-kytkintä (istunto 'ambient'). GainNodeen reititetty
+ * kappale vaimenisi silloin kokonaan, vaikka tavallinen audioelementti soi. 'playback' vastaa
+ * audioelementin aiempaa toimintaa (iOS 17+, muualla ominaisuutta ei ole).
+ */
+function preferPlaybackSession(nav: unknown = globalThis.navigator) {
+  const session = (nav as { audioSession?: AudioSessionLike } | undefined)?.audioSession;
+  if (session && session.type !== 'playback') session.type = 'playback';
+}
+
 type ContextFactory = () => AudioContext;
 const defaultContext: ContextFactory = () => {
   const Context = globalThis.AudioContext ??
@@ -164,18 +193,27 @@ const defaultContext: ContextFactory = () => {
 export class SongGainMixer {
   private context: AudioContext | null = null;
   private gains = new WeakMap<HTMLMediaElement, GainNode>();
-  constructor(private create: ContextFactory = defaultContext) {}
+  /** Viimeisin virhe käyttäjälle ja diagnostiikalle: virheitä ei niellä hiljaa. */
+  lastError = '';
+  constructor(private create: ContextFactory = defaultContext, private nav: unknown = globalThis.navigator) {}
+
+  /** Web Audion tila ('running', 'suspended', 'interrupted' iOS:llä, 'closed') tai 'none'. */
+  get state(): string { return this.context?.state ?? 'none'; }
 
   /** Kutsutaan käyttäjän painalluksesta ennen play()-kutsuja. */
   unlock(): boolean {
     try {
+      try { preferPlaybackSession(this.nav); } catch (cause) { this.lastError = 'Ääni-istunnon asetus epäonnistui: ' + String(cause); }
       if (!this.context || this.context.state === 'closed') {
         this.context = this.create();
         this.gains = new WeakMap();
       }
-      if (this.context.state !== 'running') void this.context.resume().catch(() => {});
+      if (this.context.state !== 'running') {
+        void this.context.resume().catch(cause => { this.lastError = 'Web Audio ei käynnistynyt: ' + String(cause); });
+      }
       return true;
-    } catch {
+    } catch (cause) {
+      this.lastError = 'Web Audio ei ole käytettävissä: ' + String(cause);
       return false;
     }
   }
@@ -191,7 +229,8 @@ export class SongGainMixer {
       gain.connect(this.context.destination);
       this.gains.set(element, gain);
       return true;
-    } catch {
+    } catch (cause) {
+      this.lastError = 'Raidan kytkentä äänenvoimakkuussäätimeen epäonnistui: ' + String(cause);
       return false;
     }
   }
@@ -203,6 +242,12 @@ export class SongGainMixer {
   setLevel(element: HTMLMediaElement, level: number) {
     const gain = this.gains.get(element);
     if (gain) gain.gain.value = level;
+  }
+
+  /** Raidan nykyinen GainNode-taso tai null, jos raitaa ei ole kytketty. */
+  level(element: HTMLMediaElement | null): number | null {
+    const gain = element ? this.gains.get(element) : undefined;
+    return gain ? gain.gain.value : null;
   }
 
   close() {

@@ -233,15 +233,30 @@ versionvaihdossa. Mykistys hoidetaan edelleen `muted`-ominaisuudella.
 
 - Työpöytäselaimissa taso asetetaan `HTMLMediaElement.volume`-arvolla, joten
   toisto, kelaus ja synkronointi toimivat kuten ennen.
-- iOS Safarissa `volume` ei muutu (pysyy 1:nä). Sivu tunnistaa tämän ja
-  ohjaa raidat ensimmäisestä Soita-painalluksesta alkaen Web Audio API:n
-  GainNodeihin. AudioContext luodaan ja käynnistetään painalluksen aikana,
-  ja jokainen audioelementti kytketään vain kerran, jolloin ääni kulkee
-  vain GainNoden kautta eikä kuulu kahteen kertaan. Mykistetyn raidan
-  GainNode asetetaan lisäksi nollaan.
-- **Rajoitus:** GainNode-reitti on testattu Playwrightilla simuloimalla
-  iOS:n toiminta (volume-arvo ei muutu, AudioContext korvattu
-  kirjaavalla tynkäversiolla). Sitä ei ole testattu fyysisellä iPhonella.
+- iOS:llä `volume` ei vaikuta ääneen. Nykyinen iOS kuitenkin tallentaa
+  asetetun arvon ja palauttaa sen luettaessa, joten pelkkä lukutesti ei
+  tunnista iPhonea. Siksi säädin ei toiminut fyysisellä iPhonella
+  13.11.2026 (issue #9). iOS-laitteella (iPhone, iPod, iPad ja iPadOS:n
+  työpöytätila) raidat ohjataan siksi aina ensimmäisestä Soita-painalluksesta
+  alkaen Web Audio API:n GainNodeihin (`songVolumeMode`). AudioContext luodaan
+  ja käynnistetään painalluksen aikana, ja jokainen audioelementti kytketään
+  vain kerran, jolloin ääni kulkee vain GainNoden kautta eikä kuulu kahteen
+  kertaan. Mykistetyn raidan GainNode asetetaan lisäksi nollaan.
+- iOS:n Web Audio noudattaa oletuksena äänetön-kytkintä. Siksi reitityksen
+  yhteydessä asetetaan `navigator.audioSession.type = 'playback'` (iOS 17+),
+  jotta kappale soi äänettömässäkin tilassa kuten ennen. Asetus koskee koko
+  sivua, joten myös skaalojen mallisoitto soi sen jälkeen äänettömässä tilassa.
+- Jos reititys epäonnistuu, säätimen alla kerrotaan, ettei äänenvoimakkuutta
+  voi säätää, ja syy. Jos Web Audio ei käynnisty, näytetään virhe.
+- **Tilapäinen diagnostiikka:** `kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta&aanidiagnostiikka=1`
+  näyttää tilan, AudioContextin, ääni-istunnon ja raitojen GainNode-tasot
+  (`SongAudioDiagnostics.tsx`). Poistetaan, kun korjaus on vahvistettu
+  fyysisellä iPhonella.
+- **Rajoitus:** GainNode-reitti on testattu Playwrightilla (Chromium)
+  mittaamalla todellinen signaali ennen GainNodea ja sen jälkeen. Fyysisellä
+  iPhonella se on vahvistamatta. `initialSeekLatency` tunnistaa iPhonen yhä
+  lukutestillä, joten tahdistimen aloitusviive on iPhonella todennäköisesti 0
+  eikä 0,4 s. Tahdistin oppii viiveen, eikä sitä muutettu ilman mittausta.
   Jos iOS keskeyttää AudioContextin (esim. puhelu tai taustalle
   siirtyminen), seuraava Soita-painallus käynnistää sen uudelleen.
 
