@@ -1,6 +1,7 @@
 // Edistymisen merkintä ja vanhojen lukulinkkien ohjaus.
 //
-// Lukija voi merkitä luvun tehdyksi, ja etusivu näyttää osien edistymisen sekä seuraavan luvun.
+// Lukija voi merkitä luvun tehdyksi. Musiikin teoria -sivu (book/index.html) näyttää osien ja
+// kokonaisuuksien edistymisen sekä seuraavan luvun, ja etusivu lyhyen jatkamislinkin.
 // Tieto tallentuu vain tämän selaimen localStorageen; jos tallennus ei ole käytössä (esimerkiksi
 // yksityinen ikkuna), painikkeet toimivat sivun ajan mutta merkinnät eivät säily.
 //
@@ -67,15 +68,21 @@
     try { localStorage.setItem(KEY, JSON.stringify([...done])); } catch { /* tallennus ei käytössä */ }
   }
 
+  const ALL = PARTS.flatMap(part => part.chapters.map(([id, num, title]) => ({ part, id, num, title })));
+  const nextChapter = done => ALL.find(({ id }) => !done.has(id));
+  const partCount = (part, done) => part.chapters.filter(([id]) => done.has(id)).length;
+
   const page = location.pathname.match(/(osa-\d+)(?:\.html)?\/?$/);
   const current = page && PARTS.find(part => part.slug === page[1]);
   if (current) {
     followMovedAnchor();
     window.addEventListener('hashchange', followMovedAnchor);
     setupPart(current);
-  } else if (document.querySelector('.parts')) {
+  } else if (document.getElementById('teoria-aloitus')) {
+    setupTheoryHome();
+  } else if (document.querySelector('.hero-actions')) {
     setupPracticeSummary();
-    setupIndex();
+    setupFrontPage();
   }
 
   function followMovedAnchor() {
@@ -146,22 +153,12 @@
     refresh();
   }
 
-  function setupIndex() {
+  // Musiikin kartan etusivu: vain lyhyt jatkamislinkki, osien lista on Musiikin teoria -sivulla.
+  function setupFrontPage() {
     const done = load();
-    if (!done.size) return;
-    PARTS.forEach(part => {
-      const card = document.querySelector('a.part-link[href="book/' + part.slug + '.html"]');
-      const count = part.chapters.filter(([id]) => done.has(id)).length;
-      if (!card || !count) return;
-      const note = document.createElement('span');
-      note.className = 'part-progress';
-      note.textContent = count === part.chapters.length ? '✓ Kaikki luvut tehty' : count + '/' + part.chapters.length + ' lukua tehty';
-      card.querySelector('.part-action')?.before(note);
-    });
-    const next = PARTS.flatMap(part => part.chapters.map(([id, num, title]) => ({ part, id, num, title })))
-      .find(({ id }) => !done.has(id));
     const actions = document.querySelector('.hero-actions');
-    if (!actions) return;
+    if (!done.size || !actions) return;
+    const next = nextChapter(done);
     const p = document.createElement('p');
     p.className = 'continue';
     if (next) {
@@ -170,8 +167,75 @@
       link.textContent = (next.part.advanced ? 'Peruspolku on tehty. Syventävä luku ' : 'Jatka: luku ') + next.num + ' · ' + next.title;
       p.append(link);
     } else {
-      p.textContent = 'Olet merkinnyt kaikki 28 lukua tehdyiksi.';
+      p.textContent = 'Olet merkinnyt kaikki ' + ALL.length + ' lukua tehdyiksi.';
     }
     actions.after(p);
+  }
+
+  // Musiikin teoria -aloitusnäkymä (book/index.html): jatkamiskortti sekä osien ja
+  // kokonaisuuksien merkinnät. Kaikki luvut perustuvat tallennettuihin lukumerkintöihin.
+  function setupTheoryHome() {
+    const done = load();
+    const titleOf = slug => document.querySelector('[data-part="' + slug + '"] strong')?.textContent.trim() ?? '';
+
+    PARTS.forEach(part => {
+      const status = document.querySelector('[data-part="' + part.slug + '"] .part-status');
+      const count = partCount(part, done);
+      if (!status || !count) return;
+      const all = count === part.chapters.length;
+      status.textContent = all ? '✓ Valmis' : count + '/' + part.chapters.length + ' lukua tehty';
+      status.classList.toggle('is-done', all);
+    });
+    document.querySelectorAll('details.group').forEach(group => {
+      const parts = [...group.querySelectorAll('[data-part]')].map(li => PARTS.find(part => part.slug === li.dataset.part)).filter(Boolean);
+      const total = parts.reduce((sum, part) => sum + part.chapters.length, 0);
+      const count = parts.reduce((sum, part) => sum + partCount(part, done), 0);
+      const note = group.querySelector('.group-progress');
+      if (note && count) note.textContent = count === total ? '✓ Kaikki ' + total + ' lukua tehty' : count + '/' + total + ' lukua tehty';
+    });
+
+    const card = document.getElementById('jatka');
+    if (card && done.size) {
+      const next = nextChapter(done);
+      const count = ALL.filter(({ id }) => done.has(id)).length;
+      const label = card.querySelector('.resume-label');
+      const title = card.querySelector('.resume-title');
+      const note = card.querySelector('.resume-note');
+      const action = card.querySelector('.resume-action');
+      if (next) {
+        label.textContent = next.part.advanced ? 'Peruspolku on tehty · jatka syventäviin osiin' : 'Jatka siitä, mihin jäit';
+        title.textContent = next.part.name + ' · ' + titleOf(next.part.slug);
+        const chapter = document.createElement('p');
+        chapter.className = 'resume-chapter';
+        chapter.textContent = 'Seuraavana luku ' + next.num + ' · ' + next.title;
+        title.after(chapter);
+        action.href = next.part.slug + '.html#' + next.id;
+        action.textContent = 'Jatka opiskelua';
+      } else {
+        label.textContent = 'Kaikki luvut tehty';
+        title.textContent = 'Olet merkinnyt kaikki ' + ALL.length + ' lukua tehdyiksi.';
+        action.href = '#kokonaisuudet';
+        action.textContent = 'Kertaa osia';
+      }
+      note.textContent = count + '/' + ALL.length + ' lukua merkitty tehdyiksi tässä selaimessa.';
+      const bar = document.createElement('span');
+      bar.className = 'resume-bar';
+      bar.setAttribute('aria-hidden', 'true');
+      const fill = document.createElement('span');
+      fill.style.width = (100 * count / ALL.length).toFixed(1) + '%';
+      bar.append(fill);
+      note.after(bar);
+    }
+
+    // Suora linkki kokonaisuuteen (#kokonaisuus-2) tai lähtötason valintaan avaa sen.
+    function openTarget() {
+      let id = location.hash.slice(1);
+      try { id = decodeURIComponent(id); } catch { /* käytetään sellaisenaan */ }
+      const target = id && document.getElementById(id);
+      const details = target?.closest('details');
+      if (details) details.open = true;
+    }
+    openTarget();
+    window.addEventListener('hashchange', openTarget);
   }
 })();

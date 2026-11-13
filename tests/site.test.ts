@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { Script } from 'node:vm';
 import { describe,it,expect } from 'vitest';
 import ts from 'typescript';
@@ -27,7 +27,7 @@ describe('staattisen sivuston yhteensopivuus',()=>{
     expect(visualizer).not.toContain('<audio');
     expect(visualizer).toContain('Sormitusboksit ja näyttöasetukset');
     expect(redirect).toContain('otelautaharjoittelija.html');
-    expect(home).toContain('Tutki otelautakarttaa');
+    expect(home).toContain('Tutki otelautaa');
     expect(home).not.toContain('Soita taustan mukana');
   });
 
@@ -40,5 +40,51 @@ describe('staattisen sivuston yhteensopivuus',()=>{
     expect(read('book/osa-7.html')).toContain('data-korvatreeni="aste"');
     expect(read('book/osa-7.html')).toContain('data-korvatreeni="sointu"');
     expect(read('book/osa-8.html')).toContain('assets/audio/osa-8/em-c-tausta.m4a');
+  });
+
+  it('jokaisella pääsivulla on sama päävalikko samassa järjestyksessä ja oikea aktiivinen osio',()=>{
+    const pages:[string,string|null,string][]=[
+      ['index.html',null,'page'],['book/index.html','teoria','page'],['otelautaharjoittelija.html','otelauta','page'],['kitaraharjoittelija.html','kitara','page'],
+      ...readdirSync(new URL('../book/',import.meta.url)).filter(f=>f.endsWith('.html')&&f!=='index.html').map(f=>['book/'+f,'teoria','true'] as [string,string,string]),
+    ];
+    const targets={teoria:'book/index.html',otelauta:'otelautaharjoittelija.html',kitara:'kitaraharjoittelija.html'};
+    for(const [file,active,kind] of pages){
+      const html=read(file);
+      const nav=html.match(/<nav class="main-nav" aria-label="Päävalikko">([\s\S]*?)<\/nav>/)?.[1];
+      expect(nav,file).toBeDefined();
+      expect(html.match(/class="main-nav"/g),file).toHaveLength(1);
+      expect(html,file).toContain('assets/paavalikko.css');
+      const base=file.includes('/')?file.slice(0,file.lastIndexOf('/')+1):'';
+      const links=[...nav!.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)].map(([,attrs,inner])=>({
+        attrs, href:new URL(attrs.match(/href="([^"]+)"/)![1],'https://x/'+base).pathname.slice(1),
+        text:inner.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim(),
+      }));
+      expect(links.map(l=>l.href),file).toEqual(['index.html',targets.teoria,targets.otelauta,targets.kitara]);
+      expect(links.map(l=>l.text),file).toEqual(['Musiikin kartta','Musiikin teoria Teoria','Otelautaopas','Kitaraharjoittelu']);
+      const current=links.filter(l=>l.attrs.includes('aria-current'));
+      expect(current,file).toHaveLength(1);
+      expect(current[0].href,file).toBe(active?targets[active as keyof typeof targets]:'index.html');
+      expect(current[0].attrs,file).toContain(`aria-current="${kind}"`);
+    }
+  });
+
+  it('teoriasivun neljä kokonaisuutta kattavat jokaisen oppaan osan täsmälleen kerran',()=>{
+    const html=read('book/index.html');
+    const titles=[...html.matchAll(/<details class="group" id="kokonaisuus-(\d)">[\s\S]*?<strong>([^<]+)<\/strong>/g)].map(m=>m[1]+' '+m[2]);
+    expect(titles).toEqual(['1 Musiikin perusteet','2 Otelauta ja sointujen hahmottaminen','3 Kuuntele, improvisoi ja soita','4 Syventävät ja jatko-osat']);
+    const parts=[...html.matchAll(/<li data-part="(osa-\d+)"><a href="(osa-\d+)\.html">/g)];
+    for(const [,slug,href] of parts) expect(href).toBe(slug);
+    const files=readdirSync(new URL('../book/',import.meta.url)).filter(f=>/^osa-\d+\.html$/.test(f)).map(f=>f.replace('.html','')).sort();
+    expect(parts.map(m=>m[1]).sort()).toEqual(files);
+    // Edistymistaulukon osat ovat samat kuin aloitussivun osat, jotta jatkamiskortti ja merkinnät osuvat oikein.
+    const table=[...read('assets/edistyminen.js').matchAll(/\{ slug: '(osa-\d+)'/g)].map(m=>m[1]).sort();
+    expect(table).toEqual(files);
+  });
+
+  it('edistymisen tallennusavaimet ovat ennallaan eikä teoria lue harjoittelijan tuloksia jatkamiskorttiin',()=>{
+    const js=read('assets/edistyminen.js');
+    expect(js).toContain("const KEY = 'musiikin-kartta:luvut';");
+    expect(js).toContain("const OLD_KEY = 'musiikin-kartta:tehdyt';");
+    expect(js).not.toMatch(/localStorage\.(setItem|removeItem)\('musiikin-kartta:harjoittelu'/);
   });
 });

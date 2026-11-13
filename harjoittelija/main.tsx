@@ -2,7 +2,7 @@ import { useEffect, useReducer, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Board } from './Board';
 import { Controls, modeTitle, settingsSummary } from './Controls';
-import { LearningPaths, type LearningTrack } from './LearningPaths';
+import { LearningPaths, trackFromURL, type LearningTrack } from './LearningPaths';
 import { ScaleJourney } from './ScaleJourney';
 import { NoteJourney } from './NoteJourney';
 import { ChordJourney } from './ChordJourney';
@@ -68,8 +68,16 @@ function App() {
     const params = new URLSearchParams(location.search);
     if (params.has('tila') || params.has('vanha')) return 'legacy';
     if (isSongLink(params.get('kappale'))) return 'songs';
-    return null;
+    return trackFromURL(params.get('polku'));
   });
+  /** Palaa polkujen valintaan. Suora ?polku=-linkki poistetaan osoitteesta, jotta päivitys ei avaa polkua uudelleen. */
+  function backToPaths() {
+    setTrack(null);
+    const url = new URL(location.href);
+    if (!url.searchParams.has('polku')) return;
+    url.searchParams.delete('polku');
+    history.replaceState(history.state, '', url.pathname + url.search + url.hash);
+  }
 
   const refreshDevices = () => void listInputDevices().then(setDevices).catch(() => {});
   function stopCalibration() { clearTimeout(calibrationTimer.current); calibrationSamples.current = null; setCalibrating(false); }
@@ -331,19 +339,19 @@ function App() {
   if (!inRound && track === null) return <>{introduction}{notice}
     <LearningPaths onSelect={selectTrack} /></>;
   if (!inRound && track === 'scales') return <>{introduction}{notice}
-    <ScaleJourney onBack={() => setTrack(null)} /></>;
+    <ScaleJourney onBack={backToPaths} /></>;
   if (!inRound && track === 'ear') return <>{introduction}{notice}
-    <NoteJourney onBack={() => setTrack(null)} /></>;
+    <NoteJourney onBack={backToPaths} /></>;
   if (!inRound && track === 'chords') return <>{introduction}{notice}
-    <ChordJourney onBack={() => setTrack(null)} /></>;
+    <ChordJourney onBack={backToPaths} /></>;
   if (!inRound && track === 'songs') return <>{introduction}{notice}
-    <SongJourney onBack={() => setTrack(null)} /></>;
+    <SongJourney onBack={backToPaths} /></>;
 
   return <>
     {introduction}{notice}
     <p className="exercise-theory"><a href={theoryHref}>Lue tämän harjoituksen teoria: {theoryTitle} →</a></p>
     {track !== 'legacy' && <section className="selected-track" aria-label="Valittu oppimispolku">
-      <button type="button" className="back-link" onClick={() => { if (inRound) finish(); setTrack(null); }}>← Oppimispolut</button>
+      <button type="button" className="back-link" onClick={() => { if (inRound) finish(); backToPaths(); }}>← Oppimispolut</button>
       <h2>{track === 'ear' ? 'Sävelkorva ja otelauta' : 'Soinnut ja musiikin rakenne'}</h2>
       <p>{track === 'ear' ? 'Ensimmäinen harjoitus: Kuule sävel ja etsi se kitarasta. Sama vanha kuunteluharjoitus selkeässä aloitusnäkymässä.' :
         'Ensimmäinen harjoitus: Rakenna C-duurisointua sen sävelistä C, E ja G. Tämä käyttää nykyistä Sointusävelet-harjoitusta.'}</p>

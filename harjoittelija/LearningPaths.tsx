@@ -1,5 +1,11 @@
 export type LearningTrack = 'ear' | 'scales' | 'chords' | 'songs';
 
+/** Suorat linkit polkuihin (kitaraharjoittelija.html?polku=otelauta), esimerkiksi Otelautaoppaan alavalikosta. */
+const URL_TRACKS: Record<string, LearningTrack> = { otelauta: 'ear', asteikot: 'scales', soinnut: 'chords', kappaleet: 'songs' };
+export function trackFromURL(value: string | null): LearningTrack | null {
+  return value && Object.hasOwn(URL_TRACKS, value) ? URL_TRACKS[value] : null;
+}
+
 const tracks: { id: LearningTrack; number: string; title: string; description: string; example: string }[] = [
   { id: 'ear', number: '01', title: 'Sävelkorva ja otelauta', description: 'Opi ensin sävelten paikat. Korvakuulotehtävät tulevat myöhemmin.', example: 'Ensimmäinen harjoitus: Etsi sävelet otelaudalta' },
   { id: 'scales', number: '02', title: 'Skaalat ja moodit', description: 'Opi asteikko yksi positio kerrallaan ja käytä sitä sooloilussa.', example: 'Aloita: A-mollipentatoninen, positio 1' },

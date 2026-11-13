@@ -1,0 +1,78 @@
+/* Musiikin kartan yhteinen päävalikko ja pääosioiden alavalikot.
+ *
+ * Sama merkintä toistuu jokaisella sivulla (staattinen sivusto ilman koostovaihetta), ja
+ * tests/site.test.ts tarkistaa, että järjestys, osoitteet ja aktiivinen osio pysyvät yhtenäisinä.
+ * Aktiivinen pääosio merkitään aria-current-attribuutilla: "page", kun linkki osoittaa avattuun
+ * sivuun, ja "true", kun sivu kuuluu osioon (esimerkiksi oppaan osat Musiikin teorian alla).
+ * Tyylit eivät nojaa sivukohtaisiin muuttujiin, jotta valikko näyttää samalta oppaan,
+ * otelautakartan ja kitaraharjoittelijan tyylitiedostojen kanssa.
+ */
+.site-top {
+  --nav-bg: #16121f;
+  --nav-line: #2d2444;
+  --nav-text: #efeaff;
+  --nav-muted: #c9c0e0;
+  --nav-accent: #b5a3ff;
+  --nav-active: #4b2fd6;
+  --nav-hover: #2d2444;
+  --nav-focus: #75e5c6;
+  background: var(--nav-bg);
+  border-bottom: 1px solid var(--nav-line);
+  font: 600 15px/1.25 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.main-nav, .section-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px 16px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 18px;
+}
+.main-nav { min-height: 56px; justify-content: space-between; flex-wrap: wrap; }
+.main-nav .brand {
+  display: inline-block; padding: 10px 0;
+  color: var(--nav-text); font-weight: 750; font-size: 16px; text-decoration: none; white-space: nowrap;
+}
+.main-nav .brand span { color: var(--nav-accent); }
+.main-nav ul, .section-nav ul { display: flex; margin: 0; padding: 0; list-style: none; }
+.main-nav ul { gap: 4px; }
+.main-nav li a {
+  display: flex; align-items: center; justify-content: center; min-height: 40px;
+  padding: 8px 12px; border: 1px solid transparent; border-radius: 10px;
+  color: var(--nav-muted); text-decoration: none; white-space: nowrap;
+}
+.main-nav li a:hover { background: var(--nav-hover); color: var(--nav-text); }
+.main-nav li a[aria-current] { background: var(--nav-active); border-color: var(--nav-accent); color: #fff; }
+.main-nav a:focus-visible, .section-nav a:focus-visible { outline: 2px solid var(--nav-focus); outline-offset: 2px; }
+.main-nav .nav-short { display: none; }
+
+/* Pääosion sisäinen alavalikko (Otelautaopas, Musiikin teoria). */
+.section-nav { min-height: 42px; border-top: 1px solid var(--nav-line); font-size: 14px; }
+.section-nav ul { gap: 4px 18px; flex-wrap: wrap; }
+.section-nav a {
+  display: inline-flex; align-items: center; min-height: 40px; padding: 0 2px;
+  border-bottom: 2px solid transparent; color: var(--nav-muted); text-decoration: none;
+}
+.section-nav a:hover { color: var(--nav-text); border-bottom-color: var(--nav-line); }
+.section-nav a[aria-current] { color: var(--nav-text); border-bottom-color: var(--nav-accent); }
+
+/* Mobiili: brändi ja osiot omille riveilleen, ei vaakavieritystä eikä kiinteää palkkia. */
+@media (max-width: 640px) {
+  .main-nav { padding: 6px 12px 8px; gap: 2px; }
+  .main-nav ul { width: 100%; gap: 4px; }
+  .main-nav li { flex: 1 1 auto; }
+  .main-nav li a { min-height: 44px; padding: 6px 6px; font-size: 14px; }
+  .main-nav .nav-long { display: none; }
+  .main-nav .nav-short { display: inline; }
+  .section-nav { padding: 0 12px; gap: 0 12px; }
+  .section-nav a { min-height: 44px; }
+}
+@media (max-width: 350px) {
+  .main-nav li a { font-size: 13px; padding: 6px 4px; }
+}
+@media (forced-colors: active) {
+  .main-nav li a[aria-current], .section-nav a[aria-current] { border: 2px solid CanvasText; }
+}
+@media print {
+  .site-top { display: none; }
+}
