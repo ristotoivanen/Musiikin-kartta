@@ -652,6 +652,8 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
   .melody-practice-content { padding: 12px; }
   .melody-practice > details > summary { padding: 13px 12px; }
   .melody-board { margin: 10px 0; }
+  /* Melodian otelauta täyttää leveyden (enintään 66 px / nauha), eikä otsikko rivity kapeaan sarakkeeseen. */
+  .melody-board .practice-board { width: min(100%, calc(var(--head) + var(--cols, 6) * 66px)); }
 }
 
 /*
