@@ -262,7 +262,7 @@ export function ModeJourney({ onBack }: { onBack: () => void }) {
             void listen('scale', once.map(position => position.midi))}>
           {playing === 'scale' ? '■ Pysäytä asteikon toisto' : '▶ Soita asteikko kerran'}
         </button>
-      </div}
+      </div>}
 
       {step === 4 && <div className="action-row">
         <button type="button" aria-pressed={playing === 'accompaniment'}
