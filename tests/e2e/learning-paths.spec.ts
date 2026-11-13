@@ -158,6 +158,7 @@ test.describe('Uudet oppimispolut', () => {
   });
 
   test('käyttäjän valitsemaa versiota ei vaihdeta automaattisesti kesken harjoittelun', async ({ page }) => {
+    test.setTimeout(60_000); // Useita media- ja sivulatauksia hitaalla CI-ympäristöllä.
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Kappaleharjoittelu/ }).click();
     const version = page.getByRole('combobox', { name: 'Versio' });
@@ -570,11 +571,11 @@ test.describe('Uudet oppimispolut', () => {
     await expect(mixer.getByRole('button', { name: '■ Tauko' })).toBeVisible();
 
     // Kapealla näytöllä nauha 8 on vierityksen takana: vihje kertoo sen, ja nauhan saa näkyviin vierittämällä.
-    const scroller = page.locator('.fret-scroll');
-    const hint = page.locator('.fret-scroll-hint');
+    const scroller = page.locator('.journey-lesson > .fret-wrap .fret-scroll');
+    const hint = page.locator('.journey-lesson > .fret-wrap .fret-scroll-hint');
     if (testInfo.project.name === 'phone') {
       await expect(hint).toContainText('nauhoja on lisää');
-      const fret8 = page.locator('.practice-board button[data-string="0"][data-fret="8"]');
+      const fret8 = page.locator('.journey-lesson > .fret-wrap .practice-board button[data-string="0"][data-fret="8"]');
       await scroller.evaluate(element => { element.scrollLeft = element.scrollWidth; });
       await expect(hint).toContainText('vasemmalla');
       const [cell, view] = [(await fret8.boundingBox())!, (await scroller.boundingBox())!];
