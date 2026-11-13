@@ -5,7 +5,7 @@ import type { Mark } from './engine';
 import { clipSound, melodyPieces, type MelodyClip, type MelodyId } from './melodyData';
 import { note, pc, positionKey } from './music';
 
-type Stage = 'fingering' | 'memory' | 'full';
+type Stage = 'fingering' | 'memory';
 type Choice = 'a' | 'b' | 'whole' | 'bonus';
 
 const STRINGS = ['e', 'B', 'G', 'D', 'A', 'E'];
@@ -58,8 +58,7 @@ export function MelodyPractice({ pieceId, stage, onBeforePlay, stopHandleRef }: 
     : [
       { id: 'a', name: 'Osa A', clip: piece.fragments[0] },
       { id: 'b', name: 'Osa B', clip: piece.fragments[1] },
-      ...(stage === 'full' ? [{ id: 'whole' as const, name: 'Pidempi melodia', clip: piece.whole }] : []),
-      ...(stage === 'full' && piece.bonus ? [{ id: 'bonus' as const, name: 'Oma B → C -lisä', clip: piece.bonus }] : []),
+      ...(piece.bonus ? [{ id: 'bonus' as const, name: 'Oma B → C -lisä', clip: piece.bonus }] : []),
     ];
   const selection = choices.find(item => item.id === choice) ?? choices[0];
   const clip = selection.clip;
@@ -118,23 +117,21 @@ export function MelodyPractice({ pieceId, stage, onBeforePlay, stopHandleRef }: 
       setExpanded(isOpen);
       if (!isOpen) stop();
     }}>
-      <summary>{stage === 'full'
-        ? `Ennen improvisointia: pidempi melodia · ${piece.title}`
-        : stage === 'memory' ? `Valinnainen: melodia muistista · ${piece.title}`
-          : `Valinnainen melodiaharjoitus · ${piece.title}`}</summary>
+      <summary>{stage === 'memory'
+        ? `Valinnainen: pidempi melodia muistista · ${piece.title}`
+        : `Valinnainen melodiaharjoitus · ${piece.title}`}</summary>
       {expanded && <div className="melody-practice-content">
-    <p className="eyebrow">{stage === 'full' ? 'ENNEN IMPROVISOINTIA · PIENI KAPPALE'
-      : stage === 'memory' ? 'MELODIA MUISTISTA'
-        : 'HARJOITTELE MELODIAA OTELAUDALLA'}</p>
+    <p className="eyebrow">{stage === 'memory' ? 'PIDEMPI MELODIA · MUISTISTA'
+      : 'HARJOITTELE MELODIAA OTELAUDALLA'}</p>
     <h4>{piece.title}</h4>
-    <p className="melody-subtitle">{piece.qualifier} · 4/4 · {bars.toString().replace('.', ',')} tahtia valitussa osassa</p>
+    <p className="melody-subtitle">{piece.qualifier} · 4/4 · {bars.toString().replace('.', ',')} tahtia {stage === 'memory' ? 'yhdistetyssä melodiassa' : 'valitussa osassa'}</p>
     <p className="melody-instruction">
-      {stage === 'fingering' ? 'Kokeile osia A ja B erikseen. Kuuntele ja seuraa keltaisella korostettua säveltä otelaudalla.'
-        : stage === 'memory' ? 'Soita koko aiemmin harjoiteltu melodia alusta loppuun muistista, ilman osavalintaa. Otelaudan sävelvihjeet ja tabulatuuri ovat aluksi piilossa, mutta mallikuuntelun aikana soiva sävel korostuu.'
-          : 'Yhdistä aiemmin opitut osat pidemmäksi melodiaksi ennen improvisointia. Voit avata tabulatuurin, kuunnella ja lopuksi keksiä saman melodian pohjalta omia fraaseja.'}
+      {stage === 'fingering'
+        ? 'Kokeile osia A ja B erikseen. Kuuntele ja seuraa keltaisella korostettua säveltä otelaudalla.'
+        : 'Yhdistä aiemmin harjoitellut osat ja soita koko melodia alusta loppuun muistista. Sävelvihjeet ja tabulatuuri ovat aluksi piilossa. Kuunnellessa soiva sävel korostuu otelaudalla. Siirry tämän jälkeen improvisoimaan.'}
     </p>
-    {stage === 'full' && piece.bonus && <p className="tools-note">
-      Viimeinen valinta on <strong>erillinen oma harjoitus</strong>, ei osa {piece.title} -sävelmää.
+    {stage === 'fingering' && piece.bonus && <p className="tools-note">
+      Oma B → C -lisä on <strong>erillinen harjoitus</strong>, ei osa {piece.title} -sävelmää.
     </p>}
     {stage !== 'memory' && <div className="melody-choices" role="group" aria-label="Valitse melodiaharjoituksen osa">
       {choices.map(item => <button type="button" key={item.id} aria-pressed={selection.id === item.id}
