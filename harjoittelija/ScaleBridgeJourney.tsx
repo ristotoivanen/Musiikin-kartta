@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Board } from './Board';
 import { BackingTrackMixer } from './BackingTrackMixer';
+import { MelodyPractice } from './MelodyPractice';
 import { ReferencePlayer, referenceAudioError } from './audio';
 import { bridgeAscending, bridgeCycle, bridgeOnce, bridgePositions, bridgeRoute, sharedPositionKeys } from './scaleBridgeData';
 import { note, pc, positionKey, stringName } from './music';
@@ -49,9 +50,11 @@ export function ScaleBridgeJourney({ onBack, onPosition }: {
   const [audioError, setAudioError] = useState('');
   const player = useRef(new ReferencePlayer());
   const generation = useRef(0);
+  const melodyStop = useRef<(() => void) | null>(null);
   const active = activeIndex === null ? null : bridgeCycle[activeIndex];
 
   function stopPlayback() {
+    melodyStop.current?.();
     generation.current++;
     player.current.stop();
     setPlaying(null);
@@ -74,6 +77,7 @@ export function ScaleBridgeJourney({ onBack, onPosition }: {
   }, []);
 
   async function listen(kind: 'whole' | 'once' | 'transition') {
+    melodyStop.current?.();
     const current = ++generation.current;
     player.current.stop();
     setActiveIndex(null);
@@ -241,6 +245,10 @@ export function ScaleBridgeJourney({ onBack, onPosition }: {
           : step === 3 ? hints === 'roots' ? 'Näkyvissä ovat vain A-pohjasävelet.'
             : hints === 'all' ? 'Kaikki 18 paikkaa näkyvät, yhteiset sävelet on merkitty.' : 'Otelauta ilman vihjeitä.'
           : 'Yhteiset sävelet on reunustettu, A-pohjasävelet ovat vihreitä.'} Arvioit itse, miten soittaminen sujui.</p>
+        {step >= 1 && step <= 3 && <MelodyPractice
+          key={`bridge:${step}`} pieceId="pentatonic-bridge"
+          stage={step === 1 ? 'fingering' : step === 2 ? 'memory' : 'full'}
+          onBeforePlay={stopPlayback} stopHandleRef={melodyStop} />}
         {step === 3 && <BackingTrackMixer />}
         <div className="journey-next">
           <p>{step === 0 ? 'Etsi yhteiset sävelet jokaiselta kieleltä ennen siirtymistä varsinaiseen soittoon.'
