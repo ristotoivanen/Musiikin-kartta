@@ -4,7 +4,6 @@ import { SongScales } from './SongScales';
 import {
   SongGainMixer, StemAligner, loadSongVolume, saveSongVolume, songVolumeMode, trackLevel, type SongTrack,
 } from './songAudio';
-import { SongAudioDiagnostics, songAudioDiagnosticsEnabled } from './SongAudioDiagnostics';
 import { DEFAULT_SONG_VERSION, isSongLink, songLink, versionFromSongLink, type SongVersion } from './songChart';
 
 // Käyttäjän itse valitsema versio säilyy, vaikka hän käy välillä oppimispoluissa.
@@ -356,8 +355,6 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
       <audio key={version + '-vocals'} ref={vocalsRef} src={song.vocals} preload="metadata" muted={!vocalsOn} loop={loopOn}
         onLoadedMetadata={() => { if (backingRef.current?.paused) syncStems(true); }}
         onError={() => setError(song.label + ': lauluraita puuttuu tai ei lataudu.')} />
-      {songAudioDiagnosticsEnabled() && <SongAudioDiagnostics volumeMode={volumeMode} volume={volume} mixer={mixer}
-        tracks={{ backing: backingRef, guitar: guitarRef, vocals: vocalsRef }} />}
     </div>
 
     <details className="song-chart-collapse" open={chordPanelOpen}>

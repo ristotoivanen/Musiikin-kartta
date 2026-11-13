@@ -248,15 +248,14 @@ versionvaihdossa. Mykistys hoidetaan edelleen `muted`-ominaisuudella.
   sivua, joten myös skaalojen mallisoitto soi sen jälkeen äänettömässä tilassa.
 - Jos reititys epäonnistuu, säätimen alla kerrotaan, ettei äänenvoimakkuutta
   voi säätää, ja syy. Jos Web Audio ei käynnisty, näytetään virhe.
-- **Tilapäinen diagnostiikka:** `kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta&aanidiagnostiikka=1`
-  näyttää tilan, AudioContextin, ääni-istunnon ja raitojen GainNode-tasot
-  (`SongAudioDiagnostics.tsx`). Poistetaan, kun korjaus on vahvistettu
-  fyysisellä iPhonella.
-- **Rajoitus:** GainNode-reitti on testattu Playwrightilla (Chromium)
-  mittaamalla todellinen signaali ennen GainNodea ja sen jälkeen. Fyysisellä
-  iPhonella se on vahvistamatta. `initialSeekLatency` tunnistaa iPhonen yhä
-  lukutestillä, joten tahdistimen aloitusviive on iPhonella todennäköisesti 0
-  eikä 0,4 s. Tahdistin oppii viiveen, eikä sitä muutettu ilman mittausta.
+- **Vahvistettu fyysisellä iPhonella** (iOS 18.7, Safari, 13.11.2026):
+  säätö toimii korvakuulolta, tila `webaudio`, AudioContext `running`,
+  ääni-istunto `playback`, kaikki kolme raitaa kytketty ja raitojen aikaero
+  alle 0,1 s. Mittaus tehtiin tilapäisellä diagnostiikkapaneelilla, joka
+  poistettiin sen jälkeen. Playwright-testi (Chromium) mittaa todellisen
+  signaalin ennen GainNodea ja sen jälkeen.
+- `initialSeekLatency` tunnistaa iPhonen yhä lukutestillä, joten tahdistimen
+  aloitusviive on iPhonella todennäköisesti 0 eikä 0,4 s. Tahdistin oppii viiveen, eikä sitä muutettu ilman mittausta.
   Jos iOS keskeyttää AudioContextin (esim. puhelu tai taustalle
   siirtyminen), seuraava Soita-painallus käynnistää sen uudelleen.
 

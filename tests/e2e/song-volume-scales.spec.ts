@@ -335,7 +335,7 @@ test.describe('iPhone: äänenvoimakkuus GainNoden kautta (issue #9)', () => {
         get(this: HTMLMediaElement) { return stored.get(this) ?? 1; },
         set(this: HTMLMediaElement, value: number) { stored.set(this, value); } });
       // Mittauspisteet: signaali ennen GainNodea (lähde) ja sen jälkeen (kohti kaiuttimia).
-      const probes: { src: string; pre: AnalyserNode; post?: AnalyserNode }[] = [];
+      const probes: { src: string; pre: AnalyserNode; post?: AnalyserNode; gain?: GainNode }[] = [];
       (window as unknown as { probes: typeof probes }).probes = probes;
       const create = AudioContext.prototype.createMediaElementSource;
       AudioContext.prototype.createMediaElementSource = function (this: AudioContext, element: HTMLMediaElement) {
@@ -351,14 +351,13 @@ test.describe('iPhone: äänenvoimakkuus GainNoden kautta (issue #9)', () => {
         if (this instanceof GainNode && target === this.context.destination) {
           const post = this.context.createAnalyser(); post.fftSize = 2048;
           const probe = probes.find(p => !p.post);
-          if (probe) probe.post = post;
+          if (probe) { probe.post = post; probe.gain = this; }
           connect.call(this, post);
         }
         return connect.apply(this, args);
       } as typeof AudioNode.prototype.connect;
     });
-    // Diagnostiikka kertoo myös lauluraidan GainNode-tason: laulu alkaa vasta noin 14 sekunnin kohdalla.
-    await page.goto(SONG + '&aanidiagnostiikka=1');
+    await page.goto(SONG);
     const player = page.locator('.song-player');
     const slider = player.getByRole('slider', { name: 'Äänenvoimakkuus' });
     await expect(player.locator('.song-volume')).toHaveAttribute('data-volume-mode', 'webaudio');
@@ -383,12 +382,15 @@ test.describe('iPhone: äänenvoimakkuus GainNoden kautta (issue #9)', () => {
       return probes.map((probe, k) => ({ track: probe.src.replace(/.*-(saestys|kitara|laulu)\.mp3$/, '$1'),
         gain: sums[k].n ? Math.round(sums[k].ratio / sums[k].n * 100) / 100 : null, signal: sums[k].pre > 0.001 }));
     });
-    /** Mitattu todellinen vahvistus säestykselle ja kitaralle (soivat introssa) sekä kaikkien kolmen GainNode-taso. */
+    /**
+     * Mitattu todellinen vahvistus säestykselle ja kitaralle (soivat introssa) sekä kaikkien kolmen
+     * GainNode-taso. Laulu alkaa vasta noin 14 sekunnin kohdalla, joten sen taso luetaan GainNodesta.
+     */
     const levels = async () => {
       const [backing, guitar] = await measuredGains();
-      const text = await page.locator('.song-audio-diagnostics pre').textContent() ?? '';
-      const node = (track: string) => Number(new RegExp(track + ' +kytketty=kyllä gain=([\\d.]+)').exec(text)?.[1] ?? NaN);
-      return { saestys: backing.gain, kitara: guitar.gain, gainNodes: [node('backing'), node('guitar'), node('vocals')] };
+      const gainNodes = await page.evaluate(() => (window as unknown as { probes: { gain?: GainNode }[] }).probes
+        .map(p => Math.round((p.gain?.gain.value ?? NaN) * 1000) / 1000));
+      return { saestys: backing.gain, kitara: guitar.gain, gainNodes };
     };
     // Kaksi analysaattoria luetaan peräkkäin, ja äänisäie voi edetä välissä yhden 128 näytteen jakson:
     // mitatulle signaalisuhteelle sallitaan ±0,03. GainNode-arvot tarkistetaan tarkasti.
@@ -449,17 +451,5 @@ test.describe('iPhone: äänenvoimakkuus GainNoden kautta (issue #9)', () => {
     const player = page.locator('.song-player');
     await player.getByRole('button', { name: '▶ Soita kappale' }).click();
     await expect(player.getByRole('status').filter({ hasText: 'Äänenvoimakkuutta ei voi säätää' })).toContainText('Kytkentä estetty');
-  });
-
-  test('diagnostiikka näkyy vain pyydettäessä ja kertoo tilan', async ({ page }) => {
-    await mockPlayback(page);
-    await page.goto(SONG);
-    await expect(page.locator('.song-audio-diagnostics')).toHaveCount(0);
-    await page.goto(SONG + '&aanidiagnostiikka=1');
-    const diag = page.locator('.song-audio-diagnostics');
-    await expect(diag).toContainText('iOS-laite: kyllä');
-    await expect(diag).toContainText('valittu tila: webaudio');
-    await page.locator('.song-player').getByRole('button', { name: '▶ Soita kappale' }).click();
-    await expect(diag).toContainText(/backing +kytketty=kyllä gain=0\.\d+/);
   });
 });
