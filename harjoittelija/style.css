@@ -70,8 +70,8 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
 .fret-wrap.more-right > .fret-scroll { box-shadow: inset -14px 0 12px -12px var(--gold); }
 .fret-wrap.more-left > .fret-scroll { box-shadow: inset 14px 0 12px -12px var(--gold); }
 .fret-wrap.more-left.more-right > .fret-scroll { box-shadow: inset 14px 0 12px -12px var(--gold), inset -14px 0 12px -12px var(--gold); }
-.practice-board { --head: 105px; border-collapse: separate; border-spacing: 0; font-size: 13px; text-align: center; table-layout: fixed;
-  width: min(100%, calc(var(--head) + var(--cols, 6) * 66px)); min-width: calc(var(--head) + var(--cols, 6) * 46px); }
+.practice-board { --head: 105px; --fret-min: 46px; border-collapse: separate; border-spacing: 0; font-size: 13px; text-align: center; table-layout: fixed;
+  width: min(100%, calc(var(--head) + var(--cols, 6) * 66px)); min-width: calc(var(--head) + var(--cols, 6) * var(--fret-min)); }
 .practice-board caption { text-align: left; color: var(--muted); margin: 8px 0; white-space: nowrap; }
 .practice-board th { font-weight: 500; color: var(--muted); padding: 2px 4px; }
 .practice-board thead th { vertical-align: bottom; height: 34px; }
@@ -133,10 +133,12 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
 .privacy { border-top: 1px solid var(--line); padding-top: 12px; }
 
 @media (prefers-color-scheme: light) {
-  :root { color-scheme: light; --bg: #faf8ff; --panel: #f0ebfa; --text: #241b38; --muted: #605574; --lavender: #5533c3; --box: #1c7f66; --line: #b9aed0; --wrong: #a35a00; --good: #1c7f66; --gold: #a35a00; }
+  /* K3: tila- ja varoitusvärit vähintään 4,5:1 sekä sivun että paneelin taustaa vasten. */
+  :root { color-scheme: light; --bg: #faf8ff; --panel: #f0ebfa; --text: #241b38; --muted: #605574; --lavender: #5533c3; --box: #1c7f66; --line: #b9aed0; --wrong: #945000; --good: #186b55; --gold: #945000; }
   .primary { color: white; }
-  button:hover { background: #e4dcf3; }
   .primary:hover { background: #38209f; }
+  /* Otelauta on tumma kummassakin teemassa: virheellisen valinnan merkintä vaalealla oranssilla. */
+  .practice-board .wrong .dot { color: #ffb35c; border-color: #ffb35c; }
   .practice-board .target .dot, .answer-choices button.right { background: #83ddc3; color: #16121f; border-color: #1c7f66; }
   .practice-board td { color: #efeaff; }
   .practice-board.mastery td { color: var(--muted); }
@@ -145,6 +147,20 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
   .meter.over .meter-fill { background: #1c7f66; }
   .mic-accepted { color: #1c7f66; }
 }
+/*
+ * K3: vaalean teeman hover-väri vain hiirelle (kosketuksen jälkeen jäävä hover ei peitä tilaa) ja
+ * vain tavallisille painikkeille. Painettu (aria-pressed) ja ensisijainen painike pitävät tumman
+ * pohjansa ja valkoisen tekstinsä myös hover-tilassa molemmissa teemoissa.
+ */
+
+@media (prefers-color-scheme: light) {
+  /* Kumoaa yhteisen tumman hover-pohjan kosketuksessa ja pois käytöstä olevissa painikkeissa. */
+  button:hover { background: var(--panel); }
+}
+@media (prefers-color-scheme: light) and (hover: hover) {
+  button:not([aria-pressed="true"]):not(.primary):not(:disabled):hover { background: #e4dcf3; }
+}
+.practice-main button[aria-pressed="true"]:hover { background: #38209f; }
 @media (max-width: 600px) {
   .settings, .session-panel, .progress-panel, .mic-panel { padding: 12px; }
   .practice-main { padding: 22px 12px 0; }
@@ -410,6 +426,10 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
 }
 .song-measure:hover, .song-measure:focus-visible { border-color: var(--lavender); }
 .song-measure.active { border: 2px solid var(--good); padding: 10px 9px; }
+/* K3: soiva tahti on painettu painike (violetti pohja) kummassakin teemassa: tekstit vaaleina. */
+.song-measure.active .song-measure-number, .song-measure.active small { color: #ece6ff; }
+.song-measure.active .song-measure-chords strong { color: #fff; }
+.song-measure.active .song-measure-chords strong.now { color: #9ff0d8; }
 .song-measure-number { font-size: 12px; color: var(--muted); }
 .song-measure-chords {
   display: flex; justify-content: space-around; flex-wrap: wrap; gap: 9px;
@@ -606,4 +626,81 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
   .melody-practice { padding: 0; }
   .melody-practice > details > summary { padding: 13px; }
   .melody-practice-content { padding: 12px; }
+}
+
+/*
+ * Mobiiliauditointi K2: otelauta saa kapealla näytöllä koko kortin leveyden.
+ * - Kielisarakkeessa näkyy vain kielen kirjain (aria-label kertoo koko nimen), noin 30 px.
+ * - Nauhan vähimmäisleveys 40 px: 6 nauhaa mahtuu 320 px:n näyttöön. Sävelpisteet (30 px),
+ *   tekstikoko ja rivikorkeus (46 px kosketukselle) pysyvät ennallaan.
+ * - Otelauta ja melodiaosio ulottuvat kortin sisennyksen yli, joten sisäkkäiset reunukset
+ *   eivät kavenna otelautaa. Tekstit pysyvät sisennettyinä.
+ * Työpöytä ja tabletti (> 480 px) ennallaan.
+ */
+@media (max-width: 480px) {
+  .practice-board { --head: 30px; --fret-min: 40px; }
+  .practice-board .string-number, .practice-board .string-label small { display: none; }
+  .practice-board .board-head-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .practice-board tbody th { padding: 2px 0 2px 8px; font-size: 15px; }
+  .practice-board caption { white-space: normal; }
+  .journey-lesson { padding: 12px; }
+  .journey-lesson > .fret-wrap, .session-panel > .fret-wrap, .melody-board > .fret-wrap { margin-inline: -12px; max-width: none; }
+  .journey-lesson > .fret-wrap .practice-board caption, .session-panel > .fret-wrap .practice-board caption,
+  .melody-board > .fret-wrap .practice-board caption, .journey-lesson > .fret-wrap .fret-scroll-hint,
+  .session-panel > .fret-wrap .fret-scroll-hint, .melody-board > .fret-wrap .fret-scroll-hint { padding-inline: 12px; }
+  .journey-lesson .melody-practice { margin-inline: -12px; border-inline: 0; border-radius: 0; }
+  .melody-practice-content { padding: 12px; }
+  .melody-practice > details > summary { padding: 13px 12px; }
+  .melody-board { margin: 10px 0; }
+}
+
+/*
+ * Mobiiliauditointi K4: kappaleharjoittelu puhelimessa.
+ * - Harjoituskartan asetukset ovat avattavassa osassa tahtien jälkeen (SongChordChart.tsx).
+ * - Kapealla näytöllä soiva ja seuraava sointu ennen osion valintaa.
+ * - Kelausliukusäätimellä 44 px:n kosketusalue; asteikkokuva ei pienene alle 680 px:n
+ *   (vieritettävä kehys kuten Otelautaoppaassa), joten sävelmerkinnät pysyvät luettavina.
+ */
+.song-chart-settings { margin: 14px 0 0; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+.song-chart-settings > summary { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; padding: 10px 14px; color: var(--lavender); }
+.song-chart-settings-state { color: var(--muted); font-size: 13px; font-weight: 500; }
+.song-chart-settings[open] > summary { border-bottom: 1px solid var(--line); }
+.song-chart-settings .song-hint-controls { margin: 0; border: 0; border-radius: 0; background: transparent; }
+.song-chart-settings .song-fade-customize { margin: 0 12px 12px; }
+.song-player-controls input[type="range"], .song-volume input[type="range"] { min-height: 44px; margin: 0; }
+@media (max-width: 700px) {
+  .song-chord-toolbar { flex-direction: column; align-items: stretch; margin: 10px 0 12px; }
+  .song-chord-toolbar .song-now-next { order: -1; }
+  .song-chord-toolbar select { width: 100%; }
+  .song-scale-board svg { min-width: 680px; }
+}
+@media (max-width: 480px) {
+  .song-journey .journey-lesson.song-player { padding: 12px; }
+  .song-player-controls { margin: 12px 0 8px; gap: 8px 12px; }
+  .song-toggles { gap: 0 18px; margin: 6px 0; }
+  .song-chord-panel { padding: 12px; }
+  .song-chart-collapse, .song-scales-collapse { margin: 10px 0; }
+}
+
+/*
+ * Mobiiliauditointi K5: matala näkymä (puhelin vaaka-asennossa, korkeus enintään 480 px).
+ * Otsikkoalue ja vaihevalinta tiivistyvät, ja pelkkää mallisoittoa näyttävän otelaudan
+ * (display-only, ei vastattavia ruutuja) rivit madaltuvat 36 px:iin. Silloin soitto- ja
+ * pysäytyspainike sekä koko kuuden kielen otelauta mahtuvat samaan ruutuun. Vastattavat
+ * otelaudat pitävät 46 px:n kosketuskorkeuden.
+ */
+@media (max-height: 480px) and (min-width: 560px) {
+  .practice-main { padding-top: 10px; }
+  .scale-journey h2, .note-journey h2, .chord-journey h2, .song-journey h2 { font-size: 22px; margin: 4px 0 6px; }
+  .scale-journey .learning-lead, .exercise-theory { margin: 4px 0 8px; }
+  .scale-fact { margin: 8px 0; padding: 6px 12px; }
+  .journey-steps { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin: 10px 0; }
+  .journey-step { min-height: 44px; padding: 6px 8px; font-size: 12px; }
+  .journey-lesson { padding: 12px 14px; margin: 10px 0; }
+  .journey-lesson > p { margin: 6px 0; line-height: 1.5; }
+  .practice-board.display-only thead th { height: 24px; }
+  .practice-board.display-only td, .practice-board.display-only td button { height: 36px; min-height: 36px; }
+  /* Otsikko jää ruudunlukijalle; sama tieto näkyy otsikkoalueella ja soivan sävelen tekstinä. */
+  .practice-board.display-only caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .fret-scroll-hint { margin-top: 4px; }
 }

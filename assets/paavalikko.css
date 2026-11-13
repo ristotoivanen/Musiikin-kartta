@@ -70,6 +70,11 @@
 @media (max-width: 350px) {
   .main-nav li a { font-size: 13px; padding: 6px 4px; }
 }
+/* Mobiiliauditointi K7: kosketuslaitteella valikon linkit vähintään 44 px korkeita myös leveässä
+   näkymässä (esimerkiksi puhelin vaaka-asennossa tai tabletti). */
+@media (pointer: coarse) {
+  .main-nav li a, .section-nav a { min-height: 44px; }
+}
 @media (forced-colors: active) {
   .main-nav li a[aria-current], .section-nav a[aria-current] { border: 2px solid CanvasText; }
 }

@@ -2,10 +2,16 @@ import { test, expect, type Page } from '@playwright/test';
 
 const ACOUSTIC_LINK = '/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen';
 
-/** Soinnut ja sanat on oletuksena suljettu. */
+/**
+ * Soinnut ja sanat on oletuksena suljettu. Harjoituskartan asetukset (K4) ovat leveällä
+ * näytöllä auki ja puhelimessa suljettuina: testit avaavat ne tarvittaessa.
+ */
 async function openChart(page: Page) {
   await page.locator('details.song-chart-collapse > summary').click();
   await expect(page.locator('.song-chord-panel')).toBeVisible();
+  const settings = page.locator('details.song-chart-settings');
+  if (!(await settings.evaluate(el => (el as HTMLDetailsElement).open))) await settings.locator('> summary').click();
+  await expect(page.getByRole('combobox', { name: 'Harjoitustaso' })).toBeVisible();
 }
 
 /** Simuloi säestysraidan etenemistä ilman oikeaa äänentoistoa. */

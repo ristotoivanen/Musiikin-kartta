@@ -33,6 +33,9 @@ export function SongChordChart({version, position, loop = false, onSeek}: {
   const [hints, setHints] = useState(loadSongHintSettings);
   const [revealed, setRevealed] = useState<string | null>(null);
   const [showAllLyrics, setShowAllLyrics] = useState(false);
+  // Leveällä näytöllä asetukset ovat heti näkyvissä, puhelimessa ne avataan tarvittaessa.
+  const [settingsOpen, setSettingsOpen] = useState(() =>
+    typeof matchMedia !== 'function' || matchMedia('(min-width: 701px)').matches);
   // Esitystapa muuttaa vain näkyvää merkintää. Piilotus ja ajoitus käyttävät alkuperäisiä sointuja.
   const [display, setDisplay] = useState<ChordDisplay>('full');
   const label = (name: string) => chordLabel(name, display);
@@ -50,6 +53,8 @@ export function SongChordChart({version, position, loop = false, onSeek}: {
     !isChordHidden(name, hints) || revealed === keyFor(index, part);
   const showExplanations = hints.showChords && hints.level === 0;
   const hiddenCount = CHORD_NAMES.filter(name => isChordHidden(name,hints)).length;
+  const settingsSummary = !hints.showChords ? 'Soinnut piilossa'
+    : hints.level === 0 ? 'Kaikki soinnut näkyvät' : `Taso ${hints.level} · piilossa ${hiddenCount}/6`;
 
   // Ennakko näkyy vain osan viimeisessä tahdissa: seuraavan osan ensimmäinen sointu.
   // Se käyttää samoja tahtirajoja kuin korostus ja katoaa, kun uusi osa alkaa.
@@ -68,58 +73,6 @@ export function SongChordChart({version, position, loop = false, onSeek}: {
       <h3 id="song-chord-heading">Harjoituskartta</h3>
       <span>{hints.showChords && hints.level === 0 ? 'G-molli · ' : ''}4/4 · noin 69 BPM</span>
     </div>
-
-    <div className="song-hint-controls" role="group" aria-label="Sointujen ja sanojen asetukset">
-      <label className="song-hints-toggle">
-        <input type="checkbox" checked={hints.showChords}
-          onChange={event => { setHints(prev => ({...prev,showChords:event.target.checked})); setRevealed(null); }} />
-        Näytä soinnut
-      </label>
-      <label className="song-hints-toggle">
-        <input type="checkbox" checked={showAllLyrics}
-          onChange={event => setShowAllLyrics(event.target.checked)} />
-        Näytä koko sanoitus
-      </label>
-      <fieldset className="song-chord-display">
-        <legend>Sointumerkinnät</legend>
-        {([['full', 'Täydet soinnut'], ['power', 'Power-soinnut']] as const).map(([value, text]) =>
-          <label key={value}>
-            <input type="radio" name="song-chord-display" value={value} checked={display === value}
-              onChange={() => setDisplay(value)} />
-            <span>{text}</span>
-          </label>)}
-      </fieldset>
-      <label className="song-hint-level" htmlFor="song-hint-level">Harjoitustaso
-        <select id="song-hint-level" value={hints.level} disabled={!hints.showChords}
-          onChange={event => {
-            const level = Number(event.target.value) as PracticeLevel;
-            setHints(prev => ({...prev,level})); setRevealed(null);
-          }}>
-          {LEVELS.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
-        </select>
-      </label>
-      <span className="song-hint-progress" aria-live="polite">
-        {hiddenCount === 0 ? 'Kaikki kuusi sointua näkyvät' : `Piilossa ${hiddenCount}/6 sointua`}
-      </span>
-    </div>
-
-    {hints.showChords && hints.level < 4 && <details className="song-fade-customize">
-      <summary>Muokkaa sointujen piilotusjärjestystä</summary>
-      <p>Järjestys perustuu aluksi siihen, kuinka usein sointu toistuu kappaleessa, ei otteen tekniseen vaikeuteen.
-        Muuta järjestys oman osaamisesi mukaan. Valinta säilyy molemmissa versioissa.</p>
-      <div className="song-fade-order">
-        {CHORD_NAMES.map(name => <label key={name}>{name}
-          <select aria-label={name + ': piilotusvaihe'} value={hints.fadeOrder[name]}
-            onChange={event => {
-              const step = Number(event.target.value) as FadeStep;
-              setHints(prev => ({ ...prev, fadeOrder: { ...prev.fadeOrder, [name]: step } }));
-              setRevealed(null);
-            }}>
-            {STEPS.map(step => <option key={step.value} value={step.value}>{step.label}</option>)}
-          </select>
-        </label>)}
-      </div>
-    </details>}
 
     <div className="song-chord-toolbar">
       <label htmlFor="song-section-jump">Harjoiteltava osa
@@ -179,6 +132,65 @@ export function SongChordChart({version, position, loop = false, onSeek}: {
         </button>;
       })}
     </div>
+    {/* K4: soiva sointu ja tahdit ensin. Asetukset avattavassa osassa, kapealla näytöllä aluksi suljettuna. */}
+    <details className="song-chart-settings" open={settingsOpen}>
+      <summary onClick={event => { event.preventDefault(); setSettingsOpen(open => !open); }}>
+        Harjoituskartan asetukset
+        <span className="song-chart-settings-state">{settingsSummary}</span>
+      </summary>
+      <div className="song-hint-controls" role="group" aria-label="Sointujen ja sanojen asetukset">
+        <label className="song-hints-toggle">
+          <input type="checkbox" checked={hints.showChords}
+            onChange={event => { setHints(prev => ({...prev,showChords:event.target.checked})); setRevealed(null); }} />
+          Näytä soinnut
+        </label>
+        <label className="song-hints-toggle">
+          <input type="checkbox" checked={showAllLyrics}
+            onChange={event => setShowAllLyrics(event.target.checked)} />
+          Näytä koko sanoitus
+        </label>
+        <fieldset className="song-chord-display">
+          <legend>Sointumerkinnät</legend>
+          {([['full', 'Täydet soinnut'], ['power', 'Power-soinnut']] as const).map(([value, text]) =>
+            <label key={value}>
+              <input type="radio" name="song-chord-display" value={value} checked={display === value}
+                onChange={() => setDisplay(value)} />
+              <span>{text}</span>
+            </label>)}
+        </fieldset>
+        <label className="song-hint-level" htmlFor="song-hint-level">Harjoitustaso
+          <select id="song-hint-level" value={hints.level} disabled={!hints.showChords}
+            onChange={event => {
+              const level = Number(event.target.value) as PracticeLevel;
+              setHints(prev => ({...prev,level})); setRevealed(null);
+            }}>
+            {LEVELS.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
+          </select>
+        </label>
+        <span className="song-hint-progress" aria-live="polite">
+          {hiddenCount === 0 ? 'Kaikki kuusi sointua näkyvät' : `Piilossa ${hiddenCount}/6 sointua`}
+        </span>
+      </div>
+
+      {hints.showChords && hints.level < 4 && <details className="song-fade-customize">
+        <summary>Muokkaa sointujen piilotusjärjestystä</summary>
+        <p>Järjestys perustuu aluksi siihen, kuinka usein sointu toistuu kappaleessa, ei otteen tekniseen vaikeuteen.
+          Muuta järjestys oman osaamisesi mukaan. Valinta säilyy molemmissa versioissa.</p>
+        <div className="song-fade-order">
+          {CHORD_NAMES.map(name => <label key={name}>{name}
+            <select aria-label={name + ': piilotusvaihe'} value={hints.fadeOrder[name]}
+              onChange={event => {
+                const step = Number(event.target.value) as FadeStep;
+                setHints(prev => ({ ...prev, fadeOrder: { ...prev.fadeOrder, [name]: step } }));
+                setRevealed(null);
+              }}>
+              {STEPS.map(step => <option key={step.value} value={step.value}>{step.label}</option>)}
+            </select>
+          </label>)}
+        </div>
+      </details>}
+
+    </details>
     {showAllLyrics ? <div className="song-all-lyrics" aria-label="Koko kappaleen sanat">
       <h4>Koko kappaleen sanat</h4>
       <div className="song-all-lyrics-grid">
