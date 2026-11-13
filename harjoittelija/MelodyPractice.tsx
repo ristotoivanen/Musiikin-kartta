@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState, type MutableRefObject } from 'react';
 import { ReferencePlayer, referenceAudioError } from './audio';
+import { Board } from './Board';
+import type { Mark } from './engine';
 import { clipSound, melodyPieces, type MelodyClip, type MelodyId } from './melodyData';
-import { note, pc } from './music';
+import { note, pc, positionKey } from './music';
 
-type Stage = 'listen' | 'fingering' | 'memory' | 'full';
+type Stage = 'fingering' | 'memory' | 'full';
 type Choice = 'a' | 'b' | 'whole' | 'bonus';
 
 const STRINGS = ['e', 'B', 'G', 'D', 'A', 'E'];
@@ -23,6 +25,7 @@ export function MelodyPractice({ pieceId, stage, onBeforePlay, stopHandleRef }: 
   const [choice, setChoice] = useState<Choice>(stage === 'full' ? 'whole' : 'a');
   const [tempo, setTempo] = useState(piece.tempo);
   const [showTab, setShowTab] = useState(stage !== 'memory');
+  const [showBoardNotes, setShowBoardNotes] = useState(stage !== 'memory');
   const [playing, setPlaying] = useState(false);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [error, setError] = useState('');
@@ -49,7 +52,7 @@ export function MelodyPractice({ pieceId, stage, onBeforePlay, stopHandleRef }: 
 
   const choices: { id: Choice; name: string; clip: MelodyClip }[] = [
     { id: 'a', name: 'Osa A', clip: piece.fragments[0] },
-    ...(stage === 'listen' ? [] : [{ id: 'b' as const, name: 'Osa B', clip: piece.fragments[1] }]),
+    { id: 'b', name: 'Osa B', clip: piece.fragments[1] },
     ...(stage === 'full' ? [{ id: 'whole' as const, name: 'Pidempi melodia', clip: piece.whole }] : []),
     ...(stage === 'full' && piece.bonus ? [{ id: 'bonus' as const, name: 'Oma B → C -lisä', clip: piece.bonus }] : []),
   ];
@@ -59,6 +62,21 @@ export function MelodyPractice({ pieceId, stage, onBeforePlay, stopHandleRef }: 
   const activeBeat = activeIndex === null ? null : sounding[activeIndex]?.beat ?? null;
   const activePosition = activeBeat === null ? null : clip.events.find(e => e.beat === activeBeat)?.position ?? null;
   const bars = clip.beats / 4;
+  const uniquePositions = [...new Map(clip.events.filter(event => event.position)
+    .map(event => [positionKey(event.position!), event.position!] as const)).values()];
+  const frets = uniquePositions.map(position => position.fret);
+  const marks: Mark[] = uniquePositions.filter(position => showBoardNotes ||
+    (activePosition?.string === position.string && activePosition.fret === position.fret))
+    .map(position => ({
+      ...position,
+      label: note(position.midi),
+      kind: activePosition?.string === position.string && activePosition.fret === position.fret
+        ? 'playing' as const : pc(position.midi) === piece.tonic ? 'answer' as const : 'shape' as const,
+    }));
+  const boardArea = {
+    strings: [...new Set(uniquePositions.map(position => position.string))],
+    min: Math.min(...frets), max: Math.max(...frets), fixed: 'box' as const,
+  };
 
   async function play() {
     if (playing) { stop(); return; }
@@ -88,16 +106,21 @@ export function MelodyPractice({ pieceId, stage, onBeforePlay, stopHandleRef }: 
   }
 
   return <section className="melody-practice" aria-label={`Melodiaharjoitus: ${piece.title}`}>
+    <details onToggle={event => { if (!event.currentTarget.open) stop(); }}>
+      <summary>{stage === 'full'
+        ? `Ennen improvisointia: pidempi melodia · ${piece.title}`
+        : stage === 'memory' ? `Valinnainen: melodia muistista · ${piece.title}`
+          : `Valinnainen melodiaharjoitus · ${piece.title}`}</summary>
+      <div className="melody-practice-content">
     <p className="eyebrow">{stage === 'full' ? 'ENNEN IMPROVISOINTIA · PIENI KAPPALE'
       : stage === 'memory' ? 'MELODIA MUISTISTA'
-        : 'TUNNISTETTAVA MELODIAPÄTKÄ'}</p>
+        : 'HARJOITTELE MELODIAA OTELAUDALLA'}</p>
     <h4>{piece.title}</h4>
     <p className="melody-subtitle">{piece.qualifier} · 4/4 · {bars.toString().replace('.', ',')} tahtia valitussa osassa</p>
     <p className="melody-instruction">
-      {stage === 'listen' ? 'Kuuntele ensin lyhyt katkelma. Samat sävelet löytyvät opeteltavasta asteikosta.'
-        : stage === 'fingering' ? 'Kokeile osia A ja B erikseen. Seuraa rytmiä ja löydä oikeat kielet sekä nauhat.'
-          : stage === 'memory' ? 'Kuuntele katkelma, piilota tabulatuuri ja yritä soittaa se muistista. Voit pyytää merkinnät takaisin.'
-            : 'Kuuntele osat erikseen ja yhdistä ne pidemmäksi melodiaksi. Soita se sitten itse. Tämän jälkeen siirryt improvisoimaan ja muuttelemaan tuttuja säveliä.'}
+      {stage === 'fingering' ? 'Kokeile osia A ja B erikseen. Kuuntele ja seuraa keltaisella korostettua säveltä otelaudalla.'
+        : stage === 'memory' ? 'Kokeile osia A ja B muistista. Otelaudan sävelvihjeet ja tabulatuuri ovat aluksi piilossa, mutta soiva sävel korostuu mallikuuntelun aikana.'
+          : 'Yhdistä aiemmin opitut osat pidemmäksi melodiaksi ennen improvisointia. Voit avata tabulatuurin, kuunnella ja lopuksi keksiä saman melodian pohjalta omia fraaseja.'}
     </p>
     {stage === 'full' && piece.bonus && <p className="tools-note">
       Viimeinen valinta on <strong>erillinen oma harjoitus</strong>, ei osa {piece.title} -sävelmää.
@@ -127,6 +150,16 @@ export function MelodyPractice({ pieceId, stage, onBeforePlay, stopHandleRef }: 
         ? `Nyt soi ${note(sounding[activeIndex].midi)} · ${STRINGS[activePosition!.string]}-kieli, ${activePosition!.fret}. nauha`
         : playing ? 'Melodia soi kerran ja pysähtyy itsestään.' : 'Kuuntele malli tai soita katkelma itse.'}
     </p>
+    <div className="melody-board" aria-label="Melodian sävelet otelaudalla">
+      <Board area={boardArea} marks={marks} disabled caption={`${piece.title}, ${selection.name}`} />
+      <div className="melody-board-actions">
+        <button type="button" aria-pressed={showBoardNotes}
+          onClick={() => setShowBoardNotes(value => !value)}>
+          {showBoardNotes ? 'Piilota otelaudan sävelvihjeet' : 'Näytä otelaudan sävelvihjeet'}
+        </button>
+        <p className="tools-note">Keltainen korostus kertoo soivan sävelen sekä oikean kielen ja nauhan. Muistiharjoituksessa muut sävelet voi pitää piilossa.</p>
+      </div>
+    </div>
     {showTab && <div className="melody-tab-scroll" tabIndex={0} role="region" aria-label="Melodian tabulatuuri">
       <table className="melody-tab" aria-label={`${piece.title}, ${selection.name}, kitaratabulatuuri`}>
         <thead>
@@ -152,5 +185,7 @@ export function MelodyPractice({ pieceId, stage, onBeforePlay, stopHandleRef }: 
     </div>}
     <p className="tools-note">{piece.note}</p>
     {piece.source && <p className="melody-source"><a href={piece.source} target="_blank" rel="noreferrer">Melodian lähde</a></p>}
+      </div>
+    </details>
   </section>;
 }
