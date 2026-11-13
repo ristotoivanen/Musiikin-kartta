@@ -9,6 +9,12 @@ lisää sivuille oman Web Analytics -skriptinsä; se ei ole tässä repossa.
 Ajantasainen tilanne, testitulokset, rajoitukset ja oikealla kitaralla tehtävät
 hyväksyntätestit: [`../reviews/kitaraharjoittelija-auditointi.md`](../reviews/kitaraharjoittelija-auditointi.md).
 
+**Seuraavan vaiheen suunnitelma (ei vielä toteutettu):**
+[Melodiapohjaiset oppimispolut pentatonisille ja moodeille](suunnitelmat/melodinen-oppimispolku.md)
+sekä [tekijänoikeuksiltaan arvioidut sävelmäehdokkaat ja omien melodioiden vaihtoehto](suunnitelmat/savelmaehdokkaat.md).
+Lyhyistä musiikillisista pätkistä rakennetaan pidempi harjoitus **ennen improvisointia**;
+improvisaatio pysyy polun viimeisenä vaiheena.
+
 ## Skaalat ja moodit: erilliset oppimispolut (kehitysvaihe)
 
 Skaalat ja moodit -kortin jälkeen valitaan **Pentatoniset** tai **Moodit**.
