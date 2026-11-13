@@ -240,8 +240,6 @@ export function ModeJourney({ onBack }: { onBack: () => void }) {
         </>}
       </>}
       {step === 4 && <>
-        {modeId === 'ionian' && <MelodyPractice key="nooa:full" pieceId="nooa" stage="full"
-          onBeforePlay={stopPlayback} stopHandleRef={melodyStop} />}
         <p>Soita {lesson.chord}-sointupulssin päälle 2–3 sävelen fraaseja. Lopeta välillä {lesson.tonicName}-säveleen. Tausta on yksinkertainen syntetisoitu sointuarpeggio, ei valmis kitarabacking track.</p>
         <p className="tools-note">Tämä säilyttää kuultavan {lesson.tonicName}-sävelkeskuksen. Vertaa myöhemmin, miten samat sävelet kuulostavat toisen moodin sointupulssin päällä.</p>
         <fieldset className="hint-segments">
