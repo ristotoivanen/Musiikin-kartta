@@ -24,6 +24,7 @@ export function MelodyPractice({ pieceId, stage, onBeforePlay, stopHandleRef }: 
   const piece = melodyPieces[pieceId];
   const [choice, setChoice] = useState<Choice>(stage === 'full' ? 'whole' : 'a');
   const [tempo, setTempo] = useState(piece.tempo);
+  const [expanded, setExpanded] = useState(false);
   const [showTab, setShowTab] = useState(stage !== 'memory');
   const [showBoardNotes, setShowBoardNotes] = useState(stage !== 'memory');
   const [playing, setPlaying] = useState(false);
@@ -106,12 +107,16 @@ export function MelodyPractice({ pieceId, stage, onBeforePlay, stopHandleRef }: 
   }
 
   return <section className="melody-practice" aria-label={`Melodiaharjoitus: ${piece.title}`}>
-    <details onToggle={event => { if (!event.currentTarget.open) stop(); }}>
+    <details onToggle={event => {
+      const isOpen = event.currentTarget.open;
+      setExpanded(isOpen);
+      if (!isOpen) stop();
+    }}>
       <summary>{stage === 'full'
         ? `Ennen improvisointia: pidempi melodia · ${piece.title}`
         : stage === 'memory' ? `Valinnainen: melodia muistista · ${piece.title}`
           : `Valinnainen melodiaharjoitus · ${piece.title}`}</summary>
-      <div className="melody-practice-content">
+      {expanded && <div className="melody-practice-content">
     <p className="eyebrow">{stage === 'full' ? 'ENNEN IMPROVISOINTIA · PIENI KAPPALE'
       : stage === 'memory' ? 'MELODIA MUISTISTA'
         : 'HARJOITTELE MELODIAA OTELAUDALLA'}</p>
@@ -185,7 +190,7 @@ export function MelodyPractice({ pieceId, stage, onBeforePlay, stopHandleRef }: 
     </div>}
     <p className="tools-note">{piece.note}</p>
     {piece.source && <p className="melody-source"><a href={piece.source} target="_blank" rel="noreferrer">Melodian lähde</a></p>}
-      </div>
+      </div>}
     </details>
   </section>;
 }
