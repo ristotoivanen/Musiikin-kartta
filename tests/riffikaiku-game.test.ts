@@ -3,7 +3,7 @@
 import { afterEach, describe, it, expect, vi } from 'vitest';
 import type { GameAudio, MicHandlers } from '../riffikaiku/audioAdapter';
 import type { PluckState } from '../riffikaiku/pluck';
-import { RETRY_RESULT_MS, RiffGame } from '../riffikaiku/game';
+import { RiffGame } from '../riffikaiku/game';
 import { LEVELS, TUTORIAL } from '../riffikaiku/riffs';
 import { RiffStore } from '../riffikaiku/store';
 import type { AnalysisFrame, FrameStatus } from '../harjoittelija/vendor/pitchDetector';
@@ -183,11 +183,11 @@ describe('vastausvuoro mikrofonilla', () => {
     t.stable(60);
     expect(t.s().marks[1]).toBe('yellow');
     t.stable(62); t.stable(60);
-    expect(t.s()).toMatchObject({ phase: 'retry', autoRetry: true, marks: ['green', 'yellow', 'green', 'green'], failedAttempts: 1 });
-    expect(t.s().feedback!.text).toBe('Riffi soitettu loppuun. Kuunnellaan uudelleen!');
+    expect(t.s()).toMatchObject({ phase: 'retry', marks: ['green', 'yellow', 'green', 'green'], failedAttempts: 1 });
+    expect(t.s().feedback!.text).toContain('Soitit riffin loppuun! Kokeile vielä ilman virheitä.');
     expect(t.store.data.results.at(-1)).toMatchObject({ riff: 'b-kaari', input: 'mic', wrong: 2, octave: 1, passed: false });
     t.stable(59);
-    expect(t.s()).toMatchObject({ phase: 'retry', index: 4 });
+    expect(t.s()).toMatchObject({ phase: 'retry', index: 4, marks: ['green', 'yellow', 'green', 'green'] });
     t.game.stop();
   });
 
@@ -204,93 +204,118 @@ describe('vastausvuoro mikrofonilla', () => {
   });
 });
 
-describe('automaattinen uusinta epäonnistuneen kokonaisen yrityksen jälkeen', () => {
+describe('epäonnistunut kokonainen yritys: ei automaattista uusintaa, vapaa kokeilu, Yritä uudelleen', () => {
   async function failOnBoard(t: ReturnType<typeof setup>, wrongAt = 1) {
-    const riff = t.s().riff.midi;
-    riff.forEach((m, i) => { if (i === wrongAt) t.game.tap(m + 2); t.game.tap(m); });
+    t.s().riff.midi.forEach((m, i) => { if (i === wrongAt) t.game.tap(m + 2); t.game.tap(m); });
     expect(t.s().phase).toBe('retry');
   }
 
-  it('tulos näkyy, sama malli soi automaattisesti, eteneminen nollataan vasta uutta yritystä varten', async () => {
+  it('tulos jää näkyviin: ei mallia eikä uutta yritystä itsestään, vaikka aikaa kuluu', async () => {
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
     const t = setup({ tutorialDone: true });
     t.game.startBoard(); t.game.listen(); t.audio.models.shift()!.resolve(true); await vi.advanceTimersByTimeAsync(0);
     await failOnBoard(t);
-    expect(t.s()).toMatchObject({ autoRetry: true, marks: ['green', 'yellow', 'green', 'green'], index: 4, failedAttempts: 1 });
+    await vi.advanceTimersByTimeAsync(60000);
+    expect(t.s()).toMatchObject({ phase: 'retry', marks: ['green', 'yellow', 'green', 'green'], index: 4, failedAttempts: 1 });
     expect(t.audio.models).toHaveLength(0);
-    await vi.advanceTimersByTimeAsync(RETRY_RESULT_MS - 100);
-    expect(t.s()).toMatchObject({ phase: 'retry', marks: ['green', 'yellow', 'green', 'green'] });
-    await vi.advanceTimersByTimeAsync(200);
-    expect(t.s()).toMatchObject({ phase: 'model-playing', autoRetry: false, riff: { id: 'b-kaari' }, marks: ['pending', 'pending', 'pending', 'pending'], index: 0, failedAttempts: 1 });
-    expect(t.audio.models).toHaveLength(1);
-    expect(t.audio.models[0].notes).toEqual(KT1[0]);
-    // Malli ei vastaa; virtuaalikitara on lukittu mallin ajan.
-    expect(t.game.tap(59)).toBe(false);
-    t.audio.models.shift()!.resolve(true); await vi.advanceTimersByTimeAsync(0);
-    expect(t.s().phase).toBe('listening');
-    t.playBoard(KT1[0]);
-    expect(t.s()).toMatchObject({ phase: 'success', failedAttempts: 1 });
-    expect(t.store.data.results.map(r => r.passed)).toEqual([false, true]);
+    expect(t.audio.calls.filter(c => c === 'model')).toHaveLength(1);
   });
 
-  it('automaattisen uusinnan voi perua; sen jälkeen Yritä uudelleen aloittaa yrityksen', async () => {
-    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+  it('vapaa kokeilu otelaudalla: sävelet soivat, mutta tulos, pallukat ja laskurit eivät muutu', async () => {
     const t = setup({ tutorialDone: true });
-    t.game.startBoard(); t.game.listen(); t.audio.models.shift()!.resolve(true); await vi.advanceTimersByTimeAsync(0);
+    await boardToListening(t);
     await failOnBoard(t);
-    t.game.cancelAutoRetry();
-    expect(t.s()).toMatchObject({ phase: 'retry', autoRetry: false });
-    await vi.advanceTimersByTimeAsync(RETRY_RESULT_MS * 2);
-    expect(t.s().phase).toBe('retry'); expect(t.audio.models).toHaveLength(0);
+    const results = t.store.data.results.length;
+    t.audio.plucks.length = 0;
+    for (const m of [64, 59, 60, 60, 62]) expect(t.game.tap(m)).toBe(true);
+    expect(t.audio.plucks).toEqual([64, 59, 60, 60, 62]);
+    expect(t.s()).toMatchObject({ phase: 'retry', marks: ['green', 'yellow', 'green', 'green'], index: 4, failedAttempts: 1 });
+    expect(t.store.data.results).toHaveLength(results);
+  });
+
+  it('mallia voi kuunnella rajattomasti: pallukat ja vaihe säilyvät, kuuntelun voi pysäyttää', async () => {
+    const t = setup({ tutorialDone: true });
+    await boardToListening(t);
+    await failOnBoard(t);
+    for (let i = 0; i < 3; i++) {
+      t.game.listen();
+      expect(t.s()).toMatchObject({ phase: 'retry', modelPlaying: true, marks: ['green', 'yellow', 'green', 'green'] });
+      await t.finishModel();
+      expect(t.s()).toMatchObject({ phase: 'retry', modelPlaying: false });
+    }
+    t.game.listen(); t.game.listen(); // pysäytys
+    expect(t.s()).toMatchObject({ phase: 'retry', modelPlaying: false, marks: ['green', 'yellow', 'green', 'green'] });
+  });
+
+  it('Yritä uudelleen: uusi arvioitava yritys ensimmäisestä sävelestä, värit nollataan, muistivihjeet säilyvät, ei mallia', async () => {
+    const t = setup({ tutorialDone: true });
+    await boardToListening(t);
+    for (let i = 0; i < 3; i++) { await failOnBoard(t, 1); if (i < 2) t.game.retry(); }
+    expect(t.s()).toMatchObject({ failedAttempts: 3, marks: ['green', 'yellow', 'green', 'green'] });
     t.game.retry();
-    expect(t.s()).toMatchObject({ phase: 'model-playing', marks: ['pending', 'pending', 'pending', 'pending'] });
-    expect(t.audio.models).toHaveLength(1);
+    expect(t.s()).toMatchObject({ phase: 'listening', index: 0, marks: ['pending', 'pending', 'pending', 'pending'], memory: [59, null, 62, 60], failedAttempts: 3 });
+    expect(t.audio.models).toHaveLength(0);
+    // Uudessa yrityksessä järjestys ja korjaus toimivat kuten ennenkin.
+    t.game.tap(60);
+    expect(t.s().marks[0]).toBe('red');
+    t.game.tap(59); t.game.tap(60); t.game.tap(62); t.game.tap(60);
+    expect(t.s()).toMatchObject({ phase: 'retry', marks: ['yellow', 'green', 'green', 'green'], failedAttempts: 4 });
+    t.game.retry();
+    t.playBoard(KT1[0]);
+    expect(t.s().phase).toBe('success');
+    expect(t.store.data.results.map(r => r.passed)).toEqual([false, false, false, false, true]);
   });
 
-  it('tauko, lopetus ja kotitreenivalikko estävät odottavan uusinnan', async () => {
-    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
-    for (const action of ['pause', 'stop', 'levels'] as const) {
-      const t = setup({ tutorialDone: true });
-      t.game.startBoard(); t.game.listen(); t.audio.models.shift()!.resolve(true); await vi.advanceTimersByTimeAsync(0);
-      await failOnBoard(t);
-      if (action === 'pause') t.game.pause('background'); else if (action === 'stop') t.game.stop(); else t.game.openLevels();
-      await vi.advanceTimersByTimeAsync(RETRY_RESULT_MS * 2);
-      expect(t.audio.models, action).toHaveLength(0);
-      expect(t.s().autoRetry).toBe(false);
-    }
-  });
-
-  it('Kuuntele riffi odottavan uusinnan aikana aloittaa uusinnan heti – ei päällekkäisiä mallisoittoja', async () => {
-    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+  it('mikrofonilla: vapaa kokeilu kuulee mutta ei arvioi; Yritä uudelleen nollaa tunnistimen, sitten arvioidaan', async () => {
     const t = setup({ tutorialDone: true });
-    t.game.startBoard(); t.game.listen(); t.audio.models.shift()!.resolve(true); await vi.advanceTimersByTimeAsync(0);
-    await failOnBoard(t);
+    await micToListening(t);
+    t.game.setDiagnosticsOpen(true);
+    t.stable(59); t.stable(64); t.stable(60); t.stable(62); t.stable(60);
+    expect(t.s().phase).toBe('retry');
+    // Analyysi käynnissä vapaata kokeilua varten.
+    expect(t.audio.calls.at(-1)).toBe('resume');
+    t.frame('pitch', 62);
+    expect(t.s().heard).toMatchObject({ status: 'pitch', midi: 62 });
+    for (const m of [59, 60, 62, 60]) t.stable(m);
+    expect(t.s()).toMatchObject({ phase: 'retry', index: 4, marks: ['green', 'yellow', 'green', 'green'], failedAttempts: 1 });
+    expect(t.s().diag?.routed.last).toMatchObject({ midi: 60, route: 'not-routed', phase: 'retry' });
+    expect(t.store.data.results).toHaveLength(1);
+    // Kuuntelu kokeilun aikana: analyysi tauolle mallin ajaksi ja takaisin päälle.
     t.game.listen();
-    expect(t.s()).toMatchObject({ phase: 'model-playing', modelPlaying: true, autoRetry: false });
-    await vi.advanceTimersByTimeAsync(RETRY_RESULT_MS * 2);
-    expect(t.audio.models).toHaveLength(1);
-    expect(t.audio.calls.filter(c => c === 'model')).toHaveLength(2);
+    expect(t.audio.calls.at(-2)).toBe('pause');
+    await t.finishModel();
+    expect(t.audio.calls.at(-1)).toBe('resume');
+    expect(t.s().phase).toBe('retry');
+    t.game.retry();
+    expect(t.s()).toMatchObject({ phase: 'listening', index: 0, marks: ['pending', 'pending', 'pending', 'pending'] });
+    expect(t.audio.calls.at(-1)).toBe('rearm');
+    for (const m of KT1[0]) t.stable(m);
+    expect(t.s().phase).toBe('success');
+    expect(t.s().diag?.routed.last).toMatchObject({ route: 'game' });
   });
 
-  it('mikrofonilla: analyysi tauolla uusinnan mallin ajan; laskuri kasvaa kerran per epäonnistuminen; muistivihjeet säilyvät', async () => {
-    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+  it('mikrofonilla ready-vaiheessa kokeilu ei vastaa ennen kuuntelua', async () => {
     const t = setup({ tutorialDone: true });
-    t.game.startMic(); await vi.advanceTimersByTimeAsync(0); t.calibrate(); t.stable(59); t.game.continueAfterCheck();
-    t.game.listen(); t.audio.models.shift()!.resolve(true); await vi.advanceTimersByTimeAsync(0); t.settle();
-    for (let attempt = 1; attempt <= 3; attempt++) {
-      t.stable(59); t.stable(64); t.stable(60); t.stable(62); t.stable(60);
-      expect(t.s()).toMatchObject({ phase: 'retry', failedAttempts: attempt });
-      await vi.advanceTimersByTimeAsync(RETRY_RESULT_MS);
-      expect(t.s().phase).toBe('model-playing');
-      expect(t.audio.calls.at(-2)).toBe('pause');
-      // Mallin aikana mikrofonin näppäilyt eivät etene.
-      t.stable(59);
-      expect(t.s().index).toBe(0);
-      t.audio.models.shift()!.resolve(true); await vi.advanceTimersByTimeAsync(0); t.settle();
-      expect(t.s().phase).toBe('listening');
-    }
-    // Kolmen epäonnistumisen jälkeen: paikat 1, 3 ja 4 aina heti oikein → muistivihjeet niihin.
-    expect(t.s()).toMatchObject({ failedAttempts: 3, memory: [59, null, 62, 60], marks: ['pending', 'pending', 'pending', 'pending'] });
+    await t.checkMic();
+    expect(t.s().phase).toBe('ready');
+    t.game.setDiagnosticsOpen(true);
+    for (let i = 0; i < 6; i++) t.frame('silent'); // näyttöpäivitys on harvennettu (80 ms)
+    t.stable(59);
+    expect(t.s()).toMatchObject({ phase: 'ready', index: 0 });
+    expect(t.s().diag?.routed.last).toMatchObject({ route: 'not-routed', phase: 'ready' });
+  });
+
+  it('tauko epäonnistuneen yrityksen jälkeen: jatko palauttaa tuloksen, palautteen ja vapaan kokeilun', async () => {
+    const t = setup({ tutorialDone: true });
+    await micToListening(t);
+    t.stable(59); t.stable(64); t.stable(60); t.stable(62); t.stable(60);
+    const feedback = t.s().feedback;
+    t.game.pause('background');
+    t.game.resume(); await flush();
+    expect(t.s()).toMatchObject({ phase: 'retry', marks: ['green', 'yellow', 'green', 'green'], feedback });
+    expect(t.audio.calls.at(-1)).toBe('resume');
+    t.stable(59);
+    expect(t.s().index).toBe(4);
   });
 });
 
@@ -366,9 +391,12 @@ describe('virheetön riffi: pelaaja valitsee jatkon', () => {
     // Kuuntele riffi onnistumisen jälkeen: vain kuuntelu, vaihe ei muutu.
     t.game.listen(); await t.finishModel();
     expect(t.s().phase).toBe('success');
+    // Onnistumisen jälkeenkin voi kokeilla vapaasti.
+    expect(t.game.tap(64)).toBe(true);
+    expect(t.s()).toMatchObject({ phase: 'success', marks: ['green', 'green', 'green', 'green'] });
     t.game.playAgain();
-    expect(t.s()).toMatchObject({ phase: 'model-playing', riff: { id: 'b-kaari' }, marks: ['pending', 'pending', 'pending', 'pending'], index: 0 });
-    await t.finishModel();
+    expect(t.s()).toMatchObject({ phase: 'listening', riff: { id: 'b-kaari' }, marks: ['pending', 'pending', 'pending', 'pending'], index: 0 });
+    expect(t.audio.models).toHaveLength(0);
     t.game.tap(60);
     expect(t.s().marks[0]).toBe('red');
     expect(t.store.run('board').passed).toEqual(['b-kaari']); // läpäisy säilyy

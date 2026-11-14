@@ -174,7 +174,7 @@ export function Riffikaiku({ game }: { game: RiffGame }) {
   // Lisävalikko: vain tilanteessa mielekkäät toiminnot.
   const menu: MenuItem[] = [];
   if (inGame) {
-    if (['ready', 'listening', 'output-settling', 'model-playing', 'retry'].includes(s.phase) && (s.index > 0 || s.marks.includes('red') || s.phase === 'retry'))
+    if (['listening', 'output-settling', 'model-playing'].includes(s.phase) && (s.index > 0 || s.marks.includes('red')))
       menu.push({ label: 'Aloita uusi yritys', run: () => game.restart() });
     if (s.phase === 'paused') menu.push({ label: 'Jatka', run: () => game.resume() });
     else if (!['success', 'retry'].includes(s.phase)) menu.push({ label: 'Tauko', run: () => game.pause('manual') });
@@ -296,7 +296,8 @@ export function Riffikaiku({ game }: { game: RiffGame }) {
       <Slots s={s} />
       <p className="riff-count" data-testid="count">Ratkaistu {s.index}/{total}{s.memory.some(m => m !== null) ? ' · muistivihjeet käytössä' : ''}</p>
       {s.feedback && <p className={`riff-feedback ${s.feedback.tone}`} role="status" data-testid="feedback">{s.feedback.text}</p>}
-      {s.input === 'mic' && !['paused', 'ready'].includes(s.phase) && <p className="riff-heard">Mikrofoni kuulee: <strong data-testid="heard">{s.modelPlaying ? 'tauolla mallin ajan' : heardText(s)}</strong></p>}
+      {s.input === 'mic' && s.phase !== 'paused' && <p className="riff-heard">
+        Mikrofoni kuulee{['ready', 'success', 'retry'].includes(s.phase) && !s.modelPlaying ? ' (vapaa kokeilu, ei arvioida)' : ''}: <strong data-testid="heard">{s.modelPlaying ? 'tauolla mallin ajan' : heardText(s)}</strong></p>}
 
       {s.hint && <div className="riff-hint" data-testid="hint">
         <p><strong>Sävelet:</strong> {s.riff.midi.map(noteName).join(' – ')}</p>
@@ -318,9 +319,7 @@ export function Riffikaiku({ game }: { game: RiffGame }) {
           <button type="button" className="primary" onClick={() => game.next()}>{s.tutorial ? `Aloita ${LEVELS[0].name}` : 'Seuraava riffi'}</button>
           {!s.tutorial && <button type="button" onClick={() => game.playAgain()}>Soita uudelleen</button>}
         </>}
-        {s.phase === 'retry' && (s.autoRetry
-          ? <button type="button" onClick={() => game.cancelAutoRetry()}>Peru automaattinen uusinta</button>
-          : <button type="button" className="primary" onClick={() => game.retry()}>Yritä uudelleen</button>)}
+        {s.phase === 'retry' && <button type="button" className="primary" onClick={() => game.retry()}>Yritä uudelleen</button>}
         {s.phase !== 'paused' && <button type="button" className={['ready', 'listening', 'output-settling', 'model-playing'].includes(s.phase) ? 'primary' : ''}
           onClick={() => game.listen()} aria-pressed={s.modelPlaying} data-testid="listen">{s.modelPlaying ? 'Pysäytä kuuntelu' : 'Kuuntele riffi'}</button>}
         {s.phase !== 'paused' && <button type="button" aria-pressed={s.hint} onClick={() => game.toggleHint()}>{s.hint ? 'Piilota vihje' : 'Vihje'}</button>}

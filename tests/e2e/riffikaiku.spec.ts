@@ -164,7 +164,7 @@ test.describe('virtuaalikitara', () => {
 
     await page.getByRole('button', { name: 'Soita uudelleen' }).click();
     await turn(page);
-    expect(await tones(page)).toEqual([59, 60, 62, 60]);
+    expect(await tones(page)).toEqual([]); // uusi yritys ilman automaattista mallia
     expect(await marksOf(page)).toEqual(['pending', 'pending', 'pending', 'pending']);
     await playFrets(page, [0, 1, 3, 1], isMobile);
     await page.getByRole('button', { name: 'Seuraava riffi' }).click();
@@ -172,45 +172,39 @@ test.describe('virtuaalikitara', () => {
     await expect(status(page)).toHaveText('Kuuntele riffi aloittaaksesi.');
   });
 
-  test('epäonnistunut kokonainen riffi: tulos näkyy, malli soi automaattisesti ja uusi yritys alkaa alusta', async ({ page, isMobile }) => {
+  test('epäonnistunut riffi: tulos jää näkyviin, ei automaattista uusintaa; vapaa kokeilu ei muuta tulosta; Yritä uudelleen', async ({ page, isMobile }) => {
     await mockAudio(page);
     await seedRiff(page);
     await page.goto('/riffikaiku.html');
     await page.getByRole('button', { name: /Virtuaalikitara/ }).click();
     await listenAndTurn(page);
-    await clearTones(page);
     await playFrets(page, [0, 5], isMobile); // E4 väärin kohdassa 2
     await expect(feedback(page)).toHaveText('Väärä sävel. Kokeile uudelleen.');
     await playFrets(page, [1, 3, 1], isMobile);
     await expect(status(page)).toHaveText('Riffi soitettu loppuun');
-    await expect(feedback(page)).toContainText('Riffi soitettu loppuun. Kuunnellaan uudelleen!');
+    await expect(feedback(page)).toContainText('Soitit riffin loppuun! Kokeile vielä ilman virheitä.');
+    await expect(page.locator('.riff-main-actions button')).toHaveText(['Yritä uudelleen', 'Kuuntele riffi', 'Vihje']);
+    await clearTones(page);
+    await page.waitForTimeout(4000);
+    expect(await tones(page)).toEqual([]); // ei automaattista mallia
     expect(await marksOf(page)).toEqual(['green', 'yellow', 'green', 'green']);
-    await expect(page.getByRole('button', { name: 'Peru automaattinen uusinta' })).toBeVisible();
-    // Malli alkaa itsestään ja vuoro tulee ilman painiketta.
-    await expect(listenButton(page)).toHaveText('Pysäytä kuuntelu', { timeout: 5000 });
-    expect(await marksOf(page)).toEqual(['pending', 'pending', 'pending', 'pending']);
+    // Vapaa kokeilu: sävelet soivat, tulos ei muutu.
+    await playFrets(page, [3, 0, 1], isMobile);
+    expect(await tones(page)).toEqual([62, 59, 60]);
+    expect(await marksOf(page)).toEqual(['green', 'yellow', 'green', 'green']);
+    expect(await slotTexts(page)).toEqual(['B3', 'C4', 'D4', 'C4']);
+    // Mallia voi kuunnella uudelleen ilman, että tulos nollautuu.
+    await listenButton(page).click();
+    await expect(listenButton(page)).toHaveText('Pysäytä kuuntelu');
+    await expect(listenButton(page)).toHaveText('Kuuntele riffi', { timeout: 6000 });
+    expect(await marksOf(page)).toEqual(['green', 'yellow', 'green', 'green']);
+    expect((await stored(page)).results).toHaveLength(1);
+    await page.getByRole('button', { name: 'Yritä uudelleen' }).click();
     await turn(page);
-    expect((await tones(page)).slice(-4)).toEqual([59, 60, 62, 60]);
+    expect(await marksOf(page)).toEqual(['pending', 'pending', 'pending', 'pending']);
     await playFrets(page, [0, 1, 3, 1], isMobile);
     await expect(status(page)).toHaveText('Riffi läpäisty!');
     expect((await stored(page)).results.map((r: { passed: boolean }) => r.passed)).toEqual([false, true]);
-  });
-
-  test('automaattisen uusinnan voi perua; Yritä uudelleen jatkaa käsin', async ({ page, isMobile }) => {
-    await mockAudio(page);
-    await seedRiff(page);
-    await page.goto('/riffikaiku.html');
-    await page.getByRole('button', { name: /Virtuaalikitara/ }).click();
-    await listenAndTurn(page);
-    await playFrets(page, [2, 0, 1, 3, 1], isMobile);
-    await clearTones(page);
-    await page.getByRole('button', { name: 'Peru automaattinen uusinta' }).click();
-    await page.waitForTimeout(3500);
-    expect(await tones(page)).toEqual([]);
-    expect(await marksOf(page)).toEqual(['yellow', 'green', 'green', 'green']);
-    await page.getByRole('button', { name: 'Yritä uudelleen' }).click();
-    await turn(page);
-    expect(await tones(page)).toEqual([59, 60, 62, 60]);
   });
 
   test('Kuuntele riffi kesken yrityksen ei nollaa: vihreä ja punainen säilyvät, pysäytys säilyttää tilan', async ({ page, isMobile }) => {
@@ -245,12 +239,12 @@ test.describe('virtuaalikitara', () => {
       await expect(status(page)).toHaveText('Riffi soitettu loppuun');
       if (attempt < 3) {
         await expect(feedback(page)).not.toContainText('Muistivihjeet');
-        await menuAction(page, 'Aloita uusi yritys', isMobile);
+        await page.getByRole('button', { name: 'Yritä uudelleen' }).click();
         expect(await slotTexts(page)).toEqual(['?', '', '', '']);
       }
     }
     await expect(feedback(page)).toContainText('Muistivihjeet ovat käytössä');
-    await menuAction(page, 'Aloita uusi yritys', isMobile);
+    await page.getByRole('button', { name: 'Yritä uudelleen' }).click();
     await turn(page);
     expect(await marksOf(page)).toEqual(['pending', 'pending', 'pending', 'pending']);
     expect(await slotTexts(page)).toEqual(['B3', 'C4', 'D4', '']);
@@ -496,6 +490,30 @@ test.describe('oikea kitara (simuloitu mikrofoni)', () => {
     expect(await marksOf(page)).toEqual(['green', 'pending', 'pending', 'pending']);
     await pluck(page, 60);
     expect(await marksOf(page)).toEqual(['green', 'green', 'pending', 'pending']);
+  });
+
+  test('mikrofonilla epäonnistuneen riffin jälkeen: kuuleminen jatkuu, mutta soitto ei arvioi ennen Yritä uudelleen', async ({ page }) => {
+    await mockAudio(page);
+    await seedRiff(page, undefined, {}, 'mic');
+    await page.goto('/riffikaiku.html');
+    await micReady(page);
+    await listenAndTurn(page);
+    for (const midi of [59, 64, 60, 62, 60]) await pluck(page, midi);
+    await expect(status(page)).toHaveText('Riffi soitettu loppuun');
+    expect(await marksOf(page)).toEqual(['green', 'yellow', 'green', 'green']);
+    await expect(page.locator('.riff-heard')).toContainText('vapaa kokeilu, ei arvioida');
+    await setMic(page, { frequency: hz(62) });
+    await expect(page.getByTestId('heard')).toHaveText('D4');
+    for (const midi of [59, 60, 62, 60]) await pluck(page, midi);
+    expect(await marksOf(page)).toEqual(['green', 'yellow', 'green', 'green']);
+    expect((await stored(page)).results).toHaveLength(1);
+    // Uusi yritys: soimaan jäänyt sävel ei vastaa; seuraavat näppäilyt arvioidaan.
+    await page.getByRole('button', { name: 'Yritä uudelleen' }).click();
+    await turn(page);
+    await page.waitForTimeout(800);
+    expect(await marksOf(page)).toEqual(['pending', 'pending', 'pending', 'pending']);
+    for (const midi of [59, 60, 62, 60]) await pluck(page, midi);
+    await expect(status(page)).toHaveText('Riffi läpäisty!');
   });
 
   test('äänitulon vaihto: vanha virta suljetaan, Scarlett avataan ja näytetään', async ({ page }) => {

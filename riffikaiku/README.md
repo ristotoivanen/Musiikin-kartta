@@ -92,14 +92,18 @@ havainnot koskaan mene pelin tarkistajalle. Virittimestä pääsee suoraan harjo
    **keltainen** (oikea virheen jälkeen, nimi näkyviin; ei muutu vihreäksi). Symbolit ✓ ✗ ↻ ja
    ruudunlukijan teksti, joten väri ei ole ainoa vihje.
 4. **Virheetön (kaikki vihreinä):** ”Riffi läpäisty!”. Peli ei siirry eikä soita itse. Pelaaja valitsee
-   **Seuraava riffi** (kolmannen jälkeen onnittelunäkymä) tai **Soita uudelleen** (uusi yritys, malli alkuun,
-   läpäisy säilyy).
-5. **Loppuun keltaisilla:** ”Riffi soitettu loppuun. Kuunnellaan uudelleen!” Tulos näkyy
-   `RETRY_RESULT_MS` = 2,5 s, sitten sama malli soi ja uusi yritys alkaa automaattisesti ensimmäisestä
-   sävelestä. **Peru automaattinen uusinta** pysäyttää sen (sen jälkeen **Yritä uudelleen**). Tauko,
-   taustavälilehti, lopetus, kotitreenivalikko ja sivulta poistuminen perivät odottavan uusinnan.
-   Kuuntele riffi odotuksen aikana aloittaa uusinnan heti – yksi malli, ei päällekkäisiä. Epäonnistuneiden
-   kokonaisyritysten laskuri kasvaa kerran per valmistunut yritys.
+   **Seuraava riffi** (kolmannen jälkeen onnittelunäkymä) tai **Soita uudelleen** (uusi arvioitava yritys
+   heti, läpäisy säilyy).
+5. **Loppuun keltaisilla:** ”Soitit riffin loppuun! Kokeile vielä ilman virheitä.” Vihreät ja keltaiset
+   jäävät näkyviin. **Ei automaattista mallia eikä uutta yritystä** (poistettu käyttäjätestin perusteella).
+   Pelaaja voi kuunnella mallia rajattomasti ja kokeilla säveliä vapaasti, ja valitsee itse
+   **Yritä uudelleen**: uusi arvioitava yritys ensimmäisestä sävelestä, värit ja eteneminen nollataan,
+   muistivihjeet säilyvät, malli ei soi itsestään. Epäonnistuneiden kokonaisyritysten laskuri kasvaa
+   kerran per valmistunut yritys.
+   **Vapaa kokeilu** (ennen ensimmäistä kuuntelua, onnistumisen ja epäonnistumisen jälkeen): virtuaalikitara
+   soi ja mikrofoni kuulee (”Mikrofoni kuulee (vapaa kokeilu, ei arvioida): D4”), mutta näppäilyt eivät mene
+   tarkistajalle eivätkä muuta tulosta, pallukoita, laskureita tai tallennusta. Yrityksen alussa
+   näppäilytunnistin nollataan, joten kokeilusta soimaan jäänyt kieli ei vastaa.
 6. **Kuuntele riffi kesken yrityksen** ei aloita uutta yritystä: paikka, värit, sävelnimet, muistivihjeet,
    laskuri ja läpäisyt säilyvät. Sama painike on soiton aikana **Pysäytä kuuntelu** (eteneminen säilyy;
    mikrofonilla vuoro jatkuu suojavaiheen kautta, joten pysäytys ei tuota haamuvastauksia).
@@ -107,7 +111,7 @@ havainnot koskaan mene pelin tarkistajalle. Virittimestä pääsee suoraan harjo
 **Muistivihjeet:** saman riffin kolmannen loppuun soitetun epäonnistuneen yrityksen jälkeen uusi
 yritys näyttää harmaina ne paikat, jotka pelaaja on jollakin aiemmalla yrityksellä soittanut **heti
 oikein**; muut ovat tyhjiä. Paikkakohtainen, ei hyväksy mitään, säilyy automaattisten uusintojen ja
-kuuntelun yli, nollautuu seuraavassa riffissä. (Vain vihreät, koska loppuun soitetussa yrityksessä kaikki
+kuuntelun ja Yritä uudelleen -toiminnon yli, nollautuu seuraavassa riffissä. (Vain vihreät, koska loppuun soitetussa yrityksessä kaikki
 paikat on lopulta löydetty.) Manuaalinen **Vihje** on erillinen ja kirjataan tulokseen (`hint`).
 
 ### Pelinäkymä ja lisävalikko
@@ -115,9 +119,9 @@ paikat on lopulta löydetty.) Manuaalinen **Vihje** on erillinen ja kirjataan tu
 Yläosa: Riffikaiku · ”Kotitreeni 1 · Riffi 2/3” · riffin nimi · **⋯ Lisää** (oikea reuna). Tila:
 ”Kuuntele riffi aloittaaksesi.” / ”Sinun vuorosi!” ja ohje ”Soita riffi B-kieleltä.”. Pallukat ja
 ”Ratkaistu n/4”. Soittoalue. Toiminnot: **Kuuntele riffi / Pysäytä kuuntelu** ja **Vihje**
-(onnistumisen jälkeen Seuraava riffi ja Soita uudelleen; epäonnistumisen jälkeen Peru / Yritä uudelleen).
+(onnistumisen jälkeen Seuraava riffi ja Soita uudelleen; epäonnistumisen jälkeen Yritä uudelleen).
 
-Lisävalikossa vain tilanteeseen sopivat: **Aloita uusi yritys** (kun yritystä on aloitettu), **Tauko** /
+Lisävalikossa vain tilanteeseen sopivat: **Aloita uusi yritys** (kesken yrityksen, kun sitä on aloitettu), **Tauko** /
 **Jatka**, **Kotitreenit**, **Mikrofonin tiedot** (vain oikea kitara: laite ja diagnostiikka),
 **Vaihda pelitapaa**, **Lopeta harjoitus**. Valikon avaaminen ei muuta pelin tilaa. Hiiri, kosketus,
 näppäimistö (Enter/välilyönti avaa, nuolet, Home/End, Esc sulkee ja palauttaa kohdistuksen), ulkopuolinen
@@ -193,5 +197,4 @@ Syötteen tulkinta (näppäily vs. painallus) ja äänen hallinta pysyvät ytime
   mikrofonihavainto pakottaa uuden yrityksen.
 - Selaimet voivat ohittaa pyynnön kytkeä puheenkäsittely pois (erityisesti puhelimet).
 - Muistivihjelaskuri ei säily sivun latauksen yli.
-- Automaattisen uusinnan 2,5 s:n tulosnäkymä on arvio; pelaajatestissä kannattaa katsoa, ehtiikö värit nähdä.
 - Mikrofonitilassa otelauta ei ole painettava, vaikka se näkyy (vastaus tulee kitarasta).

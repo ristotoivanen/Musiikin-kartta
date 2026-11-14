@@ -52,9 +52,10 @@ ylimääräinen tapahtuma (pallukka muuttui ilman näppäystä tai väärä ”k
 7. **Uusi näppäys, kun edellinen soi vielä**: sekä eri sävel että sama sävel. Sama sävel pehmeästi on
    tunnettu rajoitus – kirjaa, kuinka usein se jää huomaamatta normaalilla näppäyksellä.
 8. **Tahallinen väärä sävel ja palautuminen**: soita väärä → punainen, sama kohta pysyy; oikea →
-   keltainen; riffi loppuun → ”Riffi soitettu loppuun. Kuunnellaan uudelleen!” → malli soi itsestään
-   ~2,5 s:n kuluttua. **Kirjaa, tuleeko mallisoiton aikana tai heti sen jälkeen haamuvastauksia**
-   (soittimen kieli voi vielä soida). Myös väärä oktaavi (B4 B3:n sijaan).
+   keltainen; riffi loppuun → ”Soitit riffin loppuun!”, pallukat jäävät näkyviin. Soita sen jälkeen
+   vapaasti säveliä: ”Mikrofoni kuulee (vapaa kokeilu, ei arvioida)” näyttää ne, mutta pallukat ja tulos
+   eivät saa muuttua. Paina Yritä uudelleen kielen vielä soidessa: **kirjaa, tuleeko haamuvastausta**
+   (soimaan jäänyt kieli ei saa vastata). Myös väärä oktaavi (B4 B3:n sijaan).
 9. **Virheetön riffi hyväksytään**: kaikki vihreinä → ”Riffi läpäisty!”, peli odottaa valintaa
    (Seuraava riffi / Soita uudelleen). Kolme riffiä → onnittelunäkymä.
 10. **Viritin**: jokainen kieli, lukeman vakaus, ”liian matala / vireessä / liian korkea” oikeaan suuntaan
