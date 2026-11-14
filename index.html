@@ -33,14 +33,10 @@
   .hero h1 span { color: var(--lavender); }
   .hero p.tagline { color: var(--muted); max-width: 620px; margin: 0 auto; font-size: 16px; }
   a { color: var(--lavender); }
-  .hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 18px; }
-  .jump-link {
     display: inline-block; padding: 9px 16px; border: 1px solid #4b2fd6;
     background: var(--purple-dark); color: var(--text);
     border-radius: 8px; font-weight: 700; text-decoration: none;
   }
-  .jump-link-secondary { background: var(--panel); border-color: #71638c; }
-  .jump-link:hover { border-color: var(--lavender); }
   :focus-visible { outline: 2px solid #75e5c6; outline-offset: 2px; }
   main { max-width: 900px; margin: 0 auto; padding: 0 18px; }
   section { margin-top: 44px; }
@@ -71,7 +67,7 @@
   .topic-expand { font-size: 20px; color: var(--lavender); }
   .topic-card[open] .topic-expand { transform: rotate(180deg); }
   .topic-links { display: grid; gap: 10px; padding: 4px 16px 18px; }
-  .topic-links p { margin: 0; color: var(--muted); font-size: 13px; }
+  .topic-links .topic-group-title { margin: 8px 0 0; color: var(--lavender); font-size: 13px; font-weight: 700; letter-spacing: .03em; }
   .topic-links a { display: block; padding: 7px 9px; border: 1px solid #625476; border-radius: 8px; color: var(--text); font-size: 14px; text-decoration: none; }
   .topic-links a:hover, .topic-links a:focus-visible { border-color: var(--lavender); background: #33294b; }
   @media (max-width: 740px) { .topic-grid { grid-template-columns: 1fr; } .start-here { flex-direction: column; align-items: stretch; } .start-here a { align-self: start; } }
@@ -91,8 +87,8 @@
   <nav class="main-nav" aria-label="Päävalikko">
     <a class="brand" href="index.html" aria-current="page">Musiikin <span>kartta</span></a>
     <ul>
-      <li><a href="book/index.html"><span class="nav-long">Musiikin teoria</span><span class="nav-short">Teoria</span></a></li>
-      <li><a href="otelautaharjoittelija.html">Otelautaopas</a></li>
+      <li><a href="index.html#oppimisaiheet">Oppimiskartta</a></li>
+      <li><a id="harjoittelija" href="otelautaharjoittelija.html">Otelautaopas</a></li>
       <li><a href="kitaraharjoittelija.html">Kitaraharjoittelu</a></li>
     </ul>
   </nav>
@@ -101,17 +97,13 @@
 <header class="hero">
   <h1>Musiikin <span>kartta</span></h1>
   <p class="tagline">Avoin suomenkielinen opas musiikin harmoniasta, korvakuulolta soittamisesta ja kitaran hahmottamisesta.</p>
-  <div class="hero-actions">
-    <a class="jump-link" href="book/index.html">Musiikin teoria</a>
-    <a class="jump-link jump-link-secondary" id="harjoittelija" href="otelautaharjoittelija.html">Tutki otelautaa</a>
-    <a class="jump-link jump-link-secondary" href="kitaraharjoittelija.html">Harjoittele kitaralla</a>
-  </div>
+  <div id="home-continue"></div>
 </header>
 
 <main>
 
 <section class="learning-overview" aria-labelledby="oppimisaiheet">
-  <p class="eyebrow">Oppiminen alkaa tekemisestä</p>
+  <p class="eyebrow">Teoria · harjoitukset · pelit</p>
   <h2 id="oppimisaiheet">Oppimiskartta</h2>
   <p class="learning-lead"><strong>Mitä haluat oppia?</strong> Valitse aihe ja löydä siihen liittyvät harjoitukset, pelit ja teoria. Sisällöt täydentyvät aihe kerrallaan. Voit edetä haluamassasi järjestyksessä.</p>
   <div class="start-here">
@@ -120,79 +112,105 @@
   </div>
   <div class="topic-grid">
     <details class="topic-card" id="aihe-kitara">
-      <summary><span class="topic-number" aria-hidden="true">01</span><span class="topic-summary"><strong>Kitaran perusteet</strong><span>Kielet, ensimmäinen ääni ja soittoasento.</span></span><span class="topic-expand" aria-hidden="true">⌄</span></summary>
-      <nav class="topic-links" aria-label="Kitaran perusteet: nykyiset sisällöt">
-        <p>Avaa jo käytettävissä oleva sisältö:</p>
-        <a href="book/osa-1.html#kitaran-merkinnat">Kitaran merkinnät ja kielet</a>
-        <a href="book/osa-1.html#pulssi-ja-komppi">Kokeile pulssia</a>
+      <summary><span class="topic-number" aria-hidden="true">01</span><span class="topic-summary"><strong>Kitaran perusteet</strong><span>Kielet, ensimmäiset otteet ja kitaran hallinta.</span></span><span class="topic-expand" aria-hidden="true">⌄</span></summary>
+      <nav class="topic-links" aria-label="Kitaran perusteet: teoria ja harjoitukset">
+        <h3 class="topic-group-title">Teoria</h3>
+        <a data-theory-chapter="osa-1#sointukierrot" href="book/osa-1.html#sointukierrot">Neljä otetta ja ensimmäinen kappale</a>
+        <a href="book/osa-1.html#kitaran-merkinnat">Kitaran kielet ja merkinnät</a>
+        <h3 class="topic-group-title">Harjoitukset ja työkalut</h3>
+        <a href="book/osa-1.html#kolme-cowboyta">Kokeile ensimmäistä kappaletta</a>
       </nav>
     </details>
     <details class="topic-card" id="aihe-rytmi">
       <summary><span class="topic-number" aria-hidden="true">02</span><span class="topic-summary"><strong>Rytmi</strong><span>Pulssi, neljään laskeminen ja komppi.</span></span><span class="topic-expand" aria-hidden="true">⌄</span></summary>
-      <nav class="topic-links" aria-label="Rytmi: nykyiset sisällöt">
-        <p>Avaa jo käytettävissä oleva sisältö:</p>
-        <a href="book/osa-1.html#pulssi-ja-komppi">Kuuntele ja taputa pulssi</a>
-        <a href="book/osa-1.html#alas-ylos-komppi">Alas–ylös-komppi</a>
+      <nav class="topic-links" aria-label="Rytmi: teoria ja harjoitukset">
+        <h3 class="topic-group-title">Teoria</h3>
+        <a data-theory-chapter="osa-1#pulssi-ja-komppi" href="book/osa-1.html#pulssi-ja-komppi">Pulssi ja komppi</a>
+        <h3 class="topic-group-title">Harjoitukset ja työkalut</h3>
+        <a href="book/osa-1.html#alas-ylos-komppi">Kokeile alas–ylös-komppia</a>
       </nav>
     </details>
     <details class="topic-card" id="aihe-nuotit">
-      <summary><span class="topic-number" aria-hidden="true">03</span><span class="topic-summary"><strong>Sävelnimet ja musiikin lukeminen</strong><span>Sävelten nimet, sointumerkit ja tabulatuurit.</span></span><span class="topic-expand" aria-hidden="true">⌄</span></summary>
-      <nav class="topic-links" aria-label="Sävelnimet ja musiikin lukeminen: nykyiset sisällöt">
-        <p>Avaa jo käytettävissä oleva sisältö:</p>
-        <a href="book/osa-2.html">Sävelten perusteet</a>
-        <a href="book/osa-1.html#kitaran-merkinnat">Kitaran merkinnät</a>
+      <summary><span class="topic-number" aria-hidden="true">03</span><span class="topic-summary"><strong>Sävelnimet ja musiikin lukeminen</strong><span>Sävelten nimet, merkit ja niiden lukeminen.</span></span><span class="topic-expand" aria-hidden="true">⌄</span></summary>
+      <nav class="topic-links" aria-label="Sävelnimet ja musiikin lukeminen: teoria ja harjoitukset">
+        <h3 class="topic-group-title">Teoria</h3>
+        <a data-theory-chapter="osa-2#savelet-ja-intervallit" href="book/osa-2.html#savelet-ja-intervallit">Sävelet ja intervallit</a>
+        <a href="book/osa-1.html#kitaran-merkinnat">Kitaran ja tabulatuurin merkinnät</a>
+        <a href="book/osa-2.html#h-savelnimi">H- ja B-sävelnimet</a>
+
       </nav>
     </details>
     <details class="topic-card" id="aihe-korva">
-      <summary><span class="topic-number" aria-hidden="true">04</span><span class="topic-summary"><strong>Sävelkorva ja melodia</strong><span>Kuuntele, matki sävelkulkuja ja etsi kotisävel.</span></span><span class="topic-expand" aria-hidden="true">⌄</span></summary>
-      <nav class="topic-links" aria-label="Sävelkorva ja melodia: nykyiset sisällöt">
-        <p>Avaa jo käytettävissä oleva sisältö:</p>
+      <summary><span class="topic-number" aria-hidden="true">04</span><span class="topic-summary"><strong>Sävelkorva ja melodia</strong><span>Kotisävel, intervallit ja kuullun musiikin matkiminen.</span></span><span class="topic-expand" aria-hidden="true">⌄</span></summary>
+      <nav class="topic-links" aria-label="Sävelkorva ja melodia: teoria ja harjoitukset">
+        <h3 class="topic-group-title">Teoria</h3>
+        <a data-theory-chapter="osa-2#musiikki-on-kieli" href="book/osa-2.html#musiikki-on-kieli">Musiikki on kieli</a>
+        <a data-theory-chapter="osa-4#savellajin-tunnistaminen" href="book/osa-4.html#savellajin-tunnistaminen">Sävellajin tunnistaminen</a>
+        <a data-theory-chapter="osa-7#intervallit" href="book/osa-7.html#intervallit">Asteet ja intervallit korvalla</a>
+        <a data-theory-chapter="osa-7#basso" href="book/osa-7.html#basso">Bassolinjan kuuleminen</a>
+        <a data-theory-chapter="osa-7#soinnut" href="book/osa-7.html#soinnut">Sointujen tunnistaminen</a>
+        <a data-theory-chapter="osa-10#septimi-korvalla" href="book/osa-10.html#septimi-korvalla">Kuule septimi</a>
+        <h3 class="topic-group-title">Harjoitukset ja työkalut</h3>
         <a href="riffikaiku.html">Riffikaiku</a>
         <a href="pelit/ensikeikka/">Ensikeikka</a>
-        <a href="book/osa-7.html">Korvakuulon harjoitukset</a>
-        <a href="book/osa-4.html#savellajin-tunnistaminen">Sävellajin tunnistaminen</a>
       </nav>
     </details>
     <details class="topic-card" id="aihe-otelauta">
-      <summary><span class="topic-number" aria-hidden="true">05</span><span class="topic-summary"><strong>Otelauta</strong><span>Löydä sävelet ja niiden eri sijainnit.</span></span><span class="topic-expand" aria-hidden="true">⌄</span></summary>
-      <nav class="topic-links" aria-label="Otelauta: nykyiset sisällöt">
-        <p>Avaa jo käytettävissä oleva sisältö:</p>
+      <summary><span class="topic-number" aria-hidden="true">05</span><span class="topic-summary"><strong>Otelauta</strong><span>Sävelten sijainnit, oktaavit ja CAGED.</span></span><span class="topic-expand" aria-hidden="true">⌄</span></summary>
+      <nav class="topic-links" aria-label="Otelauta: teoria ja harjoitukset">
+        <h3 class="topic-group-title">Teoria</h3>
+        <a data-theory-chapter="osa-5#otelauta" href="book/osa-5.html#otelauta">Otelauta ja oktaavimuodot</a>
+        <a data-theory-chapter="osa-5#perussavel" href="book/osa-5.html#perussavel">Sävelet E- ja A-kielellä</a>
+        <a data-theory-chapter="osa-6#caged" href="book/osa-6.html#caged">CAGED</a>
+        <h3 class="topic-group-title">Harjoitukset ja työkalut</h3>
         <a href="kitaraharjoittelija.html?polku=otelauta&amp;harjoitus=savelten-etsinta">Etsi sävelet otelaudalta</a>
         <a href="otelautaharjoittelija.html">Tutki otelautakarttaa</a>
-        <a href="book/osa-5.html">Otelauta teoriassa</a>
       </nav>
     </details>
     <details class="topic-card" id="aihe-soinnut">
-      <summary><span class="topic-number" aria-hidden="true">06</span><span class="topic-summary"><strong>Soinnut ja harmonia</strong><span>Otteet, sointujen rakenne ja tehtävät.</span></span><span class="topic-expand" aria-hidden="true">⌄</span></summary>
-      <nav class="topic-links" aria-label="Soinnut ja harmonia: nykyiset sisällöt">
-        <p>Avaa jo käytettävissä oleva sisältö:</p>
-        <a href="kitaraharjoittelija.html?polku=soinnut">Tunnista sointuja</a>
-        <a href="book/osa-3.html">Sointujen teoria</a>
-        <a href="book/osa-6.html#caged">Barré-soinnut ja CAGED</a>
-        <a href="book/osa-10.html#septimisoinnut">Seiskasoinnut</a>
-        <a href="otelautaharjoittelija.html#soinnut">Sointukartta</a>
+      <summary><span class="topic-number" aria-hidden="true">06</span><span class="topic-summary"><strong>Soinnut ja harmonia</strong><span>Sointujen rakenne, tehtävät ja sointuotteet.</span></span><span class="topic-expand" aria-hidden="true">⌄</span></summary>
+      <nav class="topic-links" aria-label="Soinnut ja harmonia: teoria ja harjoitukset">
+        <h3 class="topic-group-title">Teoria</h3>
+        <a data-theory-chapter="osa-3#harmoninen-kentta" href="book/osa-3.html#harmoninen-kentta">Harmoninen kenttä</a>
+        <a data-theory-chapter="osa-3#roomalaiset-numerot" href="book/osa-3.html#roomalaiset-numerot">Roomalaiset numerot</a>
+        <a data-theory-chapter="osa-3#sointujen-tehtavat" href="book/osa-3.html#sointujen-tehtavat">Sointujen tehtävät</a>
+        <a data-theory-chapter="osa-4#kvinttiympyra" href="book/osa-4.html#kvinttiympyra">Kvinttiympyrä</a>
+        <a data-theory-chapter="osa-6#barre" href="book/osa-6.html#barre">Barré-soinnut ja numerokartta</a>
+        <a data-theory-chapter="osa-10#septimisoinnut" href="book/osa-10.html#septimisoinnut">Septimisoinnut</a>
+        <a data-theory-chapter="osa-10#ii-v-i" href="book/osa-10.html#ii-v-i">ii–V–I ja äänenkuljetus</a>
+        <h3 class="topic-group-title">Harjoitukset ja työkalut</h3>
+        <a href="kitaraharjoittelija.html?polku=soinnut">Tunnista avoimia sointuja</a>
+        <a href="otelautaharjoittelija.html#soinnut">Tutki sointukarttaa</a>
       </nav>
     </details>
     <details class="topic-card" id="aihe-asteikot">
-      <summary><span class="topic-number" aria-hidden="true">07</span><span class="topic-summary"><strong>Asteikot ja moodit</strong><span>Pentatoniset, positiot ja moodien erot.</span></span><span class="topic-expand" aria-hidden="true">⌄</span></summary>
-      <nav class="topic-links" aria-label="Asteikot ja moodit: nykyiset sisällöt">
-        <p>Avaa jo käytettävissä oleva sisältö:</p>
+      <summary><span class="topic-number" aria-hidden="true">07</span><span class="topic-summary"><strong>Asteikot ja moodit</strong><span>Asteikkojen sävelet, pentatoniset ja moodien erot.</span></span><span class="topic-expand" aria-hidden="true">⌄</span></summary>
+      <nav class="topic-links" aria-label="Asteikot ja moodit: teoria ja harjoitukset">
+        <h3 class="topic-group-title">Teoria</h3>
+        <a data-theory-chapter="osa-2#asteikot" href="book/osa-2.html#asteikot">Asteikot</a>
+        <a data-theory-chapter="osa-8#pentatoniikka" href="book/osa-8.html#pentatoniikka">Pentatoniikka</a>
+        <a data-theory-chapter="osa-11#moodit" href="book/osa-11.html#moodit">Moodit käytännössä</a>
+        <h3 class="topic-group-title">Harjoitukset ja työkalut</h3>
         <a href="kitaraharjoittelija.html?polku=asteikot">Pentatoniset ja moodit: harjoitukset</a>
-        <a href="book/osa-8.html">Pentatonisen teoria</a>
-        <a href="book/osa-11.html">Moodien teoria</a>
+        <a href="otelautaharjoittelija.html">Näytä asteikot otelaudalla</a>
       </nav>
     </details>
     <details class="topic-card" id="aihe-kappaleet">
-      <summary><span class="topic-number" aria-hidden="true">08</span><span class="topic-summary"><strong>Kappaleet ja oma musiikki</strong><span>Soita kappaleita, improvisoi ja luo omaa musiikkia.</span></span><span class="topic-expand" aria-hidden="true">⌄</span></summary>
-      <nav class="topic-links" aria-label="Kappaleet ja oma musiikki: nykyiset sisällöt">
-        <p>Avaa jo käytettävissä oleva sisältö:</p>
-        <a href="kitaraharjoittelija.html?polku=kappaleet">Kappaleharjoittelija</a>
-        <a href="book/osa-9.html">Tee oma kappale</a>
-        <a href="book/osa-8.html">Improvisoinnin perusteet</a>
+      <summary><span class="topic-number" aria-hidden="true">08</span><span class="topic-summary"><strong>Kappaleet ja oma musiikki</strong><span>Kappaleiden mukana soittaminen, improvisointi ja säveltäminen.</span></span><span class="topic-expand" aria-hidden="true">⌄</span></summary>
+      <nav class="topic-links" aria-label="Kappaleet ja oma musiikki: teoria ja harjoitukset">
+        <h3 class="topic-group-title">Teoria</h3>
+        <a data-theory-chapter="osa-3#kappale-asteina" href="book/osa-3.html#kappale-asteina">Kolme cowboyta roomalaisin numeroin</a>
+        <a data-theory-chapter="osa-4#transponointi" href="book/osa-4.html#transponointi">Transponointi</a>
+        <a data-theory-chapter="osa-7#kappale" href="book/osa-7.html#kappale">Kappaleen purkaminen ilman nuotteja</a>
+        <a data-theory-chapter="osa-8#improvisointi" href="book/osa-8.html#improvisointi">Improvisointi</a>
+        <a data-theory-chapter="osa-9#sovittaminen" href="book/osa-9.html#sovittaminen">Sovittaminen</a>
+        <a data-theory-chapter="osa-9#oma-kappale" href="book/osa-9.html#oma-kappale">Oman kappaleen tekeminen ja oma ilmaisu</a>
+        <h3 class="topic-group-title">Harjoitukset ja työkalut</h3>
+        <a href="kitaraharjoittelija.html?polku=kappaleet">Avaa kappaleharjoittelija</a>
       </nav>
     </details>
   </div>
-  <p class="tools-note">Aihealueet eivät ole suorituslukkoja. Sama harjoitus voi kuulua useampaan aiheeseen. Kaikki 11 teoriaosaa löytyvät ylävalikon <a href="book/index.html">Musiikin teoria</a> -kohdasta. Käytettävissä ovat myös <a href="pdf/musiikin-kartta.pdf">tulostettava PDF</a> ja <a href="book/sanasto.html">sanasto</a>.</p>
+  <p class="tools-note">Valitse aihe vapaasti. Samat teoriakohdat voivat liittyä useampaan taitoon, ja 11-osainen alkuperäinen teoriaopas säilyy vanhoilla osoitteillaan. Lisäksi <a href="pdf/musiikin-kartta.pdf">tulostettava PDF</a> ja <a href="book/sanasto.html">sanasto</a>.</p>
 </section>
 
 
