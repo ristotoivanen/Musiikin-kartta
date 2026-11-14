@@ -15,11 +15,11 @@ test('otelautaharjoitus soittaa jokaisen valitun kieli-nauha-paikan sävelen', a
       createGain() {
         return {
           gain: {
-            setValueAtTime() {},
-            linearRampToValueAtTime() {},
-            exponentialRampToValueAtTime() {},
+            setValueAtTime() { return undefined; },
+            linearRampToValueAtTime() { return undefined; },
+            exponentialRampToValueAtTime() { return undefined; },
           },
-          connect() {},
+          connect() { return undefined; },
           disconnect() { state.__noteJourneyStops++; },
         };
       }
@@ -27,10 +27,10 @@ test('otelautaharjoitus soittaa jokaisen valitun kieli-nauha-paikan sävelen', a
         const frequency = { value: 0 };
         return {
           frequency,
-          setPeriodicWave() {},
-          connect() {},
+          setPeriodicWave() { return undefined; },
+          connect() { return undefined; },
           start() { frequencies.push(frequency.value); },
-          stop() {},
+          stop() { return undefined; },
         };
       }
       createPeriodicWave() { return {}; }
