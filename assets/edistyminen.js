@@ -16,7 +16,7 @@
     { slug: 'osa-1', name: 'Osa 1', chapters: [['pulssi-ja-komppi', 1, 'Pulssi ja komppi'], ['sointukierrot', 2, 'Neljä otetta ja ensimmäinen kappale']],
       anchors: ['pulssi-aanite', 'kahdeksasosat', 'kitaran-merkinnat', 'alas-ylos-komppi', 'vaihto-kolmosella', 'kolme-cowboyta'] },
     { slug: 'osa-2', name: 'Osa 2', chapters: [['musiikki-on-kieli', 3, 'Musiikki on kieli'], ['savelet-ja-intervallit', 4, 'Sävelet ja intervallit'], ['asteikot', 5, 'Asteikot']],
-      anchors: ['h-savelnimi'] },
+      anchors: ['ensikeikan-teoria', 'ensikeikan-teoria-otsikko', 'h-savelnimi'] },
     { slug: 'osa-3', name: 'Osa 3', chapters: [['harmoninen-kentta', 6, 'Harmoninen kenttä'], ['roomalaiset-numerot', 7, 'Roomalaiset numerot'], ['sointujen-tehtavat', 8, 'Sointujen tehtävät'], ['kappale-asteina', 9, 'Kolme cowboyta roomalaisin numeroin']],
       anchors: ['kaikuluotain', 'neljas-savel', 'asteiden-varit'] },
     { slug: 'osa-4', name: 'Osa 4', chapters: [['savellajin-tunnistaminen', 10, 'Sävellajin tunnistaminen'], ['kvinttiympyra', 11, 'Kvinttiympyrä'], ['transponointi', 12, 'Transponointi']],

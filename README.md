@@ -133,9 +133,11 @@ Puhelintesti on Chromiumin laite-emulointi, ei fyysisellä iPhonella tehty Safar
 Testiselain käynnistyy ilman äänilähtöä, ja mikrofonitestit käyttävät simuloitua
 signaalia. Ne eivät korvaa oikealla kitaralla tehtävää hyväksyntätestiä.
 
-`npm run build` päivittää `assets/harjoittelija/`-hakemiston JavaScriptin, CSS:n,
-lähdekartan ja lisenssi-ilmoitukset. Julkaisussa tarvitaan koko nykyinen staattinen
-sivusto sekä nämä tuotokset. Tavalliset lukusivut eivät lataa React-harjoittelijaa.
+`npm run build` kääntää Kitaraharjoittelijan hakemistoon `assets/harjoittelija/`,
+Riffikaiun hakemistoon `assets/riffikaiku/` ja Ensikeikan hakemistoon `pelit/ensikeikka/`.
+Ensikeikan lähdekoodi on hakemistossa `ensikeikka/`. Komento `npm run build:ensikeikka`
+päivittää pelkästään Ensikeikan julkaisuhakemiston. Pelin voi avata käännöksen jälkeen
+paikallisella staattisella palvelimella osoitteessa `/pelit/ensikeikka/`.
 Build ei julkaise sivustoa. Cloudflare Pages ajaa lisäksi
 [`functions/assets/audio/[[path]].ts`](functions/assets/audio/[[path]].ts)-funktion, joka
 palvelee äänitiedostojen tavualueet (HTTP 206). Ilman sitä kappaleharjoittelun

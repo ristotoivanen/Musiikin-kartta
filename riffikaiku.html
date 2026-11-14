@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Riffikaiku: kuuntele neljän sävelen riffi ja soita se takaisin oikealla kitaralla tai virtuaalikitaralla. Mikrofonin ääni käsitellään vain selaimessa.">
   <meta name="robots" content="noindex">
-  <title>Riffikaiku – Musiikin kartta</title>
+  <title>Riffikaiku (beta) – Musiikin kartta</title>
   <link rel="stylesheet" href="assets/otelauta.css?v=36a704ebe6">
-  <link rel="stylesheet" href="assets/riffikaiku/app.css?v=a65df07c9d">
+  <link rel="stylesheet" href="assets/riffikaiku/app.css?v=526225e77e">
   <link rel="stylesheet" href="assets/paavalikko.css?v=3138d3e5e8">
 </head>
 <body>
@@ -22,10 +22,10 @@
     </nav>
   </header>
   <main class="practice-main riff-main" id="riffikaiku"><p>Ladataan Riffikaikua…</p><noscript><p>Riffikaiku tarvitsee JavaScriptin.</p></noscript></main>
-  <footer>Musiikin kartta · Riffikaiku 0.3 (prototyyppi) · Tulokset vain omassa selaimessasi.</footer>
+  <footer>Musiikin kartta · Riffikaiku (beta) · Tulokset vain omassa selaimessasi.</footer>
   <script type="module">
     const dev = import.meta.env?.DEV === true;
-    import(/* @vite-ignore */ dev ? './riffikaiku/main.tsx' : './assets/riffikaiku/app.js?v=e1988342b60c').catch(error => {
+    import(/* @vite-ignore */ dev ? './riffikaiku/main.tsx' : './assets/riffikaiku/app.js?v=52f3520b755a').catch(error => {
       console.error('Riffikaiun lataus epäonnistui', error);
       document.getElementById('riffikaiku').textContent = 'Riffikaiun lataus ei onnistunut. Lataa sivu uudelleen. Kehitysympäristössä aja npm run build.';
     });

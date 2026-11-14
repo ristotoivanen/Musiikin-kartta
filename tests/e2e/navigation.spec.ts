@@ -268,7 +268,8 @@ test.describe('Vanhat osoitteet ja osioiden välinen jatkuvuus', () => {
     await expect(sub.getByRole('link', { name: 'Otelautakartta' })).toHaveAttribute('aria-current', 'page');
     await sub.getByRole('link', { name: 'Otelaudan harjoitukset' }).click();
     await expect(page).toHaveURL(/kitaraharjoittelija\.html\?polku=otelauta$/);
-    await expect(page.getByRole('heading', { name: 'Etsi sävelet otelaudalta' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Sävelkorva ja otelauta' })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Sävelten etsintä/ })).toBeVisible();
     await page.getByRole('button', { name: '← Oppimispolut' }).click();
     await expect(page.getByRole('heading', { name: 'Mitä haluat harjoitella?' })).toBeVisible();
     await expect(page).toHaveURL(/kitaraharjoittelija\.html$/);

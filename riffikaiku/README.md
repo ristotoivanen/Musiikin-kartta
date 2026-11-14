@@ -1,4 +1,4 @@
-# Riffikaiku 0.3 (prototyyppi)
+# Riffikaiku (beta)
 
 Kuuntele neljän sävelen riffi ja soita se takaisin samassa järjestyksessä – **oikealla kitaralla**
 (mikrofoni) tai **virtuaalikitaralla** (otelauta, hiiri tai kosketus). Ei rytmin pisteytystä,
@@ -18,7 +18,7 @@ ei ole todennettu – ks. [HYVAKSYNTAKOKEET.md](HYVAKSYNTAKOKEET.md).
 | `audioAdapter.ts` | `GameAudio`-rajapinta ja `BrowserAudio` (Kitaraharjoittelijan `Microphone` + `ReferencePlayer`, laitelista, kynnys). |
 | `riffs.ts` | Kotitreenit (nyt 2 × 3 riffiä), harjoituskieli ja ohje, opastus, mikrofonitestin B3. |
 | `store.ts` | Oma tallennus `musiikin-kartta:riffikaiku:v1`. |
-| `Riffikaiku.tsx`, `MicTools.tsx`, `main.tsx`, `style.css` | Käyttöliittymä (pelinäkymä, lisävalikko, mikrofonin työkalut). Otelautana Kitaraharjoittelijan `Board`. |
+| `Riffikaiku.tsx`, `MicTools.tsx`, `main.tsx`, `style.css` | Käyttöliittymä (pelinäkymä ja mikrofonin työkalut). Otelautana Kitaraharjoittelijan `Board`. |
 
 Käännös: `vite.riffikaiku.config.ts` → `assets/riffikaiku/` (`emptyOutDir` koskee vain sitä).
 `npm run build` kääntää molemmat; `npm run build:riffikaiku` vain Riffikaiun. Kitaraharjoittelijan
@@ -114,18 +114,16 @@ oikein**; muut ovat tyhjiä. Paikkakohtainen, ei hyväksy mitään, säilyy auto
 kuuntelun ja Yritä uudelleen -toiminnon yli, nollautuu seuraavassa riffissä. (Vain vihreät, koska loppuun soitetussa yrityksessä kaikki
 paikat on lopulta löydetty.) Manuaalinen **Vihje** on erillinen ja kirjataan tulokseen (`hint`).
 
-### Pelinäkymä ja lisävalikko
+### Pelinäkymä
 
-Yläosa: Riffikaiku · ”Kotitreeni 1 · Riffi 2/3” · riffin nimi · **⋯ Lisää** (oikea reuna). Tila:
-”Kuuntele riffi aloittaaksesi.” / ”Sinun vuorosi!” ja ohje ”Soita riffi B-kieleltä.”. Pallukat ja
-”Ratkaistu n/4”. Soittoalue. Toiminnot: **Kuuntele riffi / Pysäytä kuuntelu** ja **Vihje**
-(onnistumisen jälkeen Seuraava riffi ja Soita uudelleen; epäonnistumisen jälkeen Yritä uudelleen).
+Otsikossa näkyvät kotitreeni, riffin numero ja nimi. Otelaudan yläpuolella on soitto-ohje ja sävelkohtainen palaute.
+Otelaudan alta löytyvät **Kuuntele riffi / Pysäytä kuuntelu** ja **Vihje**. Onnistumisen jälkeen voit
+jatkaa seuraavaan riffiin tai soittaa saman uudelleen. Epäonnistumisen jälkeen voit yrittää uudelleen.
 
-Lisävalikossa vain tilanteeseen sopivat: **Aloita uusi yritys** (kesken yrityksen, kun sitä on aloitettu), **Tauko** /
-**Jatka**, **Kotitreenit**, **Mikrofonin tiedot** (vain oikea kitara: laite ja diagnostiikka),
-**Vaihda pelitapaa**, **Lopeta harjoitus**. Valikon avaaminen ei muuta pelin tilaa. Hiiri, kosketus,
-näppäimistö (Enter/välilyönti avaa, nuolet, Home/End, Esc sulkee ja palauttaa kohdistuksen), ulkopuolinen
-napautus sulkee.
+**Lopeta harjoitus** on otelaudan alla omalla rivillään. Se sulkee mikrofonin, pysäyttää äänen ja
+palauttaa aloitusnäkymään. Suoritetut riffit säilyvät. Aloitusnäkymässä voit vaihtaa soittotapaa, avata
+virittimen tai mikrofonin diagnostiikan ja palata **Takaisin harjoitusvalikkoon** -linkistä
+Sävelkorva ja otelauta -harjoituksiin.
 
 ### Otelauta
 

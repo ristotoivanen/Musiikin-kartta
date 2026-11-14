@@ -44,7 +44,7 @@ const ARMED_TEXT = { quiet: 'hiljaisuuden jälkeen', onset: 'uusi aluke', 'pitch
 const ROUTE_TEXT = { game: 'riffiyritykseen', 'mic-check': 'mikrofonitestiin', 'not-routed': 'ei välitetty (ei vastausvuoroa)' } as const;
 
 /** Viisi erillistä vaihetta: ääni → sävelkorkeus → vakaus → uusi näppäily → välitys pelille. */
-export function DiagnosticsView({ s, compact = false }: { s: GameState; compact?: boolean }) {
+export function DiagnosticsView({ s }: { s: GameState }) {
   const d: Diagnostics | null = s.diag;
   if (!d) return <p className="riff-help" data-testid="diag">Odotetaan mikrofonin ensimmäisiä analyysitietoja…</p>;
   const f = d.frame, p = d.pluck, sound = f.rms >= d.minRms;
@@ -52,7 +52,7 @@ export function DiagnosticsView({ s, compact = false }: { s: GameState; compact?
   const threshold = Math.max(0, Math.min(100, (toDb(d.minRms) + 60) / 60 * 100));
   const stage = (ok: boolean, title: string, body: ReactNode, id: string) =>
     <li className={ok ? 'ok' : 'no'} data-testid={`diag-${id}`}><strong><span aria-hidden="true">{ok ? '●' : '○'}</span> {title}</strong><span>{body}</span></li>;
-  return <div className={`riff-diag${compact ? ' compact' : ''}`} data-testid="diag">
+  return <div className="riff-diag" data-testid="diag">
     <div className="riff-meter" role="meter" aria-label="Äänitaso" aria-valuemin={-60} aria-valuemax={0} aria-valuenow={Math.round(toDb(f.rms))}>
       <span className="fill" style={{ width: level + '%' }} /><span className="threshold" style={{ left: threshold + '%' }} title="Äänikynnys" />
     </div>
@@ -68,7 +68,7 @@ export function DiagnosticsView({ s, compact = false }: { s: GameState; compact?
       {stage(d.routed.last?.route === 'game', '5. Välitetty pelille', d.routed.last
         ? <>{noteName(d.routed.last.midi)} → {ROUTE_TEXT[d.routed.last.route]} · yhteensä {d.routed.count}</> : 'Ei vielä näppäilyjä.', 'routed')}
     </ol>
-    {!compact && <p className="riff-help">Taustakohina {s.noise ? `${db(s.noise.noise)} → äänikynnys ${db(s.minRms)}` : `ei mitattu, oletuskynnys ${db(s.minRms)}`}. Diagnostiikka ei lähetä mitään peliin.</p>}
+    <p className="riff-help">Taustakohina {s.noise ? `${db(s.noise.noise)} → äänikynnys ${db(s.minRms)}` : `ei mitattu, oletuskynnys ${db(s.minRms)}`}. Diagnostiikka ei lähetä mitään peliin.</p>
   </div>;
 }
 

@@ -67,9 +67,9 @@ ylimääräinen tapahtuma (pallukka muuttui ilman näppäystä tai väärä ”k
     täysillä, ja odota 5 s vuoron alun jälkeen. Tavoite 0/10 muuttunutta pallukkaa ja ”kuulin X” -palautetta.
     Toista kielet vaimentamatta (myötäresonanssi kaiuttimesta).
 
-**0.3-käytettävyys:** Kuuntele riffi kesken yrityksen (myös punaisen kohdan aikana) ja Pysäytä
-kuuntelu – pallukat ja kohta säilyvät, eikä pysäytyksen jälkeen tule haamuvastausta. Lisävalikko
-puhelimella yhdellä kädellä. Harjoituskielen korostus näkyy kirkkaassa valossa puhelimen näytöllä.
+**Pelinäkymän käytettävyys:** Kuuntele riffi kesken yrityksen (myös punaisen kohdan aikana) ja Pysäytä
+kuuntelu – pallukat ja kohta säilyvät, eikä pysäytyksen jälkeen tule haamuvastausta. **Lopeta harjoitus**
+toimii puhelimella yhdellä napautuksella ja sulkee mikrofonin. Aloitusnäkymästä pääsee takaisin harjoitusvalikkoon. Harjoituskielen korostus näkyy kirkkaassa valossa puhelimen näytöllä.
 
 Lisäksi: taustavälilehti kesken vuoron (tauko, mikrofonin merkkivalo sammuu), luvan epääminen
 (ohje ja virtuaalikitara), virtuaalikitara hiirellä ja kosketuksella (A–A–C–A kahdella nopealla

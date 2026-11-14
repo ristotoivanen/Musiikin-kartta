@@ -689,6 +689,7 @@ test.describe('Uudet oppimispolut', () => {
 
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Sävelkorva ja otelauta/ }).click();
+    await page.getByRole('button', { name: /Sävelten etsintä/ }).click();
     await expect(page.getByRole('link', { name: /Lue tämän harjoituksen teoria/ }))
       .toHaveAttribute('href', 'book/osa-5.html#otelauta');
 
@@ -755,8 +756,8 @@ test.describe('Uudet oppimispolut', () => {
 
   test('sävelkorvan ensimmäinen harjoitus etsii nimetyn sävelen kaikki sijainnit ilman ääntä', async ({ page }) => {
     await page.goto('/kitaraharjoittelija.html');
-    await expect(page.getByRole('button', { name: /Sävelkorva ja otelauta/ })).toContainText('Etsi sävelet otelaudalta');
     await page.getByRole('button', { name: /Sävelkorva ja otelauta/ }).click();
+    await page.getByRole('button', { name: /Sävelten etsintä/ }).click();
 
     await expect(page.getByRole('heading', { name: 'Etsi sävelet otelaudalta' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Etsi kaikki C-sävelet' })).toBeVisible();
@@ -797,6 +798,7 @@ test.describe('Uudet oppimispolut', () => {
     await page.clock.install();
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Sävelkorva ja otelauta/ }).click();
+    await page.getByRole('button', { name: /Sävelten etsintä/ }).click();
 
     await expect(page.getByRole('checkbox', { name: 'Jatka automaattisesti' })).toHaveCount(0);
 

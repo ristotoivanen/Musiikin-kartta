@@ -13,10 +13,10 @@ const hz = (midi: number) => 440 * 2 ** ((midi - 69) / 12);
 const midiOf = (f: number) => Math.round(69 + 12 * Math.log2(f / 440));
 
 type Audio = { opens: number; stops: number; frequency: number; amplitude: number; noise: number; fail: string;
-  ended: null | (() => void); tones: number[]; requested: string[] };
+  ended: null | (() => void); tones: number[]; outputConnections: number; requested: string[] };
 async function mockAudio(page: Page, options: { fail?: string } = {}) {
   await page.addInitScript(({ fail }) => {
-    const state = { opens: 0, stops: 0, frequency: 0, amplitude: .1, noise: 0, fail, ended: null as null | (() => void), tones: [] as number[], requested: [] as string[] };
+    const state = { opens: 0, stops: 0, frequency: 0, amplitude: .1, noise: 0, fail, ended: null as null | (() => void), tones: [] as number[], outputConnections: 0, requested: [] as string[] };
     Object.assign(window, { riffTest: state });
     const devices: Record<string, { label: string; channels: number }> = {
       builtin: { label: 'MacBook Pron mikrofoni', channels: 1 }, 'usb-1': { label: 'Scarlett Solo 4th Gen', channels: 2 } };
@@ -41,7 +41,21 @@ async function mockAudio(page: Page, options: { fail?: string } = {}) {
       resume() { return Promise.resolve(); } close() { return Promise.resolve(); } addEventListener() {}
       createMediaStreamSource() { return node(); }
       createChannelSplitter() { return node(); }
-      createGain() { return { ...node(), gain: param() }; }
+      createGain() {
+        const destination = this.destination;
+        let connectedToOutput = false;
+        return {
+          gain: param(),
+          connect(target: object) {
+            connectedToOutput = target === destination;
+            if (connectedToOutput) state.outputConnections++;
+          },
+          disconnect() {
+            if (connectedToOutput) state.outputConnections--;
+            connectedToOutput = false;
+          },
+        };
+      }
       createPeriodicWave() { return {}; }
       createOscillator() {
         const frequency = param();
@@ -99,11 +113,7 @@ const marksOf = (page: Page) => page.getByTestId('slots').locator('li').evaluate
 const slotTexts = async (page: Page) => (await page.getByTestId('slots').locator('li .slot-note').allInnerTexts()).map(t => t.trim());
 const heading = (page: Page) => page.getByTestId('level-heading');
 const listenButton = (page: Page) => page.getByTestId('listen');
-const menuButton = (page: Page) => page.getByRole('button', { name: /Lisää/ });
-async function menuAction(page: Page, name: string, touch = false) {
-  await press(menuButton(page), touch);
-  await press(page.locator('#riff-menu-list').getByRole('button', { name }), touch);
-}
+const stopButton = (page: Page) => page.getByRole('button', { name: 'Lopeta harjoitus', exact: true });
 /** Kuuntele riffi → vuoro. */
 async function listenAndTurn(page: Page) {
   await listenButton(page).click();
@@ -283,63 +293,65 @@ test.describe('virtuaalikitara', () => {
   });
 });
 
-test.describe('lisävalikko', () => {
+test.describe('harjoituksen lopettaminen', () => {
   test.setTimeout(60000);
 
-  test('vain kaksi päätoimintoa näkyvissä; valikko hiirellä/kosketuksella ei muuta pelin tilaa; tauko, jatko, kotitreenit, lopetus', async ({ page, isMobile }) => {
+  test('vihje ja lopetus toimivat suoraan hiirellä ja kosketuksella; keskeneräinen yritys nollautuu', async ({ page, isMobile }) => {
     await mockAudio(page);
-    await seedRiff(page);
+    await seedRiff(page, { level: 1, passed: ['b-kaari'] });
     await page.goto('/riffikaiku.html');
     await page.getByRole('button', { name: /Virtuaalikitara/ }).click();
     await listenAndTurn(page);
-    await playFrets(page, [0, 5], isMobile);
+    await playFrets(page, [1, 5], isMobile);
+    await expect(count(page)).toHaveText('Ratkaistu 1/4');
     await expect(page.locator('.riff-main-actions button')).toHaveText(['Kuuntele riffi', 'Vihje']);
-    const before = await marksOf(page);
-    await press(menuButton(page), isMobile);
-    await expect(menuButton(page)).toHaveAttribute('aria-expanded', 'true');
-    await expect(page.locator('#riff-menu-list button')).toHaveText(['Aloita uusi yritys', 'Tauko', 'Kotitreenit', 'Vaihda oikeaan kitaraan', 'Lopeta harjoitus']);
-    expect(await marksOf(page)).toEqual(before);
-    await expect(status(page)).toHaveText('Sinun vuorosi!');
-    // Sulkeminen ulkopuolelta.
-    // Valikko peittää puhelimella osan sivusta: napautetaan sen ulkopuolelta vasemmasta reunasta.
-    if (isMobile) await page.getByTestId('count').tap({ position: { x: 4, y: 4 } }); else await page.getByTestId('count').click({ position: { x: 4, y: 4 } });
-    await expect(page.locator('#riff-menu-list')).toHaveCount(0);
-    expect(await marksOf(page)).toEqual(before);
-    // Vihje toimii.
-    await page.getByRole('button', { name: 'Vihje' }).click();
-    await expect(page.getByTestId('hint')).toContainText('B3 – C4 – D4 – C4');
-    await page.getByRole('button', { name: 'Piilota vihje' }).click();
-    // Tauko ja jatko.
-    await menuAction(page, 'Tauko', isMobile);
-    await expect(status(page)).toHaveText('Peli on tauolla.');
-    await page.getByRole('button', { name: 'Jatka', exact: true }).click();
-    await turn(page);
-    expect(await marksOf(page)).toEqual(before);
-    await menuAction(page, 'Kotitreenit', isMobile);
-    await expect(page.getByTestId('levels')).toBeVisible();
-    await page.getByTestId('levels').getByRole('button', { name: 'Jatka' }).click();
-    await expect(heading(page)).toHaveText('Kotitreeni 1 · Riffi 1/3');
-    await menuAction(page, 'Lopeta harjoitus', isMobile);
-    await expect(page.getByRole('button', { name: /Virtuaalikitara/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^(Lisää|Tauko|Kotitreenit|Vaihda)/ })).toHaveCount(0);
+    await press(page.getByRole('button', { name: 'Vihje' }), isMobile);
+    await expect(page.getByTestId('hint')).toContainText('C4 – B3 – C4 – D4');
+    await press(page.getByRole('button', { name: 'Piilota vihje' }), isMobile);
+    await expect(page.getByTestId('hint')).toHaveCount(0);
+    const before = await stored(page);
+    await press(stopButton(page), isMobile);
+    const start = page.getByRole('heading', { name: 'Riffikaiku (beta)' });
+    await expect(start).toBeVisible();
+    await expect(start).toBeFocused();
+    expect(await stored(page)).toEqual(before);
+
+    await page.getByRole('button', { name: /Virtuaalikitara/ }).click();
+    await expect(heading(page)).toHaveText('Kotitreeni 1 · Riffi 2/3');
+    await expect(count(page)).toHaveText('Ratkaistu 0/4');
+    expect(await marksOf(page)).toEqual(['pending', 'pending', 'pending', 'pending']);
   });
 
-  test('näppäimistö: Enter avaa, nuolet liikkuvat, Esc sulkee ja palauttaa kohdistuksen, Enter valitsee', async ({ page }) => {
+  test('näppäimistöllä voi valita soittotavan, käyttää otelautaa ja palata harjoitusvalikkoon', async ({ page }) => {
     await mockAudio(page);
     await seedRiff(page);
     await page.goto('/riffikaiku.html');
-    await page.getByRole('button', { name: /Virtuaalikitara/ }).click();
-    await menuButton(page).focus();
+    const board = page.getByRole('button', { name: /Virtuaalikitara/ });
+    await board.focus();
     await page.keyboard.press('Enter');
-    await expect(page.locator('#riff-menu-list button').first()).toBeFocused();
+    await expect(heading(page)).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('region', { name: 'Otelaudan vastausruudukko' })).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(cell(page, 0, 0)).toBeFocused();
     await page.keyboard.press('ArrowDown');
-    await expect(page.locator('#riff-menu-list button').nth(1)).toBeFocused();
-    await page.keyboard.press('Escape');
-    await expect(page.locator('#riff-menu-list')).toHaveCount(0);
-    await expect(menuButton(page)).toBeFocused();
+    await expect(cell(page, 1, 0)).toBeFocused();
     await page.keyboard.press('Enter');
-    await expect(page.locator('#riff-menu-list button').first()).toHaveText('Tauko');
+    expect(await tones(page)).toEqual([59]);
+    await page.keyboard.press('Tab');
+    await expect(listenButton(page)).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('button', { name: 'Vihje' })).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(stopButton(page)).toBeFocused();
     await page.keyboard.press('Enter');
-    await expect(status(page)).toHaveText('Peli on tauolla.');
+    await expect(page.getByRole('heading', { name: 'Riffikaiku (beta)' })).toBeFocused();
+    await page.keyboard.press('Shift+Tab');
+    await expect(page.getByRole('link', { name: 'Takaisin harjoitusvalikkoon' })).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/kitaraharjoittelija\.html\?polku=otelauta$/);
+    await expect(page.getByRole('heading', { name: 'Sävelkorva ja otelauta' })).toBeVisible();
   });
 });
 
@@ -380,19 +392,6 @@ test.describe('kotitreenit ja onnittelunäkymä', () => {
     await expect(heading(page)).toHaveText('Kotitreeni 2 · Riffi 2/3');
   });
 
-  test('kotitreenivalikko: Kotitreeni 2 lukittu ennen Kotitreeni 1:tä; suoritetun voi avata uudelleen', async ({ page }) => {
-    await mockAudio(page);
-    await seedRiff(page);
-    await page.goto('/riffikaiku.html');
-    await page.getByRole('button', { name: /Virtuaalikitara/ }).click();
-    await menuAction(page, 'Kotitreenit');
-    const items = page.getByTestId('levels').locator('li');
-    await expect(items).toHaveCount(2);
-    await expect(items.nth(0)).toContainText('Kotitreeni 1 – B-kieli');
-    await expect(items.nth(1)).toContainText('lukittu');
-    await expect(items.nth(1).getByRole('button')).toHaveCount(0);
-  });
-
   test('kaikki kotitreenit suoritettu: loppunäkymä ilman olematonta seuraavaa', async ({ page }) => {
     await mockAudio(page);
     await seedRiff(page, { level: 2, passed: ['g-nousu', 'g-toisto', 'g-hyppy'] }, { levels: { mic: [], board: [1, 2] } });
@@ -416,9 +415,6 @@ test.describe('kotitreenit ja onnittelunäkymä', () => {
     await expect(page.getByTestId('tally')).toHaveText('Oikea kitara: Kotitreeni 1, suoritettu 0/2 · Virtuaalikitara: Kotitreeni 1, suoritettu 0/2');
     await page.getByRole('button', { name: /Virtuaalikitara/ }).click();
     await expect(heading(page)).toHaveText('Kotitreeni 1 · Riffi 1/3');
-    await menuAction(page, 'Kotitreenit');
-    await expect(page.getByTestId('levels').locator('li').nth(1)).toContainText('lukittu');
-    await expect(page.getByTestId('levels')).not.toContainText('Taso');
     expect((await stored(page)).stats.board['b-kaari']).toMatchObject({ done: 1 });
   });
 });
@@ -553,7 +549,7 @@ test.describe('oikea kitara (simuloitu mikrofoni)', () => {
     expect(state.stops).toBe(state.opens);
   });
 
-  test('diagnostiikka: viisi vaihetta; pelin aikana lisävalikon kautta, ei näy oletuksena', async ({ page }) => {
+  test('diagnostiikka näyttää viisi vaihetta ennen harjoitusta', async ({ page }) => {
     await mockAudio(page);
     await seedRiff(page, undefined, {}, 'mic');
     await page.goto('/riffikaiku.html');
@@ -567,11 +563,33 @@ test.describe('oikea kitara (simuloitu mikrofoni)', () => {
     await setMic(page, { frequency: 0 });
     await page.getByRole('button', { name: 'Aloita harjoitus' }).click();
     await listenAndTurn(page);
-    await expect(page.getByTestId('mic-details')).toHaveCount(0);
-    await menuAction(page, 'Mikrofonin tiedot');
+    await expect(page.getByTestId('diag')).toHaveCount(0);
     await pluck(page, 59);
     await expect(count(page)).toHaveText('Ratkaistu 1/4');
-    await expect(page.getByTestId('diag-routed')).toContainText('B3 → riffiyritykseen');
+  });
+
+  test('lopetus katkaisee mallisoiton ja mikrofonin, ja säilyttää aiemmin suoritetun riffin', async ({ page, isMobile }) => {
+    await mockAudio(page);
+    await seedRiff(page, { level: 1, passed: ['b-kaari'] }, {}, 'mic');
+    await page.goto('/riffikaiku.html');
+    await micReady(page);
+    await expect(heading(page)).toHaveText('Kotitreeni 1 · Riffi 2/3');
+    await listenAndTurn(page);
+    await pluck(page, 60);
+    await expect(count(page)).toHaveText('Ratkaistu 1/4');
+    const before = await stored(page);
+    await listenButton(page).click();
+    await expect(listenButton(page)).toHaveText('Pysäytä kuuntelu');
+    await expect.poll(async () => (await audio(page)).outputConnections).toBe(1);
+    await press(stopButton(page), isMobile);
+    await expect(page.getByRole('heading', { name: 'Riffikaiku (beta)' })).toBeVisible();
+    expect(await audio(page)).toMatchObject({ opens: 1, stops: 1, outputConnections: 0 });
+    expect(await stored(page)).toEqual(before);
+
+    await press(page.getByRole('button', { name: /Oikea kitara/ }), isMobile);
+    await expect(heading(page)).toHaveText('Kotitreeni 1 · Riffi 2/3');
+    await expect(count(page)).toHaveText('Ratkaistu 0/4');
+    expect(await audio(page)).toMatchObject({ opens: 2, stops: 1, outputConnections: 0 });
   });
 
   test('yhteyskatkos ja taustavälilehti: tauko, mikrofoni vapautetaan, jatko ei nollaa', async ({ page }) => {
@@ -605,7 +623,7 @@ test.describe('oikea kitara (simuloitu mikrofoni)', () => {
 test.describe('responsiivisuus ja teemat', () => {
   test.skip(({ isMobile }) => isMobile, 'Koot asetetaan itse desktop-projektissa.');
   for (const width of [320, 360, 390, 1440]) {
-    test(`${width} px: koko otelauta ilman vaakavieritystä, pallukat yhdellä rivillä, lisävalikko mahtuu`, async ({ page }) => {
+    test(`${width} px: koko otelauta ilman vaakavieritystä, pallukat yhdellä rivillä, lopetus omalla rivillä`, async ({ page }) => {
       await page.setViewportSize({ width, height: 860 });
       await mockAudio(page);
       await seedRiff(page);
@@ -622,11 +640,13 @@ test.describe('responsiivisuus ja teemat', () => {
       expect(boxes.every(b => Math.abs(b.w - b.h) < 1 && b.w >= 44)).toBe(true);
       const cellBox = await cell(page, 1, 3).boundingBox();
       expect(cellBox!.width).toBeGreaterThanOrEqual(34); expect(cellBox!.height).toBeGreaterThanOrEqual(44);
-      await menuButton(page).click();
-      const list = await page.locator('#riff-menu-list').boundingBox();
-      expect(list!.x).toBeGreaterThanOrEqual(0); expect(list!.x + list!.width).toBeLessThanOrEqual(width);
+      const stopBox = (await stopButton(page).boundingBox())!;
+      const primaryControls = (await page.locator('.riff-main-actions').boundingBox())!;
+      expect(stopBox.x).toBeGreaterThanOrEqual(0);
+      expect(stopBox.x + stopBox.width).toBeLessThanOrEqual(width);
+      expect(stopBox.height).toBeGreaterThanOrEqual(44);
+      expect(stopBox.y - (primaryControls.y + primaryControls.height)).toBeGreaterThanOrEqual(12);
       await page.screenshot({ path: test.info().outputPath(`riffikaiku-${width}.png`), fullPage: true });
-      await page.keyboard.press('Escape');
       await cell(page, 1, 0).click();
       await expect(count(page)).toHaveText('Ratkaistu 1/4');
       expect(await overflow()).toBeLessThanOrEqual(0);

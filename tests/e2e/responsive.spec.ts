@@ -335,6 +335,7 @@ test.describe('Harjoitustehtävien vihjeet keskitetään edelleen (ei mallisoitt
     pageRef = page;
     await page.setViewportSize({ width: 320, height: 800 });
     await page.goto('/kitaraharjoittelija.html?polku=otelauta');
+    await page.getByRole('button', { name: /Sävelten etsintä/ }).click();
     await page.getByRole('button', { name: 'Näytä vihje' }).click();
     const r = await page.evaluate(() => {
       const dot = document.querySelector('.practice-board .anchor .dot')!; const box = dot.closest('.fret-scroll') as HTMLElement;
