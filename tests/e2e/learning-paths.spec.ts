@@ -689,6 +689,7 @@ test.describe('Uudet oppimispolut', () => {
 
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Sävelkorva ja otelauta/ }).click();
+    await page.getByRole('button', { name: /Sävelten etsintä/ }).click();
     await expect(page.getByRole('link', { name: /Lue tämän harjoituksen teoria/ }))
       .toHaveAttribute('href', 'book/osa-5.html#otelauta');
 
@@ -755,8 +756,8 @@ test.describe('Uudet oppimispolut', () => {
 
   test('sävelkorvan ensimmäinen harjoitus etsii nimetyn sävelen kaikki sijainnit ilman ääntä', async ({ page }) => {
     await page.goto('/kitaraharjoittelija.html');
-    await expect(page.getByRole('button', { name: /Sävelkorva ja otelauta/ })).toContainText('Etsi sävelet otelaudalta');
     await page.getByRole('button', { name: /Sävelkorva ja otelauta/ }).click();
+    await page.getByRole('button', { name: /Sävelten etsintä/ }).click();
 
     await expect(page.getByRole('heading', { name: 'Etsi sävelet otelaudalta' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Etsi kaikki C-sävelet' })).toBeVisible();
@@ -793,55 +794,25 @@ test.describe('Uudet oppimispolut', () => {
     await expect(page.getByText('Löydetty 0 / 3')).toBeVisible();
   });
 
-  test('sävelten etsintä jatkaa automaattisesti vain, kun valinta on käytössä', async ({ page }) => {
+  test('sävelharjoitus etenee vain käyttäjän painikkeesta', async ({ page }) => {
     await page.clock.install();
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Sävelkorva ja otelauta/ }).click();
+    await page.getByRole('button', { name: /Sävelten etsintä/ }).click();
 
-    const autoAdvance = page.getByRole('checkbox', { name: 'Jatka automaattisesti' });
-    await expect(autoAdvance).not.toBeChecked();
-    await autoAdvance.check();
+    await expect(page.getByRole('checkbox', { name: 'Jatka automaattisesti' })).toHaveCount(0);
 
     const board = page.locator('.note-journey .practice-board');
     await board.locator('button[data-string="1"][data-fret="1"]').click();
     await board.locator('button[data-string="2"][data-fret="5"]').click();
     await board.locator('button[data-string="4"][data-fret="3"]').click();
+
     await expect(page.getByText('Löydetty 3 / 3')).toBeVisible();
-    await expect(page.getByTestId('note-feedback')).toContainText('Löysit kaikki 3 C-säveltä');
-    await expect(page.getByText('Siirrytään automaattisesti seuraavaan säveleen…')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Seuraava sävel →' })).toHaveCount(0);
-
-    await page.clock.fastForward(1201);
-    await expect(page.getByRole('heading', { name: 'Etsi kaikki D-sävelet' })).toBeVisible();
-    await expect(page.getByText('Löydetty 0 / 3')).toBeVisible();
-    await expect(autoAdvance).toBeChecked();
-
-    // Kun automatiikka otetaan pois, loppuun löydetty sävel ei vaihdu itsestään.
-    await autoAdvance.uncheck();
-    await board.locator('button[data-string="1"][data-fret="3"]').click();
-    await board.locator('button[data-string="3"][data-fret="0"]').click();
-    await board.locator('button[data-string="4"][data-fret="5"]').click();
-    await expect(page.getByText('Löydetty 3 / 3')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Seuraava sävel →' })).toBeVisible();
-    await page.clock.fastForward(1600);
-    await expect(page.getByRole('heading', { name: 'Etsi kaikki D-sävelet' })).toBeVisible();
-  });
-
-  test('automaattisen etenemisen voi perua onnistumisen jälkeen', async ({ page }) => {
-    await page.clock.install();
-    await page.goto('/kitaraharjoittelija.html');
-    await page.getByRole('button', { name: /Sävelkorva ja otelauta/ }).click();
-    const autoAdvance = page.getByRole('checkbox', { name: 'Jatka automaattisesti' });
-    await autoAdvance.check();
-    const board = page.locator('.note-journey .practice-board');
-    await board.locator('button[data-string="1"][data-fret="1"]').click();
-    await board.locator('button[data-string="2"][data-fret="5"]').click();
-    await board.locator('button[data-string="4"][data-fret="3"]').click();
-    await expect(page.getByText('Siirrytään automaattisesti seuraavaan säveleen…')).toBeVisible();
-    await autoAdvance.uncheck();
-    await page.clock.fastForward(1500);
+    await page.clock.fastForward(2000);
     await expect(page.getByRole('heading', { name: 'Etsi kaikki C-sävelet' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Seuraava sävel →' })).toBeVisible();
+
+    await page.getByRole('button', { name: 'Seuraava sävel →' }).click();
+    await expect(page.getByRole('heading', { name: 'Etsi kaikki D-sävelet' })).toBeVisible();
   });
 
   test('vanha Kuule ja toista säilyy erillisenä kuunteluharjoituksena', async ({ page }) => {

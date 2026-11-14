@@ -272,13 +272,6 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
 .exercise-theory a { color: var(--lavender); font-weight: 650; }
 .exercise-theory a:hover { text-decoration: underline; }
 
-/* Sävelten etsinnän valinnainen automaattinen eteneminen. */
-.note-autoadvance {
-  display: inline-flex; align-items: center; gap: 9px; min-height: 44px;
-  margin: 2px 0 10px; cursor: pointer; color: var(--text); font-size: 14px;
-}
-.note-autoadvance input { width: 19px; height: 19px; margin: 0; accent-color: var(--lavender); }
-
 /* Avosointujen tunnistus: valittavissa neljä tai seitsemän sointunimeä. */
 .chord-difficulty {
   display: flex; align-items: center; flex-wrap: wrap; gap: 8px 20px;
@@ -607,3 +600,9 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
   .melody-practice > details > summary { padding: 13px; }
   .melody-practice-content { padding: 12px; }
 }
+
+
+/* Sävelkorvan harjoituskortit: sama ilme napeilla ja oikeilla linkeillä. */
+.ear-exercise-menu .learning-card { text-decoration: none; }
+.ear-exercise-menu a.learning-card { color: var(--text); }
+.ear-exercise-menu .learning-card:focus-visible { outline: 2px solid var(--lavender); outline-offset: 3px; }

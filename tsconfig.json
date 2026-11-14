@@ -5,5 +5,5 @@
     "strict": true, "noEmit": true, "skipLibCheck": true,
     "allowImportingTsExtensions": true
   },
-  "include": ["harjoittelija", "functions", "tests", "*.ts"]
+  "include": ["harjoittelija", "riffikaiku", "ensikeikka", "functions", "tests", "*.ts"]
 }

@@ -1,0 +1,150 @@
+/* Riffikaiku. Pohjana Kitaraharjoittelijan tyylit (otelauta, painikkeet) ja otelauta.css:n värimuuttujat. */
+.riff-main { max-width: 900px; }
+.riff-game { min-width: 0; }
+.riff-game h1 { margin: 4px 0 8px; font-size: clamp(28px, 6vw, 40px); }
+.riff-intro { margin: 16px 0 20px; }
+.riff-intro > p { margin: 8px 0 0; }
+.riff-back { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; min-height: 44px;
+  border: 1px solid var(--line); border-radius: 8px; font-size: 14px; font-weight: 650; text-decoration: none; }
+.riff-back:hover { background: var(--panel); border-color: var(--lavender); }
+.riff-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 12px; margin: 12px 0 18px; }
+.riff-choice { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; padding: 14px 16px; border-radius: 14px; }
+.riff-choice strong { font-size: 20px; }
+.riff-choice:hover, .riff-choice:focus-visible { border-color: var(--lavender); }
+.riff-choice span { color: inherit; opacity: .85; font-size: 14px; line-height: 1.45; font-weight: 400; }
+.riff-tally, .riff-help { color: var(--muted); font-size: 14px; }
+.riff-top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; }
+.riff-top h1 { font-size: 24px; }
+.riff-top > span { color: var(--muted); font-size: 14px; overflow-wrap: anywhere; }
+.riff-panel { margin: 12px 0 24px; padding: clamp(14px, 3vw, 24px); border: 1px solid var(--line); border-radius: 14px; background: var(--panel); min-width: 0; }
+.riff-status { font-size: clamp(18px, 4vw, 22px); font-weight: 650; margin: 10px 0 14px; }
+.riff-status.turn { color: var(--good); }
+.riff-status.good { color: var(--good); }
+.riff-status.bad { color: var(--wrong); font-size: 17px; }
+
+/* Pallukat: pyöreät, yhdellä rivillä myös 320 px:n näytöllä. Väri + symboli + tekstivastine. */
+.riff-slots { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 64px)); gap: 10px; padding: 0; margin: 4px 0 8px; }
+.riff-slots li { position: relative; display: grid; place-items: center; aspect-ratio: 1; border-radius: 50%;
+  border: 3px solid var(--line); background: color-mix(in srgb, var(--muted) 18%, var(--bg)); }
+.riff-slots .slot-note { font-size: clamp(15px, 4.4vw, 19px); font-weight: 800; line-height: 1; }
+.riff-slots .slot-symbol { position: absolute; top: -4px; right: -4px; display: grid; place-items: center; width: 22px; height: 22px;
+  border-radius: 50%; font-size: 13px; font-weight: 900; background: var(--bg); border: 2px solid currentColor; }
+.riff-slots li.green { border-color: #1c7f66; background: #83ddc3; color: #10261f; }
+.riff-slots li.green .slot-symbol { color: #1c7f66; }
+.riff-slots li.red { border-color: #b3261e; background: #f4b4ae; color: #4a0d09; }
+.riff-slots li.yellow { border-color: #a36b00; background: #f6d87a; color: #2e2200; }
+.riff-slots li.yellow .slot-symbol { color: #8a5a00; }
+.riff-slots li.memory .slot-note { color: var(--muted); font-weight: 700; }
+.riff-slots li.current { box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--gold); }
+.riff-slots li.model { border-color: var(--lavender); background: color-mix(in srgb, var(--lavender) 30%, var(--bg)); }
+.riff-count { margin: 0 0 10px; font-weight: 650; }
+.riff-heard { margin: 8px 0; }
+.riff-heard strong { color: var(--lavender); }
+.riff-feedback { border-left: 3px solid var(--lavender); padding: 6px 12px; margin: 10px 0; }
+.riff-feedback.good { border-color: var(--good); }
+.riff-feedback.bad { border-color: var(--wrong); }
+.riff-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+.riff-end-actions { display: flex; justify-content: flex-end; padding-top: 12px; margin-top: 16px; border-top: 1px solid var(--line); }
+.riff-end-actions button { background: transparent; }
+.riff-end-actions button:hover { background: var(--bg); border-color: var(--lavender); }
+.riff-hint { border: 1px dashed var(--line); border-radius: 10px; padding: 4px 14px; margin: 10px 0; }
+.riff-board { margin-top: 8px; }
+.riff-instruction { font-weight: 650; margin: 8px 0 0; padding: 8px 12px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); }
+.riff-cleared h2 { font-size: clamp(22px, 5vw, 30px); color: var(--good); outline: none; }
+/* Kosketus: nopea toinen napautus on uusi näppäys, ei zoomaus. */
+.riff-board .practice-board td button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; }
+.riff-board .practice-board .playing .dot { background: var(--gold); color: #16121f; }
+/* Kuvateksti rivittyy, ettei se työnnä otelautaa sivusuunnassa. */
+.riff-board .practice-board caption { white-space: normal; }
+@media (max-width: 520px) {
+  .riff-main { padding: 18px 16px 0; }
+  /* Kaikki kuusi kieltä ja nauhat 0–5 mahtuvat 320 px:n näytölle ilman vieritystä. */
+  .riff-board .practice-board { --head: 50px; min-width: calc(var(--head) + var(--cols, 6) * 34px); }
+  .riff-board .practice-board .string-label small { display: none; }
+  .riff-board .practice-board .dot { min-width: 28px; height: 28px; font-size: 12px; }
+  .riff-actions button { flex: 1 1 120px; }
+  .riff-end-actions button { width: 100%; }
+}
+@media (max-width: 360px) {
+  /* 320 px: kuusi nauhaa vähintään 34 px leveinä ilman vieritystä. */
+  .riff-board .practice-board { --head: 40px; }
+  .riff-panel { padding: 12px; }
+}
+
+/* Valmistelu, työkalut ja tasovalikko */
+.riff-device { display: grid; gap: 6px; margin: 10px 0; }
+.riff-device label { font-weight: 650; }
+.riff-device select { max-width: 100%; min-height: 44px; padding: 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font: inherit; }
+.riff-device p { margin: 0; overflow-wrap: anywhere; }
+.riff-tools-links { display: flex; flex-wrap: wrap; gap: 0 16px; font-size: 14px; }
+.riff-tools-links .link { background: none; border: 0; padding: 0; min-height: 44px; color: var(--lavender); text-decoration: underline; cursor: pointer; font: inherit; }
+.riff-tools-switch { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.riff-meter { position: relative; height: 14px; border-radius: 7px; background: var(--bg); border: 1px solid var(--line); overflow: hidden; margin: 8px 0; }
+.riff-meter .fill { position: absolute; inset: 0 auto 0 0; background: var(--good); }
+.riff-meter .threshold { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--gold); }
+.riff-stages { list-style: none; padding: 0; margin: 8px 0; display: grid; gap: 6px; }
+.riff-stages li { display: grid; gap: 2px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); overflow-wrap: anywhere; }
+.riff-stages li.ok strong span { color: var(--good); }
+.riff-stages li.no strong span { color: var(--muted); }
+.riff-stages li > span { font-size: 14px; color: var(--muted); }
+.riff-strings { border: 0; padding: 0; margin: 8px 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.riff-strings legend { font-weight: 650; margin-bottom: 4px; }
+.riff-strings button { display: grid; justify-items: center; min-width: 56px; padding: 4px 8px; }
+.riff-strings button small { font-size: 11px; color: var(--muted); font-weight: 400; }
+.riff-strings button[aria-pressed="true"] small { color: inherit; }
+.riff-tuner-readout { border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: var(--bg); text-align: center; }
+.riff-tuner-readout .value { font-size: clamp(28px, 8vw, 40px); font-weight: 800; margin: 4px 0; }
+.riff-tuner-readout.in-tune .value, .riff-tuner-readout.in-tune .advice { color: var(--good); }
+.riff-tuner-readout.flat .advice, .riff-tuner-readout.sharp .advice { color: var(--wrong); }
+.riff-tuner-readout .advice { font-weight: 700; min-height: 1.4em; }
+.riff-tuner-scale { position: relative; height: 34px; margin: 6px 0 18px; border-bottom: 2px solid var(--line); }
+.riff-tuner-scale .zone { position: absolute; top: 0; bottom: 0; background: color-mix(in srgb, var(--good) 35%, transparent); border-radius: 4px; }
+.riff-tuner-scale .needle { position: absolute; top: -2px; bottom: -2px; width: 4px; margin-left: -2px; background: var(--text); border-radius: 2px; transition: left .08s linear; }
+.riff-tuner-scale .label { position: absolute; top: 100%; font-size: 12px; color: var(--muted); transform: translateX(-50%); }
+.riff-tuner-scale .left { left: 0; transform: none; } .riff-tuner-scale .mid { left: 50%; } .riff-tuner-scale .right { left: auto; right: 0; transform: none; }
+.riff-levels { list-style: none; padding: 0; margin: 8px 0; display: grid; gap: 8px; }
+.riff-levels li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+.riff-levels li div { display: grid; gap: 2px; }
+.riff-levels li span { color: var(--muted); font-size: 14px; }
+.riff-levels li.done { border-color: var(--good); }
+.riff-levels li.locked { opacity: .6; }
+.riff-cleared { text-align: center; }
+.riff-cleared .riff-actions { justify-content: center; }
+.riff-cleared-big { font-size: clamp(22px, 5vw, 28px); font-weight: 800; margin: 0 0 8px; }
+@media (prefers-reduced-motion: reduce) { .riff-tuner-scale .needle { transition: none; } }
+
+/* Harjoituksen otsikko ja harjoituskielen korostus. */
+.riff-round-heading .riff-brand { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.riff-round-heading h1 { margin: 2px 0 0; font-size: clamp(20px, 5vw, 26px); }
+.riff-round-heading .riff-name { margin: 2px 0 0; color: var(--muted); }
+.riff-turn { margin: 10px 0 6px; }
+.riff-turn .riff-status { margin: 0 0 6px; }
+.riff-turn .riff-instruction { margin: 0; display: block; padding: 0 0 0 10px; border: 0; border-left: 4px solid var(--gold); border-radius: 0; background: none; color: var(--text); }
+.riff-main-actions { margin-top: 12px; }
+.riff-main-actions button { min-height: 48px; }
+.riff-next { border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px; margin: 8px 0 18px; background: var(--panel); }
+.riff-next .eyebrow { margin: 0 0 4px; }
+.riff-next h2 { margin: 2px 0 6px; }
+.riff-next p:last-child { margin: 0; color: var(--muted); }
+.riff-board { --focus-row: #3b2a10; --focus-edge: var(--gold); --focus-head: color-mix(in srgb, var(--gold) 28%, var(--panel)); }
+.riff-board.has-focus tbody tr { opacity: .55; }
+.riff-board.focus-s0 tbody tr:nth-child(1) { opacity: 1; }
+.riff-board.focus-s0 tbody tr:nth-child(1) > td { --string-thickness: 4px; background-color: var(--focus-row); box-shadow: inset 0 2px 0 var(--focus-edge), inset 0 -2px 0 var(--focus-edge); }
+.riff-board.focus-s0 tbody tr:nth-child(1) > th { background: var(--focus-head); color: var(--text); box-shadow: inset 4px 0 0 var(--focus-edge); }
+.riff-board.focus-s1 tbody tr:nth-child(2) { opacity: 1; }
+.riff-board.focus-s1 tbody tr:nth-child(2) > td { --string-thickness: 4px; background-color: var(--focus-row); box-shadow: inset 0 2px 0 var(--focus-edge), inset 0 -2px 0 var(--focus-edge); }
+.riff-board.focus-s1 tbody tr:nth-child(2) > th { background: var(--focus-head); color: var(--text); box-shadow: inset 4px 0 0 var(--focus-edge); }
+.riff-board.focus-s2 tbody tr:nth-child(3) { opacity: 1; }
+.riff-board.focus-s2 tbody tr:nth-child(3) > td { --string-thickness: 4px; background-color: var(--focus-row); box-shadow: inset 0 2px 0 var(--focus-edge), inset 0 -2px 0 var(--focus-edge); }
+.riff-board.focus-s2 tbody tr:nth-child(3) > th { background: var(--focus-head); color: var(--text); box-shadow: inset 4px 0 0 var(--focus-edge); }
+.riff-board.focus-s3 tbody tr:nth-child(4) { opacity: 1; }
+.riff-board.focus-s3 tbody tr:nth-child(4) > td { --string-thickness: 4px; background-color: var(--focus-row); box-shadow: inset 0 2px 0 var(--focus-edge), inset 0 -2px 0 var(--focus-edge); }
+.riff-board.focus-s3 tbody tr:nth-child(4) > th { background: var(--focus-head); color: var(--text); box-shadow: inset 4px 0 0 var(--focus-edge); }
+.riff-board.focus-s4 tbody tr:nth-child(5) { opacity: 1; }
+.riff-board.focus-s4 tbody tr:nth-child(5) > td { --string-thickness: 4px; background-color: var(--focus-row); box-shadow: inset 0 2px 0 var(--focus-edge), inset 0 -2px 0 var(--focus-edge); }
+.riff-board.focus-s4 tbody tr:nth-child(5) > th { background: var(--focus-head); color: var(--text); box-shadow: inset 4px 0 0 var(--focus-edge); }
+.riff-board.focus-s5 tbody tr:nth-child(6) { opacity: 1; }
+.riff-board.focus-s5 tbody tr:nth-child(6) > td { --string-thickness: 4px; background-color: var(--focus-row); box-shadow: inset 0 2px 0 var(--focus-edge), inset 0 -2px 0 var(--focus-edge); }
+.riff-board.focus-s5 tbody tr:nth-child(6) > th { background: var(--focus-head); color: var(--text); box-shadow: inset 4px 0 0 var(--focus-edge); }
+.riff-focus-legend { display: flex; align-items: center; gap: 8px; margin: 6px 0 0; font-weight: 650; }
+.riff-focus-legend .swatch { width: 22px; height: 8px; border-radius: 4px; background: var(--gold); }
