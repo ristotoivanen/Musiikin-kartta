@@ -117,6 +117,19 @@ test.describe('Etusivu', () => {
 });
 
 test.describe('Oppimisen aihealueet – ensimmäinen käyttöliittymärunko', () => {
+  test('Oppimiskartta korvaa päällekkäiset kortit ja ohjaa suoraan sointunäkymään', async ({ page }) => {
+    await page.goto('/index.html');
+    await expect(page).toHaveTitle('Oppimiskartta – Musiikin kartta');
+    await expect(page.getByRole('heading', { level: 2, name: 'Oppimiskartta' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Nykyiset oppaat ja työkalut' })).toHaveCount(0);
+    await page.locator('#aihe-soinnut summary').click();
+    const chordMap = page.locator('#aihe-soinnut').getByRole('link', { name: 'Sointukartta' });
+    await expect(chordMap).toHaveAttribute('href', 'otelautaharjoittelija.html#soinnut');
+    await chordMap.click();
+    await expect(page).toHaveURL(/otelautaharjoittelija[.]html#soinnut$/);
+    await expect(page.locator('[data-view="chords"]')).toHaveAttribute('aria-pressed', 'true');
+  });
+
   test('kahdeksan aihetta avautuvat ja johtavat toimivaan vanhaan harjoittelureittiin', async ({ page }) => {
     await page.goto('/index.html');
     const topics = page.locator('details.topic-card');
