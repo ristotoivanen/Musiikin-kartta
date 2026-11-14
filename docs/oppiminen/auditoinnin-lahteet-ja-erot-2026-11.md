@@ -42,7 +42,7 @@ Raporttien alkuperäinen muoto **pidetään muuttumattomana** mahdollista Git-im
 
 ## Jäljellä olevat työtehtävät
 
-- Lisätään 11 **alkuperäistä** Markdown-dokumenttia Git-historiaan täsmälleen yllä mainittuun hakemistoon turvallisesti erillisessä dokumentaatiohaarassa. Älä tuo koko ZIP:ää Git-repositorioon.
+- [x] **Valmis 14.11.2026:** 11 alkuperäistä Markdown-dokumenttia tuotiin hakemistoon `docs/audit/oppimisarkkitehtuuri-2026-11/` commitissa `3cfe5928e886408d155ab1c412072a23f22d3a62`. GitHubin PR #53:n tiedostolistassa on vain 13 Markdown-dokumenttia. Koko ZIP:ää tai vanhaa sovelluskoodia ei tuotu.
 - Tehdään 35 taitotunnisteen esitaitoriippuvuuksien korjauskierros ja ensimmäisen oppitunnin käsikirjoitus **erillisinä uusina dokumentteina**.
 - Suunnitellaan ja vertaillaan E-hybridiä vs A-linkkiverrokkia yhden oikean oppimiskokonaisuuden sisältöä käyttäen.
 - Yhteisen rakenteen katselmointi #45/#49 ja omistajan hyväksyntä ennen UI-toteutusta.
