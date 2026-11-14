@@ -1,12 +1,12 @@
-# Riffikaiku 0.2 – oikean kitaran hyväksyntäkokeet
+# Riffikaiku 0.3 – oikean kitaran hyväksyntäkokeet
 
-**Tila: EI TEHTY versiolla 0.2.** Ensimmäinen käyttäjäkoe tehtiin versiolla 0.1 (sähkökitara,
+**Tila: EI TEHTY versioilla 0.2–0.3.** Ensimmäinen käyttäjäkoe tehtiin versiolla 0.1 (sähkökitara,
 MacBook Pron mikrofoni ja Scarlett Solo 4th Gen); sen havainnot johtivat 0.2:n korjauksiin.
 Rajat 9/10 ja 0/10 ovat ehdotettuja pilotin hyväksyntärajoja, eivät mitattuja tuloksia.
 
 ## Mitä on testattu ja miten
 
-| Taso | Mitä | Missä |
+| Testityyppi | Mitä | Missä |
 |---|---|---|
 | Automaattinen, ei ääntä | Pallukat, muistivihjeet, tasot, tallennus, tilakone, reititys, viritinlaskenta, näppäilytunnistimen päätökset | `tests/riffikaiku-sequence`, `-game`, `-pluck-tuner` |
 | Synteettinen äänisignaali | Kuusi vapaata kieltä (eri voimakkuudet ja näytteenottotaajuudet), sustain, A–A, legato, myötäresonanssi, ylä-ääni, kynnys, mallin kaiutinhäntä – oikean Pitchyn läpi | `tests/riffikaiku-pipeline` |
@@ -42,17 +42,21 @@ ylimääräinen tapahtuma (pallukka muuttui ilman näppäystä tai väärä ”k
 3. **Kaikki kuusi vapaata kieltä** E2 A2 D3 G3 B3 E4: diagnostiikassa kunkin taajuus, sävel ja
    ”Viimeisin: X”. Kirjaa, kauanko vaihe 2 pysyy päällä (ennen 0.1:ssä E2 ~3 s, E4 < 1 s) ja tuleeko
    vaiheessa 4 täsmälleen yksi näppäily per näppäys. Toista hiljaa ja voimakkaasti.
-4. **Tason 1 B-kielen riffit** (B3–C4–D4–C4, C4–B3–C4–D4, E4–D4–C4–B3): 10 kierrosta kutakin,
-   tavoite ≥ 9/10 kaikki vihreinä ilman turhaa uusintaa.
-5. **Sama sävel kahdesti**: tason 2 ”Toistuva alku” (E4–E4–D4–C4) ja tason 3 ”Kaksi samaa” (A3–A3–C4–A3).
+4. **Kotitreeni 1:n B-kielen riffit** (B3–C4–D4–C4, C4–B3–C4–D4, B3–D4–C4–B3): 10 kierrosta kutakin,
+   tavoite ≥ 9/10 kaikki vihreinä ilman turhaa uusintaa. Lisäksi Kotitreeni 2 (G-kieli: G3–A3–B3–A3,
+   A3–A3–G3–B3, B3–G3–A3–G3).
+5. **Sama sävel kahdesti**: Kotitreeni 2:n ”Kaksi samaa” (A3–A3–G3–B3).
    10 × vaimennuksella ja 10 × ilman. Kirjaa puuttuvat toiset sävelet ja tuplautuvat ensimmäiset.
-6. **Eri sävelet ilman taukoa** (legato, ei vaimennusta): tason 1 riffit nopeasti peräkkäin. Kirjaa
+6. **Eri sävelet ilman taukoa** (legato, ei vaimennusta): Kotitreeni 1:n riffit nopeasti peräkkäin. Kirjaa
    puuttuvat sävelet ja diagnostiikan syy (vaihe 4: ”sävelen vaihto” vs. ”liian hiljainen”).
 7. **Uusi näppäys, kun edellinen soi vielä**: sekä eri sävel että sama sävel. Sama sävel pehmeästi on
    tunnettu rajoitus – kirjaa, kuinka usein se jää huomaamatta normaalilla näppäyksellä.
 8. **Tahallinen väärä sävel ja palautuminen**: soita väärä → punainen, sama kohta pysyy; oikea →
-   keltainen; riffi loppuun → ”Soitit riffin loppuun!” → Yritä uudelleen. Myös väärä oktaavi (B4 B3:n sijaan).
-9. **Virheetön riffi hyväksytään**: kaikki vihreinä → ”Riffi hyväksytty”. Kolme riffiä → onnittelunäkymä.
+   keltainen; riffi loppuun → ”Riffi soitettu loppuun. Kuunnellaan uudelleen!” → malli soi itsestään
+   ~2,5 s:n kuluttua. **Kirjaa, tuleeko mallisoiton aikana tai heti sen jälkeen haamuvastauksia**
+   (soittimen kieli voi vielä soida). Myös väärä oktaavi (B4 B3:n sijaan).
+9. **Virheetön riffi hyväksytään**: kaikki vihreinä → ”Riffi läpäisty!”, peli odottaa valintaa
+   (Seuraava riffi / Soita uudelleen). Kolme riffiä → onnittelunäkymä.
 10. **Viritin**: jokainen kieli, lukeman vakaus, ”liian matala / vireessä / liian korkea” oikeaan suuntaan
     (vertaa erilliseen virittimeen, jos saatavilla). Väärä kieli valittuna → ”kuulen X”.
 11. **Äänitulon vaihto kesken käyttökerran**: pelistä (”Mikrofonin tiedot ja äänitulo”) ja valmistelusta.
@@ -61,6 +65,10 @@ ylimääräinen tapahtuma (pallukka muuttui ilman näppäystä tai väärä ”k
 12. **Mallisoiton haamuhavainnot**: koske kitaraan, mutta älä soita. Kuuntele uudelleen 10 kertaa, kaiutin
     täysillä, ja odota 5 s vuoron alun jälkeen. Tavoite 0/10 muuttunutta pallukkaa ja ”kuulin X” -palautetta.
     Toista kielet vaimentamatta (myötäresonanssi kaiuttimesta).
+
+**0.3-käytettävyys:** Kuuntele riffi kesken yrityksen (myös punaisen kohdan aikana) ja Pysäytä
+kuuntelu – pallukat ja kohta säilyvät, eikä pysäytyksen jälkeen tule haamuvastausta. Lisävalikko
+puhelimella yhdellä kädellä. Harjoituskielen korostus näkyy kirkkaassa valossa puhelimen näytöllä.
 
 Lisäksi: taustavälilehti kesken vuoron (tauko, mikrofonin merkkivalo sammuu), luvan epääminen
 (ohje ja virtuaalikitara), virtuaalikitara hiirellä ja kosketuksella (A–A–C–A kahdella nopealla
@@ -73,7 +81,7 @@ napautuksella, ei zoomausta).
 | 1 sisäinen mikrofoni | | | | | | | |
 | 2 Scarlett | | | | | | | |
 | 3 kuusi kieltä | | | | | | | |
-| 4 tason 1 riffit /10 | | | | | | | |
+| 4 kotitreenien riffit /10 | | | | | | | |
 | 5 A–A vaim. / ilman /10 | | | | | | | |
 | 6 legato /10 | | | | | | | |
 | 7 uusi näppäys soivan päälle | | | | | | | |

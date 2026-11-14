@@ -119,6 +119,9 @@ function pipeline({ tutorialDone = true } = {}) {
       this.play([{ at: 20, midi: 59 }]); clock.run(700);
       expect(s().check).toBe('ok');
       game.continueAfterCheck();
+      // Malli ei soi itsestään: pelaaja painaa Kuuntele riffi.
+      expect(s().phase).toBe('ready');
+      game.listen();
       expect(s().phase).toBe('model-playing');
       // Kaiutin soittaa mallin 0,8 s välein; analyysi on tauolla.
       if (leak) this.play(riff.map((midi, i) => ({ at: 50 + i * 800, midi, amp: .2, decay: 400 })));
@@ -168,31 +171,32 @@ describe('neljä peräkkäistä säveltä synteettisellä kitaralla', () => {
 });
 
 describe('sama sävel kahdesti (A–A) ja pitkä sustain', () => {
-  const aaRiff = RIFFS.find(r => r.midi.join() === '57,57,60,57')!;
+  // Kotitreeni 2: A3–A3–G3–B3 (G-kieli 2-2-0-4).
+  const aaRiff = RIFFS.find(r => r.midi.join() === '57,57,55,59')!;
   async function aaGame() {
     const t = pipeline();
-    // Avaa suoraan tason 3 A–A–C–A-riffi: tason ensimmäinen on jo läpäisty.
-    t.store.startLevel('mic', 3);
-    t.store.record({ riff: 'gb-nousu', input: 'mic', hint: false, wrong: 0, octave: 0, replays: 0, ms: 1, at: 1, passed: true });
+    // Avaa suoraan Kotitreeni 2:n A–A-riffi: ensimmäinen on jo läpäisty.
+    t.store.startLevel('mic', 2);
+    t.store.record({ riff: 'g-nousu', input: 'mic', hint: false, wrong: 0, octave: 0, replays: 0, ms: 1, at: 1, passed: true });
     await t.toListening(aaRiff.midi);
     expect(t.s().riff.id).toBe(aaRiff.id);
     t.stable.length = 0;
     return t;
   }
 
-  it('A–A–C–A, A:n välissä kieli vaimennetaan → molemmat A:t erillisinä', async () => {
+  it('A–A–G–B, A:n välissä kieli vaimennetaan → molemmat A:t erillisinä', async () => {
     const t = await aaGame();
-    t.play([{ at: 100, midi: 57, mute: 600 }, { at: 750, midi: 57 }, { at: 1450, midi: 60 }, { at: 2150, midi: 57 }]);
+    t.play([{ at: 100, midi: 57, mute: 600 }, { at: 750, midi: 57 }, { at: 1450, midi: 55 }, { at: 2150, midi: 59 }]);
     t.clock.run(2800);
-    expect(t.stable).toEqual([57, 57, 60, 57]);
+    expect(t.stable).toEqual([57, 57, 55, 59]);
     expect(t.s().phase).toBe('success');
   });
 
-  it('A–A–C–A ilman vaimennusta, selvä uusi näppäys 700 ms päästä → molemmat A:t (uusi aluke)', async () => {
+  it('A–A–G–B ilman vaimennusta, selvä uusi näppäys 700 ms päästä → molemmat A:t (uusi aluke)', async () => {
     const t = await aaGame();
-    t.play([{ at: 100, midi: 57 }, { at: 800, midi: 57 }, { at: 1500, midi: 60 }, { at: 2200, midi: 57 }]);
+    t.play([{ at: 100, midi: 57 }, { at: 800, midi: 57 }, { at: 1500, midi: 55 }, { at: 2200, midi: 59 }]);
     t.clock.run(2900);
-    expect(t.stable).toEqual([57, 57, 60, 57]);
+    expect(t.stable).toEqual([57, 57, 55, 59]);
     expect(t.s().phase).toBe('success');
   });
 
@@ -293,6 +297,7 @@ describe('mallisoiton vuoto ja kaiutinhäntä', () => {
     t.clock.run(1100);
     t.play([{ at: 20, midi: 59 }]); t.clock.run(700);
     t.game.continueAfterCheck();
+    t.game.listen();
     t.stable.length = 0;
     t.clock.run(1600);
     // Mallin jälkeen kaiutin/huone jatkaa riffin ensimmäistä säveltä tasaisesti (pahin tapaus).

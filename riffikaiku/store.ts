@@ -2,12 +2,19 @@
  * Riffikaiun oma edistyminen. Erillinen avain: Kitaraharjoittelijan versio 3
  * (musiikin-kartta:harjoittelu) ei muutu. Raakaääntä ei tallenneta, eikä mitään lähetetä palvelimelle.
  *
- * Tasot: jokaisella vastaustavalla (mic / board) on oma meneillään oleva tasokierros (run) ja omat
- * läpäistyt tasot. Taso läpäistään, kun sen kolme riffiä on soitettu virheettömästi (kaikki vihreinä)
- * saman kierroksen aikana. Seuraavalle tasolle siirrytään vain pelaajan valinnasta.
+ * Kotitreenit (koodissa ”level”): jokaisella vastaustavalla (mic / board) on oma meneillään oleva
+ * kierros (run) ja omat suoritetut kotitreenit (levels). Kotitreeni suoritetaan, kun sen kolme riffiä on
+ * soitettu virheettömästi (kaikki vihreinä) saman kierroksen aikana. Seuraavaan siirrytään vain
+ * pelaajan valinnasta.
  *
- * Kentät run, levels, fullBoard ja device lisättiin versioon 1 taaksepäin yhteensopivasti: vanha data
- * luetaan ja puuttuvat kentät saavat oletusarvon. Mitään olemassa olevaa kenttää ei poisteta.
+ * Kentät lisättiin versioon 1 taaksepäin yhteensopivasti; mitään ei poisteta.
+ *
+ * Siirto 0.2:n nelitasoisesta rakenteesta (ei structure-kenttää): vanhat tasonumerot eivät vastaa
+ * kotitreenejä (vanha taso 2 oli B-kieli, uusi Kotitreeni 2 on G-kieli), joten suoritettuja tasoja ei
+ * siirretä eikä mitään merkitä läpäistyksi tasonumeron perusteella. Riffikohtaiset tilastot ja tulokset
+ * säilyvät tunnisteittain (samat tunnisteet = samat sävelet). Kesken olleen tason 1 läpäistyt riffit
+ * siirtyvät Kotitreeni 1:een vain, jos täsmälleen sama riffi kuuluu siihen. Vanhat tulokset merkitään
+ * legacy-tunnisteella, koska niiden level-numero viittaa vanhaan rakenteeseen.
  */
 import type { AnswerInput } from './sequence';
 import { LEVELS, TUTORIAL, levelOf, type Riff } from './riffs';
@@ -31,17 +38,22 @@ export type RiffResult = {
   /** Kaikki pallukat vihreinä. Puuttuu 0.1-version tuloksista. */
   passed?: boolean;
   level?: number;
+  /** Tulos on tallennettu ennen kotitreenejä: level viittaa vanhaan nelitasoiseen rakenteeseen. */
+  legacy?: boolean;
 };
 
 /** done: loppuun soitetut yritykset · passed: virheettömät · solo: virheettömät ilman vihjettä. */
 export type RiffStat = { done: number; solo: number; passed?: number; lastAt: number };
 export type LevelRun = { level: number; passed: string[] };
+export const STRUCTURE = 'kotitreenit';
 export type RiffData = {
   version: 1;
+  /** Harjoitusrakenne, johon run ja levels viittaavat. Puuttuu 0.1–0.2-tallennuksista. */
+  structure: typeof STRUCTURE;
   tutorialDone: boolean;
   /** Viimeksi käytetty vastaustapa. */
   input: AnswerInput;
-  /** Näytetäänkö koko kuusikielinen otelauta jo ennen tasoa 4. */
+  /** 0.2: näytettiinkö koko otelauta. 0.3:sta alkaen koko otelauta näkyy aina; kenttä säilytetään. */
   fullBoard: boolean;
   /** Valittu äänitulo (selaimen deviceId); tyhjä = järjestelmän oletus. */
   device: string;
@@ -53,7 +65,7 @@ export type RiffData = {
   levels: Record<AnswerInput, number[]>;
 };
 
-export const freshRiffData = (): RiffData => ({ version: 1, tutorialDone: false, input: 'mic', fullBoard: false, device: '',
+export const freshRiffData = (): RiffData => ({ version: 1, structure: STRUCTURE, tutorialDone: false, input: 'mic', fullBoard: false, device: '',
   stats: { mic: {}, board: {} }, results: [], run: { mic: { level: 1, passed: [] }, board: { level: 1, passed: [] } }, levels: { mic: [], board: [] } });
 
 const count = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v) && v >= 0;
@@ -68,7 +80,7 @@ const validResult = (r: unknown): r is RiffResult => {
   const x = r as RiffResult;
   return !!x && typeof x === 'object' && typeof x.riff === 'string' && isInput(x.input) && typeof x.hint === 'boolean' &&
     (['wrong', 'octave', 'replays', 'ms', 'at'] as const).every(k => count(x[k])) &&
-    (x.passed === undefined || typeof x.passed === 'boolean') && (x.level === undefined || levelNumber(x.level));
+    (x.passed === undefined || typeof x.passed === 'boolean') && (x.level === undefined || Number.isInteger(x.level) && x.level > 0);
 };
 
 /** Lukee tallennuksen. Virheellinen tai tuntematon data palautetaan tyhjänä, ei kaadu. */
@@ -83,10 +95,16 @@ export function decodeRiffData(raw: string | null): RiffData {
   data.fullBoard = d.fullBoard === true;
   if (typeof d.device === 'string') data.device = d.device.slice(0, 256);
   if (isInput(d.input)) data.input = d.input;
+  const legacy = d.structure !== STRUCTURE;
   for (const input of INPUTS) {
     const stats = d.stats?.[input];
     if (stats && typeof stats === 'object') for (const [id, s] of Object.entries(stats)) if (validStat(s)) data.stats[input][id] = { ...s };
     const run = d.run?.[input];
+    if (legacy) {
+      // Vain vanhan tason 1 kesken olleet, Kotitreeni 1:ssä täsmälleen samat riffit siirtyvät.
+      if (run && run.level === 1 && Array.isArray(run.passed)) data.run[input] = { level: 1, passed: LEVELS[0].riffs.map(r => r.id).filter(id => run.passed.includes(id)) };
+      continue;
+    }
     if (run && levelNumber(run.level) && Array.isArray(run.passed)) {
       const ids = LEVELS.find(l => l.number === run.level)!.riffs.map(r => r.id);
       data.run[input] = { level: run.level, passed: ids.filter(id => run.passed.includes(id)) };
@@ -94,7 +112,7 @@ export function decodeRiffData(raw: string | null): RiffData {
     const levels = d.levels?.[input];
     if (Array.isArray(levels)) data.levels[input] = [...new Set(levels.filter(levelNumber))].sort((a, b) => a - b);
   }
-  if (Array.isArray(d.results)) data.results = d.results.filter(validResult).slice(-300);
+  if (Array.isArray(d.results)) data.results = d.results.filter(validResult).slice(-300).map(r => legacy && !r.legacy ? { ...r, legacy: true } : r);
   return data;
 }
 

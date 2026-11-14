@@ -44,9 +44,6 @@
 .riff-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
 .riff-hint { border: 1px dashed var(--line); border-radius: 10px; padding: 4px 14px; margin: 10px 0; }
 .riff-board { margin-top: 8px; }
-/* Tason ulkopuoliset kielet piilotetaan kokonaan, ei vain himmennetä. */
-.riff-board .practice-board tr.unused { display: none; }
-.riff-toggle { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 14px; color: var(--muted); cursor: pointer; }
 .riff-instruction { font-weight: 650; margin: 8px 0 0; padding: 8px 12px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); }
 .riff-cleared h2 { font-size: clamp(22px, 5vw, 30px); color: var(--good); outline: none; }
 /* Kosketus: nopea toinen napautus on uusi näppäys, ei zoomaus. */
@@ -113,3 +110,45 @@
 .riff-cleared-big { font-size: clamp(22px, 5vw, 28px); font-weight: 800; margin: 0 0 8px; }
 .riff-details { margin: 10px 0; }
 @media (prefers-reduced-motion: reduce) { .riff-tuner-scale .needle { transition: none; } }
+
+/* 0.3: pelinäkymän otsikko, lisävalikko ja harjoituskielen korostus koko otelaudalla */
+.riff-play-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.riff-play-head .riff-brand { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.riff-play-head h1 { margin: 2px 0 0; font-size: clamp(20px, 5vw, 26px); }
+.riff-play-head .riff-name { margin: 2px 0 0; color: var(--muted); }
+.riff-menu { position: relative; flex: none; }
+.riff-menu-button { min-height: 44px; padding: 6px 12px; font-size: 14px; }
+.riff-menu-list { position: absolute; right: 0; top: calc(100% + 6px); z-index: 20; list-style: none; margin: 0; padding: 6px; min-width: 210px;
+  max-width: calc(100vw - 40px); background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 10px 28px rgba(0, 0, 0, .35); }
+.riff-menu-list button { display: block; width: 100%; text-align: left; min-height: 44px; border: 0; background: transparent; border-radius: 8px; padding: 8px 12px; }
+.riff-menu-list button:hover, .riff-menu-list button:focus-visible { background: color-mix(in srgb, var(--lavender) 20%, transparent); }
+.riff-turn { margin: 10px 0 6px; }
+.riff-turn .riff-status { margin: 0 0 6px; }
+.riff-turn .riff-instruction { margin: 0; display: block; padding: 0 0 0 10px; border: 0; border-left: 4px solid var(--gold); border-radius: 0; background: none; color: var(--text); }
+.riff-main-actions { margin-top: 12px; }
+.riff-main-actions button { min-height: 48px; }
+.riff-next { border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px; margin: 8px 0 18px; background: var(--panel); }
+.riff-next h2 { margin: 2px 0 6px; }
+.riff-next p:last-child { margin: 0; color: var(--muted); }
+.riff-board { --focus-row: #3b2a10; --focus-edge: var(--gold); --focus-head: color-mix(in srgb, var(--gold) 28%, var(--panel)); }
+.riff-board.has-focus tbody tr { opacity: .55; }
+.riff-board.focus-s0 tbody tr:nth-child(1) { opacity: 1; }
+.riff-board.focus-s0 tbody tr:nth-child(1) > td { --string-thickness: 4px; background-color: var(--focus-row); box-shadow: inset 0 2px 0 var(--focus-edge), inset 0 -2px 0 var(--focus-edge); }
+.riff-board.focus-s0 tbody tr:nth-child(1) > th { background: var(--focus-head); color: var(--text); box-shadow: inset 4px 0 0 var(--focus-edge); }
+.riff-board.focus-s1 tbody tr:nth-child(2) { opacity: 1; }
+.riff-board.focus-s1 tbody tr:nth-child(2) > td { --string-thickness: 4px; background-color: var(--focus-row); box-shadow: inset 0 2px 0 var(--focus-edge), inset 0 -2px 0 var(--focus-edge); }
+.riff-board.focus-s1 tbody tr:nth-child(2) > th { background: var(--focus-head); color: var(--text); box-shadow: inset 4px 0 0 var(--focus-edge); }
+.riff-board.focus-s2 tbody tr:nth-child(3) { opacity: 1; }
+.riff-board.focus-s2 tbody tr:nth-child(3) > td { --string-thickness: 4px; background-color: var(--focus-row); box-shadow: inset 0 2px 0 var(--focus-edge), inset 0 -2px 0 var(--focus-edge); }
+.riff-board.focus-s2 tbody tr:nth-child(3) > th { background: var(--focus-head); color: var(--text); box-shadow: inset 4px 0 0 var(--focus-edge); }
+.riff-board.focus-s3 tbody tr:nth-child(4) { opacity: 1; }
+.riff-board.focus-s3 tbody tr:nth-child(4) > td { --string-thickness: 4px; background-color: var(--focus-row); box-shadow: inset 0 2px 0 var(--focus-edge), inset 0 -2px 0 var(--focus-edge); }
+.riff-board.focus-s3 tbody tr:nth-child(4) > th { background: var(--focus-head); color: var(--text); box-shadow: inset 4px 0 0 var(--focus-edge); }
+.riff-board.focus-s4 tbody tr:nth-child(5) { opacity: 1; }
+.riff-board.focus-s4 tbody tr:nth-child(5) > td { --string-thickness: 4px; background-color: var(--focus-row); box-shadow: inset 0 2px 0 var(--focus-edge), inset 0 -2px 0 var(--focus-edge); }
+.riff-board.focus-s4 tbody tr:nth-child(5) > th { background: var(--focus-head); color: var(--text); box-shadow: inset 4px 0 0 var(--focus-edge); }
+.riff-board.focus-s5 tbody tr:nth-child(6) { opacity: 1; }
+.riff-board.focus-s5 tbody tr:nth-child(6) > td { --string-thickness: 4px; background-color: var(--focus-row); box-shadow: inset 0 2px 0 var(--focus-edge), inset 0 -2px 0 var(--focus-edge); }
+.riff-board.focus-s5 tbody tr:nth-child(6) > th { background: var(--focus-head); color: var(--text); box-shadow: inset 4px 0 0 var(--focus-edge); }
+.riff-focus-legend { display: flex; align-items: center; gap: 8px; margin: 6px 0 0; font-weight: 650; }
+.riff-focus-legend .swatch { width: 22px; height: 8px; border-radius: 4px; background: var(--gold); }

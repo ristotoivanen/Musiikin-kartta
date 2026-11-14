@@ -1,4 +1,4 @@
-# Riffikaiku 0.2 (prototyyppi)
+# Riffikaiku 0.3 (prototyyppi)
 
 Kuuntele neljän sävelen riffi ja soita se takaisin samassa järjestyksessä – **oikealla kitaralla**
 (mikrofoni) tai **virtuaalikitaralla** (otelauta, hiiri tai kosketus). Ei rytmin pisteytystä,
@@ -16,9 +16,9 @@ ei ole todennettu – ks. [HYVAKSYNTAKOKEET.md](HYVAKSYNTAKOKEET.md).
 | `tuner.ts` | `Tuner`: jatkuva viritinlukema kehyksistä. Puhdas. |
 | `game.ts` | `RiffGame`: tilakone ja tapahtumien reititys. Ei Reactia eikä suoraa ääntä. |
 | `audioAdapter.ts` | `GameAudio`-rajapinta ja `BrowserAudio` (Kitaraharjoittelijan `Microphone` + `ReferencePlayer`, laitelista, kynnys). |
-| `riffs.ts` | 4 tasoa × 3 riffiä, tason kielet ja ohje, opastus, mikrofonitestin B3. |
+| `riffs.ts` | Kotitreenit (nyt 2 × 3 riffiä), harjoituskieli ja ohje, opastus, mikrofonitestin B3. |
 | `store.ts` | Oma tallennus `musiikin-kartta:riffikaiku:v1`. |
-| `Riffikaiku.tsx`, `MicTools.tsx`, `main.tsx`, `style.css` | Käyttöliittymä. Otelautana Kitaraharjoittelijan `Board`. |
+| `Riffikaiku.tsx`, `MicTools.tsx`, `main.tsx`, `style.css` | Käyttöliittymä (pelinäkymä, lisävalikko, mikrofonin työkalut). Otelautana Kitaraharjoittelijan `Board`. |
 
 Käännös: `vite.riffikaiku.config.ts` → `assets/riffikaiku/` (`emptyOutDir` koskee vain sitä).
 `npm run build` kääntää molemmat; `npm run build:riffikaiku` vain Riffikaiun. Kitaraharjoittelijan
@@ -83,48 +83,78 @@ puolisävelaskeleen poikkeama → ”kuulen X, tarkista kieli”. Mittari: media
 tasoitus. Viritin lukee kehysten taajuutta (myös epävireisiä), ei näppäilytapahtumia, eikä sen
 havainnot koskaan mene pelin tarkistajalle. Virittimestä pääsee suoraan harjoitukseen.
 
-## Pallukat ja muistivihjeet
+## Pelin kulku (0.3)
 
-- **Harmaa**: ei vielä ratkaistu tällä yrityksellä (sävelnimi piilossa).
-- **Vihreä**: oikea sävel heti → nimi näkyviin, seuraava paikka.
-- **Punainen**: väärä sävel (myös väärä oktaavi) → pysytään samassa paikassa. Oikeaa säveltä ei
-  paljasteta (”Väärä sävel. Kokeile uudelleen.”; mikrofonilla lisäksi mitä kuultiin).
-- **Keltainen**: oikea sävel virheen jälkeen → nimi näkyviin, seuraava paikka. Ei muutu vihreäksi.
-- Riffi hyväksytään vain kaikki vihreinä. Keltaisellakin riffin saa soittaa loppuun: ”Soitit riffin
-  loppuun! Kokeile vielä ilman virheitä.” → **Yritä uudelleen** (tai Kuuntele ja yritä).
-- Väri ei ole ainoa vihje: symbolit ✓ ✗ ↻ ja ruudunlukijan teksti jokaisessa pallukassa.
+1. **Valmis (ready):** uusi riffi ei soi itsestään. Pelaaja painaa **Kuuntele riffi**.
+2. **Malli → vuoro:** malli soi; mikrofonin analyysi on tauolla, ja vuoro alkaa suojavaiheen jälkeen.
+3. **Pallukat:** harmaa (ratkaisematta) · **vihreä** (heti oikein, nimi näkyviin, seuraava paikka) ·
+   **punainen** (väärä sävel – myös väärä oktaavi – pysytään paikassa, oikeaa ei paljasteta) ·
+   **keltainen** (oikea virheen jälkeen, nimi näkyviin; ei muutu vihreäksi). Symbolit ✓ ✗ ↻ ja
+   ruudunlukijan teksti, joten väri ei ole ainoa vihje.
+4. **Virheetön (kaikki vihreinä):** ”Riffi läpäisty!”. Peli ei siirry eikä soita itse. Pelaaja valitsee
+   **Seuraava riffi** (kolmannen jälkeen onnittelunäkymä) tai **Soita uudelleen** (uusi yritys, malli alkuun,
+   läpäisy säilyy).
+5. **Loppuun keltaisilla:** ”Riffi soitettu loppuun. Kuunnellaan uudelleen!” Tulos näkyy
+   `RETRY_RESULT_MS` = 2,5 s, sitten sama malli soi ja uusi yritys alkaa automaattisesti ensimmäisestä
+   sävelestä. **Peru automaattinen uusinta** pysäyttää sen (sen jälkeen **Yritä uudelleen**). Tauko,
+   taustavälilehti, lopetus, kotitreenivalikko ja sivulta poistuminen perivät odottavan uusinnan.
+   Kuuntele riffi odotuksen aikana aloittaa uusinnan heti – yksi malli, ei päällekkäisiä. Epäonnistuneiden
+   kokonaisyritysten laskuri kasvaa kerran per valmistunut yritys.
+6. **Kuuntele riffi kesken yrityksen** ei aloita uutta yritystä: paikka, värit, sävelnimet, muistivihjeet,
+   laskuri ja läpäisyt säilyvät. Sama painike on soiton aikana **Pysäytä kuuntelu** (eteneminen säilyy;
+   mikrofonilla vuoro jatkuu suojavaiheen kautta, joten pysäytys ei tuota haamuvastauksia).
 
 **Muistivihjeet:** saman riffin kolmannen loppuun soitetun epäonnistuneen yrityksen jälkeen uusi
-yritys näyttää harmaina ne paikat, jotka pelaaja on jollakin aiemmalla yrityksellä soittanut
-**heti oikein** (vihreä); muut paikat ovat tyhjiä. Muisti on paikkakohtainen. Vihje ei hyväksy
-mitään. Yksittäiset väärät sävelet ja ”Aloita alusta” eivät kasvata laskuria. Miksi vain vihreät:
-loppuun soitetussa yrityksessä kaikki paikat on lopulta löydetty, joten ”löydetyt paikat”
-paljastaisivat aina koko riffin. Laskuri on käyttökertakohtainen (ei tallennu).
-Manuaalinen sävelvihje on erillinen ja kirjataan tulokseen (`hint`).
+yritys näyttää harmaina ne paikat, jotka pelaaja on jollakin aiemmalla yrityksellä soittanut **heti
+oikein**; muut ovat tyhjiä. Paikkakohtainen, ei hyväksy mitään, säilyy automaattisten uusintojen ja
+kuuntelun yli, nollautuu seuraavassa riffissä. (Vain vihreät, koska loppuun soitetussa yrityksessä kaikki
+paikat on lopulta löydetty.) Manuaalinen **Vihje** on erillinen ja kirjataan tulokseen (`hint`).
 
-## Tasot
+### Pelinäkymä ja lisävalikko
 
-| Taso | Kielet | Riffit |
-|---|---|---|
-| 1 Ensimmäiset riffit | B | B3–C4–D4–C4 (0-1-3-1), Edestakaisin, Laskeva kaiku (askeleet ≤ 2 puolisävelaskelta) |
-| 2 Muista melodia | B | Kumpu, Toistuva alku (E–E), Hyppivä kaiku |
-| 3 Kaksi kieltä | G + B | Kahden kielen nousu, Kaksi samaa A–A–C–A, Kahden kielen kaari |
-| 4 Laajempi otelauta | kaikki 6 | Hyppy ylös, Mollinen kaiku, Kielten yli (Am-murtosointu) |
+Yläosa: Riffikaiku · ”Kotitreeni 1 · Riffi 2/3” · riffin nimi · **⋯ Lisää** (oikea reuna). Tila:
+”Kuuntele riffi aloittaaksesi.” / ”Sinun vuorosi!” ja ohje ”Soita riffi B-kieleltä.”. Pallukat ja
+”Ratkaistu n/4”. Soittoalue. Toiminnot: **Kuuntele riffi / Pysäytä kuuntelu** ja **Vihje**
+(onnistumisen jälkeen Seuraava riffi ja Soita uudelleen; epäonnistumisen jälkeen Peru / Yritä uudelleen).
 
-Nauhat 0–5; testi varmistaa, että jokainen sävel löytyy tason otelaudalta. Tason ulkopuoliset kielet
-piilotetaan; ”Näytä koko otelauta” näyttää kaikki kuusi (sama tarkistus). Oikean kitaran tilassa ohje
-”Soita B-kielellä (toiseksi ohuin kieli).” – tarkistus perustuu silti vain sävelkorkeuteen.
-Otsikko ”Taso 1 · Riffi 2/3”. Tason kolmen virheettömän riffin jälkeen onnittelunäkymä
-(”Onneksi olkoon! Läpäisit tason N!”) ja valinnat Jatka / Harjoittele uudelleen / Takaisin
-tasovalikkoon; viimeisen tason jälkeen loppunäkymä ilman seuraavaa tasoa. Ei automaattista siirtoa.
-Tasovalikko: läpäistyt, nykyinen (jatkuu kesken jääneestä) ja seuraava avattu taso.
+Lisävalikossa vain tilanteeseen sopivat: **Aloita uusi yritys** (kun yritystä on aloitettu), **Tauko** /
+**Jatka**, **Kotitreenit**, **Mikrofonin tiedot** (vain oikea kitara: laite ja diagnostiikka),
+**Vaihda pelitapaa**, **Lopeta harjoitus**. Valikon avaaminen ei muuta pelin tilaa. Hiiri, kosketus,
+näppäimistö (Enter/välilyönti avaa, nuolet, Home/End, Esc sulkee ja palauttaa kohdistuksen), ulkopuolinen
+napautus sulkee.
+
+### Otelauta
+
+Koko kuusikielinen otelauta (nauhat 0–5) näkyy aina, myös mikrofonitilassa (ei painettava). Harjoituskieli
+korostetaan (täysi näkyvyys, kultainen reunus, paksumpi kieliviiva, otsikkosolun taustaväri), muut kielet
+himmennetään. Selite: ”Harjoituskieli: B-kieli (toiseksi ohuin)”. Vastauksia ei näytetä ilman vihjettä.
+Korostus on ohje, ei sääntö: oikea MIDI-sävel hyväksytään miltä kieleltä tahansa, eikä mikrofoni tunnista kieltä.
+0.2:n ”Näytä koko otelauta” -valinta poistettiin.
+
+## Kotitreenit
+
+| Kotitreeni | Harjoituskieli | Sävelet | Riffit |
+|---|---|---|---|
+| 1 | B | B3, C4, D4 | Ensimmäinen kaiku B3–C4–D4–C4 (0-1-3-1), Edestakaisin C4–B3–C4–D4, Kaari takaisin B3–D4–C4–B3 |
+| 2 | G | G3, A3, B3 | G-kielen kaari G3–A3–B3–A3, Kaksi samaa A3–A3–G3–B3, Hyppy alas B3–G3–A3–G3 |
+
+Ennen Kotitreeni 1:tä on kahden sävelen opastus (B3–C4). Kotitreeni 2 avautuu Kotitreeni 1:n
+suorittamisesta; suoritetut voi avata uudelleen kotitreenivalikosta. Kolmen virheettömän riffin jälkeen
+”Onneksi olkoon! Kotitreeni 1 – B-kieli suoritettu!” ja valinnat Jatka / Harjoittele uudelleen /
+Kotitreenit; viimeisen jälkeen ilmoitus, ettei uusia ole vielä. Ei automaattista siirtoa.
+Tulevat kokonaisuudet: [KEHITYSSUUNNITELMA.md](KEHITYSSUUNNITELMA.md).
 
 ## Tallennus
 
-Avain `musiikin-kartta:riffikaiku:v1` (ei muutoksia Kitaraharjoittelijan avaimeen). Versio 1
-laajennettiin taaksepäin yhteensopivasti: `run` (tasokierros ja läpäistyt riffit), `levels`
-(läpäistyt tasot), `fullBoard`, `device`, tuloksiin `passed` ja `level`. Puuttuvat kentät saavat
-oletuksen; mitään ei poisteta. Mikrofonin ja virtuaalikitaran eteneminen on erillinen.
+Avain `musiikin-kartta:riffikaiku:v1` (ei muutoksia Kitaraharjoittelijan avaimeen). Kentät `structure:
+'kotitreenit'`, `run` (kierros ja läpäistyt riffit), `levels` (suoritetut kotitreenit), `device`,
+tuloksiin `passed`, `level` ja `legacy`. Mikrofonin ja virtuaalikitaran eteneminen on erillinen.
+
+**Siirto 0.2:sta** (nelitasoinen rakenne, ei `structure`-kenttää): vanhoja tasoja ei näytetä eikä mitään
+merkitä suoritetuksi tasonumeron perusteella (vanha taso 2 oli B-kieli, Kotitreeni 2 on G-kieli).
+Riffikohtaiset tilastot ja tulokset säilyvät tunnisteittain; vanhat tulokset saavat `legacy: true`.
+Vanhan tason 1 kesken olleista läpäistyistä riffeistä siirtyvät vain Kotitreeni 1:ssä täsmälleen samat
+(`b-kaari`, `b-vaihto`). 0.2:n `fullBoard` säilytetään, mutta sitä ei enää käytetä.
 
 ## Uudelleenkäytettävä ydin myöhempiin harjoituksiin
 
@@ -163,3 +193,5 @@ Syötteen tulkinta (näppäily vs. painallus) ja äänen hallinta pysyvät ytime
   mikrofonihavainto pakottaa uuden yrityksen.
 - Selaimet voivat ohittaa pyynnön kytkeä puheenkäsittely pois (erityisesti puhelimet).
 - Muistivihjelaskuri ei säily sivun latauksen yli.
+- Automaattisen uusinnan 2,5 s:n tulosnäkymä on arvio; pelaajatestissä kannattaa katsoa, ehtiikö värit nähdä.
+- Mikrofonitilassa otelauta ei ole painettava, vaikka se näkyy (vastaus tulee kitarasta).

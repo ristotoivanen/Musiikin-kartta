@@ -1,12 +1,15 @@
 /**
- * Riffikaiun tasot ja riffit. Kaikki riffit ovat tätä peliä varten tehtyjä lyhyitä, monofonisia
- * aiheita (ei kappaleiden lainauksia).
+ * Riffikaiun harjoituskokonaisuudet: Kotitreenit. Jokainen kotitreeni harjoittaa yhtä kitarankieltä
+ * kolmella neljän sävelen riffillä. Kaikki riffit ovat tätä peliä varten tehtyjä lyhyitä,
+ * monofonisia aiheita (ei kappaleiden lainauksia).
  *
- * Neljä tasoa × kolme riffiä. Taso määrää virtuaaliotelaudan kielet (nauhat aina 0–5):
- * 1–2 vain B-kieli, 3 G- ja B-kieli, 4 koko otelauta. Jokaisen riffin jokainen sävel löytyy
- * tason otelaudalta (testi varmistaa).
+ * Toteutettu: Kotitreeni 1 (B-kieli) ja Kotitreeni 2 (G-kieli). Suunnitelma muista kielistä ja
+ * myöhemmistä kokonaisuuksista: riffikaiku/KEHITYSSUUNNITELMA.md. Uusi kotitreeni lisätään tähän
+ * listaan; pelilogiikka, tallennus ja käyttöliittymä lukevat rakenteen täältä.
  *
- * Otelautapaikka on soittoehdotus: mikrofoni kuulee vain sävelkorkeuden, ei kieltä eikä sormitusta.
+ * Otelaudalla näkyy aina koko kuusikielinen otelauta (nauhat 0–5). `strings` on harjoituskieli, jota
+ * korostetaan – ei pakottava sääntö: oikea MIDI-sävel hyväksytään miltä kieleltä tahansa, eikä
+ * mikrofoni tunnista kieltä. Jokaisen riffin jokainen sävel löytyy harjoituskieleltä (testi varmistaa).
  */
 /** Vapaiden kielten MIDI-korkeudet ohuimmasta paksuimpaan (sama kuin otelauta.js:n OPEN_PITCHES). */
 export const OPEN_STRINGS = [64, 59, 55, 50, 45, 40] as const;
@@ -20,15 +23,18 @@ export type Riff = {
   /** Ehdotettu soittopaikka jokaiselle sävelelle (kieli 0 = ohut E … 5 = paksu E). */
   spots: Spot[];
   midi: number[];
-  /** Lyhyt soittovinkki pelaajalle. */
+  /** Lyhyt soittovinkki pelaajalle (näkyy vihjeessä). */
   tip: string;
 };
 export type Level = {
   number: number;
+  /** Näyttönimi, esim. ”Kotitreeni 1”. */
+  name: string;
+  /** Harjoiteltava kieli tai kielet lyhyesti, esim. ”B-kieli”. */
   title: string;
-  /** Virtuaaliotelaudan kielet tällä tasolla. */
+  /** Harjoituskieli(et), joita otelaudalla korostetaan. */
   strings: number[];
-  /** Ohje oikean kitaran tilassa. */
+  /** Harjoitusohje (sama mikrofonille ja virtuaalikitaralle). */
   instruction: string;
   riffs: Riff[];
 };
@@ -45,35 +51,25 @@ const B = 1, G = 2;
 /** Mikrofonitesti: yksi vapaa B-kieli. */
 export const CHECK_MIDI = 59;
 
-/** Opastus: kaksi säveltä B-kielellä ennen tasoa 1. */
+/** Opastus: kaksi säveltä B-kielellä Kotitreeni 1:n alussa (ei kuulu kolmeen riffiin). */
 export const TUTORIAL: Riff = riff('opastus', 'Opastus: kaksi säveltä', on(B, [0, 1]), 'Vapaa B-kieli ja sitten 1. nauha.');
 
-const B_INSTRUCTION = 'Soita B-kielellä (toiseksi ohuin kieli).';
-
 export const LEVELS: readonly Level[] = [
-  { number: 1, title: 'Ensimmäiset riffit', strings: [B], instruction: B_INSTRUCTION, riffs: [
+  { number: 1, name: 'Kotitreeni 1', title: 'B-kieli', strings: [B], instruction: 'Soita riffi B-kieleltä.', riffs: [
+    // Sävelet B3, C4 ja D4: vapaa kieli, 1. ja 3. nauha.
     riff('b-kaari', 'Ensimmäinen kaiku', on(B, [0, 1, 3, 1]), 'Vapaa kieli, 1., 3. ja takaisin 1. nauhaan.'),
     riff('b-vaihto', 'Edestakaisin', on(B, [1, 0, 1, 3]), '1. nauha, vapaa kieli, 1. ja 3. nauha.'),
-    riff('b-lasku', 'Laskeva kaiku', on(B, [5, 3, 1, 0]), 'Alaspäin: 5., 3., 1. nauha ja vapaa kieli.'),
+    riff('b-takaisin', 'Kaari takaisin', on(B, [0, 3, 1, 0]), 'Vapaa kieli, 3. ja 1. nauha ja taas vapaa kieli.'),
   ] },
-  { number: 2, title: 'Muista melodia', strings: [B], instruction: B_INSTRUCTION, riffs: [
-    riff('b-kumpu', 'Kumpu', on(B, [0, 3, 5, 3]), 'Vapaa kieli, 3., 5. ja takaisin 3. nauhaan.'),
-    riff('b-toisto', 'Toistuva alku', on(B, [5, 5, 3, 1]), 'Kaksi näppäystä 5. nauhalla, sitten 3. ja 1. Vaimenna kieli hetkeksi samojen sävelten välissä.'),
-    riff('b-hyppy', 'Hyppivä kaiku', on(B, [0, 5, 1, 3]), 'Vapaa kieli, hyppy 5. nauhaan, sitten 1. ja 3. nauha.'),
-  ] },
-  { number: 3, title: 'Kaksi kieltä', strings: [B, G], instruction: 'Soita G- ja B-kielellä (kolmanneksi ja toiseksi ohuin kieli).', riffs: [
-    riff('gb-nousu', 'Kahden kielen nousu', [[G, 0], [G, 2], [B, 0], [B, 1]], 'G-kieli vapaa ja 2. nauha, sitten B-kieli vapaa ja 1. nauha.'),
-    riff('g-kaksi-a', 'Kaksi samaa', [[G, 2], [G, 2], [B, 1], [G, 2]], 'Kaksi erillistä näppäystä G-kielen 2. nauhalla, C B-kielen 1. nauhalta. Vaimenna kieli A:iden välissä.'),
-    riff('gb-kaari', 'Kahden kielen kaari', [[G, 2], [B, 1], [B, 3], [G, 2]], 'G-kielen 2. nauha, B-kielen 1. ja 3. nauha ja takaisin G-kielelle.'),
-  ] },
-  { number: 4, title: 'Laajempi otelauta', strings: [...ALL_STRINGS], instruction: 'Soita millä kielellä tahansa, nauhat 0–5.', riffs: [
-    riff('e-hyppy', 'Hyppy ylös', on(0, [0, 5, 3, 0]), 'Ohut E-kieli: vapaa, hyppy 5. nauhaan, 3. ja vapaa.'),
-    riff('d-molli', 'Mollinen kaiku', on(3, [0, 3, 5, 0]), 'D-kieli: vapaa, 3., 5. ja taas vapaa.'),
-    riff('am-arpeggio', 'Kielten yli', [[4, 0], [4, 3], [3, 2], [G, 2]], 'A-kieli vapaa ja 3. nauha, D-kielen 2. ja G-kielen 2. nauha.'),
+  { number: 2, name: 'Kotitreeni 2', title: 'G-kieli', strings: [G], instruction: 'Soita riffi G-kieleltä.', riffs: [
+    // Sävelet G3, A3 ja B3: vapaa kieli, 2. ja 4. nauha. Vaihtelevampi: toisto ja hyppy.
+    riff('g-nousu', 'G-kielen kaari', on(G, [0, 2, 4, 2]), 'Vapaa kieli, 2., 4. ja takaisin 2. nauhaan.'),
+    riff('g-toisto', 'Kaksi samaa', on(G, [2, 2, 0, 4]), 'Kaksi erillistä näppäystä 2. nauhalla, sitten vapaa kieli ja 4. nauha. Vaimenna kieli hetkeksi samojen sävelten välissä.'),
+    riff('g-hyppy', 'Hyppy alas', on(G, [4, 0, 2, 0]), '4. nauha, vapaa kieli, 2. nauha ja taas vapaa kieli.'),
   ] },
 ];
 
-/** Kaikki tasojen riffit järjestyksessä. */
+/** Kaikki riffit järjestyksessä. */
 export const RIFFS: readonly Riff[] = LEVELS.flatMap(l => l.riffs);
 export const levelOf = (riffId: string) => LEVELS.find(l => l.riffs.some(r => r.id === riffId));
 export const riffById = (id: string) => RIFFS.find(r => r.id === id) ?? (id === TUTORIAL.id ? TUTORIAL : undefined);

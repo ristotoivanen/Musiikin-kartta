@@ -1,22 +1,19 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type KeyboardEvent } from 'react';
 import { Board } from '../harjoittelija/Board';
 import type { Area, Mark } from '../harjoittelija/engine';
-import { positionKey, type Position } from '../harjoittelija/music';
+import { positionKey, stringName, type Position } from '../harjoittelija/music';
 import { noteName, type GameState, type RiffGame } from './game';
 import { DeviceSelect, DiagnosticsView, TunerView } from './MicTools';
-import { ALL_STRINGS, CHECK_MIDI, FRET_MAX, FRET_MIN, LEVELS, RIFFS } from './riffs';
+import { ALL_STRINGS, CHECK_MIDI, FRET_MAX, FRET_MIN, LEVELS } from './riffs';
 import type { SlotMark } from './sequence';
 
-/** Virtuaaliotelauta: tason kielet (tai kaikki kuusi) ja nauhat 0–5. Muut kielet piilotetaan tyyleillä. */
-export const boardArea = (s: Pick<GameState, 'level' | 'fullBoard'>): Area =>
-  ({ strings: s.fullBoard ? ALL_STRINGS : s.level.strings, min: FRET_MIN, max: FRET_MAX, fixed: '' });
+/** Virtuaaliotelauta: aina koko kuusikielinen otelauta, nauhat 0–5. */
+export const BOARD_AREA: Area = { strings: ALL_STRINGS, min: FRET_MIN, max: FRET_MAX, fixed: '' };
+/** Harjoituskieli(et): korostetaan, mutta muut kielet ovat näkyvissä ja painettavissa. */
+export const focusStrings = (s: Pick<GameState, 'level'>) => s.level.strings;
 
-const PHASE_TEXT: Partial<Record<GameState['phase'], string>> = {
-  permission: 'Pyydetään mikrofonilupaa…', 'model-playing': 'Kuuntele malli',
-  'output-settling': 'Valmistaudu: odotetaan mallin äänen vaimenemista…', success: 'Riffi hyväksytty!', retry: 'Riffi soitettu loppuun',
-};
 const PAUSE_TEXT = {
-  manual: 'Peli on tauolla. Mikrofoni on suljettu.',
+  manual: 'Peli on tauolla.',
   background: 'Peli pysähtyi, koska välilehti siirtyi taustalle. Mikrofoni ja äänet on suljettu.',
   'mic-lost': 'Yhteys mikrofoniin katkesi (laite irrotettiin tai selain pysäytti äänen). Tarkista laite ja jatka.',
 };
@@ -45,14 +42,14 @@ function hintMarks(s: GameState): Mark[] {
   return [...byKey.values()];
 }
 
-const stringWord = (n: number) => n === 1 ? 'yksi kieli' : n === 6 ? 'koko otelauta' : `${n} kieltä`;
+const levelLabel = (n: number) => `${LEVELS[n - 1]?.name ?? `Kotitreeni ${n}`} – ${LEVELS[n - 1]?.title ?? ''}`;
 
 function Slots({ s }: { s: GameState }) {
   const total = s.riff.midi.length;
   return <ol className="riff-slots" aria-label={`Ratkaistu ${s.index} / ${total} säveltä`} data-testid="slots">
     {s.riff.midi.map((midi, i) => {
       const mark = s.marks[i] ?? 'pending';
-      const model = s.phase === 'model-playing' && s.playing === i;
+      const model = s.modelPlaying && s.playing === i;
       const current = (mark === 'pending' || mark === 'red') && i === s.index && s.phase === 'listening';
       const memory = mark === 'pending' && s.memory[i] != null;
       const content = mark === 'green' || mark === 'yellow' ? noteName(midi) : model ? '♪' : memory ? noteName(s.memory[i]!) : MARK_SYMBOL[mark] || (current ? '?' : '');
@@ -65,9 +62,45 @@ function Slots({ s }: { s: GameState }) {
   </ol>;
 }
 
+type MenuItem = { label: string; run: () => void };
+/**
+ * Lisää toimintoja: painike ja ponnahduslista otsikkoalueen oikeassa reunassa. Avaaminen ei muuta
+ * pelin tilaa. Näppäimistö: Enter/välilyönti avaa, nuolet liikkuvat, Esc sulkee ja palauttaa kohdistuksen.
+ */
+function MoreMenu({ items }: { items: MenuItem[] }) {
+  const [open, setOpen] = useState(false);
+  const button = useRef<HTMLButtonElement>(null), list = useRef<HTMLUListElement>(null), wrap = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    list.current?.querySelector<HTMLButtonElement>('button')?.focus();
+    const outside = (e: PointerEvent) => { if (!wrap.current?.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener('pointerdown', outside);
+    return () => document.removeEventListener('pointerdown', outside);
+  }, [open]);
+  const close = () => { setOpen(false); button.current?.focus(); };
+  const onKey = (e: KeyboardEvent) => {
+    const buttons = [...(list.current?.querySelectorAll<HTMLButtonElement>('button') ?? [])];
+    const i = buttons.indexOf(document.activeElement as HTMLButtonElement);
+    if (e.key === 'Escape') { e.preventDefault(); close(); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); buttons[(i + 1) % buttons.length]?.focus(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); buttons[(i - 1 + buttons.length) % buttons.length]?.focus(); }
+    else if (e.key === 'Home') { e.preventDefault(); buttons[0]?.focus(); }
+    else if (e.key === 'End') { e.preventDefault(); buttons.at(-1)?.focus(); }
+    else if (e.key === 'Tab') setOpen(false);
+  };
+  return <div className="riff-menu" ref={wrap}>
+    <button type="button" ref={button} className="riff-menu-button" aria-haspopup="true" aria-expanded={open} aria-controls="riff-menu-list"
+      onClick={() => setOpen(o => !o)}><span aria-hidden="true">⋯</span> Lisää</button>
+    {open && <ul id="riff-menu-list" ref={list} className="riff-menu-list" aria-label="Lisää toimintoja" onKeyDown={onKey}>
+      {items.map(item => <li key={item.label}><button type="button" onClick={() => { setOpen(false); item.run(); }}>{item.label}</button></li>)}
+    </ul>}
+  </div>;
+}
+
 export function Riffikaiku({ game }: { game: RiffGame }) {
   const s = useSyncExternalStore(game.subscribe, game.getState);
   const [tapped, setTapped] = useState<{ p: Position; n: number } | null>(null);
+  const [details, setDetails] = useState(false);
   const tapTimer = useRef<ReturnType<typeof setTimeout>>();
   const clearedHeading = useRef<HTMLHeadingElement>(null);
   useEffect(() => { if (s.phase === 'level-complete') clearedHeading.current?.focus(); }, [s.phase]);
@@ -85,13 +118,14 @@ export function Riffikaiku({ game }: { game: RiffGame }) {
       navigator.mediaDevices?.removeEventListener?.('devicechange', devices); clearTimeout(tapTimer.current);
     };
   }, [game]);
+  // Mikrofonin tiedot -paneelin näkyvyys välitetään pelille vain päivitystiheyttä varten.
+  useEffect(() => { game.setDiagnosticsOpen(details && s.input === 'mic'); }, [game, details, s.input]);
 
   const total = s.riff.midi.length;
-  const inGame = ['model-playing', 'output-settling', 'listening', 'success', 'retry', 'paused'].includes(s.phase);
+  const inGame = ['ready', 'model-playing', 'output-settling', 'listening', 'success', 'retry', 'paused'].includes(s.phase);
   const board = s.input === 'board';
-  const boardLive = board && ['listening', 'success', 'retry'].includes(s.phase);
-  const area = boardArea(s);
-  const limited = s.level.strings.length < ALL_STRINGS.length;
+  const boardLive = board && ['ready', 'listening', 'success', 'retry'].includes(s.phase);
+  const focus = focusStrings(s);
 
   function tap(p: Position) {
     if (!game.tap(p.midi)) return;
@@ -105,12 +139,19 @@ export function Riffikaiku({ game }: { game: RiffGame }) {
   ];
 
   if (s.phase === 'idle') {
-    const summary = (input: 'mic' | 'board') => { const p = game.progress(input); return `taso ${p.level}, läpäisty ${p.completed.length}/${LEVELS.length}`; };
+    const p = (input: 'mic' | 'board') => game.progress(input);
+    const next = p(s.input).level;
+    const summary = (input: 'mic' | 'board') => `${LEVELS[p(input).level - 1].name}, suoritettu ${p(input).completed.length}/${LEVELS.length}`;
     return <section className="riff-game" data-phase="idle" aria-labelledby="riff-title">
       <div className="riff-intro">
-        <p className="eyebrow">KAIKUPELI · PROTOTYYPPI 0.2</p>
+        <p className="eyebrow">KAIKUPELI · PROTOTYYPPI 0.3</p>
         <h1 id="riff-title">Riffikaiku</h1>
-        <p>Kuuntele lyhyt riffi ja soita se takaisin samassa järjestyksessä. Ensin yhdellä kielellä, sitten kahdella ja lopuksi laajemmalla otelaudalla. Ei aikarajaa, ei elämiä.</p>
+        <p>Kuuntele lyhyt riffi ja soita se takaisin samassa järjestyksessä. Ei aikarajaa, ei elämiä.</p>
+      </div>
+      <div className="riff-next" data-testid="next-training">
+        <p className="eyebrow">{p('mic').completed.length || p('board').completed.length ? 'JATKA' : 'ALOITA TÄSTÄ'}</p>
+        <h2>{levelLabel(next)}</h2>
+        <p>Kolme lyhyttä riffiä {LEVELS[next - 1].title.toLowerCase().replace('kieli', 'kieleltä')}. Koko otelauta näkyy, harjoituskieli on korostettu.</p>
       </div>
       <h2>Millä soitat?</h2>
       <div className="riff-choices">
@@ -120,7 +161,7 @@ export function Riffikaiku({ game }: { game: RiffGame }) {
         </button>
         <button type="button" className="riff-choice" onClick={() => game.startBoard()}>
           <strong>Virtuaalikitara</strong>
-          <span>Soita otelaudalla hiirellä tai kosketuksella. Ei mikrofonia, suoraan ensimmäiseen harjoitukseen.</span>
+          <span>Soita otelaudalla hiirellä tai kosketuksella. Ei mikrofonia.</span>
         </button>
       </div>
       <p className="riff-tally" data-testid="tally">Oikea kitara: {summary('mic')} · Virtuaalikitara: {summary('board')}</p>
@@ -130,14 +171,35 @@ export function Riffikaiku({ game }: { game: RiffGame }) {
     </section>;
   }
 
+  // Lisävalikko: vain tilanteessa mielekkäät toiminnot.
+  const menu: MenuItem[] = [];
+  if (inGame) {
+    if (['ready', 'listening', 'output-settling', 'model-playing', 'retry'].includes(s.phase) && (s.index > 0 || s.marks.includes('red') || s.phase === 'retry'))
+      menu.push({ label: 'Aloita uusi yritys', run: () => game.restart() });
+    if (s.phase === 'paused') menu.push({ label: 'Jatka', run: () => game.resume() });
+    else if (!['success', 'retry'].includes(s.phase)) menu.push({ label: 'Tauko', run: () => game.pause('manual') });
+    if (!s.tutorial) menu.push({ label: 'Kotitreenit', run: () => game.openLevels() });
+    if (s.input === 'mic') menu.push({ label: details ? 'Piilota mikrofonin tiedot' : 'Mikrofonin tiedot', run: () => setDetails(d => !d) });
+    menu.push({ label: board ? 'Vaihda oikeaan kitaraan' : 'Vaihda virtuaalikitaraan', run: () => game.switchInput(board ? 'mic' : 'board') });
+    menu.push({ label: 'Lopeta harjoitus', run: () => game.stop() });
+  }
+  const turnText = s.phase === 'ready' ? 'Kuuntele riffi aloittaaksesi.'
+    : s.phase === 'model-playing' ? 'Kuuntele riffi…'
+    : s.phase === 'output-settling' ? 'Valmistaudu…'
+    : s.phase === 'listening' ? (s.modelPlaying ? 'Kuuntele riffi…' : 'Sinun vuorosi!')
+    : s.phase === 'success' ? 'Riffi läpäisty!'
+    : s.phase === 'retry' ? 'Riffi soitettu loppuun'
+    : s.phase === 'paused' ? PAUSE_TEXT[s.pausedReason ?? 'manual'] : '';
+  const boardStyle = { '--focus-rows': focus.length } as CSSProperties;
+
   return <section className="riff-game" data-phase={s.phase} data-input={s.input} aria-labelledby="riff-title">
-    <div className="riff-top">
+    {!inGame && <div className="riff-top">
       <h1 id="riff-title">Riffikaiku</h1>
       <span>{s.input === 'mic' ? 'Oikea kitara' : 'Virtuaalikitara'}{s.micInfo && s.input === 'mic' ? ` · ${s.micInfo.label}` : ''}</span>
-    </div>
+    </div>}
 
     {s.phase === 'permission' && <div className="riff-panel">
-      <p className="riff-status" role="status">{PHASE_TEXT.permission}</p>
+      <p className="riff-status" role="status">Pyydetään mikrofonilupaa…</p>
       <p className="riff-help">Salli mikrofoni selaimen kysymyksestä. Voit myös pelata virtuaalikitaralla.</p>
       <div className="riff-actions"><button type="button" onClick={() => game.startBoard()}>Pelaa virtuaalikitaralla</button><button type="button" onClick={() => game.stop()}>Takaisin</button></div>
     </div>}
@@ -188,93 +250,91 @@ export function Riffikaiku({ game }: { game: RiffGame }) {
     </div>}
 
     {s.phase === 'levels' && <div className="riff-panel" data-testid="levels">
-      <h2>Tasot</h2>
+      <h2>Kotitreenit</h2>
+      <p className="riff-help">Jokainen kotitreeni harjoittaa yhtä kieltä kolmella riffillä. Seuraava avautuu edellisen suorittamisesta.</p>
       <ol className="riff-levels">{LEVELS.map(level => {
         const done = s.completedLevels.includes(level.number), open = s.unlockedLevels.includes(level.number);
         const current = game.progress(s.input).level === level.number;
         return <li key={level.number} className={done ? 'done' : open ? 'open' : 'locked'}>
-          <div><strong>Taso {level.number} · {level.title}</strong><span>{stringWord(level.strings.length)} · {done ? 'läpäisty' : current ? 'kesken' : open ? 'avattu' : 'lukittu'}</span></div>
+          <div><strong>{level.name} – {level.title}</strong><span>{done ? 'suoritettu' : current ? 'kesken' : open ? 'avattu' : 'lukittu'}</span></div>
           {open && <button type="button" className={current ? 'primary' : ''} onClick={() => game.chooseLevel(level.number, done && !current)}>
             {current ? 'Jatka' : done ? 'Harjoittele uudelleen' : 'Aloita'}</button>}
         </li>;
       })}</ol>
+      <p className="riff-help">Muiden kielten kotitreenit tulevat myöhemmin.</p>
       <div className="riff-actions"><button type="button" onClick={() => game.stop()}>Lopeta</button></div>
     </div>}
 
     {s.phase === 'level-complete' && <div className="riff-panel riff-cleared" data-testid="level-complete">
       <h2 tabIndex={-1} ref={clearedHeading}>Onneksi olkoon!</h2>
-      {s.level.number < LEVELS.length ? <>
-        <p className="riff-cleared-big">Läpäisit tason {s.level.number}!</p>
-        <p>Soitit kaikki kolme riffiä oikein. Olet valmis seuraavaan haasteeseen.</p>
-      </> : <>
-        <p className="riff-cleared-big">Läpäisit kaikki {LEVELS.length} tasoa!</p>
-        <p>Soitit kaikki {RIFFS.length} riffiä virheettömästi. Ensimmäinen harjoituskokonaisuus on valmis.</p>
-      </>}
+      <p className="riff-cleared-big">{levelLabel(s.level.number)} suoritettu!</p>
+      {s.level.number < LEVELS.length
+        ? <p>Soitit kaikki kolme riffiä oikein. Olet valmis seuraavaan kotitreeniin: {levelLabel(s.level.number + 1)}.</p>
+        : <p>Olet suorittanut kaikki nykyiset kotitreenit. Muiden kielten kotitreenit ovat tulossa.</p>}
       <div className="riff-actions">
-        {s.level.number < LEVELS.length && <button type="button" className="primary" onClick={() => game.continueLevel()}>Jatka tasolle {s.level.number + 1}</button>}
-        <button type="button" onClick={() => game.repeatLevel()}>Harjoittele tasoa uudelleen</button>
-        <button type="button" onClick={() => game.openLevels()}>Takaisin tasovalikkoon</button>
+        {s.level.number < LEVELS.length && <button type="button" className="primary" onClick={() => game.continueLevel()}>Jatka: {LEVELS[s.level.number].name}</button>}
+        <button type="button" onClick={() => game.repeatLevel()}>Harjoittele uudelleen</button>
+        <button type="button" onClick={() => game.openLevels()}>Kotitreenit</button>
       </div>
     </div>}
 
     {inGame && <div className="riff-panel riff-play">
-      <div className="riff-heading">
-        <h2 data-testid="level-heading">{s.tutorial ? 'Opastus: kaksi säveltä' : `Taso ${s.level.number} · Riffi ${s.riffNumber}/${s.level.riffs.length}`}</h2>
-        <span>{s.tutorial ? 'B-kieli' : `${s.riff.title} · ${s.level.title}`}</span>
+      <header className="riff-play-head">
+        <div>
+          <p className="riff-brand" id="riff-title">Riffikaiku</p>
+          <h1 data-testid="level-heading">{s.tutorial ? `${LEVELS[0].name} · Opastus` : `${s.level.name} · Riffi ${s.riffNumber}/${s.level.riffs.length}`}</h1>
+          <p className="riff-name">{s.tutorial ? 'Kaksi säveltä' : s.riff.title}</p>
+        </div>
+        <MoreMenu items={menu} />
+      </header>
+
+      <div className="riff-turn">
+        <p className={`riff-status ${s.phase === 'listening' && !s.modelPlaying ? 'turn' : s.phase === 'success' ? 'good' : ''}`} role="status" data-testid="riff-status">{turnText}</p>
+        <p className="riff-instruction" data-testid="instruction">{s.level.instruction}</p>
       </div>
-      {s.input === 'mic' && <p className="riff-instruction" data-testid="instruction">{s.tutorial ? LEVELS[0].instruction : s.level.instruction}</p>}
-      <p className={`riff-status ${s.phase === 'listening' ? 'turn' : s.phase === 'success' ? 'good' : ''}`} role="status" data-testid="riff-status">
-        {s.phase === 'listening' ? (board ? 'Sinun vuorosi: soita riffi otelaudalla.' : 'Sinun vuorosi: mikrofoni kuuntelee.') : s.phase === 'paused' ? PAUSE_TEXT[s.pausedReason ?? 'manual'] : PHASE_TEXT[s.phase]}
-      </p>
 
       <Slots s={s} />
       <p className="riff-count" data-testid="count">Ratkaistu {s.index}/{total}{s.memory.some(m => m !== null) ? ' · muistivihjeet käytössä' : ''}</p>
-
-      {s.input === 'mic' && s.phase !== 'paused' && <p className="riff-heard">Mikrofoni kuulee: <strong data-testid="heard">{s.phase === 'model-playing' ? 'tauolla mallin ajan' : heardText(s)}</strong></p>}
       {s.feedback && <p className={`riff-feedback ${s.feedback.tone}`} role="status" data-testid="feedback">{s.feedback.text}</p>}
+      {s.input === 'mic' && !['paused', 'ready'].includes(s.phase) && <p className="riff-heard">Mikrofoni kuulee: <strong data-testid="heard">{s.modelPlaying ? 'tauolla mallin ajan' : heardText(s)}</strong></p>}
 
       {s.hint && <div className="riff-hint" data-testid="hint">
         <p><strong>Sävelet:</strong> {s.riff.midi.map(noteName).join(' – ')}</p>
         <p>{s.riff.tip}</p>
-        <p className="riff-help">{board ? 'Sama sävel löytyy usein myös toiselta kieleltä; kaikki samat sävelkorkeudet kelpaavat.' : 'Otelauta ehdottaa soittopaikan. Mikrofoni kuulee vain sävelkorkeuden, ei kieltä eikä sormitusta.'}</p>
       </div>}
 
-      {(board || s.hint) && <div className={`riff-board strings-${area.strings.length}`} data-testid="board">
-        <Board area={area} marks={marks} disabled={!boardLive} onAnswer={tap}
-          caption={board ? (boardLive ? `Virtuaalikitara: ${stringWord(area.strings.length)}, nauhat 0–5` : 'Virtuaalikitara: odota mallin loppuun') : 'Sävelvihje otelaudalla'} />
-        {limited && <label className="riff-toggle">
-          <input type="checkbox" checked={s.fullBoard} onChange={e => game.setFullBoard(e.target.checked)} />
-          Näytä koko otelauta (kaikki kuusi kieltä)
-        </label>}
+      {<div className={`riff-board ${focus.length < ALL_STRINGS.length ? 'has-focus' : ''} ${focus.map(n => `focus-s${n}`).join(' ')}`} style={boardStyle} data-testid="board">
+        {focus.length < ALL_STRINGS.length && <p className="riff-focus-legend" data-testid="focus-legend">
+          <span className="swatch" aria-hidden="true" /> Harjoituskieli: {focus.map(n => `${stringName[n]}-kieli`).join(' ja ')}{focus.length === 1 ? ` (${n2(focus[0])})` : ''}
+        </p>}
+        <Board area={BOARD_AREA} marks={marks} disabled={!boardLive} onAnswer={tap}
+          caption={board ? (boardLive ? 'Virtuaalikitara: kaikki kuusi kieltä, nauhat 0–5' : 'Virtuaalikitara: odota mallin loppuun')
+            : 'Otelauta: soita oikealla kitaralla (mikrofoni kuulee vain sävelkorkeuden)'} />
       </div>}
 
-      <div className="riff-actions">
+      <div className="riff-actions riff-main-actions">
         {s.phase === 'paused' && <button type="button" className="primary" onClick={() => game.resume()}>Jatka</button>}
-        {s.phase === 'success' && <button type="button" className="primary" onClick={() => game.next()}>{s.tutorial ? 'Aloita taso 1' : 'Seuraava riffi'}</button>}
-        {s.phase === 'retry' && <>
-          <button type="button" className="primary" onClick={() => game.retry(false)}>Yritä uudelleen</button>
-          <button type="button" onClick={() => game.retry(true)}>Kuuntele ja yritä</button>
+        {s.phase === 'success' && <>
+          <button type="button" className="primary" onClick={() => game.next()}>{s.tutorial ? `Aloita ${LEVELS[0].name}` : 'Seuraava riffi'}</button>
+          {!s.tutorial && <button type="button" onClick={() => game.playAgain()}>Soita uudelleen</button>}
         </>}
-        {s.phase !== 'paused' && <button type="button" onClick={() => game.replay()} disabled={s.phase === 'model-playing'}>{s.phase === 'success' || s.phase === 'retry' ? 'Kuuntele riffi' : 'Kuuntele uudelleen'}</button>}
-        {(s.phase === 'listening' || s.phase === 'output-settling') && <button type="button" onClick={() => game.restart()} disabled={s.index === 0 && !s.marks.includes('red')}>Aloita alusta</button>}
-        {s.phase !== 'paused' && <button type="button" aria-pressed={s.hint} onClick={() => game.toggleHint()}>{s.hint ? 'Piilota sävelvihje' : 'Näytä sävelvihje'}</button>}
-        {s.phase !== 'paused' && !['success', 'retry'].includes(s.phase) && <button type="button" onClick={() => game.pause('manual')}>Tauko</button>}
-        {!s.tutorial && ['listening', 'success', 'retry', 'paused'].includes(s.phase) && <button type="button" onClick={() => game.openLevels()}>Tasot</button>}
-        <button type="button" onClick={() => game.stop()}>Lopeta</button>
+        {s.phase === 'retry' && (s.autoRetry
+          ? <button type="button" onClick={() => game.cancelAutoRetry()}>Peru automaattinen uusinta</button>
+          : <button type="button" className="primary" onClick={() => game.retry()}>Yritä uudelleen</button>)}
+        {s.phase !== 'paused' && <button type="button" className={['ready', 'listening', 'output-settling', 'model-playing'].includes(s.phase) ? 'primary' : ''}
+          onClick={() => game.listen()} aria-pressed={s.modelPlaying} data-testid="listen">{s.modelPlaying ? 'Pysäytä kuuntelu' : 'Kuuntele riffi'}</button>}
+        {s.phase !== 'paused' && <button type="button" aria-pressed={s.hint} onClick={() => game.toggleHint()}>{s.hint ? 'Piilota vihje' : 'Vihje'}</button>}
       </div>
 
-      {s.input === 'mic' && s.phase !== 'paused' && <details className="riff-details" onToggle={e => game.setDiagnosticsOpen((e.target as HTMLDetailsElement).open)}>
-        <summary>Mikrofonin tiedot ja äänitulo</summary>
+      {s.input === 'mic' && details && <div className="riff-details" data-testid="mic-details">
         <DeviceSelect s={s} game={game} />
-        {s.diagOpen && <DiagnosticsView s={s} compact />}
-      </details>}
-
-      <p className="riff-switch">
-        {board
-          ? <button type="button" className="link" onClick={() => game.switchInput('mic')}>Vaihda oikeaan kitaraan (mikrofoni)</button>
-          : <button type="button" className="link" onClick={() => game.switchInput('board')}>Vaihda virtuaalikitaraan</button>}
-        <span> · Läpäistyt tasot tällä tavalla: <span data-testid="levels-done">{s.completedLevels.length}/{LEVELS.length}</span></span>
-      </p>
+        <DiagnosticsView s={s} compact />
+      </div>}
     </div>}
   </section>;
+}
+
+/** Kielen järjestysluku sanallisesti: 1 = ohuin, 2 = toiseksi ohuin, … */
+function n2(string: number) {
+  return ['ohuin kieli', 'toiseksi ohuin', 'kolmanneksi ohuin', 'kolmanneksi paksuin', 'toiseksi paksuin', 'paksuin kieli'][string];
 }

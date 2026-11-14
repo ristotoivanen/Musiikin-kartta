@@ -2,7 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import { MEMORY_AFTER_FAILED, OutputSettler, SequenceChecker, SequencePractice } from '../riffikaiku/sequence';
 import { ALL_STRINGS, CHECK_MIDI, LEVELS, OPEN_STRINGS, RIFFS, TUTORIAL, levelOf, playableOn, riffById } from '../riffikaiku/riffs';
-import { RIFF_STORAGE_KEY, RiffStore, decodeRiffData, type RiffResult } from '../riffikaiku/store';
+import { RIFF_STORAGE_KEY, RiffStore, STRUCTURE, decodeRiffData, type RiffResult } from '../riffikaiku/store';
 import { music } from '../harjoittelija/music';
 import { STORAGE_KEY } from '../harjoittelija/storage';
 
@@ -219,43 +219,42 @@ describe('SequenceChecker: pallukat (vihreä / punainen / keltainen)', () => {
   });
 });
 
-describe('tasot ja riffit', () => {
+describe('kotitreenit ja riffit', () => {
   it('avoimet kielet ovat samat kuin otelautakirjastossa', () => {
     expect([...OPEN_STRINGS]).toEqual(music.OPEN_PITCHES);
   });
-  it('neljä tasoa × kolme neljän sävelen riffiä, tunnisteet uniikit, ehdotetut paikat vastaavat säveliä', () => {
-    expect(LEVELS.map(l => l.number)).toEqual([1, 2, 3, 4]);
-    expect(LEVELS.map(l => l.riffs.length)).toEqual([3, 3, 3, 3]);
-    expect(new Set(RIFFS.map(r => r.id)).size).toBe(12);
+  it('kaksi kotitreeniä × kolme neljän sävelen riffiä, tunnisteet uniikit, ehdotetut paikat vastaavat säveliä', () => {
+    expect(LEVELS.map(l => `${l.name} – ${l.title}`)).toEqual(['Kotitreeni 1 – B-kieli', 'Kotitreeni 2 – G-kieli']);
+    expect(LEVELS.map(l => l.riffs.length)).toEqual([3, 3]);
+    expect(new Set(RIFFS.map(r => r.id)).size).toBe(6);
     for (const r of RIFFS) {
       expect(r.midi, r.id).toHaveLength(4);
       expect(r.midi, r.id).toEqual(r.spots.map(p => music.OPEN_PITCHES[p.string] + p.fret));
       expect(levelOf(r.id)!.riffs).toContain(r);
     }
   });
-  it('kielet: tasot 1–2 vain B-kieli, taso 3 kaksi kieltä, taso 4 koko otelauta', () => {
-    expect(LEVELS.map(l => l.strings)).toEqual([[1], [1], [1, 2], ALL_STRINGS]);
-    expect(LEVELS[0].instruction).toBe('Soita B-kielellä (toiseksi ohuin kieli).');
+  it('harjoituskieli ja ohje: B-kieli ja G-kieli; ohje vastaa kieltä', () => {
+    expect(LEVELS.map(l => l.strings)).toEqual([[1], [2]]);
+    expect(LEVELS.map(l => l.instruction)).toEqual(['Soita riffi B-kieleltä.', 'Soita riffi G-kieleltä.']);
   });
-  it('jokaisen riffin kaikki sävelet ja ehdotetut paikat löytyvät tason virtuaaliotelaudalta (nauhat 0–5)', () => {
+  it('sävelmateriaali: Kotitreeni 1 vain B3, C4, D4; Kotitreeni 2 vain G3, A3, B3; kaikki harjoituskieleltä nauhoilta 0–5', () => {
+    expect([...new Set(LEVELS[0].riffs.flatMap(r => r.midi))].sort()).toEqual([59, 60, 62]);
+    expect([...new Set(LEVELS[1].riffs.flatMap(r => r.midi))].sort()).toEqual([55, 57, 59]);
     for (const level of LEVELS) for (const r of level.riffs) {
       for (const midi of r.midi) expect(playableOn(midi, level.strings), `${r.id} ${midi}`).toBe(true);
-      for (const p of r.spots) {
-        expect(level.strings, r.id).toContain(p.string);
-        expect(p.fret >= 0 && p.fret <= 5, r.id).toBe(true);
-      }
+      for (const p of r.spots) { expect(level.strings, r.id).toContain(p.string); expect(p.fret >= 0 && p.fret <= 5, r.id).toBe(true); }
+      // Koko otelauta näkyy: sävel löytyy myös kaikkien kielten alueelta.
+      for (const midi of r.midi) expect(playableOn(midi, ALL_STRINGS)).toBe(true);
     }
-    // Opastus soitetaan tason 1 otelaudalla.
     expect(TUTORIAL.midi.every(m => playableOn(m, LEVELS[0].strings))).toBe(true);
   });
-  it('taso 1 alkaa B3–C4–D4–C4 (B-kieli 0-1-3-1); A–A–C–A on tasolla 3; vaikeus kasvaa', () => {
+  it('Kotitreeni 1 alkaa B3–C4–D4–C4 (B-kieli 0-1-3-1); Kotitreeni 2 on vaihtelevampi (toisto ja hyppy)', () => {
     expect(LEVELS[0].riffs[0]).toMatchObject({ id: 'b-kaari', midi: [59, 60, 62, 60] });
     expect(LEVELS[0].riffs[0].spots).toEqual([0, 1, 3, 1].map(fret => ({ string: 1, fret })));
-    expect(LEVELS[2].riffs.some(r => r.midi.join() === '57,57,60,57')).toBe(true);
-    // Tason 1 askeleet ovat pieniä (enintään 2 puolisävelaskelta), tasolla 2 hypyt ovat isompia.
+    const repeats = (r: { midi: number[] }) => r.midi.slice(1).some((m, i) => m === r.midi[i]);
     const maxStep = (r: { midi: number[] }) => Math.max(...r.midi.slice(1).map((m, i) => Math.abs(m - r.midi[i])));
-    expect(Math.max(...LEVELS[0].riffs.map(maxStep))).toBeLessThanOrEqual(2);
-    expect(Math.max(...LEVELS[1].riffs.map(maxStep))).toBeGreaterThan(2);
+    expect(LEVELS[1].riffs.some(repeats)).toBe(true);
+    expect(Math.max(...LEVELS[1].riffs.map(maxStep))).toBe(4);
     expect(TUTORIAL.midi).toEqual([59, 60]); expect(CHECK_MIDI).toBe(59);
     expect(riffById('opastus')).toBe(TUTORIAL); expect(riffById('ei-ole')).toBeUndefined();
     expect(playableOn(64, [1])).toBe(true); expect(playableOn(65, [1])).toBe(false); expect(playableOn(55, [1])).toBe(false);
@@ -270,8 +269,8 @@ const result = (patch: Partial<RiffResult>): RiffResult => ({ riff: 'b-kaari', i
 const passLevel = (store: RiffStore, input: 'mic' | 'board', level: number) =>
   LEVELS[level - 1].riffs.map(r => store.record(result({ riff: r.id, input })).levelComplete);
 
-describe('RiffStore: tasot ja oma tallennus', () => {
-  it('taso läpäistään kolmella virheettömällä riffillä; keltaisilla soitettu yritys ei riitä', () => {
+describe('RiffStore: kotitreenit ja oma tallennus', () => {
+  it('kotitreeni suoritetaan kolmella virheettömällä riffillä; keltaisilla soitettu yritys ei riitä', () => {
     const store = new RiffStore(memoryStorage());
     expect(store.run('board')).toEqual({ level: 1, passed: [] });
     expect(store.currentRiff('board')!.id).toBe('b-kaari');
@@ -280,71 +279,83 @@ describe('RiffStore: tasot ja oma tallennus', () => {
     expect(store.record(result({ riff: 'b-kaari', input: 'board' })).levelComplete).toBe(false);
     expect(store.currentRiff('board')!.id).toBe('b-vaihto');
     expect(store.record(result({ riff: 'b-vaihto', input: 'board' })).levelComplete).toBe(false);
-    expect(store.record(result({ riff: 'b-lasku', input: 'board' })).levelComplete).toBe(true);
+    expect(store.record(result({ riff: 'b-takaisin', input: 'board' })).levelComplete).toBe(true);
     expect(store.currentRiff('board')).toBeNull();
     expect(store.completedLevels('board')).toEqual([1]);
-    // Ei automaattista siirtoa: taso pysyy, kunnes pelaaja valitsee.
-    expect(store.run('board').level).toBe(1);
+    expect(store.run('board').level).toBe(1); // ei automaattista siirtoa
     expect(store.data.stats.board['b-kaari']).toMatchObject({ done: 2, passed: 1, solo: 1 });
   });
-  it('seuraava taso ja tason uusinta: läpäisy säilyy, uusi kierros alkaa ensimmäisestä riffistä', () => {
+  it('Kotitreeni 2 avautuu vasta Kotitreeni 1:n suorittamisesta; suoritetut voi avata uudelleen', () => {
     const store = new RiffStore(memoryStorage());
+    expect(store.unlockedLevels('board')).toEqual([1]);
     passLevel(store, 'board', 1);
+    expect(store.unlockedLevels('board')).toEqual([1, 2]);
     store.startLevel('board', 2);
-    expect(store.currentRiff('board')!.id).toBe('b-kumpu');
+    expect(store.currentRiff('board')!.id).toBe('g-nousu');
     expect(passLevel(store, 'board', 2)).toEqual([false, false, true]);
-    store.startLevel('board', 2);
-    expect(store.run('board')).toEqual({ level: 2, passed: [] });
-    expect(store.completedLevels('board')).toEqual([1, 2]);
-    // Uusinta voi läpäistä tason uudelleen; läpäisy ei monistu.
-    expect(passLevel(store, 'board', 2)).toEqual([false, false, true]);
+    expect(store.unlockedLevels('board')).toEqual([1, 2]);
+    store.startLevel('board', 1);
+    expect(store.run('board')).toEqual({ level: 1, passed: [] });
     expect(store.completedLevels('board')).toEqual([1, 2]);
     store.startLevel('board', 9);
-    expect(store.run('board').level).toBe(2);
+    expect(store.run('board').level).toBe(1);
   });
-  it('toisen tason riffi tai sama riffi uudelleen ei kasvata kierrosta', () => {
+  it('toisen kotitreenin riffi tai sama riffi uudelleen ei kasvata kierrosta', () => {
     const store = new RiffStore(memoryStorage());
-    store.record(result({ riff: 'b-kumpu', input: 'mic' }));
+    store.record(result({ riff: 'g-nousu', input: 'mic' }));
     store.record(result({ riff: 'b-kaari', input: 'mic' }));
     store.record(result({ riff: 'b-kaari', input: 'mic' }));
     expect(store.run('mic')).toEqual({ level: 1, passed: ['b-kaari'] });
   });
-  it('mikrofonin ja otelaudan tasot ja tulokset pysyvät erillään', () => {
+  it('mikrofonin ja otelaudan kotitreenit ja tulokset pysyvät erillään', () => {
     const store = new RiffStore(memoryStorage());
     passLevel(store, 'board', 1);
     store.record(result({ input: 'mic', hint: true }));
     expect(store.completedLevels('board')).toEqual([1]); expect(store.completedLevels('mic')).toEqual([]);
     expect(store.run('mic')).toEqual({ level: 1, passed: ['b-kaari'] });
     expect(store.data.stats.mic['b-kaari']).toEqual({ done: 1, passed: 1, solo: 0, lastAt: 1 });
-    expect(store.data.stats.board['b-kaari']).toEqual({ done: 1, passed: 1, solo: 1, lastAt: 1 });
     expect(store.data.results.map(r => r.input)).toEqual(['board', 'board', 'board', 'mic']);
     expect(store.data.results.map(r => r.level)).toEqual([1, 1, 1, 1]);
   });
-  it('uusi sivulataus palauttaa tason, kierroksen, läpäistyt tasot ja otelautavalinnan; v3-data ei muutu', () => {
+  it('uusi sivulataus palauttaa kotitreenin, kierroksen ja suoritukset; v3-data ei muutu', () => {
     const v3 = JSON.stringify({ version: 3, settings: {}, stats: { 'mic:class:solo:notes:1:0': { attempts: 1, correct: 1, errors: 0, totalMs: 1, lastSeen: 1 } }, recent: [], sessions: [] });
     const storage = memoryStorage({ [STORAGE_KEY]: v3 });
     const store = new RiffStore(storage);
-    store.finishTutorial(); store.setInput('board'); store.setFullBoard(true);
+    store.finishTutorial(); store.setInput('board');
     passLevel(store, 'board', 1); store.startLevel('board', 2);
-    store.record(result({ riff: 'b-kumpu', input: 'board' }));
+    store.record(result({ riff: 'g-nousu', input: 'board' }));
     const again = new RiffStore(storage);
-    expect(again.data).toMatchObject({ tutorialDone: true, input: 'board', fullBoard: true });
-    expect(again.run('board')).toEqual({ level: 2, passed: ['b-kumpu'] });
+    expect(again.data).toMatchObject({ structure: STRUCTURE, tutorialDone: true, input: 'board' });
+    expect(again.run('board')).toEqual({ level: 2, passed: ['g-nousu'] });
     expect(again.completedLevels('board')).toEqual([1]);
-    expect(again.currentRiff('board')!.id).toBe('b-toisto');
+    expect(again.currentRiff('board')!.id).toBe('g-toisto');
     expect(storage.map.get(STORAGE_KEY)).toBe(v3);
     expect([...storage.map.keys()].sort()).toEqual([STORAGE_KEY, RIFF_STORAGE_KEY].sort());
-    expect(RIFF_STORAGE_KEY).toBe('musiikin-kartta:riffikaiku:v1');
   });
-  it('0.1-version tallennus (ilman tasokenttiä) luetaan: tilastot säilyvät, taso 1 alkaa', () => {
+  it('0.2:n nelitasoinen tallennus: tasoja ei siirretä numerolla, tilastot säilyvät, samat tason 1 riffit siirtyvät', () => {
+    const old = JSON.stringify({ version: 1, tutorialDone: true, input: 'board', fullBoard: true, device: 'usb-1',
+      stats: { mic: {}, board: { 'b-kaari': { done: 2, solo: 1, passed: 1, lastAt: 5 }, 'b-kumpu': { done: 1, solo: 1, passed: 1, lastAt: 6 } } },
+      results: [{ riff: 'b-kumpu', input: 'board', hint: false, wrong: 0, octave: 0, replays: 0, ms: 1, at: 6, passed: true, level: 2 }],
+      run: { mic: { level: 3, passed: ['gb-nousu'] }, board: { level: 1, passed: ['b-kaari', 'b-lasku'] } }, levels: { mic: [1, 2], board: [] } });
+    const store = new RiffStore(memoryStorage({ [RIFF_STORAGE_KEY]: old }));
+    expect(store.data).toMatchObject({ structure: STRUCTURE, tutorialDone: true, input: 'board', device: 'usb-1' });
+    // Vanha taso 2 (B-kieli) ≠ Kotitreeni 2 (G-kieli): ei merkitä suoritetuksi eikä avata.
+    expect(store.completedLevels('mic')).toEqual([]); expect(store.unlockedLevels('mic')).toEqual([1]);
+    expect(store.run('mic')).toEqual({ level: 1, passed: [] });
+    // b-kaari on täsmälleen sama riffi; b-lasku ei kuulu Kotitreeni 1:een.
+    expect(store.run('board')).toEqual({ level: 1, passed: ['b-kaari'] });
+    expect(store.data.stats.board['b-kumpu']).toEqual({ done: 1, solo: 1, passed: 1, lastAt: 6 });
+    expect(store.data.results).toEqual([expect.objectContaining({ riff: 'b-kumpu', level: 2, legacy: true })]);
+  });
+  it('0.1-version tallennus (ilman tasokenttiä) luetaan: tilastot säilyvät, Kotitreeni 1 alkaa', () => {
     const old = JSON.stringify({ version: 1, tutorialDone: true, input: 'mic', stats: { mic: { 'b-kaari': { done: 2, solo: 1, lastAt: 5 } }, board: {} },
       results: [{ riff: 'b-kaari', input: 'mic', hint: false, wrong: 0, octave: 0, replays: 0, ms: 1, at: 5 }] });
     const store = new RiffStore(memoryStorage({ [RIFF_STORAGE_KEY]: old }));
-    expect(store.data).toMatchObject({ tutorialDone: true, fullBoard: false, run: { mic: { level: 1, passed: [] } }, levels: { mic: [], board: [] } });
+    expect(store.data).toMatchObject({ tutorialDone: true, run: { mic: { level: 1, passed: [] } }, levels: { mic: [], board: [] } });
     expect(store.data.stats.mic['b-kaari']).toEqual({ done: 2, solo: 1, lastAt: 5 });
     expect(store.data.results).toHaveLength(1);
   });
-  it('opastus ei ole tasotulos', () => {
+  it('opastus ei ole kotitreenin tulos', () => {
     const store = new RiffStore(memoryStorage());
     expect(store.record(result({ riff: 'opastus' })).levelComplete).toBe(false);
     expect(store.data.tutorialDone).toBe(true); expect(store.data.results).toEqual([]);
@@ -352,10 +363,10 @@ describe('RiffStore: tasot ja oma tallennus', () => {
   it('rikkinäinen, tuntematon tai heittävä tallennus ei kaada peliä', () => {
     expect(decodeRiffData('{rikki')).toMatchObject({ version: 1, tutorialDone: false });
     expect(decodeRiffData(JSON.stringify({ version: 9, tutorialDone: true })).tutorialDone).toBe(false);
-    const bad = decodeRiffData(JSON.stringify({ version: 1, input: 'x', stats: { mic: { a: { done: 1, solo: 2, lastAt: 0 }, b: { done: 2, solo: 1, lastAt: 3 } } },
-      results: [{ riff: 1 }, result({})], run: { mic: { level: 7, passed: [] }, board: { level: 2, passed: ['b-kumpu', 'b-kaari', 'x'] } }, levels: { mic: [1, 1, 9], board: 'x' } }));
+    const bad = decodeRiffData(JSON.stringify({ version: 1, structure: STRUCTURE, input: 'x', stats: { mic: { a: { done: 1, solo: 2, lastAt: 0 }, b: { done: 2, solo: 1, lastAt: 3 } } },
+      results: [{ riff: 1 }, result({})], run: { mic: { level: 7, passed: [] }, board: { level: 2, passed: ['g-nousu', 'b-kaari', 'x'] } }, levels: { mic: [1, 1, 9], board: 'x' } }));
     expect(bad.input).toBe('mic'); expect(Object.keys(bad.stats.mic)).toEqual(['b']); expect(bad.results).toHaveLength(1);
-    expect(bad.run).toEqual({ mic: { level: 1, passed: [] }, board: { level: 2, passed: ['b-kumpu'] } });
+    expect(bad.run).toEqual({ mic: { level: 1, passed: [] }, board: { level: 2, passed: ['g-nousu'] } });
     expect(bad.levels).toEqual({ mic: [1], board: [] });
     const throwing = { getItem: () => { throw new Error('estetty'); }, setItem: () => { throw new Error('estetty'); } };
     const store = new RiffStore(throwing);

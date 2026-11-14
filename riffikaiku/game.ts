@@ -2,8 +2,11 @@
  * Riffikaiun pelin tilakone. Ei Reactia eikä suoraa selainääntä: ääni tulee GameAudio-sovittimen
  * kautta, joten koko kulku (myös vanhat asynkroniset kutsut) testataan Vitestillä.
  *
- * Päätila: idle → permission → mic-check → model-playing → output-settling → listening →
- *   success (riffi virheettömästi) | retry (loppuun, mutta keltaisia) | level-complete (tason 3/3).
+ * Päätila: idle → permission → mic-check → ready (pelaaja aloittaa kuuntelun) → model-playing →
+ *   output-settling → listening → success (riffi virheettömästi; pelaaja valitsee jatkon) |
+ *   retry (loppuun, mutta keltaisia: tulos näkyy hetken ja sama riffi kuunnellaan ja yritetään
+ *   automaattisesti uudelleen, ellei pelaaja peru) → seuraava riffi → level-complete (kotitreenin 3/3).
+ * Kuuntelu kesken yrityksen (listen) ei aloita uutta yritystä eikä nollaa pallukoita.
  * Sivupolut: tools (viritin ja diagnostiikka, ei pelivastauksia), levels (tasovalikko),
  * paused (oma tauko, taustavälilehti, mikrofonin katkeaminen) ja error (lupa tai laite).
  * Virtuaalikitaralla permission, mic-check ja output-settling jäävät pois.
@@ -28,7 +31,7 @@ import { OutputSettler, SequencePractice, type AnswerInput, type SequenceChecker
 import type { RiffStore } from './store';
 import { Tuner, type TunerReading } from './tuner';
 
-export type Phase = 'idle' | 'permission' | 'mic-check' | 'tools' | 'levels' | 'model-playing' | 'output-settling' | 'listening'
+export type Phase = 'idle' | 'permission' | 'mic-check' | 'tools' | 'levels' | 'ready' | 'model-playing' | 'output-settling' | 'listening'
   | 'success' | 'retry' | 'level-complete' | 'paused' | 'error';
 export type Tool = 'tuner' | 'diagnostics';
 export type PauseReason = 'manual' | 'background' | 'mic-lost';
@@ -62,9 +65,12 @@ export type GameState = {
   failedAttempts: number;
   /** Mallisoitossa soiva sävel (korostus), muuten null. */
   playing: number | null;
+  /** Soiko malliriffi juuri nyt (Kuuntele riffi / Pysäytä kuuntelu). */
+  modelPlaying: boolean;
+  /** Epäonnistuneen yrityksen jälkeinen automaattinen uusinta odottaa (voi perua). */
+  autoRetry: boolean;
   /** Manuaalinen sävelvihje (erillinen muistivihjeistä). */
   hint: boolean;
-  fullBoard: boolean;
   heard: Heard | null;
   lastStable: number | null;
   check: 'waiting' | 'ok' | 'other';
@@ -92,8 +98,10 @@ export type GameState = {
 };
 
 /** Vaiheet, joissa mikrofoni voi olla auki ja joista tauko on mahdollinen. */
-const ACTIVE: Phase[] = ['mic-check', 'tools', 'model-playing', 'output-settling', 'listening', 'success', 'retry', 'level-complete'];
-const FREE_PLAY: Phase[] = ['listening', 'success', 'retry', 'level-complete'];
+const ACTIVE: Phase[] = ['mic-check', 'tools', 'ready', 'model-playing', 'output-settling', 'listening', 'success', 'retry', 'level-complete'];
+const FREE_PLAY: Phase[] = ['ready', 'listening', 'success', 'retry', 'level-complete'];
+/** Kuinka kauan epäonnistuneen yrityksen tulos näkyy ennen automaattista uusintaa. */
+export const RETRY_RESULT_MS = 2500;
 /** Taustakohinan mittausaika mikrofonitestin alussa. */
 export const CALIBRATION_MS = 1000;
 /** Diagnostiikan ja virittimen näyttöpäivitysten väli. */
@@ -120,6 +128,7 @@ export class RiffGame {
   private afterCheck: Riff | null = null;
   private toolsReturn: 'idle' | 'mic-check' = 'idle';
   private calibration: { start: number; samples: number[] } | null = null;
+  private retryTimer: ReturnType<typeof setTimeout> | undefined;
   private tunerEngine = new Tuner();
   private lastView = -Infinity;
   private routed: Diagnostics['routed'] = { count: 0, last: null };
@@ -127,8 +136,8 @@ export class RiffGame {
   constructor(private audio: GameAudio, private store: RiffStore, private clock: () => number = () => performance.now()) {
     const input = store.data.input;
     this.state = {
-      phase: 'idle', input, ...this.position(input), index: 0, memory: [], failedAttempts: 0, playing: null, hint: false,
-      fullBoard: store.data.fullBoard, heard: null, lastStable: null, check: 'waiting', feedback: null, error: '', pausedReason: null,
+      phase: 'idle', input, ...this.position(input), index: 0, memory: [], failedAttempts: 0, playing: null, modelPlaying: false, autoRetry: false, hint: false,
+      heard: null, lastStable: null, check: 'waiting', feedback: null, error: '', pausedReason: null,
       completedLevels: store.completedLevels(input), unlockedLevels: store.unlockedLevels(input),
       device: store.data.device, devices: [], micInfo: null, minRms: DETECTION.minRms, noise: null, calibrating: false,
       tool: 'tuner', tuner: null, tunerTarget: null, diag: null, diagOpen: false,
@@ -172,7 +181,6 @@ export class RiffGame {
     if (input === this.state.input && this.state.phase !== 'error') return;
     if (input === 'board') this.startBoard(); else this.startMic();
   }
-  setFullBoard(on: boolean) { this.store.setFullBoard(on); this.set({ fullBoard: on }); }
 
   private async openMicThen(next: () => void) {
     const op = ++this.op;
@@ -299,12 +307,12 @@ export class RiffGame {
 
   // ---- tasovalikko ----
   openLevels() {
-    if (!['idle', 'level-complete', 'success', 'retry', 'listening', 'paused'].includes(this.state.phase)) return;
+    if (!['idle', 'level-complete', 'success', 'retry', 'ready', 'listening', 'output-settling', 'model-playing', 'paused'].includes(this.state.phase)) return;
     ++this.op;
     this.cancelTimers();
     this.audio.stopModel();
     if (this.micOpen) this.audio.pauseAnalysis();
-    this.set({ phase: 'levels', unlockedLevels: this.store.unlockedLevels(this.state.input), completedLevels: this.store.completedLevels(this.state.input), feedback: null, hint: false });
+    this.set({ modelPlaying: false, playing: null, phase: 'levels', unlockedLevels: this.store.unlockedLevels(this.state.input), completedLevels: this.store.completedLevels(this.state.input), feedback: null, hint: false });
   }
   /**
    * Valitse taso: läpäisty, nykyinen tai seuraava avattu. Nykyinen taso jatkuu siitä, mihin jäätiin;
@@ -318,10 +326,19 @@ export class RiffGame {
   }
 
   // ---- kierros ----
-  /** Uusi riffi (tai uusi yritys samalla riffillä: riff annettu). */
-  private beginRound(riff?: Riff, withModel = true) {
+  /**
+   * Uusi riffi (tai uusi yritys samalla riffillä: riff annettu).
+   * start: 'ready' = pelaaja aloittaa kuuntelun itse (uusi riffi), 'model' = malli soi heti
+   * (Soita uudelleen, automaattinen uusinta), 'listen' = suoraan vuoroon ilman mallia.
+   */
+  private beginRound(riff?: Riff, start: 'ready' | 'model' | 'listen' = 'ready') {
     // Mikrofoni suljettiin esimerkiksi taustavälilehdellä: avaa ennen mallia.
-    if (this.state.input === 'mic' && !this.micOpen) { this.openMicThen(() => this.beginRound(riff, withModel)); return; }
+    if (this.state.input === 'mic' && !this.micOpen) { this.openMicThen(() => this.beginRound(riff, start)); return; }
+    // Mahdollinen soiva malli tai odottava uusinta päättyy ennen uutta yritystä (ei päällekkäisiä soittoja).
+    ++this.op;
+    this.cancelTimers();
+    this.audio.stopModel();
+    this.set({ modelPlaying: false, playing: null, autoRetry: false });
     const pos = this.position(this.state.input);
     if (!pos.tutorial && !riff && this.store.currentRiff(this.state.input) === null) { this.showLevelComplete(); return; }
     const chosen = pos.tutorial ? TUTORIAL : riff ?? pos.riff;
@@ -334,10 +351,13 @@ export class RiffGame {
       feedback: null, lastStable: null, unlockedLevels: this.store.unlockedLevels(this.state.input),
       tuner: null, diag: this.state.diagOpen ? this.state.diag : null });
     this.startAttempt();
-    if (withModel) void this.playModel(true);
-    else {
+    if (start === 'model') void this.playModel(true);
+    else if (start === 'listen') {
       if (this.micOpen) this.audio.resumeAnalysis();
       this.startListening();
+    } else {
+      if (this.micOpen) this.audio.pauseAnalysis();
+      this.set({ phase: 'ready' });
     }
   }
   /** Uusi yritys samassa sarjassa: kierrostunniste vaihtuu, pallukat harmaiksi, muistivihjeet näkyviin. */
@@ -354,7 +374,7 @@ export class RiffGame {
     this.cancelTimers();
     if (this.micOpen) this.audio.pauseAnalysis();
     const phase = listenAfter ? 'model-playing' : this.state.phase;
-    this.set({ phase, playing: null });
+    this.set({ phase, playing: null, modelPlaying: true });
     let done: boolean;
     try {
       done = await this.audio.playModel(this.state.riff.midi, index => { if (op === this.op) this.set({ playing: index }); });
@@ -364,7 +384,7 @@ export class RiffGame {
       done = true;
     }
     if (op !== this.op || !done) return;
-    this.set({ playing: null });
+    this.set({ playing: null, modelPlaying: false });
     if (listenAfter) this.afterModel(op);
     else if (this.micOpen) this.audio.pauseAnalysis();
   }
@@ -386,7 +406,10 @@ export class RiffGame {
     this.set({ phase: 'listening' });
   }
 
-  private cancelTimers() { clearTimeout(this.settleTimer); this.settleTimer = undefined; this.settler.cancel(); }
+  private cancelTimers() {
+    clearTimeout(this.settleTimer); this.settleTimer = undefined; this.settler.cancel();
+    if (this.retryTimer !== undefined) { clearTimeout(this.retryTimer); this.retryTimer = undefined; if (this.state.autoRetry) this.set({ autoRetry: false }); }
+  }
 
   // ---- mikrofonin tapahtumat ----
   private onFrame(frame: AnalysisFrame, pluck: PluckState) {
@@ -463,28 +486,37 @@ export class RiffGame {
     }
   }
 
-  /** Riffi soitettu loppuun: virheetön → success / level-complete, keltaisia → retry. Kirjataan kerran. */
+  /**
+   * Riffi soitettu loppuun. Kirjataan kerran.
+   * - Virheetön → success: pelaaja valitsee itse Soita uudelleen tai Seuraava riffi.
+   * - Keltaisia → retry: tulos näkyy RETRY_RESULT_MS, sitten sama malli soi ja uusi yritys alkaa
+   *   automaattisesti. Pelaaja voi perua; tauko, lopetus ja navigointi perivät sen (cancelTimers).
+   */
   private finish(checker: SequenceChecker) {
     if (this.micOpen) this.audio.pauseAnalysis();
     const riff = this.state.riff;
     const passed = this.practice!.finish();
     const failed = this.practice!.failedAttempts;
-    const { levelComplete } = this.store.record({ riff: riff.id, input: checker.input, hint: checker.hintUsed, passed,
+    this.store.record({ riff: riff.id, input: checker.input, hint: checker.hintUsed, passed,
       wrong: checker.wrongCount, octave: checker.octaveCount,
       replays: this.replays, ms: Math.max(0, Math.round(this.clock() - (this.roundStart ?? this.clock()))), at: Date.now() });
     this.set({ completedLevels: this.store.completedLevels(checker.input), unlockedLevels: this.store.unlockedLevels(checker.input), failedAttempts: failed });
     if (riff.id === TUTORIAL.id) {
       this.practice = null;
       this.set({ phase: 'success', feedback: { tone: 'good', text: passed
-        ? 'Hienoa! Opastus on tehty. Seuraavaksi taso 1: kolme riffiä B-kielellä.'
-        : 'Opastus on tehty. Tasoilla riffi hyväksytään, kun kaikki pallukat ovat vihreitä.' } });
+        ? `Hienoa! Opastus on tehty. Seuraavaksi ${LEVELS[0].name}: kolme riffiä ${LEVELS[0].title.toLowerCase().replace('kieli', 'kielellä')}.`
+        : 'Opastus on tehty. Riffi hyväksytään, kun kaikki pallukat ovat vihreitä.' } });
     } else if (!passed) {
-      this.set({ phase: 'retry', feedback: { tone: 'info', text: 'Soitit riffin loppuun! Kokeile vielä ilman virheitä.' +
+      this.set({ phase: 'retry', autoRetry: true, feedback: { tone: 'info', text: 'Riffi soitettu loppuun. Kuunnellaan uudelleen!' +
         (this.practice!.memoryActive ? ' Muistivihjeet ovat käytössä: aiemmin heti oikein soitetut sävelet näkyvät pallukoissa.' : '') } });
+      const token = this.op;
+      this.retryTimer = setTimeout(() => {
+        this.retryTimer = undefined;
+        if (token === this.op && this.state.phase === 'retry' && this.state.autoRetry) this.beginRound(riff, 'model');
+      }, RETRY_RESULT_MS);
     } else {
       this.practice = null;
-      if (levelComplete) this.showLevelComplete();
-      else this.set({ phase: 'success', feedback: { tone: 'good', text: checker.hintUsed ? 'Virheetön, sävelvihjeen kanssa!' : 'Virheetön! Kaikki pallukat vihreinä.' } });
+      this.set({ phase: 'success', feedback: { tone: 'good', text: checker.hintUsed ? 'Virheetön, vihjeen kanssa! Riffi läpäisty.' : 'Virheetön! Kaikki pallukat vihreinä – riffi läpäisty.' } });
     }
   }
 
@@ -496,30 +528,58 @@ export class RiffGame {
   }
 
   // ---- sivutoiminnot ----
-  /** Kuuntele malli uudelleen. Vastausvuorossa yritys alkaa alusta, koska riffi kuullaan alusta. */
-  replay() {
+  /**
+   * Kuuntele riffi / Pysäytä kuuntelu (sama painike).
+   * - Kesken yrityksen malli soi, eikä mitään nollata: sama paikka, samat pallukat, muistivihjeet ja laskurit.
+   *   Mikrofonin analyysi on tauolla mallin ajan, ja vuoro jatkuu suojavaiheen kautta.
+   * - ready: ensimmäinen kuuntelu, sitten vuoro.
+   * - success / peruttu retry: pelkkä kuuntelu, vaihe ei muutu.
+   * - odottava automaattinen uusinta: uusinta alkaa heti (yksi malli, ei päällekkäisiä).
+   */
+  listen() {
+    if (this.state.modelPlaying) { this.stopListening(); return; }
     const phase = this.state.phase;
+    if (phase === 'retry' && this.state.autoRetry) { this.beginRound(this.state.riff, 'model'); return; }
     if (phase === 'success' || phase === 'retry') { void this.playModel(false); return; }
-    if (!['listening', 'output-settling', 'model-playing'].includes(phase)) return;
-    this.replays++;
-    this.startAttempt();
-    this.set({ feedback: null });
+    if (!['ready', 'listening', 'output-settling'].includes(phase)) return;
+    if (phase !== 'ready') this.replays++;
     void this.playModel(true);
   }
-  /** Aloita alusta kesken yrityksen: sama riffi ilman mallia. Ei ole epäonnistunut kokonaisyritys. */
+  /** Pysäytä kuuntelu: malli katkeaa, eteneminen säilyy; vuoro jatkuu suojavaiheen kautta. */
+  stopListening() {
+    if (!this.state.modelPlaying) return;
+    const op = ++this.op;
+    this.audio.stopModel();
+    this.set({ modelPlaying: false, playing: null });
+    if (this.state.phase === 'model-playing') this.afterModel(op);
+  }
+  /** Peru odottava automaattinen uusinta. Tulos jää näkyviin, ja uusi yritys alkaa painikkeesta. */
+  cancelAutoRetry() {
+    if (this.state.phase !== 'retry' || !this.state.autoRetry) return;
+    this.cancelTimers();
+    this.set({ autoRetry: false, feedback: { tone: 'info', text: 'Automaattinen uusinta peruttu. Aloita uusi yritys, kun olet valmis.' } });
+  }
+  /** Aloita uusi yritys samalla riffillä ilman mallia. Kesken jäänyt yritys ei ole epäonnistunut kokonaisyritys. */
   restart() {
-    if (!['listening', 'output-settling'].includes(this.state.phase)) return;
+    const phase = this.state.phase;
+    if (phase === 'retry') { this.beginRound(this.state.riff, 'listen'); return; }
+    if (!['ready', 'listening', 'output-settling', 'model-playing'].includes(phase)) return;
+    if (this.state.modelPlaying) this.stopListening();
     this.startAttempt();
-    this.set({ feedback: { tone: 'info', text: 'Aloita riffi alusta.' } });
+    this.set({ feedback: { tone: 'info', text: 'Uusi yritys: aloita riffi alusta.' } });
+    if (this.micOpen) this.audio.resumeAnalysis();
     this.startListening();
   }
-  /** Keltaisten kohtien jälkeen: sama riffi uutena yrityksenä, ilman mallia (oletus) tai mallin kanssa. */
-  retry(withModel = false) { if (this.state.phase === 'retry') this.beginRound(this.state.riff, withModel); }
+  /** Keltaisten jälkeen (uusinta peruttu): sama riffi uutena yrityksenä mallin kanssa. */
+  retry() { if (this.state.phase === 'retry') this.beginRound(this.state.riff, 'model'); }
+  /** Virheettömän riffin jälkeen: sama riffi uutena yrityksenä, malli soi alkuun. Läpäisy säilyy. */
+  playAgain() { if (this.state.phase === 'success' && !this.state.tutorial) this.beginRound(this.state.riff, 'model'); }
   toggleHint() {
     const hint = !this.state.hint;
     if (hint) this.checker?.useHint();
     this.set({ hint });
   }
+  /** Seuraava riffi; kotitreenin kolmannen jälkeen onnittelunäkymä. */
   next() { if (this.state.phase === 'success') this.beginRound(); }
   /** Onnittelunäkymästä: seuraava taso. Ei koskaan automaattisesti. */
   continueLevel() {
@@ -545,18 +605,20 @@ export class RiffGame {
     this.calibration = null;
     this.audio.stopModel();
     this.closeMic();
-    this.set({ phase: 'paused', pausedReason: reason, playing: null, heard: null, calibrating: false });
+    this.set({ phase: 'paused', pausedReason: reason, playing: null, modelPlaying: false, autoRetry: false, heard: null, calibrating: false });
   }
   resume() {
     if (this.state.phase !== 'paused') return;
     const from = this.pausedFrom ?? 'listening';
     this.pausedFrom = null;
     this.set({ pausedReason: null });
-    if (['success', 'retry', 'level-complete'].includes(from)) { this.set({ phase: from }); return; }
+    // Riffin jälkeiset näkymät eivät tarvitse mikrofonia; peruttu automaattinen uusinta jatkuu painikkeesta.
+    if (['success', 'retry', 'level-complete'].includes(from)) { this.set({ phase: from, autoRetry: false }); return; }
     const go = () => {
       if (from === 'mic-check') this.enterMicCheck();
       else if (from === 'tools') this.enterTools(this.state.tool);
-      else if (from === 'model-playing') { this.startAttempt(); void this.playModel(true); }
+      else if (from === 'ready') { if (this.micOpen) this.audio.pauseAnalysis(); this.set({ phase: 'ready' }); }
+      // Keskeytynyt kuuntelu ei nollaa yritystä: vuoro jatkuu, ja mallin voi kuunnella uudelleen.
       else this.startListening();
     };
     if (this.state.input === 'mic') this.openMicThen(go); else go();
@@ -570,7 +632,7 @@ export class RiffGame {
       ++this.op;
       this.cancelTimers();
       this.audio.stopModel();
-      this.set({ phase: 'paused', pausedReason: 'mic-lost', playing: null, heard: null, micInfo: null, calibrating: false });
+      this.set({ phase: 'paused', pausedReason: 'mic-lost', playing: null, modelPlaying: false, autoRetry: false, heard: null, micInfo: null, calibrating: false });
     }
   }
 
@@ -584,7 +646,7 @@ export class RiffGame {
     this.practice = null;
     this.pausedFrom = null;
     this.afterCheck = null;
-    this.set({ phase: 'idle', playing: null, heard: null, feedback: null, error: '', pausedReason: null, index: 0, hint: false,
+    this.set({ phase: 'idle', playing: null, modelPlaying: false, autoRetry: false, heard: null, feedback: null, error: '', pausedReason: null, index: 0, hint: false,
       memory: [], failedAttempts: 0, calibrating: false, micInfo: null, diag: null, tuner: null, ...this.position(this.state.input) });
   }
 
