@@ -64,19 +64,24 @@ for (const song of songs) {
     await expect(page.getByText(`${previous.length} / 5 kappaletta suoritettu`, { exact: true })).toBeVisible();
     await button(page, previous.length ? 'Jatka keikkaa 1' : 'Aloita keikka 1').click();
     await expect(page.getByRole('heading', { name: `Kappale ${song.id} – ${song.title}` })).toBeVisible();
+    const task = page.getByRole('heading', { name: 'Kuuntele kappale ja valitse lopetus' });
     const explanation = page.getByText('Miksi tämä vastaus?', { exact: true });
     const unfinished = button(page, 'Kuuntele keskeneräinen kappale');
     const check = button(page, 'Tarkista valintani');
-    await expect(check).toHaveCount(0);
-    await expect(explanation).toHaveCount(0);
-    await unfinished.click();
-    await expect(playbackStatus(page)).toHaveText(playing);
-    expect(await lastPlayback(page)).toMatchObject({ offset: 0, hasAudio: true });
-
-    await expect(check).toBeVisible({ timeout: 16000 });
+    await expect(task).toBeFocused();
     await expect(check).toBeDisabled();
     await expect(explanation).toHaveCount(0);
+    await expect(button(page, 'Takaisin kuunteluun')).toHaveCount(0);
     for (const ending of ['A', 'B', 'C']) await expect(button(page, `Lopetus ${ending}`)).toBeVisible();
+
+    await unfinished.click();
+    await expect(playbackStatus(page)).toHaveText('Soitetaan · Keskeneräinen kappale');
+    expect(await lastPlayback(page)).toMatchObject({ offset: 0, hasAudio: true });
+    await expect(button(page, 'Lopetus A')).toBeVisible();
+    await button(page, 'Pysäytä keskeneräinen kappale').click();
+    await expect(unfinished).toBeVisible();
+    expect(await lastPlayback(page)).toMatchObject({ stopped: true });
+    await expect(check).toBeDisabled();
 
     if (song.id === 5) {
       await button(page, 'Lopetus B').click();
@@ -130,6 +135,75 @@ for (const song of songs) {
     }
   });
 }
+
+test('Kuuntelujen vaihto ja keskeytys eivät kuittaa loppua kuulluksi', async ({ page, isMobile }) => {
+  if (isMobile) await page.setViewportSize({ width: 320, height: 568 });
+  await observePlayback(page);
+  await page.goto(`${gamePath}#keikkalista`);
+  await button(page, 'Aloita keikka 1').click();
+  const option = button(page, 'Lopetus B');
+  const check = button(page, 'Tarkista valintani');
+  const full = button(page, 'Kuuntele koko kappale valitulla lopetuksella');
+  const ending = button(page, 'Kuuntele valittu lopetus');
+  await expect(full).toBeDisabled();
+  await expect(ending).toBeDisabled();
+  await expect(page.getByRole('group', { name: 'Kokeile lopetuksia' })).toBeVisible();
+  const controls = await page.getByRole('region', { name: 'Kappaleen tehtävä' }).getByRole('button')
+    .evaluateAll(buttons => buttons.map(button => button.getBoundingClientRect().toJSON()));
+  for (const control of controls) {
+    expect(control.left).toBeGreaterThanOrEqual(0);
+    expect(control.right).toBeLessThanOrEqual(page.viewportSize()!.width);
+    expect(control.height).toBeGreaterThanOrEqual(44);
+  }
+
+  if (isMobile) {
+    await option.tap();
+  } else {
+    await option.focus();
+    await page.keyboard.press('Enter');
+  }
+  await expect(option).toHaveAttribute('aria-pressed', 'true');
+  await expect(playbackStatus(page)).toHaveText('Soitetaan · Lopetus B');
+  expect((await lastPlayback(page))?.offset).toBeCloseTo(4.8);
+  await full.click();
+  await expect(playbackStatus(page)).toHaveText('Soitetaan · Lopetus B · koko kappale');
+  expect(await page.evaluate(() => window.ensikeikkaPlayback.at(-2)?.stopped)).toBe(true);
+  expect(await lastPlayback(page)).toMatchObject({ offset: 0, stopped: false });
+  await button(page, 'Pysäytä koko kappale').click();
+  await expect(check).toBeDisabled();
+
+  await ending.click();
+  await expect(playbackStatus(page)).toHaveText('Soitetaan · Lopetus B');
+  await page.getByRole('link', { name: 'Takaisin keikkalistaan' }).click();
+  expect(await lastPlayback(page)).toMatchObject({ stopped: true });
+  await button(page, 'Jatka keikkaa 1').click();
+  await expect(option).toHaveAttribute('aria-pressed', 'true');
+  await expect(check).toBeDisabled();
+  expect(await savedProgress(page)).toBeNull();
+});
+
+test('Toiston käynnistysvirhe kertoo tilanteen ja sallii uuden kuuntelun', async ({ page }) => {
+  await page.addInitScript(() => {
+    const start = AudioBufferSourceNode.prototype.start;
+    let blocked = true;
+    AudioBufferSourceNode.prototype.start = function (...args) {
+      if (blocked) {
+        blocked = false;
+        throw new Error('Simuloitu äänentoiston käynnistysvirhe');
+      }
+      return start.apply(this, args);
+    };
+  });
+  await page.goto(`${gamePath}#keikkalista`);
+  await button(page, 'Aloita keikka 1').click();
+  const check = button(page, 'Tarkista valintani');
+  await button(page, 'Lopetus B').click();
+  await expect(playbackStatus(page)).toHaveText('Ääni ei käynnistynyt. Yritä uudelleen.');
+  await expect(check).toBeDisabled();
+  await button(page, 'Kuuntele valittu lopetus').click();
+  await expect(playbackStatus(page)).toHaveText('Soitetaan · Lopetus B');
+  await expect(check).toBeEnabled({ timeout: 9000 });
+});
 
 test('Ensikeikka keskeyttää äänen palatessa ja säilyttää valmiit kappaleet uudelleenlatauksessa', async ({ page }) => {
   await observePlayback(page);
