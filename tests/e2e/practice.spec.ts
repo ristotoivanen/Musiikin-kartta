@@ -417,7 +417,10 @@ test.describe('sivuston yhtenäisyys', () => {
     await page.addInitScript(() => localStorage.setItem('musiikin-kartta:tehdyt', '["osa-3#otelauta"]'));
 
     await page.goto('/');
-    await expect(page.getByRole('link', { name: 'Harjoittele kitaralla' })).toBeVisible();
+    const trainerLink = page.getByRole('navigation', { name: 'Päävalikko' })
+      .getByRole('link', { name: 'Kitaraharjoittelu', exact: true });
+    await expect(trainerLink).toBeVisible();
+    await expect(trainerLink).toHaveAttribute('href', 'kitaraharjoittelija.html');
     await expect(page.locator('a[href="pdf/musiikin-kartta.pdf"]').first()).toBeVisible();
 
     // Yhdistetty otelautakartta: moodi valitaan pudotusvalikosta, ei enää painikkeesta.

@@ -22,9 +22,12 @@ from pathlib import Path
 from urllib.parse import unquote
 
 ROOT = Path(__file__).resolve().parents[2]
-PAGES = sorted(ROOT.glob('*.html')) + sorted((ROOT / 'book').glob('*.html'))
+PAGES = (sorted(ROOT.glob('*.html')) + sorted((ROOT / 'book').glob('*.html'))
+         + sorted((ROOT / 'pelit').glob('*/index.html')))
 EXTERNAL = re.compile(r'^(?:[a-z][a-z0-9+.-]*:|//)', re.I)
 PROGRESS = ROOT / 'assets' / 'edistyminen.js'
+# Näkymävalinnat käsitellään assets/visualizer.js:ssä.
+VIEW_ROUTES = {ROOT / 'otelautaharjoittelija.html': {'soinnut', 'oktaavit'}}
 # Jokaisella osasivulla toistuvat tunnisteet ja kuvatekstien tunnisteet eivät kuulu ankkuritaulukkoon.
 GENERIC = {'luvut', 'lukulista', 'harjoitusrutiini', 'rutiini-otsikko', 'lisalukeminen'}
 
@@ -100,7 +103,7 @@ def main():
                 target = target / 'index.html'
             if not target.exists():
                 problems.append(f'{name}: {attr}="{value}" – tiedostoa ei ole')
-            elif attr == 'href' and fragment and target in ids and unquote(fragment) not in ids[target]:
+            elif attr == 'href' and fragment and target in ids and unquote(fragment) not in (ids[target] | VIEW_ROUTES.get(target, set())):
                 problems.append(f'{name}: {attr}="{value}" – ankkuria #{fragment} ei ole')
 
     check_progress_table(texts, problems)
