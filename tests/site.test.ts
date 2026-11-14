@@ -43,6 +43,21 @@ describe('staattisen sivuston yhteensopivuus',()=>{
     expect(read('book/osa-8.html')).toContain('assets/audio/osa-8/em-c-tausta.m4a');
   });
 
+  it('etusivun kahdeksan oppimisaihetta säilyttävät nykyiset teoria- ja harjoittelureitit', () => {
+    const html = read('index.html');
+    const ids = [...html.matchAll(/<details class="topic-card" id="aihe-([^"]+)">/g)].map(m => m[1]);
+    expect(ids).toEqual(['kitara', 'rytmi', 'nuotit', 'korva', 'otelauta', 'soinnut', 'asteikot', 'kappaleet']);
+    expect(html).toContain('href="book/osa-1.html#pulssi-ja-komppi"');
+    expect(html).toContain('href="riffikaiku.html"');
+    expect(html).toContain('href="pelit/ensikeikka/"');
+    expect(html).toContain('href="kitaraharjoittelija.html?polku=otelauta&amp;harjoitus=savelten-etsinta"');
+    expect(html).toContain('id="harjoittelija"');
+    expect(html).toContain('followOldTrainerLink()');
+    // Taitotunnisteet eivät kuulu ensimmäisen vaiheen käyttäjän valikkoteksteihin.
+    expect(html).not.toContain('SCALE-CONNECT');
+    expect(html).not.toContain('EAR-ECHO');
+  });
+
   it('jokaisella pääsivulla on sama päävalikko samassa järjestyksessä ja oikea aktiivinen osio',()=>{
     const pages:[string,string|null,string][]=[
       ['index.html',null,'page'],['book/index.html','teoria','page'],['otelautaharjoittelija.html','otelauta','page'],['kitaraharjoittelija.html','kitara','page'],
