@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Riffikaiku: kuuntele neljän sävelen riffi ja soita se takaisin oikealla kitaralla tai virtuaalikitaralla. Mikrofonin ääni käsitellään vain selaimessa.">
+  <meta name="robots" content="noindex">
+  <title>Riffikaiku – Musiikin kartta</title>
+  <link rel="stylesheet" href="assets/otelauta.css?v=36a704ebe6">
+  <link rel="stylesheet" href="assets/riffikaiku/app.css?v=16773f983f">
+  <link rel="stylesheet" href="assets/paavalikko.css?v=3138d3e5e8">
+</head>
+<body>
+  <header class="site-top">
+    <nav class="main-nav" aria-label="Päävalikko">
+      <a class="brand" href="index.html">Musiikin <span>kartta</span></a>
+      <ul>
+        <li><a href="book/index.html"><span class="nav-long">Musiikin teoria</span><span class="nav-short">Teoria</span></a></li>
+        <li><a href="otelautaharjoittelija.html">Otelautaopas</a></li>
+        <li><a href="kitaraharjoittelija.html" aria-current="true">Kitaraharjoittelu</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main class="practice-main riff-main" id="riffikaiku"><p>Ladataan Riffikaikua…</p><noscript><p>Riffikaiku tarvitsee JavaScriptin.</p></noscript></main>
+  <footer>Musiikin kartta · Riffikaiku 0.1 (prototyyppi) · Tulokset vain omassa selaimessasi.</footer>
+  <script type="module">
+    const dev = import.meta.env?.DEV === true;
+    import(/* @vite-ignore */ dev ? './riffikaiku/main.tsx' : './assets/riffikaiku/app.js?v=683b509f5ef1').catch(error => {
+      console.error('Riffikaiun lataus epäonnistui', error);
+      document.getElementById('riffikaiku').textContent = 'Riffikaiun lataus ei onnistunut. Lataa sivu uudelleen. Kehitysympäristössä aja npm run build.';
+    });
+  </script>
+</body>
+</html>
