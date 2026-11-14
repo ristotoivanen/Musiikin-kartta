@@ -56,7 +56,7 @@ describe('staattisen sivuston yhteensopivuus',()=>{
     expect(html).not.toContain('Nykyiset oppaat ja työkalut');
     expect(html).not.toContain('class="area"');
     expect(html).toContain('href="otelautaharjoittelija.html#soinnut">Sointukartta');
-    const linkedParts = new Set([...html.matchAll(/href="book\\/osa-(\\d+)\\.html(?:#[^"]*)?"/g)].map(m => Number(m[1])));
+    const linkedParts = new Set([...html.matchAll(/href="book[/]osa-([0-9]+)[.]html(?:#[^"]*)?"/g)].map(m => Number(m[1])));
     expect([...linkedParts].sort((a, b) => a - b)).toEqual(Array.from({ length: 11 }, (_, n) => n + 1));
     expect(html).toContain('href="book/index.html">Musiikin teoria</a>');
     expect(html).toContain('href="pdf/musiikin-kartta.pdf"');
