@@ -1,31 +1,30 @@
 /**
- * Riffikaiun säveljonon tarkistaja. Puhdas: ei ääntä, ajastimia eikä Reactia.
+ * Säveljonon tarkistuksen yhteinen ydin. Puhdas: ei ääntä, ajastimia, Reactia eikä syöttölaitetta.
+ * Riffikaiku käyttää tätä sekä mikrofonille että virtuaalikitaralle; sama ydin on tarkoitettu
+ * myöhemmin myös asteikko- ja moodiharjoituksiin (ks. riffikaiku/README.md).
  *
- * Tarkistaja saa vain jo tulkittuja vastauksia: mikrofonilta NoteGaten läpäisseen vakaan
- * sävelen (StableNoteEvent, yksi per näppäys) tai otelaudan napautuksen. Kohina, epävire ja
- * liian lyhyet sävelet eivät koskaan päädy tänne, joten ne eivät etene eivätkä rankaise.
+ * Tarkistaja saa vain jo tulkittuja säveltapahtumia: mikrofonilta yhden erillisen näppäilyn
+ * (pluck.ts) tai otelaudan painalluksen. Kohina, epävire ja epävakaat havainnot eivät koskaan
+ * päädy tänne, joten ne eivät etene eivätkä tuota virheitä.
  *
- * Säännöt:
- * - Vain odotettu MIDI-korkeus täsmälleen (myös oktaavi) kasvattaa indeksiä yhdellä.
- * - Väärä vakaa sävel antaa palautteen; indeksi pysyy samassa kohdassa.
- * - Väärä oktaavi ei ole hyväksytty eikä tavallinen soittovirhe: se raportoidaan omana tapahtumanaan.
- * - Vastaus väärältä kierrokselta (vanha asynkroninen kutsu) tai valmiin jonon jälkeen ohitetaan.
+ * Yksi yritys (SequenceChecker):
+ * - harmaa (pending): paikkaa ei ole vielä ratkaistu tällä yrityksellä.
+ * - vihreä: oikea sävel heti ensimmäisellä yrityksellä → seuraava paikka.
+ * - punainen: väärä sävel (myös väärä oktaavi) → pysytään samassa paikassa.
+ * - keltainen: oikea sävel yhden tai useamman väärän jälkeen → seuraava paikka. Ei muutu vihreäksi.
+ * Yritys on läpäisty vain, jos jokainen paikka on vihreä (flawless). Väärä sävel ei nollaa
+ * yritystä eikä siirrä seuraavaan paikkaan; riffin saa aina soittaa loppuun.
  *
- * Etenemispallukat (sama logiikka mikrofonille ja otelaudalle, näkyvistä kielistä riippumatta):
- * - pending: ei vielä soitettu.
- * - red: tähän kohtaan soitettiin väärä vakaa sävel, eikä oikeaa ole vielä kuultu.
- * - green: kohta meni oikein ensimmäisellä yrityksellä.
- * - yellow: kohta oli punainen ja korjattiin oikeaksi.
- * Riffi läpäistään vain, jos kaikki kohdat ovat vihreitä (flawless). Keltaisellakin kohdalla riffin saa
- * soittaa loppuun, mutta läpäisy vaatii uuden yrityksen. Väärä oktaavi ei muuta väriä.
+ * Yrityssarja (SequencePractice): laskee loppuun soitetut epäonnistuneet yritykset ja avaa
+ * muistivihjeet kolmannen jälkeen (ks. luokan kommentti).
  */
 export type SlotMark = 'pending' | 'red' | 'green' | 'yellow';
 export type AnswerInput = 'mic' | 'board';
 
 export type SequenceEvent =
   | { type: 'accepted'; index: number; midi: number; complete: boolean; mark: 'green' | 'yellow' }
-  | { type: 'wrong'; index: number; expected: number; played: number }
-  | { type: 'octave'; index: number; expected: number; played: number }
+  /** octave: soitettiin oikea sävelnimi väärässä oktaavissa (silti väärä sävel). */
+  | { type: 'wrong'; index: number; expected: number; played: number; octave: boolean }
   | { type: 'ignored'; reason: 'stale-round' | 'complete' | 'wrong-input' };
 
 export type SequenceAnswer = { midi: number; round: number; input: AnswerInput };
@@ -39,7 +38,7 @@ export class SequenceChecker {
   readonly expected: readonly number[];
 
   constructor(expected: readonly number[], readonly round: number, readonly input: AnswerInput) {
-    if (!expected.length || expected.some(m => !Number.isInteger(m))) throw new Error('Riffissä pitää olla vähintään yksi kokonaislukuinen MIDI-sävel.');
+    if (!expected.length || expected.some(m => !Number.isInteger(m))) throw new Error('Säveljonossa pitää olla vähintään yksi kokonaislukuinen MIDI-sävel.');
     this.expected = [...expected];
     this.slots = this.expected.map(() => 'pending');
   }
@@ -47,8 +46,9 @@ export class SequenceChecker {
   get index() { return this.position; }
   get complete() { return this.position >= this.expected.length; }
   get hintUsed() { return this.hint; }
-  /** Vakaat väärät sävelet. Ne eivät pysäytä peliä; luku on vain tulosten tulkintaa varten. */
+  /** Väärät sävelet tällä yrityksellä (myös väärät oktaavit). */
   get wrongCount() { return this.wrongs; }
+  /** Niistä väärässä oktaavissa soitetut. */
   get octaveCount() { return this.octaves; }
   /** Seuraavaksi odotettu MIDI-korkeus, tai null kun jono on valmis. */
   get next(): number | null { return this.complete ? null : this.expected[this.position]; }
@@ -70,13 +70,66 @@ export class SequenceChecker {
       this.position++;
       return { type: 'accepted', index, midi: played, complete: this.complete, mark };
     }
-    if (((played - expected) % 12 + 12) % 12 === 0) {
-      this.octaves++;
-      return { type: 'octave', index, expected, played };
-    }
+    const octave = ((played - expected) % 12 + 12) % 12 === 0;
     this.wrongs++;
+    if (octave) this.octaves++;
     this.slots[index] = 'red';
-    return { type: 'wrong', index, expected, played };
+    return { type: 'wrong', index, expected, played, octave };
+  }
+}
+
+/** Muistivihjeet avautuvat tämän monennen epäonnistuneen kokonaisyrityksen jälkeen. */
+export const MEMORY_AFTER_FAILED = 3;
+
+/**
+ * Saman säveljonon yrityssarja ja muistivihjeet.
+ *
+ * - Epäonnistunut kokonaisyritys = loppuun soitettu yritys, jossa on yksikin keltainen paikka.
+ *   Yksittäiset väärät sävelet tai kesken aloitettu alusta eivät kasvata laskuria.
+ * - Kolmannen epäonnistuneen kokonaisyrityksen jälkeen muistivihjeet ovat käytössä: uuden yrityksen
+ *   alussa paikat, jotka pelaaja on jollakin aiemmalla yrityksellä soittanut heti oikein (vihreä),
+ *   näyttävät sävelnimensä harmaina. Muut paikat ovat tyhjiä harmaita.
+ * - Muisti on paikkakohtainen (sama sävel voi esiintyä riffissä monta kertaa).
+ * - Muistivihje ei hyväksy mitään: jokainen paikka soitetaan oikein samalla yrityksellä, ja värit
+ *   määräytyvät tavalliseen tapaan.
+ *
+ * Miksi vain vihreät: loppuun soitetussa yrityksessä kaikki paikat on lopulta löydetty (vihreä tai
+ * keltainen), joten ”löydetyt paikat” paljastaisivat aina koko riffin. Vihreät kertovat, mitkä
+ * paikat pelaaja jo muistaa; keltaiset eli vaikeat paikat jäävät hänen itse ratkaistavikseen.
+ */
+export class SequencePractice {
+  private failed = 0;
+  private known: boolean[];
+  private current: SequenceChecker | null = null;
+  readonly expected: readonly number[];
+
+  constructor(expected: readonly number[], readonly input: AnswerInput) {
+    this.expected = [...expected];
+    this.known = this.expected.map(() => false);
+  }
+  get failedAttempts() { return this.failed; }
+  get memoryActive() { return this.failed >= MEMORY_AFTER_FAILED; }
+  /** Paikkakohtaiset muistivihjeet: MIDI-korkeus näytettäväksi tai null. Tyhjä ennen kolmatta epäonnistumista. */
+  get memory(): (number | null)[] { return this.expected.map((m, i) => this.memoryActive && this.known[i] ? m : null); }
+  get attempt() { return this.current; }
+
+  /** Uusi yritys: edellisen yrityksen vihreät paikat muistetaan (myös kesken jääneestä). */
+  start(round: number): SequenceChecker {
+    this.absorb();
+    this.current = new SequenceChecker(this.expected, round, this.input);
+    return this.current;
+  }
+  /** Loppuun soitettu yritys: palauttaa läpäisyn. Epäonnistunut kasvattaa laskuria kerran. */
+  finish(): boolean {
+    const attempt = this.current;
+    if (!attempt?.complete) return false;
+    this.absorb();
+    this.current = null;
+    if (!attempt.flawless) this.failed++;
+    return attempt.flawless;
+  }
+  private absorb() {
+    this.current?.marks.forEach((m, i) => { if (m === 'green') this.known[i] = true; });
   }
 }
 

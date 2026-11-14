@@ -51,12 +51,12 @@ export const TUTORIAL: Riff = riff('opastus', 'Opastus: kaksi säveltä', on(B, 
 const B_INSTRUCTION = 'Soita B-kielellä (toiseksi ohuin kieli).';
 
 export const LEVELS: readonly Level[] = [
-  { number: 1, title: 'Yksi kieli', strings: [B], instruction: B_INSTRUCTION, riffs: [
+  { number: 1, title: 'Ensimmäiset riffit', strings: [B], instruction: B_INSTRUCTION, riffs: [
     riff('b-kaari', 'Ensimmäinen kaiku', on(B, [0, 1, 3, 1]), 'Vapaa kieli, 1., 3. ja takaisin 1. nauhaan.'),
     riff('b-vaihto', 'Edestakaisin', on(B, [1, 0, 1, 3]), '1. nauha, vapaa kieli, 1. ja 3. nauha.'),
     riff('b-lasku', 'Laskeva kaiku', on(B, [5, 3, 1, 0]), 'Alaspäin: 5., 3., 1. nauha ja vapaa kieli.'),
   ] },
-  { number: 2, title: 'Yksi kieli, isommat askeleet', strings: [B], instruction: B_INSTRUCTION, riffs: [
+  { number: 2, title: 'Muista melodia', strings: [B], instruction: B_INSTRUCTION, riffs: [
     riff('b-kumpu', 'Kumpu', on(B, [0, 3, 5, 3]), 'Vapaa kieli, 3., 5. ja takaisin 3. nauhaan.'),
     riff('b-toisto', 'Toistuva alku', on(B, [5, 5, 3, 1]), 'Kaksi näppäystä 5. nauhalla, sitten 3. ja 1. Vaimenna kieli hetkeksi samojen sävelten välissä.'),
     riff('b-hyppy', 'Hyppivä kaiku', on(B, [0, 5, 1, 3]), 'Vapaa kieli, hyppy 5. nauhaan, sitten 1. ja 3. nauha.'),
@@ -66,7 +66,7 @@ export const LEVELS: readonly Level[] = [
     riff('g-kaksi-a', 'Kaksi samaa', [[G, 2], [G, 2], [B, 1], [G, 2]], 'Kaksi erillistä näppäystä G-kielen 2. nauhalla, C B-kielen 1. nauhalta. Vaimenna kieli A:iden välissä.'),
     riff('gb-kaari', 'Kahden kielen kaari', [[G, 2], [B, 1], [B, 3], [G, 2]], 'G-kielen 2. nauha, B-kielen 1. ja 3. nauha ja takaisin G-kielelle.'),
   ] },
-  { number: 4, title: 'Koko otelauta', strings: [...ALL_STRINGS], instruction: 'Soita millä kielellä tahansa, nauhat 0–5.', riffs: [
+  { number: 4, title: 'Laajempi otelauta', strings: [...ALL_STRINGS], instruction: 'Soita millä kielellä tahansa, nauhat 0–5.', riffs: [
     riff('e-hyppy', 'Hyppy ylös', on(0, [0, 5, 3, 0]), 'Ohut E-kieli: vapaa, hyppy 5. nauhaan, 3. ja vapaa.'),
     riff('d-molli', 'Mollinen kaiku', on(3, [0, 3, 5, 0]), 'D-kieli: vapaa, 3., 5. ja taas vapaa.'),
     riff('am-arpeggio', 'Kielten yli', [[4, 0], [4, 3], [3, 2], [G, 2]], 'A-kieli vapaa ja 3. nauha, D-kielen 2. ja G-kielen 2. nauha.'),

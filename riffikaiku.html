@@ -7,7 +7,7 @@
   <meta name="robots" content="noindex">
   <title>Riffikaiku – Musiikin kartta</title>
   <link rel="stylesheet" href="assets/otelauta.css?v=36a704ebe6">
-  <link rel="stylesheet" href="assets/riffikaiku/app.css?v=16773f983f">
+  <link rel="stylesheet" href="assets/riffikaiku/app.css?v=7ad8013d7f">
   <link rel="stylesheet" href="assets/paavalikko.css?v=3138d3e5e8">
 </head>
 <body>
@@ -22,10 +22,10 @@
     </nav>
   </header>
   <main class="practice-main riff-main" id="riffikaiku"><p>Ladataan Riffikaikua…</p><noscript><p>Riffikaiku tarvitsee JavaScriptin.</p></noscript></main>
-  <footer>Musiikin kartta · Riffikaiku 0.1 (prototyyppi) · Tulokset vain omassa selaimessasi.</footer>
+  <footer>Musiikin kartta · Riffikaiku 0.2 (prototyyppi) · Tulokset vain omassa selaimessasi.</footer>
   <script type="module">
     const dev = import.meta.env?.DEV === true;
-    import(/* @vite-ignore */ dev ? './riffikaiku/main.tsx' : './assets/riffikaiku/app.js?v=683b509f5ef1').catch(error => {
+    import(/* @vite-ignore */ dev ? './riffikaiku/main.tsx' : './assets/riffikaiku/app.js?v=eb666a399002').catch(error => {
       console.error('Riffikaiun lataus epäonnistui', error);
       document.getElementById('riffikaiku').textContent = 'Riffikaiun lataus ei onnistunut. Lataa sivu uudelleen. Kehitysympäristössä aja npm run build.';
     });

@@ -20,21 +20,21 @@
 .riff-status.good { color: var(--good); }
 .riff-status.bad { color: var(--wrong); font-size: 17px; }
 
-/* Neljä etenemispaikkaa: pysyvät yhdellä rivillä myös 320 px:n näytöllä. */
-.riff-slots { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(54px, 1fr)); gap: 8px; padding: 0; margin: 0 0 6px; max-width: 420px; }
-.riff-slots li { display: grid; justify-items: center; gap: 2px; padding: 8px 4px; border: 2px solid var(--line); border-radius: 12px; background: var(--bg); }
-.riff-slots .slot-number { font-size: 12px; color: var(--muted); }
-.riff-slots .slot-note { font-size: 20px; font-weight: 750; min-height: 26px; }
-/* Pallukat: vihreä = heti oikein, punainen = väärä sävel tässä kohdassa, keltainen = korjattu. */
-.riff-slots li { position: relative; }
-.riff-slots li.green { border-color: var(--good); background: color-mix(in srgb, var(--good) 24%, var(--bg)); }
-.riff-slots li.red { border-color: #d64545; background: color-mix(in srgb, #d64545 22%, var(--bg)); }
-.riff-slots li.yellow { border-color: #d9a300; background: color-mix(in srgb, #f2c230 30%, var(--bg)); }
-.riff-slots li.green .slot-number, .riff-slots li.red .slot-number, .riff-slots li.yellow .slot-number { color: var(--text); }
-.riff-slots .slot-symbol { position: absolute; top: 3px; right: 6px; font-size: 12px; font-weight: 800; }
-.riff-slots li.current { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(240, 161, 60, .35); }
-.riff-slots li.red.current { border-color: #d64545; box-shadow: 0 0 0 2px rgba(214, 69, 69, .35); }
-.riff-slots li.model { border-color: var(--lavender); background: color-mix(in srgb, var(--lavender) 22%, var(--bg)); }
+/* Pallukat: pyöreät, yhdellä rivillä myös 320 px:n näytöllä. Väri + symboli + tekstivastine. */
+.riff-slots { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 64px)); gap: 10px; padding: 0; margin: 4px 0 8px; }
+.riff-slots li { position: relative; display: grid; place-items: center; aspect-ratio: 1; border-radius: 50%;
+  border: 3px solid var(--line); background: color-mix(in srgb, var(--muted) 18%, var(--bg)); }
+.riff-slots .slot-note { font-size: clamp(15px, 4.4vw, 19px); font-weight: 800; line-height: 1; }
+.riff-slots .slot-symbol { position: absolute; top: -4px; right: -4px; display: grid; place-items: center; width: 22px; height: 22px;
+  border-radius: 50%; font-size: 13px; font-weight: 900; background: var(--bg); border: 2px solid currentColor; }
+.riff-slots li.green { border-color: #1c7f66; background: #83ddc3; color: #10261f; }
+.riff-slots li.green .slot-symbol { color: #1c7f66; }
+.riff-slots li.red { border-color: #b3261e; background: #f4b4ae; color: #4a0d09; }
+.riff-slots li.yellow { border-color: #a36b00; background: #f6d87a; color: #2e2200; }
+.riff-slots li.yellow .slot-symbol { color: #8a5a00; }
+.riff-slots li.memory .slot-note { color: var(--muted); font-weight: 700; }
+.riff-slots li.current { box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--gold); }
+.riff-slots li.model { border-color: var(--lavender); background: color-mix(in srgb, var(--lavender) 30%, var(--bg)); }
 .riff-count { margin: 0 0 10px; font-weight: 650; }
 .riff-heard { margin: 8px 0; }
 .riff-heard strong { color: var(--lavender); }
@@ -63,3 +63,53 @@
   .riff-board .practice-board .dot { min-width: 28px; height: 28px; font-size: 12px; }
   .riff-actions button { flex: 1 1 120px; }
 }
+@media (max-width: 360px) {
+  /* 320 px: kuusi nauhaa vähintään 34 px leveinä ilman vieritystä. */
+  .riff-board .practice-board { --head: 40px; }
+  .riff-panel { padding: 12px; }
+}
+
+/* Valmistelu, työkalut ja tasovalikko */
+.riff-device { display: grid; gap: 6px; margin: 10px 0; }
+.riff-device label { font-weight: 650; }
+.riff-device select { max-width: 100%; min-height: 44px; padding: 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font: inherit; }
+.riff-device p { margin: 0; overflow-wrap: anywhere; }
+.riff-tools-links { color: var(--muted); font-size: 14px; }
+.riff-tools-links .link, .riff-switch .link { background: none; border: 0; padding: 0; min-height: 44px; color: var(--lavender); text-decoration: underline; cursor: pointer; font: inherit; }
+.riff-tabs { display: flex; gap: 6px; margin-bottom: 8px; }
+.riff-tabs button[aria-selected="true"] { background: var(--purple-dark); color: #fff; border-color: var(--lavender); font-weight: 700; }
+.riff-meter { position: relative; height: 14px; border-radius: 7px; background: var(--bg); border: 1px solid var(--line); overflow: hidden; margin: 8px 0; }
+.riff-meter .fill { position: absolute; inset: 0 auto 0 0; background: var(--good); }
+.riff-meter .threshold { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--gold); }
+.riff-stages { list-style: none; padding: 0; margin: 8px 0; display: grid; gap: 6px; }
+.riff-stages li { display: grid; gap: 2px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); overflow-wrap: anywhere; }
+.riff-stages li.ok strong span { color: var(--good); }
+.riff-stages li.no strong span { color: var(--muted); }
+.riff-stages li > span { font-size: 14px; color: var(--muted); }
+.riff-diag.compact .riff-stages li { padding: 5px 8px; }
+.riff-strings { border: 0; padding: 0; margin: 8px 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.riff-strings legend { font-weight: 650; margin-bottom: 4px; }
+.riff-strings button { display: grid; justify-items: center; min-width: 56px; padding: 4px 8px; }
+.riff-strings button small { font-size: 11px; color: var(--muted); font-weight: 400; }
+.riff-strings button[aria-pressed="true"] small { color: inherit; }
+.riff-tuner-readout { border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: var(--bg); text-align: center; }
+.riff-tuner-readout .value { font-size: clamp(28px, 8vw, 40px); font-weight: 800; margin: 4px 0; }
+.riff-tuner-readout.in-tune .value, .riff-tuner-readout.in-tune .advice { color: var(--good); }
+.riff-tuner-readout.flat .advice, .riff-tuner-readout.sharp .advice { color: var(--wrong); }
+.riff-tuner-readout .advice { font-weight: 700; min-height: 1.4em; }
+.riff-tuner-scale { position: relative; height: 34px; margin: 6px 0 18px; border-bottom: 2px solid var(--line); }
+.riff-tuner-scale .zone { position: absolute; top: 0; bottom: 0; background: color-mix(in srgb, var(--good) 35%, transparent); border-radius: 4px; }
+.riff-tuner-scale .needle { position: absolute; top: -2px; bottom: -2px; width: 4px; margin-left: -2px; background: var(--text); border-radius: 2px; transition: left .08s linear; }
+.riff-tuner-scale .label { position: absolute; top: 100%; font-size: 12px; color: var(--muted); transform: translateX(-50%); }
+.riff-tuner-scale .left { left: 0; transform: none; } .riff-tuner-scale .mid { left: 50%; } .riff-tuner-scale .right { left: auto; right: 0; transform: none; }
+.riff-levels { list-style: none; padding: 0; margin: 8px 0; display: grid; gap: 8px; }
+.riff-levels li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+.riff-levels li div { display: grid; gap: 2px; }
+.riff-levels li span { color: var(--muted); font-size: 14px; }
+.riff-levels li.done { border-color: var(--good); }
+.riff-levels li.locked { opacity: .6; }
+.riff-cleared { text-align: center; }
+.riff-cleared .riff-actions { justify-content: center; }
+.riff-cleared-big { font-size: clamp(22px, 5vw, 28px); font-weight: 800; margin: 0 0 8px; }
+.riff-details { margin: 10px 0; }
+@media (prefers-reduced-motion: reduce) { .riff-tuner-scale .needle { transition: none; } }

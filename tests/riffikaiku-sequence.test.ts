@@ -1,6 +1,6 @@
 // Riffikaiun puhdas säveljonon tarkistaja, suojavaihe, riffit ja tallennus. Ei ääntä.
 import { describe, it, expect } from 'vitest';
-import { OutputSettler, SequenceChecker } from '../riffikaiku/sequence';
+import { MEMORY_AFTER_FAILED, OutputSettler, SequenceChecker, SequencePractice } from '../riffikaiku/sequence';
 import { ALL_STRINGS, CHECK_MIDI, LEVELS, OPEN_STRINGS, RIFFS, TUTORIAL, levelOf, playableOn, riffById } from '../riffikaiku/riffs';
 import { RIFF_STORAGE_KEY, RiffStore, decodeRiffData, type RiffResult } from '../riffikaiku/store';
 import { music } from '../harjoittelija/music';
@@ -27,7 +27,7 @@ describe('SequenceChecker', () => {
     const c = new SequenceChecker([59, 60, 62, 60], 1, 'mic');
     const events = [59, 62, 60, 62, 60].map(m => mic(c, m));
     expect(events.map(e => e.type)).toEqual(['accepted', 'wrong', 'accepted', 'accepted', 'accepted']);
-    expect(events[1]).toEqual({ type: 'wrong', index: 1, expected: 60, played: 62 });
+    expect(events[1]).toEqual({ type: 'wrong', index: 1, expected: 60, played: 62, octave: false });
     expect(c.complete).toBe(true); expect(c.wrongCount).toBe(1);
   });
 
@@ -46,11 +46,14 @@ describe('SequenceChecker', () => {
     expect(mic(c, 57)).toMatchObject({ type: 'accepted', index: 3, complete: true });
   });
 
-  it('väärä oktaavi: odotettu A3 (57), havaittu A4 (69) → ei hyväksyntää eikä tavallista virhettä', () => {
+  it('väärä oktaavi on väärä sävel: odotettu A3 (57), soitettu A4 (69) tai A2 (45) → punainen, ei etene', () => {
     const c = new SequenceChecker([57, 57, 60, 57], 1, 'mic');
-    expect(mic(c, 69)).toEqual({ type: 'octave', index: 0, expected: 57, played: 69 });
-    expect(mic(c, 45)).toEqual({ type: 'octave', index: 0, expected: 57, played: 45 });
-    expect(c.index).toBe(0); expect(c.wrongCount).toBe(0); expect(c.octaveCount).toBe(2);
+    expect(mic(c, 69)).toEqual({ type: 'wrong', index: 0, expected: 57, played: 69, octave: true });
+    expect(mic(c, 45)).toEqual({ type: 'wrong', index: 0, expected: 57, played: 45, octave: true });
+    expect(c.index).toBe(0); expect(c.wrongCount).toBe(2); expect(c.octaveCount).toBe(2);
+    expect(c.marks[0]).toBe('red');
+    mic(c, 57);
+    expect(c.marks[0]).toBe('yellow');
   });
 
   it('vanhan kierroksen ja väärän syötetavan vastaus ohitetaan', () => {
@@ -68,6 +71,69 @@ describe('SequenceChecker', () => {
   it('tyhjä tai murtolukuinen jono hylätään', () => {
     expect(() => new SequenceChecker([], 1, 'mic')).toThrow();
     expect(() => new SequenceChecker([59.5], 1, 'mic')).toThrow();
+  });
+});
+
+describe('SequencePractice: kokonaisyritykset ja muistivihjeet', () => {
+  /** Soittaa yrityksen: 'g' = oikein heti, 'y' = ensin väärä (+1 puolisävel), sitten oikein. */
+  function attempt(p: SequencePractice, round: number, pattern: string) {
+    const a = p.start(round);
+    [...pattern].forEach((kind, i) => {
+      if (kind === 'y') a.feed({ midi: p.expected[i] + 1, round, input: p.input });
+      a.feed({ midi: p.expected[i], round, input: p.input });
+    });
+    return { attempt: a, passed: p.finish() };
+  }
+  const riff = [59, 60, 62, 60];
+
+  it('1. ja 2. epäonnistunut kokonaisyritys eivät avaa muistivihjeitä; 3. avaa', () => {
+    expect(MEMORY_AFTER_FAILED).toBe(3);
+    const p = new SequencePractice(riff, 'board');
+    expect(p.memory).toEqual([null, null, null, null]);
+    expect(attempt(p, 1, 'gyyg').passed).toBe(false);
+    expect(p.failedAttempts).toBe(1); expect(p.memoryActive).toBe(false); expect(p.memory).toEqual([null, null, null, null]);
+    attempt(p, 2, 'yyyg');
+    expect(p.failedAttempts).toBe(2); expect(p.memory).toEqual([null, null, null, null]);
+    attempt(p, 3, 'yygy');
+    expect(p.failedAttempts).toBe(3); expect(p.memoryActive).toBe(true);
+    // Paikat 1, 3 ja 4 on joskus soitettu heti oikein; paikka 2 ei koskaan.
+    expect(p.memory).toEqual([59, null, 62, 60]);
+  });
+  it('yksittäiset väärät näppäilyt ja kesken aloitettu alusta eivät kasvata kokonaisyritysten laskuria', () => {
+    const p = new SequencePractice(riff, 'mic');
+    const a = p.start(1);
+    for (let i = 0; i < 5; i++) a.feed({ midi: 70, round: 1, input: 'mic' });
+    expect(p.failedAttempts).toBe(0);
+    a.feed({ midi: 59, round: 1, input: 'mic' });
+    p.start(2); // kesken alusta
+    expect(p.failedAttempts).toBe(0);
+    expect(p.finish()).toBe(false); // keskeneräinen yritys ei ole kokonaisyritys
+    expect(p.failedAttempts).toBe(0);
+  });
+  it('muisti on paikkakohtainen: sama sävel (C4 paikoissa 2 ja 4) muistetaan erikseen', () => {
+    const p = new SequencePractice(riff, 'board');
+    attempt(p, 1, 'ggyy'); attempt(p, 2, 'ggyy'); attempt(p, 3, 'ggyy');
+    expect(p.memory).toEqual([59, 60, null, null]);
+  });
+  it('muistivihjeet eivät hyväksy mitään: uusi yritys alkaa harmaana ja värit tulevat soitosta', () => {
+    const p = new SequencePractice(riff, 'board');
+    for (let r = 1; r <= 3; r++) attempt(p, r, 'gggy');
+    const a = p.start(4);
+    expect(a.marks).toEqual(['pending', 'pending', 'pending', 'pending']); expect(a.index).toBe(0);
+    expect(p.memory).toEqual([59, 60, 62, null]);
+    a.feed({ midi: 61, round: 4, input: 'board' });
+    expect(a.marks[0]).toBe('red');
+    for (const m of riff) a.feed({ midi: m, round: 4, input: 'board' });
+    expect(a.marks).toEqual(['yellow', 'green', 'green', 'green']);
+    expect(p.finish()).toBe(false); expect(p.failedAttempts).toBe(4);
+  });
+  it('virheetön yritys läpäisee eikä kasvata laskuria; uusi yritys palauttaa etenemisen alkuun', () => {
+    const p = new SequencePractice(riff, 'mic');
+    attempt(p, 1, 'gyyg');
+    const next = p.start(2);
+    expect(next.index).toBe(0); expect(next.marks.every(m => m === 'pending')).toBe(true);
+    for (const m of riff) next.feed({ midi: m, round: 2, input: 'mic' });
+    expect(p.finish()).toBe(true); expect(p.failedAttempts).toBe(1);
   });
 });
 
@@ -120,10 +186,31 @@ describe('SequenceChecker: pallukat (vihreä / punainen / keltainen)', () => {
     expect(c.marks).toEqual(['green', 'yellow', 'green', 'green']);
     expect(c.complete).toBe(true); expect(c.flawless).toBe(false);
   });
-  it('väärä oktaavi ei muuta väriä', () => {
-    const c = new SequenceChecker([57, 57, 60, 57], 1, 'mic');
-    mic(c, 69); mic(c, 57);
-    expect(c.marks[0]).toBe('green');
+  it('ohjeen esimerkki C4–D4–E4–D4: C4, G4, D4, E4, D4 → vihreä–keltainen–vihreä–vihreä, ei läpäisyä', () => {
+    const c = new SequenceChecker([60, 62, 64, 62], 1, 'board');
+    board(c, 60); expect(c.marks).toEqual(['green', 'pending', 'pending', 'pending']); expect(c.index).toBe(1);
+    board(c, 67); expect(c.marks).toEqual(['green', 'red', 'pending', 'pending']); expect(c.index).toBe(1);
+    board(c, 62); expect(c.marks).toEqual(['green', 'yellow', 'pending', 'pending']); expect(c.index).toBe(2);
+    board(c, 64); board(c, 62);
+    expect(c.marks).toEqual(['green', 'yellow', 'green', 'green']);
+    expect(c.complete).toBe(true); expect(c.flawless).toBe(false);
+    const again = new SequenceChecker([60, 62, 64, 62], 2, 'board');
+    for (const m of [60, 62, 64, 62]) board(again, m);
+    expect(again.marks).toEqual(['green', 'green', 'green', 'green']); expect(again.flawless).toBe(true);
+  });
+  it('useita vääriä samassa kohdassa; vihreä pysyy vihreänä ja keltainen keltaisena saman yrityksen ajan', () => {
+    const c = new SequenceChecker([59, 60, 62], 1, 'board');
+    board(c, 59);
+    for (const m of [64, 65, 55]) expect(board(c, m)).toMatchObject({ type: 'wrong', index: 1 });
+    expect(c.index).toBe(1); expect(c.wrongCount).toBe(3);
+    board(c, 60);
+    // Väärä sävel seuraavassa kohdassa ei muuta aiempia paikkoja.
+    board(c, 64);
+    expect(c.marks).toEqual(['green', 'yellow', 'red']);
+    board(c, 62);
+    expect(c.marks).toEqual(['green', 'yellow', 'yellow']);
+    expect(board(c, 59)).toEqual({ type: 'ignored', reason: 'complete' });
+    expect(c.marks).toEqual(['green', 'yellow', 'yellow']);
   });
   it('sama logiikka mikrofonille ja otelaudalle', () => {
     const a = new SequenceChecker([59, 60], 1, 'mic'), b = new SequenceChecker([59, 60], 1, 'board');

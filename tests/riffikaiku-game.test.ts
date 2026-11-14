@@ -1,7 +1,8 @@
 // Riffikaiun tilakone sovitinrajapinnan kautta. Mikrofonin tapahtumat ovat valmiiksi tulkittuja
-// (StableNoteEvent ja analyysikehyksen tila); signaaliketju testataan tiedostossa riffikaiku-pipeline.test.ts.
+// (näppäily ja analyysikehyksen tila); signaaliketju testataan tiedostossa riffikaiku-pipeline.test.ts.
 import { afterEach, describe, it, expect, vi } from 'vitest';
 import type { GameAudio, MicHandlers } from '../riffikaiku/audioAdapter';
+import type { PluckState } from '../riffikaiku/pluck';
 import { RiffGame } from '../riffikaiku/game';
 import { LEVELS, RIFFS, TUTORIAL } from '../riffikaiku/riffs';
 import { RiffStore } from '../riffikaiku/store';
@@ -13,13 +14,15 @@ function fakeAudio() {
   const models: { notes: number[]; onNote: (i: number) => void; resolve: (done: boolean) => void }[] = [];
   const a = {
     handlers: [] as MicHandlers[], fail: null as Error | null, hold: null as null | (() => void),
-    calls: [] as string[], models, plucks: [] as number[],
-    async openMic(h: MicHandlers) {
-      a.calls.push('open'); a.handlers.push(h);
+    calls: [] as string[], models, plucks: [] as number[], devices: [] as string[], minRms: [] as number[],
+    async openMic(h: MicHandlers, device: string) {
+      a.calls.push('open'); a.handlers.push(h); a.devices.push(device);
       if (a.hold) await new Promise<void>(resolve => { a.hold = resolve; });
       if (a.fail) throw a.fail;
-      return { label: 'Testitulo', deviceId: 'x', channels: 1, sampleRate: 48000, fallback: false };
+      return { label: device === 'usb' ? 'Scarlett Solo 4th Gen' : 'MacBook Pron mikrofoni', deviceId: device || 'builtin', channels: device === 'usb' ? 2 : 1, sampleRate: 48000, fallback: false };
     },
+    async listDevices() { return [{ id: 'builtin', label: 'MacBook Pron mikrofoni' }, { id: 'usb', label: 'Scarlett Solo 4th Gen' }]; },
+    setMinRms(v: number) { a.minRms.push(v); },
     pauseAnalysis() { a.calls.push('pause'); }, resumeAnalysis() { a.calls.push('resume'); }, rearm() { a.calls.push('rearm'); },
     closeMic() { a.calls.push('close'); },
     playModel(notes: number[], onNote: (i: number) => void) { a.calls.push('model'); return new Promise<boolean>(resolve => models.push({ notes, onNote, resolve })); },
@@ -41,18 +44,26 @@ function setup({ tutorialDone = false } = {}) {
   let now = 0;
   const game = new RiffGame(audio, store, () => now);
   const h = () => audio.handlers.at(-1)!;
-  const frame = (status: FrameStatus, midi?: number) => { now += 20; h().onFrame({ status, rms: status === 'silent' ? 0 : .1, peak: 0, channel: 0, levels: [], midi } as AnalysisFrame); };
-  const stable = (midi: number, handlers = h()) => handlers.onStable({ midi, frequency: 0, cents: 0, clarity: .99, timestamp: now, heldMs: 240 });
+  const frame = (status: FrameStatus, midi?: number, rms = status === 'silent' ? .0005 : .1, frequency?: number) => {
+    now += 20;
+    h().onFrame({ status, rms, peak: rms, channel: 0, levels: [rms], midi, frequency, clarity: frequency ? .98 : undefined } as AnalysisFrame, PLUCK_IDLE);
+  };
+  const stable = (midi: number, handlers = h()) => handlers.onStable({ midi, frequency: 0, cents: 0, clarity: .99, timestamp: now, heldMs: 240, armedBy: 'onset' });
+  /** Taustakohinan mittaus mikrofonitestin alussa: hiljaisia kehyksiä yli sekunnin ajan. */
+  const calibrate = () => { for (let i = 0; i < 60 && game.getState().calibrating; i++) frame('silent'); };
   const finishModel = async () => { audio.models.shift()!.resolve(true); await flush(); };
   /** Kaiutin hiljenee: suojavaihe päättyy kehysten perusteella. */
   const settle = () => { for (let i = 0; i < 30 && game.getState().phase === 'output-settling'; i++) frame('silent'); };
-  return { audio, storage, store, game, h, frame, stable, finishModel, settle, s: () => game.getState(), tick: (ms: number) => { now += ms; } };
+  /** Mikrofonitesti läpi: lupa, kohinan mittaus, B3. */
+  const checkMic = async () => { game.startMic(); await flush(); calibrate(); stable(59); game.continueAfterCheck(); };
+  return { audio, storage, store, game, h, frame, stable, finishModel, settle, calibrate, checkMic, s: () => game.getState(), tick: (ms: number) => { now += ms; } };
 }
+const PLUCK_IDLE: PluckState = { armed: false, armedBy: null, candidate: null, reason: null, last: null, count: 0 };
 
 /** Mikrofonitila mallisoiton jälkeiseen kuunteluun asti. */
 async function micToListening(t: ReturnType<typeof setup>) {
   t.game.startMic(); await flush();
-  if (t.s().phase === 'mic-check') { t.stable(59); t.game.continueAfterCheck(); }
+  if (t.s().phase === 'mic-check') { t.calibrate(); t.stable(59); t.game.continueAfterCheck(); }
   await t.finishModel(); t.settle();
   expect(t.s().phase).toBe('listening');
 }
@@ -64,7 +75,13 @@ describe('aloitus ja mikrofonitesti', () => {
     t.game.startMic();
     expect(t.s().phase).toBe('permission');
     await flush();
-    expect(t.s()).toMatchObject({ phase: 'mic-check', check: 'waiting', micLabel: 'Testitulo' });
+    expect(t.s()).toMatchObject({ phase: 'mic-check', check: 'waiting', calibrating: true, micInfo: { label: 'MacBook Pron mikrofoni' } });
+    // Kohinan mittauksen aikana näppäily ei ole testivastaus.
+    t.stable(59);
+    expect(t.s().check).toBe('waiting');
+    t.calibrate();
+    expect(t.s()).toMatchObject({ calibrating: false, noise: { loud: false }, minRms: .003 });
+    expect(t.audio.minRms).toEqual([.003]);
     t.stable(59);
     expect(t.s()).toMatchObject({ check: 'ok', feedback: { tone: 'good', text: 'Kuulin B3. Mikrofoni toimii.' } });
     t.game.continueAfterCheck();
@@ -78,12 +95,12 @@ describe('aloitus ja mikrofonitesti', () => {
     expect(t.s()).toMatchObject({ phase: 'success', index: 2 });
     expect(t.store.data.tutorialDone).toBe(true);
     // Mallin ajaksi analyysi tauolle, sen jälkeen jatko ja NoteGaten nollaus ennen kuuntelua.
-    expect(t.audio.calls).toEqual(['stop-model', 'open', 'resume', 'pause', 'model', 'resume', 'rearm', 'pause']);
+    expect(t.audio.calls).toEqual(['stop-model', 'open', 'resume', 'rearm', 'pause', 'model', 'resume', 'rearm', 'pause']);
   });
 
   it('väärä testisävel antaa korjausohjeen, mutta mikrofoni todetaan toimivaksi', async () => {
     const t = setup();
-    t.game.startMic(); await flush();
+    t.game.startMic(); await flush(); t.calibrate();
     t.game.continueAfterCheck();
     expect(t.s().phase).toBe('mic-check'); // ei vielä havaintoa
     t.stable(55);
@@ -121,7 +138,7 @@ describe('aloitus ja mikrofonitesti', () => {
 describe('vastausvuoro mikrofonilla', () => {
   it('mallisoiton ja suojavaiheen aikana kuultu sävel ei täytä vastausta', async () => {
     const t = setup({ tutorialDone: true });
-    t.game.startMic(); await flush(); t.stable(59); t.game.continueAfterCheck();
+    await t.checkMic();
     expect(t.s().riff.midi).toEqual([59, 60, 62, 60]);
     // Kaiuttimen ääni ennättäisi analyysiin (todellisuudessa analyysi on tauolla).
     t.stable(59); t.stable(60);
@@ -140,7 +157,7 @@ describe('vastausvuoro mikrofonilla', () => {
   it('suojavaihe päättyy aikarajaan, jos kehyksiä ei tule, ja NoteGate nollataan', async () => {
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
     const t = setup({ tutorialDone: true });
-    t.game.startMic(); await vi.advanceTimersByTimeAsync(0); t.stable(59); t.game.continueAfterCheck();
+    t.game.startMic(); await vi.advanceTimersByTimeAsync(0); t.calibrate(); t.stable(59); t.game.continueAfterCheck();
     t.audio.models.shift()!.resolve(true); await vi.advanceTimersByTimeAsync(0);
     expect(t.s().phase).toBe('output-settling');
     await vi.advanceTimersByTimeAsync(1800);
@@ -151,15 +168,17 @@ describe('vastausvuoro mikrofonilla', () => {
     const t = setup({ tutorialDone: true });
     await micToListening(t);
     t.stable(59); t.stable(64);
-    expect(t.s()).toMatchObject({ index: 1, marks: ['green', 'red', 'pending', 'pending'], feedback: { tone: 'bad', text: 'Kuulin E4; kokeile 2. sävelen kohtaa uudelleen.' } });
+    expect(t.s()).toMatchObject({ index: 1, marks: ['green', 'red', 'pending', 'pending'], feedback: { tone: 'bad', text: 'Väärä sävel (kuulin E4). Kokeile uudelleen.' } });
+    // Väärä oktaavi on väärä sävel; oikeaa säveltä (C4) ei paljasteta.
     t.stable(72);
-    expect(t.s().index).toBe(1); expect(t.s().feedback!.text).toContain('eri oktaavi'); expect(t.s().feedback!.text).toContain('C4');
+    expect(t.s()).toMatchObject({ index: 1, marks: ['green', 'red', 'pending', 'pending'], feedback: { text: 'Väärä sävel (kuulin C5). Kokeile uudelleen.' } });
+    expect(t.s().feedback!.text).not.toContain('C4');
     t.stable(60);
     expect(t.s().marks[1]).toBe('yellow'); expect(t.s().feedback!.text).toContain('keltainen');
     t.stable(62); t.stable(60);
-    expect(t.s()).toMatchObject({ phase: 'retry', marks: ['green', 'yellow', 'green', 'green'] });
-    expect(t.s().feedback!.text).toContain('Kohta 2 meni ensin väärin');
-    expect(t.store.data.results.at(-1)).toMatchObject({ riff: 'b-kaari', input: 'mic', hint: false, wrong: 1, octave: 1, replays: 0, passed: false });
+    expect(t.s()).toMatchObject({ phase: 'retry', marks: ['green', 'yellow', 'green', 'green'], failedAttempts: 1 });
+    expect(t.s().feedback!.text).toBe('Soitit riffin loppuun! Kokeile vielä ilman virheitä.');
+    expect(t.store.data.results.at(-1)).toMatchObject({ riff: 'b-kaari', input: 'mic', hint: false, wrong: 2, octave: 1, replays: 0, passed: false });
     expect(t.store.run('mic').passed).toEqual([]);
     // Riffin jälkeen kuultu sävel ei aloita uutta yritystä.
     t.stable(59);
@@ -182,7 +201,7 @@ describe('vastausvuoro mikrofonilla', () => {
     await t.finishModel();
     expect(t.s()).toMatchObject({ phase: 'listening', input: 'board', index: 0 });
     t.stable(59, old);
-    old.onFrame({ status: 'pitch', midi: 59, rms: .1, peak: 0, channel: 0, levels: [] });
+    old.onFrame({ status: 'pitch', midi: 59, rms: .1, peak: 0, channel: 0, levels: [] }, PLUCK_IDLE);
     old.onEnded();
     expect(t.s()).toMatchObject({ phase: 'listening', index: 0, heard: null });
   });
@@ -200,11 +219,11 @@ describe('vastausvuoro mikrofonilla', () => {
     expect(t.store.data.results.at(-1)).toMatchObject({ replays: 1 });
   });
 
-  it('aloita alusta nollaa indeksin ilman mallia; vihje säilyy kierroksen tietona', async () => {
+  it('aloita alusta nollaa indeksin ilman mallia; näkyvä sävelvihje kirjataan uudelle yritykselle', async () => {
     const t = setup({ tutorialDone: true });
     await micToListening(t);
-    t.game.toggleHint(); t.game.toggleHint();
-    expect(t.s().hint).toBe(false);
+    t.game.toggleHint();
+    expect(t.s().hint).toBe(true);
     t.stable(59); t.game.restart();
     expect(t.s()).toMatchObject({ phase: 'listening', index: 0 });
     for (const m of [59, 60, 62, 60]) t.stable(m);
@@ -216,7 +235,7 @@ describe('vastausvuoro mikrofonilla', () => {
 describe('tauko, taustavälilehti ja laitteen irrotus', () => {
   it('taustavälilehti: soitto pysähtyy, mikrofoni suljetaan, myöhäiset tapahtumat ohitetaan', async () => {
     const t = setup({ tutorialDone: true });
-    t.game.startMic(); await flush(); t.stable(59); t.game.continueAfterCheck();
+    await t.checkMic();
     const old = t.h(), model = t.audio.models[0];
     t.game.pause('background');
     expect(t.s()).toMatchObject({ phase: 'paused', pausedReason: 'background' });
@@ -303,7 +322,7 @@ describe('virtuaalikitara', () => {
     const t = setup({ tutorialDone: true });
     t.game.startBoard(); await t.finishModel();
     t.game.tap(64);
-    expect(t.s()).toMatchObject({ index: 0, feedback: { tone: 'bad', text: 'Soitit E4; kokeile 1. sävelen kohtaa uudelleen.' } });
+    expect(t.s()).toMatchObject({ index: 0, feedback: { tone: 'bad', text: 'Väärä sävel. Kokeile uudelleen.' } });
     const m = setup({ tutorialDone: true });
     await micToListening(m);
     expect(m.game.tap(59)).toBe(false);
@@ -314,7 +333,7 @@ describe('virtuaalikitara', () => {
     const t = setup({ tutorialDone: true });
     t.game.startBoard(); await t.finishModel();
     for (const m of [59, 60, 62, 60]) t.game.tap(m);
-    t.game.switchInput('mic'); await flush(); t.stable(59); t.game.continueAfterCheck();
+    t.game.switchInput('mic'); await flush(); t.calibrate(); t.stable(59); t.game.continueAfterCheck();
     // Vaihto jatkaa mikrofonin omasta kohdasta (taso 1, ensimmäinen riffi).
     expect(t.s().riff.id).toBe('b-kaari');
     await t.finishModel(); t.settle();
@@ -447,5 +466,156 @@ describe('tasot: läpäisy, uusinta, siirtyminen ja palautus', () => {
     t.game.startBoard();
     await playRiff(t, true);
     expect(t.s()).toMatchObject({ phase: 'retry', marks: ['yellow', 'green', 'green', 'green'], fullBoard: true });
+  });
+});
+
+describe('muistivihjeet pelissä', () => {
+  it('kolmen epäonnistuneen kokonaisyrityksen jälkeen uusi yritys näyttää aiemmin heti oikein soitetut sävelet', async () => {
+    const t = setup({ tutorialDone: true });
+    t.game.startBoard(); await t.finishModel();
+    const failOnce = (wrongAt: number) => {
+      [59, 60, 62, 60].forEach((m, i) => { if (i === wrongAt) t.game.tap(m + 2); t.game.tap(m); });
+      expect(t.s().phase).toBe('retry');
+    };
+    failOnce(1);
+    expect(t.s()).toMatchObject({ failedAttempts: 1, memory: [null, null, null, null] });
+    t.game.retry();
+    expect(t.s()).toMatchObject({ phase: 'listening', memory: [null, null, null, null], marks: ['pending', 'pending', 'pending', 'pending'] });
+    // Yksittäiset väärät näppäilyt eivät kasvata kokonaisyrityksiä.
+    t.game.tap(70); t.game.tap(71);
+    t.game.restart();
+    expect(t.s().failedAttempts).toBe(1);
+    failOnce(1);
+    t.game.retry();
+    expect(t.s()).toMatchObject({ failedAttempts: 2, memory: [null, null, null, null] });
+    failOnce(3);
+    expect(t.s().failedAttempts).toBe(3);
+    expect(t.s().feedback!.text).toContain('Muistivihjeet ovat käytössä');
+    t.game.retry();
+    // Paikka 2 (C4) on aina mennyt ensin väärin? Ei: kolmannella kerralla se oli vihreä.
+    expect(t.s()).toMatchObject({ phase: 'listening', marks: ['pending', 'pending', 'pending', 'pending'], memory: [59, 60, 62, 60] });
+    for (const m of [59, 60, 62, 60]) t.game.tap(m);
+    expect(t.s().phase).toBe('success');
+  });
+
+  it('muisti on riffikohtainen ja nollautuu, kun siirrytään seuraavaan riffiin', async () => {
+    const t = setup({ tutorialDone: true });
+    t.game.startBoard(); await t.finishModel();
+    for (let i = 0; i < 3; i++) {
+      t.game.tap(64); for (const m of [59, 60, 62, 60]) t.game.tap(m);
+      t.game.retry();
+    }
+    expect(t.s().memory).toEqual([null, 60, 62, 60]);
+    for (const m of [59, 60, 62, 60]) t.game.tap(m);
+    t.game.next(); await t.finishModel();
+    expect(t.s()).toMatchObject({ riff: { id: 'b-vaihto' }, failedAttempts: 0, memory: [null, null, null, null] });
+  });
+});
+
+describe('äänitulo, kalibrointi, viritin ja diagnostiikka', () => {
+  it('äänitulon vaihto: vanha virta suljetaan, uusi avataan valitulla laitteella, kohina mitataan uudelleen', async () => {
+    const t = setup({ tutorialDone: true });
+    t.game.startMic(); await flush(); t.calibrate();
+    expect(t.s().devices.map(d => d.label)).toEqual(['MacBook Pron mikrofoni', 'Scarlett Solo 4th Gen']);
+    const old = t.h();
+    t.game.setDevice('usb'); await flush();
+    expect(t.audio.devices).toEqual(['', 'usb']);
+    expect(t.audio.calls.filter(c => c === 'close')).toHaveLength(1);
+    expect(t.s()).toMatchObject({ phase: 'mic-check', device: 'usb', calibrating: true, micInfo: { label: 'Scarlett Solo 4th Gen', channels: 2 } });
+    expect(t.store.data.device).toBe('usb');
+    // Vanhan virran myöhäiset tapahtumat eivät vaikuta.
+    t.stable(59, old); old.onEnded();
+    expect(t.s()).toMatchObject({ phase: 'mic-check', check: 'waiting' });
+    t.calibrate(); t.stable(59);
+    expect(t.s().check).toBe('ok');
+  });
+
+  it('äänitulon vaihto kesken riffin: mikrofonitesti ja sama riffi alusta', async () => {
+    const t = setup({ tutorialDone: true });
+    await micToListening(t);
+    t.stable(59);
+    t.game.setDevice('usb'); await flush();
+    expect(t.s().phase).toBe('mic-check');
+    t.calibrate(); t.stable(59); t.game.continueAfterCheck();
+    expect(t.s()).toMatchObject({ phase: 'model-playing', riff: { id: 'b-kaari' }, index: 0 });
+  });
+
+  it('meluisa kohinan mittaus: oletuskynnys ja ohje', async () => {
+    const t = setup();
+    t.game.startMic(); await flush();
+    for (let i = 0; i < 60 && t.s().calibrating; i++) t.frame('unclear', undefined, .08);
+    expect(t.s()).toMatchObject({ calibrating: false, minRms: .01, noise: { loud: true }, feedback: { tone: 'bad' } });
+  });
+
+  it('viritin: jatkuva lukema kehyksistä, näppäilyt eivät mene peliin; virittimestä suoraan harjoitukseen', async () => {
+    const t = setup({ tutorialDone: true });
+    t.game.openTools('tuner'); await flush();
+    expect(t.s()).toMatchObject({ phase: 'tools', tool: 'tuner', input: 'mic' });
+    t.calibrate();
+    const hz = 110 * 2 ** (-20 / 1200);
+    for (let i = 0; i < 15; i++) t.frame('pitch', 45, .1, hz);
+    expect(t.s().tuner).toMatchObject({ status: 'flat', target: { name: 'A2' } });
+    t.game.setTunerTarget(40);
+    for (let i = 0; i < 15; i++) t.frame('pitch', 45, .1, hz);
+    expect(t.s().tuner).toMatchObject({ status: 'far', target: { name: 'E2' } });
+    t.stable(59);
+    expect(t.s().diag?.routed.last).toMatchObject({ midi: 59, route: 'not-routed', phase: 'tools' });
+    expect(t.s()).toMatchObject({ phase: 'tools', index: 0 });
+    t.game.startFromTools();
+    expect(t.s()).toMatchObject({ phase: 'model-playing', riff: { id: 'b-kaari' } });
+    await t.finishModel(); t.settle();
+    t.stable(59);
+    expect(t.s()).toMatchObject({ index: 1, diag: null });
+  });
+
+  it('diagnostiikka aloitusnäkymästä: takaisin sulkee mikrofonin; mikrofonitestistä takaisin testiin', async () => {
+    const t = setup();
+    t.game.openTools('diagnostics'); await flush(); t.calibrate();
+    for (let i = 0; i < 6; i++) t.frame('pitch', 59, .1, 246.94);
+    expect(t.s().diag).toMatchObject({ frame: { status: 'pitch', midi: 59 }, minRms: .003 });
+    t.game.closeTools();
+    expect(t.s().phase).toBe('idle'); expect(t.audio.calls.at(-1)).toBe('close');
+    t.game.startMic(); await flush(); t.calibrate();
+    t.game.openTools('tuner');
+    expect(t.s().phase).toBe('tools');
+    t.stable(59);
+    expect(t.s().check).toBe('waiting');
+    t.game.closeTools();
+    expect(t.s().phase).toBe('mic-check');
+    t.stable(59);
+    expect(t.s().check).toBe('ok');
+  });
+
+  it('pelin aikainen diagnostiikkapaneeli vain näyttää: välitys kirjataan ”game”', async () => {
+    const t = setup({ tutorialDone: true });
+    await micToListening(t);
+    t.game.setDiagnosticsOpen(true);
+    t.frame('pitch', 59);
+    t.stable(59);
+    t.frame('silent');
+    expect(t.s().diag?.routed).toMatchObject({ last: { midi: 59, route: 'game', phase: 'listening' } });
+    expect(t.s().index).toBe(1);
+  });
+});
+
+describe('tasovalikko', () => {
+  it('avatut tasot: läpäistyt ja seuraava; nykyinen jatkuu kesken jääneestä kohdasta', async () => {
+    const t = setup({ tutorialDone: true });
+    t.game.startBoard(); await t.finishModel();
+    for (const m of [59, 60, 62, 60]) t.game.tap(m);
+    t.game.openLevels();
+    expect(t.s()).toMatchObject({ phase: 'levels', unlockedLevels: [1] });
+    t.game.chooseLevel(2);
+    expect(t.s().phase).toBe('levels');
+    t.game.chooseLevel(1);
+    expect(t.s()).toMatchObject({ phase: 'model-playing', riff: { id: 'b-vaihto' }, riffNumber: 2 });
+    t.store.startLevel('board', 1);
+    for (const r of LEVELS[0].riffs) t.store.record({ riff: r.id, input: 'board', hint: false, passed: true, wrong: 0, octave: 0, replays: 0, ms: 1, at: 1 });
+    await t.finishModel();
+    t.game.openLevels();
+    expect(t.s().unlockedLevels).toEqual([1, 2]);
+    t.game.chooseLevel(1, true);
+    expect(t.s()).toMatchObject({ riff: { id: 'b-kaari' }, completedLevels: [1] });
+    expect(t.store.run('board')).toEqual({ level: 1, passed: [] });
   });
 });

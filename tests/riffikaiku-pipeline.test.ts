@@ -1,5 +1,5 @@
 // Riffikaiku koko tunnistusketjun läpi: synteettinen signaali → Microphone → PitchLoop (Pitchy)
-// → NoteGate/OnsetDetector → RiffGame → SequenceChecker.
+// → PluckDetector (OnsetDetector + NoteGaten säännöt + sävelvaihto) → RiffGame → SequenceChecker.
 //
 // TÄRKEÄ RAJOITUS: signaalit ovat laskettuja, kitaramaisia verhokäyriä (ylä-äänet, näppäyksen
 // transientti, eksponentiaalinen vaimeneminen). Ne EIVÄT ole oikealla kitaralla tai mikrofonilla
@@ -8,7 +8,8 @@
 import { afterEach, describe, it, expect, vi } from 'vitest';
 import { Microphone, ReferencePlayer } from '../harjoittelija/audio';
 import type { MicStream } from '../harjoittelija/vendor/micInput';
-import { DETECTION, type GameAudio, type MicHandlers } from '../riffikaiku/audioAdapter';
+import { DETECTION, framePipeline, type GameAudio, type MicHandlers } from '../riffikaiku/audioAdapter';
+import { PluckDetector } from '../riffikaiku/pluck';
 import { RiffGame } from '../riffikaiku/game';
 import { RIFFS } from '../riffikaiku/riffs';
 import { RiffStore } from '../riffikaiku/store';
@@ -40,30 +41,58 @@ function guitar(plucks: Pluck[]) {
 const mix = (...sources: ((t: number) => number)[]) => (t: number) => sources.reduce((s, f) => s + f(t), 0);
 const hiss = (amp: number) => (t: number) => { const x = Math.sin(t * 1e7 + 1.7) * 43758.5453; return amp * 2 * (x - Math.floor(x) - .5); };
 
-function pipeline({ tutorialDone = true } = {}) {
-  const clock = fakeClock();
-  const sampleRate = 48000;
-  let line: (t: number) => number = () => 0;
+/** Synteettinen äänitulo: AnalyserNode palauttaa signaalin ikkunan [nyt − ikkuna, nyt] pelin kellosta. */
+function fakeInput(clock: ReturnType<typeof fakeClock>, read: () => (t: number) => number, sampleRate = 48000) {
   const context = {
     sampleRate, state: 'running',
-    // Analyysi-ikkuna sisältää menneen äänen kuten oikea AnalyserNode: [nyt − ikkuna, nyt].
     createAnalyser: () => ({ fftSize: 2048, smoothingTimeConstant: 0, disconnect: vi.fn(), getFloatTimeDomainData(buffer: Float32Array) {
-      const end = clock.now / 1000, start = end - buffer.length / sampleRate;
+      const end = clock.now / 1000, start = end - buffer.length / sampleRate, line = read();
       for (let i = 0; i < buffer.length; i++) buffer[i] = line(start + i / sampleRate);
     } }),
     createChannelSplitter: () => ({ connect: vi.fn(), disconnect: vi.fn() }),
     addEventListener: vi.fn(),
   };
-  const track = { stop: vi.fn(), addEventListener: vi.fn() };
-  const fake = { context, source: { connect: vi.fn(), disconnect: vi.fn() }, stream: { getTracks: () => [track] },
+  return { context, source: { connect: vi.fn(), disconnect: vi.fn() }, stream: { getTracks: () => [{ stop: vi.fn(), addEventListener: vi.fn() }] },
     label: 'Synteettinen tulo', deviceId: 'synt', channelCount: 1, stop: vi.fn() } as unknown as MicStream;
+}
+
+/**
+ * Pelkkä tunnistusketju ilman peliä: Microphone + PitchLoop + PluckDetector annetulla äänikynnyksellä.
+ * Palauttaa hyväksytyt näppäilyt (MIDI) ja aikaleimat.
+ */
+async function detect(line: (t: number) => number, ms: number, minRms: number = DETECTION.minRms, sampleRate = 48000) {
+  const clock = fakeClock();
+  const plucks: { midi: number; at: number; by: string }[] = [];
+  const detector = new PluckDetector({ minRms, stabilityMs: DETECTION.stabilityMs });
+  const mic = new Microphone(async () => fakeInput(clock, () => line, sampleRate));
+  const onFrame = framePipeline({ onFrame: () => {}, onStable: e => plucks.push({ midi: e.midi, at: e.timestamp, by: e.armedBy }), onEnded: () => {} }, detector, () => performance.now());
+  await mic.start('', { ...DETECTION, minRms, onFrame }, () => {});
+  clock.run(ms);
+  mic.stop();
+  vi.unstubAllGlobals(); vi.restoreAllMocks();
+  return plucks;
+}
+
+function pipeline({ tutorialDone = true } = {}) {
+  const clock = fakeClock();
+  const sampleRate = 48000;
+  let line: (t: number) => number = () => 0;
   const stable: number[] = [];
   const models: ((done: boolean) => void)[] = [];
-  const mic = new Microphone(async () => fake);
+  const mic = new Microphone(async () => fakeInput(clock, () => line, sampleRate));
+  let minRms: number = DETECTION.minRms;
+  let detector = new PluckDetector({ minRms, stabilityMs: DETECTION.stabilityMs });
+  // Sama kytkentä kuin BrowserAudiossa (audioAdapter.ts), mutta synteettisellä tulolla.
   const audio: GameAudio = {
-    openMic: (h: MicHandlers) => mic.start('', { ...DETECTION, onFrame: h.onFrame,
-      onStableNote: e => { stable.push(e.midi); h.onStable(e); } }, h.onEnded),
-    pauseAnalysis: () => mic.pause(), resumeAnalysis: () => mic.resume(), rearm: () => mic.rearm(), closeMic: () => mic.stop(),
+    openMic: (h: MicHandlers) => {
+      detector = new PluckDetector({ minRms, stabilityMs: DETECTION.stabilityMs });
+      const onFrame = framePipeline({ ...h, onStable: e => { stable.push(e.midi); h.onStable(e); } }, detector, () => performance.now());
+      return mic.start('', { ...DETECTION, minRms, onFrame }, h.onEnded);
+    },
+    listDevices: async () => [],
+    setMinRms: v => { minRms = v; mic.setOptions({ minRms: v }); detector.setMinRms(v); },
+    pauseAnalysis: () => { mic.pause(); detector.reset(); }, resumeAnalysis: () => { mic.resume(); detector.reset(); },
+    rearm: () => { mic.rearm(); detector.rearm(); }, closeMic: () => { mic.stop(); detector.reset(); },
     playModel: () => new Promise<boolean>(resolve => models.push(resolve)),
     stopModel: () => models.splice(0).forEach(r => r(false)),
     pluck: () => {},
@@ -84,6 +113,9 @@ function pipeline({ tutorialDone = true } = {}) {
     async toListening(riff = s().riff.midi, leak = true) {
       game.startMic(); await flush();
       expect(s().phase).toBe('mic-check');
+      // Taustakohinan mittaus (hiljainen tulo) → äänikynnys 0,003.
+      clock.run(1100);
+      expect(s()).toMatchObject({ calibrating: false, minRms: .003 });
       this.play([{ at: 20, midi: 59 }]); clock.run(700);
       expect(s().check).toBe('ok');
       game.continueAfterCheck();
@@ -227,11 +259,12 @@ describe('ei edistystä eikä rangaistusta', () => {
     expect(t.stable).toEqual([]); expect(t.s()).toMatchObject({ index: 0, feedback: null });
     expect(t.s().heard?.status).toBe('off-pitch');
   });
-  it('väärä oktaavi: odotettu B3, soitettu B4 → selitys, ei hyväksyntää', async () => {
+  it('väärä oktaavi: odotettu B3, soitettu B4 → väärä sävel (punainen), ei hyväksyntää', async () => {
     const t = pipeline();
     await t.toListening();
     t.play([{ at: 100, midi: 71 }]); t.clock.run(900);
-    expect(t.s().index).toBe(0); expect(t.s().feedback?.text).toContain('eri oktaavi');
+    expect(t.s()).toMatchObject({ index: 0, marks: ['red', 'pending', 'pending', 'pending'] });
+    expect(t.s().feedback?.text).toBe('Väärä sävel (kuulin B4). Kokeile uudelleen.');
   });
   it('kitara hiljaisen kohinan päällä tunnistuu yhä', async () => {
     const t = pipeline();
@@ -257,6 +290,7 @@ describe('mallisoiton vuoto ja kaiutinhäntä', () => {
   it('jatkuva kaiutinhäntä mallin jälkeen ei vastaa, vaikka sävel on oikea ensimmäinen', async () => {
     const t = pipeline();
     t.game.startMic(); await t.flush();
+    t.clock.run(1100);
     t.play([{ at: 20, midi: 59 }]); t.clock.run(700);
     t.game.continueAfterCheck();
     t.stable.length = 0;
@@ -305,5 +339,87 @@ describe('mallisoiton ajastus (ReferencePlayer)', () => {
     player.stop(); await vi.advanceTimersByTimeAsync(0);
     expect(done).toBe(false);
     vi.useRealTimers();
+  });
+});
+
+// ---- Riffikaiku 0.2: kitaran kuusi vapaata kieltä ja näppäilytunnistuksen korjaus ----
+const OPEN = [['E2', 40, 82.41], ['A2', 45, 110], ['D3', 50, 146.83], ['G3', 55, 196], ['B3', 59, 246.94], ['E4', 64, 329.63]] as const;
+
+describe('kuusi vapaata kieltä (synteettinen kitaramainen signaali)', () => {
+  it.each(OPEN)('%s (MIDI %i, %d Hz): voimakas, hiljainen ja eri näytteenottotaajuus → täsmälleen yksi näppäily', async (_name, midi, hz) => {
+    expect(midiHz(midi)).toBeCloseTo(hz, 1);
+    for (const [amp, rate] of [[.15, 48000], [.03, 48000], [.08, 44100], [.08, 96000]] as const) {
+      const plucks = await detect(guitar([{ at: 200, midi, amp }]), 1600, .003, rate);
+      expect(plucks.map(p => p.midi), `amp ${amp}, ${rate} Hz`).toEqual([midi]);
+    }
+  });
+  it.each(OPEN)('%s: pitkä sustain (3 s) → yksi näppäily; lyhyt vaimennettu (300 ms) → yksi', async (_name, midi) => {
+    expect((await detect(guitar([{ at: 200, midi, decay: 3000 }]), 3400, .003)).map(p => p.midi)).toEqual([midi]);
+    expect((await detect(guitar([{ at: 200, midi, mute: 500 }]), 1200, .003)).map(p => p.midi)).toEqual([midi]);
+  });
+  it.each(OPEN)('%s: voimakas toinen osaääni ei siirrä havaintoa oktaavilla', async (_name, midi) => {
+    // PARTIALS: perustaajuus 0,35, toinen osaääni 1,0 – tyypillinen kitaran mikrofonisignaali.
+    const plucks = await detect(guitar([{ at: 200, midi, amp: .1 }]), 1400, .003);
+    expect(plucks.map(p => p.midi)).toEqual([midi]);
+  });
+});
+
+describe('äänikynnys: kiinteä −40 dBFS vai mitattu kohina', () => {
+  // Ensimmäisen kitarakokeen havainto: sävel näkyi hetken ja sitten "hiljaista", vaikka kieli soi.
+  // Syy: kiinteä äänikynnys 0,01 RMS (−40 dBFS). Hiljaisella tulolla (esim. äänikortin pieni gain tai
+  // kannettavan mikrofoni ja sähkökitara ilman vahvistinta) koko näppäys jää kynnyksen alle.
+  it('hiljainen näppäys (huippu noin −40 dBFS): oletuskynnyksellä ei mitään, mitatulla kynnyksellä tunnistuu', async () => {
+    const quiet = guitar([{ at: 200, midi: 64, amp: .012, decay: 600 }]);
+    expect(await detect(quiet, 1500)).toEqual([]);
+    expect((await detect(quiet, 1500, .003)).map(p => p.midi)).toEqual([64]);
+  });
+  it('mitattu kynnys: soiva kieli pysyy havaittuna pidempään (E2 hidas, E4 nopea vaimeneminen)', async () => {
+    const lastPitchMs = async (midi: number, decay: number, minRms: number) => {
+      const clock = fakeClock();
+      let last = 0;
+      const line = guitar([{ at: 0, midi, amp: .06, decay }]);
+      const mic = new Microphone(async () => fakeInput(clock, () => line));
+      await mic.start('', { ...DETECTION, minRms, onFrame: f => { if (f.status === 'pitch') last = clock.now; } }, () => {});
+      clock.run(6000); mic.stop(); vi.unstubAllGlobals(); vi.restoreAllMocks();
+      return last;
+    };
+    const e2 = [await lastPitchMs(40, 2000, .01), await lastPitchMs(40, 2000, .003)];
+    const e4 = [await lastPitchMs(64, 500, .01), await lastPitchMs(64, 500, .003)];
+    // Oletuskynnyksellä matala E näkyy selvästi pidempään kuin ohut E (sama ilmiö kuin kokeessa).
+    expect(e2[0]).toBeGreaterThan(e4[0] * 2.5);
+    // Mitattu kynnys pidentää kumpaakin.
+    expect(e2[1]).toBeGreaterThan(e2[0]); expect(e4[1]).toBeGreaterThan(e4[0]);
+  });
+});
+
+describe('peräkkäiset näppäilyt ilman pitkää hiljaisuutta', () => {
+  it('eri sävelet legato (pehmeä näppäys, ei tason nousua eikä hiljaisuutta) → kaikki tunnistuvat sävelen vaihtona', async () => {
+    const line = guitar([59, 60, 62, 60].map((midi, i) => ({ at: 200 + i * 450, midi, transient: 0, decay: 2000, amp: .1 - i * .01 })));
+    const plucks = await detect(line, 2400, .003);
+    expect(plucks.map(p => p.midi)).toEqual([59, 60, 62, 60]);
+    expect(plucks.slice(1).every(p => p.by === 'pitch-change' || p.by === 'onset')).toBe(true);
+  });
+  it('legato-riffi pelissä: [59,60,62,60] ilman vaimennuksia → virheetön läpäisy', async () => {
+    const t = pipeline();
+    await t.toListening();
+    t.stable.length = 0;
+    t.play([59, 60, 62, 60].map((midi, i) => ({ at: 100 + i * 450, midi, transient: 0, decay: 2000 })));
+    t.clock.run(2500);
+    expect(t.stable).toEqual([59, 60, 62, 60]);
+    expect(t.s()).toMatchObject({ phase: 'success', marks: ['green', 'green', 'green', 'green'] });
+  });
+  it('uusi näppäys saman sävelen päälle, kun edellinen soi vielä (normaali näppäys) → kaksi näppäilyä', async () => {
+    const line = guitar([{ at: 200, midi: 57, decay: 2500 }, { at: 650, midi: 57, decay: 2500 }]);
+    expect((await detect(line, 1500, .003)).map(p => p.midi)).toEqual([57, 57]);
+  });
+  it('myötäresonanssi: vaimennetun B3:n jälkeen hiljaa soiva E4 ei ole uusi näppäily', async () => {
+    const line = mix(guitar([{ at: 200, midi: 59, amp: .15, mute: 700 }]), guitar([{ at: 200, midi: 64, amp: .012, decay: 4000, transient: 0 }]));
+    expect((await detect(line, 2500, .003)).map(p => p.midi)).toEqual([59]);
+  });
+  it('soimaan jääneen sävelen ylä-ääni (oktaavi ylöspäin) ei ole uusi näppäily', async () => {
+    // Sävelen loppupäässä perustaajuus heikkenee; simuloidaan pelkällä 2. osaäänellä jatkuva häntä.
+    const tail = (t: number) => t > 1.2 ? .02 * Math.sin(2 * Math.PI * midiHz(57) * 2 * t) : 0;
+    const line = mix(guitar([{ at: 200, midi: 57, amp: .12, mute: 1200 }]), tail);
+    expect((await detect(line, 2500, .003)).map(p => p.midi)).toEqual([57]);
   });
 });

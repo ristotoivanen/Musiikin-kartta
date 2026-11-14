@@ -6,8 +6,8 @@
  * läpäistyt tasot. Taso läpäistään, kun sen kolme riffiä on soitettu virheettömästi (kaikki vihreinä)
  * saman kierroksen aikana. Seuraavalle tasolle siirrytään vain pelaajan valinnasta.
  *
- * Kentät run, levels ja fullBoard lisättiin versioon 1 taaksepäin yhteensopivasti: vanha data luetaan
- * ja puuttuvat kentät saavat oletusarvon.
+ * Kentät run, levels, fullBoard ja device lisättiin versioon 1 taaksepäin yhteensopivasti: vanha data
+ * luetaan ja puuttuvat kentät saavat oletusarvon. Mitään olemassa olevaa kenttää ei poisteta.
  */
 import type { AnswerInput } from './sequence';
 import { LEVELS, TUTORIAL, levelOf, type Riff } from './riffs';
@@ -43,6 +43,8 @@ export type RiffData = {
   input: AnswerInput;
   /** Näytetäänkö koko kuusikielinen otelauta jo ennen tasoa 4. */
   fullBoard: boolean;
+  /** Valittu äänitulo (selaimen deviceId); tyhjä = järjestelmän oletus. */
+  device: string;
   /** Tilastot vastaustavoittain: mikrofonin ja otelaudan tulokset eivät sekoitu. */
   stats: Record<AnswerInput, Record<string, RiffStat>>;
   results: RiffResult[];
@@ -51,7 +53,7 @@ export type RiffData = {
   levels: Record<AnswerInput, number[]>;
 };
 
-export const freshRiffData = (): RiffData => ({ version: 1, tutorialDone: false, input: 'mic', fullBoard: false,
+export const freshRiffData = (): RiffData => ({ version: 1, tutorialDone: false, input: 'mic', fullBoard: false, device: '',
   stats: { mic: {}, board: {} }, results: [], run: { mic: { level: 1, passed: [] }, board: { level: 1, passed: [] } }, levels: { mic: [], board: [] } });
 
 const count = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v) && v >= 0;
@@ -79,6 +81,7 @@ export function decodeRiffData(raw: string | null): RiffData {
   if (!d || d.version !== 1) return data;
   data.tutorialDone = d.tutorialDone === true;
   data.fullBoard = d.fullBoard === true;
+  if (typeof d.device === 'string') data.device = d.device.slice(0, 256);
   if (isInput(d.input)) data.input = d.input;
   for (const input of INPUTS) {
     const stats = d.stats?.[input];
@@ -108,6 +111,12 @@ export class RiffStore {
   }
   setInput(input: AnswerInput) { if (this.data.input !== input) { this.data.input = input; this.save(); } }
   setFullBoard(on: boolean) { if (this.data.fullBoard !== on) { this.data.fullBoard = on; this.save(); } }
+  setDevice(device: string) { if (this.data.device !== device) { this.data.device = device; this.save(); } }
+  /** Tasot, jotka voi valita tasovalikosta: läpäistyt, nykyinen ja seuraava läpäisemätön. */
+  unlockedLevels(input: AnswerInput): number[] {
+    const top = Math.max(this.data.run[input].level, ...this.data.levels[input].map(n => n + 1));
+    return LEVELS.map(l => l.number).filter(n => n <= top);
+  }
   finishTutorial() { if (!this.data.tutorialDone) { this.data.tutorialDone = true; this.save(); } }
 
   run(input: AnswerInput): LevelRun { return this.data.run[input]; }

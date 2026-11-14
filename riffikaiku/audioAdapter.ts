@@ -1,31 +1,44 @@
 /**
  * Ohut sovitin Kitaraharjoittelijan olemassa oleviin äänitoimintoihin: Microphone (getUserMedia +
- * Pitchy-pohjainen PitchLoop + NoteGate) ja ReferencePlayer (mallisoitto). Ei omaa sävelentunnistusta.
+ * Pitchy-pohjainen PitchLoop) ja ReferencePlayer (mallisoitto, virtuaalikitaran sävelet).
+ * Ei omaa sävelentunnistusta: Riffikaiun näppäilytunnistin (pluck.ts) käyttää PitchLoopin kehyksiä.
  *
- * Pelilogiikka (game.ts) käyttää vain tätä rajapintaa, joten sen voi testata ilman selainta.
- * Tuotannossa ei ole testisyötettä: selaintestit korvaavat selaimen omat getUserMedia- ja
- * AudioContext-rajapinnat ennen sivun latausta, ja signaali kulkee oikean analyysin läpi.
+ * Pelilogiikka (game.ts) käyttää vain GameAudio-rajapintaa, joten sen voi testata ilman selainta.
+ * Tuotannossa ei ole testisyötettä: selaintestit korvaavat selaimen omat getUserMedia-,
+ * enumerateDevices- ja AudioContext-rajapinnat ennen sivun latausta.
  */
 import { Microphone, ReferencePlayer, type MicInfo } from '../harjoittelija/audio';
-import type { AnalysisFrame, PitchDetectorOptions, StableNoteEvent } from '../harjoittelija/vendor/pitchDetector';
+import { listInputDevices } from '../harjoittelija/vendor/micInput';
+import type { AnalysisFrame, PitchDetectorOptions } from '../harjoittelija/vendor/pitchDetector';
+import { PluckDetector, type PluckEvent, type PluckState } from './pluck';
 
 export type MicHandlers = {
-  onFrame: (frame: AnalysisFrame) => void;
-  onStable: (event: StableNoteEvent) => void;
+  /** Jokainen analyysikehys ja näppäilytunnistimen tila sen jälkeen (diagnostiikka, viritin). */
+  onFrame: (frame: AnalysisFrame, pluck: PluckState) => void;
+  /** Yksi erillinen näppäily. */
+  onStable: (event: PluckEvent) => void;
   /** Laite irrotettiin tai äänikonteksti pysähtyi. */
   onEnded: () => void;
 };
+export type InputDevice = { id: string; label: string };
 
 export interface GameAudio {
-  /** Avaa mikrofonin ja käynnistää analyysin. null = avaus peruttiin (stopMic ennen lupaa). */
-  openMic(handlers: MicHandlers): Promise<MicInfo | null>;
+  /**
+   * Avaa mikrofonin (device = selaimen deviceId, '' = järjestelmän oletus) ja käynnistää analyysin.
+   * Edellinen virta suljetaan ensin. null = avaus peruttiin (closeMic ennen lupaa).
+   */
+  openMic(handlers: MicHandlers, device: string): Promise<MicInfo | null>;
+  /** Äänitulot. Nimet näkyvät vasta mikrofoniluvan jälkeen. */
+  listDevices(): Promise<InputDevice[]>;
+  /** Äänikynnys (RMS): sama arvo analyysille ja näppäilytunnistimelle. */
+  setMinRms(minRms: number): void;
   /** Analyysi tauolle mallisoiton ajaksi. Ääniverkko jää auki. */
   pauseAnalysis(): void;
-  /** Analyysi jatkuu; NoteGate nollautuu (uusi vastaus vaatii alukkeen tai vaimennuksen). */
+  /** Analyysi jatkuu; näppäilytunnistin nollautuu (uusi vastaus vaatii alukkeen tai vaimennuksen). */
   resumeAnalysis(): void;
-  /** Nollaa NoteGaten: soimaan jäänyt ääni ei vastaa. */
+  /** Nollaa näppäilytunnistimen: soimaan jäänyt ääni ei vastaa. */
   rearm(): void;
-  /** Vapauttaa mikrofonin ja analyysisolmut. */
+  /** Vapauttaa mikrofonin raidat ja analyysisolmut. */
   closeMic(): void;
   /** Soittaa mallin. false = keskeytettiin. Heittää, jos äänimoottori ei käynnisty. */
   playModel(notes: number[], onNote: (index: number) => void): Promise<boolean>;
@@ -35,20 +48,41 @@ export interface GameAudio {
 }
 
 /** Riffikaiun tunnistusasetukset: samat kuin Kitaraharjoittelijan oletukset (settings.ts). */
-export const DETECTION: PitchDetectorOptions = { minRms: .01, minClarity: .94, stabilityMs: 240, centsTolerance: 35 };
+export const DETECTION = { minRms: .01, minClarity: .94, stabilityMs: 240, centsTolerance: 35 } satisfies PitchDetectorOptions;
+
+/** Kytkee näppäilytunnistimen PitchLoopin kehysvirtaan. Käytössä selaimessa ja signaaliketjun testeissä. */
+export function framePipeline(handlers: MicHandlers, detector: PluckDetector, now: () => number) {
+  return (frame: AnalysisFrame) => {
+    const event = detector.feed(frame, now());
+    handlers.onFrame(frame, detector.state());
+    if (event) handlers.onStable(event);
+  };
+}
 
 export class BrowserAudio implements GameAudio {
   private mic = new Microphone();
   private player = new ReferencePlayer();
   /** Oma soitin painalluksille, jotta nopea uusi painallus ei keskeytä mallia eikä päinvastoin. */
   private strings = new ReferencePlayer();
-  async openMic(handlers: MicHandlers) {
-    return this.mic.start('', { ...DETECTION, onFrame: handlers.onFrame, onStableNote: handlers.onStable }, handlers.onEnded);
+  private minRms: number = DETECTION.minRms;
+  private detector = new PluckDetector({ minRms: DETECTION.minRms, stabilityMs: DETECTION.stabilityMs });
+
+  async openMic(handlers: MicHandlers, device: string) {
+    // Microphone.start sulkee edellisen virran (raidat ja analyysisolmut) ennen uuden avaamista.
+    this.detector = new PluckDetector({ minRms: this.minRms, stabilityMs: DETECTION.stabilityMs });
+    const onFrame = framePipeline(handlers, this.detector, () => performance.now());
+    return this.mic.start(device, { ...DETECTION, minRms: this.minRms, onFrame }, handlers.onEnded);
   }
-  pauseAnalysis() { this.mic.pause(); }
-  resumeAnalysis() { this.mic.resume(); }
-  rearm() { this.mic.rearm(); }
-  closeMic() { this.mic.stop(); }
+  async listDevices() {
+    // Chrome lisää näennäislaitteet "default" ja "communications"; oletus on valikossa omana valintanaan.
+    const devices = (await listInputDevices()).filter(d => d.deviceId !== 'default' && d.deviceId !== 'communications');
+    return devices.map((d, i) => ({ id: d.deviceId, label: d.label || `Äänitulo ${i + 1}` }));
+  }
+  setMinRms(minRms: number) { this.minRms = minRms; this.mic.setOptions({ minRms }); this.detector.setMinRms(minRms); }
+  pauseAnalysis() { this.mic.pause(); this.detector.reset(); }
+  resumeAnalysis() { this.mic.resume(); this.detector.reset(); }
+  rearm() { this.mic.rearm(); this.detector.rearm(); }
+  closeMic() { this.mic.stop(); this.detector.reset(); }
   playModel(notes: number[], onNote: (index: number) => void) { return this.player.play(notes, onNote); }
   stopModel() { this.player.stop(); this.strings.stop(); }
   // Uusi painallus katkaisee edellisen sävelen: sama sävel kahdesti kuuluu kahtena näppäyksenä.
