@@ -80,7 +80,7 @@
     setupPart(current);
   } else if (document.getElementById('teoria-aloitus')) {
     setupTheoryHome();
-  } else if (document.querySelector('.hero-actions')) {
+  } else if (document.getElementById('home-continue')) {
     setupPracticeSummary();
     setupFrontPage();
   }
@@ -108,7 +108,7 @@
       link.href = 'kitaraharjoittelija.html';
       link.textContent = 'Jatka kitaraharjoittelua · viimeksi ' + last.count + ' vastattua kysymystä';
       p.append(link);
-      document.querySelector('.hero-actions')?.after(p);
+      document.getElementById('home-continue')?.append(p);
     } catch { /* Harjoitustallennuksen puute ei estä lukemista. */ }
   }
 
@@ -156,7 +156,7 @@
   // Musiikin kartan etusivu: vain lyhyt jatkamislinkki, osien lista on Musiikin teoria -sivulla.
   function setupFrontPage() {
     const done = load();
-    const actions = document.querySelector('.hero-actions');
+    const actions = document.getElementById('home-continue');
     if (!done.size || !actions) return;
     const next = nextChapter(done);
     const p = document.createElement('p');
@@ -169,7 +169,7 @@
     } else {
       p.textContent = 'Olet merkinnyt kaikki ' + ALL.length + ' lukua tehdyiksi.';
     }
-    actions.after(p);
+    actions.append(p);
   }
 
   // Musiikin teoria -aloitusnäkymä (book/index.html): jatkamiskortti sekä osien ja
