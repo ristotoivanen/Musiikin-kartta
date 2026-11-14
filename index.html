@@ -62,6 +62,32 @@
   .area-arrow { font-size: 25px; color: var(--lavender); }
   .tools-note { color: var(--muted); font-size: 14px; max-width: 720px; }
   .continue { margin: 14px 0 0; font-size: 15px; font-weight: 700; }
+
+  .eyebrow { margin: 0 0 6px; color: var(--lavender); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+  .learning-lead { max-width: 740px; margin: 0 0 20px; color: var(--muted); }
+  .start-here { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--lavender); border-radius: 16px; background: #2b2342; }
+  .start-here strong { font-size: 18px; }
+  .start-here p { max-width: 580px; margin: 5px 0 0; color: var(--muted); }
+  .start-here a { flex-shrink: 0; padding: 10px 13px; border-radius: 8px; background: var(--purple-dark); color: var(--text); font-weight: 700; text-decoration: none; }
+  .start-here a:hover { background: var(--purple); }
+  .topic-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 12px; }
+  .topic-card { min-width: 0; border: 1px solid #71638c; border-radius: 14px; background: var(--panel); }
+  .topic-card[open] { border-color: var(--lavender); }
+  .topic-card summary { display: flex; align-items: center; gap: 12px; padding: 16px; cursor: pointer; list-style: none; }
+  .topic-card summary::-webkit-details-marker { display: none; }
+  .topic-card summary:hover { background: #2b2342; border-radius: 14px; }
+  .topic-card summary:focus-visible { outline: 2px solid #75e5c6; outline-offset: 3px; }
+  .topic-number { flex: 0 0 36px; height: 36px; display: grid; place-items: center; border-radius: 9px; background: var(--bg); color: var(--lavender); font-weight: 700; }
+  .topic-summary { min-width: 0; flex: 1; display: grid; gap: 4px; }
+  .topic-summary strong { font-size: 16px; }
+  .topic-summary > span { font-size: 13px; color: var(--muted); }
+  .topic-expand { font-size: 20px; color: var(--lavender); }
+  .topic-card[open] .topic-expand { transform: rotate(180deg); }
+  .topic-links { display: grid; gap: 10px; padding: 4px 16px 18px; }
+  .topic-links p { margin: 0; color: var(--muted); font-size: 13px; }
+  .topic-links a { display: block; padding: 7px 9px; border: 1px solid #625476; border-radius: 8px; color: var(--text); font-size: 14px; text-decoration: none; }
+  .topic-links a:hover, .topic-links a:focus-visible { border-color: var(--lavender); background: #33294b; }
+  @media (max-width: 740px) { .topic-grid { grid-template-columns: 1fr; } .start-here { flex-direction: column; align-items: stretch; } .start-here a { align-self: start; } }
   @media (max-width: 470px) {
     .hero { padding: 36px 16px 26px; }
     .area { padding: 14px; gap: 12px; }
@@ -101,8 +127,90 @@
 
 <main>
 
+<section class="learning-overview" aria-labelledby="oppimisaiheet">
+  <p class="eyebrow">Oppiminen alkaa tekemisestä</p>
+  <h2 id="oppimisaiheet">Mitä haluat oppia?</h2>
+  <p class="learning-lead">Valitse aihe ja avaa siihen liittyvät nykyiset harjoitukset tai teoria. Sisällöt täydentyvät aihe kerrallaan. Aiheita saa käyttää missä järjestyksessä haluaa.</p>
+  <div class="start-here">
+    <div><strong>Ensimmäistä kertaa kitaran kanssa?</strong><p>Aloita kuuntelemalla musiikin pulssia ja taputtamalla neljään. Kitaraa et tarvitse vielä. Lyhyempi neljän iskun aloitusharjoitus on vasta suunnitteilla.</p></div>
+    <a href="book/osa-1.html#pulssi-ja-komppi">Kuuntele ja kokeile pulssia</a>
+  </div>
+  <div class="topic-grid">
+    <details class="topic-card" id="aihe-kitara">
+      <summary><span class="topic-number" aria-hidden="true">01</span><span class="topic-summary"><strong>Kitaran perusteet</strong><span>Kielet, ensimmäinen ääni ja soittoasento.</span></span><span class="topic-expand" aria-hidden="true">⌄</span></summary>
+      <nav class="topic-links" aria-label="Kitaran perusteet: nykyiset sisällöt">
+        <p>Avaa jo käytettävissä oleva sisältö:</p>
+        <a href="book/osa-1.html#kitaran-merkinnat">Kitaran merkinnät ja kielet</a>
+        <a href="book/osa-1.html#pulssi-ja-komppi">Kokeile pulssia</a>
+      </nav>
+    </details>
+    <details class="topic-card" id="aihe-rytmi">
+      <summary><span class="topic-number" aria-hidden="true">02</span><span class="topic-summary"><strong>Rytmi</strong><span>Pulssi, neljään laskeminen ja komppi.</span></span><span class="topic-expand" aria-hidden="true">⌄</span></summary>
+      <nav class="topic-links" aria-label="Rytmi: nykyiset sisällöt">
+        <p>Avaa jo käytettävissä oleva sisältö:</p>
+        <a href="book/osa-1.html#pulssi-ja-komppi">Kuuntele ja taputa pulssi</a>
+        <a href="book/osa-1.html#alas-ylos-komppi">Alas–ylös-komppi</a>
+      </nav>
+    </details>
+    <details class="topic-card" id="aihe-nuotit">
+      <summary><span class="topic-number" aria-hidden="true">03</span><span class="topic-summary"><strong>Sävelnimet ja musiikin lukeminen</strong><span>Sävelten nimet, sointumerkit ja tabulatuurit.</span></span><span class="topic-expand" aria-hidden="true">⌄</span></summary>
+      <nav class="topic-links" aria-label="Sävelnimet ja musiikin lukeminen: nykyiset sisällöt">
+        <p>Avaa jo käytettävissä oleva sisältö:</p>
+        <a href="book/osa-2.html">Sävelten perusteet</a>
+        <a href="book/osa-6.html">Otteet ja tabulatuurit</a>
+      </nav>
+    </details>
+    <details class="topic-card" id="aihe-korva">
+      <summary><span class="topic-number" aria-hidden="true">04</span><span class="topic-summary"><strong>Sävelkorva ja melodia</strong><span>Kuuntele, matki sävelkulkuja ja etsi kotisävel.</span></span><span class="topic-expand" aria-hidden="true">⌄</span></summary>
+      <nav class="topic-links" aria-label="Sävelkorva ja melodia: nykyiset sisällöt">
+        <p>Avaa jo käytettävissä oleva sisältö:</p>
+        <a href="riffikaiku.html">Riffikaiku</a>
+        <a href="pelit/ensikeikka/">Ensikeikka</a>
+        <a href="book/osa-7.html">Korvakuulon harjoitukset</a>
+      </nav>
+    </details>
+    <details class="topic-card" id="aihe-otelauta">
+      <summary><span class="topic-number" aria-hidden="true">05</span><span class="topic-summary"><strong>Otelauta</strong><span>Löydä sävelet ja niiden eri sijainnit.</span></span><span class="topic-expand" aria-hidden="true">⌄</span></summary>
+      <nav class="topic-links" aria-label="Otelauta: nykyiset sisällöt">
+        <p>Avaa jo käytettävissä oleva sisältö:</p>
+        <a href="kitaraharjoittelija.html?polku=otelauta&amp;harjoitus=savelten-etsinta">Etsi sävelet otelaudalta</a>
+        <a href="otelautaharjoittelija.html">Tutki otelautakarttaa</a>
+        <a href="book/osa-5.html">Otelauta teoriassa</a>
+      </nav>
+    </details>
+    <details class="topic-card" id="aihe-soinnut">
+      <summary><span class="topic-number" aria-hidden="true">06</span><span class="topic-summary"><strong>Soinnut ja harmonia</strong><span>Otteet, sointujen rakenne ja tehtävät.</span></span><span class="topic-expand" aria-hidden="true">⌄</span></summary>
+      <nav class="topic-links" aria-label="Soinnut ja harmonia: nykyiset sisällöt">
+        <p>Avaa jo käytettävissä oleva sisältö:</p>
+        <a href="kitaraharjoittelija.html?polku=soinnut">Tunnista sointuja</a>
+        <a href="book/osa-3.html">Sointujen teoria</a>
+        <a href="otelautaharjoittelija.html">Sointukartta</a>
+      </nav>
+    </details>
+    <details class="topic-card" id="aihe-asteikot">
+      <summary><span class="topic-number" aria-hidden="true">07</span><span class="topic-summary"><strong>Asteikot ja moodit</strong><span>Pentatoniset, positiot ja moodien erot.</span></span><span class="topic-expand" aria-hidden="true">⌄</span></summary>
+      <nav class="topic-links" aria-label="Asteikot ja moodit: nykyiset sisällöt">
+        <p>Avaa jo käytettävissä oleva sisältö:</p>
+        <a href="kitaraharjoittelija.html?polku=asteikot">Pentatoniset ja moodit: harjoitukset</a>
+        <a href="book/osa-8.html">Pentatonisen teoria</a>
+        <a href="book/osa-11.html">Moodien teoria</a>
+      </nav>
+    </details>
+    <details class="topic-card" id="aihe-kappaleet">
+      <summary><span class="topic-number" aria-hidden="true">08</span><span class="topic-summary"><strong>Kappaleet ja oma musiikki</strong><span>Soita kappaleita, improvisoi ja luo omaa musiikkia.</span></span><span class="topic-expand" aria-hidden="true">⌄</span></summary>
+      <nav class="topic-links" aria-label="Kappaleet ja oma musiikki: nykyiset sisällöt">
+        <p>Avaa jo käytettävissä oleva sisältö:</p>
+        <a href="kitaraharjoittelija.html?polku=kappaleet">Kappaleharjoittelija</a>
+        <a href="book/osa-9.html">Tee oma kappale</a>
+        <a href="book/osa-8.html">Improvisoinnin perusteet</a>
+      </nav>
+    </details>
+  </div>
+  <p class="tools-note">Aihealueet eivät ole suorituslukkoja. Sama harjoitus voi kuulua useampaan aiheeseen, ja jokainen vanha oppimistyökalu toimii edelleen.</p>
+</section>
+
 <section aria-labelledby="osiot">
-  <h2 id="osiot">Kolme tapaa oppia</h2>
+  <h2 id="osiot">Nykyiset oppaat ja työkalut</h2>
   <div class="areas">
     <a class="area" href="book/index.html">
       <span class="area-number" aria-hidden="true">01</span>
