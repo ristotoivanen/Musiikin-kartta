@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Musiikin kartta – avoin opas musiikin teoriaan ja kitaraan</title>
+<title>Oppimiskartta – Musiikin kartta</title>
 <style>
   :root {
     --purple: #6d4aff;
@@ -47,19 +47,6 @@
   h2 { font-size: 22px; margin: 0 0 14px; }
   h3 { font-size: 17px; margin: 30px 0 8px; }
   h2::after { content:""; display:block; width:56px; height:3px; background: var(--purple); border-radius:2px; margin-top:8px; }
-  .areas { display: grid; gap: 14px; }
-  .area {
-    display: flex; align-items: center; gap: 18px; min-height: 100px;
-    padding: 18px 20px; border: 1px solid #71638c; border-radius: 16px;
-    background: var(--panel); color: var(--text); text-decoration: none;
-  }
-  .area:hover, .area:focus-visible { border-color: var(--lavender); background: #1b1528; }
-  .area-number { display: grid; flex: 0 0 45px; place-items: center; height: 45px; border-radius: 12px;
-    background: var(--bg); color: var(--lavender); font-weight: 750; font-size: 19px; }
-  .area-body { display: grid; flex: 1; gap: 4px; }
-  .area-body strong { font-size: 19px; }
-  .area-body span { color: var(--muted); font-size: 15px; }
-  .area-arrow { font-size: 25px; color: var(--lavender); }
   .tools-note { color: var(--muted); font-size: 14px; max-width: 720px; }
   .continue { margin: 14px 0 0; font-size: 15px; font-weight: 700; }
 
@@ -90,10 +77,6 @@
   @media (max-width: 740px) { .topic-grid { grid-template-columns: 1fr; } .start-here { flex-direction: column; align-items: stretch; } .start-here a { align-self: start; } }
   @media (max-width: 470px) {
     .hero { padding: 36px 16px 26px; }
-    .area { padding: 14px; gap: 12px; }
-    .area-number { flex-basis: 35px; height: 35px; font-size: 15px; }
-    .area-body strong { font-size: 17px; }
-    .area-body span { font-size: 14px; }
   }
   footer {
     margin-top: 60px; padding-top: 20px; border-top: 1px solid #2d2444;
@@ -129,8 +112,8 @@
 
 <section class="learning-overview" aria-labelledby="oppimisaiheet">
   <p class="eyebrow">Oppiminen alkaa tekemisestä</p>
-  <h2 id="oppimisaiheet">Mitä haluat oppia?</h2>
-  <p class="learning-lead">Valitse aihe ja avaa siihen liittyvät nykyiset harjoitukset tai teoria. Sisällöt täydentyvät aihe kerrallaan. Aiheita saa käyttää missä järjestyksessä haluaa.</p>
+  <h2 id="oppimisaiheet">Oppimiskartta</h2>
+  <p class="learning-lead"><strong>Mitä haluat oppia?</strong> Valitse aihe ja löydä siihen liittyvät harjoitukset, pelit ja teoria. Sisällöt täydentyvät aihe kerrallaan. Voit edetä haluamassasi järjestyksessä.</p>
   <div class="start-here">
     <div><strong>Ensimmäistä kertaa kitaran kanssa?</strong><p>Aloita kuuntelemalla musiikin pulssia ja taputtamalla neljään. Kitaraa et tarvitse vielä. Lyhyempi neljän iskun aloitusharjoitus on vasta suunnitteilla.</p></div>
     <a href="book/osa-1.html#pulssi-ja-komppi">Kuuntele ja kokeile pulssia</a>
@@ -157,7 +140,7 @@
       <nav class="topic-links" aria-label="Sävelnimet ja musiikin lukeminen: nykyiset sisällöt">
         <p>Avaa jo käytettävissä oleva sisältö:</p>
         <a href="book/osa-2.html">Sävelten perusteet</a>
-        <a href="book/osa-6.html">Otteet ja tabulatuurit</a>
+        <a href="book/osa-1.html#kitaran-merkinnat">Kitaran merkinnät</a>
       </nav>
     </details>
     <details class="topic-card" id="aihe-korva">
@@ -167,6 +150,7 @@
         <a href="riffikaiku.html">Riffikaiku</a>
         <a href="pelit/ensikeikka/">Ensikeikka</a>
         <a href="book/osa-7.html">Korvakuulon harjoitukset</a>
+        <a href="book/osa-4.html#savellajin-tunnistaminen">Sävellajin tunnistaminen</a>
       </nav>
     </details>
     <details class="topic-card" id="aihe-otelauta">
@@ -184,7 +168,9 @@
         <p>Avaa jo käytettävissä oleva sisältö:</p>
         <a href="kitaraharjoittelija.html?polku=soinnut">Tunnista sointuja</a>
         <a href="book/osa-3.html">Sointujen teoria</a>
-        <a href="otelautaharjoittelija.html">Sointukartta</a>
+        <a href="book/osa-6.html#caged">Barré-soinnut ja CAGED</a>
+        <a href="book/osa-10.html#septimisoinnut">Seiskasoinnut</a>
+        <a href="otelautaharjoittelija.html#soinnut">Sointukartta</a>
       </nav>
     </details>
     <details class="topic-card" id="aihe-asteikot">
@@ -206,39 +192,10 @@
       </nav>
     </details>
   </div>
-  <p class="tools-note">Aihealueet eivät ole suorituslukkoja. Sama harjoitus voi kuulua useampaan aiheeseen, ja jokainen vanha oppimistyökalu toimii edelleen.</p>
+  <p class="tools-note">Aihealueet eivät ole suorituslukkoja. Sama harjoitus voi kuulua useampaan aiheeseen. Kaikki 11 teoriaosaa löytyvät ylävalikon <a href="book/index.html">Musiikin teoria</a> -kohdasta. Käytettävissä ovat myös <a href="pdf/musiikin-kartta.pdf">tulostettava PDF</a> ja <a href="book/sanasto.html">sanasto</a>.</p>
 </section>
 
-<section aria-labelledby="osiot">
-  <h2 id="osiot">Nykyiset oppaat ja työkalut</h2>
-  <div class="areas">
-    <a class="area" href="book/index.html">
-      <span class="area-number" aria-hidden="true">01</span>
-      <span class="area-body">
-        <strong>Musiikin teoria</strong>
-        <span>Yhdeksän perusosaa rytmistä ja soinnuista korvakuuloon ja omaan kappaleeseen sekä kaksi syventävää osaa. Voit merkitä luvut tehdyiksi ja jatkaa siitä, mihin jäit.</span>
-      </span>
-      <span class="area-arrow" aria-hidden="true">→</span>
-    </a>
-    <a class="area" href="otelautaharjoittelija.html">
-      <span class="area-number" aria-hidden="true">02</span>
-      <span class="area-body">
-        <strong>Otelautaopas</strong>
-        <span>Otelautakartta näyttää asteikot, moodit, soinnut ja oktaavit kitaran kaulalla.</span>
-      </span>
-      <span class="area-arrow" aria-hidden="true">→</span>
-    </a>
-    <a class="area" href="kitaraharjoittelija.html">
-      <span class="area-number" aria-hidden="true">03</span>
-      <span class="area-body">
-        <strong>Kitaraharjoittelu</strong>
-        <span>Harjoittele oikealla kitaralla sävelet, asteikot, soinnut ja kappaleet. Mikrofonin ääni käsitellään vain selaimessa.</span>
-      </span>
-      <span class="area-arrow" aria-hidden="true">→</span>
-    </a>
-  </div>
-  <p class="tools-note">Koko opas on myös <a href="pdf/musiikin-kartta.pdf">tulostettavana PDF:nä</a>, ja termit on selitetty <a href="book/sanasto.html">sanastossa</a>.</p>
-</section>
+
 
 </main>
 
