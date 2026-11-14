@@ -85,7 +85,12 @@ export function NoteJourney({ onBack }: { onBack: () => void }) {
     <p className="eyebrow">SÄVELKORVA JA OTELAUTA · VAIHE 1</p>
     <h2 id="note-journey-title">Etsi sävelet otelaudalta</h2>
     <p className="exercise-theory"><a href="book/osa-5.html#otelauta">Lue tämän harjoituksen teoria: Otelauta ja sävelet →</a></p>
-    <p className="learning-lead">Aloita sävelnimistä. Etsi kaikki saman sävelen sijainnit nauhoilta 0–5. Kuuntelemalla tunnistaminen tulee myöhemmissä vaiheissa.</p>
+    <p className="learning-lead">Aloita sävelnimistä. Etsi kaikki saman sävelen sijainnit nauhoilta 0–5. Voit harjoitella kuuntelemista ja toistamista myös Riffikaiussa.</p>
+    <section className="journey-lesson" aria-labelledby="riffikaiku-entry-title">
+      <h3 id="riffikaiku-entry-title">Riffikaiku (beta)</h3>
+      <p>Kuuntele lyhyt kitarariffi ja toista sävelet oikeassa järjestyksessä. Harjoittele virtuaalikitaralla tai kokeile oikeaa kitaraa mikrofonin kautta.</p>
+      <p><a href="riffikaiku.html">Avaa Riffikaiku →</a></p>
+    </section>
     {!finished && <label className="note-autoadvance">
       <input type="checkbox" checked={autoAdvance}
         onChange={event => setAutoAdvance(event.target.checked)} />
@@ -122,6 +127,6 @@ export function NoteJourney({ onBack }: { onBack: () => void }) {
         </div>
       </>}
     </div>
-    <p className="tools-note">Seuraavissa oppimispolun vaiheissa voidaan harjoitella sävelten tunnistamista kuuntelemalla. Ne eivät vielä ole käytössä.</p>
+    <p className="tools-note">Jatka Riffikaikuun, kun haluat harjoitella lyhyiden melodioiden tunnistamista ja toistamista.</p>
   </section>;
 }
