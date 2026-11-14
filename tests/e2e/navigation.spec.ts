@@ -313,11 +313,32 @@ test.describe('Vanhat osoitteet ja osioiden välinen jatkuvuus', () => {
     }
   });
 
-  test('Otelautaoppaan alavalikko avaa otelaudan harjoitukset ja polulta palaaminen siistii osoitteen', async ({ page }) => {
+  for (const width of [320, 360, 390]) {
+    test(`Otelautaopas avautuu suoraan otelautaan ${width} px leveydellä`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 740 });
+      await page.goto('/index.html');
+      const guide = mainNav(page).getByRole('link', { name: LABELS.otelauta });
+      await guide.click();
+      await expect(page).toHaveURL(/\/otelautaharjoittelija\.html$/);
+      await expect(guide).toHaveAttribute('aria-current', 'page');
+      await expect(page.getByRole('navigation', { name: 'Otelautaopas' })).toHaveCount(0);
+      await expect(page.getByRole('heading', { name: 'Tutki otelautaa' })).toBeInViewport();
+      await expect(page.locator('#board svg')).toBeVisible();
+      expect(await page.locator('main').evaluate(el => el.scrollWidth)).toBeLessThanOrEqual(width);
+    });
+  }
+
+  test('otelaudan harjoitukset löytyvät Kitaraharjoittelusta', async ({ page }) => {
     await page.goto('/otelautaharjoittelija.html');
-    const sub = page.getByRole('navigation', { name: 'Otelautaopas' });
-    await expect(sub.getByRole('link', { name: 'Otelautakartta' })).toHaveAttribute('aria-current', 'page');
-    await sub.getByRole('link', { name: 'Otelaudan harjoitukset' }).click();
+    await mainNav(page).getByRole('link', { name: LABELS.kitara }).click();
+    await page.getByRole('button', { name: /^Sävelkorva ja otelauta/ }).click();
+    await expect(page.getByRole('heading', { name: 'Sävelkorva ja otelauta' })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Sävelten etsintä/ })).toBeVisible();
+  });
+
+  test('suora otelaudan harjoituspolku toimii ja paluu siistii osoitteen', async ({ page }) => {
+    await page.goto('/otelautaharjoittelija.html');
+    await page.goto('/kitaraharjoittelija.html?polku=otelauta');
     await expect(page).toHaveURL(/kitaraharjoittelija\.html\?polku=otelauta$/);
     await expect(page.getByRole('heading', { name: 'Sävelkorva ja otelauta' })).toBeVisible();
     await expect(page.getByRole('button', { name: /Sävelten etsintä/ })).toBeVisible();

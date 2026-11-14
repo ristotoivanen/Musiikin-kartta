@@ -505,8 +505,7 @@ test.describe('Otelautaoppaan ulkoasu', () => {
       .map(sel => el.querySelector(sel)!.getBoundingClientRect().top));
     expect(order).toEqual([...order].sort((a, b) => a - b));
     await expect(page.locator('#box-details')).not.toHaveAttribute('open');
-    // Alavalikko ja päävalikko säilyvät.
-    await expect(page.getByRole('navigation', { name: 'Otelautaopas' }).getByRole('link', { name: 'Otelautakartta' })).toHaveAttribute('aria-current', 'page');
+    await expect(page.getByRole('navigation', { name: 'Päävalikko' }).getByRole('link', { name: 'Otelautaopas' })).toHaveAttribute('aria-current', 'page');
   });
 
   test('otelauta ei kapene: työpöydällä 1064 px, mobiilissa vähintään entinen näkyvä leveys', async ({ page }) => {
