@@ -84,6 +84,7 @@ describe('staattisen sivuston yhteensopivuus',()=>{
   it('jokaisella pääsivulla on sama päävalikko samassa järjestyksessä ja oikea aktiivinen osio',()=>{
     const pages:[string,string|null,string][]=[
       ['index.html',null,'page'],['book/index.html','teoria','true'],['otelautaharjoittelija.html','otelauta','page'],['kitaraharjoittelija.html','kitara','page'],
+      ['riffikaiku.html','kitara','true'],['pelit/ensikeikka/index.html','kitara','true'],
       ...readdirSync(new URL('../book/',import.meta.url)).filter(f=>f.endsWith('.html')&&f!=='index.html').map(f=>['book/'+f,'teoria','true'] as [string,string,string]),
     ];
     const targets={teoria:'index.html',otelauta:'otelautaharjoittelija.html',kitara:'kitaraharjoittelija.html'};
