@@ -8,11 +8,13 @@
   border: 1px solid var(--line); border-radius: 8px; font-size: 14px; font-weight: 650; text-decoration: none; }
 .riff-back:hover { background: var(--panel); border-color: var(--lavender); }
 .riff-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 12px; margin: 12px 0 18px; }
+.riff-choice-option { display: grid; grid-template-rows: 1fr auto; }
 .riff-choice { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; padding: 14px 16px; border-radius: 14px; }
 .riff-choice strong { font-size: 20px; }
 .riff-choice:hover, .riff-choice:focus-visible { border-color: var(--lavender); }
 .riff-choice span { color: inherit; opacity: .85; font-size: 14px; line-height: 1.45; font-weight: 400; }
-.riff-tally, .riff-help { color: var(--muted); font-size: 14px; }
+.riff-choice .riff-choice-level { font-weight: 700; opacity: 1; }
+.riff-help { color: var(--muted); font-size: 14px; }
 .riff-top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; }
 .riff-top h1 { font-size: 24px; }
 .riff-top > span { color: var(--muted); font-size: 14px; overflow-wrap: anywhere; }
@@ -122,10 +124,6 @@
 .riff-turn .riff-instruction { margin: 0; display: block; padding: 0 0 0 10px; border: 0; border-left: 4px solid var(--gold); border-radius: 0; background: none; color: var(--text); }
 .riff-main-actions { margin-top: 12px; }
 .riff-main-actions button { min-height: 48px; }
-.riff-next { border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px; margin: 8px 0 18px; background: var(--panel); }
-.riff-next .eyebrow { margin: 0 0 4px; }
-.riff-next h2 { margin: 2px 0 6px; }
-.riff-next p:last-child { margin: 0; color: var(--muted); }
 .riff-board { --focus-row: #3b2a10; --focus-edge: var(--gold); --focus-head: color-mix(in srgb, var(--gold) 28%, var(--panel)); }
 .riff-board.has-focus tbody tr { opacity: .55; }
 .riff-board.focus-s0 tbody tr:nth-child(1) { opacity: 1; }
