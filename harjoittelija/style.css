@@ -600,3 +600,9 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
   .melody-practice > details > summary { padding: 13px; }
   .melody-practice-content { padding: 12px; }
 }
+
+
+/* Sävelkorvan harjoituskortit: sama ilme napeilla ja oikeilla linkeillä. */
+.ear-exercise-menu .learning-card { text-decoration: none; }
+.ear-exercise-menu a.learning-card { color: var(--text); }
+.ear-exercise-menu .learning-card:focus-visible { outline: 2px solid var(--lavender); outline-offset: 3px; }

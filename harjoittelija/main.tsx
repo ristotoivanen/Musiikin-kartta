@@ -2,7 +2,7 @@ import { useEffect, useReducer, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Board } from './Board';
 import { Controls, modeTitle, settingsSummary } from './Controls';
-import { LearningPaths, trackFromURL, type LearningTrack } from './LearningPaths';
+import { EarExerciseMenu, LearningPaths, trackFromURL, type LearningTrack } from './LearningPaths';
 import { ScaleTracks } from './ScaleTracks';
 import { NoteJourney } from './NoteJourney';
 import { ChordJourney } from './ChordJourney';
@@ -70,12 +70,32 @@ function App() {
     if (isSongLink(params.get('kappale'))) return 'songs';
     return trackFromURL(params.get('polku'));
   });
-  /** Palaa polkujen valintaan. Suora ?polku=-linkki poistetaan osoitteesta, jotta päivitys ei avaa polkua uudelleen. */
+  // Oma suora linkki seitsemän sävelen harjoitukseen.
+  const [noteExerciseOpen, setNoteExerciseOpen] = useState(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get('polku') === 'otelauta' && params.get('harjoitus') === 'savelten-etsinta';
+  });
+  function showNoteExercise() {
+    const url = new URL(location.href);
+    url.searchParams.set('polku', 'otelauta');
+    url.searchParams.set('harjoitus', 'savelten-etsinta');
+    history.replaceState(history.state, '', url.pathname + url.search + url.hash);
+    setNoteExerciseOpen(true);
+  }
+  function backToEarExercises() {
+    const url = new URL(location.href);
+    url.searchParams.set('polku', 'otelauta');
+    url.searchParams.delete('harjoitus');
+    history.replaceState(history.state, '', url.pathname + url.search + url.hash);
+    setNoteExerciseOpen(false);
+  }
+  /** Palaa polkujen valintaan ja poista vain tähän polkuun kuuluvat URL-parametrit. */
   function backToPaths() {
     setTrack(null);
+    setNoteExerciseOpen(false);
     const url = new URL(location.href);
-    if (!url.searchParams.has('polku')) return;
     url.searchParams.delete('polku');
+    url.searchParams.delete('harjoitus');
     history.replaceState(history.state, '', url.pathname + url.search + url.hash);
   }
 
@@ -141,6 +161,7 @@ function App() {
   }
   function selectTrack(next: LearningTrack) {
     setFinished(''); engine.current = null;
+    setNoteExerciseOpen(false);
     setTrack(next);
   }
   function testMic() { setCalibration(''); void ensureMic('test'); }
@@ -341,7 +362,9 @@ function App() {
   if (!inRound && track === 'scales') return <>{introduction}{notice}
     <ScaleTracks onBack={backToPaths} /></>;
   if (!inRound && track === 'ear') return <>{introduction}{notice}
-    <NoteJourney onBack={backToPaths} /></>;
+    {noteExerciseOpen
+      ? <NoteJourney onBack={backToEarExercises} />
+      : <EarExerciseMenu onBack={backToPaths} onNotes={showNoteExercise} />}</>;
   if (!inRound && track === 'chords') return <>{introduction}{notice}
     <ChordJourney onBack={backToPaths} /></>;
   if (!inRound && track === 'songs') return <>{introduction}{notice}
