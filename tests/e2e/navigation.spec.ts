@@ -116,6 +116,30 @@ test.describe('Etusivu', () => {
   });
 });
 
+test.describe('Oppimisen aihealueet – ensimmäinen käyttöliittymärunko', () => {
+  test('kahdeksan aihetta avautuvat ja johtavat toimivaan vanhaan harjoittelureittiin', async ({ page }) => {
+    await page.goto('/index.html');
+    const topics = page.locator('details.topic-card');
+    await expect(topics).toHaveCount(8);
+    const otelauta = page.locator('#aihe-otelauta');
+    await expect(otelauta).not.toHaveAttribute('open');
+    await otelauta.locator('summary').click();
+    await expect(otelauta).toHaveAttribute('open', '');
+    const exercise = otelauta.getByRole('link', { name: 'Etsi sävelet otelaudalta' });
+    await expect(exercise).toHaveAttribute('href', 'kitaraharjoittelija.html?polku=otelauta&harjoitus=savelten-etsinta');
+    await exercise.click();
+    await expect(page).toHaveURL(/kitaraharjoittelija\.html\?polku=otelauta&harjoitus=savelten-etsinta$/);
+  });
+
+  test('mobiilissa laajennettu aihealue pysyy näytön sisällä', async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 740 });
+    await page.goto('/index.html');
+    await page.locator('#aihe-korva summary').click();
+    await expect(page.locator('#aihe-korva')).toHaveAttribute('open', '');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
+  });
+});
+
 test.describe('Musiikin teoria -aloitusnäkymä', () => {
   test('neljä kokonaisuutta oikeassa järjestyksessä, kaikki suljettuina', async ({ page }) => {
     await page.goto('/book/');
