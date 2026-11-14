@@ -128,7 +128,7 @@ test.describe('Oppimisen aihealueet – ensimmäinen käyttöliittymärunko', ()
     const exercise = otelauta.getByRole('link', { name: 'Etsi sävelet otelaudalta' });
     await expect(exercise).toHaveAttribute('href', 'kitaraharjoittelija.html?polku=otelauta&harjoitus=savelten-etsinta');
     await exercise.click();
-    await expect(page).toHaveURL(/kitaraharjoittelija\.html\?polku=otelauta&harjoitus=savelten-etsinta$/);
+    await expect(page).toHaveURL(/kitaraharjoittelija[.]html[?]polku=otelauta&harjoitus=savelten-etsinta$/);
   });
 
   test('mobiilissa laajennettu aihealue pysyy näytön sisällä', async ({ page }) => {
