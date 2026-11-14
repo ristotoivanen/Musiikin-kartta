@@ -158,7 +158,11 @@ export class RiffGame {
   subscribe = (listener: () => void) => { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; };
   getState = () => this.state;
   /** Aloitusnäkymän yhteenveto vastaustavoittain. */
-  progress = (input: AnswerInput) => ({ level: this.store.run(input).level, completed: this.store.completedLevels(input) });
+  progress = (input: AnswerInput) => {
+    const { level, passed } = this.store.run(input);
+    const completed = this.store.completedLevels(input);
+    return { level, completed, started: level > 1 || passed.length > 0 || completed.length > 0 };
+  };
   private set(patch: Partial<GameState>) { this.state = { ...this.state, ...patch }; this.listeners.forEach(l => l()); }
   private selectInput(input: AnswerInput) {
     this.store.setInput(input);
@@ -308,13 +312,13 @@ export class RiffGame {
   setDiagnosticsOpen(open: boolean) { this.set({ diagOpen: open, ...(open ? {} : { diag: null }) }); }
 
   // ---- tasovalikko ----
-  openLevels() {
+  openLevels(input = this.state.input) {
     if (!['idle', 'level-complete', 'success', 'retry', 'ready', 'listening', 'output-settling', 'model-playing', 'paused'].includes(this.state.phase)) return;
     ++this.op;
     this.cancelTimers();
     this.audio.stopModel();
     if (this.micOpen) this.audio.pauseAnalysis();
-    this.set({ modelPlaying: false, playing: null, phase: 'levels', unlockedLevels: this.store.unlockedLevels(this.state.input), completedLevels: this.store.completedLevels(this.state.input), feedback: null, hint: false });
+    this.set({ input, modelPlaying: false, playing: null, phase: 'levels', unlockedLevels: this.store.unlockedLevels(input), completedLevels: this.store.completedLevels(input), feedback: null, hint: false });
   }
   /**
    * Valitse taso: läpäisty, nykyinen tai seuraava avattu. Nykyinen taso jatkuu siitä, mihin jäätiin;
@@ -324,7 +328,11 @@ export class RiffGame {
     if (this.state.phase !== 'levels' || !this.store.unlockedLevels(this.state.input).includes(level)) return;
     if (restart || level !== this.store.run(this.state.input).level) this.store.startLevel(this.state.input, level);
     this.store.finishTutorial();
-    this.beginRound();
+    if (this.state.input === 'mic' && !this.micOpen) this.startMic();
+    else {
+      this.selectInput(this.state.input);
+      this.beginRound();
+    }
   }
 
   // ---- kierros ----

@@ -597,7 +597,8 @@ describe('kotitreenit: suoritus, jatko, uusinta ja palautus', () => {
     t.game.stop();
     const again = new RiffGame(fakeAudio(), new RiffStore(t.storage));
     expect(again.getState()).toMatchObject({ phase: 'idle', input: 'board', level: { number: 2 }, riffNumber: 2, riff: { id: 'g-toisto' }, completedLevels: [1] });
-    expect(again.progress('mic')).toEqual({ level: 1, completed: [] });
+    expect(again.progress('mic')).toEqual({ level: 1, completed: [], started: false });
+    expect(again.progress('board')).toMatchObject({ completed: [1], started: true });
     const u = setup({ tutorialDone: true });
     u.game.startBoard();
     for (const [i, riff] of KT1.entries()) { await u.listenToTurn(); u.playBoard(riff); if (i < 2) u.game.next(); }
