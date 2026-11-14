@@ -78,3 +78,28 @@ test('otelautaharjoitus soittaa jokaisen valitun kieli-nauha-paikan sävelen', a
     (window as Window & { __noteJourneyStops: number }).__noteJourneyStops);
   expect(stops).toBeGreaterThanOrEqual(4);
 });
+
+test('äänentoiston estyminen ei estä vastaamista eikä etenemistä', async ({ page }) => {
+  await page.addInitScript(() => {
+    class DeniedAudioContext {
+      constructor() {
+        throw new DOMException('Autoplay is not allowed', 'NotAllowedError');
+      }
+    }
+    Object.defineProperty(window, 'AudioContext', { configurable: true, value: DeniedAudioContext });
+  });
+  await page.goto('/kitaraharjoittelija.html');
+  await page.getByRole('button', { name: /Sävelkorva ja otelauta/ }).click();
+  await page.getByRole('button', { name: /Sävelten etsintä/ }).click();
+
+  const board = page.locator('.note-journey .practice-board');
+  await board.locator('button[data-string="1"][data-fret="1"]').click();
+  await expect(page.getByTestId('note-audio-error')).toContainText('Safari esti äänentoiston');
+  await expect(page.getByText('Löydetty 1 / 3')).toBeVisible();
+
+  await board.locator('button[data-string="2"][data-fret="5"]').click();
+  await board.locator('button[data-string="4"][data-fret="3"]').click();
+  await expect(page.getByText('Löydetty 3 / 3')).toBeVisible();
+  await page.getByRole('button', { name: 'Seuraava sävel →' }).click();
+  await expect(page.getByRole('heading', { name: 'Etsi kaikki D-sävelet' })).toBeVisible();
+});
