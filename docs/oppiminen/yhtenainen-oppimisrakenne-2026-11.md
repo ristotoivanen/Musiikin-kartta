@@ -92,6 +92,10 @@ Käytä nykyisiä `localStorage`-avaimia niiden alkuperäisessä merkityksessä.
 
 ## 6. Ennen toteutusta tehtävä validointi
 
+**14.11.2026 täsmennys:** auditoinnissa on **36 pysyvää taitotunnistetta**, ei 35. Kaikkien alkuperäiset esitaitosuhteet on tarkistettu ja tehtäväkohtainen, syklitön uudelleenehdotus kirjattu dokumenttiin [Taitoriippuvuuksien katselmointi](taitoriippuvuuksien-katselmointi-2026-11.md). Ensimmäinen oppimiskokonaisuus on käsikirjoitettu dokumenttiin [Soita ensimmäiset neljä iskua](ensimmainen-oppimisjakso-nelja-iskua-2026-11.md): tarpeellinen teoria, kuuntelupeli, vapaan kielen soittaminen oikealla kitaralla ja lyhyt musiikillinen soveltaminen samassa jaksossa. Dokumentti määrittelee myös **A-linkkiverrokin vs E-hybridin** toteutus- ja testivertailun.
+
+Nämä ovat **katselmoitavia suunnitelmia**, eivät vielä hyväksytty taitomalli, julkaistu harjoitus tai suoritettu käyttäjätesti. Musiikkipedagoginen ja laitekohtainen testaus, pilotin äänisisältö/oikeudet sekä omistajan lopullinen rakennepäätös ovat avoimia.
+
 Auditoinnin suositus on **kevyt hybridi (E)**: muutama musiikillisen tavoitteen mukaan nimetty aloituskohta, taustalla taitotunnisteet, olemassa olevat teoria- ja harjoituspalat uudelleenkäyttöön. Sitä pitää verrata **kevyen linkityksen verrokkiin (A)** samalla opetussisällöllä ennen uuden käyttöliittymärakenteen rakentamista. Älä tulkitse vaihtoehtojen alustavia arvioita käyttäjätestin tulokseksi.
 
 Ensimmäiset kokeilut suunnitellaan erityisesti:
