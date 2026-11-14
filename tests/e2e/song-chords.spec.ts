@@ -2,10 +2,16 @@ import { test, expect, type Page } from '@playwright/test';
 
 const ACOUSTIC_LINK = '/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen';
 
-/** Soinnut ja sanat on oletuksena suljettu. */
+/**
+ * Soinnut ja sanat on oletuksena suljettu. Harjoituskartan asetukset (K4) ovat leveällä
+ * näytöllä auki ja puhelimessa suljettuina: testit avaavat ne tarvittaessa.
+ */
 async function openChart(page: Page) {
   await page.locator('details.song-chart-collapse > summary').click();
   await expect(page.locator('.song-chord-panel')).toBeVisible();
+  const settings = page.locator('details.song-chart-settings');
+  if (!(await settings.evaluate(el => (el as HTMLDetailsElement).open))) await settings.locator('> summary').click();
+  await expect(page.getByRole('combobox', { name: 'Harjoitustaso' })).toBeVisible();
 }
 
 /** Simuloi säestysraidan etenemistä ilman oikeaa äänentoistoa. */
@@ -294,6 +300,9 @@ test('Soinnut ja sanat on aluksi suljettu, ja sen saa auki ja kiinni pysäyttäm
   await expect(disclosure).toHaveAttribute('open','');
   await expect(panel).toBeVisible();
   await expect(player.getByRole('button',{name:'■ Tauko'})).toBeVisible();
+  // Harjoituskartan asetukset (K4) ovat puhelimessa aluksi suljettuina.
+  const settings=panel.locator('details.song-chart-settings');
+  if (!(await settings.evaluate(el => (el as HTMLDetailsElement).open))) await settings.locator('> summary').click();
   await panel.getByRole('combobox',{name:'Harjoitustaso'}).selectOption('2');
 
   await summary.click();

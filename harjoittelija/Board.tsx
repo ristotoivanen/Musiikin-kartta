@@ -6,9 +6,14 @@ import { useFollowScroll } from './followScroll';
 
 const INLAYS = new Set([3, 5, 7, 9, 15, 17, 19, 21]);
 const STRING_LABELS = ['e', 'B', 'G', 'D', 'A', 'E'];
+/**
+ * Kielen nimi kiinnitetyssä sarakkeessa. Kapealla näytöllä (style.css) näkyy vain kielen kirjain
+ * (e, B, G, D, A, E), jotta otelaudalle jää tilaa. Järjestysnumero ja ”ohuin/paksuin” piilotetaan
+ * silloin vain näkyvistä: rivin otsikon aria-label kertoo ruudunlukijalle kielen koko nimen.
+ */
 function StringLabel({ string }: { string: number }) {
   return <span className="string-label">
-    <span>{string + 1} · <strong>{STRING_LABELS[string]}</strong></span>
+    <span><span className="string-number">{string + 1} · </span><strong>{STRING_LABELS[string]}</strong></span>
     {string === 0 ? <small>ohuin</small> : string === 5 ? <small>paksuin</small> : null}
   </span>;
 }
@@ -17,7 +22,7 @@ const stringThickness = (string: number) =>
 const MARK_WORD: Record<Mark['kind'], string> = { answer: 'vastaus', anchor: 'apupiste', shape: 'muodon sävel', wrong: 'valintasi, ei oikea', playing: 'nyt soi' };
 
 function FretHeader({ min, max }: { min: number; max: number }) {
-  return <thead><tr><th scope="col">Kielet</th>{Array.from({ length: max - min + 1 }, (_, i) => {
+  return <thead><tr><th scope="col"><span className="board-head-label">Kielet</span></th>{Array.from({ length: max - min + 1 }, (_, i) => {
     const fret = min + i;
     return <th key={fret} scope="col" className={fret === 0 ? 'open-fret' : ''}>
       {fret}{fret > 0 && fret % 12 === 0 ? <span className="inlay" aria-hidden="true">●●</span> : INLAYS.has(fret) ? <span className="inlay" aria-hidden="true">●</span> : null}
@@ -79,7 +84,7 @@ export function Board({ area, marks = [], mutedStrings = [], disabled = false, o
       {more.right && <span aria-hidden="true"> →</span>}
     </p>}
     <div ref={viewport} className="fret-scroll" tabIndex={0} role="region" aria-label="Otelaudan vastausruudukko">
-    <table className="practice-board" style={columns}><caption>{caption} · ohut e ylhäällä, paksu E alhaalla</caption>
+    <table className={'practice-board' + (disabled && !onAnswer ? ' display-only' : '')} style={columns}><caption>{caption} · ohut e ylhäällä, paksu E alhaalla</caption>
       <FretHeader min={min} max={max} />
       <tbody>{music.OPEN_PITCHES.map((_, string) => <tr key={string} className={strings.includes(string) ? '' : 'unused'} style={stringThickness(string)}>
         <th scope="row" aria-label={`${string + 1}. kieli: ${stringName[string]}${mutedStrings.includes(string) ? ', ei soiteta' : ''}`}>
