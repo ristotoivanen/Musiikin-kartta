@@ -109,7 +109,7 @@ Tarkista aloittelijalla ilman suullisia ohjeita: miten aloittaa, mistä löytyy 
 - Ei väitettä, että jokaisen teoria-aiheen vieressä on pakko olla uusi peli.
 - Ei päätöstä säilyttää 11 lukua tai neljää nykyistä harjoittelupolkua lopullisina oppimisjaksoina. Ne ovat nykyinen, toimiva aineisto; uusi rakenne on arvioitava.
 - Ei fyysisen soittimen automaattista arviointia ilman siihen sopivaa teknologiaa.
-- Ei väitettä, että lähdeauditoinnin kaikki 11 alkuperäistä Markdown-tiedostoa olisivat jo tässä Git-haarassa. Käyttäjän toimittama ZIP ja paikallinen auditointityöpuu ovat erilliset lähdeaineistot.
+- **Lähdeauditoinnin 11 alkuperäistä Markdown-tiedostoa on tuotu tähän dokumentaatiohaaraan**, commitissa `3cfe5928e886408d155ab1c412072a23f22d3a62`, hakemistoon `docs/audit/oppimisarkkitehtuuri-2026-11/`. Käyttäjän toimittama alkuperäinen ZIP ja paikallinen auditointityöpuu säilyvät erillisenä alkuperäisaineistona. Importointi ei merkitse opetussuunnitelman hyväksyntää.
 - **Ei sovelluskoodimuutoksia, mergeä tai Cloudflare-julkaisua.**
 
 ### Liittyvät suunnitelmat ja työlistat
