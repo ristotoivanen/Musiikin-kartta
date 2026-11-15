@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { SongPlayer, initialAttempt, type Attempt } from './GigPlayer';
+import { SongPlayer, initialAttempt, type Attempt, type Update } from './GigPlayer';
 import { area, gigOf, songs } from './catalog';
 import { areaComplete, followingSong, gigStatus, songAccess, type SongMode } from './setlist';
 import { shuffledOrder } from './order';
@@ -136,10 +136,11 @@ function Ensikeikka() {
     const attempt = isPractice ? practice.attempt : songComplete
       ? { ...initialAttempt, stage: 'complete' as const } : attempts[id] ?? initialAttempt;
 
-    function update(changes: Partial<Attempt>) {
-      if (isPractice) setPractice(previous => ({ song: id, attempt: { ...previous.attempt, ...changes } }));
-      else setAttempts(previous => ({ ...previous, [id]: { ...previous[id] ?? initialAttempt, ...changes } }));
-    }
+    const update: Update = changes => {
+      const apply = (current: Attempt) => ({ ...current, ...(typeof changes === 'function' ? changes(current) : changes) });
+      if (isPractice) setPractice(previous => ({ song: id, attempt: apply(previous.attempt) }));
+      else setAttempts(previous => ({ ...previous, [id]: apply(previous[id] ?? initialAttempt) }));
+    };
 
     const gigNow = status(gig, completed);
     const nextSong = followingSong(gig.songs, id);

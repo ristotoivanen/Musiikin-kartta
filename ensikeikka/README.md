@@ -28,6 +28,14 @@ miten melodia ja harmonia päättävät ne. Peli julkaistaan hakemistoon `pelit/
 - **`reason`** – Valitse väite, joka selittää kuulemasi ratkaisun. Basson erilliskuuntelu vaaditaan
   ennen tarkistusta, jos `isolate` sisältää basson.
 
+**Kuunteluperiaate (kaikki tehtävätyypit):** lopetuspainike soittaa lopetuksen ratkaisevan kohdan.
+Soivan lopetuksen painaminen pysäyttää sen, ja toinen lopetus pysäyttää edellisen heti. Valintatehtävässä
+sama painallus myös valitsee lopetuksen (`aria-pressed`). Valinta säilyy, vaikka toisto pysähtyy.
+Toiston tila (mikä soi) on `GigPlayer`in omassa tilassa, ei tehtävän tilassa. Lopetus on "kuultu"
+vasta, kun se soi loppuun. Keskeytys ei kuittaa sitä, eikä vanhan toiston myöhäinen päättymistapahtuma
+vaikuta, koska `usePlayback` hylkää vanhentuneet kutsut. Erillistä "Kuuntele valittu lopetus"
+-painiketta ei ole; "Kuuntele koko kappale valitulla lopetuksella" ja erilliskuuntelut säilyvät.
+
 Kappaleella voi olla useita tehtäviä peräkkäin (`tasks`). Väliin näytetään onnistumispalaute ja
 "Jatka vaiheeseen N". Valmis kappale soitetaan lopetuksella `target`.
 

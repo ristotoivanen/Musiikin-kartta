@@ -145,3 +145,8 @@
 .concert .show-card .gig-option .gig-note { margin: 0; }
 .concert .mode-note { font-size: 14px; color: var(--muted); }
 .concert .mode-note[data-mode="practice"] { color: var(--warning); }
+.concert .play-icon { width: .75em; height: .75em; fill: currentColor; vertical-align: -.05em; }
+.concert .ending-button small { margin-top: 2px; }
+.concert .ending-button[data-playing] { border-color: var(--good); box-shadow: inset 0 0 0 1px var(--good); }
+.concert .ending-button[data-playing] small { color: var(--good); }
+.concert .ending-help { font-size: 14px; color: var(--muted); }

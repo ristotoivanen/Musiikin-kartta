@@ -184,11 +184,18 @@ test('Kappale 8: piste ja kysymys tunnistetaan, eikä toimivaa loppua leimata v�
   await expect(button(page, 'Piste: lopetus C')).toHaveAttribute('aria-pressed', 'true');
   await expect(check).toBeDisabled();
   await expect(page.getByText('Kuuntele valitsemasi lopetukset loppuun ennen tarkistusta.')).toBeVisible();
+  // Sama kuunteluperiaate kuin valintatehtävässä: soiva lopetus pysähtyy uudesta painalluksesta.
+  await button(page, 'Lopetus A').click();
+  await expect(button(page, 'Lopetus A')).toHaveAccessibleDescription('Soi');
+  await button(page, 'Lopetus A').click();
+  await expect(status(page)).toHaveText('Valmiina kuunteluun.');
+  await expect(button(page, 'Lopetus A')).toHaveAccessibleDescription('Kuuntele');
+  await expect(button(page, 'Piste: lopetus C')).toHaveAttribute('aria-pressed', 'true');
 
   for (const ending of ['A', 'C']) {
-    await button(page, `Kuuntele lopetus ${ending}`).click();
+    await button(page, `Lopetus ${ending}`).click();
     await expect(status(page)).toHaveText(`Soitetaan · Lopetus ${ending}`);
-    await expect(button(page, `Kuuntele lopetus ${ending}, kuultu`)).toBeVisible({ timeout: 10000 });
+    await expect(button(page, `Lopetus ${ending}`)).toHaveAccessibleDescription('Kuultu', { timeout: 10000 });
   }
   await expect(check).toBeEnabled();
   await check.click();
@@ -199,8 +206,8 @@ test('Kappale 8: piste ja kysymys tunnistetaan, eikä toimivaa loppua leimata v�
   await button(page, 'Piste: lopetus B').click();
   await expect(retry(page)).toHaveCount(0);
   await expect(check).toBeDisabled();
-  await button(page, 'Kuuntele lopetus B').click();
-  await expect(button(page, 'Kuuntele lopetus B, kuultu')).toBeVisible({ timeout: 10000 });
+  await button(page, 'Lopetus B').click();
+  await expect(button(page, 'Lopetus B')).toHaveAccessibleDescription('Kuultu', { timeout: 10000 });
   await check.click();
   await expect(page.getByRole('heading', { name: 'Oikein! Tunnistit molemmat loput!' })).toBeFocused();
   await page.getByText('Miksi tämä vastaus?').click();
@@ -362,8 +369,8 @@ test('Koko käyttäjäpolku: tyhjästä tallenteesta molemmat keikat valmiiksi',
   }
   await expect(page).toHaveURL(/#kappale-8$/);
   for (const ending of ['A', 'B']) {
-    await button(page, `Kuuntele lopetus ${ending}`).click();
-    await expect(button(page, `Kuuntele lopetus ${ending}, kuultu`)).toBeVisible({ timeout: 10000 });
+    await button(page, `Lopetus ${ending}`).click();
+    await expect(button(page, `Lopetus ${ending}`)).toHaveAccessibleDescription('Kuultu', { timeout: 10000 });
   }
   await button(page, 'Piste: lopetus B').click();
   await button(page, 'Kysymys: lopetus A').click();
@@ -439,8 +446,8 @@ test('Harjoittelu sekoittaa lopetukset kierroksittain, mutta palaute puhuu valit
   await page.getByRole('button', { name: 'Kokeile kappaletta 8 vapaasti' }).click();
   // Järjestys B, C, A: piste (B) näkyy A:na, terssiloppu (C) B:nä ja kysymys (A) C:nä.
   for (const ending of ['A', 'B', 'C']) {
-    await button(page, `Kuuntele lopetus ${ending}`).click();
-    await expect(button(page, `Kuuntele lopetus ${ending}, kuultu`)).toBeVisible({ timeout: 10000 });
+    await button(page, `Lopetus ${ending}`).click();
+    await expect(button(page, `Lopetus ${ending}`)).toHaveAccessibleDescription('Kuultu', { timeout: 10000 });
   }
   await setRandom(page, .999);
   await button(page, 'Piste: lopetus B').click();
@@ -466,10 +473,10 @@ test('Harjoittelu sekoittaa lopetukset kierroksittain, mutta palaute puhuu valit
   // Uusi kierros arpoo uuden järjestyksen (nyt alkuperäinen A, B, C).
   await page.getByRole('link', { name: 'Takaisin keikkalistaan' }).click();
   await page.getByRole('button', { name: 'Kokeile kappaletta 8 vapaasti' }).click();
-  await button(page, 'Kuuntele lopetus C').click();
-  await expect(button(page, 'Kuuntele lopetus C, kuultu')).toBeVisible({ timeout: 10000 });
-  await button(page, 'Kuuntele lopetus A').click();
-  await expect(button(page, 'Kuuntele lopetus A, kuultu')).toBeVisible({ timeout: 10000 });
+  await button(page, 'Lopetus C').click();
+  await expect(button(page, 'Lopetus C')).toHaveAccessibleDescription('Kuultu', { timeout: 10000 });
+  await button(page, 'Lopetus A').click();
+  await expect(button(page, 'Lopetus A')).toHaveAccessibleDescription('Kuultu', { timeout: 10000 });
   await button(page, 'Piste: lopetus C').click();
   await button(page, 'Kysymys: lopetus A').click();
   await button(page, 'Tarkista valintani').click();

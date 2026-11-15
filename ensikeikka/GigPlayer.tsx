@@ -41,13 +41,17 @@ const layerNames: Record<Layer, string> = { bass: 'basso', melody: 'melodia', co
 
 type Sound = ReturnType<typeof usePlayback>;
 type Listen = (mode: ListeningMode, label: string, ending: Letter | null, onHeard?: () => void) => void;
+/** Muutos tehtävän tilaan. Funktio saa tuoreimman tilan, jottei myöhään valmistuva kuuntelu käytä vanhaa. */
+export type Update = (changes: Partial<Attempt> | ((current: Attempt) => Partial<Attempt>)) => void;
+/** Soiko juuri tämä kuuntelu (ja lopetus). Toiston tila on erillään tehtävän valinnoista. */
+type IsPlaying = (mode: ListeningMode, ending?: Letter | null) => boolean;
 type TaskProps<T> = {
   song: Song;
   task: T;
   attempt: Attempt;
-  update: (changes: Partial<Attempt>) => void;
+  update: Update;
   sound: Sound;
-  mode: ListeningMode;
+  isPlaying: IsPlaying;
   listen: Listen;
   heading: RefObject<HTMLHeadingElement>;
   retryHeading: RefObject<HTMLHeadingElement>;
@@ -59,8 +63,40 @@ type TaskProps<T> = {
 };
 
 const remember = (heard: readonly string[], item: string) => heard.includes(item) ? [...heard] : [...heard, item];
+/** Merkitsee kuunnellun kohteen kuulluksi tuoreimpaan tilaan. */
+const markHeard = (item: string) => (current: Attempt) => ({ heard: remember(current.heard, item) });
 
-function Hints({ hints, level, update }: { hints: readonly string[]; level: number; update: (changes: Partial<Attempt>) => void }) {
+function PlayIcon({ playing }: { playing: boolean }) {
+  return <svg className="play-icon" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true" focusable="false">
+    {playing ? <rect x="2" y="2" width="8" height="8" rx="1" /> : <path d="M3 1.5v9l7.5-4.5z" />}
+  </svg>;
+}
+
+/**
+ * Lopetuksen painike: painallus soittaa lopetuksen ratkaisevan kohdan, ja uusi painallus samaan
+ * soivaan lopetukseen pysäyttää sen. Nimi pysyy samana ("Lopetus A"); toiston tila kerrotaan
+ * kuvakkeella ja kuvaustekstillä, ja valinta (aria-pressed) on siitä erillinen.
+ */
+function EndingButton({ letter, playing, heard, pressed, describedBy, onClick }: {
+  letter: Letter;
+  playing: boolean;
+  heard: boolean;
+  pressed?: boolean;
+  describedBy: string;
+  onClick: () => void;
+}) {
+  return (
+    <button className="ending-button" data-playing={playing || undefined} aria-pressed={pressed}
+      aria-label={`Lopetus ${letter}`} aria-describedby={describedBy} onClick={onClick}>
+      Lopetus <span>{letter}</span>
+      <small id={describedBy}><PlayIcon playing={playing} /> {playing ? 'Soi' : heard ? 'Kuultu' : 'Kuuntele'}</small>
+    </button>
+  );
+}
+
+const endingHelp = 'Painike soittaa lopetuksen. Paina soivaa lopetusta uudelleen, niin toisto pysähtyy.';
+
+function Hints({ hints, level, update }: { hints: readonly string[]; level: number; update: Update }) {
   return (
     <details className="gig-hint">
       <summary>Vihje</summary>
@@ -81,8 +117,8 @@ function Retry({ retryHeading, children }: { retryHeading: RefObject<HTMLHeading
   );
 }
 
-function UnfinishedButton({ sound, mode, listen }: { sound: Sound; mode: ListeningMode; listen: Listen }) {
-  const playing = sound.active && mode === 'unfinished';
+function UnfinishedButton({ sound, isPlaying, listen }: { sound: Sound; isPlaying: IsPlaying; listen: Listen }) {
+  const playing = isPlaying('unfinished');
   return (
     <button className="primary" onClick={() => playing ? sound.stop() : listen('unfinished', 'Keskeneräinen kappale', null)}>
       {playing ? 'Pysäytä keskeneräinen kappale' : 'Kuuntele keskeneräinen kappale'}
@@ -94,14 +130,22 @@ function Status({ sound, className = 'listening-status' }: { sound: Sound; class
   return <p className={`status ${className}`} role="status">{sound.status}</p>;
 }
 
-function ChooseView({ task, attempt, update, sound, mode, listen, heading, retryHeading, onSolved, shown, fill }: TaskProps<ChooseTask>) {
+function ChooseView({ task, attempt, update, sound, isPlaying, listen, heading, retryHeading, onSolved, shown, fill }: TaskProps<ChooseTask>) {
   const { selected, heard, checked } = attempt;
-  const isPlaying = (which: ListeningMode) => sound.active && mode === which;
   const preview = (ending: Letter, which: 'ending' | 'full') => listen(which,
-    `Lopetus ${shown(ending)}${which === 'full' ? ' · koko kappale' : ''}`, ending, () => update({ heard: remember(heard, ending) }));
-  const toggle = (which: 'ending' | 'full') => {
-    if (isPlaying(which)) sound.stop();
-    else if (selected !== null) preview(selected, which);
+    `Lopetus ${shown(ending)}${which === 'full' ? ' · koko kappale' : ''}`, ending, () => update(markHeard(ending)));
+  /** Valitsee lopetuksen ja soittaa sen, tai pysäyttää sen, jos juuri se soi. */
+  const chooseEnding = (ending: Letter) => {
+    if (isPlaying('ending', ending)) {
+      sound.stop();
+      return;
+    }
+    update({ selected: ending, checked: null });
+    preview(ending, 'ending');
+  };
+  const toggleFull = () => {
+    if (isPlaying('full')) sound.stop();
+    else if (selected !== null) preview(selected, 'full');
   };
   const toggleLayer = (layer: Layer) => {
     if (isPlaying(layer)) sound.stop();
@@ -117,42 +161,37 @@ function ChooseView({ task, attempt, update, sound, mode, listen, heading, retry
   return <>
     <h2 ref={heading} tabIndex={-1}>{task.heading}</h2>
     <p>{fill(task.intro)}</p>
-    <UnfinishedButton sound={sound} mode={mode} listen={listen} />
+    <UnfinishedButton sound={sound} isPlaying={isPlaying} listen={listen} />
     <div className="gig-transport">
       <fieldset>
         <legend>Kokeile lopetuksia</legend>
         <p>{fill(task.prompt)}</p>
+        <p className="ending-help">{endingHelp}</p>
         <div className="ending-choices">
-          {attempt.order.map(ending => <button key={ending} aria-pressed={selected === ending} onClick={() => {
-            update({ selected: ending, checked: null });
-            preview(ending, 'ending');
-          }}>
-            Lopetus <span>{shown(ending)}</span>
-          </button>)}
+          {attempt.order.map(ending => <EndingButton key={ending} letter={shown(ending)} pressed={selected === ending}
+            playing={isPlaying('ending', ending)} heard={heard.includes(ending)} describedBy={`lopetus-${ending}-tila`}
+            onClick={() => chooseEnding(ending)} />)}
         </div>
       </fieldset>
       <div className="button-row ending-playback">
-        <button disabled={selected === null} onClick={() => toggle('ending')}>
-          {isPlaying('ending') ? 'Pysäytä lopetus' : 'Kuuntele valittu lopetus'}
-        </button>
-        <button disabled={selected === null} onClick={() => toggle('full')}>
-          {isPlaying('full') ? 'Pysäytä koko kappale' : 'Kuuntele koko kappale valitulla lopetuksella'}
+        <button disabled={selected === null} onClick={toggleFull}>
+          <PlayIcon playing={isPlaying('full')} /> {isPlaying('full') ? 'Pysäytä koko kappale' : 'Kuuntele koko kappale valitulla lopetuksella'}
         </button>
         {task.isolate?.map(layer => <button key={layer} disabled={selected === null} onClick={() => toggleLayer(layer)}>
-          {isPlaying(layer) ? `Pysäytä ${layerNames[layer]}` : `Kuuntele vain ${layerNames[layer]}`}
+          <PlayIcon playing={isPlaying(layer)} /> {isPlaying(layer) ? `Pysäytä ${layerNames[layer]}` : `Kuuntele vain ${layerNames[layer]}`}
         </button>)}
       </div>
     </div>
     <Status sound={sound} />
     <button className="primary" disabled={selected === null || !heard.includes(selected)} onClick={check}>Tarkista valintani</button>
+    {selected !== null && !heard.includes(selected) && <p className="status">Kuuntele valittu lopetus loppuun ennen tarkistusta.</p>}
     {checked && <Retry retryHeading={retryHeading}><p>{fill(task.wrong?.[checked] ?? task.retry)}</p></Retry>}
     <Hints hints={task.hints.map(fill)} level={attempt.hintLevel} update={update} />
   </>;
 }
 
-function MatchView({ task, attempt, update, sound, mode, listen, heading, retryHeading, onSolved, shown, fill }: TaskProps<MatchTask>) {
+function MatchView({ task, attempt, update, sound, isPlaying, listen, heading, retryHeading, onSolved, shown, fill }: TaskProps<MatchTask>) {
   const { heard, picks, checkedPicks } = attempt;
-  const playing = sound.active && mode === 'ending' ? attempt.selected : null;
   const chosen = task.questions.flatMap(question => picks[question.id] ?? []);
   const ready = chosen.length === task.questions.length && chosen.every(pick => heard.includes(pick));
   const check = () => {
@@ -166,22 +205,17 @@ function MatchView({ task, attempt, update, sound, mode, listen, heading, retryH
   return <>
     <h2 ref={heading} tabIndex={-1}>{task.heading}</h2>
     <p>{fill(task.intro)}</p>
-    <UnfinishedButton sound={sound} mode={mode} listen={listen} />
+    <UnfinishedButton sound={sound} isPlaying={isPlaying} listen={listen} />
     <div className="gig-transport">
       <fieldset>
         <legend>Kuuntele lopetukset</legend>
         <p>Kuuntele jokainen lopetus loppuun asti. Voit toistaa niitä niin monta kertaa kuin haluat.</p>
+        <p className="ending-help">{endingHelp}</p>
         <div className="ending-choices">
-          {attempt.order.map(ending => <button key={ending} className="listen-choice"
-            aria-label={`${playing === ending ? 'Pysäytä' : 'Kuuntele'} lopetus ${shown(ending)}${heard.includes(ending) ? ', kuultu' : ''}`}
-            onClick={() => {
-              if (playing === ending) return sound.stop();
-              update({ selected: ending });
-              listen('ending', `Lopetus ${shown(ending)}`, ending, () => update({ selected: ending, heard: remember(heard, ending) }));
-            }}>
-            {playing === ending ? 'Pysäytä' : 'Lopetus'} <span>{shown(ending)}</span>
-            <small aria-hidden="true">{heard.includes(ending) ? '✓ kuultu' : 'ei vielä kuultu'}</small>
-          </button>)}
+          {attempt.order.map(ending => <EndingButton key={ending} letter={shown(ending)}
+            playing={isPlaying('ending', ending)} heard={heard.includes(ending)} describedBy={`lopetus-${ending}-tila`}
+            onClick={() => isPlaying('ending', ending) ? sound.stop()
+              : listen('ending', `Lopetus ${shown(ending)}`, ending, () => update(markHeard(ending)))} />)}
         </div>
       </fieldset>
     </div>
@@ -209,10 +243,9 @@ function MatchView({ task, attempt, update, sound, mode, listen, heading, retryH
   </>;
 }
 
-function ReasonView({ song, task, attempt, update, sound, mode, listen, heading, retryHeading, onSolved }: TaskProps<ReasonTask>) {
+function ReasonView({ song, task, attempt, update, sound, isPlaying, listen, heading, retryHeading, onSolved }: TaskProps<ReasonTask>) {
   const { heard, picks, checkedPicks } = attempt;
   const pick = picks.reason;
-  const isPlaying = (which: ListeningMode) => sound.active && mode === which;
   const needsBass = task.isolate.includes('bass') && !heard.includes('bass');
   const check = () => {
     if (pick === undefined || needsBass) return;
@@ -227,11 +260,11 @@ function ReasonView({ song, task, attempt, update, sound, mode, listen, heading,
     <p>{task.intro}</p>
     <div className="button-row">
       <button className="primary" onClick={() => isPlaying('ending') ? sound.stop() : listen('ending', 'ratkaiseva kohta', song.target)}>
-        {isPlaying('ending') ? 'Pysäytä ratkaiseva kohta' : 'Kuuntele ratkaiseva kohta'}
+        <PlayIcon playing={isPlaying('ending')} /> {isPlaying('ending') ? 'Pysäytä ratkaiseva kohta' : 'Kuuntele ratkaiseva kohta'}
       </button>
       {task.isolate.map(layer => <button key={layer} onClick={() => isPlaying(layer) ? sound.stop()
-        : listen(layer, `vain ${layerNames[layer]}`, song.target, () => update({ heard: remember(heard, layer) }))}>
-        {isPlaying(layer) ? `Pysäytä ${layerNames[layer]}` : `Kuuntele vain ${layerNames[layer]}`}
+        : listen(layer, `vain ${layerNames[layer]}`, song.target, () => update(markHeard(layer)))}>
+        <PlayIcon playing={isPlaying(layer)} /> {isPlaying(layer) ? `Pysäytä ${layerNames[layer]}` : `Kuuntele vain ${layerNames[layer]}`}
       </button>)}
     </div>
     <Status sound={sound} />
@@ -254,7 +287,7 @@ export function SongPlayer({ song, gigId, showLabel, attempt, update, onList, on
   gigId: number;
   showLabel: string;
   attempt: Attempt;
-  update: (changes: Partial<Attempt>) => void;
+  update: Update;
   onList: () => void;
   onSetlist: () => void;
   onNext?: () => void;
@@ -275,25 +308,27 @@ export function SongPlayer({ song, gigId, showLabel, attempt, update, onList, on
   const { id, title, tasks, target, explanation } = song;
   const task = tasks[Math.min(step, tasks.length - 1)];
   const sound = usePlayback();
-  const [mode, setMode] = useState<ListeningMode>('ending');
+  // Mikä soi: kuuntelutapa ja lopetus. Tämä on erillään tehtävän valinnasta (attempt.selected).
+  const [now, setNow] = useState<{ mode: ListeningMode; ending: Letter | null }>({ mode: 'ending', ending: null });
+  const isPlaying: IsPlaying = (which, ending) => sound.active && now.mode === which && (ending === undefined || now.ending === ending);
   const heading = useRef<HTMLHeadingElement>(null);
   const retryHeading = useRef<HTMLHeadingElement>(null);
   useEffect(() => { heading.current?.focus(); }, [stage, step]);
   useEffect(() => { retryHeading.current?.focus(); }, [stage, checks]);
 
   const listen: Listen = (which, label, ending, onHeard) => {
-    setMode(which);
+    setNow({ mode: which, ending });
     const whole = which === 'unfinished' || which === 'full';
     const layers = whole || which === 'ending' ? undefined : [which];
     sound.play(label, rate => renderSong(song, ending, rate, layers), whole ? 0 : songExcerpt(song), onHeard);
   };
 
   const solved = () => update({ stage: step + 1 < tasks.length ? 'between' : 'perform' });
-  const playingFull = sound.active && mode === 'full';
-  const playingEnding = sound.active && mode === 'ending';
+  const playingFull = isPlaying('full');
+  const playingEnding = isPlaying('ending');
 
   function playFinishedSong(onEnded?: () => void) {
-    setMode('full');
+    setNow({ mode: 'full', ending: target });
     sound.play('valmista kappaletta', rate => renderSong(song, target, rate), 0, onEnded);
   }
 
@@ -302,7 +337,7 @@ export function SongPlayer({ song, gigId, showLabel, attempt, update, onList, on
       sound.stop();
       return;
     }
-    setMode('ending');
+    setNow({ mode: 'ending', ending: target });
     sound.play('ratkaisevaa kohtaa', rate => renderSong(song, target, rate), songExcerpt(song));
   }
 
@@ -326,7 +361,7 @@ export function SongPlayer({ song, gigId, showLabel, attempt, update, onList, on
     </details>
   );
 
-  const taskProps = { song, attempt, update, sound, mode, listen, heading, retryHeading, onSolved: solved, shown, fill };
+  const taskProps = { song, attempt, update, sound, isPlaying, listen, heading, retryHeading, onSolved: solved, shown, fill };
 
   return (
     <main className="concert">
