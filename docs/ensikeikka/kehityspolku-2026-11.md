@@ -78,6 +78,29 @@ Nykyisen kehityshaaran toisen keikan (6–9, suunnitellut Ensitreenit) tehtävä
 - **Seuraavat bändiharjoitukset:** tuovat aidosti uusia taitoja. Niiden jälkeen taas keikka, jossa taidot otetaan käyttöön.
 - **Vapaa pääsy:** nykyinen vapaa harjoittelu, suora aloitus ja kertaus eivät katoa. Uusi keikka voi olla suositeltu jatko Ensitreeneistä ilman että pelin koko muu sisältö sidotaan uusiin lukkoihin.
 
+### Ensitreenien dramaturgia: uskottavat bändin kysymykset
+
+**Omistajan pedagoginen tarkennus 15.11.2026:** nykyiset 1–9:n tilanteet ovat **oikeaan bändiharjoitukseen sopivia**: bändi miettii, miten kappale lopetetaan, miten basso etenee, miten melodia suhteutuu bassoon ja miltä lopetus kuulostaa. Älä muuta niitä irralliseksi teoriatentiksi vain siksi, että sisältö saa Ensitreenit-nimen.
+
+**Toistuva lyhyt tehtävärakenne:** bändi kohtaa aidon musiikillisen kysymyksen → pelaaja kuuntelee tilanteen → kokeilee tai vertailee vaihtoehtoja → kuulee lopputuloksen → saa tarvittaessa lyhyen musiikillisen selityksen → bändi jatkaa.
+
+**Nykyisten tehtävien muotoiluperiaatteet (esimerkkirepliikit, eivät nykyisen UI:n kirjaimellisia tekstejä):**
+- Kappaleet 1–5: *"Miten lopetetaan tämä kappale niin, että se tuntuu tulevan kotiin?"* Pelaaja kuuntelee melodian ja eri loppusävelet. Opittava asia: kotisävel ja lopetuksen tuntuma.
+- Kappale 6: *"Nämä kaikki sävelet sopivat sointuun, mutta mikä kuulostaa tämän kappaleen viimeiseltä säveleltä?"* Opittava asia: sointuun kuuluminen ei yksin tarkoita kotisäveltä.
+- Kappale 7: *"Melodia pysyy samana. Kuuntele bassoa: miten koko lopetus muuttuu?"* Opittava asia: basson ja harmonian vaikutus, erilliskuuntelu.
+- Kappale 8: *"Tehdäänkö tähän piste vai jätetäänkö kysymys ilmaan?"* Opittava asia: erilaiset tarkoituksenmukaiset musiikilliset lopetukset; kaikkia ei saa käsitellä yksiselitteisesti väärinä.
+- Kappale 9: *"Kuuntele, mihin basso nousee ja melodia laskee. Miten lopetetaan ja miksi se toimii?"* Opittava asia: usean soittimen suhteen kuuleminen ja perustelu.
+
+**Kieliasu ja pelillisyys:**
+- Bändin dialogi lyhyeksi, arkiseksi ja soittajien puheeseen sopivaksi: mitä ollaan tekemässä ja miksi. Erikoistermi tulee selityksessä tai vapaaehtoisessa teoriavihjeessä, ei aina repliikissä.
+- Sama kysymys voi saada useita oikeutettuja musiikillisia ratkaisuja. Jos bändi haluaa tiettyä lopputulosta, arvioidaan *tavoitteeseen sopivuutta*, ei mieltymystä objektiivisesti oikeana.
+- Tehtävän oikeaa vastausta **ei paljasteta repliikissä**. Basson erilliskuuntelu on kuunteluväline, ei automaattisesti näyttävä ratkaisu.
+- Älä lisää monimutkaisia tarina-animaatioita, pitkää kirjoitettua dialogia tai pakollista kuuntelulukkoa nykyisiin toimiviin tehtäviin.
+- Varmista, että jo sävelletyn 1–9:n musiikilliset esimerkit tukevat kysymystä; älä pakota tarinaa sopimaan huonosti ääneen. Jos repliikki väittää basson kulkevan tavalla, jota äänitteestä ei kuule, korjataan tekstiä tai musiikillista aineistoa katselmoinnin perusteella.
+- Treenien ja keikan ero säilyy: treeneissä pysähdytään, kokeillaan ja analysoidaan; Ensikeikalla musiikkia soitetaan pidempänä kokonaisuutena, ja valintojen vaikutus kuuluu esityksessä.
+
+**Tila:** sisältösuunnittelun linjaus, ei nykyisten kappaleiden hyväksytty tekstimuutos eikä pyyntö puuttua Clauden keskeneräiseen haaraan.
+
 ### Kotikulman keikan pilottikohtaus: ensimmäinen oikea esiintyminen
 
 **Musiikillinen tarkoitus:** osoita, että Ensitreeneissä kuultu melodian kotiin palaaminen sekä basson ja soinnun toiminta on tunnistettavissa myös uudessa musiikillisessa tilanteessa.
