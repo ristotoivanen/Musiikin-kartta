@@ -36,7 +36,7 @@ export const gigs = {
   ...approvedSongs,
 } satisfies Record<number, { title: string; keyName: string; root: string; endings: Record<DemoEnding, string>; target: DemoEnding }>;
 export type Gig = keyof typeof gigs;
-const arrangements: Record<Gig, Arrangement> = {
+export const gigArrangements: Record<Gig, Arrangement> = {
   1: { harmony: minorHarmony, melody: minorMelody.map((note, index): [string, number, number] => [note, index, 1]) },
   2: { harmony: majorHarmony, melody: majorMelody },
   3: approvedSongs[3].arrangement,
@@ -45,17 +45,17 @@ const arrangements: Record<Gig, Arrangement> = {
 };
 
 export function renderDemoBand(rate: number, gig: Gig = 1) {
-  return renderArrangementBand(arrangements[gig], rate);
+  return renderArrangementBand(gigArrangements[gig], rate);
 }
 
 export function renderDemo(ending: DemoEnding, rate: number) {
-  return renderArrangement(arrangements[1], demoEndings[ending], rate);
+  return renderArrangement(gigArrangements[1], demoEndings[ending], rate);
 }
 
 export function gigExcerpt(gig: Gig) {
-  return endingExcerpt(arrangements[gig]);
+  return endingExcerpt(gigArrangements[gig]);
 }
 
 export function renderGig(gig: Gig, ending: DemoEnding | null, rate: number) {
-  return renderArrangement(arrangements[gig], ending === null ? null : gigs[gig].endings[ending], rate);
+  return renderArrangement(gigArrangements[gig], ending === null ? null : gigs[gig].endings[ending], rate);
 }

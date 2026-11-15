@@ -120,3 +120,19 @@
 @media (max-width: 520px) {
   .concert { padding-inline: 16px; }
 }
+
+/* Keikkakortit ja keikan 2 tehtävätyypit */
+.concert .show-card + .show-card { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+.concert .show-card h3:focus { outline-offset: 4px; }
+.concert .show-card .show-description { color: var(--muted); }
+.concert .show-card[data-state="locked"] h3 { color: var(--muted); }
+.concert .gig-note { font-size: 14px; color: var(--muted); }
+.concert .gig-state[data-state="locked"] { color: var(--muted); }
+.concert .ending-choices button small { display: block; font-size: 12px; font-weight: 500; color: var(--muted); }
+.concert .match-question { margin-top: 14px; }
+.concert .match-question legend { font-size: 16px; margin-bottom: 6px; }
+.concert .statement-choices { display: grid; gap: 6px; margin-top: 12px; }
+.concert .statement-choices legend { margin-bottom: 6px; }
+.concert .statement-choices button { text-align: start; padding: 10px 12px; font-weight: 550; line-height: 1.35; }
+.concert .gig-stage > .button-row + .status { margin-top: 10px; }
+.concert .gig-hint button { margin-top: 2px; }
