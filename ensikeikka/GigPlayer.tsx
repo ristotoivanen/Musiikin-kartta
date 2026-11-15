@@ -170,7 +170,7 @@ function MatchView({ task, attempt, update, sound, mode, listen, heading, retryH
               listen('ending', `Lopetus ${ending}`, ending, () => update({ selected: ending, heard: remember(heard, ending) }));
             }}>
             {playing === ending ? 'Pysäytä' : 'Lopetus'} <span>{ending}</span>
-            <small aria-hidden="true">{heard.includes(ending) ? '✓ kuultu' : 'kuuntele'}</small>
+            <small aria-hidden="true">{heard.includes(ending) ? '✓ kuultu' : 'ei vielä kuultu'}</small>
           </button>)}
         </div>
       </fieldset>

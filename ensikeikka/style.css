@@ -136,3 +136,7 @@
 .concert .statement-choices button { text-align: start; padding: 10px 12px; font-weight: 550; line-height: 1.35; }
 .concert .gig-stage > .button-row + .status { margin-top: 10px; }
 .concert .gig-hint button { margin-top: 2px; }
+.concert .area-summary { margin: 0 0 12px; padding: 0; list-style: none; }
+.concert .area-summary li + li { margin-top: 2px; }
+.concert .match-question + button.primary,
+.concert .statement-choices + button.primary { margin-top: 16px; }

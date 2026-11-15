@@ -178,9 +178,14 @@ function Ensikeikka() {
         <section className="session gig-stage" aria-labelledby="areas">
           <h2 id="areas">Esiintymisalueet</h2>
           <p>Et tarvitse kitaraa tai nuottien tuntemusta.</p>
-          <p className="gig-state" data-state={finished ? 'done' : 'next'}>
-            {area.gigs.length} keikkaa · {area.gigs.map(gig => `keikka ${gig.id}: ${status(gig, completed).count} / ${gig.songs.length}`).join(' · ')}
-          </p>
+          <ul className="area-summary" aria-label={`${area.title}: eteneminen`}>
+            {area.gigs.map(gig => {
+              const { count, complete, unlocked } = status(gig, completed);
+              return <li key={gig.id} className="gig-state" data-state={complete ? 'done' : unlocked ? 'next' : 'locked'}>
+                Keikka {gig.id}: {complete ? 'suoritettu' : unlocked ? `${count} / ${gig.songs.length} kappaletta` : `avautuu keikan ${gig.requires} jälkeen`}
+              </li>;
+            })}
+          </ul>
           {finished && <p className="tour-finished">Esiintymisalue suoritettu</p>}
           <div className="button-row">
             <button className="primary" onClick={toArea}>{area.title}</button>

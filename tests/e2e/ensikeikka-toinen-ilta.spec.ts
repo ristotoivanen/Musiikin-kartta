@@ -325,3 +325,41 @@ for (const song of [8, 9] as const) {
     await expect(choice).toHaveAttribute('aria-pressed', 'true');
   });
 }
+
+test('Koko käyttäjäpolku: tyhjästä tallenteesta molemmat keikat valmiiksi', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'Pitkä polku ajetaan kerran työpöytänäkymässä; kappalekohtaiset testit kattavat puhelimen.');
+  test.setTimeout(300000);
+  await start(page, null, '');
+  await button(page, 'Kotikulmien keikat').click();
+  await button(page, 'Aloita keikka 1').click();
+  for (const [song, ending] of [[1, 'B'], [2, 'C'], [3, 'A'], [4, 'B'], [5, 'C'], [6, 'B'], [7, 'C']] as const) {
+    await expect(page).toHaveURL(new RegExp(`#kappale-${song}$`));
+    await hear(page, ending);
+    await button(page, 'Tarkista valintani').click();
+    await perform(page, song === 5 ? 'Keikka valmis!' : 'Kappale valmis!');
+    await button(page, song === 5 ? 'Aloita keikka 2' : 'Seuraava kappale').click();
+  }
+  await expect(page).toHaveURL(/#kappale-8$/);
+  for (const ending of ['A', 'B']) {
+    await button(page, `Kuuntele lopetus ${ending}`).click();
+    await expect(button(page, `Kuuntele lopetus ${ending}, kuultu`)).toBeVisible({ timeout: 10000 });
+  }
+  await button(page, 'Piste: lopetus B').click();
+  await button(page, 'Kysymys: lopetus A').click();
+  await button(page, 'Tarkista valintani').click();
+  await perform(page, 'Kappale valmis!');
+  await button(page, 'Seuraava kappale').click();
+  await hear(page, 'A');
+  await button(page, 'Tarkista valintani').click();
+  await button(page, 'Jatka vaiheeseen 2').click();
+  await button(page, 'Kuuntele vain basso').click();
+  await button(page, 'Basso nousee askel kerrallaan kotisävelelle samalla, kun melodia laskeutuu sinne.').click();
+  await expect(button(page, 'Tarkista valintani')).toBeEnabled({ timeout: 10000 });
+  await button(page, 'Tarkista valintani').click();
+  await perform(page, 'Kotikulmien toinen ilta suoritettu!');
+  expect(await saved(page)).toEqual({ version: 1, completed: [1, 2, 3, 4, 5, 6, 7, 8, 9] });
+  await button(page, 'Palaa settilistaan').click();
+  await expect(page.getByText('Esiintymisalue suoritettu!')).toBeVisible();
+  await page.getByRole('button', { name: 'Takaisin Ensikeikan alkuun' }).click();
+  await expect(page.getByText('Keikka 2: suoritettu')).toBeVisible();
+});
