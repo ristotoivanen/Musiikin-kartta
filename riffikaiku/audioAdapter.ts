@@ -42,7 +42,13 @@ export interface GameAudio {
   closeMic(): void;
   /** Soittaa mallin. false = keskeytettiin. Heittää, jos äänimoottori ei käynnisty. */
   playModel(notes: number[], onNote: (index: number) => void): Promise<boolean>;
+  /** Pysäyttää mallin ja otelaudan sävelen (lopetus, riffin vaihto). */
   stopModel(): void;
+  /**
+   * Pysäyttää vain mallin. Otelaudan sävel soi omalla soittimellaan, joten pelaaja voi kokeilla säveliä
+   * mallin aikana, eikä mallin pysäytys katkaise hänen säveltään (eikä päinvastoin).
+   */
+  stopReference(): void;
   /** Virtuaalikitaran painallus: yksi kuuluva sävel. Ei vaikuta mallisoittoon. */
   pluck(midi: number): void;
 }
@@ -85,6 +91,7 @@ export class BrowserAudio implements GameAudio {
   closeMic() { this.mic.stop(); this.detector.reset(); }
   playModel(notes: number[], onNote: (index: number) => void) { return this.player.play(notes, onNote); }
   stopModel() { this.player.stop(); this.strings.stop(); }
+  stopReference() { this.player.stop(); }
   // Uusi painallus katkaisee edellisen sävelen: sama sävel kahdesti kuuluu kahtena näppäyksenä.
   pluck(midi: number) { void this.strings.play([midi]).catch(() => {}); }
 }

@@ -4,32 +4,42 @@
  * Oikean kitaran harjoitus on erillinen (practice.ts + mic.ts); yhteistä on riffidata, säveltoisto ja
  * säveljonon tarkistaja (sequence.ts).
  *
- * Päätila: home (kotitreenit ja eteneminen) → ready (pelaaja aloittaa kuuntelun) → model-playing →
- *   listening → success (riffi virheettömästi; pelaaja valitsee jatkon) |
- *   retry (loppuun, mutta keltaisia; pallukat jäävät näkyviin, kunnes pelaaja valitsee Yritä uudelleen)
- *   → seuraava riffi → level-complete (kotitreenin 3/3).
- * Kuuntelu (listen) ei koskaan aloita uutta yritystä eikä nollaa pallukoita, ja mallia saa kuunnella rajattomasti.
+ * Riffin kulku (0.5): Kuuntele → Harjoittele vapaasti → Nyt riffataan! → Palaute → Jatka.
  *
- * Vapaa kokeilu (ready, success, retry): otelauta soi, mutta mitään ei arvioida eikä tulos tai pallukat
- * muutu. Arvioitava yritys alkaa vain kuuntelusta (ready) tai painikkeesta (Yritä uudelleen / Soita uudelleen).
- * Ei aikarajaa, elämiä eikä rytmin pisteytystä. Seuraavaan riffiin ja kotitreeniin siirrytään vain pelaajan valinnasta.
+ *   home → practice (malli soi heti, kun riffi avataan pelaajan painalluksesta) ⇄ take (arvioitava otto)
+ *        → success (kaikki vihreinä) | retry (loppuun keltaisilla) → practice / take / seuraava riffi
+ *        → level-complete (kotitreenin 3/3).
  *
- * Suojaukset: op-laskuri ohittaa myöhässä palaavan mallisoiton; round-tunniste hylkää edellisen yrityksen vastaukset.
+ * - **practice**: mallia voi kuunnella ja pysäyttää rajattomasti, otelauta soi myös mallin aikana, ja
+ *   sävelet ja ehdotetut paikat voi näyttää. Mitään ei arvioida eikä kirjata.
+ * - **take**: alkaa vain startTake()-kutsusta (”Nyt riffataan!”). Malli pysähtyy, vastaukset piiloon,
+ *   uusi yritys ja kierrostunniste. Ensimmäinen oton alun jälkeinen painallus on ensimmäinen tarkistettava
+ *   sävel. Mallia ei voi kuunnella kesken oton; ”Harjoittele vielä” (practiceMore) palaa harjoitteluun
+ *   kirjaamatta keskeneräistä ottoa.
+ * - **success / retry**: tulos jää näkyviin; mallia voi kuunnella ja otelautaa soittaa vapaasti.
+ *
+ * Harjoittelun apu (sävelet, paikat, malli) ei vaikuta tähtiin. Otossa pyydetty Vihje vaikuttaa
+ * (hint-kirjaus), muistivihjeet eivät. Opastustaso tulee kotitreenin datasta (riffs.ts: GUIDANCE).
+ * Ei aikarajaa, elämiä eikä rytmin pisteytystä. Seuraavaan siirrytään vain pelaajan valinnasta.
+ *
+ * Suojaukset: modelOp ohittaa myöhässä palaavan tai keskeytetyn mallisoiton; round-tunniste hylkää
+ * edellisen yrityksen vastaukset. Automaattinen mallisoitto käynnistetään vain pelaajan painalluksen
+ * käsittelijästä (ei Reactin efektistä), joten StrictMode tai uudelleenrenderöinti ei toista sitä.
  */
 import { referenceAudioError } from '../harjoittelija/audio';
 import type { GameAudio } from './audioAdapter';
-import { LEVELS, TUTORIAL, noteName, type Level, type Riff } from './riffs';
+import { GUIDANCE, LEVELS, TUTORIAL, noteName, type Guidance, type Level, type Riff } from './riffs';
 import { SequencePractice, type SequenceChecker, type SlotMark } from './sequence';
 import type { RecordOutcome, RiffStore } from './store';
 
 export { noteName } from './riffs';
-export type Phase = 'home' | 'ready' | 'model-playing' | 'listening' | 'success' | 'retry' | 'level-complete';
+export type Phase = 'home' | 'practice' | 'take' | 'success' | 'retry' | 'level-complete';
 export type Feedback = { tone: 'info' | 'good' | 'bad'; text: string };
 /** Painalluksen tulos otelaudan välähdystä varten: oikein, väärin tai vapaa kokeilu. */
 export type TapResult = 'right' | 'wrong' | 'free';
 /** Riffin saavutukset virtuaalikitaralla: läpäisty (kaikki vihreinä) ja tähti (läpäisty ilman vihjettä). */
 export type RiffRecord = { passed: boolean; star: boolean; best: number | null; done: number };
-/** Viimeksi loppuun soitetun yrityksen saavutukset onnittelua varten. */
+/** Viimeksi loppuun soitetun oton saavutukset onnittelua varten. */
 export type Achievement = Omit<RecordOutcome, 'levelComplete'> & { flawless: boolean; wrong: number };
 
 export type GameState = {
@@ -39,19 +49,24 @@ export type GameState = {
   /** Nykyinen kotitreeni ja riffin järjestysnumero siinä (1–3). Opastuksessa kotitreeni 1. */
   level: Level;
   riffNumber: number;
-  /** Ratkaistujen paikkojen määrä tällä yrityksellä. */
+  guidance: Guidance;
+  /** Ratkaistujen paikkojen määrä tällä otolla. */
   index: number;
   /** Etenemispallukat: pending (harmaa) / red / green / yellow. */
   marks: SlotMark[];
-  /** Muistivihjeet paikoittain (MIDI tai null). Käytössä kolmannen epäonnistuneen yrityksen jälkeen. */
+  /** Muistivihjeet paikoittain (MIDI tai null). Kolmannen epäonnistuneen oton jälkeen, jos opastustaso sallii. */
   memory: (number | null)[];
   failedAttempts: number;
   /** Mallisoitossa soiva sävel (korostus), muuten null. */
   playing: number | null;
   modelPlaying: boolean;
-  /** Manuaalinen sävelvihje (erillinen muistivihjeistä). */
+  /** Harjoittelun apu: sävelet ja ehdotetut paikat näkyvissä. Ei vaikuta tähtiin. */
+  notesShown: boolean;
+  /** Otossa pyydetty Vihje: kirjataan tulokseen, estää tähden. */
   hint: boolean;
   feedback: Feedback | null;
+  /** Mallisoitto ei käynnistynyt (esim. selain esti automaattisen toiston). */
+  audioError: string;
   achievement: Achievement | null;
   completedLevels: number[];
   unlockedLevels: number[];
@@ -59,25 +74,28 @@ export type GameState = {
   passedInRun: string[];
 };
 
-/** Vaiheet, joissa otelauta soi. */
-const FREE_PLAY: Phase[] = ['ready', 'listening', 'success', 'retry'];
+/** Vaiheet, joissa otelauta soi vapaasti (ei arvioida). */
+const FREE_PLAY: Phase[] = ['practice', 'success', 'retry'];
 const pending = (riff: Riff): SlotMark[] => riff.midi.map(() => 'pending');
 const INPUT = 'board' as const;
 
 export class RiffGame {
   private state: GameState;
   private listeners = new Set<() => void>();
-  private op = 0;
+  private modelOp = 0;
   private round = 0;
-  private practice: SequencePractice | null = null;
-  private practiceRiff: string | null = null;
-  private roundStart: number | null = null;
-  private replays = 0;
+  private series: SequencePractice | null = null;
+  private seriesRiff: string | null = null;
+  private takeStart: number | null = null;
+  /** Mallin kuuntelut pelaajan pyynnöstä edellisen oton jälkeen (kirjataan seuraavan oton tulokseen). */
+  private listens = 0;
+  private takeListens = 0;
 
-  constructor(private audio: Pick<GameAudio, 'playModel' | 'stopModel' | 'pluck'>, private store: RiffStore, private clock: () => number = () => performance.now()) {
+  constructor(private audio: Pick<GameAudio, 'playModel' | 'stopModel' | 'stopReference' | 'pluck'>, private store: RiffStore, private clock: () => number = () => performance.now()) {
+    const pos = this.position();
     this.state = {
-      phase: 'home', ...this.position(), index: 0, memory: [], failedAttempts: 0, playing: null, modelPlaying: false, hint: false,
-      feedback: null, achievement: null, ...this.progressPatch(),
+      phase: 'home', ...pos, guidance: pos.level.guidance, index: 0, memory: [], failedAttempts: 0, playing: null, modelPlaying: false,
+      notesShown: false, hint: false, feedback: null, audioError: '', achievement: null, ...this.progressPatch(),
     };
   }
 
@@ -101,15 +119,15 @@ export class RiffGame {
   record(riffId: string): RiffRecord { return riffRecord(this.store, riffId); }
 
   // ---- aloitus ja kotitreenit ----
-  /** Pelaa: opastus, kesken oleva kotitreeni tai sen onnittelunäkymä. */
-  play() { this.beginRound(); }
+  /** Pelaa: opastus, kesken oleva kotitreeni tai sen onnittelunäkymä. Malli soi heti. */
+  play() { this.beginRiff(); }
   /** Pelin aloitusnäkymä: kotitreenit ja eteneminen. Kaikki pysähtyy; edistyminen on jo tallennettu. */
   home() {
-    ++this.op;
-    this.audio.stopModel();
-    this.practice = null;
-    this.set({ phase: 'home', playing: null, modelPlaying: false, feedback: null, achievement: null, index: 0, hint: false,
-      memory: [], failedAttempts: 0, ...this.position(), ...this.progressPatch() });
+    this.silence();
+    this.series = null;
+    const pos = this.position();
+    this.set({ phase: 'home', ...pos, guidance: pos.level.guidance, feedback: null, audioError: '', achievement: null, index: 0, hint: false,
+      notesShown: false, memory: [], failedAttempts: 0, ...this.progressPatch() });
   }
   /**
    * Valitse kotitreeni: läpäisty, nykyinen tai seuraava avattu. Nykyinen jatkuu siitä, mihin jäätiin;
@@ -119,74 +137,121 @@ export class RiffGame {
     if (!['home', 'level-complete'].includes(this.state.phase) || !this.store.unlockedLevels(INPUT).includes(level)) return;
     if (restart || level !== this.store.run(INPUT).level) this.store.startLevel(INPUT, level);
     this.store.finishTutorial();
-    this.beginRound();
+    this.beginRiff();
   }
 
-  // ---- kierros ----
-  /**
-   * Uusi riffi (tai uusi yritys samalla riffillä: riff annettu).
-   * start: 'ready' = pelaaja aloittaa kuuntelun itse (uusi riffi), 'listen' = suoraan vuoroon ilman mallia.
-   */
-  private beginRound(riff?: Riff, start: 'ready' | 'listen' = 'ready') {
-    // Mahdollinen soiva malli päättyy ennen uutta yritystä (ei päällekkäisiä soittoja).
-    ++this.op;
+  // ---- riffi: harjoittelu ----
+  /** Kaikki ääni pois (riffin vaihto, valikko, sivulta poistuminen). Myöhässä palaava malli ohitetaan. */
+  private silence() {
+    ++this.modelOp;
     this.audio.stopModel();
-    this.set({ modelPlaying: false, playing: null });
-    const pos = this.position();
-    if (!pos.tutorial && !riff && this.store.currentRiff(INPUT) === null) { this.showLevelComplete(); return; }
-    const chosen = pos.tutorial ? TUTORIAL : riff ?? pos.riff;
-    // Sama riffi jatkaa samaa yrityssarjaa (epäonnistuneet yritykset, muistivihjeet); uusi riffi aloittaa alusta.
-    const sameSeries = !!this.practice && this.practiceRiff === chosen.id;
-    if (!sameSeries) { this.practice = new SequencePractice(chosen.midi, INPUT); this.practiceRiff = chosen.id; }
-    this.replays = 0;
-    this.roundStart = null;
-    this.set({ ...pos, riff: chosen, riffNumber: pos.tutorial ? 1 : pos.level.riffs.indexOf(chosen) + 1, hint: sameSeries ? this.state.hint : false,
-      feedback: null, achievement: null, ...this.progressPatch() });
-    this.startAttempt();
-    if (start === 'listen') this.startListening();
-    else this.set({ phase: 'ready' });
+    if (this.state.modelPlaying || this.state.playing !== null) this.set({ modelPlaying: false, playing: null });
   }
-  /** Uusi yritys samassa sarjassa: kierrostunniste vaihtuu, pallukat harmaiksi, muistivihjeet näkyviin. */
-  private startAttempt(): SequenceChecker {
-    const attempt = this.practice!.start(++this.round);
-    if (this.state.hint) attempt.useHint();
-    this.set({ index: 0, marks: attempt.marks, memory: this.practice!.memory, failedAttempts: this.practice!.failedAttempts });
-    return attempt;
-  }
-  private get checker() { return this.practice?.attempt ?? null; }
 
-  private async playModel(listenAfter: boolean) {
-    const op = ++this.op;
-    const phase = listenAfter ? 'model-playing' : this.state.phase;
-    this.set({ phase, playing: null, modelPlaying: true });
+  /** Avaa tallennetun kohdan riffin harjoitteluun ja soittaa mallin heti (opastustason mukaan). */
+  private beginRiff() {
+    this.silence();
+    const pos = this.position();
+    if (!pos.tutorial && this.store.currentRiff(INPUT) === null) { this.showLevelComplete(); return; }
+    const riff = pos.tutorial ? TUTORIAL : pos.riff;
+    if (this.seriesRiff !== riff.id || !this.series) this.newSeries(riff);
+    this.listens = 0;
+    const guidance = pos.level.guidance;
+    this.set({ ...pos, riff, guidance, riffNumber: pos.tutorial ? 1 : pos.level.riffs.indexOf(riff) + 1, index: 0, marks: pending(riff),
+      memory: this.memory(guidance, riff), failedAttempts: this.series!.failedAttempts, hint: false, notesShown: GUIDANCE[guidance].showNotes,
+      feedback: null, audioError: '', achievement: null, ...this.progressPatch() });
+    this.enterPractice(GUIDANCE[guidance].autoplay);
+  }
+  private newSeries(riff: Riff) { this.series = new SequencePractice(riff.midi, INPUT); this.seriesRiff = riff.id; }
+  /** Muistivihjeet vain, jos opastustaso sallii automaattiset muistivihjeet. */
+  private memory(guidance = this.state.guidance, riff = this.state.riff): (number | null)[] {
+    return GUIDANCE[guidance].memoryHints && this.series ? this.series.memory : riff.midi.map(() => null);
+  }
+
+  private enterPractice(autoplay: boolean) {
+    this.set({ phase: 'practice', hint: false });
+    if (autoplay) void this.playModel(true);
+  }
+
+  /**
+   * Harjoittele vielä / Harjoittele lisää: takaisin vapaaseen harjoitteluun.
+   * Kesken olevaa ottoa ei kirjata (ei tulosta, ei epäonnistunutta yritystä). Tuloksen jälkeen malli
+   * soi heti uudelleen; kesken oton palatessa ei, koska pelaaja haluaa yleensä kokeilla säveliä.
+   */
+  practiceMore() {
+    const phase = this.state.phase;
+    if (!['take', 'success', 'retry'].includes(phase)) return;
+    this.set({ index: 0, marks: pending(this.state.riff), feedback: null, achievement: null, notesShown: GUIDANCE[this.state.guidance].showNotes });
+    this.enterPractice(phase !== 'take');
+  }
+
+  /** Näytä / piilota harjoittelun sävelet ja otelautapaikat. Ei vaikuta tähtiin. */
+  toggleNotes() { if (this.state.phase === 'practice') this.set({ notesShown: !this.state.notesShown }); }
+
+  // ---- mallisoitto ----
+  /**
+   * Kuuntele riffi / Pysäytä (sama painike) harjoittelussa ja tuloksen jälkeen. Ei koskaan aloita ottoa.
+   * Kesken arvioitavan oton mallia ei soiteta: otto soitetaan muistista.
+   */
+  listen() {
+    if (this.state.modelPlaying) { this.stopListening(); return; }
+    if (!FREE_PLAY.includes(this.state.phase)) return;
+    void this.playModel(false);
+  }
+  stopListening() {
+    if (!this.state.modelPlaying) return;
+    ++this.modelOp;
+    this.audio.stopReference();
+    this.set({ modelPlaying: false, playing: null });
+  }
+
+  private async playModel(auto: boolean) {
+    const op = ++this.modelOp;
+    if (!auto && this.state.phase === 'practice') this.listens++;
+    this.audio.stopReference();
+    this.set({ modelPlaying: true, playing: null, audioError: '' });
     let done: boolean;
     try {
-      done = await this.audio.playModel(this.state.riff.midi, index => { if (op === this.op) this.set({ playing: index }); });
+      done = await this.audio.playModel(this.state.riff.midi, index => { if (op === this.modelOp) this.set({ playing: index }); });
     } catch (error) {
-      if (op !== this.op) return;
-      this.set({ feedback: { tone: 'bad', text: referenceAudioError(error) + ' Voit silti soittaa riffin sävelvihjeen avulla.' } });
-      done = true;
+      if (op !== this.modelOp) return;
+      this.set({ modelPlaying: false, playing: null, audioError: referenceAudioError(error) +
+        (auto ? ' Selain ei ehkä salli automaattista toistoa: paina Kuuntele riffi.' : '') + ' Voit harjoitella myös sävelvihjeiden avulla.' });
+      return;
     }
-    if (op !== this.op || !done) return;
+    if (op !== this.modelOp || !done) return;
     this.set({ playing: null, modelPlaying: false });
-    if (listenAfter) this.startListening();
   }
 
-  private startListening() {
-    this.roundStart ??= this.clock();
-    this.set({ phase: 'listening' });
+  // ---- arvioitava otto ----
+  /**
+   * Nyt riffataan! Pysäyttää mallin, piilottaa vastaukset, aloittaa uuden arvioitavan oton ensimmäisestä
+   * sävelestä. Malli ei soi; pelaaja aloittaa itse. Harjoittelun painallukset eivät koskaan kuulu ottoon.
+   */
+  startTake() {
+    if (!FREE_PLAY.includes(this.state.phase)) return;
+    if (this.state.modelPlaying) { ++this.modelOp; this.audio.stopReference(); }
+    if (!this.series) this.newSeries(this.state.riff);
+    const attempt = this.series!.start(++this.round);
+    this.takeListens = this.listens; this.listens = 0;
+    this.takeStart = this.clock();
+    this.set({ phase: 'take', modelPlaying: false, playing: null, notesShown: false, hint: false, feedback: null, achievement: null, audioError: '',
+      index: 0, marks: attempt.marks, memory: this.memory(), failedAttempts: this.series!.failedAttempts });
   }
+  /** Yritä uudelleen tuloksen jälkeen: uusi otto heti, ilman mallia. */
+  retry() { if (this.state.phase === 'retry' || (this.state.phase === 'success' && !this.state.tutorial)) this.startTake(); }
+  private get checker() { return this.series?.attempt ?? null; }
 
   /**
    * Virtuaalikitaran painallus. Jokainen painallus soi ja on täsmälleen yksi syötetapahtuma, joten
-   * sama sävel kahdesti (A–A) on kaksi painallusta. Vastaukseksi lasketaan vain vastausvuorossa;
-   * muulloin otelaudalla voi soitella vapaasti. Mallisoiton aikana otelauta on lukittu.
+   * sama sävel kahdesti (A–A) on kaksi painallusta. Vain arvioitavassa otossa painallus tarkistetaan;
+   * harjoittelussa ja tuloksen jälkeen se soi (myös mallin aikana) eikä muuta mitään.
    */
   tap(midi: number): TapResult | null {
     const phase = this.state.phase;
-    if (!FREE_PLAY.includes(phase) || this.state.modelPlaying) return null;
+    if (phase !== 'take' && !FREE_PLAY.includes(phase)) return null;
     this.audio.pluck(midi);
-    return phase === 'listening' ? this.answer(midi) : 'free';
+    return phase === 'take' ? this.answer(midi) : 'free';
   }
 
   private answer(midi: number): TapResult {
@@ -209,98 +274,71 @@ export class RiffGame {
     return 'free';
   }
 
-  /**
-   * Riffi soitettu loppuun. Kirjataan kerran.
-   * - Virheetön → success: pelaaja valitsee itse Soita uudelleen tai Seuraava riffi.
-   * - Keltaisia → retry: vihreät ja keltaiset jäävät näkyviin. Ei automaattista mallia eikä uutta
-   *   yritystä; pelaaja voi kuunnella ja kokeilla vapaasti ja valitsee itse Yritä uudelleen.
-   */
+  /** Otto soitettu loppuun. Kirjataan kerran. */
   private finish(checker: SequenceChecker) {
     const riff = this.state.riff;
-    const passed = this.practice!.finish();
-    const failed = this.practice!.failedAttempts;
+    const passed = this.series!.finish();
+    const failed = this.series!.failedAttempts;
     const outcome = this.store.record({ riff: riff.id, input: INPUT, hint: checker.hintUsed, passed,
       wrong: checker.wrongCount, octave: checker.octaveCount,
-      replays: this.replays, ms: Math.max(0, Math.round(this.clock() - (this.roundStart ?? this.clock()))), at: Date.now() });
+      replays: this.takeListens, ms: Math.max(0, Math.round(this.clock() - (this.takeStart ?? this.clock()))), at: Date.now() });
     this.set({ ...this.progressPatch(), failedAttempts: failed });
     if (riff.id === TUTORIAL.id) {
-      this.practice = null;
-      this.set({ phase: 'success', feedback: { tone: 'good', text: passed
+      if (passed) this.series = null;
+      this.set({ phase: passed ? 'success' : 'retry', feedback: { tone: passed ? 'good' : 'info', text: passed
         ? `Hienoa! Opastus on tehty. Seuraavaksi ${LEVELS[0].name}: kolme riffiä ${LEVELS[0].title.toLowerCase().replace('kieli', 'kielellä')}.`
-        : 'Opastus on tehty. Riffi hyväksytään, kun kaikki pallukat ovat vihreitä.' } });
+        : 'Soitit opastuksen loppuun. Riffi hyväksytään, kun kaikki pallukat ovat vihreitä – yritä uudelleen tai harjoittele lisää.' } });
       return;
     }
     const achievement: Achievement = { flawless: passed, wrong: checker.wrongCount, firstPass: outcome.firstPass, firstStar: outcome.firstStar, newBest: outcome.newBest };
     if (!passed) {
-      this.set({ phase: 'retry', achievement, feedback: { tone: 'info', text: 'Soitit riffin loppuun! Kokeile vielä ilman virheitä. Voit kuunnella ja kokeilla säveliä vapaasti – niitä ei arvioida ennen kuin valitset Yritä uudelleen.' +
+      const memory = GUIDANCE[this.state.guidance].memoryHints && this.series!.memoryActive;
+      this.set({ phase: 'retry', achievement, feedback: { tone: 'info', text: 'Soitit riffin loppuun! Kokeile vielä ilman virheitä – suoraan uudella otolla tai harjoittelemalla ensin lisää.' +
         (outcome.newBest ? ` Uusi ennätys: ${wrongText(checker.wrongCount)}.` : '') +
-        (this.practice!.memoryActive ? ' Muistivihjeet ovat käytössä: aiemmin heti oikein soitetut sävelet näkyvät seuraavassa yrityksessä.' : '') } });
+        (memory ? ' Muistivihjeet ovat käytössä: aiemmin heti oikein soitetut sävelet näkyvät seuraavassa otossa.' : '') } });
       return;
     }
-    this.practice = null;
+    // Läpäisty: seuraava otto samalla riffillä aloittaa uuden sarjan (muistivihjeet nollautuvat).
+    this.newSeries(riff);
     const record = this.record(riff.id);
     this.set({ phase: 'success', achievement, feedback: { tone: 'good', text: checker.hintUsed
-      ? `Virheetön, vihjeen kanssa! Riffi läpäisty.${record.star ? '' : ' Soita uudelleen ilman vihjettä, niin saat tähden.'}`
+      ? `Virheetön, vihjeen kanssa! Riffi läpäisty.${record.star ? '' : ' Soita uudelleen ilman otossa pyydettyä vihjettä, niin saat tähden.'}`
       : `Virheetön! Kaikki pallukat vihreinä – riffi läpäisty.${outcome.firstStar ? ' Sait tähden.' : ''}` } });
   }
 
   private showLevelComplete() {
     const level = this.store.level(INPUT);
-    this.set({ phase: 'level-complete', level, ...this.progressPatch(), feedback: null, hint: false, achievement: null });
+    this.set({ phase: 'level-complete', level, guidance: level.guidance, ...this.progressPatch(), feedback: null, hint: false, achievement: null, audioError: '' });
   }
 
   // ---- sivutoiminnot ----
-  /**
-   * Kuuntele riffi / Pysäytä kuuntelu (sama painike).
-   * - Kesken yrityksen malli soi, eikä mitään nollata: sama paikka, samat pallukat, muistivihjeet ja laskurit.
-   * - ready: ensimmäinen kuuntelu, sitten vuoro.
-   * - success / retry: pelkkä kuuntelu, vaihe ja pallukat eivät muutu.
-   */
-  listen() {
-    if (this.state.modelPlaying) { this.stopListening(); return; }
-    const phase = this.state.phase;
-    if (phase === 'success' || phase === 'retry') { void this.playModel(false); return; }
-    if (!['ready', 'listening'].includes(phase)) return;
-    if (phase !== 'ready') this.replays++;
-    void this.playModel(true);
-  }
-  /** Pysäytä kuuntelu: malli katkeaa, eteneminen säilyy; ensimmäisen kuuntelun jälkeen vuoro alkaa. */
-  stopListening() {
-    if (!this.state.modelPlaying) return;
-    ++this.op;
-    this.audio.stopModel();
-    this.set({ modelPlaying: false, playing: null });
-    if (this.state.phase === 'model-playing') this.startListening();
-  }
-  /** Välilehti taustalle: malli pysähtyy, mutta yritys ja pallukat säilyvät. */
-  hidden() { this.stopListening(); }
-  /** Yritä uudelleen (keltaisten jälkeen): uusi arvioitava yritys ensimmäisestä sävelestä. Muistivihjeet säilyvät. */
-  retry() { if (this.state.phase === 'retry') this.beginRound(this.state.riff, 'listen'); }
-  /** Soita uudelleen (virheettömän jälkeen): sama riffi uutena yrityksenä. Läpäisy säilyy. */
-  playAgain() { if (this.state.phase === 'success' && !this.state.tutorial) this.beginRound(this.state.riff, 'listen'); }
+  /** Arvioitavan oton Vihje: sävelet ja paikat näkyviin. Kirjataan tulokseen (ei tähteä). */
   toggleHint() {
+    if (this.state.phase !== 'take') return;
     const hint = !this.state.hint;
     if (hint) this.checker?.useHint();
     this.set({ hint });
   }
-  /** Seuraava riffi; kotitreenin kolmannen jälkeen onnittelunäkymä. */
-  next() { if (this.state.phase === 'success') this.beginRound(); }
+  /** Välilehti taustalle: malli pysähtyy; harjoittelu tai otto säilyy. */
+  hidden() { this.stopListening(); }
+  /** Seuraava riffi (läpäisyn jälkeen); kotitreenin kolmannen jälkeen onnittelunäkymä. */
+  next() { if (this.state.phase === 'success') this.beginRiff(); }
   /** Onnittelunäkymästä: seuraava kotitreeni. Ei koskaan automaattisesti. */
   continueLevel() {
     if (this.state.phase !== 'level-complete') return;
     const next = this.state.level.number + 1;
     if (!LEVELS.some(l => l.number === next)) return;
     this.store.startLevel(INPUT, next);
-    this.beginRound();
+    this.beginRiff();
   }
   /** Onnittelunäkymästä: sama kotitreeni alusta. */
   repeatLevel(level = this.state.level.number) {
     if (this.state.phase !== 'level-complete') return;
     this.store.startLevel(INPUT, level);
-    this.beginRound();
+    this.beginRiff();
   }
-  /** Sivulta poistuttaessa: kaikki ääni pysähtyy. */
-  dispose() { ++this.op; this.audio.stopModel(); }
+  /** Sivulta poistuttaessa: kaikki ääni pysähtyy, myöhässä palaavat tapahtumat ohitetaan. */
+  dispose() { this.silence(); }
 }
 
 /** Riffin saavutukset virtuaalikitaralla tallennuksesta (myös aloitussivulle ilman peliä). */

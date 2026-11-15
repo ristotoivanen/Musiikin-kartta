@@ -97,6 +97,7 @@ function pipeline() {
     rearm: () => { mic.rearm(); detector.rearm(); }, closeMic: () => { mic.stop(); detector.reset(); },
     playModel: () => new Promise<boolean>(resolve => models.push(resolve)),
     stopModel: () => models.splice(0).forEach(r => r(false)),
+    stopReference: () => models.splice(0).forEach(r => r(false)),
     pluck: () => {},
   };
   const map = new Map<string, string>();

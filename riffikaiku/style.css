@@ -233,3 +233,21 @@
   .riff-practice-footer button { flex: 1 1 140px; }
   .riff-score dd { font-size: 20px; }
 }
+
+/* ---- 0.5: pelin riffinäkymä – harjoittele → soita muistista → tulos ---- */
+.riff-flow { list-style: none; display: flex; flex-wrap: wrap; gap: 4px 6px; padding: 0; margin: 12px 0 4px; font-size: 13px; counter-reset: flow; }
+.riff-flow li { counter-increment: flow; display: flex; align-items: center; gap: 6px; padding: 3px 10px 3px 4px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+.riff-flow li::before { content: counter(flow); display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--bg); font-weight: 800; font-size: 12px; }
+.riff-flow li[aria-current="step"] { color: var(--text); border-color: var(--lavender); font-weight: 700; }
+.riff-flow li[aria-current="step"]::before { background: var(--lavender); color: #16121f; }
+h2.riff-status { outline: none; }
+.riff-stage-text { margin: 0 0 6px; }
+.riff-play.stage-take { border-top-color: var(--gold); }
+.riff-practice-actions { margin-top: 6px; }
+.riff-go { display: grid; justify-items: start; gap: 2px; margin: 16px 0 4px; }
+.riff-go-button { min-height: 56px; padding: 12px 28px; font-size: 20px; font-weight: 800; }
+.riff-go p { margin: 2px 0 0; }
+@media (max-width: 520px) {
+  .riff-go { justify-items: stretch; }
+  .riff-go-button { width: 100%; }
+}
