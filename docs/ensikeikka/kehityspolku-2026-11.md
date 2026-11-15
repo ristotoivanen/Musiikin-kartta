@@ -55,6 +55,22 @@ Nykyisen kehityshaaran toisen keikan (6–9, suunnitellut Ensitreenit) tehtävä
 
 **Ensitreenit ovat yksi pelaajan ymmärtämä kokonaisuus, vaikka sisältö rakennettiin kahdessa teknisessä keikassa.** Säilytä toimiva sisältö ja etenemislogiikka mahdollisimman vähin muutoksin: näkyvän nimen tai etenemiskortin päivittäminen ei oikeuta rikkomaan 1–9-suorituksia. Tarvittaessa näytä Ensitreenien sisällä kaksi osaa ilman että ne näyttävät kahdelta eri esiintymiseltä.
 
+### Nimeäminen ja tuleva Keikkakalenteri (uusi idea 15.11.2026)
+
+**Ehdotettu nimihierarkia:**
+- **Ensitreenit** = nykyiset kappaleet 1–9, yksi harjoituskokonaisuus (voi sisältää osa A:n ja B:n).
+- **Ensikeikka** = ensimmäisen esiintymisen varsinainen nimi. **Kotikulman keikka** voi toimia alaotsikkona tai esiintymispaikan/keikkajakson nimenä: esimerkiksi **Ensikeikka – Kotikulman keikka**.
+- **Keikkakalenteri** = myöhempi kokoelma/näkymä, jonka alta löytyvät *esiintymiset* (Ensikeikka, toinen keikka, myöhemmät keikat). Treenit pysyvät erillisinä eivätkä muutu kalenteritapahtumiksi.
+- **Bändin matka** = mahdollinen yhteinen yleistaso treeneille ja keikoille **vain jos** sille myöhemmin havaitaan navigaatiotarve; älä lisää uutta hierarkiatasoa huvin vuoksi.
+
+**Ajan ja valmiuden käsitteet:** Keikkakalenterin ei tarvitse olla oikeita päivämääriä tai ajanvarauksia esittävä kalenteri. Ensi vaiheessa sen kannattaa olla **keikkalistana tai keikkajulisteina esitetty selkeä valikko**. Esityksille voi näyttää esimerkiksi `Suositeltu seuraavaksi`, `Soitettu` ja `Kertaa`, mutta tilat eivät saa väittää oppimisen todellista hallintaa eivätkä edellyttää kovia etenemislukkoja. Jos keikkalistassa on vasta yksi esiintyminen, **erillistä Keikkakalenteri-sivua ei tarvitse vielä toteuttaa**: Ensitreenit voivat ohjata suoraan Ensikeikkaan. Kalenteri kannattaa tuoda näkyviin vasta, kun keikkoja on vähintään kaksi ja koonti helpottaa valintaa.
+
+**Esimerkkejä tulevien esiintymisten nimistä vain tarinaideoina:** Toinen keikka – Klubi-ilta; Kolmas keikka – Festarilava. Nämä eivät ole vahvistettuja sisältöjä eikä niiden toteutukselle aseteta aikataulua.
+
+**Tekninen nimierottelu:** nykyinen sovelluksen hakemistopolku ja mahdollinen URL `/pelit/ensikeikka/`, vanhat reitit ja tallennusavain voivat edelleen käyttää historiallista merkkijonoa `ensikeikka`. **Älä nimeä niitä massana uudelleen** vain siksi, että pelaajalle Ensikeikka on ensimmäisen keikan nimi. Käyttöliittymän otsikot, tarinallinen keikkatunnus ja tekninen peli-/route-tunnus ovat eri asioita.
+
+**Päätösportti:** ensin Ensitreenien 1–9 testaus ja näkyvän nimen muutos omassa hyväksytyssä PR:ssä, sitten yksi Ensikeikan musiikkipilotti. Keikkakalenterin käyttöliittymä on oma myöhempi, todelliseen usean keikan tarpeeseen sidottu päätös.
+
 ### Treenin ja keikan eri tarkoitukset
 
 - **Ensitreenit:** 1–9 tarjoaa lyhyitä rajattuja kuuntelutehtäviä, soittimien eristystä, vihjeitä ja palautetta. Toisto on osa oppimista.
@@ -77,13 +93,13 @@ Nykyisen kehityshaaran toisen keikan (6–9, suunnitellut Ensitreenit) tehtävä
 
 ### Bändiharjoitukset 2 ja myöhempi eteneminen
 
-Aiemmin suunnitellut uudet mekanismit **Mikä muuttui?** (\`compare-change\`), **Basson jäljillä** (\`bass-contour\`), **Rytmi katoaa** (\`spot-event\`) ja **Kitaristi vastaa** (\`phrase-response\`) sijoitetaan **mahdollisiin Bändiharjoituksiin 2 tai myöhempiin treeneihin**. Ne eivät kuulu automaattisesti Kotikulman keikkaan eikä niiden teknisiä tunnisteita tai paikkoja lyödä lukkoon ennen pilottia.
+Aiemmin suunnitellut uudet mekanismit **Mikä muuttui?** (`compare-change`), **Basson jäljillä** (`bass-contour`), **Rytmi katoaa** (`spot-event`) ja **Kitaristi vastaa** (`phrase-response`) sijoitetaan **mahdollisiin Bändiharjoituksiin 2 tai myöhempiin treeneihin**. Ne eivät kuulu automaattisesti Kotikulman keikkaan eikä niiden teknisiä tunnisteita tai paikkoja lyödä lukkoon ennen pilottia.
 
 ### Vanhojen suoritusten ja linkkien turva
 
 - Nykyisten kappaleiden **1–9 ID:t, tehtävät ja ratkaisut säilyvät**. Älä numeroi niitä uusiksi tai kirjoita Clauden keikka 2:n sisältöä uudelleen.
 - Älä tee väliin tulevaa uutta pakollista porttia kappaleiden 5 ja 6 välille. **Kotikulman keikka näkyy vasta Ensitreenien kokonaisuuden jälkeen.**
-- Nykyinen \`localStorage['musiikin-kartta:ensikeikka']\` ja \`version: 1\` säilyvät, kunnes erikseen hyväksytty yhteensopivuusratkaisu on testattu. Vanhat osoitteet \`#kappale-N\`, \`#harjoitus-N\` ja nykyiset keikkareitit eivät saa rikkoutua.
+- Nykyinen `localStorage['musiikin-kartta:ensikeikka']` ja `version: 1` säilyvät, kunnes erikseen hyväksytty yhteensopivuusratkaisu on testattu. Vanhat osoitteet `#kappale-N`, `#harjoitus-N` ja nykyiset keikkareitit eivät saa rikkoutua.
 - Näkyvän vaihelistan ja teknisten tunnisteiden ei tarvitse vastata toisiaan. Vanha tallennettu "keikka 2" on suunnitelmassa Ensitreenien loppuosa, ei toisen esiintymisen suoritusmerkintä.
 - Jo suoritettuja 1–9-tehtäviä ei vaadita uudelleen, kun tarinan ulkoasu muuttuu.
 
@@ -154,7 +170,7 @@ Mahdolliset huipennukset:
 - [ ] Kirjaa omistajan hyväksyntä sisältöjen 1–9 käytölle **Ensitreeneinä**. Pelin nykyinen kaksi teknistä keikkaa voi toistaiseksi säilyä.
 
 ### P1 – Ensitreenien näkyvän rakenteen ja Kotikulman keikan käsikirjoitus
-- [ ] Tee näkyvä malli: **Ensitreenit (1–9) → Kotikulman keikka → Bändiharjoitukset 2**. Pidä sisäinen kahden osan jako tarvittaessa, mutta älä nimitä niitä esiintymisiksi.
+- [ ] Tee näkyvä malli: **Ensitreenit (1–9) → Ensikeikka (Kotikulman keikka) → Bändiharjoitukset 2**. Pidä sisäinen kahden osan jako tarvittaessa, mutta älä nimitä niitä esiintymisiksi.
 - [ ] Kirjoita yksi uusi Kotikulman keikkakohtaus: yhtenäisempi kappale, yksi päätös, kuultava seuraus ja lyhyt palaute.
 - [ ] Tee kahdesta erilaisesta alkuperäisestä musiikillisesta esimerkistä käsikirjoitus, vastausperuste ja erojen kuulonvaraisen tarkistuksen ohje.
 - [ ] Esitä tallenteen ja reittien säilyttävä suunnitelma ilman ID-uudelleennumerointia.
@@ -173,7 +189,7 @@ Mahdolliset huipennukset:
 - [ ] Omistajan päätös: korjaa prototyyppiä, laajenna Kotikulman keikkaa tai siirry suunnittelemaan Bändiharjoituksia 2.
 
 ### P4 – Seuraavat bändiharjoitukset ja esiintymiset
-- [ ] Pilotoi uusia tehtävämekaniikkoja vasta P3:n havaintojen perusteella; esimerkiksi \`compare-change\` ja \`bass-contour\`.
+- [ ] Pilotoi uusia tehtävämekaniikkoja vasta P3:n havaintojen perusteella; esimerkiksi `compare-change` ja `bass-contour`.
 - [ ] Rakenna seuraava keikka uusien treenien taidoista, ei kopiona edellisestä.
 - [ ] Vältä koko tarinan massatoteutusta, uutta yleismoottoria ja yhteensopimattomia tallennusmuutoksia.
 
@@ -198,7 +214,7 @@ Ennen teknistä GO-päätöstä pilotista pitää olla todennettavissa:
 4. Toteutushaara otetaan tuolloin hyväksytystä, tuoreesta yhteisestä pohjasta eikä tästä dokumenttihaarasta. Tarkista `git status --porcelain` ja `git worktree list`; jos työkopio ei ole puhdas, älä resetoi/stashaa toisen työtä.
 5. Yksi rajattu toteutus-PR, sen jälkeen todellinen kuuntelu- ja käyttäjäkoe. Erilliset päätökset beta-mergeen ja tuotantoon.
 
-**Sisältörakenteen päätetty järjestys:** Ensitreenit 1–9 → Kotikulman keikka → uudet bändiharjoitukset → seuraava keikka. **Avoimet toteutuspäätökset:** nykyisten 6–9:n kuulonvarainen hyväksyntä; näkyvän rakenteen migraatio; Kotikulman keikan pilotti; Sunon käyttöoikeudet ja julkaisukelpoinen ääni; myöhempi laajennus. Oletusarvo on **EI VIELÄ TOTEUTUSHYVÄKSYTTY**.
+**Sisältörakenteen päätetty järjestys:** Ensitreenit 1–9 → Ensikeikka (Kotikulman keikka) → uudet bändiharjoitukset → seuraava keikka. **Uusi nimiehdotus:** Keikkakalenteri kokoaa myöhemmin kaikki esiintymiset, muttei treenejä; toteutus vasta usean keikan todellisessa tarpeessa. **Avoimet toteutuspäätökset:** nykyisten 6–9:n kuulonvarainen hyväksyntä; näkyvän rakenteen migraatio; Kotikulman keikan pilotti; Sunon käyttöoikeudet ja julkaisukelpoinen ääni; myöhempi laajennus. Oletusarvo on **EI VIELÄ TOTEUTUSHYVÄKSYTTY**.
 
 ## 10. Suorat lähteet
 
