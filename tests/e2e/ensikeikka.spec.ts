@@ -205,6 +205,27 @@ test('Toiston käynnistysvirhe kertoo tilanteen ja sallii uuden kuuntelun', asyn
   await expect(check).toBeEnabled({ timeout: 9000 });
 });
 
+test('Ensikeikasta palaaminen Oppimiskarttaan pysäyttää toiston ja avaa aiheen', async ({ page }) => {
+  await observePlayback(page);
+  await page.goto('/index.html#aihe-korva');
+  const topic = page.locator('#aihe-korva');
+  await topic.getByRole('link', { name: 'Ensikeikka · etsi melodialle lopetus' }).click();
+  await button(page, 'Kotikulmien keikat').click();
+  await button(page, 'Aloita keikka 1').click();
+  await button(page, 'Kuuntele keskeneräinen kappale').click();
+  await expect(playbackStatus(page)).toHaveText(playing);
+  await page.evaluate(() => {
+    window.addEventListener('pagehide', () => {
+      sessionStorage.setItem('test:ensikeikka-paused-on-exit', String(window.ensikeikkaPlayback.at(-1)?.stopped));
+    }, { once: true });
+  });
+  await page.getByRole('link', { name: 'Takaisin aiheeseen' }).click();
+  await expect(page).toHaveURL(/index\.html#aihe-korva$/);
+  await expect(topic.locator('summary')).toBeFocused();
+  expect(await page.evaluate(() => sessionStorage.getItem('test:ensikeikka-paused-on-exit'))).toBe('true');
+  expect(await savedProgress(page)).toBeNull();
+});
+
 test('Ensikeikka keskeyttää äänen palatessa ja säilyttää valmiit kappaleet uudelleenlatauksessa', async ({ page }) => {
   await observePlayback(page);
   await page.goto(`${gamePath}#settilista`);

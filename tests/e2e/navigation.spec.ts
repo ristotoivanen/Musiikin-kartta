@@ -134,10 +134,38 @@ test.describe('Oppimisen aihealueet – ensimmäinen käyttöliittymärunko', ()
     await expect(page.locator('[data-view="chords"]')).toHaveAttribute('aria-pressed', 'true');
   });
 
-  test('kaikki 28 teorialukua löytyvät aihealueista yksitellen', async ({ page }) => {
+  test('kaikki 42 aihelinkkiä, 28 teorialukua ja paluureitit toimivat', async ({ page }) => {
+    test.setTimeout(60000);
     await page.goto('/index.html');
-    const chapters = page.locator('[data-theory-chapter]');
-    await expect(chapters).toHaveCount(28);
+    const destinations = await page.locator('.topic-card a').evaluateAll(links => links.map(link => ({
+      href: (link as HTMLAnchorElement).href,
+      topic: link.closest('details')!.id,
+      chapter: link.hasAttribute('data-theory-chapter'),
+      label: link.textContent?.trim(),
+    })));
+    expect(destinations).toHaveLength(42);
+    expect(destinations.filter(({ chapter }) => chapter)).toHaveLength(28);
+
+    for (const { href, topic, chapter, label } of destinations) {
+      await test.step(`${topic}: ${label}`, async () => {
+        // Saman teoriaosan peräkkäiset ankkurit tarkistetaan uusina sivulatauksina.
+        await page.goto('about:blank');
+        const url = new URL(href);
+        expect(url.searchParams.get('aihe')).toBe(topic);
+        expect((await page.goto(href))?.ok()).toBe(true);
+        if (url.pathname.startsWith('/book/')) {
+          const anchor = page.locator(`[id="${url.hash.slice(1)}"]`);
+          await expect(anchor).toBeVisible();
+          if (chapter) await expect(anchor).toHaveClass('chapter');
+        }
+        const back = new URL(`/index.html#${topic}`, url);
+        await expect(page.getByRole('link', { name: 'Takaisin aiheeseen' })).toHaveAttribute('href', back.href);
+      });
+    }
+  });
+
+  test('teorialuvusta pääsee päävalikolla takaisin koko Oppimiskarttaan', async ({ page }) => {
+    await page.goto('/index.html');
     await page.locator('#aihe-soinnut summary').click();
     await expect(page.locator('#aihe-soinnut .topic-links .topic-group-title').first()).toHaveText('Teoria');
     await page.locator('#aihe-soinnut').getByRole('link', { name: 'Septimisoinnut', exact: true }).click();
@@ -187,6 +215,21 @@ test.describe('Oppimisen aihealueet – ensimmäinen käyttöliittymärunko', ()
     await expect(page.locator('#home-continue')).toContainText('Jatka: luku 2');
   });
 
+  test('selaimen paluu palauttaa aiheen, josta teorialuku avattiin', async ({ page }) => {
+    await page.goto('/index.html#aihe-rytmi');
+    await expect(page.locator('#aihe-rytmi summary')).toBeFocused();
+    const chords = page.locator('#aihe-soinnut');
+    const summary = chords.locator('summary');
+    await summary.press('Enter');
+    await chords.getByRole('link', { name: 'Septimisoinnut', exact: true }).press('Enter');
+    await expect(page.getByRole('heading', { name: 'Septimisoinnut', exact: true })).toBeVisible();
+    await page.goBack();
+    await expect(page).toHaveURL(/index\.html#aihe-rytmi$/);
+    await expect(chords).toHaveAttribute('open', '');
+    await expect(summary).toBeFocused();
+    await expect(summary).toBeInViewport();
+  });
+
   test('sivuvälimuistista palaaminen päivittää vanhasta tallenteesta jatkamisen', async ({ page }) => {
     await page.goto('/index.html');
     await page.evaluate(([luvut, harjoittelu]) => {
@@ -228,7 +271,7 @@ test.describe('Oppimisen aihealueet – ensimmäinen käyttöliittymärunko', ()
     }
   });
 
-  for (const [width, height] of [[320, 568], [360, 740], [390, 844], [568, 320]]) {
+  for (const [width, height] of [[320, 568], [360, 740], [390, 844], [568, 320], [768, 1024], [1280, 800]]) {
     test(`aihekortti ja päävalikko mahtuvat kokoon ${width} × ${height}`, async ({ page }) => {
       await page.setViewportSize({ width, height });
       await page.goto('/index.html');

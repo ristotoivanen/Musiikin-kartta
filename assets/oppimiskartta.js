@@ -1,8 +1,8 @@
 (() => {
   const cards = [...document.querySelectorAll('details.topic-card')];
   if (cards.length) {
-    const openTarget = () => {
-      const target = cards.find(card => '#' + card.id === location.hash);
+    const openTopic = id => {
+      const target = cards.find(card => card.id === id);
       if (!target) return;
       target.open = true;
       target.querySelector('summary').focus({ preventScroll: true });
@@ -10,8 +10,14 @@
     };
     const openCards = history.state?.openTopics ?? [];
     for (const card of cards) card.open = openCards.includes(card.id);
-    window.addEventListener('load', () => requestAnimationFrame(openTarget), { once: true });
-    window.addEventListener('hashchange', openTarget);
+    // Selaimen paluu kohdistuu lähtöaiheeseen, vaikka osoitteen ankkuri olisi vanhemmasta aiheesta.
+    const navigation = performance.getEntriesByType('navigation')[0];
+    window.addEventListener('pageshow', event => {
+      const returning = event.persisted || navigation?.type === 'back_forward';
+      const topic = returning ? history.state?.returnTopic : null;
+      requestAnimationFrame(() => openTopic(topic ?? location.hash.slice(1)));
+    });
+    window.addEventListener('hashchange', () => openTopic(location.hash.slice(1)));
 
     for (const link of document.querySelectorAll('.topic-card a, .start-here a')) {
       const from = link.closest('.topic-card')?.id ?? 'aihe-rytmi';
@@ -20,7 +26,7 @@
       link.href = url.href;
       link.addEventListener('click', () => {
         const openTopics = cards.filter(card => card.open).map(card => card.id);
-        history.replaceState({ ...history.state, openTopics }, '');
+        history.replaceState({ ...history.state, openTopics, returnTopic: from }, '');
       });
     }
     return;

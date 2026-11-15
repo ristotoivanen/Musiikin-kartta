@@ -76,9 +76,9 @@ test('Ensikeikan aloitusta ja paluulinkkiä voi käyttää näppäimistöllä', 
   await expect(page).toHaveURL(trainerPath);
 });
 
-for (const width of [320, 360, 390, 1440]) {
+for (const width of [320, 360, 390, 768, 1280, 1440]) {
   test(`${width} px: Ensikeikan ja teorian tärkeät toiminnot mahtuvat näkymään`, async ({ page, isMobile }) => {
-    test.skip(isMobile !== (width !== 1440), 'Pienet leveydet kosketusnäkymässä ja suuri työpöydällä.');
+    test.skip(isMobile !== (width <= 768), 'Pienet leveydet kosketusnäkymässä ja suuret työpöydällä.');
     await page.setViewportSize({ width, height: 800 });
     await page.goto(ensikeikkaPath);
     await expect(page.getByRole('link', { name: 'Takaisin harjoitusvalikkoon' })).toBeVisible();

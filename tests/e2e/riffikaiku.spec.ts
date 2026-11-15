@@ -660,7 +660,7 @@ test.describe('oikea kitara (simuloitu mikrofoni)', () => {
 
 test.describe('responsiivisuus ja teemat', () => {
   test.skip(({ isMobile }) => isMobile, 'Koot asetetaan itse desktop-projektissa.');
-  for (const width of [320, 360, 390, 1440]) {
+  for (const width of [320, 360, 390, 768, 1280, 1440]) {
     test(`${width} px: koko otelauta ilman vaakavieritystä, pallukat yhdellä rivillä, lopetus omalla rivillä`, async ({ page }) => {
       await page.setViewportSize({ width, height: 860 });
       await mockAudio(page);
