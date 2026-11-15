@@ -15,5 +15,5 @@ export default defineConfig({
     { name: 'phone', use: { ...devices['iPhone 13'], defaultBrowserType: 'chromium' } },
   ],
   // Staattisen palvelimen pyyntöloki (stderr) jätetään pois, jotta testiraportti pysyy luettavana.
-  webServer: { command: dev ? 'npm run dev -- --strictPort' : 'python3 -m http.server 8765 --bind 127.0.0.1', url, reuseExistingServer: false, stderr: dev ? 'pipe' : 'ignore' },
+  webServer: { command: dev ? 'npm run dev -- --strictPort' : 'python3 tools/playwright-server.py', url, reuseExistingServer: false, stderr: dev ? 'pipe' : 'ignore' },
 });
