@@ -84,6 +84,37 @@ describe('staattisen sivuston yhteensopivuus',()=>{
     expect(read('assets/edistyminen.js')).toContain('singleChapter');
   });
 
+  it('itsenäisten 28 luvun varsinainen opetusteksti vastaa alkuperäistä', () => {
+    const extract = (html: string, id: string) => {
+      const marker = '<section class="chapter" id="' + id + '">';
+      const start = html.indexOf(marker);
+      expect(start, 'chapter ' + id).toBeGreaterThanOrEqual(0);
+      const tags = /<section\b[^>]*>|<\/section\s*>/g;
+      tags.lastIndex = start;
+      let depth = 0;
+      let found: RegExpExecArray | null;
+      while ((found = tags.exec(html))) {
+        depth += found[0].startsWith('</') ? -1 : 1;
+        if (depth === 0) return html.slice(start, tags.lastIndex);
+      }
+      throw new Error('Unclosed chapter: ' + id);
+    };
+    const words = (html: string) => html
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s*· Musiikin teoria\s*/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    for (let n = 1; n <= 28; n++) {
+      const standalone = read('book/luku-' + n + '.html');
+      const original = standalone.match(/href="osa-([0-9]+)[.]html#([^"]+)"/);
+      expect(original, 'origin link ' + n).toBeTruthy();
+      const [, part, id] = original!;
+      const oldSection = extract(read('book/osa-' + part + '.html'), id);
+      const newSection = extract(standalone, id);
+      expect(words(newSection), 'luku ' + n).toBe(words(oldSection));
+    }
+  });
+
   it('jokaisella pääsivulla on sama päävalikko samassa järjestyksessä ja oikea aktiivinen osio',()=>{
     const pages:[string,string|null,string][]=[
       ['index.html',null,'page'],['book/index.html','teoria','true'],['otelautaharjoittelija.html','otelauta','page'],['kitaraharjoittelija.html','kitara','page'],
