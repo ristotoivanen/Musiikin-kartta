@@ -147,9 +147,8 @@ test.describe('aloitus: kaksi käyttötapaa', () => {
     await expect(game).toHaveAttribute('href', '?tila=peli');
     await expect(page.getByRole('link', { name: 'Takaisin harjoitusvalikkoon' })).toHaveAttribute('href', 'kitaraharjoittelija.html?polku=otelauta');
     // Koko kortti on klikattava: painallus kortin reunaan avaa pelin.
-    const box = (await game.boundingBox())!;
-    const [x, y] = [box.x + box.width - 24, box.y + box.height / 2];
-    if (isMobile) await page.touchscreen.tap(x, y); else await page.mouse.click(x, y);
+    const position = await game.evaluate(card => ({ x: card.clientWidth - 24, y: card.clientHeight / 2 }));
+    if (isMobile) await game.tap({ position }); else await game.click({ position });
     await expect(page).toHaveURL(/riffikaiku\.html\?tila=peli$/);
     await expect(page.getByTestId('mode-tag')).toHaveText('Riffikaiku-peli – virtuaalikitara');
     await expect(page).toHaveTitle(/^Riffikaiku-peli – virtuaalikitara/);
