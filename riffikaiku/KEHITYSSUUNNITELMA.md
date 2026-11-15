@@ -1,6 +1,6 @@
 # Riffikaiku – kehityssuunnitelma
 
-Tila 0.4: toteutettu **Kotitreeni 1 (B-kieli)** ja **Kotitreeni 2 (G-kieli)** kahdessa käyttötavassa:
+Tila 0.5: toteutettu **Kotitreeni 1 (B-kieli)** ja **Kotitreeni 2 (G-kieli)** kahdessa käyttötavassa:
 **Riffiharjoitus – oikea kitara** (`?tila=harjoitus`) ja **Riffikaiku-peli – virtuaalikitara** (`?tila=peli`).
 Muut alla olevat kohdat ovat suunnitelmia, joita **ei ole toteutettu**.
 
@@ -15,11 +15,20 @@ avautuvana. Sisältöä lisättäessä mieti erikseen:
 - **Peli:** onko riffi kuulonvaraisesti ratkaistavissa otelaudalla nauhoilla 0–5? Tähti ja ennätys
   toimivat sellaisenaan.
 
+**Pelin kulku 0.5:** Kuuntele → Harjoittele vapaasti → Nyt riffataan! → Palaute → Jatka (ks. README).
+Opastustaso on kotitreenin datassa (`guidance: 'guided' | 'memory' | 'challenge'`). Kun uusia kotitreenejä
+lisätään, suunniteltu eteneminen on: yhden kielen kotitreenit 1–6 `guided`, Treenikämppä (kaksi kieltä)
+`memory`, Studiosessiot `challenge`. Taso valitaan sisällön vaikeuden mukaan, ei numeron perusteella, ja se
+pitää koekäyttää: jos pelaajat jäävät `memory`-tasolla jumiin, sävelet kannattaa avata yhdellä painalluksella
+kuten nyt, ei piilottaa kokonaan.
+
 Seuraavat askeleet, joita ei ole toteutettu:
 
 1. Oikean kitaran hyväksyntäkokeet ([HYVAKSYNTAKOKEET.md](HYVAKSYNTAKOKEET.md)) ja niiden perusteella
    epävarman tunnistuksen (450 ms) ja toistuvan sävelen ohjeen (700 ms) rajat.
-2. Harjoitukseen hitaampi mallitempo (vaatii `ReferencePlayer`-muutoksen Kitaraharjoittelijassa).
+2. Harjoitukseen ja pelin harjoitteluvaiheeseen hitaampi mallitempo (vaatii `ReferencePlayer`-muutoksen Kitaraharjoittelijassa).
+5. Pelin automaattisen mallisoiton ja kahden samanaikaisen soittimen kokeilu oikeilla puhelimilla
+   (iOS Safari, Android Chrome) ja äänenvoimakkuuksien tasapaino puhelimen kaiuttimesta.
 3. Pelin kotitreenikohtainen tähtiyhteenveto aloitussivun kortissa ja Oppimiskartan edistymisessä
    (koordinoi Oppimiskartan kehityksen kanssa).
 4. Kitaraharjoittelijan Sävelkorva ja otelauta -valikon kortin teksti (”Avaa peli”) kuvaamaan kahta

@@ -18,6 +18,7 @@ export function fakeAudio() {
     closeMic() { a.calls.push('close'); },
     playModel(notes: number[], onNote: (i: number) => void) { a.calls.push('model'); return new Promise<boolean>(resolve => models.push({ notes, onNote, resolve })); },
     stopModel() { a.calls.push('stop-model'); models.splice(0).forEach(m => m.resolve(false)); },
+    stopReference() { a.calls.push('stop-reference'); models.splice(0).forEach(m => m.resolve(false)); },
     pluck(midi: number) { a.plucks.push(midi); },
   } satisfies GameAudio & Record<string, unknown>;
   return a;
