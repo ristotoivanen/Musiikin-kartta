@@ -137,13 +137,17 @@
     }
   ],
   "exercise_audio": {
-    "kuuntele-pulssi": "osa-1#pulssi-aanite",
-    "soita-ensin-basso": "osa-1#kappale-kuvaus",
-    "taydenna-fraasi": "osa-2#fraasi-kuvaus",
-    "siirra-yhta-sormea": "osa-2#terssi-kuvaus",
-    "tee-sointukartta": "osa-7#paluumatka-kuvaus",
-    "etsi-ensimmainen-melodiasavel": "osa-7#paluumatka-kuvaus",
-    "soita-kysymys-ja-vastaus": "osa-8#em-c-tausta",
-    "vaihda-f-nauhaa-ylemmas": "osa-8#am-tausta"
+    "kuuntele-pulssi": ["osa-1#pulssi-aanite"],
+    "soita-ensin-basso": ["osa-1#kappale-kuvaus"],
+    "taydenna-fraasi": ["osa-2#fraasi-kuvaus"],
+    "siirra-yhta-sormea": ["osa-2#terssi-kuvaus"],
+    "tee-sointukartta": ["osa-7#paluumatka-kuvaus"],
+    "etsi-ensimmainen-melodiasavel": ["osa-7#paluumatka-kuvaus"],
+    "soita-kysymys-ja-vastaus": ["osa-8#em-c-tausta"],
+    "vaihda-f-nauhaa-ylemmas": ["osa-8#am-tausta"],
+    "vaihda-kotisavelta": ["osa-4#kotisavel-kuvaus"],
+    "sovita-savellaji-laulajalle": ["osa-4#kapo-kuvaus"],
+    "kysymys-ja-vastaus-koko-boksilla": ["osa-8#em-c-tausta"],
+    "vaihda-saestysta": ["osa-9#nappaily-kuvaus", "osa-9#komppi-kuvaus"]
   }
 }

@@ -207,3 +207,56 @@ test.describe('Oppimiskartta ilman JavaScriptiä', () => {
     await expect(page.getByText(/Kysymysten soittaminen tarvitsee JavaScriptin/)).toBeVisible();
   });
 });
+
+test('korvaharjoitus toipuu äänilaitteen käynnistysvirheestä', async ({ page }) => {
+  await page.addInitScript(() => {
+    const NativeAudioContext = window.AudioContext;
+    let attempts = 0;
+    window.AudioContext = class extends NativeAudioContext {
+      constructor(options?: AudioContextOptions) {
+        if (attempts++ === 0) throw new Error('Simuloitu äänilaitteen virhe');
+        super(options);
+      }
+    };
+  });
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/oppi/korva/mika-aste-soi.html');
+  const newQuestion = page.getByRole('button', { name: 'Uusi kysymys' });
+  const feedback = page.locator('.et-feedback');
+  const answer = page.getByRole('group', { name: 'Vastausvaihtoehdot' }).getByRole('button').first();
+  await newQuestion.click();
+  await expect(feedback).toHaveText(/Ääni ei käynnistynyt/);
+  await expect(answer).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Kuuntele uudelleen' })).toBeDisabled();
+  await newQuestion.click();
+  await expect(feedback).toBeEmpty();
+  await expect(answer).toBeEnabled();
+  await answer.click();
+  await expect(feedback).toHaveText(/Oikein|Ei aivan/);
+  await page.getByRole('link', { name: 'Takaisin Oppimiskarttaan' }).click();
+  await expect(page).toHaveURL('/index.html#aihe-korva');
+  expect(errors).toEqual([]);
+});
+
+test('tahtitaulukko ja korvaharjoituksen valitsin mahtuvat 320 pikseliin suurennetulla tekstillä', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 568 });
+  for (const path of [
+    '/oppi/rytmi/pulssi-ja-komppi.html',
+    '/oppi/kappaleet/kappale-asteina.html',
+    '/oppi/korva/mika-aste-soi.html',
+    '/oppi/korva/tunnista-sointutyyppi.html',
+    '/oppi/savelnimet/kitaran-kielet-ja-sointumerkinnat.html',
+  ]) {
+    await page.goto(path);
+    await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth), path).toBeLessThanOrEqual(320);
+  }
+  await page.goto('/oppi/rytmi/pulssi-ja-komppi.html');
+  await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
+  const table = page.getByRole('region', { name: 'Alas–ylös-komppi yhdessä tahdissa' });
+  expect(await table.evaluate(element => element.scrollWidth)).toBeGreaterThan(await table.evaluate(element => element.clientWidth));
+  await table.focus();
+  await expect(table).toBeFocused();
+  await expect(table).toHaveCSS('outline-style', 'solid');
+});

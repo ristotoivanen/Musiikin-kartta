@@ -22,7 +22,7 @@
     { slug: 'osa-4', name: 'Osa 4', chapters: [['savellajin-tunnistaminen', 10, 'Sävellajin tunnistaminen'], ['kvinttiympyra', 11, 'Kvinttiympyrä'], ['transponointi', 12, 'Transponointi']],
       anchors: ['ympyra-otsikko'] },
     { slug: 'osa-5', name: 'Osa 5', chapters: [['otelauta', 13, 'Otelauta ja oktaavimuodot'], ['perussavel', 14, 'Sävelet E- ja A-kielellä']],
-      anchors: ['oktaaviharjoitus', 'oktaavimuodot'] },
+      anchors: ['oktaaviharjoitus', 'oktaavimuodot', 'e-ja-a-kielen-nauhat'] },
     { slug: 'osa-6', name: 'Osa 6', chapters: [['barre', 15, 'Barré-soinnut ja numerokartta'], ['caged', 16, 'CAGED']],
       anchors: ['numerokartta'] },
     { slug: 'osa-7', name: 'Osa 7', chapters: [['intervallit', 17, 'Asteet ja intervallit korvalla'], ['basso', 18, 'Bassolinjan kuuleminen'], ['soinnut', 19, 'Sointujen tunnistaminen'], ['kappale', 20, 'Kappaleen purkaminen ilman nuotteja']],
@@ -32,7 +32,7 @@
     { slug: 'osa-9', name: 'Osa 9', chapters: [['sovittaminen', 23, 'Sovittaminen'], ['oma-kappale', 24, 'Oman kappaleen tekeminen ja oma ilmaisu']],
       anchors: ['kokoa-yhteen', 'esimerkkikappale', 'kappale-1-luonnos', 'kappale-2-b-osa', 'kappale-3-septimit', 'kappale-4-sovitus'] },
     { slug: 'osa-10', name: 'Osa 10', advanced: true, chapters: [['septimisoinnut', 25, 'Septimisoinnut'], ['septimi-korvalla', 26, 'Kuule septimi'], ['ii-v-i', 27, 'ii–V–I ja äänenkuljetus']],
-      anchors: [] },
+      anchors: ['c-duurin-septimisoinnut'] },
     { slug: 'osa-11', name: 'Osa 11', advanced: true, chapters: [['moodit', 28, 'Moodit käytännössä']],
       anchors: [] }
   ];

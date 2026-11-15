@@ -95,3 +95,6 @@
 }
 .study-audio-error { margin-bottom: 0; color: #ffaaaa; font-size: .9rem; }
 .study-audio-error:empty { margin: 0; }
+.study-page .chord-diagram, .study-page .chord-diagram svg { max-inline-size: 100%; }
+.study-page .et-level, .study-page .et-bar select { min-inline-size: 0; max-inline-size: 100%; }
+.study-table { overflow-x: auto; max-inline-size: 100%; }

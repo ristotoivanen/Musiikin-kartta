@@ -317,6 +317,16 @@ def sources(book, output):
     return f'\n{html}'
 
 
+def wrap_rhythm_tables(markup):
+    # Tahdin iskut pysyvät sarakkeissa myös suurennetulla tekstillä.
+    def wrap(match):
+        label = escape(unescape(match[2]))
+        return f'<div class="study-table" role="region" aria-label="{label}" tabindex="0">{match[1]}</div>'
+
+    pattern = r'(<table class="bar-chart[^"]*"[^>]*>\s*<caption>([^<]+)</caption>[\s\S]*?</table>)'
+    return re.sub(pattern, wrap, markup)
+
+
 def page_content(page, topic, step, books, targets, audio):
     kind = 'Harjoitus' if page.parent else 'Oppitunti'
     chapter = f' <span>Teoriaoppaan luku {page.chapter_number}</span>' if page.chapter else ''
@@ -325,8 +335,7 @@ def page_content(page, topic, step, books, targets, audio):
         parts.append(f'<p class="lead">{escape(page.goal)}</p>')
     if page.parent:
         url = rel(page.parent.path, page.path)
-        sound = audio.get(Path(page.path).stem)
-        if sound:
+        for sound in audio.get(Path(page.path).stem, []):
             part, key = part_anchor(sound)
             figure = play_sources(books[part], key)
             parts.append(rebase(figure, part, page.path, targets))
@@ -335,7 +344,7 @@ def page_content(page, topic, step, books, targets, audio):
         markup = re.sub(r'<p class="et-fallback">[^<]*</p>',
                         '<p class="et-fallback">Kysymysten soittaminen tarvitsee JavaScriptin ja selaimen äänituen.</p>',
                         markup)
-    parts.append(markup)
+    parts.append(wrap_rhythm_tables(markup))
     if page.parent:
         parts.append('<p class="study-guide">' + link(url, 'Ohje ja esimerkit · ' + page.parent.title) + '</p>')
     return '\n'.join(parts)

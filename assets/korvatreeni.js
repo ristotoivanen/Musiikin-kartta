@@ -21,6 +21,15 @@
 
   let context = null;
   let playing = null;
+  let playback = 0;
+
+  function stop() {
+    playback++;
+    playing?.stop();
+    playing = null;
+  }
+
+  window.addEventListener('pagehide', stop);
 
   function pick(list, avoid) {
     const choices = list.length > 1 && avoid !== undefined ? list.filter(item => item !== avoid) : list;
@@ -30,13 +39,17 @@
   // Palauttaa voimakkuuden tasauskertoimen. Kun ratkaisulle annetaan kysymyksen kerroin,
   // ratkaisu soi samalla voimakkuudella kuin kysymys.
   async function play(events, duration, gain) {
+    stop();
+    const request = playback;
     context ??= new AudioContext();
     if (context.state === 'suspended') await context.resume();
+    if (request !== playback) return;
     const buffer = await backingTrack.renderScore({ events, duration: duration + 1.2, room: 1.4, reverb: .12, gain });
-    playing?.stop();
+    if (request !== playback) return;
     const source = context.createBufferSource();
     source.buffer = buffer;
     source.connect(context.destination);
+    source.onended = () => { if (playing === source) playing = null; };
     source.start();
     playing = source;
     return buffer.gain;
@@ -238,7 +251,21 @@
       }));
     }
 
-    async function ask() {
+    async function playQuestion(asked, first) {
+      try {
+        asked.gain = await play(...exercise.sound(asked));
+        if (first && asked === question && feedback.textContent === 'Soitetaan…') feedback.textContent = '';
+      } catch {
+        if (asked !== question) return;
+        question = null;
+        again.disabled = true;
+        drawAnswers();
+        feedback.textContent = 'Ääni ei käynnistynyt. Paina Uusi kysymys ja yritä uudelleen.';
+        feedback.className = 'et-feedback is-wrong';
+      }
+    }
+
+    function ask() {
       question = exercise.ask(exercise.levels[select.value], question);
       firstTry = true;
       drawAnswers();
@@ -246,9 +273,7 @@
       feedback.textContent = 'Soitetaan…';
       feedback.className = 'et-feedback';
       again.disabled = false;
-      const asked = question;
-      asked.gain = await play(...exercise.sound(asked));
-      feedback.textContent = '';
+      void playQuestion(question, true);
     }
 
     async function answer(option, button) {
@@ -269,14 +294,28 @@
         answers.querySelectorAll('button').forEach(b => { b.disabled = true; });
         feedback.textContent = 'Oikein! ' + exercise.explain(question);
         feedback.className = 'et-feedback is-correct';
-        if (exercise.resolve) await play(...exercise.resolve(question), question.gain);
+        if (exercise.resolve) {
+          const answered = question;
+          try {
+            await play(...exercise.resolve(answered), answered.gain);
+          } catch {
+            if (answered === question) feedback.textContent += ' Ratkaisun ääntä ei voitu soittaa.';
+          }
+        }
       }
       score.textContent = 'Oikein ensimmäisellä yrityksellä ' + right + '/' + total + (streak > 1 ? ' · ' + streak + ' peräkkäin' : '');
     }
 
     root.querySelector('.et-new').addEventListener('click', ask);
-    again.addEventListener('click', () => question && play(...exercise.sound(question)));
-    select.addEventListener('change', () => { question = null; again.disabled = true; drawAnswers(); prompt.textContent = 'Taso vaihtui. Paina Uusi kysymys.'; });
+    again.addEventListener('click', () => { if (question) void playQuestion(question, false); });
+    select.addEventListener('change', () => {
+      stop();
+      question = null;
+      again.disabled = true;
+      drawAnswers();
+      prompt.textContent = 'Taso vaihtui. Paina Uusi kysymys.';
+      feedback.textContent = '';
+    });
     drawAnswers();
   }
 
