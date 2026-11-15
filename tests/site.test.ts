@@ -9,6 +9,47 @@ const read=(file:string)=>readFileSync(new URL('../'+file,import.meta.url),'utf8
 const topics = ['kitara', 'rytmi', 'savelnimet', 'korva', 'otelauta', 'soinnut', 'asteikot', 'kappaleet'];
 const studyFiles = topics.flatMap(topic => readdirSync(new URL('../oppi/' + topic + '/', import.meta.url))
   .filter(file => file.endsWith('.html')).map(file => 'oppi/' + topic + '/' + file));
+
+// Julkaistun navigointiversion f1fe5e4 reitit sisältöjärjestyksessä.
+const legacyStudyRoutes = {
+  kitara: ['sointukierrot', 'soita-ensin-basso'],
+  rytmi: [
+    'pulssi-ja-komppi', 'kuuntele-pulssi', 'alas-ylos-yhdella-soinnulla',
+    'kaksi-sointua-yhdessa-tahdissa',
+  ],
+  savelnimet: ['kitaran-kielet-ja-sointumerkinnat', 'savelet-ja-intervallit', 'siirra-yhta-sormea'],
+  korva: [
+    'musiikki-on-kieli', 'taydenna-fraasi', 'savellajin-tunnistaminen',
+    'vaihda-kotisavelta', 'intervallit', 'mika-aste-soi',
+    'etsi-jalkimmainen-savel', 'basso', 'kuuntele-bassolinja',
+    'soinnut', 'kumpi-on-molli', 'tunnista-sointutyyppi',
+    'septimi-korvalla', 'kolme-c-sointua',
+  ],
+  otelauta: [
+    'otelauta', 'etsi-a-ilman-asteikkokuviota', 'etsi-sama-savel',
+    'perussavel', 'etsi-savel-kahdelta-kielelta', 'nimea-savel', 'caged', 'soita-c-kahdesta-kohdasta',
+  ],
+  soinnut: [
+    'harmoninen-kentta', 'kolme-sointua-g-duurista', 'kaikuluotain',
+    'roomalaiset-numerot', 'siirra-kierto-d-duuriin', 'sointujen-tehtavat',
+    'laula-paluu', 'kvinttiympyra', 'siirra-keskelle-d',
+    'barre', 'etsi-barresointu', 'rakenna-barre',
+    'siirra-kierto-c-duuriin', 'septimisoinnut', 'lisaa-septimi',
+    'soita-septimisoinnut', 'ii-v-i', 'ii-v-i-kahdessa-savellajissa',
+  ],
+  asteikot: [
+    'asteikot', 'etsi-puoliaskeleet', 'pentatoniikka', 'tee-kolmesta-savelesta-melodia',
+    'kysymys-ja-vastaus-koko-boksilla', 'moodit', 'vaihda-f-nauhaa-ylemmas',
+  ],
+  kappaleet: [
+    'kappale-asteina', 'sama-kappale-c-duurissa', 'transponointi',
+    'sovita-savellaji-laulajalle', 'kappale', 'mika-sointu-tulee',
+    'tee-sointukartta', 'etsi-ensimmainen-melodiasavel', 'improvisointi',
+    'soita-kysymys-ja-vastaus', 'sovittaminen', 'vaihda-saestysta',
+    'oma-kappale', 'aanita-kahdeksan-tahtia',
+  ],
+};
+
 describe('staattisen sivuston yhteensopivuus',()=>{
   it('muutetut nykyiset skriptit ovat syntaktisesti kelvollisia classic-skriptejä',()=>{
     for(const file of ['assets/otelauta.js','assets/edistyminen.js','assets/oppimiskartta.js','assets/harjoitustausta.js','assets/korvatreeni.js']) expect(()=>new Script(read(file))).not.toThrow();
@@ -122,7 +163,22 @@ describe('staattisen sivuston yhteensopivuus',()=>{
       expect(mapCard?.[1].split(' ').sort(), topic).toEqual([...topicIds].sort());
       expect(topicPage, topic).not.toContain('class="done-toggle"');
     }
-    expect(byKind).toEqual({ luku: 28, harjoitus: 41, oppitunti: 1 });
+    expect(byKind).toEqual({ luku: 28, harjoitus: 41, oppitunti: 4 });
+  });
+
+  it('kaikki 70 vanhaa sisältöosoitetta säilyvät ja uudet oppitunnit sijoittuvat vain Kitaran perusteisiin', () => {
+    const studyRoutes = (topic: string) => [...read(`oppi/${topic}/index.html`)
+      .matchAll(/<a class="study-choice"[^>]* href="([^"]+)\.html"/g)].map(([, route]) => route);
+    expect(Object.values(legacyStudyRoutes).flat()).toHaveLength(70);
+    expect(studyRoutes('kitara')).toEqual([
+      'savelesta-sointuun', 'vaihto-ja-sointukartta', ...legacyStudyRoutes.kitara, 'mihin-kierto-paattyy',
+    ]);
+    for (const [topic, routes] of Object.entries(legacyStudyRoutes)) {
+      if (topic !== 'kitara') expect(studyRoutes(topic), topic).toEqual(routes);
+      for (const route of routes) {
+        expect(studyFiles, topic + '/' + route).toContain(`oppi/${topic}/${route}.html`);
+      }
+    }
   });
 
   it('Oppimiskartan muodostus on toistettava ja linkit osoittavat olemassa oleviin kohteisiin', () => {

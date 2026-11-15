@@ -233,26 +233,30 @@ for (const [index, [, slug, title]] of topics.slice(0, -1).entries()) {
 }
 
 test('aiheen suoritusaste päivittyy molemmissa navigoinneissa ja kuittaus säilyy palatessa', async ({ page }) => {
-  const first = '/oppi/kitara/sointukierrot.html';
-  const last = '/oppi/kitara/soita-ensin-basso.html';
-  await page.goto(first);
+  const chapter = '/oppi/kitara/sointukierrot.html';
+  const practice = '/oppi/kitara/soita-ensin-basso.html';
+  const last = '/oppi/kitara/mihin-kierto-paattyy.html';
+  await page.goto(chapter);
   await page.getByRole('button', { name: 'Merkitse luku tehdyksi' }).click();
-  await expect(page).toHaveURL(first);
+  await expect(page).toHaveURL(chapter);
   await nextStep(page, 'Seuraava: Soita ensin basso').press('Enter');
+  await expect(page).toHaveURL(practice);
+  await page.getByRole('button', { name: 'Merkitse harjoitus tehdyksi' }).click();
+  await nextStep(page, 'Seuraava: Mihin sointukierto päättyy?').press('Enter');
   await expect(page).toHaveURL(last);
 
   const progress = page.locator('[data-boundary-progress]');
-  await expect(progress).toHaveText(['1/2 sisältöä tehty', '1/2 sisältöä tehty']);
-  await page.getByRole('button', { name: 'Merkitse harjoitus tehdyksi' }).click();
+  await expect(progress).toHaveText(['2/5 sisältöä tehty', '2/5 sisältöä tehty']);
+  await page.getByRole('button', { name: 'Merkitse oppitunti tehdyksi' }).click();
   await expect(page).toHaveURL(last);
-  await expect(progress).toHaveText(['✓ Aihe käyty läpi', '✓ Aihe käyty läpi']);
-  await bottomSteps(page).getByRole('link', { name: 'Edellinen: Neljä otetta ja ensimmäinen kappale', exact: true }).click();
-  await expect(page).toHaveURL(first);
-  await expect(page.getByRole('button', { name: '✓ Luku tehty' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(progress).toHaveText(['3/5 sisältöä tehty', '3/5 sisältöä tehty']);
+  await bottomSteps(page).getByRole('link', { name: 'Edellinen: Soita ensin basso', exact: true }).click();
+  await expect(page).toHaveURL(practice);
+  await expect(page.getByRole('button', { name: '✓ Harjoitus tehty' })).toHaveAttribute('aria-pressed', 'true');
   await page.goBack();
   await expect(page).toHaveURL(last);
-  await page.getByRole('button', { name: '✓ Harjoitus tehty' }).click();
-  await expect(progress).toHaveText(['1/2 sisältöä tehty', '1/2 sisältöä tehty']);
+  await page.getByRole('button', { name: '✓ Oppitunti tehty' }).click();
+  await expect(progress).toHaveText(['2/5 sisältöä tehty', '2/5 sisältöä tehty']);
 });
 
 test('viimeinen sisältö tarjoaa paluun kartalle ja näyttää oppimispolun valmistumisen vasta kaikkien aiheiden jälkeen', async ({ page }) => {
@@ -299,8 +303,11 @@ for (const width of [320, 390, 768, 1440]) {
   test('sisällön ylä- ja alanavigointi mahtuu leveydellä ' + width + ' px myös suurennetulla tekstillä', async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     for (const route of [
+      '/oppi/kitara/savelesta-sointuun.html',
+      '/oppi/kitara/vaihto-ja-sointukartta.html',
       '/oppi/kitara/sointukierrot.html',
       '/oppi/kitara/soita-ensin-basso.html',
+      '/oppi/kitara/mihin-kierto-paattyy.html',
       '/oppi/rytmi/alas-ylos-yhdella-soinnulla.html',
       '/oppi/soinnut/ii-v-i-kahdessa-savellajissa.html',
       '/oppi/kappaleet/oma-kappale.html',
@@ -391,7 +398,7 @@ test('ristiinlinkitys avaa saman opetussivun ja takaisinpaluu säilyttää läht
   await page.getByRole('button', { name: 'Merkitse oppitunti tehdyksi' }).click();
   await page.goBack();
   await expect(page).toHaveURL('/oppi/kitara/index.html');
-  await expect(page.locator('[data-study-total]')).toHaveText('0/2 sisältöä tehty');
+  await expect(page.locator('[data-study-total]')).toHaveText('0/5 sisältöä tehty');
   await page.goto(topicPath);
   const guitarCard = page.locator('#valinta-kitaran-kielet-ja-sointumerkinnat');
   await expect(guitarCard.locator('[data-study-status]')).toHaveText('✓ Tehty');
@@ -433,6 +440,29 @@ test('äänitiedostojen katketessa ilmoitus näkyy ja harjoitukseen voi silti si
   await expect(page.getByRole('status')).toHaveText(/Ääniesimerkkiä ei voitu ladata/);
   await nextStep(page, 'Seuraava: Siirrä yhtä sormea').click();
   await expect(page).toHaveURL(practicePath);
+});
+
+test('Kitaran perusteiden uudet kuunteluesimerkit latautuvat ja soivat', async ({ page }) => {
+  const examples = [
+    ['vaihto-ja-sointukartta', [33.75]],
+    ['mihin-kierto-paattyy', [15, 15]],
+  ] as const;
+  for (const [slug, durations] of examples) {
+    await page.goto(`/oppi/kitara/${slug}.html`);
+    const players = page.locator('main audio');
+    await expect(players).toHaveCount(durations.length);
+    for (const [index, duration] of durations.entries()) {
+      const player = players.nth(index);
+      await player.evaluate(async element => {
+        const audio = element as HTMLAudioElement;
+        audio.muted = true;
+        await audio.play();
+      });
+      await expect.poll(() => player.evaluate(element => (element as HTMLAudioElement).currentTime)).toBeGreaterThan(0.05);
+      expect(await player.evaluate(element => (element as HTMLAudioElement).duration)).toBeCloseTo(duration, 2);
+      await player.evaluate(element => (element as HTMLAudioElement).pause());
+    }
+  }
 });
 
 test.describe('Oppimiskartta ilman JavaScriptiä', () => {

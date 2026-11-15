@@ -19,3 +19,10 @@ Tarvitset macOS:n, koska palvelin muuntaa äänet `afconvert`-työkalulla.
 Palvelin tekee jokaisesta esimerkistä AAC-tiedoston (`.m4a`, 128 kbit/s, stereo) ja varalle mono-WAV-tiedoston (24 kHz). Kirjan sivut käyttävät molempia `<source>`-elementeillä.
 
 Kun muutat esimerkkiä, tarkista että kirjan tekstin kuvaus pitää edelleen paikkansa: esimerkiksi tempo, sointujen järjestys, lähtöiskujen määrä ja melodian aloitussävel.
+
+## Kitaran perusteiden äänet
+
+Muodosta Oppimiskartan omat sointukartta- ja lopetusäänet komennolla
+`python3 tools/aanet/kitara.py`. Äänet tuotetaan ohjelmallisesti tavallisista
+avoimista kitarasoinnuista ja tallennetaan monona kansioon `assets/audio/kitara`.
+`python3 tools/aanet/kitara.py --tarkista` vertaa äänitteitä generaattorin tulokseen.

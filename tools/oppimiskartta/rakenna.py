@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Muodosta Oppimiskartan staattiset sivut aiheluettelosta ja teoriaoppaasta."""
+"""Muodosta Oppimiskartan sivut aiheluettelosta, teoriaoppaasta ja erillisistä oppitunneista."""
 
 import argparse
 import hashlib
@@ -190,6 +190,17 @@ def excerpt_range(book, key):
 
 
 def lesson_pages(topic, item, books, excerpts):
+    if 'standalone' in item:
+        if 'source' in item or 'excerpt' in item:
+            raise ValueError('Erillisellä oppitunnilla ei voi olla teoriakirjaviitettä')
+        slug = item['standalone']
+        path = target_path(topic, slug)
+        source = CONFIG.parent / 'sisallot' / topic['slug'] / f'{slug}.html'
+        content = source.read_text(encoding='utf-8').strip()
+        if not content:
+            raise ValueError(f'{source.name}: oppitunnin sisältö puuttuu')
+        return [Page(path, item['title'], source.relative_to(ROOT).as_posix(), content, item['goal'])]
+
     source, key = part_anchor(item['source'])
     book = books[source]
     chapter = book.one('id', key)
@@ -560,7 +571,7 @@ def pages():
         sequence = topic['pages']
         for index, page in enumerate(sequence):
             content = page_content(page, topic, index, next_topic, books, targets, audio)
-            if not page.parent:
+            if not page.parent and page.source in books:
                 content += sources(books[page.source], page.path)
             path_items = all_pages if next_topic is None and index == len(sequence) - 1 else ()
             output[page.path] = render(topic, content, nav, page, path_items=path_items)
