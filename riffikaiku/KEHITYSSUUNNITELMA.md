@@ -1,7 +1,30 @@
 # Riffikaiku – kehityssuunnitelma
 
-Tila 0.3: toteutettu **Kotitreeni 1 (B-kieli)** ja **Kotitreeni 2 (G-kieli)**. Muut alla olevat
-kohdat ovat suunnitelmia, joita **ei ole toteutettu**.
+Tila 0.4: toteutettu **Kotitreeni 1 (B-kieli)** ja **Kotitreeni 2 (G-kieli)** kahdessa käyttötavassa:
+**Riffiharjoitus – oikea kitara** (`?tila=harjoitus`) ja **Riffikaiku-peli – virtuaalikitara** (`?tila=peli`).
+Muut alla olevat kohdat ovat suunnitelmia, joita **ei ole toteutettu**.
+
+## Kaksi käyttötapaa (0.4)
+
+Uusi kotitreeni tulee automaattisesti molempiin: harjoitukseen ilman lukkoja ja peliin järjestyksessä
+avautuvana. Sisältöä lisättäessä mieti erikseen:
+
+- **Harjoitus:** onko ehdotettu otelautapaikka ja soittovinkki opettavainen? Toistuuko riffissä sama sävel
+  (mikrofonille vaativa: tarvitaan vaimennusohje)? Onko riffi monofoninen? Matalien kielten oktaavi- ja
+  ylä-äänivirheet on mitattava oikealla kitaralla ennen julkaisua.
+- **Peli:** onko riffi kuulonvaraisesti ratkaistavissa otelaudalla nauhoilla 0–5? Tähti ja ennätys
+  toimivat sellaisenaan.
+
+Seuraavat askeleet, joita ei ole toteutettu:
+
+1. Oikean kitaran hyväksyntäkokeet ([HYVAKSYNTAKOKEET.md](HYVAKSYNTAKOKEET.md)) ja niiden perusteella
+   epävarman tunnistuksen (450 ms) ja toistuvan sävelen ohjeen (700 ms) rajat.
+2. Harjoitukseen hitaampi mallitempo (vaatii `ReferencePlayer`-muutoksen Kitaraharjoittelijassa).
+3. Pelin kotitreenikohtainen tähtiyhteenveto aloitussivun kortissa ja Oppimiskartan edistymisessä
+   (koordinoi Oppimiskartan kehityksen kanssa).
+4. Kitaraharjoittelijan Sävelkorva ja otelauta -valikon kortin teksti (”Avaa peli”) kuvaamaan kahta
+   käyttötapaa. Jätetty tästä työstä pois, koska muutos vaatii Kitaraharjoittelijan käännöksen ja
+   koskee rinnakkain kehitettäviä navigaatiotiedostoja.
 
 ## Rakenne
 
