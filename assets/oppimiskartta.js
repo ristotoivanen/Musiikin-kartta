@@ -1,15 +1,16 @@
 (() => {
-  const cards = [...document.querySelectorAll('details.topic-card')];
+  const cards = [...document.querySelectorAll('.topic-grid > .topic-card')];
   if (cards.length) {
     const openTopic = id => {
       const target = cards.find(card => card.id === id);
       if (!target) return;
-      target.open = true;
-      target.querySelector('summary').focus({ preventScroll: true });
+      if (target.matches('details')) target.open = true;
+      (target.querySelector('summary') ?? target).focus({ preventScroll: true });
       target.scrollIntoView({ block: 'start' });
     };
+    const panels = cards.filter(card => card.matches('details'));
     const openCards = history.state?.openTopics ?? [];
-    for (const card of cards) card.open = openCards.includes(card.id);
+    for (const panel of panels) panel.open = openCards.includes(panel.id);
     // Selaimen paluu kohdistuu lähtöaiheeseen, vaikka osoitteen ankkuri olisi vanhemmasta aiheesta.
     const navigation = performance.getEntriesByType('navigation')[0];
     window.addEventListener('pageshow', event => {
@@ -19,13 +20,15 @@
     });
     window.addEventListener('hashchange', () => openTopic(location.hash.slice(1)));
 
-    for (const link of document.querySelectorAll('.topic-card a, .start-here a')) {
+    for (const link of document.querySelectorAll('.topic-card a, a.topic-card, .start-here a')) {
       const from = link.closest('.topic-card')?.id ?? 'aihe-rytmi';
-      const url = new URL(link.href);
-      url.searchParams.set('aihe', from);
-      link.href = url.href;
+      if (!link.matches('.topic-card')) {
+        const url = new URL(link.href);
+        url.searchParams.set('aihe', from);
+        link.href = url.href;
+      }
       link.addEventListener('click', () => {
-        const openTopics = cards.filter(card => card.open).map(card => card.id);
+        const openTopics = panels.filter(panel => panel.open).map(panel => panel.id);
         history.replaceState({ ...history.state, openTopics, returnTopic: from }, '');
       });
     }
@@ -39,8 +42,7 @@
   if (!topic?.startsWith('aihe-') || !topics.has(topic.slice(5))) return;
   const map = document.querySelector('.main-nav a[href$="#oppimisaiheet"]');
   if (!map) return;
-  const url = new URL(map.href);
-  url.hash = topic;
+  const url = new URL(topic === 'aihe-nuotit' ? 'oppi/savelnimet/index.html' : '#' + topic, map.href);
   const link = document.createElement('a');
   link.href = url.href;
   link.textContent = 'Takaisin aiheeseen';

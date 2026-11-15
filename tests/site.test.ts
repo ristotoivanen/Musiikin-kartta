@@ -1,5 +1,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
 import { Script } from 'node:vm';
 import { describe,it,expect } from 'vitest';
 import ts from 'typescript';
@@ -45,12 +47,14 @@ describe('staattisen sivuston yhteensopivuus',()=>{
 
   it('etusivun kahdeksan oppimisaihetta säilyttävät nykyiset teoria- ja harjoittelureitit', () => {
     const html = read('index.html');
-    const ids = [...html.matchAll(/<details class="topic-card" id="aihe-([^"]+)">/g)].map(m => m[1]);
+    const ids = [...html.matchAll(/<(?:details|a) class="topic-card" id="aihe-([^"]+)"/g)].map(m => m[1]);
     expect(ids).toEqual(['kitara', 'rytmi', 'nuotit', 'korva', 'otelauta', 'soinnut', 'asteikot', 'kappaleet']);
     expect(html).toContain('href="book/osa-1.html#pulssi-ja-komppi"');
     expect(html).toContain('href="riffikaiku.html"');
     expect(html).toContain('href="pelit/ensikeikka/"');
     expect(html).toContain('href="kitaraharjoittelija.html?polku=otelauta&amp;harjoitus=savelten-etsinta"');
+    expect(html).toContain('<a class="topic-card" id="aihe-nuotit" href="oppi/savelnimet/index.html">');
+    expect(html).not.toContain('#h-savelnimi');
     expect(html).toContain('<title>Oppimiskartta – Musiikin kartta</title>');
     expect(html).toContain('<h2 id="oppimisaiheet">Oppimiskartta</h2>');
     expect(html).not.toContain('Nykyiset oppaat ja työkalut');
@@ -66,14 +70,16 @@ describe('staattisen sivuston yhteensopivuus',()=>{
     expect(html).toContain('id="home-continue"');
     expect(html).not.toContain('class="hero-actions"');
     const chapters = [...html.matchAll(/data-theory-chapter="(osa-[0-9]+)#([^"]+)" href="book[/](osa-[0-9]+)[.]html#([^"]+)"/g)];
-    expect(chapters).toHaveLength(28);
-    expect(new Set(chapters.map(m => m[1] + '#' + m[2])).size).toBe(28);
+    expect(chapters).toHaveLength(27);
+    const pilot = read('oppi/savelnimet/savelet-ja-intervallit.html');
+    expect(pilot).toContain('data-theory-chapter="savelet-ja-intervallit"');
+    expect(new Set([...chapters.map(m => m[1] + '#' + m[2]), 'osa-2#savelet-ja-intervallit']).size).toBe(28);
     for (const [, part, anchor, target, targetAnchor] of chapters) {
       expect(target).toBe(part);
       expect(targetAnchor).toBe(anchor);
       expect(read('book/' + target + '.html')).toContain('id="' + anchor + '"');
     }
-    expect(html.match(/class="topic-group-title">Teoria/g)).toHaveLength(8);
+    expect(html.match(/class="topic-group-title">Teoria/g)).toHaveLength(7);
     expect(read('assets/edistyminen.js')).toContain("document.getElementById('home-continue')");
 
     // Taitotunnisteet eivät kuulu ensimmäisen vaiheen käyttäjän valikkoteksteihin.
@@ -81,11 +87,17 @@ describe('staattisen sivuston yhteensopivuus',()=>{
     expect(html).not.toContain('EAR-ECHO');
   });
 
+  it('Oppimiskartan pilottisivut vastaavat teoriaoppaan lähteitä', () => {
+    const generator = fileURLToPath(new URL('../tools/oppimiskartta/rakenna.py', import.meta.url));
+    execFileSync('python3', [generator, '--tarkista']);
+  });
+
   it('jokaisella pääsivulla on sama päävalikko samassa järjestyksessä ja oikea aktiivinen osio',()=>{
     const pages:[string,string|null,string][]=[
       ['index.html',null,'page'],['book/index.html','teoria','true'],['otelautaharjoittelija.html','otelauta','page'],['kitaraharjoittelija.html','kitara','page'],
       ['riffikaiku.html','kitara','true'],['pelit/ensikeikka/index.html','kitara','true'],
       ...readdirSync(new URL('../book/',import.meta.url)).filter(f=>f.endsWith('.html')&&f!=='index.html').map(f=>['book/'+f,'teoria','true'] as [string,string,string]),
+      ...readdirSync(new URL('../oppi/savelnimet/',import.meta.url)).filter(f=>f.endsWith('.html')).map(f=>['oppi/savelnimet/'+f,'teoria','true'] as [string,string,string]),
     ];
     const targets={teoria:'index.html#oppimisaiheet',otelauta:'otelautaharjoittelija.html',kitara:'kitaraharjoittelija.html'};
     for(const [file,active,kind] of pages){

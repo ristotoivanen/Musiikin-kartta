@@ -76,6 +76,8 @@
 
   const page = location.pathname.match(/(osa-\d+)(?:\.html)?\/?$/);
   const current = page && PARTS.find(part => part.slug === page[1]);
+  const lessonId = document.querySelector('main[data-theory-chapter]')?.dataset.theoryChapter;
+  const lesson = lessonId && ALL.find(({ id }) => id === lessonId);
   const resume = document.querySelector('#teoria-aloitus #jatka');
   const originalResume = resume && {
     label: resume.querySelector('.resume-label').textContent,
@@ -88,6 +90,8 @@
     followMovedAnchor();
     window.addEventListener('hashchange', followMovedAnchor);
     setupPart(current);
+  } else if (lesson) {
+    setupPart(lesson.part);
   } else if (document.getElementById('teoria-aloitus')) {
     setupTheoryHome();
     setupTheoryAnchors();
@@ -191,7 +195,9 @@
     p.className = 'continue';
     if (next) {
       const link = document.createElement('a');
-      link.href = 'book/' + next.part.slug + '.html#' + next.id;
+      link.href = next.id === 'savelet-ja-intervallit'
+        ? 'oppi/savelnimet/savelet-ja-intervallit.html'
+        : 'book/' + next.part.slug + '.html#' + next.id;
       link.textContent = (next.part.advanced ? 'Peruspolku on tehty. Syventävä luku ' : 'Jatka: luku ') + next.num + ' · ' + next.title;
       p.append(link);
     } else {

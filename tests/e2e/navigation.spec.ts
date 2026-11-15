@@ -134,7 +134,7 @@ test.describe('Oppimisen aihealueet – ensimmäinen käyttöliittymärunko', ()
     await expect(page.locator('[data-view="chords"]')).toHaveAttribute('aria-pressed', 'true');
   });
 
-  test('kaikki 42 aihelinkkiä, 28 teorialukua ja paluureitit toimivat', async ({ page }) => {
+  test('avattavien aiheiden 39 sisältölinkkiä ja paluureitit toimivat', async ({ page }) => {
     test.setTimeout(60000);
     await page.goto('/index.html');
     const destinations = await page.locator('.topic-card a').evaluateAll(links => links.map(link => ({
@@ -143,8 +143,8 @@ test.describe('Oppimisen aihealueet – ensimmäinen käyttöliittymärunko', ()
       chapter: link.hasAttribute('data-theory-chapter'),
       label: link.textContent?.trim(),
     })));
-    expect(destinations).toHaveLength(42);
-    expect(destinations.filter(({ chapter }) => chapter)).toHaveLength(28);
+    expect(destinations).toHaveLength(39);
+    expect(destinations.filter(({ chapter }) => chapter)).toHaveLength(27);
 
     for (const { href, topic, chapter, label } of destinations) {
       await test.step(`${topic}: ${label}`, async () => {
@@ -174,9 +174,9 @@ test.describe('Oppimisen aihealueet – ensimmäinen käyttöliittymärunko', ()
     await expect(page).toHaveURL(/index[.]html#oppimisaiheet$/);
   });
 
-  test('kahdeksan aihetta avautuvat ja johtavat toimivaan vanhaan harjoittelureittiin', async ({ page }) => {
+  test('kahdeksan aihetta näkyvät ja vanha harjoittelureitti toimii', async ({ page }) => {
     await page.goto('/index.html');
-    const topics = page.locator('details.topic-card');
+    const topics = page.locator('.topic-card');
     await expect(topics).toHaveCount(8);
     const otelauta = page.locator('#aihe-otelauta');
     await expect(otelauta).not.toHaveAttribute('open');
@@ -255,7 +255,7 @@ test.describe('Oppimisen aihealueet – ensimmäinen käyttöliittymärunko', ()
     await expect.poll(() => audio.evaluate(player => (player as HTMLAudioElement).paused)).toBe(true);
   });
 
-  test('kaikki kahdeksan aihekorttia toimivat näppäimistöllä', async ({ page, isMobile }) => {
+  test('avattavat aihekortit toimivat näppäimistöllä', async ({ page, isMobile }) => {
     test.skip(isMobile, 'Näppäimistön fokusrengas tarkistetaan työpöytäkoossa.');
     await page.goto('/index.html');
     const start = page.getByRole('link', { name: 'Kuuntele pulssi' });

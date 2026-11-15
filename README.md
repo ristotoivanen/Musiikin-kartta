@@ -82,7 +82,11 @@ Asennusohje on [harjoittelijan README:ssä](harjoittelija/README.md).
 
 Avaa kloonatun repon `index.html` selaimessa. Oppaan sivut ovat [book-kansiossa](book/) ja kuunteluesimerkit [assets/audio-kansiossa](assets/audio/). Sisäiset linkit ja edistymisen lukutaulukon voi tarkistaa komennolla `python3 tools/linkit/tarkista-linkit.py`.
 
-Sivuston kolmella pääosiolla (Musiikin teoria, Otelautaopas ja Kitaraharjoittelu) on sama päävalikko. Sen merkintä toistuu jokaisen sivun alussa, ja tyylit ovat tiedostossa `assets/paavalikko.css`. Musiikin teorian aloitusnäkymä on `book/index.html`: osat on ryhmitelty siinä neljäksi avattavaksi kokonaisuudeksi, ja `assets/edistyminen.js` täydentää jatkamiskortin ja osien merkinnät tallennetuista lukumerkinnöistä. Kun oppaaseen lisätään osa, lisää se sekä `edistyminen.js`:n PARTS-taulukkoon että aloitusnäkymän kokonaisuuteen; `npm test` tarkistaa, että ne vastaavat `book/osa-*.html`-tiedostoja.
+Sivuston kolmella pääosiolla (Oppimiskartta, Otelautaopas ja Kitaraharjoittelu) on sama päävalikko. Sen merkintä toistuu jokaisen sivun alussa, ja tyylit ovat tiedostossa `assets/paavalikko.css`. Perinteisen teoriaoppaan aloitusnäkymä on `book/index.html`. Osat on ryhmitelty siinä neljäksi avattavaksi kokonaisuudeksi, ja `assets/edistyminen.js` täydentää jatkamiskortin ja osien merkinnät tallennetuista lukumerkinnöistä. Kun oppaaseen lisätään osa, lisää se sekä `edistyminen.js`:n PARTS-taulukkoon että aloitusnäkymän kokonaisuuteen. `npm test` tarkistaa, että ne vastaavat `book/osa-*.html`-tiedostoja.
+
+Oppimiskartan suunniteltu rakenne kulkee etusivun kortista aiheen sivulle `oppi/<aihe>/index.html` ja sieltä sisältöön `oppi/<aihe>/<sisalto>.html`. Aiheiden ehdotetut polut ovat `kitara`, `rytmi`, `savelnimet`, `korva`, `otelauta`, `soinnut`, `asteikot` ja `kappaleet`. Sävelnimet ja musiikin lukeminen toimii mallina muiden aiheiden katselmointiin.
+
+Muokkaa oppisisältöä `book/osa-*.html`-lähteissä. Komento `npm run build:oppimiskartta` muodostaa mallisivut `oppi/savelnimet/`-hakemistoon Python 3:n vakiokirjastolla, ja `npm run build` ajaa saman vaiheen. Versionhallintaan tallennetut mallisivut voi avata selaimessa suoraan tiedostosta. `npm test` tarkistaa, että muodostetut sivut vastaavat lähteitään.
 
 Sivujen tyylitiedostolinkeissä on versiotunniste (`reader.css?v=…`), joka lasketaan tiedoston sisällöstä. Näin palaava kävijä ei saa uutta sivua vanhalla, välimuistissa olevalla CSS:llä. Kun muutat CSS-tiedostoa, aja `node tools/versioi-tyylit.mjs`. `npm run build` ajaa sen automaattisesti, ja `npm test` huomauttaa vanhentuneesta tunnisteesta.
 
@@ -110,7 +114,7 @@ python3 -m http.server 8000 --bind 127.0.0.1
 # Avaa http://127.0.0.1:8000/kitaraharjoittelija.html
 ```
 
-Kehitys tarvitsee Node.js 22.16+ (tai yhteensopivan uudemman LTS:n) ja npm:n:
+Kehitys tarvitsee Node.js 22.16+ (tai yhteensopivan uudemman LTS:n), npm:n ja Python 3:n.
 
 ```bash
 npm ci

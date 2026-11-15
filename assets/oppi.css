@@ -1,0 +1,51 @@
+.study-page, .study-footer { max-width: 44rem; }
+.study-page { padding-block: 1rem 3rem; }
+.study-path { margin-bottom: clamp(1.25rem, 5vw, 2.5rem); }
+.study-path ol, .study-choices {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.study-path ol, .study-steps {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .25rem 1rem;
+}
+.study-path li + li::before {
+  content: "›" / "";
+  color: var(--muted);
+  margin-inline-end: .65rem;
+}
+.study-path a, .study-steps a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.study-page h1 {
+  max-width: none;
+  font-size: clamp(1.9rem, 5.5vw, 3rem);
+  margin-bottom: .75rem;
+}
+.study-page h2 { font-size: 1.25rem; margin-block: 1.5rem .6rem; }
+.study-page .practice h2 { margin-top: 0; font-size: 1.05rem; }
+.study-choices { display: grid; gap: .6rem; }
+.study-choices a {
+  display: grid;
+  gap: .2rem;
+  padding: .8rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: .75rem;
+  background: var(--panel);
+  text-decoration: none;
+}
+.study-choices a:hover { border-color: var(--accent); }
+.study-choices strong { text-decoration: underline; }
+.study-choices span { color: var(--muted); }
+.study-page table { overflow-wrap: anywhere; }
+.study-steps {
+  justify-content: space-between;
+  margin-top: 1.5rem;
+  padding-top: .75rem;
+  border-top: 1px solid var(--line);
+}

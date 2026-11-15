@@ -5,7 +5,7 @@ Käyttö repon juuresta:
 
     python3 tools/linkit/tarkista-linkit.py
 
-Skripti käy läpi juuren ja book-kansion HTML-sivut ja ilmoittaa
+Skripti käy läpi juuren, book-, oppi- ja pelit-kansioiden HTML-sivut ja ilmoittaa
   * linkit, joiden kohdetiedostoa ei ole,
   * ankkurit (#tunniste), joita kohdesivulla ei ole,
   * src-viittaukset (äänet, skriptit, kuvat), joiden tiedostoa ei ole,
@@ -23,6 +23,7 @@ from urllib.parse import unquote
 
 ROOT = Path(__file__).resolve().parents[2]
 PAGES = (sorted(ROOT.glob('*.html')) + sorted((ROOT / 'book').glob('*.html'))
+         + sorted((ROOT / 'oppi').rglob('*.html'))
          + sorted((ROOT / 'pelit').glob('*/index.html')))
 EXTERNAL = re.compile(r'^(?:[a-z][a-z0-9+.-]*:|//)', re.I)
 PROGRESS = ROOT / 'assets' / 'edistyminen.js'
@@ -50,7 +51,8 @@ def check_progress_table(texts, problems):
             [(i, int(n), title) for i, n, title in re.findall(r"\['([^']+)', (\d+), '([^']*)'\]", chapters)],
             re.findall(r"'([^']+)'", anchors),
         )
-    part_pages = {page.stem: text for page, text in texts.items() if re.fullmatch(r'osa-\d+', page.stem)}
+    part_pages = {page.stem: text for page, text in texts.items()
+                  if page.parent == ROOT / 'book' and re.fullmatch(r'osa-\d+', page.stem)}
     for slug in sorted(set(listed) ^ set(part_pages)):
         problems.append(f'{name}: osa {slug} on vain ' + ('taulukossa' if slug in listed else 'sivuna'))
     seen = {}

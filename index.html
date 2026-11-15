@@ -51,10 +51,11 @@
   .topic-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 12px; }
   .topic-card { min-width: 0; border: 1px solid #71638c; border-radius: 14px; background: var(--panel); scroll-margin-top: 10px; }
   .topic-card[open] { border-color: var(--lavender); }
-  .topic-card summary { display: flex; align-items: center; gap: 12px; padding: 16px; cursor: pointer; list-style: none; }
+  .topic-card summary, a.topic-card { display: flex; align-items: center; gap: 12px; padding: 16px; cursor: pointer; list-style: none; }
+  a.topic-card { color: inherit; text-decoration: none; }
   .topic-card summary::-webkit-details-marker { display: none; }
-  .topic-card summary:hover { background: #2b2342; border-radius: 14px; }
-  .topic-card summary:focus-visible { outline: 2px solid #75e5c6; outline-offset: 3px; }
+  .topic-card summary:hover, a.topic-card:hover { background: #2b2342; border-radius: 14px; }
+  .topic-card summary:focus-visible, a.topic-card:focus-visible { outline: 2px solid #75e5c6; outline-offset: 3px; }
   .topic-summary { min-width: 0; flex: 1; display: grid; gap: 4px; }
   .topic-summary strong { font-size: 16px; }
   .topic-summary > span { font-size: 13px; color: var(--muted); }
@@ -127,16 +128,9 @@
         <a href="book/osa-1.html#alas-ylos-komppi">Kokeile alas–ylös-komppia</a>
       </nav>
     </details>
-    <details class="topic-card" id="aihe-nuotit">
-      <summary><span class="topic-summary"><strong>Sävelnimet ja musiikin lukeminen</strong><span>Sävelnimet, intervallit ja sointumerkinnät.</span></span><span class="topic-expand" aria-hidden="true">⌄</span></summary>
-      <nav class="topic-links" aria-label="Sävelnimet ja musiikin lukeminen: teoria ja harjoitukset">
-        <h3 class="topic-group-title">Teoria</h3>
-        <a data-theory-chapter="osa-2#savelet-ja-intervallit" href="book/osa-2.html#savelet-ja-intervallit">Sävelet ja intervallit</a>
-        <a href="book/osa-1.html#kitaran-merkinnat">Kitaran kielet ja sointumerkinnät</a>
-        <a href="book/osa-2.html#h-savelnimi">H- ja B-sävelnimet</a>
-
-      </nav>
-    </details>
+    <a class="topic-card" id="aihe-nuotit" href="oppi/savelnimet/index.html">
+      <span class="topic-summary"><strong>Sävelnimet ja musiikin lukeminen</strong><span>Sävelnimet, intervallit ja sointumerkinnät.</span></span><span class="topic-expand" aria-hidden="true">→</span>
+    </a>
     <details class="topic-card" id="aihe-korva">
       <summary><span class="topic-summary"><strong>Sävelkorva ja melodia</strong><span>Kotisävel, intervallit ja kuullun musiikin matkiminen.</span></span><span class="topic-expand" aria-hidden="true">⌄</span></summary>
       <nav class="topic-links" aria-label="Sävelkorva ja melodia: teoria ja harjoitukset">
