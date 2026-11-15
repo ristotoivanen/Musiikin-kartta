@@ -50,6 +50,7 @@
   .start-here a:hover { background: var(--purple); }
   .topic-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 12px; }
   .topic-card { display: flex; min-width: 0; align-items: center; gap: 12px; padding: 16px; border: 1px solid #71638c; border-radius: 14px; background: var(--panel); scroll-margin-top: 10px; color: var(--text); text-decoration: none; }
+    .topic-number { display: grid; flex: 0 0 2.35rem; place-items: center; width: 2.35rem; height: 2.35rem; border-radius: .55rem; background: #16121f; color: var(--lavender); font-weight: 750; font-size: .94rem; font-variant-numeric: tabular-nums; }
   .topic-summary { min-width: 0; flex: 1; display: grid; gap: 4px; }
   .topic-summary strong { font-size: 16px; }
   .topic-summary > span { font-size: 13px; color: var(--muted); }
@@ -97,16 +98,16 @@
     <div><strong>Kokeile musiikin pulssia</strong><p>Kuuntele esimerkkiä ja taputa sen mukana. Tarvitset vain kädet.</p></div>
     <a href="book/luku-1.html#pulssi-aanite">Kuuntele pulssi</a>
   </div>
-  <p class="learning-lead">Valitse aihe. Jokaisella aiheella on oma sivu, josta löydät yksittäiset teorialuvut, harjoitukset ja pelit.</p>
+  <p class="learning-lead">Aiheet 01–08 on järjestetty suositeltuun aloitusjärjestykseen. Voit silti valita minkä tahansa aiheen ja edetä omaan tahtiisi. Jokaisella aiheella on oma sivu, josta löydät teorian, harjoitukset ja pelit.</p>
   <div class="topic-grid">
-    <a class="topic-card" id="aihe-kitara" href="aiheet/kitara.html"><span class="topic-summary"><strong>Kitaran perusteet</strong><span>Kitaran kielet, sointumerkinnät ja ensimmäiset otteet.</span></span><span class="topic-expand" aria-hidden="true">→</span></a>
-    <a class="topic-card" id="aihe-rytmi" href="aiheet/rytmi.html"><span class="topic-summary"><strong>Rytmi</strong><span>Pulssi, neljään laskeminen ja komppi.</span></span><span class="topic-expand" aria-hidden="true">→</span></a>
-    <a class="topic-card" id="aihe-nuotit" href="aiheet/nuotit.html"><span class="topic-summary"><strong>Sävelnimet ja musiikin lukeminen</strong><span>Sävelnimet, intervallit ja sointumerkinnät.</span></span><span class="topic-expand" aria-hidden="true">→</span></a>
-    <a class="topic-card" id="aihe-korva" href="aiheet/korva.html"><span class="topic-summary"><strong>Sävelkorva ja melodia</strong><span>Kotisävel, intervallit ja kuullun musiikin matkiminen.</span></span><span class="topic-expand" aria-hidden="true">→</span></a>
-    <a class="topic-card" id="aihe-otelauta" href="aiheet/otelauta.html"><span class="topic-summary"><strong>Otelauta</strong><span>Sävelten sijainnit, oktaavit ja CAGED.</span></span><span class="topic-expand" aria-hidden="true">→</span></a>
-    <a class="topic-card" id="aihe-soinnut" href="aiheet/soinnut.html"><span class="topic-summary"><strong>Soinnut ja harmonia</strong><span>Sointujen rakenne, tehtävät ja sointuotteet.</span></span><span class="topic-expand" aria-hidden="true">→</span></a>
-    <a class="topic-card" id="aihe-asteikot" href="aiheet/asteikot.html"><span class="topic-summary"><strong>Asteikot ja moodit</strong><span>Asteikkojen sävelet, pentatoniset ja moodien erot.</span></span><span class="topic-expand" aria-hidden="true">→</span></a>
-    <a class="topic-card" id="aihe-kappaleet" href="aiheet/kappaleet.html"><span class="topic-summary"><strong>Kappaleet ja oma musiikki</strong><span>Kappaleiden mukana soittaminen, improvisointi ja säveltäminen.</span></span><span class="topic-expand" aria-hidden="true">→</span></a>
+    <a class="topic-card" id="aihe-kitara" href="aiheet/kitara.html"><span class="topic-number" aria-hidden="true">01</span><span class="topic-summary"><strong>Kitaran perusteet</strong><span>Kitaran kielet, sointumerkinnät ja ensimmäiset otteet.</span></span><span class="topic-expand" aria-hidden="true">→</span></a>
+    <a class="topic-card" id="aihe-rytmi" href="aiheet/rytmi.html"><span class="topic-number" aria-hidden="true">02</span><span class="topic-summary"><strong>Rytmi</strong><span>Pulssi, neljään laskeminen ja komppi.</span></span><span class="topic-expand" aria-hidden="true">→</span></a>
+    <a class="topic-card" id="aihe-nuotit" href="aiheet/nuotit.html"><span class="topic-number" aria-hidden="true">03</span><span class="topic-summary"><strong>Sävelnimet ja musiikin lukeminen</strong><span>Sävelnimet, intervallit ja sointumerkinnät.</span></span><span class="topic-expand" aria-hidden="true">→</span></a>
+    <a class="topic-card" id="aihe-korva" href="aiheet/korva.html"><span class="topic-number" aria-hidden="true">04</span><span class="topic-summary"><strong>Sävelkorva ja melodia</strong><span>Kotisävel, intervallit ja kuullun musiikin matkiminen.</span></span><span class="topic-expand" aria-hidden="true">→</span></a>
+    <a class="topic-card" id="aihe-otelauta" href="aiheet/otelauta.html"><span class="topic-number" aria-hidden="true">05</span><span class="topic-summary"><strong>Otelauta</strong><span>Sävelten sijainnit, oktaavit ja CAGED.</span></span><span class="topic-expand" aria-hidden="true">→</span></a>
+    <a class="topic-card" id="aihe-soinnut" href="aiheet/soinnut.html"><span class="topic-number" aria-hidden="true">06</span><span class="topic-summary"><strong>Soinnut ja harmonia</strong><span>Sointujen rakenne, tehtävät ja sointuotteet.</span></span><span class="topic-expand" aria-hidden="true">→</span></a>
+    <a class="topic-card" id="aihe-asteikot" href="aiheet/asteikot.html"><span class="topic-number" aria-hidden="true">07</span><span class="topic-summary"><strong>Asteikot ja moodit</strong><span>Asteikkojen sävelet, pentatoniset ja moodien erot.</span></span><span class="topic-expand" aria-hidden="true">→</span></a>
+    <a class="topic-card" id="aihe-kappaleet" href="aiheet/kappaleet.html"><span class="topic-number" aria-hidden="true">08</span><span class="topic-summary"><strong>Kappaleet ja oma musiikki</strong><span>Kappaleiden mukana soittaminen, improvisointi ja säveltäminen.</span></span><span class="topic-expand" aria-hidden="true">→</span></a>
   </div>
   <p class="tools-note">Opiskele järjestyksessä <a href="book/index.html">11-osaisen teoriaoppaan</a> avulla tai käytä <a href="pdf/musiikin-kartta.pdf">tulostettavaa PDF-opasta</a> ja <a href="book/sanasto.html">sanastoa</a>.</p>
 </section>
