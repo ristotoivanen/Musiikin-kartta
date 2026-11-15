@@ -27,7 +27,7 @@ export default defineConfig({
 
         const navigation = header.replaceAll('href="', 'href="../../').replace('aria-current="page"', 'aria-current="true"');
         const sharedStyles = [siteStylesheet('otelauta'), siteStylesheet('paavalikko')];
-        return html.replace('</head>', `  ${sharedStyles.join('\n    ')}\n    <link rel="icon" type="image/svg+xml" href="../../assets/musiikin-kartta.svg">\n  </head>`)
+        return html.replace('</head>', `  ${sharedStyles.join('\n    ')}\n    <link rel="icon" type="image/svg+xml" href="../../assets/musiikin-kartta.svg">\n    <script defer src="../../assets/oppimiskartta.js"></script>\n  </head>`)
           .replace('<body>', `<body>\n  ${navigation}`);
       },
     },

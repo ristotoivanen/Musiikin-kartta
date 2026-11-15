@@ -78,9 +78,12 @@ async function expectBoardGrip(page: Page, frets: readonly Fret[], degrees: read
 }
 
 test.describe('Otelautakartta, vain visualisointi', () => {
-  test('etusivulla on yksi otelautakartan linkki vanhan kahden sijaan', async ({ page }) => {
+  test('Otelautaopas löytyy etusivun päävalikosta ilman vanhaa taustaraitalinkkiä', async ({ page }) => {
     await page.goto('/index.html');
-    await expect(page.getByRole('link', { name: 'Tutki otelautaa' })).toBeVisible();
+    const guideLink = page.getByRole('navigation', { name: 'Päävalikko' })
+      .getByRole('link', { name: 'Otelautaopas', exact: true });
+    await expect(guideLink).toBeVisible();
+    await expect(guideLink).toHaveAttribute('href', 'otelautaharjoittelija.html');
     await expect(page.getByRole('link', { name: 'Soita taustan mukana' })).toHaveCount(0);
   });
 

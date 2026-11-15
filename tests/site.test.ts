@@ -6,7 +6,7 @@ import ts from 'typescript';
 const read=(file:string)=>readFileSync(new URL('../'+file,import.meta.url),'utf8');
 describe('staattisen sivuston yhteensopivuus',()=>{
   it('muutetut nykyiset skriptit ovat syntaktisesti kelvollisia classic-skriptejä',()=>{
-    for(const file of ['assets/otelauta.js','assets/edistyminen.js','assets/harjoitustausta.js','assets/korvatreeni.js']) expect(()=>new Script(read(file))).not.toThrow();
+    for(const file of ['assets/otelauta.js','assets/edistyminen.js','assets/oppimiskartta.js','assets/harjoitustausta.js','assets/korvatreeni.js']) expect(()=>new Script(read(file))).not.toThrow();
   });
   it('otelautakartan moduuliskriptit ovat syntaktisesti kelvollisia ja ladataan moduulina',()=>{
     // visualizer.js tuo seiskasointuotteet import-lauseella, joten se ei ole enää classic-skripti.
@@ -65,7 +65,7 @@ describe('staattisen sivuston yhteensopivuus',()=>{
     expect(html).toContain('followOldTrainerLink()');
     expect(html).toContain('id="home-continue"');
     expect(html).not.toContain('class="hero-actions"');
-    const chapters = [...html.matchAll(/data-theory-chapter="(osa-[0-9]+)\#([^"]+)" href="book[/](osa-[0-9]+)[.]html\#([^"]+)"/g)];
+    const chapters = [...html.matchAll(/data-theory-chapter="(osa-[0-9]+)#([^"]+)" href="book[/](osa-[0-9]+)[.]html#([^"]+)"/g)];
     expect(chapters).toHaveLength(28);
     expect(new Set(chapters.map(m => m[1] + '#' + m[2])).size).toBe(28);
     for (const [, part, anchor, target, targetAnchor] of chapters) {
@@ -87,7 +87,7 @@ describe('staattisen sivuston yhteensopivuus',()=>{
       ['riffikaiku.html','kitara','true'],['pelit/ensikeikka/index.html','kitara','true'],
       ...readdirSync(new URL('../book/',import.meta.url)).filter(f=>f.endsWith('.html')&&f!=='index.html').map(f=>['book/'+f,'teoria','true'] as [string,string,string]),
     ];
-    const targets={teoria:'index.html',otelauta:'otelautaharjoittelija.html',kitara:'kitaraharjoittelija.html'};
+    const targets={teoria:'index.html#oppimisaiheet',otelauta:'otelautaharjoittelija.html',kitara:'kitaraharjoittelija.html'};
     for(const [file,active,kind] of pages){
       const html=read(file);
       const nav=html.match(/<nav class="main-nav" aria-label="Päävalikko">([\s\S]*?)<\/nav>/)?.[1];
@@ -96,7 +96,7 @@ describe('staattisen sivuston yhteensopivuus',()=>{
       expect(html,file).toContain('assets/paavalikko.css');
       const base=file.includes('/')?file.slice(0,file.lastIndexOf('/')+1):'';
       const links=[...nav!.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)].map(([,attrs,inner])=>({
-        attrs, href:new URL(attrs.match(/href="([^"]+)"/)![1],'https://x/'+base).pathname.slice(1),
+        attrs, href:new URL(attrs.match(/href="([^"]+)"/)![1],'https://x/'+base).href.slice('https://x/'.length),
         text:inner.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim(),
       }));
       expect(links.map(l=>l.href),file).toEqual(['index.html',targets.teoria,targets.otelauta,targets.kitara]);
