@@ -12,6 +12,7 @@
 (() => {
   const KEY = 'musiikin-kartta:luvut';
   const OLD_KEY = 'musiikin-kartta:tehdyt';
+  const TOPIC_VIEW_KEY = 'musiikin-kartta:aihenakyma';
   const PARTS = [
     { slug: 'osa-1', name: 'Osa 1', chapters: [['pulssi-ja-komppi', 1, 'Pulssi ja komppi'], ['sointukierrot', 2, 'Neljä otetta ja ensimmäinen kappale']],
       anchors: ['pulssi-aanite', 'kahdeksasosat', 'kitaran-merkinnat', 'alas-ylos-komppi', 'vaihto-kolmosella', 'kolme-cowboyta'] },
@@ -87,6 +88,7 @@
   const page = location.pathname.match(/(osa-\d+)(?:\.html)?\/?$/);
   const current = page && PARTS.find(part => part.slug === page[1]);
   const study = document.querySelector('main[data-study-item]');
+  const studyTopic = document.querySelector('main[data-study-topic]');
   const resume = document.querySelector('#teoria-aloitus #jatka');
   const originalResume = resume && {
     label: resume.querySelector('.resume-label').textContent,
@@ -101,13 +103,13 @@
     setupPart(current);
   } else if (study) {
     const { studyItem: id, studyKind: kind } = study.dataset;
-    setupCompletion([{ id, kind, button: study.querySelector('.done-toggle') }]);
+    setupCompletion([{ id, kind, button: study.querySelector('.done-toggle') }], studyBoundary(study));
   } else if (document.getElementById('teoria-aloitus')) {
     setupTheoryHome();
     setupTheoryAnchors();
     onReadingChange(setupTheoryHome);
-  } else if (document.querySelector('[data-study-total]')) {
-    setupStudyTopic();
+  } else if (studyTopic) {
+    setupStudyTopic(studyTopic);
   } else if (document.getElementById('home-continue')) {
     const home = document.getElementById('home-continue');
     const refresh = () => {
@@ -216,9 +218,34 @@
     return complete;
   }
 
-  function setupStudyTopic() {
-    const total = document.querySelector('[data-study-total]');
-    const rows = [...document.querySelectorAll('[data-study-status]')];
+  function studyBoundary(main) {
+    if (!main.dataset.topicItems) return;
+    const topicItems = main.dataset.topicItems.split(' ');
+    const pathItems = main.dataset.pathItems?.split(' ');
+    const topicStatuses = main.querySelectorAll('[data-boundary-progress]');
+    const pathStatuses = main.querySelectorAll('[data-path-progress]');
+    return done => {
+      const count = topicItems.filter(id => done.has(id)).length;
+      for (const status of topicStatuses) showTopicProgress(status, count, topicItems.length);
+      if (pathItems) {
+        const complete = pathItems.every(id => done.has(id));
+        for (const status of pathStatuses) status.hidden = !complete;
+      }
+    };
+  }
+
+  function setupStudyTopic(main) {
+    const topic = main.dataset.studyTopic;
+    if (new URLSearchParams(location.search).get('polku') === topic) {
+      const state = readTopicView();
+      if (!state.shown.includes(topic)) {
+        state.shown.push(topic);
+        saveTopicView(state);
+      }
+    }
+
+    const total = main.querySelector('[data-study-total]');
+    const rows = [...main.querySelectorAll('[data-study-status]')];
     if (!rows.length) return;
 
     const refresh = () => {
@@ -238,6 +265,26 @@
     onReadingChange(refresh);
   }
 
+  function readTopicView(fallback = { expanded: false, shown: [], openedBy: [] }) {
+    try {
+      const saved = JSON.parse(localStorage.getItem(TOPIC_VIEW_KEY) ?? 'null');
+      return {
+        expanded: saved?.expanded === true,
+        shown: Array.isArray(saved?.shown) ? saved.shown : [],
+        openedBy: Array.isArray(saved?.openedBy) ? saved.openedBy : []
+      };
+    } catch {
+      return fallback;
+    }
+  }
+
+  function saveTopicView(state) {
+    const raw = JSON.stringify(state);
+    try {
+      if (localStorage.getItem(TOPIC_VIEW_KEY) !== raw) localStorage.setItem(TOPIC_VIEW_KEY, raw);
+    } catch { /* Näkymä toimii myös ilman tallennusta. */ }
+  }
+
   function setupTopicList() {
     const button = document.getElementById('topic-toggle');
     const topics = [...document.querySelectorAll('.topic-card[data-study-items]')].map(card => ({
@@ -245,24 +292,10 @@
     }));
     if (!button || !topics.length) return;
 
-    const key = 'musiikin-kartta:aihenakyma';
     const initial = 3;
     const navigation = performance.getEntriesByType('navigation')[0];
-    let state = readPreference() ?? { expanded: false, shown: [], openedBy: [] };
+    let state = readTopicView();
     let returningTo = navigation?.type === 'back_forward' ? history.state?.returnTopic : null;
-
-    function readPreference() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(key) ?? 'null');
-        return {
-          expanded: saved?.expanded === true,
-          shown: Array.isArray(saved?.shown) ? saved.shown : [],
-          openedBy: Array.isArray(saved?.openedBy) ? saved.openedBy : []
-        };
-      } catch {
-        return null;
-      }
-    }
 
     function refresh() {
       const done = load();
@@ -284,10 +317,7 @@
       }
       const ids = topics.map(({card}) => card.id);
       state = { expanded: state.expanded, shown: ids.filter(id => shown.has(id)), openedBy: ids.filter(id => openedBy.has(id)) };
-      const raw = JSON.stringify(state);
-      try {
-        if (localStorage.getItem(key) !== raw) localStorage.setItem(key, raw);
-      } catch { /* Näkymä toimii myös ilman tallennusta. */ }
+      saveTopicView(state);
 
       const anchor = location.hash.slice(1);
       let extra = 0;
@@ -308,7 +338,7 @@
     window.addEventListener('pageshow', event => {
       if (!event.persisted) return;
       returningTo = history.state?.returnTopic;
-      state = readPreference() ?? state;
+      state = readTopicView(state);
       refresh();
     });
     window.addEventListener('hashchange', () => {
@@ -316,8 +346,8 @@
       refresh();
     });
     window.addEventListener('storage', event => {
-      if (![KEY, OLD_KEY, key, null].includes(event.key)) return;
-      state = readPreference() ?? state;
+      if (![KEY, OLD_KEY, TOPIC_VIEW_KEY, null].includes(event.key)) return;
+      state = readTopicView(state);
       refresh();
     });
     refresh();

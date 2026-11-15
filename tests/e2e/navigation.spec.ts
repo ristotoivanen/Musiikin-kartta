@@ -242,7 +242,8 @@ test.describe('Oppimiskartan navigointi ja paluu', () => {
       return media.play();
     });
     await expect.poll(() => audio.evaluate(player => (player as HTMLAudioElement).paused)).toBe(false);
-    await page.getByRole('link', { name: 'Rytmiin', exact: true }).click();
+    await page.getByRole('navigation', { name: 'Sisältönavigointi sivun lopussa' })
+      .getByRole('link', { name: 'Rytmiin', exact: true }).click();
     await expect(page).toHaveURL('/oppi/rytmi/index.html');
     await page.goBack();
     await expect.poll(() => audio.evaluate(player => (player as HTMLAudioElement).paused)).toBe(true);

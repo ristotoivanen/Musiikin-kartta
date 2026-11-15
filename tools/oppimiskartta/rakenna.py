@@ -299,6 +299,10 @@ def choice(page, index, exercise_descriptions):
             '<span class="study-arrow" aria-hidden="true">→</span></a>')
 
 
+def study_ids(pages):
+    return ' '.join(page.study_id for page in pages)
+
+
 def topic_home(topic, lookup, exercise_descriptions):
     parts = [f'<p class="study-meta">Aihe {topic["number"]:02}</p>',
              f'<h1>{escape(topic["title"])}</h1>', f'<p class="lead">{escape(topic["lead"])}</p>',
@@ -350,12 +354,14 @@ def wrap_rhythm_tables(markup):
     return re.sub(pattern, wrap, markup)
 
 
-def page_content(page, topic, step, books, targets, audio):
+def page_content(page, topic, index, next_topic, books, targets, audio):
     kind = 'Harjoitus' if page.parent else 'Oppitunti'
     chapter = f' <span>Teoriaoppaan luku {page.chapter_number}</span>' if page.chapter else ''
-    parts = [f'<p class="study-meta">{kind} {step:02}{chapter}</p>', f'<h1>{escape(page.title)}</h1>']
+    parts = [f'<p class="study-meta">{kind} {index + 1:02} / {len(topic["pages"]):02}{chapter}</p>',
+             f'<h1>{escape(page.title)}</h1>']
     if page.goal:
         parts.append(f'<p class="lead">{escape(page.goal)}</p>')
+    parts.append(steps(topic, index, next_topic))
     if page.parent:
         url = rel(page.parent.path, page.path)
         for sound in audio.get(Path(page.path).stem, []):
@@ -376,32 +382,65 @@ def page_content(page, topic, step, books, targets, audio):
         parts.append('<p class="study-guide">' + link(url, 'Ohje ja esimerkit · ' + page.parent.title) + '</p>')
     if not page.chapter:
         parts.append(completion)
+    parts.append(steps(topic, index, next_topic, bottom=True))
     return '\n'.join(parts)
 
 
-def steps(sequence, index):
-    links = []
-    for offset, label, relation in [(-1, 'Edellinen', 'prev'), (1, 'Seuraava', 'next')]:
-        other = index + offset
-        if 0 <= other < len(sequence):
-            page = sequence[other]
-            links.append(link(posixpath.basename(page.path), f'{label} · {page.title}', f' rel="{relation}"'))
-    if not links:
-        return ''
-    return '\n<nav class="study-steps" aria-label="Edellinen ja seuraava sisältö">\n' + indent('\n'.join(links), '  ') + '\n</nav>'
+def step_link(url, label, attrs, *, forward=False):
+    arrow = '→' if forward else '←'
+    marker = f'<span class="study-step-arrow" aria-hidden="true">{arrow}</span>'
+    title = escape(label)
+    content = f'{title} {marker}' if forward else f'{marker} {title}'
+    return f'<a href="{escape(url)}"{attrs}>{content}</a>'
 
 
-def render(topic, content, nav, page=None):
+def steps(topic, index, next_topic, *, bottom=False):
+    sequence = topic['pages']
+    page = sequence[index]
+    items = []
+    if index == len(sequence) - 1:
+        live = ' aria-live="polite"' if bottom else ''
+        status = f'<p class="study-status" data-boundary-progress{live} hidden></p>'
+        if next_topic is None:
+            status += '<p class="study-status is-done" data-path-progress hidden>✓ Oppimispolku käyty läpi</p>'
+        items.append(f'<div class="study-boundary-status">{status}</div>')
+    if index > 0:
+        previous = sequence[index - 1]
+        items.append(step_link(rel(previous.path, page.path), f'Edellinen: {previous.title}', ' rel="prev"'))
+    if index + 1 < len(sequence):
+        following = sequence[index + 1]
+        items.append(step_link(rel(following.path, page.path), f'Seuraava: {following.title}', ' rel="next"', forward=True))
+    elif next_topic:
+        url = rel(next_topic['path'], page.path) + '?polku=' + next_topic['anchor']
+        items.append(step_link(url, f'Seuraava aihe: {next_topic["title"]}', ' rel="next" class="study-next-topic"', forward=True))
+    else:
+        url = rel('index.html', page.path) + '#' + topic['anchor']
+        items.append(step_link(url, 'Oppimiskarttaan', ' class="study-step-map"'))
+    if bottom:
+        items.append(step_link(rel(topic['path'], page.path), topic['back_label'], ' class="study-step-back"'))
+    where, label = ('bottom', 'lopussa') if bottom else ('top', 'alussa')
+    return (f'<nav class="study-steps study-steps--{where}" aria-label="Sisältönavigointi sivun {label}">\n'
+            + indent('\n'.join(items), '  ') + '\n</nav>')
+
+
+def render(topic, content, nav, page=None, *, path_items=()):
     output = page.path if page else topic['path']
     title = page.title if page else topic['title']
     styles = '\n'.join(stylesheet(path, output) for path in ('book/reader.css', 'assets/paavalikko.css', 'assets/oppi.css'))
-    back_href = 'index.html' if page else rel('index.html', output) + '#' + topic['anchor']
+    back_href = rel(topic['path'], output) if page else rel('index.html', output) + '#' + topic['anchor']
     back_label = topic['back_label'] if page else 'Oppimiskarttaan'
     if not page:
         content += '\n<p class="study-reference">' + link(rel('book/index.html', output), 'Teoriaoppaan kaikki osat') + '</p>'
-    progress = f' data-theory-chapter="{page.chapter}"' if page and page.chapter else ''
     if page:
-        progress += f' data-study-item="{page.study_id}" data-study-kind="{page.study_kind}"'
+        progress = f' data-study-item="{page.study_id}" data-study-kind="{page.study_kind}"'
+        if page.chapter:
+            progress += f' data-theory-chapter="{page.chapter}"'
+        if page is topic['pages'][-1]:
+            progress += f' data-topic-items="{escape(study_ids(topic["pages"]))}"'
+        if path_items:
+            progress += f' data-path-items="{escape(study_ids(path_items))}"'
+    else:
+        progress = f' data-study-topic="{topic["anchor"]}"'
     scripts = [rel('assets/oppimiskartta.js', output), versioned_url('assets/edistyminen.js', output)]
     if page and 'data-korvatreeni=' in page.markup:
         scripts += [rel(path, output) for path in ('assets/harjoitustausta.js', 'assets/korvatreeni.js')]
@@ -445,7 +484,7 @@ def replace_block(source, start, end, value, name):
 def home_grid(topics):
     cards = []
     for topic in topics:
-        items = " ".join(page.study_id for page in topic["pages"])
+        items = study_ids(topic['pages'])
         cards.append(f'''    <a class="topic-card" id="{topic['anchor']}" href="{topic['path']}" data-study-items="{escape(items)}">
       <span class="topic-number" aria-hidden="true">{topic['number']:02}</span>
       <strong class="topic-title">{escape(topic['title'])}</strong>
@@ -515,15 +554,16 @@ def pages():
         raise ValueError('Ääniesimerkin harjoitussivu puuttuu')
 
     output = {}
-    for topic in topics:
+    for number, topic in enumerate(topics):
+        next_topic = topics[number + 1] if number + 1 < len(topics) else None
         output[topic['path']] = render(topic, topic_home(topic, lookup, exercise_descriptions), nav)
         sequence = topic['pages']
         for index, page in enumerate(sequence):
-            content = page_content(page, topic, index + 1, books, targets, audio)
-            content += steps(sequence, index)
+            content = page_content(page, topic, index, next_topic, books, targets, audio)
             if not page.parent:
                 content += sources(books[page.source], page.path)
-            output[page.path] = render(topic, content, nav, page)
+            path_items = all_pages if next_topic is None and index == len(sequence) - 1 else ()
+            output[page.path] = render(topic, content, nav, page, path_items=path_items)
 
     start = lookup[config['start']][0]
     chapter_paths = {page.chapter: page.path for page in all_pages if page.chapter}

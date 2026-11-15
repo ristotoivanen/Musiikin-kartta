@@ -110,6 +110,8 @@ Aiheet 01–08 ja aiheen sisäiset askeleet ovat suositellussa järjestyksessä.
 
 Aihe valmistuu, kun sen kaikki omat numeroidut luvut, oppitunnit ja harjoitukset on merkitty tehdyiksi. Aihekortin ja aihesivun laskurin sisältöluettelo muodostetaan `aiheet.json`-tiedoston omista oppitunneista ja niiden harjoituksista. **Tutki myös** -linkit ja ulkoiset työkalut ovat laskurin ulkopuolella.
 
+Sisältösivun ylä- ja alanavigointi seuraavat aiheen sisältöjärjestystä. Aiheen viimeisellä sivulla seuraava linkki avaa seuraavan aiheen etusivun `aiheet.json`-tiedoston järjestyksessä. Linkki on käytettävissä myös ennen aiheen valmistumista, ja sitä pitkin avattu aihe jää näkyviin Oppimiskartassa. Viimeisellä sisältösivulla on paluu Oppimiskarttaan sekä koko polun valmistumismerkintä, joka näkyy, kun kaikki numeroidut sisällöt on merkitty tehdyiksi.
+
 Etusivu näyttää ensin kolme aihetta. Jokainen valmistunut aihe paljastaa korkeintaan kerran ensimmäisen vielä piilossa olevan aiheen. Aiemmin esiin tulleet ja jo aloitetut aiheet jäävät näkyviin suppeassa näkymässä. Suora kartta-ankkuri näyttää kohdekortin. **Näytä kaikki aiheet** avaa muut kortit, ja selaimeen muistetaan käyttäjän näyttövalinta. Avaimessa `musiikin-kartta:aihenakyma` on ainoastaan listan näyttötila. Ilman JavaScriptiä kaikki kahdeksan korttia näkyvät.
 
 Vanhojen `book/osa-N.html#ankkuri`-linkkien sisältö säilyy kirjassa. Vanha kartta-ankkuri kohdistuu vastaavaan korttiin ja työkalun `?aihe=aihe-…`-parametri ohjaa paluun aihesivulle. Pidä nykyiset polut käytössä myös silloin, kun aiheen nimi muuttuu. Sivut ja linkit toimivat staattisina. Lukumerkinnät ja kolme selaimessa ääntä muodostavaa korvaharjoitusta tarvitsevat JavaScriptin.
