@@ -13,8 +13,9 @@ const answerExplanations: Record<Gig, string> = {
   5: 'Bändi vaihtaa A7-soinnusta D-duurisointuun, ja melodian C♯ nousee puoliaskelen D:hen. Myös A voi kuulostaa vakaalta, koska se on D-duurisoinnun kvintti eli D-duuriasteikon viides sävel. D on kappaleen kotisävel, ja se soi lopussa myös bassossa.',
 };
 
-type Stage = 'listen' | 'choose' | 'perform' | 'complete';
-type ListeningMode = 'ending' | 'full';
+type Stage = 'choose' | 'perform' | 'complete';
+type PreviewMode = 'ending' | 'full';
+type ListeningMode = 'unfinished' | PreviewMode;
 export type Attempt = {
   stage: Stage;
   selected: DemoEnding | null;
@@ -23,7 +24,7 @@ export type Attempt = {
 };
 
 export const initialAttempt: Attempt = {
-  stage: 'listen', selected: null, heard: [], checked: null,
+  stage: 'choose', selected: null, heard: [], checked: null,
 };
 
 export function SongPlayer({ song, showLabel, attempt, update, onList, onSetlist, onNext, onComplete, completionTitle, completedCount, practice, saveFailed }: {
@@ -44,6 +45,7 @@ export function SongPlayer({ song, showLabel, attempt, update, onList, onSetlist
   const { title, target } = gigs[song];
   const sound = usePlayback();
   const [listeningMode, setListeningMode] = useState<ListeningMode>('ending');
+  const playingUnfinished = sound.active && listeningMode === 'unfinished';
   const playingFull = sound.active && listeningMode === 'full';
   const playingEnding = sound.active && listeningMode === 'ending';
   const heading = useRef<HTMLHeadingElement>(null);
@@ -51,11 +53,16 @@ export function SongPlayer({ song, showLabel, attempt, update, onList, onSetlist
   useEffect(() => { heading.current?.focus(); }, [stage]);
   useEffect(() => { retryHeading.current?.focus(); }, [stage, checked]);
 
-  function listen() {
-    sound.play('Keskeneräinen kappale', rate => renderGig(song, null, rate), 0, () => update({ stage: 'choose' }));
+  function toggleUnfinished() {
+    if (playingUnfinished) {
+      sound.stop();
+      return;
+    }
+    setListeningMode('unfinished');
+    sound.play('Keskeneräinen kappale', rate => renderGig(song, null, rate), 0);
   }
 
-  function preview(ending: DemoEnding, mode: ListeningMode) {
+  function preview(ending: DemoEnding, mode: PreviewMode) {
     setListeningMode(mode);
     sound.play(`Lopetus ${ending}${mode === 'full' ? ' · koko kappale' : ''}`, rate => renderGig(song, ending, rate),
       mode === 'full' ? 0 : gigExcerpt(song), () => {
@@ -63,7 +70,7 @@ export function SongPlayer({ song, showLabel, attempt, update, onList, onSetlist
       });
   }
 
-  function toggleListening(mode: ListeningMode) {
+  function toggleListening(mode: PreviewMode) {
     if (sound.active && listeningMode === mode) sound.stop();
     else if (selected !== null) preview(selected, mode);
   }
@@ -101,11 +108,6 @@ export function SongPlayer({ song, showLabel, attempt, update, onList, onSetlist
     else onList();
   }
 
-  function goTo(next: Stage) {
-    sound.stop();
-    update({ stage: next, checked: null });
-  }
-
   const closerEndings = hasCloserEndings(song);
 
   const answerDetails = (
@@ -127,27 +129,38 @@ export function SongPlayer({ song, showLabel, attempt, update, onList, onSetlist
         <h1>Kappale {song} – {title}</h1>
       </header>
       <section className="session gig-stage" aria-label="Kappaleen tehtävä">
-        {stage === 'listen' && <>
-          <h2 ref={heading} tabIndex={-1}>1. Kuuntele kappale</h2>
-          <p>Kuuntele, miten bändi päättää kappaleen. Melodian viimeinen sävel puuttuu.</p>
-          <button className="primary" onClick={listen}>Kuuntele keskeneräinen kappale</button>
-        </>}
         {stage === 'choose' && <>
-          <h2 ref={heading} tabIndex={-1}>2. Kokeile lopetuksia</h2>
-          <p>{closerEndings
-            ? 'Useampi lopetus voi sopia kappaleeseen. Etsi sävel, johon melodia tuntuu palaavan kotiin.'
-            : 'Kuuntele lopetuksia. Mikä niistä tuntuu palaavan kotiin?'}</p>
-          <fieldset>
-            <legend>Lopetukset</legend>
-            <div className="ending-choices">
-              {endings.map(ending => <button key={ending} aria-pressed={selected === ending} onClick={() => {
-                update({ selected: ending, checked: null });
-                preview(ending, 'ending');
-              }}>
-                Lopetus <span>{ending}</span>
-              </button>)}
+          <h2 ref={heading} tabIndex={-1}>Kuuntele kappale ja valitse lopetus</h2>
+          <p>Kuuntele, miten bändi päättää kappaleen. Melodian viimeinen sävel puuttuu.</p>
+          <button className="primary" onClick={toggleUnfinished}>
+            {playingUnfinished ? 'Pysäytä keskeneräinen kappale' : 'Kuuntele keskeneräinen kappale'}
+          </button>
+          <div className="gig-transport">
+            <fieldset>
+              <legend>Kokeile lopetuksia</legend>
+              <p>{closerEndings
+                ? 'Useampi lopetus voi sopia kappaleeseen. Etsi sävel, johon melodia tuntuu palaavan kotiin.'
+                : 'Kuuntele lopetuksia. Mikä niistä tuntuu palaavan kotiin?'}</p>
+              <div className="ending-choices">
+                {endings.map(ending => <button key={ending} aria-pressed={selected === ending} onClick={() => {
+                  update({ selected: ending, checked: null });
+                  preview(ending, 'ending');
+                }}>
+                  Lopetus <span>{ending}</span>
+                </button>)}
+              </div>
+            </fieldset>
+            <div className="button-row ending-playback">
+              <button disabled={selected === null} onClick={() => toggleListening('ending')}>
+                {playingEnding ? 'Pysäytä lopetus' : 'Kuuntele valittu lopetus'}
+              </button>
+              <button disabled={selected === null} onClick={() => toggleListening('full')}>
+                {playingFull ? 'Pysäytä koko kappale' : 'Kuuntele koko kappale valitulla lopetuksella'}
+              </button>
             </div>
-          </fieldset>
+          </div>
+          <p className="status listening-status" role="status">{sound.status}</p>
+          <button className="primary" disabled={selected === null || !heard.includes(selected)} onClick={check}>Tarkista valintani</button>
           {checked && <div className="answer-feedback" data-result="retry">
             <h3 ref={retryHeading} tabIndex={-1} aria-describedby="retry-explanation">
               <span aria-hidden="true">↺</span> Ei vielä. Kokeile uudelleen!
@@ -156,18 +169,6 @@ export function SongPlayer({ song, showLabel, attempt, update, onList, onSetlist
               ? 'Tämä sävel voi sopia lopetukseen. Kuuntele toista vaihtoehtoa ja vertaa, missä melodia tuntuu palaavan kotiin.'
               : 'Tämä lopetus kuulostaa vielä vähän jännitteiseltä. Kokeile toista ja kuuntele, mikä saa kappaleen tuntumaan valmiilta.'}</p>
           </div>}
-          <div className="gig-transport">
-            <div className="button-row">
-              <button disabled={selected === null} onClick={() => toggleListening('ending')}>
-                {sound.active && listeningMode === 'ending' ? 'Pysäytä' : 'Kuuntele lopetus'}
-              </button>
-              <button disabled={selected === null} onClick={() => toggleListening('full')}>
-                {sound.active && listeningMode === 'full' ? 'Pysäytä' : 'Kuuntele koko kappale'}
-              </button>
-            </div>
-            <p className="status listening-status" role="status">{sound.status}</p>
-          </div>
-          <button className="primary" disabled={selected === null || !heard.includes(selected)} onClick={check}>Tarkista valintani</button>
           <details className="gig-hint">
             <summary>Vihje</summary>
             <p>{closerEndings
@@ -204,14 +205,12 @@ export function SongPlayer({ song, showLabel, attempt, update, onList, onSetlist
           {answerDetails}
           <p className="status replay-status" role="status">{sound.status}</p>
         </>}
-        {stage === 'listen' && <div className="gig-transport button-row">
-          <button disabled={!sound.active} onClick={sound.stop}>Pysäytä</button>
-          <p className="status" role="status">{sound.status}</p>
-        </div>}
       </section>
       {(stage !== 'complete' || completedCount === undefined) && <nav className="game-navigation" aria-label="Palaa">
-        {stage === 'choose' && <button className="back-link" onClick={() => goTo('listen')}>Takaisin kuunteluun</button>}
-        {stage === 'perform' && <button className="back-link" onClick={() => goTo('choose')}>Takaisin lopetuksiin</button>}
+        {stage === 'perform' && <button className="back-link" onClick={() => {
+          sound.stop();
+          update({ stage: 'choose', checked: null });
+        }}>Takaisin lopetuksiin</button>}
         <a className="game-link" href={stage === 'complete' ? './#settilista' : './#keikkalista'} onClick={returnToList}>
           <span aria-hidden="true">←</span> {stage === 'complete' ? 'Takaisin settilistaan' : 'Takaisin keikkalistaan'}
         </a>

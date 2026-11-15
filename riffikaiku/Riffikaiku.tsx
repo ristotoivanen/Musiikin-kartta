@@ -116,9 +116,12 @@ export function Riffikaiku({ game }: { game: RiffGame }) {
   ];
 
   if (s.phase === 'idle') {
-    const p = (input: 'mic' | 'board') => game.progress(input);
-    const next = p(s.input).level;
-    const summary = (input: 'mic' | 'board') => `${LEVELS[p(input).level - 1].name}, suoritettu ${p(input).completed.length}/${LEVELS.length}`;
+    const choices = [
+      { input: 'mic', name: 'Oikea kitara', inflected: 'oikealla kitaralla', start: () => game.startMic(),
+        description: 'Soita omalla kitaralla. Ääni käsitellään selaimessa.' },
+      { input: 'board', name: 'Virtuaalikitara', inflected: 'virtuaalikitaralla', start: () => game.startBoard(),
+        description: 'Soita otelaudalla hiirellä, kosketuksella tai näppäimistöllä.' },
+    ] as const;
     return <section className="riff-game" data-phase="idle" aria-labelledby="riff-title">
       <a className="back-link riff-back" href="kitaraharjoittelija.html?polku=otelauta">
         <span aria-hidden="true">←</span> Takaisin harjoitusvalikkoon
@@ -127,23 +130,25 @@ export function Riffikaiku({ game }: { game: RiffGame }) {
         <h1 id="riff-title" ref={title} tabIndex={-1}>Riffikaiku (beta)</h1>
         <p>Kuuntele lyhyt riffi ja soita se takaisin samassa järjestyksessä. Harjoittele omaan tahtiisi.</p>
       </div>
-      <div className="riff-next" data-testid="next-training">
-        <p className="eyebrow">{p('mic').completed.length || p('board').completed.length ? 'JATKA' : 'ALOITA TÄSTÄ'}</p>
-        <h2>{levelLabel(next)}</h2>
-        <p>Kolme lyhyttä riffiä. Harjoituskieli näkyy korostettuna otelaudalla.</p>
-      </div>
       <h2>Millä soitat?</h2>
       <div className="riff-choices">
-        <button type="button" className="riff-choice" onClick={() => game.startMic()}>
-          <strong>Oikea kitara</strong>
-          <span>Soita omalla kitaralla. Valitse äänitulo, testaa mikrofoni ja viritä halutessasi. Ääni käsitellään vain tässä selaimessa eikä sitä tallenneta.</span>
-        </button>
-        <button type="button" className="riff-choice" onClick={() => game.startBoard()}>
-          <strong>Virtuaalikitara</strong>
-          <span>Soita otelaudalla hiirellä, kosketuksella tai näppäimistöllä. Ei mikrofonia.</span>
-        </button>
+        {choices.map(({ input, name, inflected, start, description }) => {
+          const progress = game.progress(input);
+          const action = progress.completed.length === LEVELS.length ? 'Avaa' : progress.started ? 'Jatka' : 'Aloita';
+          return <div className="riff-choice-option" key={input}>
+            <button type="button" className="riff-choice" onClick={start}>
+              <strong>{name}</strong>
+              <span className="riff-choice-level">{action} {levelLabel(progress.level)}</span>
+              <span>{description}</span>
+              {s.tutorial && <span>Ensin kahden sävelen opastus.</span>}
+              {progress.completed.length > 0 && <span>Suoritettu {progress.completed.length}/{LEVELS.length}</span>}
+            </button>
+            <div className="riff-tools-links">
+              <button type="button" className="link" onClick={() => game.openLevels(input)}>Valitse kotitreeni {inflected}</button>
+            </div>
+          </div>;
+        })}
       </div>
-      <p className="riff-tally" data-testid="tally">Oikea kitara: {summary('mic')} · Virtuaalikitara: {summary('board')}</p>
       <div className="riff-tools-links" role="group" aria-label="Oikean kitaran työkalut">
         <button type="button" className="link" onClick={() => game.openTools('tuner')}>Viritin</button>
         <button type="button" className="link" onClick={() => game.openTools('diagnostics')}>Mikrofonin diagnostiikka</button>
