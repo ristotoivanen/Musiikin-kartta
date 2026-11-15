@@ -5,7 +5,7 @@
   if (category && ids.has(category)) {
     // Säilytä nykyinen suora harjoitusreitti, mutta kerro tulosivulle mistä aiheesta tultiin.
     // URL ja mahdolliset kyselyparametrit säilyvät. Tämä ei korvaa selaimen Takaisin-toimintoa.
-    for (const link of document.querySelectorAll('.topic-page .resource-list a, .topic-page .notes a')) {
+    for (const link of document.querySelectorAll('.topic-page .resource-list a')) {
       const url = new URL(link.href, location.href);
       if (url.origin !== location.origin) continue;
       url.searchParams.set('aihe', 'aihe-' + category);
