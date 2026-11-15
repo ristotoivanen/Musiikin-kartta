@@ -137,8 +137,8 @@ Jäljellä: keikan 1 sovitukset ovat vanhassa muodossa (`song-demo-score.ts`, `a
 | B2 | Keikan 1 väärille vastauksille vaihtoehtokohtainen palaute ja toinen vihjetaso. Keikan 2 paljastavat muotoilut pehmennetty. | Opettaa kuuntelemaan, ei vain kokeilemaan | Pieni | Ei | **Toteutettu** |
 | B3 | Tarkistuspainikkeelle väli vaihtoehdoista ja selkeämpi "ei vielä kuultu" ‑merkintä | Valinta ja tarkistus erottuvat | Pieni | Ei | **Toteutettu** |
 | B4 | Alkunäkymän etenemisrivi keikoittain ("Keikka 2: avautuu keikan 1 jälkeen") | Pelaaja näkee heti, mitä on jäljellä | Pieni | Ei | **Toteutettu** |
-| B5 | Kokeneelle käyttäjälle "Aloita suoraan keikasta 2" niin, että suoritukset tallentuvat ilman keikkaa 1 | Ei pakkoa pelata liian helppoja tehtäviä | Pieni (`requires`-säännön ohitus) | Tehtävänannossa keikka 2 avautuu normaalisti keikan 1 jälkeen. | **Päätös käyttäjälle** |
-| B6 | Harjoittelutila sekoittaa lopetusten järjestyksen | Uudelleenpeluu vaatii kuuntelua eikä muistamista | Keskikokoinen: palautetekstit viittaavat kirjaimiin (esim. "Lopetus A on avoin"), joten ne pitää muuttaa malleiksi. | Tekstien virheet | **Päätös käyttäjälle** |
+| B5 | Kokeneelle käyttäjälle "Aloita suoraan keikasta 2" niin, että suoritukset tallentuvat ilman keikkaa 1 | Ei pakkoa pelata liian helppoja tehtäviä | Pieni (`requires`-säännön ohitus) | Tehtävänannossa keikka 2 avautuu normaalisti keikan 1 jälkeen. | **Hyväksytty ja toteutettu 15.11.2026** |
+| B6 | Harjoittelutila sekoittaa lopetusten järjestyksen | Uudelleenpeluu vaatii kuuntelua eikä muistamista | Keskikokoinen: palautetekstit viittaavat kirjaimiin (esim. "Lopetus A on avoin"), joten ne pitää muuttaa malleiksi. | Tekstien virheet | **Hyväksytty ja toteutettu 15.11.2026** |
 
 ### C – Myöhemmät kehitysmahdollisuudet (ei aloitettu)
 
@@ -161,4 +161,37 @@ hyväksyntää tarvitaan:
    (kuulostaako terssiloppu liian valmiilta?), 7 (kuuluuko basson kulku?) ja 8 (onko piste selvästi
    erotettavissa terssilopusta?)
 2. A2- ja A3-korjaukset Oppimiskartta-haarassa
-3. päätökset B5:stä ja B6:sta.
+3. ~~päätökset B5:stä ja B6:sta~~ (toteutettu, katso luku 11).
+
+## 11. Uudelleenkatselmointi B5:n ja B6:n jälkeen (15.11.2026)
+
+**Toteutettu**
+
+- **B5 Suora aloitus.** Lukitussa keikka 2 ‑kortissa on kaksi erillistä vaihtoehtoa omine selitteineen:
+  "Aloita suoraan keikasta 2" (suoritukset tallentuvat, keikka 1 pysyy ennallaan) ja "Kokeile
+  kappaleita" (vapaa harjoittelu, ei tallennu). Keikan 1 painike on edelleen ensisijainen. Kappalenäkymä
+  kertoo, tallentuuko tulos ("Suoritus tallentuu keikan etenemiseen" tai "Vapaa harjoittelu: tulos ei
+  tallennu…"). Tallenteen muoto on ennallaan, ja kappale 6 tallentuu tunnisteena 6.
+- **B6 Sekoitettu harjoittelu.** Harjoittelukierros arpoo lopetusten järjestyksen tasajakaumasta.
+  Tunnisteet, oikea vastaus ja palaute pysyvät lopetuksen mukana, ja tekstit viittaavat lopetuksiin
+  paikkamerkeillä. Järjestys ei muutu saman kierroksen aikana, ei myöskään kappaleen 9 vaiheiden välillä.
+  Tasajakauma on tarkoituksellinen: jos alkuperäinen järjestys suljettaisiin pois, oikea vastaus
+  ei koskaan olisi alkuperäisellä paikallaan, ja sen voisi päätellä.
+
+**Uudelleenkatselmoinnissa löydetyt ja korjatut virheet**
+
+| Löydös | Vaikutus | Korjaus |
+| --- | --- | --- |
+| Harjoittelun tila ei ollut sidottu kappaleeseen. Selaimen Takaisin-painike saattoi näyttää kappaleen 9 vaiheen 2 tai edellisen kierroksen tuloksen toisessa kappaleessa. | Väärä näkymä ja väärä järjestys | Harjoittelukierros tallentaa kappaleensa, ja toinen kappale aloittaa uuden kierroksen. |
+| Suoraan avattu `#harjoitus-N` aloitti kierroksen alkuperäisessä järjestyksessä. | Sekoituksen ohitus linkillä | Myös suoraan avattu kierros arpoo järjestyksen. |
+| Selityksissä sävelnimet (esim. "A ja C kuulostavat vakailta") näyttivät lopetusten kirjaimilta, kun järjestys oli sekoitettu. | Harhaanjohtava selitys | Sävelnimet muotoon "sävel A". Testi estää monitulkintaiset muodot. |
+
+**Tunnettu rajoitus:** betan nykyinen (vanha) Ensikeikka tallentaa vain kappaleet 1–5. Jos pelaaja
+käyttää samassa selaimessa ja samassa osoitteessa ensin uutta ja sitten vanhaa versiota ja suorittaa
+vanhassa kappaleen, vanha versio poistaa merkinnät 6–9. Esikatselu toimii eri osoitteessa, joten
+tilanne voi syntyä vain, jos beta palautettaisiin vanhaan versioon yhdistämisen jälkeen.
+
+**Hyväksymistestauksen jäljellä olevat esteet**
+
+1. Kuulonvarainen hyväksyntä puhelimella ja kuulokkeilla puuttuu edelleen (kappaleet 6–8 ja basson kuuluvuus 7 ja 9).
+2. A2 (ylävalikon ylivuoto 320 px:ssä) ja A3 (lint) ovat erillisiä Oppimiskartta-haaran tehtäviä.

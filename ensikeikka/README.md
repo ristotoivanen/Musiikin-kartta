@@ -45,6 +45,10 @@ teksti (ohje, vihjeet, palaute) on datassa.
 
 ### Palautteen periaatteet
 
+- Viittaa lopetukseen paikkamerkillä: `lopetus {A}`, ei `lopetus A`. Harjoittelussa paikkamerkki
+  täytetään kirjaimella, jolla pelaaja näkee juuri sen lopetuksen. Testi estää kirjoitetut kirjaimet.
+- Kirjoita selityksiin sävelnimi muodossa "sävel A", jottei sitä lue lopetuksen kirjaimeksi.
+
 - Ennen oikeaa vastausta tekstit eivät nimeä oikeaa säveltä (testi tarkistaa sävelnimet).
 - Väärän vastauksen palaute kertoo, mitä valittu lopetus tekee ja mitä kannattaa kuunnella seuraavaksi.
 - Vihjeitä on kaksi tasoa: ensin kuuntelun suunta, sitten tarkempi keino.
@@ -56,8 +60,13 @@ teksti (ohje, vihjeet, palaute) on datassa.
 
 - Keikan kappaleet avautuvat järjestyksessä. Keikasta lasketaan vain alusta yhtenäinen osa.
 - Keikka 2 avautuu, kun keikka 1 on valmis. Jos keikasta 2 on jo suorituksia, se pysyy auki.
+- **Suora aloitus** (`directStart`): kokenut pelaaja voi aloittaa lukitun keikan 2 ensimmäisestä
+  kappaleesta. Suoritukset tallentuvat normaalisti, keikka 1 ei merkitse itseään suoritetuksi, ja
+  esiintymisalue valmistuu vasta molempien keikkojen jälkeen. Kun keikasta on yksi suoritus, se on auki.
 - **Vapaa harjoittelu** (`#harjoitus-N`): suoritetut kappaleet ja `freePractice`-keikan kaikki
-  kappaleet. Ei koskaan muuta tallennetta.
+  kappaleet. Ei koskaan muuta tallennetta. Jokainen harjoittelukierros arpoo lopetusten näkyvän
+  järjestyksen (`order.ts`), ja järjestys pysyy samana koko kierroksen ajan. Normaali eteneminen
+  käyttää aina alkuperäistä järjestystä. Kappalenäkymä kertoo, tallentuuko tulos.
 - **Uudelleenkuuntelu** (`#kappale-N` suoritetulle kappaleelle): valmis kappale ja selitys.
 - **Keikan uudelleenharjoittelu**: valmiin keikan kortin painike avaa kappaleet harjoitustilassa järjestyksessä.
 - Versio pysyy 1:nä tarkoituksella. Vanha pelin versio lukee samasta tallenteesta kappaleet 1–5,
