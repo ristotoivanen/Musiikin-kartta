@@ -95,6 +95,7 @@ describe('staattisen sivuston yhteensopivuus',()=>{
       ['index.html',null,'page'],['book/index.html','teoria','true'],['otelautaharjoittelija.html','otelauta','page'],['kitaraharjoittelija.html','kitara','page'],
       ['riffikaiku.html','kitara','true'],['pelit/ensikeikka/index.html','kitara','true'],
       ...readdirSync(new URL('../book/',import.meta.url)).filter(f=>f.endsWith('.html')&&f!=='index.html').map(f=>['book/'+f,'teoria','true'] as [string,string,string]),
+      ...readdirSync(new URL('../aiheet/',import.meta.url)).filter(f=>f.endsWith('.html')).map(f=>['aiheet/'+f,'teoria','true'] as [string,string,string]),
     ];
     const targets={teoria:'index.html#oppimisaiheet',otelauta:'otelautaharjoittelija.html',kitara:'kitaraharjoittelija.html'};
     for(const [file,active,kind] of pages){
