@@ -76,6 +76,8 @@
 
   const page = location.pathname.match(/(osa-\d+)(?:\.html)?\/?$/);
   const current = page && PARTS.find(part => part.slug === page[1]);
+  const lessonMatch = location.pathname.match(/(?:^|\/)luku-(\d+)\.html$/);
+  const standalone = lessonMatch && ALL.find(({ num }) => num === Number(lessonMatch[1]));
   const resume = document.querySelector('#teoria-aloitus #jatka');
   const originalResume = resume && {
     label: resume.querySelector('.resume-label').textContent,
@@ -88,6 +90,8 @@
     followMovedAnchor();
     window.addEventListener('hashchange', followMovedAnchor);
     setupPart(current);
+  } else if (standalone) {
+    setupStandaloneChapter(standalone);
   } else if (document.getElementById('teoria-aloitus')) {
     setupTheoryHome();
     setupTheoryAnchors();
@@ -182,6 +186,32 @@
     });
   }
 
+  // Oppimiskartan itsenäiset lukusivut käyttävät samaa tallennusavainta kuin vanhat teoriat.
+  function setupStandaloneChapter(chapter) {
+    const section = document.getElementById(chapter.id);
+    if (!section) return;
+    const row = document.createElement('p');
+    row.className = 'done-row';
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'done-toggle';
+    const draw = () => {
+      const on = load().has(chapter.id);
+      button.setAttribute('aria-pressed', String(on));
+      button.textContent = on ? '✓ Luku tehty' : 'Merkitse luku tehdyksi';
+    };
+    button.addEventListener('click', () => {
+      const done = new Set(load());
+      if (done.has(chapter.id)) done.delete(chapter.id); else done.add(chapter.id);
+      save(done);
+      draw();
+    });
+    row.append(button);
+    section.append(row);
+    draw();
+    window.addEventListener('pageshow', event => { if (event.persisted) draw(); });
+  }
+
   // Musiikin kartan etusivu: vain lyhyt jatkamislinkki, osien lista on Musiikin teoria -sivulla.
   function setupFrontPage(container) {
     const done = load();
@@ -191,7 +221,7 @@
     p.className = 'continue';
     if (next) {
       const link = document.createElement('a');
-      link.href = 'book/' + next.part.slug + '.html#' + next.id;
+      link.href = 'book/luku-' + next.num + '.html';
       link.textContent = (next.part.advanced ? 'Peruspolku on tehty. Syventävä luku ' : 'Jatka: luku ') + next.num + ' · ' + next.title;
       p.append(link);
     } else {
@@ -248,7 +278,7 @@
         chapter.className = 'resume-chapter';
         chapter.textContent = 'Seuraavana luku ' + next.num + ' · ' + next.title;
         title.after(chapter);
-        action.href = next.part.slug + '.html#' + next.id;
+        action.href = 'luku-' + next.num + '.html';
         action.textContent = 'Jatka opiskelua';
       } else {
         label.textContent = 'Kaikki luvut tehty';
