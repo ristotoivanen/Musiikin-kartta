@@ -86,6 +86,19 @@ describe('Kotikulmien keikat -luettelo', () => {
     }
   });
 
+  it('selittää ratkaisun jälkeen jokaisen lopetusvaihtoehdon, ei vain oikeaa', () => {
+    const spelled = (note: string) => note.replace(/\d+$/, '').replace('#', '♯').replace(/^([A-G])b/, '$1♭');
+    for (const song of Object.values(songs)) {
+      const leads = new Set(LETTERS.map(letter => song.endings[letter].lead!));
+      if (leads.size === 1) continue; // Kappale 7: melodia sama, bändi vaihtuu.
+      for (const lead of leads) {
+        expect(song.explanation, `kappale ${song.id}: ${lead}`).toMatch(new RegExp(`(?<![\\p{L}])${spelled(lead)}(?![\\p{L}♯♭])`, 'u'));
+      }
+    }
+    // Kappaleessa 7 vaihtoehdot eroavat bändin osalta, joten selitys nimeää väärät lopetukset paikkamerkeillä.
+    for (const ending of LETTERS.filter(letter => letter !== songs[7].target)) expect(songs[7].explanation).toContain(`{${ending}}`);
+  });
+
   it('ei paljasta oikeaa säveltä tehtävänannossa, vihjeissä eikä väärän vastauksen palautteessa', () => {
     const noteName = /(?<!\p{L})[A-G][♯♭]?(?!\p{L})/u;
     const beforeAnswer = (task: Task) => [

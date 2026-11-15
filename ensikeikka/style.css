@@ -150,3 +150,9 @@
 .concert .ending-button[data-playing] { border-color: var(--good); box-shadow: inset 0 0 0 1px var(--good); }
 .concert .ending-button[data-playing] small { color: var(--good); }
 .concert .ending-help { font-size: 14px; color: var(--muted); }
+.concert .success-card .answer-explanation { margin-top: 10px; }
+.concert .success-card .perform-hint { margin-top: 12px; }
+.concert .song-complete { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+.concert .song-complete:empty { margin: 0; padding: 0; border: 0; }
+.concert .song-complete h3 { color: var(--good); }
+.concert .song-actions { margin-top: 12px; }

@@ -36,6 +36,15 @@ vasta, kun se soi loppuun. Keskeytys ei kuittaa sitä, eikä vanhan toiston myö
 vaikuta, koska `usePlayback` hylkää vanhentuneet kutsut. Erillistä "Kuuntele valittu lopetus"
 -painiketta ei ole; "Kuuntele koko kappale valitulla lopetuksella" ja erilliskuuntelut säilyvät.
 
+**Onnistumiskortti:** oikean ratkaisun jälkeen näkyy yksi kortti, joka säilyy koko loppuajan. Siinä on
+viimeisen tehtävän onnistumispalaute, avattava "Selitä, miksi tämä toimii" (selitys ja ratkaisevan
+kohdan kuuntelu) sekä "Soita valmis kappale". Kun kappale on kuultu loppuun, samaan korttiin ilmestyy
+valmistumisilmoitus (`aria-live`) ja jatkopainikkeet. Ensisijainen painike on seuraava kappale, seuraava
+keikka tai settilista, ja toissijainen on "Kuuntele uudelleen". Soittopainike on sama elementti kuin
+"Kuuntele uudelleen", joten fokus ei siirry. Selityksen avoin tila säilyy. Uudelleenkuuntelu ei tallenna
+mitään, ja keskeytetty toisto ei valmista kappaletta. Tilakoneen vaiheet `perform` ja `complete` säilyvät,
+mutta näkymä on sama. Jokaisen kappaleen selitys käsittelee myös väärät vaihtoehdot (yksikkötesti).
+
 Kappaleella voi olla useita tehtäviä peräkkäin (`tasks`). Väliin näytetään onnistumispalaute ja
 "Jatka vaiheeseen N". Valmis kappale soitetaan lopetuksella `target`.
 

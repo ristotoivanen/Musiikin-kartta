@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { finishInSuccessCard } from './ensikeikka-success';
 
 const gamePath = '/pelit/ensikeikka/';
 const progressKey = 'musiikin-kartta:ensikeikka';
@@ -72,11 +73,10 @@ async function hear(page: Page, ending: string) {
   await expect(button(page, 'Tarkista valintani')).toBeEnabled({ timeout: 10000 });
 }
 
-async function perform(page: Page, completion: string) {
-  await button(page, 'Soita valmis kappale').click();
-  await expect(status(page)).toHaveText(/^Soitetaan · /);
-  expect(await lastPlayback(page)).toMatchObject({ offset: 0, hasAudio: true });
-  await expect(page.getByRole('heading', { name: completion })).toBeFocused({ timeout: 30000 });
+/** Soittaa valmiin kappaleen samassa onnistumiskortissa. `thorough` lisää keskeytys- ja uudelleenkuuntelutarkistukset. */
+async function perform(page: Page, completion: string, primary: string, { isMobile = false, thorough = false } = {}) {
+  await finishInSuccessCard(page, { completion, primary, isMobile, thorough });
+  expect(await page.evaluate(() => window.ensikeikkaPlayback.some(item => item.offset === 0 && item.hasAudio))).toBe(true);
 }
 
 test('Keikka 2 on lukittu ensikertalaiselle, mutta sen kappaleita voi kokeilla tallentamatta', async ({ page }) => {
@@ -102,7 +102,7 @@ test('Keikka 2 on lukittu ensikertalaiselle, mutta sen kappaleita voi kokeilla t
   await hear(page, 'A');
   await button(page, 'Tarkista valintani').click();
   await expect(page.getByRole('heading', { name: 'Oikein! Löysit kotiin!' })).toBeFocused();
-  await perform(page, 'Harjoittelu valmis!');
+  await perform(page, 'Harjoittelu valmis', 'Harjoittele seuraavaa kappaletta');
   expect(await saved(page)).toBeNull();
   await button(page, 'Harjoittele seuraavaa kappaletta').click();
   await expect(page).toHaveURL(/#harjoitus-7$/);
@@ -112,13 +112,13 @@ test('Keikka 2 on lukittu ensikertalaiselle, mutta sen kappaleita voi kokeilla t
   await expect(page.getByRole('region', { name: 'Keikka 1 – Ensimmäinen esiintyminen' }).getByText('0 / 5 kappaletta suoritettu')).toBeVisible();
 });
 
-test('Kappale 6: läheiset lopetukset ja selittävä palaute', async ({ page }) => {
+test('Kappale 6: läheiset lopetukset ja selittävä palaute', async ({ page, isMobile }) => {
   test.setTimeout(70000);
   await start(page, firstGig);
   await button(page, 'Aloita keikka 2').click();
   await expect(page).toHaveURL(/#kappale-6$/);
   await expect(page.getByRole('heading', { name: 'Kuuntele kappale ja valitse lopetus' })).toBeFocused();
-  await expect(page.getByText('Miksi tämä vastaus?')).toHaveCount(0);
+  await expect(page.getByText('Selitä, miksi tämä toimii')).toHaveCount(0);
   await hear(page, 'A');
   expect((await lastPlayback(page))?.offset).toBeCloseTo(excerpt(6));
   await button(page, 'Tarkista valintani').click();
@@ -132,16 +132,16 @@ test('Kappale 6: läheiset lopetukset ja selittävä palaute', async ({ page }) 
   await hear(page, 'B');
   await button(page, 'Tarkista valintani').click();
   await expect(page.getByRole('heading', { name: 'Oikein! Löysit kotiin!' })).toBeFocused();
-  await page.getByText('Miksi tämä vastaus?').click();
+  await page.getByText('Selitä, miksi tämä toimii').click();
   await expect(page.getByText(/G laskeutuu askeleen F:ään/)).toBeVisible();
   expect(await saved(page)).toEqual({ version: 1, completed: firstGig });
-  await perform(page, 'Kappale valmis!');
+  await perform(page, 'Kappale valmis', 'Seuraava kappale', { isMobile, thorough: true });
   expect(await saved(page)).toEqual({ version: 1, completed: [...firstGig, 6] });
   await button(page, 'Seuraava kappale').click();
   await expect(page).toHaveURL(/#kappale-7$/);
 });
 
-test('Kappale 7: melodia pysyy samana ja basson voi kuunnella erikseen', async ({ page }) => {
+test('Kappale 7: melodia pysyy samana ja basson voi kuunnella erikseen', async ({ page, isMobile }) => {
   test.setTimeout(70000);
   await start(page, [...firstGig, 6]);
   await expect(page.getByRole('region', { name: 'Keikka 2 – Kotikulmien toinen ilta' }).getByText('1 / 4 kappaletta suoritettu')).toBeVisible();
@@ -168,11 +168,11 @@ test('Kappale 7: melodia pysyy samana ja basson voi kuunnella erikseen', async (
   await hear(page, 'C');
   await button(page, 'Tarkista valintani').click();
   await expect(page.getByRole('heading', { name: 'Oikein! Bändi palasi kotiin!' })).toBeFocused();
-  await perform(page, 'Kappale valmis!');
+  await perform(page, 'Kappale valmis', 'Seuraava kappale', { isMobile, thorough: true });
   expect(await saved(page)).toEqual({ version: 1, completed: [...firstGig, 6, 7] });
 });
 
-test('Kappale 8: piste ja kysymys tunnistetaan, eikä toimivaa loppua leimata vääräksi', async ({ page }) => {
+test('Kappale 8: piste ja kysymys tunnistetaan, eikä toimivaa loppua leimata vääräksi', async ({ page, isMobile }) => {
   test.setTimeout(90000);
   await start(page, [...firstGig, 6, 7]);
   await button(page, 'Jatka keikkaa 2').click();
@@ -210,13 +210,13 @@ test('Kappale 8: piste ja kysymys tunnistetaan, eikä toimivaa loppua leimata v�
   await expect(button(page, 'Lopetus B')).toHaveAccessibleDescription('Kuultu', { timeout: 10000 });
   await check.click();
   await expect(page.getByRole('heading', { name: 'Oikein! Tunnistit molemmat loput!' })).toBeFocused();
-  await page.getByText('Miksi tämä vastaus?').click();
+  await page.getByText('Selitä, miksi tämä toimii').click();
   await expect(page.getByText(/Lopetus A on avoin lopetus/)).toBeVisible();
-  await perform(page, 'Kappale valmis!');
+  await perform(page, 'Kappale valmis', 'Seuraava kappale', { isMobile, thorough: true });
   expect(await saved(page)).toEqual({ version: 1, completed: [...firstGig, 6, 7, 8] });
 });
 
-test('Kappale 9: kaksivaiheinen encore ja Kotikulmien toisen illan valmistuminen', async ({ page }) => {
+test('Kappale 9: kaksivaiheinen encore ja Kotikulmien toisen illan valmistuminen', async ({ page, isMobile }) => {
   test.setTimeout(90000);
   await start(page, [...firstGig, 6, 7, 8, 42]);
   await button(page, 'Jatka keikkaa 2').click();
@@ -230,7 +230,7 @@ test('Kappale 9: kaksivaiheinen encore ja Kotikulmien toisen illan valmistuminen
   await hear(page, 'A');
   await button(page, 'Tarkista valintani').click();
   await expect(page.getByRole('heading', { name: 'Oikein! Melodia löysi kotiin.' })).toBeFocused();
-  await expect(page.getByText('Miksi tämä vastaus?')).toHaveCount(0);
+  await expect(page.getByText('Selitä, miksi tämä toimii')).toHaveCount(0);
 
   await button(page, 'Jatka vaiheeseen 2').click();
   await expect(page.getByRole('heading', { name: 'Vaihe 2/2: Miksi lopetus toimii?' })).toBeFocused();
@@ -252,7 +252,7 @@ test('Kappale 9: kaksivaiheinen encore ja Kotikulmien toisen illan valmistuminen
   await check.click();
   await expect(page.getByRole('heading', { name: 'Oikein! Kuulit, miksi loppu toimii.' })).toBeFocused();
   expect(await saved(page)).toEqual({ version: 1, completed: [...firstGig, 6, 7, 8, 42] });
-  await perform(page, 'Kotikulmien toinen ilta suoritettu!');
+  await perform(page, 'Kotikulmien toinen ilta suoritettu!', 'Palaa settilistaan', { isMobile, thorough: true });
   await expect(page.getByText('Suoritit 4 kappaletta.')).toBeVisible();
   await expect(page.getByText(/Esiintymisalue suoritettu!/)).toBeVisible();
   expect(await saved(page)).toEqual({ version: 1, completed: [...firstGig, 6, 7, 8, 9, 42] });
@@ -364,7 +364,7 @@ test('Koko käyttäjäpolku: tyhjästä tallenteesta molemmat keikat valmiiksi',
     await expect(page).toHaveURL(new RegExp(`#kappale-${song}$`));
     await hear(page, ending);
     await button(page, 'Tarkista valintani').click();
-    await perform(page, song === 5 ? 'Keikka valmis!' : 'Kappale valmis!');
+    await perform(page, song === 5 ? 'Keikka valmis!' : 'Kappale valmis', song === 5 ? 'Aloita keikka 2' : 'Seuraava kappale');
     await button(page, song === 5 ? 'Aloita keikka 2' : 'Seuraava kappale').click();
   }
   await expect(page).toHaveURL(/#kappale-8$/);
@@ -375,7 +375,7 @@ test('Koko käyttäjäpolku: tyhjästä tallenteesta molemmat keikat valmiiksi',
   await button(page, 'Piste: lopetus B').click();
   await button(page, 'Kysymys: lopetus A').click();
   await button(page, 'Tarkista valintani').click();
-  await perform(page, 'Kappale valmis!');
+  await perform(page, 'Kappale valmis', 'Seuraava kappale');
   await button(page, 'Seuraava kappale').click();
   await hear(page, 'A');
   await button(page, 'Tarkista valintani').click();
@@ -384,7 +384,7 @@ test('Koko käyttäjäpolku: tyhjästä tallenteesta molemmat keikat valmiiksi',
   await button(page, 'Basso nousee askel kerrallaan kotisävelelle samalla, kun melodia laskeutuu sinne.').click();
   await expect(button(page, 'Tarkista valintani')).toBeEnabled({ timeout: 10000 });
   await button(page, 'Tarkista valintani').click();
-  await perform(page, 'Kotikulmien toinen ilta suoritettu!');
+  await perform(page, 'Kotikulmien toinen ilta suoritettu!', 'Palaa settilistaan');
   expect(await saved(page)).toEqual({ version: 1, completed: [1, 2, 3, 4, 5, 6, 7, 8, 9] });
   await button(page, 'Palaa settilistaan').click();
   await expect(page.getByText('Esiintymisalue suoritettu!')).toBeVisible();
@@ -407,7 +407,7 @@ test('Kokenut pelaaja aloittaa suoraan keikasta 2, ja suoritus tallentuu koskema
   await expect(page.getByText('Keikka 2 – Kotikulmien toinen ilta')).toBeVisible();
   await hear(page, 'B');
   await button(page, 'Tarkista valintani').click();
-  await perform(page, 'Kappale valmis!');
+  await perform(page, 'Kappale valmis', 'Seuraava kappale');
   expect(await saved(page)).toEqual({ version: 1, completed: [1, 2, 6] });
   await expect(page.getByText(/Suoritus tallentuu/)).toHaveCount(0);
 
@@ -433,7 +433,7 @@ test('Suoraan aloitettu keikka 2 valmistuu ilman, että esiintymisalue merkitä�
   await button(page, 'Basso nousee askel kerrallaan kotisävelelle samalla, kun melodia laskeutuu sinne.').click();
   await expect(button(page, 'Tarkista valintani')).toBeEnabled({ timeout: 10000 });
   await button(page, 'Tarkista valintani').click();
-  await perform(page, 'Kotikulmien toinen ilta suoritettu!');
+  await perform(page, 'Kotikulmien toinen ilta suoritettu!', 'Palaa settilistaan');
   await expect(page.getByText(/Keikka 1 on vielä soittamatta/)).toBeVisible();
   await expect(page.getByText(/Esiintymisalue suoritettu/)).toHaveCount(0);
   expect(await saved(page)).toEqual({ version: 1, completed: [6, 7, 8, 9] });
@@ -466,7 +466,7 @@ test('Harjoittelu sekoittaa lopetukset kierroksittain, mutta palaute puhuu valit
   await button(page, 'Kysymys: lopetus C').click();
   await button(page, 'Tarkista valintani').click();
   await expect(page.getByText('Lopetus A päättyy pisteeseen ja lopetus C kysymykseen. Kumpikin on toimiva tapa päättää fraasi, mutta eri tarkoitukseen.')).toBeVisible();
-  await page.getByText('Miksi tämä vastaus?').click();
+  await page.getByText('Selitä, miksi tämä toimii').click();
   await expect(page.getByText(/^Lopetus A päättyy kotiin:.*Lopetus C on avoin lopetus.*Lopetuksessa B bändi on kotona/)).toBeVisible();
   expect(await saved(page)).toEqual({ version: 1, completed: [...firstGig, 6] });
 

@@ -57,10 +57,10 @@ const firstNightWrong: Record<FirstNightSong, Partial<Record<Letter, string>>> =
 };
 
 const firstNightExplanations: Record<FirstNightSong, string> = {
-  1: 'Melodian G♯ nousee puoliaskelen A:han samalla kun bändi vaihtaa E7-soinnusta Am-sointuun. Sävel A on a-mollin kotisävel, ja kuulet sen sekä melodiassa että bassossa.',
-  2: 'Melodian F♯ nousee puoliaskelen G:hen, kun bändi vaihtaa D7-soinnusta G-duurisointuun. Basso ja melodia soittavat lopussa G:n eri oktaaveissa.',
-  3: 'Säestys vaihtaa G7-soinnusta C-duurisointuun, ja melodian B nousee puoliaskelen C:hen. Myös D kuuluu C-duuriin. Kun melodia jää D:hen, bändi on jo kotona ja melodia voi yhä tuntua odottavan jatkoa.',
-  4: 'Melodian D♯ nousee puoliaskelen E:hen samalla kun B7 vaihtuu Em-sointuun. Huomaa loppusoinnun G. Se on kolmen puoliaskelen päässä E:stä ja antaa kotisoinnulle sen mollisävyn.',
+  1: 'Melodian G♯ nousee puoliaskelen A:han samalla kun bändi vaihtaa E7-soinnusta Am-sointuun. Sävel A on a-mollin kotisävel, ja kuulet sen sekä melodiassa että bassossa. Muut lopetukset, B♭ ja E♭, eivät kuulu a-molliin. Ne hankaavat loppusointua vasten, joten loppu jää kireäksi.',
+  2: 'Melodian F♯ nousee puoliaskelen G:hen, kun bändi vaihtaa D7-soinnusta G-duurisointuun. Basso ja melodia soittavat lopussa G:n eri oktaaveissa. Muut lopetukset, D♭ ja A♭, eivät kuulu G-duuriin, joten ne riitelevät bändin kanssa.',
+  3: 'Säestys vaihtaa G7-soinnusta C-duurisointuun, ja melodian B nousee puoliaskelen C:hen. Myös D kuuluu C-duuriin. Kun melodia jää D:hen, bändi on jo kotona ja melodia voi yhä tuntua odottavan jatkoa. D♭ ei kuulu sävellajiin ja hankaa loppusointua vasten.',
+  4: 'Melodian D♯ nousee puoliaskelen E:hen samalla kun B7 vaihtuu Em-sointuun. Huomaa loppusoinnun G. Se on kolmen puoliaskelen päässä E:stä ja antaa kotisoinnulle sen mollisävyn. D ja F♯ kuuluvat e-molliin, mutta kumpikaan ei ole kotisävel: D jää odottamaan nousua kotiin, ja F♯ jättää lopun avoimeksi.',
   5: 'Bändi vaihtaa A7-soinnusta D-duurisointuun, ja melodian C♯ nousee puoliaskelen D:hen. Myös sävel A voi kuulostaa vakaalta, koska se on D-duurisoinnun kvintti eli D-duuriasteikon viides sävel. D on kappaleen kotisävel, ja se soi lopussa myös bassossa.',
 };
 

@@ -282,7 +282,10 @@ function ReasonView({ song, task, attempt, update, sound, isPlaying, listen, hea
   </>;
 }
 
-export function SongPlayer({ song, gigId, showLabel, attempt, update, onList, onSetlist, onNext, nextLabel = 'Seuraava kappale', onComplete, completionTitle, completedCount, completionNote, practice, saving, saveFailed, extraActions }: {
+/** Valmiin kappaleen jatkotoiminto. Ensimmäinen on ensisijainen. */
+export type SongAction = { label: string; run: () => void };
+
+export function SongPlayer({ song, gigId, showLabel, attempt, update, onList, onSetlist, actions, onComplete, completionTitle, completedCount, completionNote, practice, saving, saveFailed }: {
   song: Song;
   gigId: number;
   showLabel: string;
@@ -290,8 +293,8 @@ export function SongPlayer({ song, gigId, showLabel, attempt, update, onList, on
   update: Update;
   onList: () => void;
   onSetlist: () => void;
-  onNext?: () => void;
-  nextLabel?: string;
+  /** Jatkotoiminnot, jotka ilmestyvät onnistumiskorttiin, kun valmis kappale on kuultu. */
+  actions: readonly SongAction[];
   onComplete: () => void;
   completionTitle: string;
   completedCount?: number;
@@ -300,20 +303,24 @@ export function SongPlayer({ song, gigId, showLabel, attempt, update, onList, on
   /** Normaali eteneminen: ratkaisu tallentuu. */
   saving: boolean;
   saveFailed: boolean;
-  extraActions?: ReactNode;
 }) {
   const { stage, step, checks, order } = attempt;
   const shown = (ending: Letter) => shownLetter(order, ending);
   const fill = (text: string) => fillLetters(text, order);
   const { id, title, tasks, target, explanation } = song;
   const task = tasks[Math.min(step, tasks.length - 1)];
+  // Onnistumiskortti kertoo koko kappaleen ratkaisusta, joten se käyttää viimeisen tehtävän palautetta.
+  const finalTask = tasks[tasks.length - 1];
   const sound = usePlayback();
   // Mikä soi: kuuntelutapa ja lopetus. Tämä on erillään tehtävän valinnasta (attempt.selected).
   const [now, setNow] = useState<{ mode: ListeningMode; ending: Letter | null }>({ mode: 'ending', ending: null });
   const isPlaying: IsPlaying = (which, ending) => sound.active && now.mode === which && (ending === undefined || now.ending === ending);
   const heading = useRef<HTMLHeadingElement>(null);
   const retryHeading = useRef<HTMLHeadingElement>(null);
-  useEffect(() => { heading.current?.focus(); }, [stage, step]);
+  // Valmiin kappaleen kuuntelu ei vaihda näkymää, joten se ei myöskään siirrä fokusta.
+  const view = stage === 'complete' ? 'perform' : stage;
+  useEffect(() => { heading.current?.focus(); }, [view, step]);
+  const [explainOpen, setExplainOpen] = useState(false);
   useEffect(() => { retryHeading.current?.focus(); }, [stage, checks]);
 
   const listen: Listen = (which, label, ending, onHeard) => {
@@ -350,13 +357,15 @@ export function SongPlayer({ song, gigId, showLabel, attempt, update, onList, on
   }
 
   const answerDetails = (
-    <details onToggle={event => {
-      if (!event.currentTarget.open && playingEnding) sound.stop();
+    <details className="answer-explanation" open={explainOpen} onToggle={event => {
+      const open = event.currentTarget.open;
+      setExplainOpen(open);
+      if (!open && playingEnding) sound.stop();
     }}>
-      <summary>Miksi tämä vastaus?</summary>
+      <summary>Selitä, miksi tämä toimii</summary>
       <p>{fill(explanation)}</p>
       <button onClick={toggleAnswerExcerpt}>
-        {playingEnding ? 'Pysäytä ratkaiseva kohta' : 'Kuuntele ratkaiseva kohta'}
+        <PlayIcon playing={playingEnding} /> {playingEnding ? 'Pysäytä ratkaiseva kohta' : 'Kuuntele ratkaiseva kohta'}
       </button>
     </details>
   );
@@ -365,11 +374,11 @@ export function SongPlayer({ song, gigId, showLabel, attempt, update, onList, on
 
   return (
     <main className="concert">
-      {(stage !== 'complete' || completedCount === undefined) && <nav className="start-navigation" aria-label="Palaa">
+      <nav className="start-navigation" aria-label="Palaa">
         <a className="game-link" href={stage === 'complete' ? `./#keikka-${gigId}` : './#keikkalista'} onClick={returnToList}>
           <span aria-hidden="true">←</span> {stage === 'complete' ? 'Takaisin settilistaan' : 'Takaisin keikkalistaan'}
         </a>
-      </nav>}
+      </nav>
       <header className="intro">
         <p className="project">{practice ? 'Ensikeikka · Harjoittelu' : showLabel}</p>
         <h1>Kappale {id} – {title}</h1>
@@ -391,37 +400,36 @@ export function SongPlayer({ song, gigId, showLabel, attempt, update, onList, on
             Jatka vaiheeseen {step + 2}
           </button>
         </>}
-        {stage === 'perform' && <>
-          <div className="answer-feedback" data-result="correct">
-            <h2 ref={heading} tabIndex={-1} aria-describedby="correct-explanation">
-              <span aria-hidden="true">✓</span> {task.success.title}
-            </h2>
-            <p id="correct-explanation">{fill(task.success.text)}</p>
-            {answerDetails}
-          </div>
-          <p>Kuuntele valmis kappale loppuun asti.</p>
-          <button className="primary" onClick={playingFull ? sound.stop : () => playFinishedSong(onComplete)}>
-            {playingFull ? 'Pysäytä' : 'Soita valmis kappale'}
-          </button>
-          <Status sound={sound} />
-        </>}
-        {stage === 'complete' && <>
-          <h2 ref={heading} tabIndex={-1}>{completionTitle}</h2>
-          {completedCount !== undefined && <p>Suoritit {completedCount} kappaletta.</p>}
-          {completionNote && <p className="tour-finished">{completionNote}</p>}
-          {saveFailed && <p role="status">Selain ei voinut tallentaa etenemistä. Suoritus näkyy tällä sivulla.</p>}
-          <div className="button-row">
-            {onNext && <button className="primary" onClick={() => { sound.stop(); onNext(); }}>{nextLabel}</button>}
-            {completedCount !== undefined && <button className="primary" onClick={() => { sound.stop(); onSetlist(); }}>Palaa settilistaan</button>}
-            {extraActions}
-            <button onClick={() => {
-              if (playingFull) sound.stop();
-              else playFinishedSong();
-            }}>{playingFull ? 'Pysäytä' : 'Kuuntele uudelleen'}</button>
-          </div>
+        {(stage === 'perform' || stage === 'complete') && <div className="answer-feedback success-card" data-result="correct">
+          {/* Sama kortti säilyy valmiin kappaleen kuuntelun ajan ja sen jälkeen. */}
+          <h2 ref={heading} tabIndex={-1} aria-describedby="correct-explanation">
+            <span aria-hidden="true">✓</span> {finalTask.success.title}
+          </h2>
+          <p id="correct-explanation">{fill(finalTask.success.text)}</p>
           {answerDetails}
-          <Status sound={sound} className="replay-status" />
-        </>}
+          {stage === 'perform' && <p className="perform-hint">Kuuntele valmis kappale loppuun asti.</p>}
+          <div className="song-complete" aria-live="polite">
+            {stage === 'complete' && <>
+              <h3><span aria-hidden="true">✓</span> {completionTitle}</h3>
+              {completedCount !== undefined && <p>Suoritit {completedCount} kappaletta.</p>}
+              {completionNote && <p className="tour-finished">{completionNote}</p>}
+              {saveFailed && <p>Selain ei voinut tallentaa etenemistä. Suoritus näkyy tällä sivulla.</p>}
+            </>}
+          </div>
+          <div className="button-row song-actions">
+            {stage === 'complete' && actions.map((action, index) => <button key={action.label}
+              className={index === 0 ? 'primary' : undefined} onClick={() => { sound.stop(); action.run(); }}>{action.label}</button>)}
+            {/* Sama painike-elementti: "Soita valmis kappale" muuttuu valmistumisen jälkeen "Kuuntele uudelleen"
+                -painikkeeksi, joten fokus pysyy paikallaan. Uudelleenkuuntelu ei kutsu onComplete-käsittelijää. */}
+            <button key="finished-song" className={stage === 'perform' ? 'primary' : undefined} onClick={() => {
+              if (playingFull) sound.stop();
+              else playFinishedSong(stage === 'perform' ? onComplete : undefined);
+            }}>
+              <PlayIcon playing={playingFull} /> {playingFull ? 'Pysäytä' : stage === 'perform' ? 'Soita valmis kappale' : 'Kuuntele uudelleen'}
+            </button>
+          </div>
+          <Status sound={sound} />
+        </div>}
       </section>
       {stage === 'perform' && <nav className="game-navigation" aria-label="Tehtävä">
         <button className="back-link" onClick={() => {

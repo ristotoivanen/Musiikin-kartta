@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { finishInSuccessCard } from './ensikeikka-success';
 
 const gamePath = '/pelit/ensikeikka/';
 const progressKey = 'musiikin-kartta:ensikeikka';
@@ -51,8 +52,8 @@ const lastPlayback = (page: Page) => page.evaluate(() => window.ensikeikkaPlayba
 const savedProgress = (page: Page) => page.evaluate(key => JSON.parse(localStorage.getItem(key) ?? 'null'), progressKey);
 
 for (const song of songs) {
-  test(`Ensikeikka ${song.id}: ${song.title}, ratkaisu ja tallennettu suoritus`, async ({ page }) => {
-    test.setTimeout(65000);
+  test(`Ensikeikka ${song.id}: ${song.title}, ratkaisu ja tallennettu suoritus`, async ({ page, isMobile }) => {
+    test.setTimeout(90000);
     await observePlayback(page);
     const previous = songs.slice(0, song.id - 1).map(entry => entry.id);
     await page.goto(`${gamePath}#keikkalista`);
@@ -67,7 +68,7 @@ for (const song of songs) {
     await button(page, previous.length ? 'Jatka keikkaa 1' : 'Aloita keikka 1').click();
     await expect(page.getByRole('heading', { name: `Kappale ${song.id} – ${song.title}` })).toBeVisible();
     const task = page.getByRole('heading', { name: 'Kuuntele kappale ja valitse lopetus' });
-    const explanation = page.getByText('Miksi tämä vastaus?', { exact: true });
+    const explanation = page.getByText('Selitä, miksi tämä toimii', { exact: true });
     const unfinished = button(page, 'Kuuntele keskeneräinen kappale');
     const check = button(page, 'Tarkista valintani');
     await expect(task).toBeFocused();
@@ -120,13 +121,12 @@ for (const song of songs) {
     const savedBeforePerformance = previous.length ? { version: 1, completed: previous } : null;
     expect(await savedProgress(page)).toEqual(savedBeforePerformance);
 
-    await button(page, 'Soita valmis kappale').click();
-    await expect(playbackStatus(page)).toHaveText(playing);
-    expect(await lastPlayback(page)).toMatchObject({ offset: 0, hasAudio: true });
-    const complete = song.id === 5 ? 'Keikka valmis!' : 'Kappale valmis!';
-    await expect(page.getByRole('heading', { name: complete })).toBeFocused({ timeout: 16000 });
-    expect(await savedProgress(page)).toEqual({ version: 1, completed: [...previous, song.id] });
-    await expect(explanation).toBeVisible();
+    const last = song.id === 5;
+    const { after } = await finishInSuccessCard(page, {
+      completion: last ? 'Keikka valmis!' : 'Kappale valmis', primary: last ? 'Aloita keikka 2' : 'Seuraava kappale', isMobile,
+    });
+    expect(after).toEqual({ version: 1, completed: [...previous, song.id] });
+    await expect(correct).toBeVisible();
     const next = songs.find(entry => entry.id === song.id + 1);
     if (next) {
       await button(page, 'Seuraava kappale').click();
@@ -134,6 +134,9 @@ for (const song of songs) {
     } else {
       await expect(button(page, 'Seuraava kappale')).toHaveCount(0);
       await expect(page.getByText('Suoritit 5 kappaletta.')).toBeVisible();
+      await expect(button(page, 'Palaa settilistaan')).toBeVisible();
+      await button(page, 'Aloita keikka 2').click();
+      await expect(page.getByRole('heading', { name: 'Kappale 6 – Melodia jatkaa matkaa' })).toBeVisible();
     }
   });
 }
@@ -217,8 +220,11 @@ test('Ensikeikka keskeyttää äänen palatessa ja säilyttää valmiit kappalee
   const setlist = page.getByRole('list', { name: 'Settilista' });
   await expect(setlist.getByText('Suoritettu', { exact: true })).toHaveCount(5);
   await button(page, 'Kuuntele kappale 5').click();
-  await expect(page.getByRole('heading', { name: 'Keikka valmis!' })).toBeFocused();
-  const explanation = page.getByText('Miksi tämä vastaus?', { exact: true });
+  // Suoritetun kappaleen uudelleenavaus näyttää saman onnistumiskortin valmiina.
+  await expect(page.getByRole('heading', { name: 'Oikein! Löysit kotiin!' })).toBeFocused();
+  await expect(page.locator('.success-card').getByRole('heading', { level: 3, name: 'Keikka valmis!' })).toBeVisible();
+  await expect(page.locator('.success-card .song-actions button').first()).toHaveText('Aloita keikka 2');
+  const explanation = page.getByText('Selitä, miksi tämä toimii', { exact: true });
   await explanation.click();
   await button(page, 'Kuuntele ratkaiseva kohta').click();
   await expect(playbackStatus(page)).toHaveText('Soitetaan · ratkaisevaa kohtaa');

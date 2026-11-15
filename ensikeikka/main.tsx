@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { SongPlayer, initialAttempt, type Attempt, type Update } from './GigPlayer';
+import { SongPlayer, initialAttempt, type Attempt, type SongAction, type Update } from './GigPlayer';
 import { area, gigOf, songs } from './catalog';
 import { areaComplete, followingSong, gigStatus, songAccess, type SongMode } from './setlist';
 import { shuffledOrder } from './order';
@@ -133,8 +133,9 @@ function Ensikeikka() {
     const gig = gigOf(id)!;
     const isPractice = mode === 'practice';
     const songComplete = completed.includes(id);
+    // Valmis kappale säilyttää tehtävän tilan (esim. kappaleen 9 vaiheen), jotta onnistumiskortti ei vaihdu.
     const attempt = isPractice ? practice.attempt : songComplete
-      ? { ...initialAttempt, stage: 'complete' as const } : attempts[id] ?? initialAttempt;
+      ? { ...attempts[id] ?? initialAttempt, stage: 'complete' as const } : attempts[id] ?? initialAttempt;
 
     const update: Update = changes => {
       const apply = (current: Attempt) => ({ ...current, ...(typeof changes === 'function' ? changes(current) : changes) });
@@ -151,25 +152,28 @@ function Ensikeikka() {
     const requiredGig = gigById(gig.requires);
     const waiting = finishedGig && requiredGig && !status(requiredGig, completed).complete ? requiredGig : undefined;
 
-    let onNext: (() => void) | undefined;
-    if (isPractice && nextSong !== undefined) onNext = () => open(nextSong, 'practice');
-    else if (!isPractice && songComplete && nextSong !== undefined) {
-      onNext = () => open(nextSong, completed.includes(nextSong) ? 'replay' : 'progress');
-    }
+    // Jatkaminen tapahtuu vain painalluksesta: seuraava kappale, seuraava keikka tai settilista.
+    const actions: SongAction[] = [];
+    const toSetlist = { label: 'Palaa settilistaan', run: () => toGig(gig.id) };
+    if (isPractice && nextSong !== undefined) {
+      actions.push({ label: 'Harjoittele seuraavaa kappaletta', run: () => open(nextSong, 'practice') });
+    } else if (!isPractice && songComplete && nextSong !== undefined) {
+      actions.push({ label: 'Seuraava kappale', run: () => open(nextSong, completed.includes(nextSong) ? 'replay' : 'progress') });
+    } else if (followingGig && followingStart !== undefined) {
+      actions.push({ label: `Aloita keikka ${followingGig.id}`, run: () => open(followingStart, 'progress') }, toSetlist);
+    } else actions.push(toSetlist);
 
     return <SongPlayer key={`${id}-${mode}`} song={song} gigId={gig.id} showLabel={`Keikka ${gig.id} – ${gig.title}`}
       attempt={attempt} update={update} onList={toArea} onSetlist={() => toGig(gig.id)}
-      onNext={onNext} nextLabel={isPractice ? 'Harjoittele seuraavaa kappaletta' : 'Seuraava kappale'}
+      actions={actions}
       onComplete={() => {
         if (isPractice) update({ stage: 'complete' });
         else if (!songComplete) recordSong(id);
       }}
-      completionTitle={isPractice ? 'Harjoittelu valmis!' : finishedGig ? gig.completionTitle : 'Kappale valmis!'}
+      completionTitle={isPractice ? 'Harjoittelu valmis' : finishedGig ? gig.completionTitle : 'Kappale valmis'}
       completedCount={finishedGig ? gig.songs.length : undefined}
       completionNote={everything ? `${area.title} on nyt kokonaan soitettu. Esiintymisalue suoritettu!`
         : waiting ? `Keikka ${waiting.id} on vielä soittamatta. Esiintymisalue valmistuu, kun kaikki keikat on suoritettu.` : undefined}
-      extraActions={followingGig && followingStart !== undefined
-        ? <button onClick={() => open(followingStart, 'progress')}>Aloita keikka {followingGig.id}</button> : undefined}
       practice={isPractice} saving={mode === 'progress'} saveFailed={saveFailed} />;
   }
 
