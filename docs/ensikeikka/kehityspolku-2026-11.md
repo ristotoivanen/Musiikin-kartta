@@ -10,7 +10,7 @@ Tämä dokumentti on **Ensikeikan pelikohtainen jatkosuunnitelma**. Se ei korvaa
 
 **Lähdetilanne (ei väite tuotannosta):**
 - Nykyinen tuotanto-/main-versio sisältää ensimmäisen keikan, kappaleet 1–5.
-- Clauden keikka 2 on haarassa [feature/ensikeikka-toinen-ilta](https://github.com/ristotoivanen/Musiikin-kartta/tree/feature/ensikeikka-toinen-ilta), tarkistettu commit \`6dfa967403f95d2eccd4af79ab1fb3fd127c50bb\`. Kappaleet 6–9 ja katselmus: \`ensikeikka/README.md\`, \`second-night.ts\`, \`catalog.ts\`, \`tasks.ts\`, \`reviews/ensikeikka-kokonaiskatselmus.md\`.
+- Clauden keikka 2 on haarassa [feature/ensikeikka-toinen-ilta](https://github.com/ristotoivanen/Musiikin-kartta/tree/feature/ensikeikka-toinen-ilta), tarkistettu commit `6dfa967403f95d2eccd4af79ab1fb3fd127c50bb`. Kappaleet 6–9 ja katselmus: `ensikeikka/README.md`, `second-night.ts`, `catalog.ts`, `tasks.ts`, `reviews/ensikeikka-kokonaiskatselmus.md`.
 - [PR #61](https://github.com/ristotoivanen/Musiikin-kartta/pull/61) on erillinen Codexin Oppimiskartan, Riffikaiun ja Ensikeikan näkymämuutosten integraatioluonnos. Sen hyväksyminen ei tarkoita Clauden keikka 2:n hyväksymistä. Tarkista haarojen viimeisin todellinen tila ennen koodausta.
 - Clauden katselmus perustuu lähdekoodiin, automatisoituihin äänimittauksiin ja mykistettyyn selainajoihin. **Kuulonvarainen koe puhelimella ja kuulokkeilla on tekemättä.** Älä väitä materiaalin musiikillista tai pedagogista toimivuutta todennetuksi.
 - Tässä dokumentissa ehdotetut keikat 3–6 eivät ole toteutettuja eivätkä hyväksytty aikataulu.
@@ -39,7 +39,7 @@ Säilytettävää:
 | 8 | d-molli: tunnista piste ja kysymys; kumpikin on mahdollinen | Älä kutsu kaikkia erilaisia ratkaisuja vääriksi |
 | 9 | E-duuri: ensin melodian lopetus, sitten basson nousu vs. melodian lasku | Kaksivaiheinen encore, erillinen basson kuuntelu |
 
-Keikka 2:n tehtävätyypit ovat \`choose\`, \`match\`, \`reason\`; yhdessä kappaleessa voi olla peräkkäisiä tehtäviä. Lopetusten järjestys sekoittuu vapaassa harjoittelussa. Tärkeä rajoite: sama musiikki toistuu; pelkkä kirjainten sekoittaminen ei testaa siirtovaikutusta uuteen kappaleeseen.
+Keikka 2:n tehtävätyypit ovat `choose`, `match`, `reason`; yhdessä kappaleessa voi olla peräkkäisiä tehtäviä. Lopetusten järjestys sekoittuu vapaassa harjoittelussa. Tärkeä rajoite: sama musiikki toistuu; pelkkä kirjainten sekoittaminen ei testaa siirtovaikutusta uuteen kappaleeseen.
 
 ## 3. Ehdotettu eteneminen – ei lukittu kuuden keikan toimitussopimus
 
@@ -68,15 +68,15 @@ Toteutuspäätös tehdään *keikka tai pilotti kerrallaan*. Keikat 4–6 saa mu
 
 | Mekaniikka | Mitä todella mitataan? | Palaute |
 | --- | --- | --- |
-| \`compare-change\` (uusi) | Muuttuiko kahden otoksen välillä basso, rummut, komppi vai melodia? | Nimeä kuultava ero, tarjoa sama kohta eroteltuna |
-| \`bass-contour\` (uusi) | Nousu / lasku / tasaisuus riippumatta sävellajista | Näytä kuultu bassokulku vasta yrityksen jälkeen |
-| \`spot-event\` (myöhemmin) | Missä tahdissa rytmi/tauko muuttui? | Toista oikea aikaväli; salli kuulopohjainen navigointi |
-| \`phrase-response\` (myöhemmin) | Mikä vastaus täyttää annetun *musiikillisen tarkoituksen*? | Erota analyysikysymys ja oma maku |
-| \`play-or-create\` (myöhemmin) | Musiikillinen kokeilu ja soveltaminen | Ei perusteetonta oikein/väärin-leimaa mikin epätarkasta havainnosta |
+| `compare-change` (uusi) | Muuttuiko kahden otoksen välillä basso, rummut, komppi vai melodia? | Nimeä kuultava ero, tarjoa sama kohta eroteltuna |
+| `bass-contour` (uusi) | Nousu / lasku / tasaisuus riippumatta sävellajista | Näytä kuultu bassokulku vasta yrityksen jälkeen |
+| `spot-event` (myöhemmin) | Missä tahdissa rytmi/tauko muuttui? | Toista oikea aikaväli; salli kuulopohjainen navigointi |
+| `phrase-response` (myöhemmin) | Mikä vastaus täyttää annetun *musiikillisen tarkoituksen*? | Erota analyysikysymys ja oma maku |
+| `play-or-create` (myöhemmin) | Musiikillinen kokeilu ja soveltaminen | Ei perusteetonta oikein/väärin-leimaa mikin epätarkasta havainnosta |
 
 Tehtävän tarkoitus ja mittaustapa on määriteltävä tietueessa. Älä väitä musiikillista luovuutta tai todellista soittotaitoa mitatuksi monivalinnan perusteella.
 
-**Tarkka tehtäväsopimus (pilotti):** \`id\`, \`skillGoal\`, \`kind\`, \`difficulty\`, \`audioExamples\`, \`correctnessRule\` (tai \`noSingleCorrectAnswer\`), \`explanation\`, \`hints[2]\`, \`wrongFeedback\`, \`requiredListening\`, \`accessibilityFallback\`. Kytke pilottityypit nykyiseen \`Task\`-unioniin mahdollisimman pienellä lisäyksellä, älä korvaa olemassa olevia \`choose\`/\`match\`/\`reason\`-tehtäviä.
+**Tarkka tehtäväsopimus (pilotti):** `id`, `skillGoal`, `kind`, `difficulty`, `audioExamples`, `correctnessRule` (tai `noSingleCorrectAnswer`), `explanation`, `hints[2]`, `wrongFeedback`, `requiredListening`, `accessibilityFallback`. Kytke pilottityypit nykyiseen `Task`-unioniin mahdollisimman pienellä lisäyksellä, älä korvaa olemassa olevia `choose`/`match`/`reason`-tehtäviä.
 
 ## 5. Vaikeusaste, kertaus ja vaihtelu
 
@@ -89,17 +89,17 @@ Vaikeusasteen kolme erillistä ulottuvuutta:
 
 **Vaihtelusäännöt:**
 - Jokaiselle opetettavalle taidolle tavoitteeksi vähintään 2–3 **aidosti eri sävellystä/sovitusta**, ei pelkästään A/B/C-järjestyksen sekoitus.
-- Opettavassa etenemisessä aloita suunnitellulla esimerkillä; harjoittelussa valitse variantti, jota ei juuri kuultu. Vältä kahta saman \`skillGoal\`+\`audioVariant\`-paria peräkkäin, ellei kyse ole nimenomaisesta kertauksesta.
+- Opettavassa etenemisessä aloita suunnitellulla esimerkillä; harjoittelussa valitse variantti, jota ei juuri kuultu. Vältä kahta saman `skillGoal`+`audioVariant`-paria peräkkäin, ellei kyse ole nimenomaisesta kertauksesta.
 - Jos soitinnäytteitä on liian vähän, näytä käyttäjälle että tämä on kertaus; **älä lupaa loputonta vaihtelua**.
 - Kertauksessa siirrä sama taito eri kappaleeseen. Kertausta voi tarjota myöhemmin vapaaehtoisesti, ei pakollisena estona seuraavalle keikalle.
 - Pidä oikea vastaus musiikillisen esimerkin ID:ssä, ei näkyvässä kirjaimessa. Testaa kaikki vaihtoehtojen permutaatiot ja selittävä palaute.
 
 **Osaamisen kolme eri käsitettä:**
-- \`kuultu\`: katkelma kuunneltu (ei todista osaamista);
-- \`ratkaistu\`: oikea ratkaisu tehty, kirjaa tarvittiinko vihjettä / kuinka monta yritystä;
-- \`sovellettu\`: sama taito ratkaistu uudessa musiikkiesimerkissä itsenäisesti.
+- `kuultu`: katkelma kuunneltu (ei todista osaamista);
+- `ratkaistu`: oikea ratkaisu tehty, kirjaa tarvittiinko vihjettä / kuinka monta yritystä;
+- `sovellettu`: sama taito ratkaistu uudessa musiikkiesimerkissä itsenäisesti.
 
-\`Sovellettu\` on suunniteltu uusi arviointikäsite, ei nykyisen tallenteen ominaisuus. Älä muuta nykyisen \`localStorage['musiikin-kartta:ensikeikka']\` \`version: 1\` -tallenteen rakennetta pilotin ensimmäisessä vaiheessa. Jos myöhemmin lisätään uusia avaimia, tee migraatiot, vanhan version yhteensopivuus ja palautuminen erillisen hyväksynnän kautta. Ei seurantaa eikä palvelintelemetriaa ilman erillistä perustetta ja päätöstä.
+`Sovellettu` on suunniteltu uusi arviointikäsite, ei nykyisen tallenteen ominaisuus. Älä muuta nykyisen `localStorage['musiikin-kartta:ensikeikka']` `version: 1` -tallenteen rakennetta pilotin ensimmäisessä vaiheessa. Jos myöhemmin lisätään uusia avaimia, tee migraatiot, vanhan version yhteensopivuus ja palautuminen erillisen hyväksynnän kautta. Ei seurantaa eikä palvelintelemetriaa ilman erillistä perustetta ja päätöstä.
 
 ## 6. Suno ja laadukas ääni: pieni, erillinen koe
 
@@ -117,7 +117,7 @@ Mahdolliset huipennukset:
 - [ ] Määritä musiikillinen tapahtuma etukäteen (esim. nouseva bassokulku ja laskeutuva melodialinja) ja tarkista että se **todella kuuluu** lopputuloksessa.
 - [ ] Tallenna lähde, generointipäivä, työkalun versio/tilaus, oikeusperuste ja tarvittava käyttöoikeusnäyttö projektin ääniluetteloon. Tarkista palvelun voimassa olevat ehdot ennen verkkojulkaisua.
 - [ ] Tarkista äänen huiput, koettu voimakkuus, mobiilikaiutin, kuulokkeet, aloitus/lopetus ja latauskoko. Ei automaattista toistoa.
-- [ ] Tarjoa \`Ohita encore\`, \`Kuuntele uudelleen\` ja paluu settilistaan. Keikka tulee valmiiksi **ilman** että musiikkipalkinto on pakko kuunnella.
+- [ ] Tarjoa `Ohita encore`, `Kuuntele uudelleen` ja paluu settilistaan. Keikka tulee valmiiksi **ilman** että musiikkipalkinto on pakko kuunnella.
 - [ ] Jos Suno ei tuota oikeaa ilmiötä / tarvittavia oikeuksia ei voida osoittaa, käytä hyväksyttyä itse tehtyä ääntä tai jätä encore pois. Se ei estä oppimispilottia.
 
 **Ei vielä:** Sunon suora selainintegraatio, automaattinen generointiputki, soitinraitojen käyttäminen luotettavana arviointiaineistona tai maksullisten generointien massatuotanto.
@@ -131,18 +131,18 @@ Mahdolliset huipennukset:
 - [ ] Omistajan päätös: hyväksytäänkö keikka 2 pilotin lähtötasoksi, korjataanko ensin jotakin?
 
 ### P1 – Pedagoginen pilotin määrittely (vain dokumentaatio)
-- [ ] Lukitse kappaleen 10 \`compare-change\` ja kappaleen 11 \`bass-contour\` yksisivuiset tehtäväkäsikirjoitukset, 2–3 esimerkkivarianttia/taito ja tavoiteltu havainto.
+- [ ] Lukitse kappaleen 10 `compare-change` ja kappaleen 11 `bass-contour` yksisivuiset tehtäväkäsikirjoitukset, 2–3 esimerkkivarianttia/taito ja tavoiteltu havainto.
 - [ ] Kirjoita vastauskriteerit, vastausvaihtoehtojen musiikilliset eroavaisuudet, kaksitasoiset vihjeet ja virhekohtainen palaute.
 - [ ] Päätä mille nykyisen oppimisuudistuksen teoria-/taitoyhteydelle ne kuuluvat; ei uutta pakollista pelaamisen hierarkiaa.
 - [ ] Omistajan päätös: hyväksytäänkö **kahden tehtävän** pilotti ilman koko keikka 3:n lupausta?
 
 ### P2 – Pieni tekninen pilotti (oma haara ja draft-PR)
-- [ ] Tee rajattu \`compare-change\` ja \`bass-contour\` -laajennus olemassa olevaan \`Task\`-rakenteeseen ja toistimeen. Käytä nykyisiä bändikerroksia.
+- [ ] Tee rajattu `compare-change` ja `bass-contour` -laajennus olemassa olevaan `Task`-rakenteeseen ja toistimeen. Käytä nykyisiä bändikerroksia.
 - [ ] Lisää 2–3 selvästi erilaista ääniesimerkkiä kumpaankin. Ei pelkkää vastausten kirjainsekoitusta.
 - [ ] Aja musiikkiteoriatestit, äänivaihtoehtojen analyysi, unit-/build-/Playwright-testit sekä manuaalinen kuuntelu.
-- [ ] Säilytä \`#kappale-N\` / \`#harjoitus-N\` -reitit, vanhat suoritukset, esteetön käyttö, puhelinleveydet, ei pakkomikkiä.
+- [ ] Säilytä `#kappale-N` / `#harjoitus-N` -reitit, vanhat suoritukset, esteetön käyttö, puhelinleveydet, ei pakkomikkiä.
 - [ ] Valinnainen, erillinen **Suno-encore-assetin kokeilu**; siitä oma sisältöpäätös, ei pilottitehtävien riippuvuus.
-- [ ] Ei suoraa pushia \`beta\`/\`main\`-haaroihin eikä mergeä/julkaisua ilman omistajan hyväksyntää.
+- [ ] Ei suoraa pushia `beta`/`main`-haaroihin eikä mergeä/julkaisua ilman omistajan hyväksyntää.
 
 ### P3 – Oikea kokeilu ja jatkopäätös
 - [ ] Kokeile muutamalla aloittelijalla ja jo soittavalla ihmisellä ilman jatkuvaa opastusta; kirjaa laadulliset havainnot, ei tilastollisina oppimistuloksina.
@@ -168,12 +168,12 @@ Ennen teknistä GO-päätöstä pilotista pitää olla todennettavissa:
 
 ## 9. Työeristys ja seuraava konkreettinen tehtävä
 
-**Tämä PR:** vain tämä suunnitelmatiedosto. Ei \`ensikeikka/\`, \`pelit/\`, \`tests/\`, äänitiedostojen tai muiden agenttien haarojen muutoksia.
+**Tämä PR:** vain tämä suunnitelmatiedosto. Ei `ensikeikka/`, `pelit/`, `tests/`, äänitiedostojen tai muiden agenttien haarojen muutoksia.
 
-1. Claude viimeistelee \`feature/ensikeikka-toinen-ilta\`-työnsä omassa työpuussaan. Codexin keskeneräisiä Oppimiskartan ja Riffikaiun haaroja ei kosketa.
+1. Claude viimeistelee `feature/ensikeikka-toinen-ilta`-työnsä omassa työpuussaan. Codexin keskeneräisiä Oppimiskartan ja Riffikaiun haaroja ei kosketa.
 2. Ensikeikka 2 kuunnellaan ja hyväksytään erikseen. Tämän suunnitelman omistaja voi hyväksyä myös ennen toteutuskoodia.
 3. Luo myöhemmin **erillinen käsikirjoitus-PR** vain tehtäville 10–11 ja niiden musiikillisille varianteille.
-4. Toteutushaara otetaan tuolloin hyväksytystä, tuoreesta yhteisestä pohjasta eikä tästä dokumenttihaarasta. Tarkista \`git status --porcelain\` ja \`git worktree list\`; jos työkopio ei ole puhdas, älä resetoi/stashaa toisen työtä.
+4. Toteutushaara otetaan tuolloin hyväksytystä, tuoreesta yhteisestä pohjasta eikä tästä dokumenttihaarasta. Tarkista `git status --porcelain` ja `git worktree list`; jos työkopio ei ole puhdas, älä resetoi/stashaa toisen työtä.
 5. Yksi rajattu toteutus-PR, sen jälkeen todellinen kuuntelu- ja käyttäjäkoe. Erilliset päätökset beta-mergeen ja tuotantoon.
 
 **Avoimet omistajan päätökset:** keikka 2:n hyväksyntä; pilotti 10–11; Sunon oikeudet ja julkaisukelpoisen äänen valinta; jatketaanko kokeen jälkeen keikkaan 3. Oletusarvo on **EI VIELÄ HYVÄKSYTTY**.
