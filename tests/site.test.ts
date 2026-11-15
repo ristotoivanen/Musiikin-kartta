@@ -6,6 +6,9 @@ import { Script } from 'node:vm';
 import { describe,it,expect } from 'vitest';
 import ts from 'typescript';
 const read=(file:string)=>readFileSync(new URL('../'+file,import.meta.url),'utf8');
+const topics = ['kitara', 'rytmi', 'savelnimet', 'korva', 'otelauta', 'soinnut', 'asteikot', 'kappaleet'];
+const studyFiles = topics.flatMap(topic => readdirSync(new URL('../oppi/' + topic + '/', import.meta.url))
+  .filter(file => file.endsWith('.html')).map(file => 'oppi/' + topic + '/' + file));
 describe('staattisen sivuston yhteensopivuus',()=>{
   it('muutetut nykyiset skriptit ovat syntaktisesti kelvollisia classic-skriptejä',()=>{
     for(const file of ['assets/otelauta.js','assets/edistyminen.js','assets/oppimiskartta.js','assets/harjoitustausta.js','assets/korvatreeni.js']) expect(()=>new Script(read(file))).not.toThrow();
@@ -30,7 +33,7 @@ describe('staattisen sivuston yhteensopivuus',()=>{
     expect(visualizer).not.toContain('<audio');
     expect(visualizer).toContain('Sormitusboksit ja näyttöasetukset');
     expect(redirect).toContain('otelautaharjoittelija.html');
-    expect(home).toContain('Tutki otelautakarttaa');
+    expect(read('oppi/otelauta/index.html')).toContain('Tutki otelautakarttaa');
     expect(home).not.toContain('Soita taustan mukana');
   });
 
@@ -45,23 +48,18 @@ describe('staattisen sivuston yhteensopivuus',()=>{
     expect(read('book/osa-8.html')).toContain('assets/audio/osa-8/em-c-tausta.m4a');
   });
 
-  it('etusivun kahdeksan oppimisaihetta säilyttävät nykyiset teoria- ja harjoittelureitit', () => {
+  it('kahdeksan numeroitua korttia avaa omat aihesivunsa ja vanhat ankkurit säilyvät', () => {
     const html = read('index.html');
-    const ids = [...html.matchAll(/<(?:details|a) class="topic-card" id="aihe-([^"]+)"/g)].map(m => m[1]);
-    expect(ids).toEqual(['kitara', 'rytmi', 'nuotit', 'korva', 'otelauta', 'soinnut', 'asteikot', 'kappaleet']);
-    expect(html).toContain('href="book/osa-1.html#pulssi-ja-komppi"');
-    expect(html).toContain('href="riffikaiku.html"');
-    expect(html).toContain('href="pelit/ensikeikka/"');
-    expect(html).toContain('href="kitaraharjoittelija.html?polku=otelauta&amp;harjoitus=savelten-etsinta"');
-    expect(html).toContain('<a class="topic-card" id="aihe-nuotit" href="oppi/savelnimet/index.html">');
+    const cards = [...html.matchAll(/<a class="topic-card" id="(aihe-[^"]+)" href="oppi\/([^/]+)\/index.html">\s*<span class="topic-number" aria-hidden="true">(\d\d)<\/span>/g)];
+    expect(cards.map(card => card[1])).toEqual(['aihe-kitara', 'aihe-rytmi', 'aihe-nuotit', 'aihe-korva', 'aihe-otelauta', 'aihe-soinnut', 'aihe-asteikot', 'aihe-kappaleet']);
+    expect(cards.map(card => card[2])).toEqual(topics);
+    expect(cards.map(card => card[3])).toEqual(['01', '02', '03', '04', '05', '06', '07', '08']);
+    expect(html).not.toContain('<details class="topic-card"');
     expect(html).not.toContain('#h-savelnimi');
     expect(html).toContain('<title>Oppimiskartta – Musiikin kartta</title>');
     expect(html).toContain('<h2 id="oppimisaiheet">Oppimiskartta</h2>');
     expect(html).not.toContain('Nykyiset oppaat ja työkalut');
     expect(html).not.toContain('class="area"');
-    expect(html).toContain('href="otelautaharjoittelija.html#soinnut">Tutki sointukarttaa');
-    const linkedParts = new Set([...html.matchAll(/href="book[/]osa-([0-9]+)[.]html(?:#[^"]*)?"/g)].map(m => Number(m[1])));
-    expect([...linkedParts].sort((a, b) => a - b)).toEqual(Array.from({ length: 11 }, (_, n) => n + 1));
     expect(html).toContain('href="index.html#oppimisaiheet">Oppimiskartta</a>');
     expect(html).toContain('href="pdf/musiikin-kartta.pdf"');
     expect(html).toContain('href="book/sanasto.html"');
@@ -69,27 +67,36 @@ describe('staattisen sivuston yhteensopivuus',()=>{
     expect(html).toContain('followOldTrainerLink()');
     expect(html).toContain('id="home-continue"');
     expect(html).not.toContain('class="hero-actions"');
-    const chapters = [...html.matchAll(/data-theory-chapter="(osa-[0-9]+)#([^"]+)" href="book[/](osa-[0-9]+)[.]html#([^"]+)"/g)];
-    expect(chapters).toHaveLength(27);
-    const pilot = read('oppi/savelnimet/savelet-ja-intervallit.html');
-    expect(pilot).toContain('data-theory-chapter="savelet-ja-intervallit"');
-    expect(new Set([...chapters.map(m => m[1] + '#' + m[2]), 'osa-2#savelet-ja-intervallit']).size).toBe(28);
-    for (const [, part, anchor, target, targetAnchor] of chapters) {
-      expect(target).toBe(part);
-      expect(targetAnchor).toBe(anchor);
-      expect(read('book/' + target + '.html')).toContain('id="' + anchor + '"');
-    }
-    expect(html.match(/class="topic-group-title">Teoria/g)).toHaveLength(7);
-    expect(read('assets/edistyminen.js')).toContain("document.getElementById('home-continue')");
-
-    // Taitotunnisteet eivät kuulu ensimmäisen vaiheen käyttäjän valikkoteksteihin.
     expect(html).not.toContain('SCALE-CONNECT');
     expect(html).not.toContain('EAR-ECHO');
   });
 
-  it('Oppimiskartan pilottisivut vastaavat teoriaoppaan lähteitä', () => {
+  it('jokainen teoriaoppaan luku ja itsenäinen harjoitus on omalla sivullaan', () => {
+    const parts = Array.from({length: 11}, (_, index) => read('book/osa-' + (index + 1) + '.html'));
+    const bookIds = parts.flatMap(html => [...html.matchAll(/<section class="chapter" id="([^"]+)"/g)].map(m => m[1]));
+    const mapIds = studyFiles.flatMap(file => [...read(file).matchAll(/<main[^>]+data-theory-chapter="([^"]+)"/g)].map(m => m[1]));
+    const tasks = (html: string) => [...html.matchAll(/data-oppisisalto="([^"]+)"/g)].map(m => m[1]);
+    const mapTasks = studyFiles.flatMap(file => {
+      const html = read(file);
+      if (html.includes('data-theory-chapter=')) expect(tasks(html), file).toHaveLength(0);
+      return tasks(html);
+    });
+    expect(bookIds).toHaveLength(28);
+    expect(mapIds.sort()).toEqual(bookIds.sort());
+    expect(mapTasks).toHaveLength(41);
+    expect(mapTasks.sort()).toEqual(parts.flatMap(tasks).sort());
+    const map = read('index.html');
+    const routes = JSON.parse(map.match(/id="oppimisreitit">([^<]+)/)![1]) as Record<string, string>;
+    expect(Object.keys(routes).sort()).toEqual(bookIds);
+    for (const [id, route] of Object.entries(routes)) expect(read(route)).toContain('data-theory-chapter="' + id + '"');
+    expect(read('assets/edistyminen.js')).toContain("document.getElementById('home-continue')");
+  });
+
+  it('Oppimiskartan muodostus on toistettava ja linkit osoittavat olemassa oleviin kohteisiin', () => {
     const generator = fileURLToPath(new URL('../tools/oppimiskartta/rakenna.py', import.meta.url));
+    const links = fileURLToPath(new URL('../tools/linkit/tarkista-linkit.py', import.meta.url));
     execFileSync('python3', [generator, '--tarkista']);
+    execFileSync('python3', [links]);
   });
 
   it('jokaisella pääsivulla on sama päävalikko samassa järjestyksessä ja oikea aktiivinen osio',()=>{
@@ -97,7 +104,7 @@ describe('staattisen sivuston yhteensopivuus',()=>{
       ['index.html',null,'page'],['book/index.html','teoria','true'],['otelautaharjoittelija.html','otelauta','page'],['kitaraharjoittelija.html','kitara','page'],
       ['riffikaiku.html','kitara','true'],['pelit/ensikeikka/index.html','kitara','true'],
       ...readdirSync(new URL('../book/',import.meta.url)).filter(f=>f.endsWith('.html')&&f!=='index.html').map(f=>['book/'+f,'teoria','true'] as [string,string,string]),
-      ...readdirSync(new URL('../oppi/savelnimet/',import.meta.url)).filter(f=>f.endsWith('.html')).map(f=>['oppi/savelnimet/'+f,'teoria','true'] as [string,string,string]),
+      ...studyFiles.map(file=>[file,'teoria','true'] as [string,string,string]),
     ];
     const targets={teoria:'index.html#oppimisaiheet',otelauta:'otelautaharjoittelija.html',kitara:'kitaraharjoittelija.html'};
     for(const [file,active,kind] of pages){

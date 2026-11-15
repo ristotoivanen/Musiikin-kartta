@@ -4,7 +4,7 @@ const topicPath = '/oppi/savelnimet/index.html';
 const intervalsPath = '/oppi/savelnimet/savelet-ja-intervallit.html';
 const guitarPath = '/oppi/savelnimet/kitaran-kielet-ja-sointumerkinnat.html';
 const practicePath = '/oppi/savelnimet/siirra-yhta-sormea.html';
-const topicName = 'Sävelnimet ja musiikin lukeminen';
+const topicName = 'Sävelnimet ja sointumerkinnät';
 const readingKey = 'musiikin-kartta:luvut';
 
 test('pääaiheen kortti avaa oman sivunsa ja selaimen paluu löytää kortin', async ({ page }) => {
@@ -22,6 +22,7 @@ test('pääaiheen kortti avaa oman sivunsa ja selaimen paluu löytää kortin', 
   await expect(page).toHaveURL(intervalsPath);
   await expect(page.getByRole('heading', { level: 1, name: 'Sävelet ja intervallit' })).toBeVisible();
   await expect(page.locator('.chapter')).toHaveCount(1);
+  await expect(page.getByText(/^Soita A-kielen 3\. nauha \(C\), D-kielen/)).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'Asteikot', exact: true })).toHaveCount(0);
   await page.goBack();
   await expect(page).toHaveURL(topicPath);
@@ -31,7 +32,7 @@ test('pääaiheen kortti avaa oman sivunsa ja selaimen paluu löytää kortin', 
 
 test('oppitunneilla on oma sisältö, toimiva ääni ja reitit aiheeseen', async ({ page }) => {
   await page.goto(topicPath);
-  await page.getByRole('link', { name: /^Kitaran kielet ja sointumerkinnät/ }).click();
+  await page.getByRole('link', { name: /Kitaran kielet ja sointumerkinnät/ }).click();
   await expect(page).toHaveURL(guitarPath);
   await expect(page.getByRole('img', { name: /^C: paksu E-kieli/ })).toBeVisible();
   await expect(page.getByRole('img', { name: /^G: paksu E-kieli/ })).toBeVisible();
@@ -71,7 +72,7 @@ test('jatkaminen avaa uuden lukusivun ja jakaa lukumerkinnän teoriaoppaan kanss
     localStorage.setItem(key, JSON.stringify(['pulssi-ja-komppi', 'sointukierrot', 'musiikki-on-kieli']));
   }, readingKey);
   await page.reload();
-  await page.getByRole('link', { name: 'Jatka: luku 4 · Sävelet ja intervallit' }).click();
+  await page.getByRole('link', { name: 'Jatka oppimista · Sävelet ja intervallit' }).click();
   await expect(page).toHaveURL(intervalsPath);
   await page.getByRole('button', { name: 'Merkitse luku tehdyksi' }).click();
   await page.goto('/book/osa-2.html#savelet-ja-intervallit');
@@ -90,4 +91,119 @@ test('aihe, oppitunnit ja harjoitus mahtuvat 320 pikselin näyttöön', async ({
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth), url).toBeLessThanOrEqual(320);
   }
+});
+
+const topics = [
+  ['kitara', 'kitara', 'Kitaran perusteet'],
+  ['rytmi', 'rytmi', 'Rytmi'],
+  ['nuotit', 'savelnimet', topicName],
+  ['korva', 'korva', 'Sävelkorva ja melodia'],
+  ['otelauta', 'otelauta', 'Otelauta'],
+  ['soinnut', 'soinnut', 'Soinnut ja harmonia'],
+  ['asteikot', 'asteikot', 'Asteikot ja moodit'],
+  ['kappaleet', 'kappaleet', 'Kappaleet ja oma musiikki'],
+] as const;
+
+for (const [anchor, slug, title] of topics) {
+  test(title + ' · jokainen askel ja resurssi löytyy', async ({ page, request }) => {
+    const map = '/index.html#aihe-' + anchor;
+    const topic = '/oppi/' + slug + '/index.html';
+    await page.goto(map);
+    await page.locator('#aihe-' + anchor).click();
+    await expect(page).toHaveURL(topic);
+    await expect(page.getByRole('heading', { level: 1, name: title })).toBeVisible();
+    await expect(page.getByText('Aloita tästä', { exact: true })).toBeVisible();
+    const choices = page.locator('a.study-choice');
+    expect(await choices.count()).toBeGreaterThanOrEqual(2);
+    const paths = await choices.evaluateAll(nodes => nodes.map(node => new URL((node as HTMLAnchorElement).href).pathname));
+    const audio = new Set<string>();
+    for (const [index, path] of paths.entries()) {
+      expect((await page.goto(path))?.ok(), path).toBe(true);
+      await expect(page.getByRole('heading', { level: 1 }), path).toBeVisible();
+      const number = String(index + 1).padStart(2, '0');
+      await expect(page.locator('.study-meta'), path).toHaveText(new RegExp('^(Oppitunti|Harjoitus) ' + number));
+      await expect(page.getByRole('navigation', { name: 'Sijainti' }).getByRole('link', { name: title }))
+        .toHaveAttribute('href', 'index.html');
+      for (const [rel, neighbor] of [['prev', paths[index - 1]], ['next', paths[index + 1]]] as const) {
+        const link = page.locator('a[rel="' + rel + '"]');
+        if (neighbor) await expect(link).toHaveAttribute('href', neighbor.split('/').at(-1)!);
+        else await expect(link).toHaveCount(0);
+      }
+      const media = await page.locator('audio source').evaluateAll(sources => sources.map(item => (item as HTMLSourceElement).src));
+      media.forEach(src => audio.add(src));
+      expect(await page.evaluate(() => document.documentElement.scrollWidth), path).toBeLessThanOrEqual(page.viewportSize()!.width);
+    }
+    for (const resource of audio) {
+      const response = await request.head(resource);
+      expect(response.ok(), resource).toBe(true);
+      expect(response.headers()['content-type'], resource).toMatch(/^(audio|video)\//);
+      await response.dispose();
+    }
+    await page.getByRole('link', { name: 'Takaisin Oppimiskarttaan' }).click();
+    await expect(page).toHaveURL(map);
+  });
+}
+
+test('ristiinlinkitys avaa saman opetussivun ja takaisinpaluu säilyttää lähtöaiheen', async ({ page }) => {
+  await page.goto('/oppi/kitara/index.html');
+  await page.getByRole('link', { name: 'Kitaran kielet ja sointumerkinnät', exact: true }).click();
+  await expect(page).toHaveURL(guitarPath);
+  await page.goBack();
+  await expect(page).toHaveURL('/oppi/kitara/index.html');
+  await page.goto('/oppi/korva/intervallit.html');
+  await page.getByRole('link', { name: /Kertaa intervallit/ }).click();
+  await expect(page).toHaveURL(intervalsPath + '#savelet-ja-intervallit');
+  await expect(page.getByRole('heading', { level: 1, name: 'Sävelet ja intervallit' })).toBeVisible();
+});
+
+test('vanhat ja virheelliset merkinnät eivät kaada sivua tai muutu sivua lukiessa', async ({ page }) => {
+  await page.goto(topicPath);
+  const total = page.locator('[data-study-total]');
+  await expect(total).toHaveText('0/1 teoriaoppaan lukua tehty');
+  await page.evaluate(key => {
+    localStorage.setItem('musiikin-kartta:tehdyt', JSON.stringify(['osa-1#savelet-ja-intervallit', '__proto__']));
+    localStorage.setItem(key, '{"katkennut":');
+  }, readingKey);
+  await page.reload();
+  await expect(total).toHaveText('1/1 teoriaoppaan lukua tehty');
+  expect(await page.evaluate(key => localStorage.getItem(key), readingKey)).toBe('{"katkennut":');
+  await page.evaluate(key => localStorage.setItem(key, JSON.stringify(['tuleva-luku'])), readingKey);
+  await page.goto('/index.html');
+  await expect(page.getByRole('link', { name: /Jatka oppimista/ })).toHaveCount(0);
+  expect(await page.evaluate(key => localStorage.getItem(key), readingKey)).toBe('["tuleva-luku"]');
+});
+
+test('äänitiedostojen katketessa ilmoitus näkyy ja harjoitukseen voi silti siirtyä', async ({ page }) => {
+  await page.route('**/assets/audio/osa-2/duuri-ja-molli.*', route => route.abort());
+  await page.goto(intervalsPath);
+  await page.locator('audio').evaluate(element => {
+    const player = element as HTMLAudioElement;
+    player.muted = true;
+    void player.play().catch(() => {});
+  });
+  await expect(page.getByRole('status')).toHaveText(/Ääniesimerkkiä ei voitu ladata/);
+  await page.getByRole('link', { name: 'Seuraava · Siirrä yhtä sormea' }).click();
+  await expect(page).toHaveURL(practicePath);
+});
+
+test.describe('Oppimiskartta ilman JavaScriptiä', () => {
+  test.use({ javaScriptEnabled: false });
+
+  test('staattiset linkit ja tehtävien ohjeet toimivat', async ({ page }) => {
+    await page.goto('/index.html#oppimisaiheet');
+    await page.locator('#aihe-nuotit').click();
+    await expect(page).toHaveURL(topicPath);
+    await expect(page.locator('[data-study-total]')).toBeHidden();
+    await page.locator('#valinta-savelet-ja-intervallit').click();
+    await expect(page).toHaveURL(intervalsPath);
+    await expect(page.locator('audio[controls]')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Kromaattinen asteikko' })).toBeVisible();
+    await page.getByRole('link', { name: 'Seuraava · Siirrä yhtä sormea' }).click();
+    await expect(page).toHaveURL(practicePath);
+    await expect(page.getByText(/^Soita A-kielen 3\. nauha/)).toBeVisible();
+    await page.getByRole('link', { name: 'Takaisin Oppimiskarttaan' }).click();
+    await expect(page).toHaveURL('/index.html#aihe-nuotit');
+    await page.goto('/oppi/korva/mika-aste-soi.html');
+    await expect(page.getByText(/Kysymysten soittaminen tarvitsee JavaScriptin/)).toBeVisible();
+  });
 });

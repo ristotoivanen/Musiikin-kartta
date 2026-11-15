@@ -1,57 +1,67 @@
 (() => {
-  const cards = [...document.querySelectorAll('.topic-grid > .topic-card')];
-  if (cards.length) {
-    const openTopic = id => {
-      const target = cards.find(card => card.id === id);
-      if (!target) return;
-      if (target.matches('details')) target.open = true;
-      (target.querySelector('summary') ?? target).focus({ preventScroll: true });
-      target.scrollIntoView({ block: 'start' });
-    };
-    const panels = cards.filter(card => card.matches('details'));
-    const openCards = history.state?.openTopics ?? [];
-    for (const panel of panels) panel.open = openCards.includes(panel.id);
-    // Selaimen paluu kohdistuu lähtöaiheeseen, vaikka osoitteen ankkuri olisi vanhemmasta aiheesta.
+  // oppimiskartta:aiheet
+  const topicPaths = {"aihe-kitara": "oppi/kitara/index.html", "aihe-rytmi": "oppi/rytmi/index.html", "aihe-nuotit": "oppi/savelnimet/index.html", "aihe-korva": "oppi/korva/index.html", "aihe-otelauta": "oppi/otelauta/index.html", "aihe-soinnut": "oppi/soinnut/index.html", "aihe-asteikot": "oppi/asteikot/index.html", "aihe-kappaleet": "oppi/kappaleet/index.html"};
+  // /oppimiskartta:aiheet
+  const entries = document.querySelectorAll('.topic-card, .study-choice[id], [data-return-topic]');
+  const onMap = Boolean(document.querySelector('.topic-grid'));
+  if (entries.length) {
+    function focusEntry(id) {
+      const link = document.getElementById(id);
+      if (!link?.matches('.topic-card, .study-choice')) return;
+      link.focus({ preventScroll: true });
+      link.scrollIntoView({ block: 'nearest' });
+    }
+
+    // Selaimen paluu löytää lähtökohdan myös, kun URL:ssa on jonkin toisen aiheen ankkuri.
     const navigation = performance.getEntriesByType('navigation')[0];
     window.addEventListener('pageshow', event => {
       const returning = event.persisted || navigation?.type === 'back_forward';
-      const topic = returning ? history.state?.returnTopic : null;
-      requestAnimationFrame(() => openTopic(topic ?? location.hash.slice(1)));
+      const entry = returning ? history.state?.returnTopic : null;
+      requestAnimationFrame(() => focusEntry(entry ?? (onMap ? location.hash.slice(1) : '')));
     });
-    window.addEventListener('hashchange', () => openTopic(location.hash.slice(1)));
+    if (onMap) window.addEventListener('hashchange', () => focusEntry(location.hash.slice(1)));
 
-    for (const link of document.querySelectorAll('.topic-card a, a.topic-card, .start-here a')) {
-      const from = link.closest('.topic-card')?.id ?? 'aihe-rytmi';
-      if (!link.matches('.topic-card')) {
-        const url = new URL(link.href);
-        url.searchParams.set('aihe', from);
-        link.href = url.href;
-      }
-      link.addEventListener('click', () => {
-        const openTopics = panels.filter(panel => panel.open).map(panel => panel.id);
-        history.replaceState({ ...history.state, openTopics, returnTopic: from }, '');
+    for (const link of entries) {
+      link.addEventListener('click', event => {
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        const returnTopic = link.dataset.returnTopic ?? link.id;
+        history.replaceState({ ...history.state, returnTopic }, '');
       });
     }
-    return;
   }
 
-  // Paluureitti säilyttää muut kyselyparametrit ja kohdesivun ankkurin.
-  // Sallitut tunnisteet ovat etusivun aiheita, eivät ulkoisia osoitteita.
-  const topics = new Set(['kitara', 'rytmi', 'nuotit', 'korva', 'otelauta', 'soinnut', 'asteikot', 'kappaleet']);
+  // Ääni ei jää taustalle selaimen sivuvälimuistista palattaessa.
+  const players = document.querySelectorAll('.study-page audio, .reading-layout audio');
+  if (players.length) {
+    window.addEventListener('pagehide', () => players.forEach(player => player.pause()));
+  }
+  for (const player of document.querySelectorAll('.study-page audio')) {
+    const last = [...player.querySelectorAll('source')].at(-1);
+    const notice = document.createElement('p');
+    notice.className = 'study-audio-error';
+    notice.setAttribute('role', 'status');
+    player.after(notice);
+    player.addEventListener('error', event => {
+      if (event.target === player || event.target === last) {
+        notice.textContent = 'Ääniesimerkkiä ei voitu ladata. Lataa sivu uudelleen ja kokeile uudestaan.';
+      }
+    }, true);
+    player.addEventListener('playing', () => { notice.textContent = ''; });
+  }
+
+  // Työkalujen ja vanhojen teoriakirjalinkkien asiayhteys säilyy nykyisissä URL-parametreissa.
   const topic = new URLSearchParams(location.search).get('aihe');
-  if (!topic?.startsWith('aihe-') || !topics.has(topic.slice(5))) return;
   const map = document.querySelector('.main-nav a[href$="#oppimisaiheet"]');
-  if (!map) return;
-  const url = new URL(topic === 'aihe-nuotit' ? 'oppi/savelnimet/index.html' : '#' + topic, map.href);
+  if (!map || !Object.hasOwn(topicPaths, topic) || document.querySelector('.study-page')) return;
   const link = document.createElement('a');
-  link.href = url.href;
+  link.href = new URL(topicPaths[topic], map.href).href;
   link.textContent = 'Takaisin aiheeseen';
   const row = document.createElement('p');
   row.className = 'map-return';
   row.append(link);
-
-  // Lukulinkki vie suoraan sisältöön, jolloin paluulinkki tarvitaan siinä kohdassa.
-  const anchor = document.getElementById(location.hash.slice(1));
+  let id = location.hash.slice(1);
+  try { id = decodeURIComponent(id); } catch { /* käytetään ankkuria sellaisenaan */ }
+  const anchor = document.getElementById(id);
   if (anchor?.closest('.chapter')) {
     if (anchor.matches('h2, h3, figure, .note')) anchor.after(row);
     else anchor.prepend(row);

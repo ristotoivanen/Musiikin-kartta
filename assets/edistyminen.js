@@ -51,16 +51,26 @@
 
   let memory = new Set();
   let memoryOnly = false;
+  function storedList(raw) {
+    try {
+      const list = JSON.parse(raw);
+      return Array.isArray(list) ? list.filter(value => typeof value === 'string') : null;
+    } catch {
+      return null;
+    }
+  }
   function load() {
     if (memoryOnly) return memory;
     try {
       const saved = localStorage.getItem(KEY);
-      if (saved !== null) {
-        memory = new Set(JSON.parse(saved));
+      const recent = storedList(saved);
+      if (recent) {
+        memory = new Set(recent);
       } else {
-        const old = JSON.parse(localStorage.getItem(OLD_KEY) || '[]');
-        memory = new Set(old.flatMap(key => MOVED[key] ?? []));
-        if (memory.size) localStorage.setItem(KEY, JSON.stringify([...memory]));
+        const old = storedList(localStorage.getItem(OLD_KEY)) ?? [];
+        memory = new Set(old.flatMap(key => Object.hasOwn(MOVED, key) ? MOVED[key] : []));
+        // Virheellinen tallenne säilyy, kunnes käyttäjä itse muuttaa lukumerkintää.
+        if (saved === null && memory.size) localStorage.setItem(KEY, JSON.stringify([...memory]));
       }
     } catch { /* tallennus ei käytössä */ }
     return memory;
@@ -96,6 +106,8 @@
     setupTheoryHome();
     setupTheoryAnchors();
     window.addEventListener('pageshow', event => { if (event.persisted) setupTheoryHome(); });
+  } else if (document.querySelector('[data-study-total]')) {
+    setupStudyTopic();
   } else if (document.getElementById('home-continue')) {
     const home = document.getElementById('home-continue');
     const refresh = () => {
@@ -186,19 +198,42 @@
     });
   }
 
+  function setupStudyTopic() {
+    const total = document.querySelector('[data-study-total]');
+    const rows = [...document.querySelectorAll('[data-study-status]')];
+    if (!rows.length) return;
+
+    const refresh = () => {
+      const done = load();
+      let count = 0;
+      for (const row of rows) {
+        const marked = done.has(row.dataset.studyStatus);
+        if (marked) count++;
+        row.textContent = marked ? 'Tehty' : 'Tekemättä';
+        row.classList.toggle('is-done', marked);
+        row.hidden = false;
+      }
+      total.textContent = count + '/' + rows.length + ' teoriaoppaan lukua tehty';
+      total.hidden = false;
+    };
+
+    refresh();
+    window.addEventListener('pageshow', event => { if (event.persisted) refresh(); });
+    window.addEventListener('storage', event => { if (event.key === KEY || event.key === null) refresh(); });
+  }
+
   // Musiikin kartan etusivu: vain lyhyt jatkamislinkki, osien lista on Musiikin teoria -sivulla.
   function setupFrontPage(container) {
     const done = load();
-    if (!done.size) return;
+    if (!ALL.some(({ id }) => done.has(id))) return;
     const next = nextChapter(done);
     const p = document.createElement('p');
     p.className = 'continue';
     if (next) {
       const link = document.createElement('a');
-      link.href = next.id === 'savelet-ja-intervallit'
-        ? 'oppi/savelnimet/savelet-ja-intervallit.html'
-        : 'book/' + next.part.slug + '.html#' + next.id;
-      link.textContent = (next.part.advanced ? 'Peruspolku on tehty. Syventävä luku ' : 'Jatka: luku ') + next.num + ' · ' + next.title;
+      const routes = JSON.parse(document.getElementById('oppimisreitit')?.textContent ?? '{}');
+      link.href = routes[next.id] ?? 'book/' + next.part.slug + '.html#' + next.id;
+      link.textContent = (next.part.advanced ? 'Jatka syventäviin aiheisiin' : 'Jatka oppimista') + ' · ' + next.title;
       p.append(link);
     } else {
       p.textContent = 'Olet merkinnyt kaikki ' + ALL.length + ' lukua tehdyiksi.';

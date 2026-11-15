@@ -4,12 +4,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sävelnimet ja musiikin lukeminen – Musiikin kartta</title>
+  <title>Sävelnimet ja sointumerkinnät – Musiikin kartta</title>
   <link rel="stylesheet" href="../../book/reader.css?v=65711fca9c">
   <link rel="stylesheet" href="../../assets/paavalikko.css?v=59824281af">
-  <link rel="stylesheet" href="../../assets/oppi.css?v=a0bcd99c6b">
+  <link rel="stylesheet" href="../../assets/oppi.css?v=4e6476cfe5">
 </head>
 <body>
+  <a class="study-skip" href="#oppi-sisalto">Siirry sisältöön</a>
   <header class="site-top">
     <nav class="main-nav" aria-label="Päävalikko">
       <a class="brand" href="../../index.html">Musiikin <span>kartta</span></a>
@@ -20,25 +21,27 @@
       </ul>
     </nav>
   </header>
-  <main class="frame study-page">
+  <main class="frame study-page" id="oppi-sisalto">
     <nav class="study-path" aria-label="Sijainti">
       <ol role="list">
         <li><a href="../../index.html#aihe-nuotit">Oppimiskartta</a></li>
       </ol>
     </nav>
-    <h1>Sävelnimet ja musiikin lukeminen</h1>
-    <p class="lead">Opettele lukemaan kitaran sointumerkintöjä ja tunnistamaan sävelten välejä.</p>
-    <section aria-labelledby="teoria">
-      <h2 id="teoria">Teoria</h2>
-      <ul class="study-choices" role="list">
-        <li><a href="kitaran-kielet-ja-sointumerkinnat.html"><strong>Kitaran kielet ja sointumerkinnät</strong><span>Lue kielten nimet ja sointukaavio. Kokeile ensimmäistä G-otetta.</span></a></li>
-        <li><a href="savelet-ja-intervallit.html"><strong>Sävelet ja intervallit</strong><span>Mittaa sävelten välejä ja kuuntele, miten terssi muuttaa soinnun.</span></a></li>
-      </ul>
+    <p class="study-meta">Aihe 03</p>
+    <h1>Sävelnimet ja sointumerkinnät</h1>
+    <p class="lead">Lue kitaran sointukarttaa ja nimeä sävelet. Mittaa sävelten välejä nauhoina ja kuuntele, miten yksi sävel muuttaa soinnun.</p>
+    <p class="study-status" data-study-total hidden></p>
+    <section class="study-group"><h2>Merkinnät ja sävelvälit</h2>
+      <ol class="study-choices" role="list">
+        <li><a class="study-choice" id="valinta-kitaran-kielet-ja-sointumerkinnat" href="kitaran-kielet-ja-sointumerkinnat.html"><span class="study-number" aria-hidden="true">01</span><span class="study-choice-label"><span class="study-start">Aloita tästä</span><strong>Kitaran kielet ja sointumerkinnät</strong><span class="study-description">Lue kielten nimet ja sointukaavio. Kokeile ensimmäistä G-otetta.</span></span><span aria-hidden="true">→</span></a></li>
+        <li><a class="study-choice" id="valinta-savelet-ja-intervallit" href="savelet-ja-intervallit.html"><span class="study-number" aria-hidden="true">02</span><span class="study-choice-label"><strong>Sävelet ja intervallit</strong><span class="study-description">Tunnista puoli- ja kokosävelaskel, kromaattinen asteikko ja tavallisimmat intervallit.</span><span data-study-status="savelet-ja-intervallit" class="study-status" hidden></span></span><span aria-hidden="true">→</span></a></li>
+        <li><a class="study-choice study-choice-practice" id="valinta-siirra-yhta-sormea" href="siirra-yhta-sormea.html"><span class="study-number" aria-hidden="true">03</span><span class="study-choice-label"><strong>Harjoitus · Siirrä yhtä sormea</strong></span><span aria-hidden="true">→</span></a></li>
+      </ol>
     </section>
-    <section aria-labelledby="harjoitukset">
-      <h2 id="harjoitukset">Harjoitus</h2>
-      <ul class="study-choices" role="list">
-        <li><a href="siirra-yhta-sormea.html"><strong>Siirrä yhtä sormea</strong><span>Soita C-duuri ja C-molli vaihtamalla yhtä nauhaa.</span></a></li>
+    <section class="study-group"><h2>Tutki myös</h2>
+      <ul class="study-links">
+        <li><a href="../korva/intervallit.html">Asteet ja intervallit korvalla</a></li>
+        <li><a href="../asteikot/asteikot.html">Asteikot</a></li>
       </ul>
     </section>
   </main>
@@ -46,5 +49,7 @@
     <a href="../../index.html#aihe-nuotit">Takaisin Oppimiskarttaan</a>
     <a href="../../book/index.html">Teoriaoppaan kaikki osat</a>
   </footer>
+  <script src="../../assets/oppimiskartta.js"></script>
+  <script src="../../assets/edistyminen.js"></script>
 </body>
 </html>
