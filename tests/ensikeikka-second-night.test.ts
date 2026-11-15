@@ -46,19 +46,17 @@ describe('Kotikulmien keikat -luettelo', () => {
     for (const id of ids) expect(songs[id].id).toBe(id);
   });
 
-  it('säilyttää keikan 1 tehtävät, vastaukset ja äänen näytteen tarkkuudella', () => {
-    for (const id of [1, 2, 3, 4, 5] as const) {
-      const song = songs[id];
-      expect(song.tasks).toHaveLength(1);
-      expect(song.tasks[0]).toMatchObject({ kind: 'choose', answer: firstNight[id].target, heading: 'Kuuntele kappale ja valitse lopetus' });
-      expect(Object.keys((song.tasks[0] as ChooseTask).wrong!).sort()).toEqual(LETTERS.filter(letter => letter !== firstNight[id].target));
-      expect(song.tasks[0].hints).toHaveLength(2);
-      for (const ending of [null, ...LETTERS]) {
-        const expected = renderV1(gigArrangements[id], ending === null ? null : firstNight[id].endings[ending], rate);
-        const actual = renderSong(song, ending, rate);
-        expect(actual.length).toBe(expected.length);
-        expect(actual.every((sample, index) => sample === expected[index])).toBe(true);
-      }
+  it.each([1, 2, 3, 4, 5] as const)('säilyttää keikan 1 kappaleen %i tehtävän, vastauksen ja äänen näytteen tarkkuudella', id => {
+    const song = songs[id];
+    expect(song.tasks).toHaveLength(1);
+    expect(song.tasks[0]).toMatchObject({ kind: 'choose', answer: firstNight[id].target, heading: 'Kuuntele kappale ja valitse lopetus' });
+    expect(Object.keys((song.tasks[0] as ChooseTask).wrong!).sort()).toEqual(LETTERS.filter(letter => letter !== firstNight[id].target));
+    expect(song.tasks[0].hints).toHaveLength(2);
+    for (const ending of [null, ...LETTERS]) {
+      const expected = renderV1(gigArrangements[id], ending === null ? null : firstNight[id].endings[ending], rate);
+      const actual = renderSong(song, ending, rate);
+      expect(actual.length).toBe(expected.length);
+      expect(actual.every((sample, index) => sample === expected[index])).toBe(true);
     }
   });
 
