@@ -8,6 +8,7 @@ a { color: var(--accent); text-underline-offset: .18em; }
 .breadcrumb { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; font-size: .94rem; color: var(--muted); margin-bottom: 1.75rem; }
 .breadcrumb a { font-weight: 650; }
 .breadcrumb span[aria-hidden] { color: var(--muted); }
+.topic-index { margin: 0 0 .5rem; font-size: .84rem; font-weight: 750; letter-spacing: .055em; color: var(--accent); }
 .topic-page h1 { margin: 0; font-size: clamp(1.85rem,4.4vw,2.7rem); line-height: 1.17; }
 .topic-lead { color: var(--muted); max-width: 49rem; margin: .8rem 0 2rem; }
 .topic-sections { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1rem; align-items: start; }
