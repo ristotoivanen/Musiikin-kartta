@@ -8,17 +8,17 @@ export function followingSong<Song>(songs: readonly Song[], song: Song) {
   return index < 0 ? undefined : songs[index + 1];
 }
 
-type GigShape = { id: number; songs: readonly number[]; requires?: number; freePractice?: boolean; directStart?: boolean };
+type GigShape = { id: number; songs: readonly number[]; requires?: readonly number[]; freePractice?: boolean; directStart?: boolean };
 
 /**
- * Keikan tila normaalissa etenemisessä. Keikka avautuu, kun sen edellyttämä keikka on suoritettu.
+ * Keikan tila normaalissa etenemisessä. Keikka avautuu, kun kaikki sen edellyttämät keikat on suoritettu.
  * Jos keikasta on jo tallennettuja suorituksia, se pysyy auki, jottei pelaajan työ katoa.
  * `direct` on kappale, josta kokenut pelaaja voi aloittaa lukitun keikan suoraan ja tallentaen.
  */
 export function gigStatus(gigs: readonly GigShape[], gig: GigShape, completed: readonly number[]) {
   const { count, complete, next } = setlistProgress(gig.songs, completed);
-  const required = gigs.find(other => other.id === gig.requires);
-  const unlocked = !required || setlistProgress(required.songs, completed).complete || count > 0;
+  const required = gigs.filter(other => gig.requires?.includes(other.id));
+  const unlocked = required.every(other => setlistProgress(other.songs, completed).complete) || count > 0;
   const direct = !unlocked && gig.directStart ? next : undefined;
   return { count, complete, unlocked, next: unlocked ? next : undefined, direct };
 }

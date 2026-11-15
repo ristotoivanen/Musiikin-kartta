@@ -22,7 +22,9 @@ function texts(task: Task): string[] {
   const common = [task.heading, task.intro, task.success.text, ...task.hints];
   if (task.kind === 'choose') return [...common, task.prompt, task.retry, ...Object.values(task.wrong ?? {})];
   if (task.kind === 'match') return [...common, ...task.questions.flatMap(question => [question.prompt, ...Object.values(question.wrong)])];
-  return [...common, task.question, ...task.statements.flatMap(statement => [statement.text, statement.wrong ?? ''])];
+  if (task.kind === 'reason') return [...common, task.question, ...task.statements.flatMap(statement => [statement.text, statement.wrong ?? ''])];
+  if (task.kind === 'continue') return [...common, task.goal, ...Object.values(task.wrong)];
+  return [...common, ...Object.values(task.wrong)];
 }
 
 describe('Harjoittelun lopetusjärjestys', () => {
@@ -101,6 +103,8 @@ describe('Harjoittelun lopetusjärjestys', () => {
           }
         }
       }
+      // Jatkotehtävän vaihtoehdot numeroidaan (Jatko 1, Jatko 2); se tarkistetaan Ensikeikan testeissä.
+      if (song.takes) return;
       const explanation = fillLetters(song.explanation, order);
       for (const [, id] of song.explanation.matchAll(/\{([ABC])\}/g)) {
         expect(explanation).toMatch(new RegExp(`[Ll]opetu\\w* ${shownLetter(order, id as Letter)}\\b`));
