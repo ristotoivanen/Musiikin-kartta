@@ -2,7 +2,7 @@
 
 **Tila:** SUUNNITELMA / katselmointiluonnos, ei hyväksytty toteutustehtävä eikä tuotantojulkaisulupa  
 **Päiväys:** 15.11.2026  
-**Omistajan jatkoajatus:** Ensikeikka 2:n basson erilliskuuntelu, monivaiheiset tehtävät ja musiikillisesti erilaiset lopetukset ovat onnistunut suunta. **Tarkennus 15.11.2026:** rakenna tarina vuorottelevista bändiharjoituksista ja keikoista. Harjoituksissa opitaan, Kotikulman keikalla kuullaan kokonaisempia kappaleita ja sovelletaan opittua. Tutki Suno-tuotettujen katkelmien käyttöä keikkojen yhteydessä.
+**Omistajan päätetty suunta 15.11.2026 (sisältörakenne):** kaikki nykyiset kappaleet 1–9 ovat **Ensitreenejä**. Niiden jälkeen tulee uusi **Kotikulman keikka**, jossa sovelletaan harjoituksissa opittua kokonaisemman kappaleen yhteydessä. Sen jälkeen voivat tulla Bändiharjoitukset 2 ja myöhemmät keikat. Sisältöjen toteutus, nimet, julkaisujärjestys ja Suno-aineisto edellyttävät vielä erilliset päätökset.
 
 ## 0. Sijainti projektin päätöksenteossa
 
@@ -33,59 +33,59 @@ Säilytettävää:
 
 | Keikka / kappale | Jo toteutettu tavoite kehityshaarassa | Huomio |
 | --- | --- | --- |
-| Keikka 1, 1–5 | Kotisävel, läheiset lopetukset, diatoninen / sointuun sopiva mutta ei koti | Sama tehtävätyyppi viidesti; palautteet ja vihjeet parannettu |
+| Ensitreenit, nykyisen pelin keikka 1 (1–5) | Kotisävel, läheiset lopetukset, diatoninen / sointuun sopiva mutta ei koti | Sama tehtävätyyppi viidesti; palautteet ja vihjeet parannettu |
 | 6 | F-duuri: kolme loppusoinnun säveltä, vain yksi koti | Onko oikea loppu korvalla riittävästi erotettavissa? |
 | 7 | A-duuri: melodia sama, basson ja soinnun muutos | Erillinen basso, puhelinkaiuttimen kuuluvuus tarkistettava |
 | 8 | d-molli: tunnista piste ja kysymys; kumpikin on mahdollinen | Älä kutsu kaikkia erilaisia ratkaisuja vääriksi |
 | 9 | E-duuri: ensin melodian lopetus, sitten basson nousu vs. melodian lasku | Kaksivaiheinen encore, erillinen basson kuuntelu |
 
-Keikka 2:n tehtävätyypit ovat `choose`, `match`, `reason`; yhdessä kappaleessa voi olla peräkkäisiä tehtäviä. Lopetusten järjestys sekoittuu vapaassa harjoittelussa. Tärkeä rajoite: sama musiikki toistuu; pelkkä kirjainten sekoittaminen ei testaa siirtovaikutusta uuteen kappaleeseen.
+Nykyisen kehityshaaran toisen keikan (6–9, suunnitellut Ensitreenit) tehtävätyypit ovat `choose`, `match`, `reason`; yhdessä kappaleessa voi olla peräkkäisiä tehtäviä. Lopetusten järjestys sekoittuu vapaassa harjoittelussa. Tärkeä rajoite: sama musiikki toistuu; pelkkä kirjainten sekoittaminen ei testaa siirtovaikutusta uuteen kappaleeseen.
 
-## 3. Tarkennettu tarinarakenne: harjoitukset ja keikat vuorottelevat
+## 3. Päätetty tarinallinen järjestys: ensin kaikki yhdeksän treenitehtävää
 
-**Omistajan uusi idea 15.11.2026, tilana EHDOTUS:** ensimmäiset olemassa olevat tehtävät ovat bändiharjoituksia. Niiden jälkeen tulee **Kotikulman keikka**, jossa kuunnellaan kokonaisempaa kappaletta ja ratkaistaan musiikillisia tilanteita. Sen jälkeen tulee **Bändiharjoitus 2**, jossa opitaan uusia tarkempia kuuntelutaitoja; sitten toinen keikka. Tämä tarkennus korvaa aiemman vain numeroitujen keikkojen 1–6 -ehdotuksen. Nimet ja kohtausjärjestys ovat suunnitteluehdotuksia, eivät vielä tuotantoon hyväksyttyjä.
+**Omistajan tarkennus 15.11.2026:** nykyiset kappaleet **1–9 kuuluvat kaikki ensimmäisiin bänditreeneihin**. **Kotikulman keikka tulee vasta niiden jälkeen.** Älä lisää ensimmäistä keikkaa kappaleiden 5 ja 6 väliin. Tämä korvaa aiemman treeni–keikka–treeni-välijärjestyksen.
 
-| Etenemisvaihe | Nykyinen tai suunniteltu sisältö | Pelaajan kokemus | Oppimisen tehtävä |
+| Näkyvä vaihe | Sisältö | Kokemus ja opittava asia | Tila |
 | --- | --- | --- | --- |
-| **Bändiharjoitus 1** | **Nykyiset kappaleet 1–5** (nykyinen keikka 1) | Lyhyitä, helposti toistettavia melodian loppujen kuunteluharjoituksia | Kuule kotisävel, erota vakaa ja jännitteinen ratkaisu |
-| **Kotikulman keikka** | **UUSI**, pilottiin yksi tai kaksi musiikkikohtausta | Kokonaisempi kappale, jossa pelaaja tekee 1–2 todelliseen musiikilliseen tarkoitukseen liittyvää valintaa | Sovella harjoituksen 1 taitoa uudessa kappaleessa ilman saman tehtävän ulkoa muistamista |
-| **Bändiharjoitus 2** | **Clauden nykyiset kappaleet 6–9** (nykyisen keikka 2:n tehtävät) | Lisää erilliskuuntelua, basson ja sointujen toiminta, piste/kysymys, perustelut | Tarkempi kuuntelu ja melodian sekä basson suhde |
-| **Toinen keikka** | UUSI, vasta myöhemmin | Yhdistä basso, harmonia ja melodia musiikin kulussa ja tee oma tarkoituksenmukainen valinta | Siirtovaikutus: opittu osataan vieraassa kappaleessa |
-| **Bändiharjoitus 3 → seuraava keikka** | Optio, ei nykyistä toteutuspäätöstä | Rytmi, fraasit, melodian jatkaminen, oma kitararooli ja mahdollinen improvisointi | Etene tunnistamisesta ennakointiin ja luomiseen |
+| **Ensitreenit – osa A** | Nykyiset kappaleet 1–5 | Kotisävel, melodian sopiva lopetus, vakaus ja jännite | Olemassa olevassa pelissä |
+| **Ensitreenit – osa B** | Clauden nykyiset kappaleet 6–9 | Basso erikseen, soinnut, piste ja kysymys, musiikillisen ratkaisun perustelu | Toteutettu kehityshaarassa, kuulonvarainen hyväksyntä avoin |
+| **Kotikulman keikka** | Uusi kohtaus tai pieni joukko kokonaisempia kappaleita | Opittu sovelletaan uuteen musiikkiin, tehdään päätös ja kuullaan sen vaikutus | Suunniteltu, ei koodattu |
+| **Bändiharjoitukset 2** | Uusia taitoja: esimerkiksi muutos, rytmi, fraasi ja soittimien vuorovaikutus | Lisää harjoitusmuotoja, tarvittaessa erilliskuuntelu ja oikea kitara | Jatkoehdotus |
+| **Seuraava keikka** | Uudet kokonaisemmat musiikkitilanteet | Sovella uusien treenien oppeja, tee ratkaisuja yhtenäisen kappaleen aikana | Jatkoehdotus |
 
-**Treenin ja keikan ero on pedagoginen, ei pelkkä ulkoasu:**
+**Ensitreenit ovat yksi pelaajan ymmärtämä kokonaisuus, vaikka sisältö rakennettiin kahdessa teknisessä keikassa.** Säilytä toimiva sisältö ja etenemislogiikka mahdollisimman vähin muutoksin: näkyvän nimen tai etenemiskortin päivittäminen ei oikeuta rikkomaan 1–9-suorituksia. Tarvittaessa näytä Ensitreenien sisällä kaksi osaa ilman että ne näyttävät kahdelta eri esiintymiseltä.
 
-- **Treenit:** lyhyet äänet, erilliset bassot/melodiat/kompit, rajattu huomion kohde, palaute ja kaksitasoiset vihjeet, rajaton yrittäminen, mahdollisuus pysäyttää ja tutkia.
-- **Keikat:** enemmän yhtäjaksoista musiikkia, harvemmat mutta merkitykselliset valinnat, vähemmän ohjetekstiä kesken esityksen, uuden kappaleen kuunteleminen, valinnan seurauksen kuuleminen, lopuksi lyhyt yhteenveto. Ei rangaistusta musiikillisista kokeiluista tai väärästä ensivalinnasta.
-- **Keikan jälkeen:** "Tässä kuulit saman ilmiön, jota harjoittelit", linkki tarvittaessa takaisin sen taidon treeniin, ja valinnainen lisäkuuntelu/encore.
-- Harjoitteluun ja keikkaan saa päästä myös vapaasti. Suositeltu järjestys ei muutu pakolliseksi kaikkien sisältöjen portitukseksi.
+### Treenin ja keikan eri tarkoitukset
 
-### Ensimmäisen Kotikulman keikan esimerkkikäsikirjoitus
+- **Ensitreenit:** 1–9 tarjoaa lyhyitä rajattuja kuuntelutehtäviä, soittimien eristystä, vihjeitä ja palautetta. Toisto on osa oppimista.
+- **Kotikulman keikka:** kuunnellaan kokonaisempaa musiikkia, tehdään yksi tai kaksi luontevaa valintaa merkityksellisissä kohdissa ja **kuullaan, miten valinta vaikuttaa kappaleeseen**. Ei yhdeksän monivalinnan uusintakoetta. Soiton aikana mahdollisimman vähän keskeytyksiä; palaute sopivassa tauossa tai lopussa.
+- **Seuraavat bändiharjoitukset:** tuovat aidosti uusia taitoja. Niiden jälkeen taas keikka, jossa taidot otetaan käyttöön.
+- **Vapaa pääsy:** nykyinen vapaa harjoittelu, suora aloitus ja kertaus eivät katoa. Uusi keikka voi olla suositeltu jatko Ensitreeneistä ilman että pelin koko muu sisältö sidotaan uusiin lukkoihin.
 
-**Kohtaus A: Viimeinen sävel ratkaisee** (pilotin ensisijainen toteutusehdokas)
-1. Bändi soittaa 30–60 sekunnin alkuperäisen blues-rock-kappaleen tai tarkoitukseen tehdyn lyhyen kokonaisuuden. Soittimet kuuluvat riittävän hyvin myös mobiilissa.
-2. Kappale lähestyy loppua. Pelaajalle annetaan yksi yksinkertainen musiikillinen tavoite: "Bändi haluaa lopettaa tämän kappaleen selvästi kotiin".
-3. Tarjotaan kaksi tai kolme etukäteen sävellettyä loppua, jotka ovat musiikillisesti vertailukelpoisia. Pelaaja kuuntelee ja valitsee. Vastausta ei saa ratkaista visuaalista vihjettä tai äänenvoimakkuutta vertaamalla.
-4. **Koko kappale jatkuu tai soi valitulla lopulla**. Sen jälkeen yksi lyhyt selitys ja vapaavalintainen "Kokeile toista loppua".
-5. Pelaaja voi jatkaa ja suorittaa keikan myös vihjeen avulla. Kappaleen valmistuminen ei riipu Suno-assetista.
+### Kotikulman keikan pilottikohtaus: ensimmäinen oikea esiintyminen
 
-**Kohtaus B: Kappale jää kysymykseksi** (jatkoidea, ei ensimmäisen pilotin vaatimus)
-- Kuuntele säkeistöä ja sen jälkeen bändin tekemää siirtymää. Päätä, päättyykö kappale tähän vai halutaanko sen jatkavan kertosäkeeseen; kuule valitun ratkaisun seuraus.
-- Jos useat loput ovat toimivia, kysy "mikä palvelee annettua tavoitetta?" tai "mitä haluat tapahtuvan?", älä merkitse mieltymystä vääräksi.
+**Musiikillinen tarkoitus:** osoita, että Ensitreeneissä kuultu melodian kotiin palaaminen sekä basson ja soinnun toiminta on tunnistettavissa myös uudessa musiikillisessa tilanteessa.
 
-**Keikkakohtauksen vaihtelu:** sama oppimisen tavoite, mutta vähintään yksi toinen sävellys/sävellaji/rytminen sovitus niin, ettei läpipääsy perustu saman loppusävelen muistamiseen. Koko laulua ei tarvitse generoida joka pelikerralle.
+1. Bändi soittaa **30–60 sekunnin** uuden alkuperäisen blues-rock-kappaleen tai sitä lyhyemmän yhtenäisen jakson. Äänimateriaalin pituus ja laatu ovat pilotin kokeiluarvoja, eivät vaatimuksia massatuotannolle.
+2. Pelaaja kuuntelee ensin musiikkia. Ennen loppua bändillä on valinta: "Lopetetaanko selvästi vai jätetäänkö jatkolle tilaa?" Tehtävässä määritellään, kumpaa bändi tässä tilanteessa tavoittelee.
+3. Pelaaja kuuntelee kaksi tai kolme vertailukelpoista, etukäteen sävellettyä vaihtoehtoa. **Molemmat voivat olla musiikillisesti kelvollisia**, jos niillä on eri tehtävä; arvioidaan annettuun tarkoitukseen sopivaa valintaa.
+4. Pelaaja kuulee **valitun ratkaisun vaikutuksen kokonaisen jakson yhteydessä**. Sen jälkeen tulee lyhyt perustelu ja valinnainen toinen yritys tai toisen vaihtoehdon kuuntelu.
+5. Keikan lopussa voidaan kokeilla valinnaista Suno-viimeisteltyä katkelmaa tai encorea, mikäli se sopii tähän musiikkiin ja käyttöoikeudet varmistuvat. Keikan suorittaminen ei saa edellyttää Sunoa.
+6. Testissä sama tavoite esiintyy **toisessa, aidosti erilaisessa musiikkiesimerkissä**. Jos pelaaja selvittää vain ulkoa opitun äänitteen, siirtovaikutus ei ole osoitettu.
 
-### Toisen bändiharjoituksen sisältö ja myöhemmät laajennukset
+**Pelin tunnelma syntyy musiikista ja soittajien valinnoista, ei pitkistä välianimaatioista.** Lyhyitä bändin kommentteja voidaan käyttää harkiten, mutta ne eivät saa muuttua toistuvaksi dialogiksi, joka estää kuuntelun.
 
-Clauden kappaleet 6–9 ovat jo käytännössä **Bändiharjoitus 2**: basso, harmonia, useat musiikillisesti oikeutetut loput ja niiden perustelu. Älä kirjoita näitä uudelleen vain nimenvaihdon vuoksi. Kappaleet 10–14:n aikaisemmat ideat ("Mikä muuttui?", "Basson jäljillä", "Rytmi katoaa", "Kitaristi vastaa", "Treenin päätös") säilyvät **mahdollisina lisätehtävinä seuraaviin bändiharjoituksiin**, eivät kiinteänä kolmantena keikkana tai vahvistettuna numerointina.
+### Bändiharjoitukset 2 ja myöhempi eteneminen
 
-### Sisältö- ja tallennusidentiteettien turva
+Aiemmin suunnitellut uudet mekanismit **Mikä muuttui?** (\`compare-change\`), **Basson jäljillä** (\`bass-contour\`), **Rytmi katoaa** (\`spot-event\`) ja **Kitaristi vastaa** (\`phrase-response\`) sijoitetaan **mahdollisiin Bändiharjoituksiin 2 tai myöhempiin treeneihin**. Ne eivät kuulu automaattisesti Kotikulman keikkaan eikä niiden teknisiä tunnisteita tai paikkoja lyödä lukkoon ennen pilottia.
 
-**Näkyvän tarinan järjestys ei saa olla sama asia kuin kappaletunnisteiden juokseva numero.** Nykyiset suoritus-ID:t 1–9 säilytetään, eikä 6–9:ää numeroida uusiksi. Uudet Kotikulman keikan kohtaukset saavat erilliset vakaat tunnisteet; näyttöjärjestys määritellään erikseen sisällöstä. Ei sotketa keikan numeroa, harjoituskerran numeroa ja kappaleen tallennus-ID:tä.
+### Vanhojen suoritusten ja linkkien turva
 
-Jos Kotikulman keikka lisätään **1–5 ja 6–9 väliin**, jo suoritettujen käyttäjien eteneminen ei saa palautua tai mennä lukkoon. Määrittele tätä varten yhteensopiva valinnainen välinäytös tai migratoitu etenemislogiikka erillisessä suunnittelussa, testaa vanhat tallenteet. **Älä muuta nykyistä version 1 localStorage-rakennetta tai olemassa olevia syvälinkkejä pelkän suunnitteludokumentin perusteella.**
-
-Toteutuspäätös tehdään *kohtaus ja pilotti kerrallaan*. Bändiharjoitus 3 ja sitä seuraavat esiintymiset ovat avoimia jatkomahdollisuuksia.
+- Nykyisten kappaleiden **1–9 ID:t, tehtävät ja ratkaisut säilyvät**. Älä numeroi niitä uusiksi tai kirjoita Clauden keikka 2:n sisältöä uudelleen.
+- Älä tee väliin tulevaa uutta pakollista porttia kappaleiden 5 ja 6 välille. **Kotikulman keikka näkyy vasta Ensitreenien kokonaisuuden jälkeen.**
+- Nykyinen \`localStorage['musiikin-kartta:ensikeikka']\` ja \`version: 1\` säilyvät, kunnes erikseen hyväksytty yhteensopivuusratkaisu on testattu. Vanhat osoitteet \`#kappale-N\`, \`#harjoitus-N\` ja nykyiset keikkareitit eivät saa rikkoutua.
+- Näkyvän vaihelistan ja teknisten tunnisteiden ei tarvitse vastata toisiaan. Vanha tallennettu "keikka 2" on suunnitelmassa Ensitreenien loppuosa, ei toisen esiintymisen suoritusmerkintä.
+- Jo suoritettuja 1–9-tehtäviä ei vaadita uudelleen, kun tarinan ulkoasu muuttuu.
 
 ## 4. Tehtävämekaniikat ja oikean vastauksen määritelmä
 
@@ -145,38 +145,37 @@ Mahdolliset huipennukset:
 
 **Ei vielä:** Sunon suora selainintegraatio, automaattinen generointiputki, soitinraitojen käyttäminen luotettavana arviointiaineistona tai maksullisten generointien massatuotanto.
 
-## 7. Tarkennetut työpaketit ja päätösportit
+## 7. Työpaketit uuden järjestyksen mukaisesti
 
-### P0 – Clauden nykyinen "keikka 2" arvioidaan sisällöstä, ei nimestä
-- [ ] Kuuntele kappaleet 6–9 fyysisen puhelimen kaiuttimella ja kuulokkeilla; arvioi 6:n terssiloppu, 7:n basso, 8:n piste/kysymys, 9:n kahden vaiheen ymmärrettävyys.
-- [ ] Testaa erilliskuuntelu, keskeytys, vanha eteneminen, 320/360/390 px ja saavutettavuus.
-- [ ] Kirjaa erikseen, onko 6–9 sisältönä hyväksyttävissä Bändiharjoitus 2:ksi; **älä nyt käske Claudea vaihtamaan nimeä tai tehtäväjärjestystä kesken työn**.
-- [ ] Säilytä Codexin integraatio-PR #61 ja Clauden haara erillään. Omistajan katselmointi ennen yhdistämistä.
+### P0 – Ensitreenien kappaleiden 1–9 sisällön hyväksyminen
+- [ ] Kuuntele erityisesti Clauden 6–9 fyysisen puhelimen kaiuttimella ja kuulokkeilla; 6:n loppujen erot, 7:n basso, 8:n piste/kysymys, 9:n kaksivaiheinen tehtävä.
+- [ ] Testaa äänen keskeytys, erilliskuuntelu, 320/360/390 px, saavutettavuus ja jo tallennettu eteneminen.
+- [ ] Tarkista nykyisen Clauden työhaaran ja Codexin PR #61:n tila ennen toteutusta. Älä muuta niiden keskeneräisiä työpuita.
+- [ ] Kirjaa omistajan hyväksyntä sisältöjen 1–9 käytölle **Ensitreeneinä**. Pelin nykyinen kaksi teknistä keikkaa voi toistaiseksi säilyä.
 
-### P1 – Uuden Kotikulman keikan yksi lyhyt käsikirjoitus (vain dokumentaatio)
-- [ ] Kirjoita yksi kohtaus: kokonaista kappaletta kuunnellaan, valitaan tavoitteeseen sopiva lopetus, kuullaan valinnan seuraus, saadaan perusteltu jälkipalaute.
-- [ ] Tee 2 aidosti erilaista alkuperäistä musiikkiesimerkkiä samalla taitotavoitteella; dokumentoi niiden harmonia, loput ja kuultava ero.
-- [ ] Määritä ero nykyiseen treenitehtävään: keikalla ei ole viittä samanlaista välitarkistusta, vaan 1–2 mielekästä päätöstä musiikin kulussa.
-- [ ] Suunnittele säilyttävä navigaatio: Bändiharjoitus 1 → Kotikulman keikka → Bändiharjoitus 2 sekä vapaa harjoittelu ja jo suoritettujen käyttäjien yhteensopivuus.
-- [ ] Omistajan päätös: hyväksytäänkö tämä **yksi** uusi keikkakohtaus pilotiksi?
+### P1 – Ensitreenien näkyvän rakenteen ja Kotikulman keikan käsikirjoitus
+- [ ] Tee näkyvä malli: **Ensitreenit (1–9) → Kotikulman keikka → Bändiharjoitukset 2**. Pidä sisäinen kahden osan jako tarvittaessa, mutta älä nimitä niitä esiintymisiksi.
+- [ ] Kirjoita yksi uusi Kotikulman keikkakohtaus: yhtenäisempi kappale, yksi päätös, kuultava seuraus ja lyhyt palaute.
+- [ ] Tee kahdesta erilaisesta alkuperäisestä musiikillisesta esimerkistä käsikirjoitus, vastausperuste ja erojen kuulonvaraisen tarkistuksen ohje.
+- [ ] Esitä tallenteen ja reittien säilyttävä suunnitelma ilman ID-uudelleennumerointia.
+- [ ] Omistajan päätös ensimmäisen **yhden keikkakohtauksen** prototyypistä. Ei koko tarinan toteutuspäätöstä.
 
-### P2 – Rajattu prototyyppi hyväksytyssä omassa toteutushaarassa
-- [ ] Toteuta **vain yksi** Kotikulman keikan kohtaus ja sen 1–2 musiikillista valintaa käyttäen nykyisiä soittimen/sovituksen osia, mikäli mahdollista.
-- [ ] Vältä yleisen "keikkamoottorin" rakentamista ennen kuin toista käyttökohdetta todella tarvitaan.
-- [ ] Säilytä nykyiset kappaletunnisteet 1–9, tallenne, vanhat syvälinkit ja käyttäjän pääsy nykyiseen keikkaan 2. Lisää uusi kohtaus erillisenä, yhteensopivana tapahtumana.
-- [ ] Testaa valitun vaihtoehdon vaikutus, todellinen musiikillinen toimivuus, keskeytys, ääniviive, mobiili sekä vanhojen tallenteiden säilyminen.
-- [ ] Sunon **yksi vapaaehtoinen** keikkakatkelma voidaan kokeilla rinnakkaisena audio-assetina omilla hyväksyntäehdoillaan; tekniikka ei saa riippua sen saatavuudesta.
+### P2 – Yksi rajattu tekninen pilotti
+- [ ] Toteuta yksi Kotikulman keikkakohtaus **hyväksytyssä omassa toteutushaarassa**. Erota äänivalintojen musiikillinen tarkistus ja valinnaiset Suno-assetit.
+- [ ] Anna 1–9-suoritusten ja vanhojen linkkien toimia entiseen tapaan; seuraava keikka saa uudet vakaat tunnisteet.
+- [ ] Testaa että pelaaja todella kuulee valitsemansa ratkaisun vaikutuksen, ettei musiikki katkeile väärässä kohdassa ja että paluu/puhelintoisto toimivat.
+- [ ] Ei tuotantojulkaisua eikä mergeä ilman hyväksyntää.
 
-### P3 – Käytettävyys- ja oppimiskoe
-- [ ] Kokeile ilman jatkuvaa opastusta sekä aloittelijalla että aiemmin soittaneella. Tuntuuko keikka keikalta, treeni treeniltä?
-- [ ] Mittaa laadullisesti, siirtyykö treenissä opittu taito keikan **uuteen** musiikkiesimerkkiin.
-- [ ] Tarkkaile ymmärrettävyyttä, toiston määrää, valintojen selkeyttä, Suno-katkelman hyötyä ja mahdollisuutta ohittaa se.
-- [ ] Omistajan päätös: laajennetaanko Kotikulman keikkaa, täydennetäänkö Bändiharjoitus 2:ta uusilla tehtävillä, vai korjataanko ensin pilottia?
+### P3 – Käyttäjä- ja kuulonvarainen arvio
+- [ ] Kokeile eri tasoisilla soittajilla, onko Ensitreenien ja Kotikulman keikan ero ymmärrettävä ilman selitystä.
+- [ ] Selvitä siirtyykö taito harjoituksista uuteen musiikkiin vai muistetaanko vain vanha vaihtoehto.
+- [ ] Kuuntele myös oikeilla laitteilla, tutki ovatko keskeytykset liian tiheitä ja liittyykö encore todella musiikkiin.
+- [ ] Omistajan päätös: korjaa prototyyppiä, laajenna Kotikulman keikkaa tai siirry suunnittelemaan Bändiharjoituksia 2.
 
-### P4 – Myöhemmät treenit ja esiintymiset vain todetun hyödyn perusteella
-- [ ] Hahmottele **Toinen keikka** vasta, kun Bändiharjoitus 2:n kappaleet 6–9 ovat hyväksytyt ja ensimmäisen keikan kokeesta on näyttöä.
-- [ ] Harkitse seuraaviin bändiharjoituksiin `compare-change`, `bass-contour`, `spot-event`, `phrase-response` ja oikean kitaran vapaaehtoisia tehtäviä.
-- [ ] Älä toteuta koko tarinakarttaa, uusia tallennusmalleja tai keikkojen nimeämismigraatioita yhdessä jätti-PR:ssä.
+### P4 – Seuraavat bändiharjoitukset ja esiintymiset
+- [ ] Pilotoi uusia tehtävämekaniikkoja vasta P3:n havaintojen perusteella; esimerkiksi \`compare-change\` ja \`bass-contour\`.
+- [ ] Rakenna seuraava keikka uusien treenien taidoista, ei kopiona edellisestä.
+- [ ] Vältä koko tarinan massatoteutusta, uutta yleismoottoria ja yhteensopimattomia tallennusmuutoksia.
 
 ## 8. Kokeen onnistumisen tarkistus
 
@@ -185,7 +184,7 @@ Ennen teknistä GO-päätöstä pilotista pitää olla todennettavissa:
 2. **Oppiminen näkyvissä:** pelaaja osaa omin sanoin tai uuden näytteen kautta kuvata, mikä muuttui; ensimmäinen oikein napautettu vaihtoehto ei yksin riitä.
 3. **Vaihtelua:** sama taito kahdessa erilaisessa musiikillisessa tilanteessa, ei toistoa peräkkäin ellei kyse ole kertaamisesta.
 4. **Kohtuullinen vaikeus:** vihjeet auttavat etenemään, eivät suoraan paljasta oikeaa säveltä; uuden tehtävän vaatimukset ovat johdonmukaiset edellisen jälkeen.
-5. **Musiikki palkitsee:** keikka sisältää aidon musiikillisen kokonaisuuden ja valintojen seuraukset; mahdollisen encoren voi kuunnella tai ohittaa.
+5. **Musiikki palkitsee:** Kotikulman keikka tulee kaikkien yhdeksän Ensitreenin jälkeen ja sisältää uuden musiikillisen kokonaisuuden sekä valintojen seuraukset; mahdollisen encoren voi kuunnella tai ohittaa.
 6. **Tekninen turva:** ääni pysähtyy vaihdettaessa, vanha tallenne säilyy, mobiili ja näppäimistö toimivat, oikeudet ovat kunnossa, testit dokumentoitu.
 7. **Katselmointierottelu:** automaattitestit, todellinen kuuntelukoe, käyttäjätesti ja omistajan hyväksyntä ilmoitetaan erikseen.
 
@@ -195,11 +194,11 @@ Ennen teknistä GO-päätöstä pilotista pitää olla todennettavissa:
 
 1. Claude viimeistelee `feature/ensikeikka-toinen-ilta`-työnsä omassa työpuussaan. Codexin keskeneräisiä Oppimiskartan ja Riffikaiun haaroja ei kosketa.
 2. Ensikeikka 2 kuunnellaan ja hyväksytään erikseen. Tämän suunnitelman omistaja voi hyväksyä myös ennen toteutuskoodia.
-3. Luo myöhemmin **erillinen käsikirjoitus-PR** yhdelle Kotikulman keikan kohtaukselle ja kahdelle erilaiselle musiikilliselle esimerkille. Älä varaa kappaletunnisteita tai muuta vanhoja ennen teknistä päätöstä.
+3. Valmistele ensin 1–9:n näkyvä yhdistäminen **Ensitreeneiksi**, sitten **erillinen käsikirjoitus-PR** yhdelle niiden jälkeiselle Kotikulman keikkakohtaukselle ja kahdelle erilaiselle musiikilliselle esimerkille. Älä muuta vanhoja ID:tä.
 4. Toteutushaara otetaan tuolloin hyväksytystä, tuoreesta yhteisestä pohjasta eikä tästä dokumenttihaarasta. Tarkista `git status --porcelain` ja `git worktree list`; jos työkopio ei ole puhdas, älä resetoi/stashaa toisen työtä.
 5. Yksi rajattu toteutus-PR, sen jälkeen todellinen kuuntelu- ja käyttäjäkoe. Erilliset päätökset beta-mergeen ja tuotantoon.
 
-**Avoimet omistajan päätökset:** nykyisten kappaleiden 6–9 kuulonvarainen hyväksyntä; bändiharjoitus–keikka-rakenteen hyväksyntä; ensimmäinen Kotikulman keikan pilottikohtaus; Sunon oikeudet ja julkaisukelpoisen äänen valinta; jatketaanko kokeen perusteella laajempiin esiintymisiin. Oletusarvo on **EI VIELÄ HYVÄKSYTTY**.
+**Sisältörakenteen päätetty järjestys:** Ensitreenit 1–9 → Kotikulman keikka → uudet bändiharjoitukset → seuraava keikka. **Avoimet toteutuspäätökset:** nykyisten 6–9:n kuulonvarainen hyväksyntä; näkyvän rakenteen migraatio; Kotikulman keikan pilotti; Sunon käyttöoikeudet ja julkaisukelpoinen ääni; myöhempi laajennus. Oletusarvo on **EI VIELÄ TOTEUTUSHYVÄKSYTTY**.
 
 ## 10. Suorat lähteet
 
