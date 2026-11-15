@@ -106,7 +106,7 @@ describe('staattisen sivuston yhteensopivuus',()=>{
       .trim();
     for (let n = 1; n <= 28; n++) {
       const standalone = read('book/luku-' + n + '.html');
-      const original = standalone.match(/href="osa-([0-9]+)[.]html#([^"]+)"/);
+      const original = standalone.match(/class="lesson-note"[^>]*>[\s\S]*?<a href="osa-([0-9]+)[.]html#([^"]+)"/);
       expect(original, 'origin link ' + n).toBeTruthy();
       const [, part, id] = original!;
       const oldSection = extract(read('book/osa-' + part + '.html'), id);
