@@ -112,8 +112,10 @@ function lessonPage(number) {
   let chapter = sections.get(number)
     .replace(/<p class="chapter-number">[\s\S]*?<\/p>/, '')
     .replace(/<h2>[^<]*<\/h2>/, '');
-  chapter = chapter.replace(/\bhref="([^"]+)"/g, (full, target) =>
-    'href="' + escape(convertBookHref(target, meta.part)) + '"');
+  chapter = chapter.replace(/\bhref="([^"]+)"/g, (full, target) => {
+    const redirected = convertBookHref(target, meta.part);
+    return redirected === target ? full : 'href="' + escape(redirected) + '"';
+  });
   // Ulkoiset originaalilähteet pysyvät alkuperäisessä osa-sivussa sekä lukujen omissa teksteissä.
   const others = topic.links.filter(item => item.type === 'chapter' && item.number !== number);
   const next = others.map(item => '<li><a href="' + chapterPath(item.number) + '">' + escape(item.title) + '</a></li>').join('');
