@@ -91,9 +91,6 @@ function topicPage(topic) {
   const practice = topic.links.filter(item => !theory.includes(item));
   const list = links => '<ul class="resource-list">' + links.map(item =>
     '<li><a href="' + escape(topicLink(item)) + '">' + escape(item.title) + '</a></li>').join('\n') + '</ul>';
-  const hNote = topic.id === 'nuotit' ?
-    '<p class="notes">Sävelnimien yhteydessä selitetään myös perinteinen H-merkintä. ' +
-    '<a href="../book/h-savelnimen-alkupera.html">Mistä H-nimi tuli?</a> Aihe löytyy luvun varsinaisesta tekstistä.</p>' : '';
   const content = theory.length ? '<section aria-labelledby="teoria"><h2 id="teoria">Teoria</h2>' + list(theory) + '</section>' : '';
   const exercises = practice.length ? '<section aria-labelledby="harjoitukset"><h2 id="harjoitukset">Harjoitukset ja työkalut</h2>' + list(practice) + '</section>' : '';
   return '<!doctype html><html lang="fi"><head><meta charset="utf-8">' +
@@ -106,7 +103,7 @@ function topicPage(topic) {
     nav('../') + '<main class="topic-page" data-topic-page="' + escape(topic.id) + '">' +
     '<nav class="breadcrumb" aria-label="Murupolku"><a href="../index.html#oppimisaiheet">← Oppimiskartta</a></nav>' +
     '<h1>' + escape(topic.title) + '</h1><p class="description">' + escape(topic.description) + '</p>' +
-    content + exercises + hNote + '</main>' +
+    content + exercises + '</main>' +
     '<footer class="site-footer frame"><a href="../index.html#oppimisaiheet">Kaikki oppimisaiheet</a></footer>' +
     '</body></html>\n';
 }
