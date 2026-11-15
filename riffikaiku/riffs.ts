@@ -3,6 +3,8 @@
  * kolmella neljän sävelen riffillä. Kaikki riffit ovat tätä peliä varten tehtyjä lyhyitä,
  * monofonisia aiheita (ei kappaleiden lainauksia).
  *
+ * Samat kotitreenit ovat käytössä sekä oikean kitaran riffiharjoituksessa että virtuaalikitaran pelissä.
+ *
  * Toteutettu: Kotitreeni 1 (B-kieli) ja Kotitreeni 2 (G-kieli). Suunnitelma muista kielistä ja
  * myöhemmistä kokonaisuuksista: riffikaiku/KEHITYSSUUNNITELMA.md. Uusi kotitreeni lisätään tähän
  * listaan; pelilogiikka, tallennus ja käyttöliittymä lukevat rakenteen täältä.
@@ -11,6 +13,11 @@
  * korostetaan – ei pakottava sääntö: oikea MIDI-sävel hyväksytään miltä kieleltä tahansa, eikä
  * mikrofoni tunnista kieltä. Jokaisen riffin jokainen sävel löytyy harjoituskieleltä (testi varmistaa).
  */
+import { note, stringName } from '../harjoittelija/music';
+
+/** Sävelnimi oktaavinumerolla (B3, C4…), sama esitys molemmissa käyttötavoissa. */
+export const noteName = (midi: number) => note(midi, false, true);
+
 /** Vapaiden kielten MIDI-korkeudet ohuimmasta paksuimpaan (sama kuin otelauta.js:n OPEN_PITCHES). */
 export const OPEN_STRINGS = [64, 59, 55, 50, 45, 40] as const;
 export const ALL_STRINGS = [0, 1, 2, 3, 4, 5];
@@ -76,3 +83,11 @@ export const riffById = (id: string) => RIFFS.find(r => r.id === id) ?? (id === 
 /** Löytyykö sävel annetuilta kieliltä nauhoilta 0–5. */
 export const playableOn = (midi: number, strings: number[]) =>
   strings.some(s => midi - OPEN_STRINGS[s] >= FRET_MIN && midi - OPEN_STRINGS[s] <= FRET_MAX);
+/** Riffin harjoituskokonaisuus ja järjestysnumero siinä (1–3). */
+export function riffPlace(riffId: string): { level: Level; riff: Riff; number: number } | undefined {
+  const level = levelOf(riffId);
+  const riff = level?.riffs.find(r => r.id === riffId);
+  return level && riff ? { level, riff, number: level.riffs.indexOf(riff) + 1 } : undefined;
+}
+/** Kielen nimi ja nauha luettavasti: ”B-kieli, 1. nauha” tai ”B-kieli, vapaa”. */
+export const spotText = (spot: Spot) => `${stringName[spot.string]}-kieli, ${spot.fret === 0 ? 'vapaa kieli' : `${spot.fret}. nauha`}`;

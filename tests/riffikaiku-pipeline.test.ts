@@ -1,5 +1,6 @@
 // Riffikaiku koko tunnistusketjun läpi: synteettinen signaali → Microphone → PitchLoop (Pitchy)
-// → PluckDetector (OnsetDetector + NoteGaten säännöt + sävelvaihto) → RiffGame → SequenceChecker.
+// → PluckDetector (OnsetDetector + NoteGaten säännöt + sävelvaihto) → MicController → RiffPractice → SequenceChecker
+// (oikean kitaran riffiharjoituksen Kokeile muistista -vaihe).
 //
 // TÄRKEÄ RAJOITUS: signaalit ovat laskettuja, kitaramaisia verhokäyriä (ylä-äänet, näppäyksen
 // transientti, eksponentiaalinen vaimeneminen). Ne EIVÄT ole oikealla kitaralla tai mikrofonilla
@@ -10,7 +11,8 @@ import { Microphone, ReferencePlayer } from '../harjoittelija/audio';
 import type { MicStream } from '../harjoittelija/vendor/micInput';
 import { DETECTION, framePipeline, type GameAudio, type MicHandlers } from '../riffikaiku/audioAdapter';
 import { PluckDetector } from '../riffikaiku/pluck';
-import { RiffGame } from '../riffikaiku/game';
+import { MicController } from '../riffikaiku/mic';
+import { RiffPractice } from '../riffikaiku/practice';
 import { RIFFS } from '../riffikaiku/riffs';
 import { RiffStore } from '../riffikaiku/store';
 import { fakeClock, midiHz } from './fakeMic';
@@ -73,7 +75,7 @@ async function detect(line: (t: number) => number, ms: number, minRms: number = 
   return plucks;
 }
 
-function pipeline({ tutorialDone = true } = {}) {
+function pipeline() {
   const clock = fakeClock();
   const sampleRate = 48000;
   let line: (t: number) => number = () => 0;
@@ -99,37 +101,44 @@ function pipeline({ tutorialDone = true } = {}) {
   };
   const map = new Map<string, string>();
   const store = new RiffStore({ getItem: k => map.get(k) ?? null, setItem: (k, v) => { map.set(k, v); } });
-  if (tutorialDone) store.finishTutorial();
-  const game = new RiffGame(audio, store);
-  const s = () => game.getState();
+  const controller = new MicController(audio, store);
+  const practice = new RiffPractice(audio, controller, store);
+  const s = () => practice.getState();
+  const m = () => controller.getState();
   const flush = () => new Promise(resolve => setTimeout(resolve, 0));
   return {
-    clock, stable, store, game, s, flush,
+    clock, stable, store, practice, s, m, flush,
     setLine: (f: (t: number) => number) => { line = f; },
     /** Näppäykset suhteessa nykyhetkeen. */
     play: (plucks: Pluck[]) => { const base = clock.now; line = guitar(plucks.map(p => ({ ...p, at: base + p.at, mute: p.mute === undefined ? undefined : base + p.mute }))); },
     finishModel: async () => { models.shift()!(true); await flush(); },
-    /** Mikrofonitesti ja mallisoitto; malli vuotaa kaiuttimesta mikrofoniin ja häntä vaimenee. */
-    async toListening(riff = s().riff.midi, leak = true) {
-      game.startMic(); await flush();
-      expect(s().phase).toBe('mic-check');
+    /** Mikrofoni ja B-kielen testi valmistelusta, sitten Kokeile muistista -vaihe. */
+    async micReady(riffId = 'b-kaari') {
+      practice.openPanel('mic'); await flush();
+      expect(m().status).toBe('on');
       // Taustakohinan mittaus (hiljainen tulo) → äänikynnys 0,003.
       clock.run(1100);
-      expect(s()).toMatchObject({ calibrating: false, minRms: .003 });
+      expect(m()).toMatchObject({ calibrating: false, minRms: .003 });
       this.play([{ at: 20, midi: 59 }]); clock.run(700);
-      expect(s().check).toBe('ok');
-      game.continueAfterCheck();
-      // Malli ei soi itsestään: pelaaja painaa Kuuntele riffi.
-      expect(s().phase).toBe('ready');
-      game.listen();
-      expect(s().phase).toBe('model-playing');
+      expect(m().check).toBe('ok');
+      this.setLine(() => 0); clock.run(300);
+      practice.closePanel();
+      practice.openRiff(riffId, 'recall');
+      expect(s()).toMatchObject({ step: 'recall', index: 0 });
+    },
+    /** Lisäksi mallin kuuntelu: malli vuotaa kaiuttimesta mikrofoniin ja häntä vaimenee. */
+    async toListening(riffId = 'b-kaari', leak = true) {
+      await this.micReady(riffId);
+      const riff = s().riff.midi;
+      practice.listen();
+      expect(m().muted).toBe('model');
       // Kaiutin soittaa mallin 0,8 s välein; analyysi on tauolla.
       if (leak) this.play(riff.map((midi, i) => ({ at: 50 + i * 800, midi, amp: .2, decay: 400 })));
       clock.run(riff.length * 800);
       await this.finishModel();
-      expect(s().phase).toBe('output-settling');
+      expect(m().muted).toBe('settling');
       clock.run(1600);
-      expect(s().phase).toBe('listening');
+      expect(m().muted).toBeNull();
     },
   };
 }
@@ -142,9 +151,9 @@ describe('neljä peräkkäistä säveltä synteettisellä kitaralla', () => {
     t.play([59, 60, 62, 60].map((midi, i) => ({ at: 100 + i * 700, midi })));
     t.clock.run(3200);
     expect(t.stable).toEqual([59, 60, 62, 60]);
-    expect(t.s()).toMatchObject({ phase: 'success', index: 4 });
-    expect(t.store.data.results).toHaveLength(1);
-    expect(t.store.data.results[0]).toMatchObject({ riff: 'b-kaari', input: 'mic', wrong: 0 });
+    expect(t.s()).toMatchObject({ complete: true, index: 4 });
+    expect(t.store.data.practice.heard).toEqual({ 'b-kaari': 1 });
+    expect(t.store.data.results).toHaveLength(0); // harjoitus ei kirjaa pelituloksia
   });
 
   it('vaimennetut näppäykset (staccato) 600 ms välein → 4/4', async () => {
@@ -154,7 +163,7 @@ describe('neljä peräkkäistä säveltä synteettisellä kitaralla', () => {
     t.play([59, 60, 62, 60].map((midi, i) => ({ at: 100 + i * 600, midi, mute: 100 + i * 600 + 400 })));
     t.clock.run(2800);
     expect(t.stable).toEqual([59, 60, 62, 60]);
-    expect(t.s().phase).toBe('success');
+    expect(t.s().complete).toBe(true);
   });
 
   it('väärä järjestys [59,62,60,62,60]: väärä vakaa sävel ei etene, korjaus onnistuu', async () => {
@@ -164,9 +173,8 @@ describe('neljä peräkkäistä säveltä synteettisellä kitaralla', () => {
     t.play([59, 62, 60, 62, 60].map((midi, i) => ({ at: 100 + i * 700, midi })));
     t.clock.run(3800);
     expect(t.stable).toEqual([59, 62, 60, 62, 60]);
-    // Riffi soitettiin loppuun, mutta kohta 2 korjattiin: keltainen, ei läpäisyä.
-    expect(t.s()).toMatchObject({ phase: 'retry', marks: ['green', 'yellow', 'green', 'green'] });
-    expect(t.store.data.results[0]).toMatchObject({ wrong: 1, passed: false });
+    // Väärä sävel ei ollut virhe: kohta odotti oikeaa, ja koko riffi kuultiin oikeassa järjestyksessä.
+    expect(t.s()).toMatchObject({ complete: true, found: [true, true, true, true] });
   });
 });
 
@@ -175,10 +183,8 @@ describe('sama sävel kahdesti (A–A) ja pitkä sustain', () => {
   const aaRiff = RIFFS.find(r => r.midi.join() === '57,57,55,59')!;
   async function aaGame() {
     const t = pipeline();
-    // Avaa suoraan Kotitreeni 2:n A–A-riffi: ensimmäinen on jo läpäisty.
-    t.store.startLevel('mic', 2);
-    t.store.record({ riff: 'g-nousu', input: 'mic', hint: false, wrong: 0, octave: 0, replays: 0, ms: 1, at: 1, passed: true });
-    await t.toListening(aaRiff.midi);
+    // Harjoituksessa kaikki riffit ovat auki: avataan suoraan Kotitreeni 2:n A–A-riffi.
+    await t.toListening(aaRiff.id);
     expect(t.s().riff.id).toBe(aaRiff.id);
     t.stable.length = 0;
     return t;
@@ -189,7 +195,7 @@ describe('sama sävel kahdesti (A–A) ja pitkä sustain', () => {
     t.play([{ at: 100, midi: 57, mute: 600 }, { at: 750, midi: 57 }, { at: 1450, midi: 55 }, { at: 2150, midi: 59 }]);
     t.clock.run(2800);
     expect(t.stable).toEqual([57, 57, 55, 59]);
-    expect(t.s().phase).toBe('success');
+    expect(t.s().complete).toBe(true);
   });
 
   it('A–A–G–B ilman vaimennusta, selvä uusi näppäys 700 ms päästä → molemmat A:t (uusi aluke)', async () => {
@@ -197,7 +203,7 @@ describe('sama sävel kahdesti (A–A) ja pitkä sustain', () => {
     t.play([{ at: 100, midi: 57 }, { at: 800, midi: 57 }, { at: 1500, midi: 55 }, { at: 2200, midi: 59 }]);
     t.clock.run(2900);
     expect(t.stable).toEqual([57, 57, 55, 59]);
-    expect(t.s().phase).toBe('success');
+    expect(t.s().complete).toBe(true);
   });
 
   it('yksi A soi 2 s → vain yksi hyväksyntä', async () => {
@@ -221,21 +227,22 @@ describe('sama sävel kahdesti (A–A) ja pitkä sustain', () => {
   });
 });
 
-describe('ei edistystä eikä rangaistusta', () => {
+describe('ei edistystä eikä virhettä', () => {
   it('hiljaisuus', async () => {
     const t = pipeline();
     await t.toListening();
     t.stable.length = 0;
     t.setLine(() => 0); t.clock.run(3000);
-    expect(t.stable).toEqual([]); expect(t.s()).toMatchObject({ index: 0, feedback: null, phase: 'listening' });
+    expect(t.stable).toEqual([]); expect(t.s()).toMatchObject({ index: 0, feedback: null, complete: false });
   });
   it('kohina', async () => {
     const t = pipeline();
     await t.toListening();
     t.stable.length = 0;
     t.setLine(hiss(.15)); t.clock.run(3000);
-    expect(t.stable).toEqual([]); expect(t.s()).toMatchObject({ index: 0, feedback: null });
-    expect(t.s().heard?.status).toBe('unclear');
+    // Kynnyksen ylittävä kohina on epävarma tunnistus: siitä kerrotaan ohjeena, ei virheenä.
+    expect(t.stable).toEqual([]); expect(t.s()).toMatchObject({ index: 0, feedback: { tone: 'uncertain' } });
+    expect(t.m().heard?.status).toBe('unclear');
   });
   // Havainto: vakausaika 240 ms lasketaan analyysikehyksistä, joiden 170 ms:n ikkunassa vaimennettu
   // sävel vielä on. Synteettisellä signaalilla raja on noin 100–140 ms soivaa ääntä sävelkorkeudesta
@@ -255,20 +262,21 @@ describe('ei edistystä eikä rangaistusta', () => {
     t.play([{ at: 100, midi: 59, mute: 260 }]); t.clock.run(1200);
     expect(t.stable).toEqual([59]);
   });
-  it('epävireinen sävel (+45 senttiä) ei hyväksy eikä rankaise', async () => {
+  it('epävireinen sävel (+45 senttiä) ei hyväksy eikä rankaise: epävarma tunnistus ja viritysohje', async () => {
     const t = pipeline();
     await t.toListening();
     t.stable.length = 0;
     t.play([{ at: 100, midi: 59.45, decay: 3000 }]); t.clock.run(1500);
-    expect(t.stable).toEqual([]); expect(t.s()).toMatchObject({ index: 0, feedback: null });
-    expect(t.s().heard?.status).toBe('off-pitch');
+    expect(t.stable).toEqual([]); expect(t.s()).toMatchObject({ index: 0, feedback: { tone: 'uncertain' } });
+    expect(t.s().feedback!.text).toContain('tarkista viritys');
+    expect(t.m().heard?.status).toBe('off-pitch');
   });
-  it('väärä oktaavi: odotettu B3, soitettu B4 → väärä sävel (punainen), ei hyväksyntää', async () => {
+  it('väärä oktaavi: odotettu B3, soitettu B4 → ei hyväksyntää, oktaaviero kerrotaan erikseen', async () => {
     const t = pipeline();
     await t.toListening();
     t.play([{ at: 100, midi: 71 }]); t.clock.run(900);
-    expect(t.s()).toMatchObject({ index: 0, marks: ['red', 'pending', 'pending', 'pending'] });
-    expect(t.s().feedback?.text).toBe('Väärä sävel (kuulin B4). Kokeile uudelleen.');
+    expect(t.s()).toMatchObject({ index: 0, last: { midi: 71, verdict: 'octave' }, feedback: { tone: 'near' } });
+    expect(t.s().feedback?.text).toContain('Kuulin B4: sävelnimi on oikea');
   });
   it('kitara hiljaisen kohinan päällä tunnistuu yhä', async () => {
     const t = pipeline();
@@ -284,7 +292,7 @@ describe('ei edistystä eikä rangaistusta', () => {
 describe('mallisoiton vuoto ja kaiutinhäntä', () => {
   it('malli kaiuttimesta ilman kitaraa: 0 hyväksyntää, kuuntelu alkaa hännän vaimennuttua', async () => {
     const t = pipeline();
-    await t.toListening(undefined, true);
+    await t.toListening('b-kaari', true);
     // Ainoa vakaa havainto on mikrofonitestin B3; kaiuttimen malli ei tuottanut yhtään.
     expect(t.stable).toEqual([59]);
     t.clock.run(3000);
@@ -293,21 +301,18 @@ describe('mallisoiton vuoto ja kaiutinhäntä', () => {
 
   it('jatkuva kaiutinhäntä mallin jälkeen ei vastaa, vaikka sävel on oikea ensimmäinen', async () => {
     const t = pipeline();
-    t.game.startMic(); await t.flush();
-    t.clock.run(1100);
-    t.play([{ at: 20, midi: 59 }]); t.clock.run(700);
-    t.game.continueAfterCheck();
-    t.game.listen();
+    await t.micReady();
+    t.practice.listen();
     t.stable.length = 0;
     t.clock.run(1600);
     // Mallin jälkeen kaiutin/huone jatkaa riffin ensimmäistä säveltä tasaisesti (pahin tapaus).
     t.setLine(guitar([{ at: t.clock.now - 500, midi: 59, decay: 1e9, transient: 0 }]));
     await t.finishModel();
-    expect(t.s().phase).toBe('output-settling');
+    expect(t.m().muted).toBe('settling');
     t.clock.run(1000);
-    expect(t.s().phase).toBe('output-settling');
+    expect(t.m().muted).toBe('settling');
     t.clock.run(800);
-    expect(t.s().phase).toBe('listening'); // aikaraja
+    expect(t.m().muted).toBeNull(); // aikaraja
     t.clock.run(2000);
     expect(t.stable).toEqual([]); expect(t.s().index).toBe(0);
     // Pelaaja vaimentaa ja soittaa itse: hyväksytään.
@@ -319,9 +324,10 @@ describe('mallisoiton vuoto ja kaiutinhäntä', () => {
     const t = pipeline();
     await t.toListening();
     t.stable.length = 0;
-    t.game.pause('background');
+    t.practice.hidden();
     t.play([{ at: 50, midi: 59 }]); t.clock.run(1000);
-    expect(t.stable).toEqual([]); expect(t.s()).toMatchObject({ phase: 'paused', index: 0 });
+    expect(t.stable).toEqual([]); expect(t.s()).toMatchObject({ step: 'recall', index: 0 });
+    expect(t.m()).toMatchObject({ status: 'off', closed: 'background' });
   });
 });
 
@@ -404,14 +410,14 @@ describe('peräkkäiset näppäilyt ilman pitkää hiljaisuutta', () => {
     expect(plucks.map(p => p.midi)).toEqual([59, 60, 62, 60]);
     expect(plucks.slice(1).every(p => p.by === 'pitch-change' || p.by === 'onset')).toBe(true);
   });
-  it('legato-riffi pelissä: [59,60,62,60] ilman vaimennuksia → virheetön läpäisy', async () => {
+  it('legato-riffi harjoituksessa: [59,60,62,60] ilman vaimennuksia → koko riffi tunnistuu', async () => {
     const t = pipeline();
     await t.toListening();
     t.stable.length = 0;
     t.play([59, 60, 62, 60].map((midi, i) => ({ at: 100 + i * 450, midi, transient: 0, decay: 2000 })));
     t.clock.run(2500);
     expect(t.stable).toEqual([59, 60, 62, 60]);
-    expect(t.s()).toMatchObject({ phase: 'success', marks: ['green', 'green', 'green', 'green'] });
+    expect(t.s()).toMatchObject({ complete: true, found: [true, true, true, true] });
   });
   it('uusi näppäys saman sävelen päälle, kun edellinen soi vielä (normaali näppäys) → kaksi näppäilyä', async () => {
     const line = guitar([{ at: 200, midi: 57, decay: 2500 }, { at: 650, midi: 57, decay: 2500 }]);

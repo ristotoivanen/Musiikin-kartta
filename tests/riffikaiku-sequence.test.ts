@@ -313,7 +313,7 @@ describe('RiffStore: kotitreenit ja oma tallennus', () => {
     store.record(result({ input: 'mic', hint: true }));
     expect(store.completedLevels('board')).toEqual([1]); expect(store.completedLevels('mic')).toEqual([]);
     expect(store.run('mic')).toEqual({ level: 1, passed: ['b-kaari'] });
-    expect(store.data.stats.mic['b-kaari']).toEqual({ done: 1, passed: 1, solo: 0, lastAt: 1 });
+    expect(store.data.stats.mic['b-kaari']).toEqual({ done: 1, passed: 1, solo: 0, lastAt: 1, best: 0 });
     expect(store.data.results.map(r => r.input)).toEqual(['board', 'board', 'board', 'mic']);
     expect(store.data.results.map(r => r.level)).toEqual([1, 1, 1, 1]);
   });
@@ -372,5 +372,48 @@ describe('RiffStore: kotitreenit ja oma tallennus', () => {
     const store = new RiffStore(throwing);
     expect(() => passLevel(store, 'mic', 1)).not.toThrow();
     expect(store.completedLevels('mic')).toEqual([1]);
+  });
+});
+
+describe('RiffStore 0.4: harjoituksen kuittaukset ja pelin ennätykset', () => {
+  const KEY = 'musiikin-kartta:riffikaiku:v1';
+  it('0.3-tallennus luetaan sellaisenaan: vanhat kentät säilyvät tavulleen, harjoitus alkaa tyhjänä', () => {
+    const storage = memoryStorage();
+    const v03 = { version: 1, structure: 'kotitreenit', tutorialDone: true, input: 'mic', fullBoard: false, device: 'usb',
+      stats: { mic: { 'b-kaari': { done: 2, solo: 1, passed: 1, lastAt: 5 } }, board: { 'b-kaari': { done: 1, solo: 1, passed: 1, lastAt: 6 } } },
+      results: [{ riff: 'b-kaari', input: 'mic', hint: false, wrong: 0, octave: 0, replays: 0, ms: 1, at: 5, passed: true, level: 1 }],
+      run: { mic: { level: 1, passed: ['b-kaari'] }, board: { level: 1, passed: ['b-kaari'] } }, levels: { mic: [], board: [] } };
+    storage.setItem(KEY, JSON.stringify(v03));
+    const store = new RiffStore(storage);
+    expect(store.data).toEqual({ ...v03, practice: { marked: {}, heard: {}, last: null } });
+    // Vanhaa mikrofonipelin läpäisyä ei muuteta harjoituksen kuittaukseksi.
+    expect(store.data.practice.marked).toEqual({});
+  });
+  it('harjoituskentät: tuntemattomat riffit ja virheelliset arvot hylätään', () => {
+    const storage = memoryStorage();
+    storage.setItem(KEY, JSON.stringify({ version: 1, structure: 'kotitreenit', practice: {
+      marked: { 'b-kaari': 10, 'ei-ole': 3, 'g-nousu': -1 }, heard: { 'b-kaari': 2, 'g-toisto': 'x' }, last: { riff: 'g-hyppy', step: 'recall' } } }));
+    expect(new RiffStore(storage).data.practice).toEqual({ marked: { 'b-kaari': 10 }, heard: { 'b-kaari': 2 }, last: { riff: 'g-hyppy', step: 'recall' } });
+    storage.setItem(KEY, JSON.stringify({ version: 1, practice: { last: { riff: 'b-kaari', step: 'peli' } } }));
+    expect(new RiffStore(storage).data.practice.last).toBeNull();
+  });
+  it('kuittaus ja kuultu kokonaan tallentuvat ja palautuvat; kuittauksen voi perua', () => {
+    const storage = memoryStorage();
+    const store = new RiffStore(storage);
+    store.setMarked('b-kaari', true, 7); store.addHeard('b-kaari'); store.addHeard('b-kaari'); store.setPracticeLast('b-vaihto', 'learn');
+    store.setMarked('ei-ole', true);
+    expect(new RiffStore(storage).data.practice).toEqual({ marked: { 'b-kaari': 7 }, heard: { 'b-kaari': 2 }, last: { riff: 'b-vaihto', step: 'learn' } });
+    store.setMarked('b-kaari', false);
+    expect(new RiffStore(storage).data.practice.marked).toEqual({});
+  });
+  it('ennätys: vanhassa tilastossa seuranta alkaa ilman ”uutta ennätystä”; pienempi virhemäärä on uusi ennätys', () => {
+    const storage = memoryStorage();
+    storage.setItem(KEY, JSON.stringify({ version: 1, structure: 'kotitreenit', stats: { mic: {}, board: { 'b-kaari': { done: 3, solo: 0, passed: 0, lastAt: 1 } } } }));
+    const store = new RiffStore(storage);
+    expect(store.record(result({ input: 'board', passed: false, wrong: 3 }))).toMatchObject({ newBest: false, firstPass: false });
+    expect(store.data.stats.board['b-kaari']).toMatchObject({ done: 4, best: 3 });
+    expect(store.record(result({ input: 'board', passed: false, wrong: 3 }))).toMatchObject({ newBest: false });
+    expect(store.record(result({ input: 'board', passed: true, wrong: 0 }))).toMatchObject({ newBest: true, firstPass: true, firstStar: true });
+    expect(new RiffStore(storage).data.stats.board['b-kaari']).toMatchObject({ best: 0, passed: 1, solo: 1 });
   });
 });
