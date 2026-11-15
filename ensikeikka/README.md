@@ -74,7 +74,12 @@ ohjautuu keikan korttiin.
 `renderTake` kokoaa miksauksen kerroksista. Keikan 1 kappaleiden ääni on näytteen tarkkuudella sama
 kuin ennen moottorin laajentamista. Testi vertaa sitä `tests/fixtures/ensikeikka-arrangement-v1.ts`:ään.
 Erilliskuuntelu (`renderIsolated`) nostaa valitun osan 0,8-kertaiseksi koko bändin
-tehollisarvosta, jottei basso hukkuisi puhelimen kaiuttimessa.
+tehollisarvosta. Erikseen kuunneltu basso korostaa 2.–6. yläsäveltä, jotta kulku kuuluu myös
+puhelimen kaiuttimesta. Keikan 2 sovitukset käyttävät kirkkaampaa bassoa (`BRIGHT_BASS`), koska
+tehtävät perustuvat basson kuulemiseen. Testi mittaa tämän 300 Hz:n ylipäästön läpi.
+
+Koko sivu käyttää yhtä `TakePlayer`ia ja AudioContextia (`usePlayback.ts`). Näkymästä poistuminen
+pysäyttää soiton mutta ei sulje kontekstia.
 
 ## Testit
 
