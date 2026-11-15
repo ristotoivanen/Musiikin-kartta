@@ -17,7 +17,7 @@ const LINK = /(<link rel="stylesheet" href=")([^"?#]+\.css)(?:\?v=[0-9a-f]*)?(")
 
 export function pages() {
   const html = dir => readdirSync(join(ROOT, dir)).filter(f => f.endsWith('.html')).map(f => join(ROOT, dir, f));
-  return [...html('.'), ...html('book')];
+  return [...html('.'), ...html('book'), ...html('aiheet')];
 }
 
 export function version(file) {

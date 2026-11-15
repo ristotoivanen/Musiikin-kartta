@@ -207,8 +207,8 @@ test('Toiston käynnistysvirhe kertoo tilanteen ja sallii uuden kuuntelun', asyn
 
 test('Ensikeikasta palaaminen Oppimiskarttaan pysäyttää toiston ja avaa aiheen', async ({ page }) => {
   await observePlayback(page);
-  await page.goto('/index.html#aihe-korva');
-  const topic = page.locator('#aihe-korva');
+  await page.goto('/aiheet/korva.html');
+  const topic = page.locator('[data-topic-page="korva"]');
   await topic.getByRole('link', { name: 'Ensikeikka · etsi melodialle lopetus' }).click();
   await button(page, 'Kotikulmien keikat').click();
   await button(page, 'Aloita keikka 1').click();
@@ -220,8 +220,8 @@ test('Ensikeikasta palaaminen Oppimiskarttaan pysäyttää toiston ja avaa aihee
     }, { once: true });
   });
   await page.getByRole('link', { name: 'Takaisin aiheeseen' }).click();
-  await expect(page).toHaveURL(/index\.html#aihe-korva$/);
-  await expect(topic.locator('summary')).toBeFocused();
+  await expect(page).toHaveURL(/aiheet[/]korva[.]html$/);
+  await expect(topic.getByRole('heading', { level: 1, name: 'Sävelkorva ja melodia' })).toBeVisible();
   expect(await page.evaluate(() => sessionStorage.getItem('test:ensikeikka-paused-on-exit'))).toBe('true');
   expect(await savedProgress(page)).toBeNull();
 });
