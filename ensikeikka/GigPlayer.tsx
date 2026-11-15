@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type MouseEvent, type ReactNode, type RefObject } from 'react';
 import type { Layer } from './arrangement';
-import { LETTERS, renderSong, songExcerpt } from './catalog';
+import { renderSong, songExcerpt } from './catalog';
+import { fillLetters, naturalOrder, shownLetter, type Order } from './order';
 import type { ChooseTask, Letter, MatchTask, ReasonTask, Song } from './tasks';
 import { usePlayback } from './usePlayback';
 
@@ -21,10 +22,15 @@ export type Attempt = {
   /** Kasvaa jokaisessa tarkistuksessa, jotta palautteen otsikko saa fokuksen myös toistuvassa yrityksessä. */
   checks: number;
   hintLevel: number;
+  /**
+   * Lopetusten näkyvä järjestys (paikka → tunniste). Harjoittelukierros arpoo sen kerran
+   * kierroksen alussa, eikä se muutu saman kierroksen aikana, ei myöskään vaiheiden välillä.
+   */
+  order: Order;
 };
 
 export const initialAttempt: Attempt = {
-  stage: 'choose', step: 0, selected: null, heard: [], checked: null, picks: {}, checkedPicks: null, checks: 0, hintLevel: 0,
+  stage: 'choose', step: 0, selected: null, heard: [], checked: null, picks: {}, checkedPicks: null, checks: 0, hintLevel: 0, order: naturalOrder,
 };
 
 const freshTask = {
@@ -46,6 +52,10 @@ type TaskProps<T> = {
   heading: RefObject<HTMLHeadingElement>;
   retryHeading: RefObject<HTMLHeadingElement>;
   onSolved: () => void;
+  /** Lopetuksen näkyvä kirjain. */
+  shown: (id: Letter) => Letter;
+  /** Täyttää tekstin lopetusviittaukset {A}/{B}/{C} näkyvillä kirjaimilla. */
+  fill: (text: string) => string;
 };
 
 const remember = (heard: readonly string[], item: string) => heard.includes(item) ? [...heard] : [...heard, item];
@@ -84,18 +94,18 @@ function Status({ sound, className = 'listening-status' }: { sound: Sound; class
   return <p className={`status ${className}`} role="status">{sound.status}</p>;
 }
 
-function ChooseView({ task, attempt, update, sound, mode, listen, heading, retryHeading, onSolved }: TaskProps<ChooseTask>) {
+function ChooseView({ task, attempt, update, sound, mode, listen, heading, retryHeading, onSolved, shown, fill }: TaskProps<ChooseTask>) {
   const { selected, heard, checked } = attempt;
   const isPlaying = (which: ListeningMode) => sound.active && mode === which;
   const preview = (ending: Letter, which: 'ending' | 'full') => listen(which,
-    `Lopetus ${ending}${which === 'full' ? ' · koko kappale' : ''}`, ending, () => update({ heard: remember(heard, ending) }));
+    `Lopetus ${shown(ending)}${which === 'full' ? ' · koko kappale' : ''}`, ending, () => update({ heard: remember(heard, ending) }));
   const toggle = (which: 'ending' | 'full') => {
     if (isPlaying(which)) sound.stop();
     else if (selected !== null) preview(selected, which);
   };
   const toggleLayer = (layer: Layer) => {
     if (isPlaying(layer)) sound.stop();
-    else if (selected !== null) listen(layer, `Lopetus ${selected} · vain ${layerNames[layer]}`, selected);
+    else if (selected !== null) listen(layer, `Lopetus ${shown(selected)} · vain ${layerNames[layer]}`, selected);
   };
   const check = () => {
     if (selected === null || !heard.includes(selected)) return;
@@ -106,18 +116,18 @@ function ChooseView({ task, attempt, update, sound, mode, listen, heading, retry
 
   return <>
     <h2 ref={heading} tabIndex={-1}>{task.heading}</h2>
-    <p>{task.intro}</p>
+    <p>{fill(task.intro)}</p>
     <UnfinishedButton sound={sound} mode={mode} listen={listen} />
     <div className="gig-transport">
       <fieldset>
         <legend>Kokeile lopetuksia</legend>
-        <p>{task.prompt}</p>
+        <p>{fill(task.prompt)}</p>
         <div className="ending-choices">
-          {LETTERS.map(ending => <button key={ending} aria-pressed={selected === ending} onClick={() => {
+          {attempt.order.map(ending => <button key={ending} aria-pressed={selected === ending} onClick={() => {
             update({ selected: ending, checked: null });
             preview(ending, 'ending');
           }}>
-            Lopetus <span>{ending}</span>
+            Lopetus <span>{shown(ending)}</span>
           </button>)}
         </div>
       </fieldset>
@@ -135,12 +145,12 @@ function ChooseView({ task, attempt, update, sound, mode, listen, heading, retry
     </div>
     <Status sound={sound} />
     <button className="primary" disabled={selected === null || !heard.includes(selected)} onClick={check}>Tarkista valintani</button>
-    {checked && <Retry retryHeading={retryHeading}><p>{task.wrong?.[checked] ?? task.retry}</p></Retry>}
-    <Hints hints={task.hints} level={attempt.hintLevel} update={update} />
+    {checked && <Retry retryHeading={retryHeading}><p>{fill(task.wrong?.[checked] ?? task.retry)}</p></Retry>}
+    <Hints hints={task.hints.map(fill)} level={attempt.hintLevel} update={update} />
   </>;
 }
 
-function MatchView({ task, attempt, update, sound, mode, listen, heading, retryHeading, onSolved }: TaskProps<MatchTask>) {
+function MatchView({ task, attempt, update, sound, mode, listen, heading, retryHeading, onSolved, shown, fill }: TaskProps<MatchTask>) {
   const { heard, picks, checkedPicks } = attempt;
   const playing = sound.active && mode === 'ending' ? attempt.selected : null;
   const chosen = task.questions.flatMap(question => picks[question.id] ?? []);
@@ -155,21 +165,21 @@ function MatchView({ task, attempt, update, sound, mode, listen, heading, retryH
 
   return <>
     <h2 ref={heading} tabIndex={-1}>{task.heading}</h2>
-    <p>{task.intro}</p>
+    <p>{fill(task.intro)}</p>
     <UnfinishedButton sound={sound} mode={mode} listen={listen} />
     <div className="gig-transport">
       <fieldset>
         <legend>Kuuntele lopetukset</legend>
         <p>Kuuntele jokainen lopetus loppuun asti. Voit toistaa niitä niin monta kertaa kuin haluat.</p>
         <div className="ending-choices">
-          {LETTERS.map(ending => <button key={ending} className="listen-choice"
-            aria-label={`${playing === ending ? 'Pysäytä' : 'Kuuntele'} lopetus ${ending}${heard.includes(ending) ? ', kuultu' : ''}`}
+          {attempt.order.map(ending => <button key={ending} className="listen-choice"
+            aria-label={`${playing === ending ? 'Pysäytä' : 'Kuuntele'} lopetus ${shown(ending)}${heard.includes(ending) ? ', kuultu' : ''}`}
             onClick={() => {
               if (playing === ending) return sound.stop();
               update({ selected: ending });
-              listen('ending', `Lopetus ${ending}`, ending, () => update({ selected: ending, heard: remember(heard, ending) }));
+              listen('ending', `Lopetus ${shown(ending)}`, ending, () => update({ selected: ending, heard: remember(heard, ending) }));
             }}>
-            {playing === ending ? 'Pysäytä' : 'Lopetus'} <span>{ending}</span>
+            {playing === ending ? 'Pysäytä' : 'Lopetus'} <span>{shown(ending)}</span>
             <small aria-hidden="true">{heard.includes(ending) ? '✓ kuultu' : 'ei vielä kuultu'}</small>
           </button>)}
         </div>
@@ -179,10 +189,10 @@ function MatchView({ task, attempt, update, sound, mode, listen, heading, retryH
     {task.questions.map(question => <fieldset key={question.id} className="match-question">
       <legend>{question.prompt}</legend>
       <div className="ending-choices">
-        {LETTERS.map(ending => <button key={ending} aria-pressed={picks[question.id] === ending}
-          aria-label={`${question.label}: lopetus ${ending}`}
+        {attempt.order.map(ending => <button key={ending} aria-pressed={picks[question.id] === ending}
+          aria-label={`${question.label}: lopetus ${shown(ending)}`}
           onClick={() => update({ picks: { ...picks, [question.id]: ending }, checkedPicks: null })}>
-          {ending}
+          {shown(ending)}
         </button>)}
       </div>
     </fieldset>)}
@@ -192,10 +202,10 @@ function MatchView({ task, attempt, update, sound, mode, listen, heading, retryH
       {mistakes.length < task.questions.length && <p>Toinen tunnistus on jo oikein. Korjaa vielä yksi.</p>}
       {mistakes.map(question => {
         const pick = checkedPicks![question.id] as Letter;
-        return <p key={question.id}><strong>{question.label}:</strong> {question.wrong[pick] ?? 'Kuuntele lopetukset uudelleen ja vertaa niitä.'}</p>;
+        return <p key={question.id}><strong>{question.label}:</strong> {fill(question.wrong[pick] ?? 'Kuuntele lopetukset uudelleen ja vertaa niitä.')}</p>;
       })}
     </Retry>}
-    <Hints hints={task.hints} level={attempt.hintLevel} update={update} />
+    <Hints hints={task.hints.map(fill)} level={attempt.hintLevel} update={update} />
   </>;
 }
 
@@ -239,7 +249,7 @@ function ReasonView({ song, task, attempt, update, sound, mode, listen, heading,
   </>;
 }
 
-export function SongPlayer({ song, gigId, showLabel, attempt, update, onList, onSetlist, onNext, nextLabel = 'Seuraava kappale', onComplete, completionTitle, completedCount, completionNote, practice, saveFailed, extraActions }: {
+export function SongPlayer({ song, gigId, showLabel, attempt, update, onList, onSetlist, onNext, nextLabel = 'Seuraava kappale', onComplete, completionTitle, completedCount, completionNote, practice, saving, saveFailed, extraActions }: {
   song: Song;
   gigId: number;
   showLabel: string;
@@ -254,10 +264,14 @@ export function SongPlayer({ song, gigId, showLabel, attempt, update, onList, on
   completedCount?: number;
   completionNote?: string;
   practice: boolean;
+  /** Normaali eteneminen: ratkaisu tallentuu. */
+  saving: boolean;
   saveFailed: boolean;
   extraActions?: ReactNode;
 }) {
-  const { stage, step, checks } = attempt;
+  const { stage, step, checks, order } = attempt;
+  const shown = (ending: Letter) => shownLetter(order, ending);
+  const fill = (text: string) => fillLetters(text, order);
   const { id, title, tasks, target, explanation } = song;
   const task = tasks[Math.min(step, tasks.length - 1)];
   const sound = usePlayback();
@@ -305,14 +319,14 @@ export function SongPlayer({ song, gigId, showLabel, attempt, update, onList, on
       if (!event.currentTarget.open && playingEnding) sound.stop();
     }}>
       <summary>Miksi tämä vastaus?</summary>
-      <p>{explanation}</p>
+      <p>{fill(explanation)}</p>
       <button onClick={toggleAnswerExcerpt}>
         {playingEnding ? 'Pysäytä ratkaiseva kohta' : 'Kuuntele ratkaiseva kohta'}
       </button>
     </details>
   );
 
-  const taskProps = { song, attempt, update, sound, mode, listen, heading, retryHeading, onSolved: solved };
+  const taskProps = { song, attempt, update, sound, mode, listen, heading, retryHeading, onSolved: solved, shown, fill };
 
   return (
     <main className="concert">
@@ -324,6 +338,8 @@ export function SongPlayer({ song, gigId, showLabel, attempt, update, onList, on
       <header className="intro">
         <p className="project">{practice ? 'Ensikeikka · Harjoittelu' : showLabel}</p>
         <h1>Kappale {id} – {title}</h1>
+        {practice && <p className="mode-note" data-mode="practice">Vapaa harjoittelu: tulos ei tallennu, ja lopetusten järjestys arvotaan joka kierrokselle.</p>}
+        {saving && stage !== 'complete' && <p className="mode-note" data-mode="saving">Suoritus tallentuu keikan etenemiseen.</p>}
       </header>
       <section className="session gig-stage" aria-label="Kappaleen tehtävä">
         {stage === 'choose' && (task.kind === 'choose' ? <ChooseView {...taskProps} task={task} />
@@ -334,7 +350,7 @@ export function SongPlayer({ song, gigId, showLabel, attempt, update, onList, on
             <h2 ref={heading} tabIndex={-1} aria-describedby="correct-explanation">
               <span aria-hidden="true">✓</span> {task.success.title}
             </h2>
-            <p id="correct-explanation">{task.success.text}</p>
+            <p id="correct-explanation">{fill(task.success.text)}</p>
           </div>
           <button className="primary" onClick={() => update({ ...freshTask, stage: 'choose', step: step + 1 })}>
             Jatka vaiheeseen {step + 2}
@@ -345,7 +361,7 @@ export function SongPlayer({ song, gigId, showLabel, attempt, update, onList, on
             <h2 ref={heading} tabIndex={-1} aria-describedby="correct-explanation">
               <span aria-hidden="true">✓</span> {task.success.title}
             </h2>
-            <p id="correct-explanation">{task.success.text}</p>
+            <p id="correct-explanation">{fill(task.success.text)}</p>
             {answerDetails}
           </div>
           <p>Kuuntele valmis kappale loppuun asti.</p>

@@ -57,11 +57,11 @@ const firstNightWrong: Record<FirstNightSong, Partial<Record<Letter, string>>> =
 };
 
 const firstNightExplanations: Record<FirstNightSong, string> = {
-  1: 'Melodian G♯ nousee puoliaskelen A:han samalla kun bändi vaihtaa E7-soinnusta Am-sointuun. A on a-mollin kotisävel, ja kuulet sen sekä melodiassa että bassossa.',
+  1: 'Melodian G♯ nousee puoliaskelen A:han samalla kun bändi vaihtaa E7-soinnusta Am-sointuun. Sävel A on a-mollin kotisävel, ja kuulet sen sekä melodiassa että bassossa.',
   2: 'Melodian F♯ nousee puoliaskelen G:hen, kun bändi vaihtaa D7-soinnusta G-duurisointuun. Basso ja melodia soittavat lopussa G:n eri oktaaveissa.',
   3: 'Säestys vaihtaa G7-soinnusta C-duurisointuun, ja melodian B nousee puoliaskelen C:hen. Myös D kuuluu C-duuriin. Kun melodia jää D:hen, bändi on jo kotona ja melodia voi yhä tuntua odottavan jatkoa.',
   4: 'Melodian D♯ nousee puoliaskelen E:hen samalla kun B7 vaihtuu Em-sointuun. Huomaa loppusoinnun G. Se on kolmen puoliaskelen päässä E:stä ja antaa kotisoinnulle sen mollisävyn.',
-  5: 'Bändi vaihtaa A7-soinnusta D-duurisointuun, ja melodian C♯ nousee puoliaskelen D:hen. Myös A voi kuulostaa vakaalta, koska se on D-duurisoinnun kvintti eli D-duuriasteikon viides sävel. D on kappaleen kotisävel, ja se soi lopussa myös bassossa.',
+  5: 'Bändi vaihtaa A7-soinnusta D-duurisointuun, ja melodian C♯ nousee puoliaskelen D:hen. Myös sävel A voi kuulostaa vakaalta, koska se on D-duurisoinnun kvintti eli D-duuriasteikon viides sävel. D on kappaleen kotisävel, ja se soi lopussa myös bassossa.',
 };
 
 /** `closer`: ainakin yksi väärä vaihtoehto kuuluu sävellajiin, joten lopetukset ovat lähempänä toisiaan. */
@@ -98,6 +98,7 @@ export const area: Area = {
     songs: [6, 7, 8, 9],
     requires: 1,
     freePractice: true,
+    directStart: true,
     completionTitle: 'Kotikulmien toinen ilta suoritettu!',
   }],
 };

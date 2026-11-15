@@ -96,7 +96,7 @@ describe('Kotikulmien keikat -luettelo', () => {
     ];
     for (const song of Object.values(songs)) {
       for (const text of song.tasks.flatMap(beforeAnswer)) {
-        expect(text.replace(/[Ll]opetu(?:s|ksessa|ksen|kseen) [ABC]/g, ''), text).not.toMatch(noteName);
+        expect(text.replace(/[Ll]opetu(?:s|ksessa|ksen|kseen) \{[ABC]\}/g, ''), text).not.toMatch(noteName);
       }
     }
   });

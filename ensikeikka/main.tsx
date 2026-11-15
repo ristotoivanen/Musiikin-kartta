@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { SongPlayer, initialAttempt, type Attempt } from './GigPlayer';
 import { area, gigOf, songs } from './catalog';
 import { areaComplete, followingSong, gigStatus, songAccess, type SongMode } from './setlist';
+import { shuffledOrder } from './order';
 import { clearProgress, completedPrefix, readProgress, saveProgress, storedSongs, withCompleted } from './progress';
 import type { Gig } from './tasks';
 import './style.css';
@@ -61,7 +62,9 @@ function Ensikeikka() {
   });
   const [openGigs, setOpenGigs] = useState<number[]>(() => view.kind === 'area' && view.gig ? [view.gig] : []);
   const [attempts, setAttempts] = useState<Partial<Record<number, Attempt>>>({});
-  const [practice, setPractice] = useState(initialAttempt);
+  // Harjoittelukierros kuuluu yhdelle kappaleelle. Uusi kierros arpoo lopetusten järjestyksen.
+  const newRound = (song: number) => ({ song, attempt: { ...initialAttempt, order: shuffledOrder() } });
+  const [practice, setPractice] = useState(() => newRound(view.kind === 'song' ? view.song : 0));
   const [saveFailed, setSaveFailed] = useState(false);
   const pendingFocus = useRef(window.location.hash !== '');
 
@@ -72,6 +75,10 @@ function Ensikeikka() {
   }, [view, openGigs]);
 
   function show(next: View) {
+    // Selaimen historia voi palauttaa toisen kappaleen harjoittelun: silloin alkaa uusi kierros.
+    if (next.kind === 'song' && next.mode === 'practice') {
+      setPractice(current => current.song === next.song ? current : newRound(next.song));
+    }
     if (next.kind === 'area' && next.gig) setOpenGigs(gigs => gigs.includes(next.gig!) ? gigs : [...gigs, next.gig!]);
     if (next.kind === 'start') setOpenGigs([]);
     if (next.kind === 'song') window.scrollTo(0, 0);
@@ -97,7 +104,7 @@ function Ensikeikka() {
   }
 
   function open(song: number, mode: SongMode) {
-    if (mode === 'practice') setPractice(initialAttempt);
+    if (mode === 'practice') setPractice(newRound(song));
     go(songHash(song, mode), { kind: 'song', song, mode });
   }
 
@@ -126,11 +133,11 @@ function Ensikeikka() {
     const gig = gigOf(id)!;
     const isPractice = mode === 'practice';
     const songComplete = completed.includes(id);
-    const attempt = isPractice ? practice : songComplete
+    const attempt = isPractice ? practice.attempt : songComplete
       ? { ...initialAttempt, stage: 'complete' as const } : attempts[id] ?? initialAttempt;
 
     function update(changes: Partial<Attempt>) {
-      if (isPractice) setPractice(previous => ({ ...previous, ...changes }));
+      if (isPractice) setPractice(previous => ({ song: id, attempt: { ...previous.attempt, ...changes } }));
       else setAttempts(previous => ({ ...previous, [id]: { ...previous[id] ?? initialAttempt, ...changes } }));
     }
 
@@ -140,6 +147,8 @@ function Ensikeikka() {
     const followingGig = finishedGig ? area.gigs.find(item => item.requires === gig.id) : undefined;
     const followingStart = followingGig && status(followingGig, completed).next;
     const everything = finishedGig && areaComplete(area.gigs, completed);
+    const requiredGig = gigById(gig.requires);
+    const waiting = finishedGig && requiredGig && !status(requiredGig, completed).complete ? requiredGig : undefined;
 
     let onNext: (() => void) | undefined;
     if (isPractice && nextSong !== undefined) onNext = () => open(nextSong, 'practice');
@@ -156,10 +165,11 @@ function Ensikeikka() {
       }}
       completionTitle={isPractice ? 'Harjoittelu valmis!' : finishedGig ? gig.completionTitle : 'Kappale valmis!'}
       completedCount={finishedGig ? gig.songs.length : undefined}
-      completionNote={everything ? `${area.title} on nyt kokonaan soitettu. Esiintymisalue suoritettu!` : undefined}
+      completionNote={everything ? `${area.title} on nyt kokonaan soitettu. Esiintymisalue suoritettu!`
+        : waiting ? `Keikka ${waiting.id} on vielä soittamatta. Esiintymisalue valmistuu, kun kaikki keikat on suoritettu.` : undefined}
       extraActions={followingGig && followingStart !== undefined
         ? <button onClick={() => open(followingStart, 'progress')}>Aloita keikka {followingGig.id}</button> : undefined}
-      practice={isPractice} saveFailed={saveFailed} />;
+      practice={isPractice} saving={mode === 'progress'} saveFailed={saveFailed} />;
   }
 
   if (view.kind === 'start') {
@@ -180,9 +190,10 @@ function Ensikeikka() {
           <p>Et tarvitse kitaraa tai nuottien tuntemusta.</p>
           <ul className="area-summary" aria-label={`${area.title}: eteneminen`}>
             {area.gigs.map(gig => {
-              const { count, complete, unlocked } = status(gig, completed);
+              const { count, complete, unlocked, direct } = status(gig, completed);
+              const locked = `avautuu keikan ${gig.requires} jälkeen${direct !== undefined ? ' tai suoraan aloittamalla' : ''}`;
               return <li key={gig.id} className="gig-state" data-state={complete ? 'done' : unlocked ? 'next' : 'locked'}>
-                Keikka {gig.id}: {complete ? 'suoritettu' : unlocked ? `${count} / ${gig.songs.length} kappaletta` : `avautuu keikan ${gig.requires} jälkeen`}
+                Keikka {gig.id}: {complete ? 'suoritettu' : unlocked ? `${count} / ${gig.songs.length} kappaletta` : locked}
               </li>;
             })}
           </ul>
@@ -230,7 +241,7 @@ function GigCard({ gig, completed, attempts, open, onOpen, onToggle }: {
   onOpen: (song: number, mode: SongMode) => void;
   onToggle: () => void;
 }) {
-  const { count, complete, unlocked, next } = status(gig, completed);
+  const { count, complete, unlocked, next, direct } = status(gig, completed);
   const required = gigById(gig.requires);
   const started = count > 0 || gig.songs.some(song => attempts[song]);
   const listId = `show-${gig.id}-songs`;
@@ -242,10 +253,26 @@ function GigCard({ gig, completed, attempts, open, onOpen, onToggle }: {
         {count} / {gig.songs.length} kappaletta suoritettu
         {complete && ' · Keikka suoritettu'}
       </p>
-      {!unlocked && required && <p className="gig-note">
-        Avautuu, kun keikka {required.id} on suoritettu. Voit silti kokeilla kappaleita vapaasti. Kokeilu ei tallennu.
-      </p>}
-      <div className="button-row">
+      {!unlocked && required && <>
+        <p className="gig-note">Tavallisesti keikka {gig.id} avautuu, kun keikka {required.id} on suoritettu.</p>
+        <div className="gig-options">
+          {direct !== undefined && <div className="gig-option">
+            <button onClick={() => onOpen(direct, 'progress')} aria-describedby={`show-${gig.id}-direct`}>
+              {started ? `Jatka keikkaa ${gig.id}` : `Aloita suoraan keikasta ${gig.id}`}
+            </button>
+            <p id={`show-${gig.id}-direct`} className="gig-note">
+              Kotisävelet jo tuttuja? Suoritukset tallentuvat. Keikka {required.id} pysyy ennallaan ja odottaa sinua.
+            </p>
+          </div>}
+          {gig.freePractice && <div className="gig-option">
+            <button aria-expanded={open} aria-controls={listId} onClick={onToggle} aria-describedby={`show-${gig.id}-free`}>
+              {open ? 'Piilota settilista' : 'Kokeile kappaleita'}
+            </button>
+            <p id={`show-${gig.id}-free`} className="gig-note">Vapaa harjoittelu: mitään ei tallenneta.</p>
+          </div>}
+        </div>
+      </>}
+      {(unlocked || !gig.freePractice) && <div className="button-row">
         {next !== undefined && <button className="primary" onClick={() => onOpen(next, 'progress')}>
           {started ? `Jatka keikkaa ${gig.id}` : `Aloita keikka ${gig.id}`}
         </button>}
@@ -255,19 +282,22 @@ function GigCard({ gig, completed, attempts, open, onOpen, onToggle }: {
         <button aria-expanded={open} aria-controls={listId} onClick={onToggle}>
           {open ? 'Piilota settilista' : unlocked ? 'Valitse kappale' : 'Kokeile kappaleita'}
         </button>
-      </div>
+      </div>}
       <h4 hidden={!open} className="setlist-title">Settilista</h4>
       <ol id={listId} aria-label={`Keikan ${gig.id} settilista`} className="show-songs" role="list" hidden={!open}>
         {gig.songs.map(song => {
           const done = completed.includes(song);
-          const state = done ? 'done' : song === next ? 'next' : 'locked';
+          const state = done ? 'done' : song === next || song === direct ? 'next' : 'locked';
           return <li key={song}>
             <h4>Kappale {song} – {songs[song].title}</h4>
             <p className="gig-state" data-state={state}>
               {done ? 'Suoritettu' : song === next ? 'Seuraava kappale'
-                : unlocked ? 'Avautuu edellisen kappaleen jälkeen' : `Avautuu keikan ${required?.id} jälkeen`}
+                : song === direct ? 'Voit aloittaa tästä suoraan'
+                  : unlocked ? 'Avautuu edellisen kappaleen jälkeen' : `Avautuu keikan ${required?.id} jälkeen`}
             </p>
             {song === next && <button onClick={() => onOpen(song, 'progress')}>Avaa kappale {song}</button>}
+            {song === direct && <button onClick={() => onOpen(song, 'progress')}
+              aria-label={`Aloita suoraan kappaleesta ${song}`}>Aloita suoraan</button>}
             {!done && song !== next && gig.freePractice && <button onClick={() => onOpen(song, 'practice')}
               aria-label={`Kokeile kappaletta ${song} vapaasti`}>Kokeile vapaasti</button>}
             {done && <div className="button-row">

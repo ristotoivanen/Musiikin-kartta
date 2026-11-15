@@ -55,7 +55,7 @@ export const secondNight = {
       ],
       success: { title: 'Oikein! Löysit kotiin!', text: 'Melodia laskeutui askeleen kotisävelelle, ja basso soitti samaa säveltä.' },
     }],
-    explanation: 'Viimeisessä F-duurisoinnussa soivat F, A ja C, joten kaikki kolme lopetusta sopivat bändiin. Melodian G laskeutuu askeleen F:ään. F on kappaleen kotisävel, ja basso soittaa sitä lopussa. A ja C kuulostavat vakailta, koska ne ovat kotisoinnun terssi ja kvintti. Niissä melodia ei kuitenkaan pääse kotiin asti.',
+    explanation: 'Viimeisessä F-duurisoinnussa soivat F, A ja C, joten kaikki kolme lopetusta sopivat bändiin. Melodian G laskeutuu askeleen F:ään. F on kappaleen kotisävel, ja basso soittaa sitä lopussa. Sävelet A ja C kuulostavat vakailta, koska ne ovat kotisoinnun terssi ja kvintti. Niissä melodia ei kuitenkaan pääse kotiin asti.',
   },
   7: {
     id: 7, title: 'Basso kertoo suunnan', keyName: 'A-duuri', root: 'A',
@@ -102,7 +102,7 @@ export const secondNight = {
       ],
       success: { title: 'Oikein! Bändi palasi kotiin!', text: 'Basso nousi askel kerrallaan kotisävelelle, jossa melodia jo odotti.' },
     }],
-    explanation: 'Basso nousee E:stä F♯:n ja G♯:n kautta A:han. A on kappaleen kotisävel, ja melodia soi samaa säveltä. Lopetuksessa A basso kääntyy F♯:ään. Melodia on yhä A, mutta sointu muuttuu mollisoinnuksi, ja loppu kuulostaa yllättävältä. Lopetuksessa B basso palaa E:hen, ja bändi jää odottamaan. Tätä kuuntelutapaa tarvitset illan viimeisessä kappaleessa.',
+    explanation: 'Basso nousee E:stä F♯:n ja G♯:n kautta A:han. Sävel A on kappaleen kotisävel, ja melodia soi samaa säveltä. Lopetuksessa {A} basso kääntyy F♯:ään. Melodian sävel on yhä A, mutta sointu muuttuu mollisoinnuksi, ja loppu kuulostaa yllättävältä. Lopetuksessa {B} basso palaa E:hen, ja bändi jää odottamaan. Tätä kuuntelutapaa tarvitset illan viimeisessä kappaleessa.',
   },
   8: {
     id: 8, title: 'Kaksi mahdollista loppua', keyName: 'D-molli', root: 'D',
@@ -143,8 +143,8 @@ export const secondNight = {
           prompt: 'Missä lopetuksessa sekä melodia että bändi palaavat kotiin?',
           answer: 'B',
           wrong: {
-            A: 'Kuuntele lopetus A uudelleen ja keskity bändiin. Palaako se samaan sointuun, jolla kappale alkoi?',
-            C: 'Lopetuksessa C bändi on kotona, mutta kuuntele melodiaa. Soiko se samaa säveltä kuin basso?',
+            A: 'Kuuntele lopetus {A} uudelleen ja keskity bändiin. Palaako se samaan sointuun, jolla kappale alkoi?',
+            C: 'Lopetuksessa {C} bändi on kotona, mutta kuuntele melodiaa. Soiko se samaa säveltä kuin basso?',
           },
         },
         {
@@ -152,8 +152,8 @@ export const secondNight = {
           prompt: 'Missä lopetuksessa bändi ei palaa kotiin, vaan kappale jää kysymykseksi?',
           answer: 'A',
           wrong: {
-            B: 'Kuuntele lopetus B uudelleen. Voisiko kappale loppua siihen?',
-            C: 'Lopetuksessa C bändi palaa kotiin, mutta melodia päättyy eri säveleen kuin basso. Kysymykseksi jäävässä lopetuksessa myös bändi jää odottamaan jatkoa.',
+            B: 'Kuuntele lopetus {B} uudelleen. Voisiko kappale loppua siihen?',
+            C: 'Lopetuksessa {C} bändi palaa kotiin, mutta melodia päättyy eri säveleen kuin basso. Kysymykseksi jäävässä lopetuksessa myös bändi jää odottamaan jatkoa.',
           },
         },
       ],
@@ -161,9 +161,9 @@ export const secondNight = {
         'Kuuntele jokaisesta lopetuksesta ensin bändiä. Palaako se samaan sointuun, jolla kappale alkoi?',
         'Kahdessa lopetuksessa bändi on kotona. Niistä vain toisessa melodia soi samaa säveltä kuin basso.',
       ],
-      success: { title: 'Oikein! Tunnistit molemmat loput!', text: 'Lopetus B päättyy pisteeseen ja lopetus A kysymykseen. Kumpikin on toimiva tapa päättää fraasi, mutta eri tarkoitukseen.' },
+      success: { title: 'Oikein! Tunnistit molemmat loput!', text: 'Lopetus {B} päättyy pisteeseen ja lopetus {A} kysymykseen. Kumpikin on toimiva tapa päättää fraasi, mutta eri tarkoitukseen.' },
     }],
-    explanation: 'Lopetus B päättyy kotiin: basso ja melodia soittavat D:tä, ja bändi palaa d-mollisointuun, jolla kappale alkoi. Lopetus A on avoin lopetus. Bändi siirtyy kirkkaaseen A-duurisointuun, ja melodia jää C♯:ään, joka odottaa nousua D:hen. Tällainen loppu sopii säkeistön päätteeksi, kun kappale jatkuu. Lopetuksessa C bändi on kotona, mutta melodia jää F:ään eli kotisoinnun terssiin. Se kuulostaa vakaalta mutta pehmeältä, ei pisteeltä.',
+    explanation: 'Lopetus {B} päättyy kotiin: basso ja melodia soittavat D:tä, ja bändi palaa d-mollisointuun, jolla kappale alkoi. Lopetus {A} on avoin lopetus. Bändi siirtyy kirkkaaseen A-duurisointuun, ja melodia jää C♯:ään, joka odottaa nousua D:hen. Tällainen loppu sopii säkeistön päätteeksi, kun kappale jatkuu. Lopetuksessa {C} bändi on kotona, mutta melodia jää F:ään eli kotisoinnun terssiin. Se kuulostaa vakaalta mutta pehmeältä, ei pisteeltä.',
   },
   9: {
     id: 9, title: 'Illan viimeinen encore', keyName: 'E-duuri', root: 'E',

@@ -83,6 +83,11 @@ export type Gig = {
   requires?: number;
   /** Sallii kappaleiden kokeilemisen ilman tallennusta, vaikka keikka ei olisi vielä auki. */
   freePractice?: boolean;
+  /**
+   * Kokenut pelaaja voi aloittaa keikan suoraan ennen edellytettyä keikkaa. Suoritukset
+   * tallentuvat normaalisti, mutta edellytetty keikka ei merkitse itseään suoritetuksi.
+   */
+  directStart?: boolean;
   completionTitle: string;
 };
 

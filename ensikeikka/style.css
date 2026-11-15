@@ -140,3 +140,8 @@
 .concert .area-summary li + li { margin-top: 2px; }
 .concert .match-question + button.primary,
 .concert .statement-choices + button.primary { margin-top: 16px; }
+.concert .gig-options { display: grid; gap: 10px; margin: 8px 0 4px; }
+.concert .gig-option { display: grid; gap: 4px; justify-items: start; }
+.concert .show-card .gig-option .gig-note { margin: 0; }
+.concert .mode-note { font-size: 14px; color: var(--muted); }
+.concert .mode-note[data-mode="practice"] { color: var(--warning); }
