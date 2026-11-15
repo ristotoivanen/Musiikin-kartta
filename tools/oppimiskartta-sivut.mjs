@@ -99,6 +99,7 @@ function topicPage(topic) {
   return '<!doctype html><html lang="fi"><head><meta charset="utf-8">' +
     '<meta name="viewport" content="width=device-width, initial-scale=1">' +
     '<title>' + escape(topic.title) + ' – Oppimiskartta</title>' +
+    '<link rel="stylesheet" href="../book/reader.css?v=65711fca9c">' +
     '<link rel="stylesheet" href="../assets/paavalikko.css?v=59824281af">' +
     '<link rel="stylesheet" href="../assets/oppimiskartta-sivut.css?v=' + styleVersion + '">' +
     '<script defer src="../assets/oppimiskartta.js"></script></head><body>' +
