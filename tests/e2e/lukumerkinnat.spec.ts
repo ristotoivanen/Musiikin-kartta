@@ -108,12 +108,12 @@ async function verifyCompletion(page: Page, topic: Topic, item: Item, isMobile: 
   if (isChapter) await expectBookMark(page, item.id, false);
 }
 
-test('kaikki 70 sisältösivua kuuluvat suoritusmerkintöjen testiin', () => {
+test('kaikki 73 sisältösivua kuuluvat suoritusmerkintöjen testiin', () => {
   const pages = topics.flatMap(topic => topic.pages);
   expect(topics).toHaveLength(8);
-  expect(pages).toHaveLength(70);
+  expect(pages).toHaveLength(73);
   expect(pages.filter(({ kind }) => kind === 'harjoitus')).toHaveLength(41);
-  expect(pages.filter(({ kind }) => kind === 'oppitunti')).toHaveLength(1);
+  expect(pages.filter(({ kind }) => kind === 'oppitunti')).toHaveLength(4);
   expect([...chapterIds.values()].sort()).toEqual([...bookRoutes.keys()].sort());
   expect(bookRoutes.size).toBe(28);
 });

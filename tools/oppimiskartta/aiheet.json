@@ -4,11 +4,16 @@
     {
       "slug": "kitara", "anchor": "aihe-kitara", "title": "Kitaran perusteet",
       "back_label": "Kitaran perusteisiin",
-      "summary": "Avoimet soinnut ja ensimmäinen kappale.",
-      "lead": "Ota kitara käteen. Opettele neljä avointa otetta ja soita ensimmäinen kappale hitaasti sointu kerrallaan.",
+      "summary": "Tutuista soinnuista kappaleen soittamiseen ja kuuntelemiseen.",
+      "lead": "Osaat jo virittää kitaran, lukea yksinkertaisen sointukaavion ja soittaa muutaman avoimen soinnun. Nyt käytät tuttuja otteita kappaleessa ja kuuntelet, mitä soinnun vaihtuminen tekee musiikille.",
       "groups": [
-        {"title": "Otteet ja ensimmäinen kappale", "lessons": [
-          {"source": "osa-1#sointukierrot", "goal": "Soita G, C, D ja Am sekä ensimmäinen kappale sointukartasta."}
+        {"title": "Tutuista soinnuista kartalle", "lessons": [
+          {"standalone": "savelesta-sointuun", "title": "Sävelestä sointuun", "goal": "Kuuntele, miten yksittäisistä sävelistä syntyy sointu ja miten soinnuista muodostuu kierto."},
+          {"standalone": "vaihto-ja-sointukartta", "title": "Sointuvaihdot ja sointukartta", "goal": "Vaihda sointua tahdin rajalla ja seuraa lyhyen kappaleen rakennetta kartasta."}
+        ]},
+        {"title": "Soita ja kuuntele kappaletta", "lessons": [
+          {"source": "osa-1#sointukierrot", "goal": "Soita Kolme cowboyta -harjoitustaustan mukana ja löydä kartasta säkeistö, kertosäe ja kappaleen lopetus."},
+          {"standalone": "mihin-kierto-paattyy", "title": "Mihin sointukierto päättyy?", "goal": "Vertaa kahta lopetusta ja kuuntele, miten basso auttaa tunnistamaan soinnun."}
         ]}
       ],
       "related": ["savelnimet/kitaran-kielet-ja-sointumerkinnat", "rytmi"]

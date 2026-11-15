@@ -2,7 +2,7 @@
 
 ## Sisältökartoitus
 
-28 teoriaoppaan lukua, kitaramerkintöjen erillinen opetussivu ja 41 itsenäistä harjoitusta löytyvät Oppimiskartasta. Taulukossa harjoitusten ja äänisoitinten määrät kuvaavat alkuperäistä osaa. Kitaramerkintöjen opetussivu on poiminta osasta 1, joten se ei lisää teoriaoppaan lukunumeroita.
+Oppimiskartta sisältää 28 teoriaoppaan lukua, 41 itsenäistä harjoitusta ja neljä muuta oppituntia. Kitaramerkintöjen opetussivu on poiminta osasta 1. Kitaran perusteiden kolme uutta oppituntia käyttävät omia HTML-lähteitä. Taulukossa harjoitusten ja äänisoitinten määrät kuvaavat alkuperäistä teoriaoppaan osaa.
 
 | Teoriaoppaan osa | Oppimiskartan aiheet ja sisältö | Lukuja / tehtäviä / äänisoittimia | Muu käyttökelpoinen materiaali |
 | --- | --- | --- | --- |
@@ -46,3 +46,15 @@ Kitaran perusteet linkittää samaan sointumerkintäsivuun, jota käytetään s�
 1. Kokeile kuuntelun, palaamisen ja harjoittelijan vaihtoa fyysisellä iPhonella Safarissa ja Android-puhelimella. Tarkista samassa yhteydessä VoiceOver ja TalkBack. Kapean näkymän uudelleenrivitys arvioitiin Chromessa [WCAG 2.2:n 320 CSS-pikselin kriteerin](https://www.w3.org/WAI/WCAG22/Understanding/reflow.html) mukaan.
 2. Pyydä ensikertalaista kokeilemaan pulssi ja löytämään ensimmäinen soitto-ote. Pyydä kokeneempaa soittajaa löytämään haluamansa CAGED- tai pentatoniikkaharjoitus. Havainnoi, löytääkö kumpikin paluun aiheeseen puhelimella.
 3. Päätä, kuuluuko viivastonuotinnoksen lukeminen tulevaan opetussisältöön omana aiheena. Nyt sävelnimien aihe kattaa sävelvälit, kitaran kielten nimet ja sointumerkinnät.
+
+## Kitaran perusteiden uusi polku
+
+| Oppisisältö | Tehtävä ja peruste järjestykselle |
+| --- | --- |
+| [Sävelestä sointuun](../oppi/kitara/savelesta-sointuun.html) | Soittaja vertaa tuttujen otteiden kieliä ja sointuja ennen kuin siirtyy vaihtamaan niitä. Sointukaavioihin on tarvittaessa kertauslinkki. |
+| [Sointuvaihdot ja sointukartta](../oppi/kitara/vaihto-ja-sointukartta.html) | Sama kartta ja hidas äänite yhdistävät kaksi asiaa. Ensin harjoitellaan vaihtoa ykköselle, sitten seurataan kartan kahta riviä. Yksi soitto tahdissa riittää. Rytmi-aihe syventää komppaamista. |
+| [Neljä otetta ja ensimmäinen kappale](../oppi/kitara/sointukierrot.html) | Harjoiteltu taito siirtyy Kolme cowboyta -sovitukseen, jossa osat toistuvat ja vaihto osuu välillä kesken tahdin. Alkuperäistä lukua käytetään edelleen teoriaoppaan lähteestä. |
+| [Soita ensin basso](../oppi/kitara/soita-ensin-basso.html) | Matalat perussävelet vähentävät otetyötä. Kun ykköset löytyvät bassolla, kokonaiset soinnut voi lisätä takaisin. |
+| [Mihin sointukierto päättyy?](../oppi/kitara/mihin-kierto-paattyy.html) | Kahden version kolme ensimmäistä tahtia ja tempo ovat samat. Soittaja kuuntelee ja kokeilee, miten vain viimeisen soinnun vaihtuminen muuttaa lopetuksen tuntua. Tästä voi jatkaa Rytmiin tai tutkia sointujen kuuntelua Sävelkorva ja melodia -aiheessa. |
+
+Sisältökatselmuksessa käytettiin lähtötasona soittajaa, joka osaa virittää kitaran ja käyttää muutamaa avointa otetta. Sointumerkintöjen kertaus ja olemassa olevan kappaleluvun otediagrammit ovat tarjolla tarpeen mukaan. Hidas oma esimerkki pitää ajoituksen harjoittelun erillään kappaleluvun tiheämmistä vaihdoista. Lopetusesimerkit auttavat pukemaan kuullun sanoiksi ennen myöhempää harmonian käsittelyä. Kohderyhmän todellinen etenemistahti ja harjoitusten kokeminen kuuluvat käyttäjäkatselmukseen.
