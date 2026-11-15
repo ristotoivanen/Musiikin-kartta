@@ -2,7 +2,7 @@
 
 **Tila:** SUUNNITELMA / katselmointiluonnos, ei hyväksytty toteutustehtävä eikä tuotantojulkaisulupa  
 **Päiväys:** 15.11.2026  
-**Omistajan jatkoajatus:** Ensikeikka 2:n basson erilliskuuntelu, monivaiheiset tehtävät ja musiikillisesti erilaiset lopetukset ovat onnistunut suunta. Kehitä sitä kiinnostavaksi, vaihtelevaksi, asteittain vaikeutuvaksi ja aidosti opettavaksi kokonaisuudeksi. Tutki Suno-tuotettujen katkelmien käyttöä keikkojen huipennuksissa.
+**Omistajan jatkoajatus:** Ensikeikka 2:n basson erilliskuuntelu, monivaiheiset tehtävät ja musiikillisesti erilaiset lopetukset ovat onnistunut suunta. **Tarkennus 15.11.2026:** rakenna tarina vuorottelevista bändiharjoituksista ja keikoista. Harjoituksissa opitaan, Kotikulman keikalla kuullaan kokonaisempia kappaleita ja sovelletaan opittua. Tutki Suno-tuotettujen katkelmien käyttöä keikkojen yhteydessä.
 
 ## 0. Sijainti projektin päätöksenteossa
 
@@ -13,7 +13,7 @@ Tämä dokumentti on **Ensikeikan pelikohtainen jatkosuunnitelma**. Se ei korvaa
 - Clauden keikka 2 on haarassa [feature/ensikeikka-toinen-ilta](https://github.com/ristotoivanen/Musiikin-kartta/tree/feature/ensikeikka-toinen-ilta), tarkistettu commit `6dfa967403f95d2eccd4af79ab1fb3fd127c50bb`. Kappaleet 6–9 ja katselmus: `ensikeikka/README.md`, `second-night.ts`, `catalog.ts`, `tasks.ts`, `reviews/ensikeikka-kokonaiskatselmus.md`.
 - [PR #61](https://github.com/ristotoivanen/Musiikin-kartta/pull/61) on erillinen Codexin Oppimiskartan, Riffikaiun ja Ensikeikan näkymämuutosten integraatioluonnos. Sen hyväksyminen ei tarkoita Clauden keikka 2:n hyväksymistä. Tarkista haarojen viimeisin todellinen tila ennen koodausta.
 - Clauden katselmus perustuu lähdekoodiin, automatisoituihin äänimittauksiin ja mykistettyyn selainajoihin. **Kuulonvarainen koe puhelimella ja kuulokkeilla on tekemättä.** Älä väitä materiaalin musiikillista tai pedagogista toimivuutta todennetuksi.
-- Tässä dokumentissa ehdotetut keikat 3–6 eivät ole toteutettuja eivätkä hyväksytty aikataulu.
+- Tässä dokumentissa ehdotettu treeni–keikka-vuorottelu ja uudet keikkakohtaukset eivät ole toteutettuja eivätkä hyväksytty aikataulu.
 
 ## 1. Päätavoite ja ei-tavoitteet
 
@@ -41,28 +41,51 @@ Säilytettävää:
 
 Keikka 2:n tehtävätyypit ovat `choose`, `match`, `reason`; yhdessä kappaleessa voi olla peräkkäisiä tehtäviä. Lopetusten järjestys sekoittuu vapaassa harjoittelussa. Tärkeä rajoite: sama musiikki toistuu; pelkkä kirjainten sekoittaminen ei testaa siirtovaikutusta uuteen kappaleeseen.
 
-## 3. Ehdotettu eteneminen – ei lukittu kuuden keikan toimitussopimus
+## 3. Tarkennettu tarinarakenne: harjoitukset ja keikat vuorottelevat
 
-| Keikka | Teema | Uusi toiminta | Pääperiaate |
+**Omistajan uusi idea 15.11.2026, tilana EHDOTUS:** ensimmäiset olemassa olevat tehtävät ovat bändiharjoituksia. Niiden jälkeen tulee **Kotikulman keikka**, jossa kuunnellaan kokonaisempaa kappaletta ja ratkaistaan musiikillisia tilanteita. Sen jälkeen tulee **Bändiharjoitus 2**, jossa opitaan uusia tarkempia kuuntelutaitoja; sitten toinen keikka. Tämä tarkennus korvaa aiemman vain numeroitujen keikkojen 1–6 -ehdotuksen. Nimet ja kohtausjärjestys ovat suunnitteluehdotuksia, eivät vielä tuotantoon hyväksyttyjä.
+
+| Etenemisvaihe | Nykyinen tai suunniteltu sisältö | Pelaajan kokemus | Oppimisen tehtävä |
 | --- | --- | --- | --- |
-| 1 Ensimmäinen esiintyminen | Kotisävel | Valitse kuulemalla | Helppo ero, heti onnistuminen |
-| 2 Kotikulmien toinen ilta | Basso, harmonia, avoin lopetus | Erota osia, tunnista ja perustele | Musiikillinen kuuleminen, ei vain oikea kirjain |
-| **3 Bänditreeneissä tapahtuu (pilotti)** | Muutos, basson liike, rytmi | Vertaa A/B-esityksiä, kuuntele stemmiä, tunnista tapahtuma | Kaksi uutta tehtävämekaniikkaa kokeeksi |
-| 4 Klubi-ilta (optio) | Fraasit ja tunnelma | Tunnista kysymys/vastaus, valitse eri tarkoituksiin | Myös kaksi erilaista oikeutettua ratkaisua |
-| 5 Oma paikka bändissä (optio) | Ennakoiminen ja vastaaminen | Täydennä fraasi otelaudalta tai soita se | Oikea kitara valinnainen, ei pakollinen mikrofoni |
-| 6 Oma konsertti (optio) | Soveltaminen ja oma musiikki | Rakenna lyhyt esitys | Valinnat muuttavat kuultavaa musiikkia |
+| **Bändiharjoitus 1** | **Nykyiset kappaleet 1–5** (nykyinen keikka 1) | Lyhyitä, helposti toistettavia melodian loppujen kuunteluharjoituksia | Kuule kotisävel, erota vakaa ja jännitteinen ratkaisu |
+| **Kotikulman keikka** | **UUSI**, pilottiin yksi tai kaksi musiikkikohtausta | Kokonaisempi kappale, jossa pelaaja tekee 1–2 todelliseen musiikilliseen tarkoitukseen liittyvää valintaa | Sovella harjoituksen 1 taitoa uudessa kappaleessa ilman saman tehtävän ulkoa muistamista |
+| **Bändiharjoitus 2** | **Clauden nykyiset kappaleet 6–9** (nykyisen keikka 2:n tehtävät) | Lisää erilliskuuntelua, basson ja sointujen toiminta, piste/kysymys, perustelut | Tarkempi kuuntelu ja melodian sekä basson suhde |
+| **Toinen keikka** | UUSI, vasta myöhemmin | Yhdistä basso, harmonia ja melodia musiikin kulussa ja tee oma tarkoituksenmukainen valinta | Siirtovaikutus: opittu osataan vieraassa kappaleessa |
+| **Bändiharjoitus 3 → seuraava keikka** | Optio, ei nykyistä toteutuspäätöstä | Rytmi, fraasit, melodian jatkaminen, oma kitararooli ja mahdollinen improvisointi | Etene tunnistamisesta ennakointiin ja luomiseen |
 
-Toteutuspäätös tehdään *keikka tai pilotti kerrallaan*. Keikat 4–6 saa muuttaa, yhdistää tai jättää pois käyttäjäkokeiden perusteella.
+**Treenin ja keikan ero on pedagoginen, ei pelkkä ulkoasu:**
 
-### Ehdotettu keikan 3 käsikirjoitus (kappaleet 10–14, vasta sisältöaihioita)
+- **Treenit:** lyhyet äänet, erilliset bassot/melodiat/kompit, rajattu huomion kohde, palaute ja kaksitasoiset vihjeet, rajaton yrittäminen, mahdollisuus pysäyttää ja tutkia.
+- **Keikat:** enemmän yhtäjaksoista musiikkia, harvemmat mutta merkitykselliset valinnat, vähemmän ohjetekstiä kesken esityksen, uuden kappaleen kuunteleminen, valinnan seurauksen kuuleminen, lopuksi lyhyt yhteenveto. Ei rangaistusta musiikillisista kokeiluista tai väärästä ensivalinnasta.
+- **Keikan jälkeen:** "Tässä kuulit saman ilmiön, jota harjoittelit", linkki tarvittaessa takaisin sen taidon treeniin, ja valinnainen lisäkuuntelu/encore.
+- Harjoitteluun ja keikkaan saa päästä myös vapaasti. Suositeltu järjestys ei muutu pakolliseksi kaikkien sisältöjen portitukseksi.
 
-- **10 Mikä muuttui?** Sama lyhyt bändikatkelma A ja B. Yhdessä muuttuu basso, kitaran komppi tai rumpujen kuvio. Ensin havainto, sitten soittimen erilliskuuntelu ja selitys.
-- **11 Basson jäljillä.** Kuuntele lyhyt bassokuvio. Valitse nouseeko, laskeeko vai pysyykö se suunnilleen paikallaan. Varmista ettei vastausta voi päätellä vain loppusoinnun voimakkuudesta.
-- **12 Rytmi katoaa.** Kuulet yhden tauon tai rytmimuutoksen. Osoita muutoskohta yksinkertaisesta tahtinäkymästä. Mahdollista tarvittaessa pelkällä kuuntelulla ja valinnalla.
-- **13 Kitaristi vastaa.** Kuuntele musiikillinen kysymys, vertaile kahta toimivaa vastausfraasia. Valitse ensin tehtävän tarkoitukseen sopiva, sitten vapaassa tilassa oma suosikki.
-- **14 Treenin päätös.** Yhdistä vähintään kaksi aiempaa taitoa uuteen esimerkkiin. Lopuksi vapaaehtoinen musiikillinen encore.
+### Ensimmäisen Kotikulman keikan esimerkkikäsikirjoitus
 
-**Ensimmäinen toteutuspilotti ei ole kappaleet 10–14 kokonaan.** Aloita vain 10 ja 11 sekä yksi valinnainen encore-malli. Muiden käsikirjoitukset arvioidaan pilotin perusteella.
+**Kohtaus A: Viimeinen sävel ratkaisee** (pilotin ensisijainen toteutusehdokas)
+1. Bändi soittaa 30–60 sekunnin alkuperäisen blues-rock-kappaleen tai tarkoitukseen tehdyn lyhyen kokonaisuuden. Soittimet kuuluvat riittävän hyvin myös mobiilissa.
+2. Kappale lähestyy loppua. Pelaajalle annetaan yksi yksinkertainen musiikillinen tavoite: "Bändi haluaa lopettaa tämän kappaleen selvästi kotiin".
+3. Tarjotaan kaksi tai kolme etukäteen sävellettyä loppua, jotka ovat musiikillisesti vertailukelpoisia. Pelaaja kuuntelee ja valitsee. Vastausta ei saa ratkaista visuaalista vihjettä tai äänenvoimakkuutta vertaamalla.
+4. **Koko kappale jatkuu tai soi valitulla lopulla**. Sen jälkeen yksi lyhyt selitys ja vapaavalintainen "Kokeile toista loppua".
+5. Pelaaja voi jatkaa ja suorittaa keikan myös vihjeen avulla. Kappaleen valmistuminen ei riipu Suno-assetista.
+
+**Kohtaus B: Kappale jää kysymykseksi** (jatkoidea, ei ensimmäisen pilotin vaatimus)
+- Kuuntele säkeistöä ja sen jälkeen bändin tekemää siirtymää. Päätä, päättyykö kappale tähän vai halutaanko sen jatkavan kertosäkeeseen; kuule valitun ratkaisun seuraus.
+- Jos useat loput ovat toimivia, kysy "mikä palvelee annettua tavoitetta?" tai "mitä haluat tapahtuvan?", älä merkitse mieltymystä vääräksi.
+
+**Keikkakohtauksen vaihtelu:** sama oppimisen tavoite, mutta vähintään yksi toinen sävellys/sävellaji/rytminen sovitus niin, ettei läpipääsy perustu saman loppusävelen muistamiseen. Koko laulua ei tarvitse generoida joka pelikerralle.
+
+### Toisen bändiharjoituksen sisältö ja myöhemmät laajennukset
+
+Clauden kappaleet 6–9 ovat jo käytännössä **Bändiharjoitus 2**: basso, harmonia, useat musiikillisesti oikeutetut loput ja niiden perustelu. Älä kirjoita näitä uudelleen vain nimenvaihdon vuoksi. Kappaleet 10–14:n aikaisemmat ideat ("Mikä muuttui?", "Basson jäljillä", "Rytmi katoaa", "Kitaristi vastaa", "Treenin päätös") säilyvät **mahdollisina lisätehtävinä seuraaviin bändiharjoituksiin**, eivät kiinteänä kolmantena keikkana tai vahvistettuna numerointina.
+
+### Sisältö- ja tallennusidentiteettien turva
+
+**Näkyvän tarinan järjestys ei saa olla sama asia kuin kappaletunnisteiden juokseva numero.** Nykyiset suoritus-ID:t 1–9 säilytetään, eikä 6–9:ää numeroida uusiksi. Uudet Kotikulman keikan kohtaukset saavat erilliset vakaat tunnisteet; näyttöjärjestys määritellään erikseen sisällöstä. Ei sotketa keikan numeroa, harjoituskerran numeroa ja kappaleen tallennus-ID:tä.
+
+Jos Kotikulman keikka lisätään **1–5 ja 6–9 väliin**, jo suoritettujen käyttäjien eteneminen ei saa palautua tai mennä lukkoon. Määrittele tätä varten yhteensopiva valinnainen välinäytös tai migratoitu etenemislogiikka erillisessä suunnittelussa, testaa vanhat tallenteet. **Älä muuta nykyistä version 1 localStorage-rakennetta tai olemassa olevia syvälinkkejä pelkän suunnitteludokumentin perusteella.**
+
+Toteutuspäätös tehdään *kohtaus ja pilotti kerrallaan*. Bändiharjoitus 3 ja sitä seuraavat esiintymiset ovat avoimia jatkomahdollisuuksia.
 
 ## 4. Tehtävämekaniikat ja oikean vastauksen määritelmä
 
@@ -103,7 +126,7 @@ Vaikeusasteen kolme erillistä ulottuvuutta:
 
 ## 6. Suno ja laadukas ääni: pieni, erillinen koe
 
-**Ensisijainen käyttökohde:** keikan lopun **20–40 sekunnin vapaaehtoinen encore**, joka tuo opitun ilmiön oikean bändin tuntuiseksi. Ei palkintona irrallinen kappale, vaan opitun asian musikaalinen todistus: esimerkiksi basson nousu ja melodian lasku samaan kotisäveleen.
+**Ensisijainen käyttökohde:** etenkin **Kotikulman keikan** ja myöhempien esiintymisten musiikillinen kokonaisuus tai lopun **20–40 sekunnin vapaaehtoinen encore**, joka tuo opitun ilmiön oikean bändin tuntuiseksi. Bändiharjoitusten ei tarvitse päättyä Suno-kappaleeseen. Ei palkintona irrallinen kappale, vaan opitun asian musikaalinen todistus: esimerkiksi basson nousu ja melodian lasku samaan kotisäveleen.
 
 Mahdolliset huipennukset:
 - **A Encore:** kuuntele viimeistelty bändikatkelma ilman uutta koetta (ensimmäinen kokeilu).
@@ -122,38 +145,38 @@ Mahdolliset huipennukset:
 
 **Ei vielä:** Sunon suora selainintegraatio, automaattinen generointiputki, soitinraitojen käyttäminen luotettavana arviointiaineistona tai maksullisten generointien massatuotanto.
 
-## 7. Työpaketit ja päätösportit
+## 7. Tarkennetut työpaketit ja päätösportit
 
-### P0 – Ensikeikka 2:n hyväksyntä / ennen jatkokoodia
-- [ ] Testaa kappaleet 6–9 korvalla kuulokkeilla ja fyysisen puhelimen kaiuttimella; erityisesti 6:n terssiloppu, 7:n basso ja 8:n piste/kysymys.
-- [ ] Varmista erilliskuuntelun käyttäytyminen, keskeytys, yhden soittimen periaate, 320/360/390 px, näppäimistö, paluu ja vanhojen tallenteiden säilyminen.
-- [ ] Erottele muiden haarojen ongelmat (esim. navigaatio) tästä toteutuksesta. Älä muokkaa Clauden tai Codexin työhaaraa suunnitelman varjolla.
-- [ ] Omistajan päätös: hyväksytäänkö keikka 2 pilotin lähtötasoksi, korjataanko ensin jotakin?
+### P0 – Clauden nykyinen "keikka 2" arvioidaan sisällöstä, ei nimestä
+- [ ] Kuuntele kappaleet 6–9 fyysisen puhelimen kaiuttimella ja kuulokkeilla; arvioi 6:n terssiloppu, 7:n basso, 8:n piste/kysymys, 9:n kahden vaiheen ymmärrettävyys.
+- [ ] Testaa erilliskuuntelu, keskeytys, vanha eteneminen, 320/360/390 px ja saavutettavuus.
+- [ ] Kirjaa erikseen, onko 6–9 sisältönä hyväksyttävissä Bändiharjoitus 2:ksi; **älä nyt käske Claudea vaihtamaan nimeä tai tehtäväjärjestystä kesken työn**.
+- [ ] Säilytä Codexin integraatio-PR #61 ja Clauden haara erillään. Omistajan katselmointi ennen yhdistämistä.
 
-### P1 – Pedagoginen pilotin määrittely (vain dokumentaatio)
-- [ ] Lukitse kappaleen 10 `compare-change` ja kappaleen 11 `bass-contour` yksisivuiset tehtäväkäsikirjoitukset, 2–3 esimerkkivarianttia/taito ja tavoiteltu havainto.
-- [ ] Kirjoita vastauskriteerit, vastausvaihtoehtojen musiikilliset eroavaisuudet, kaksitasoiset vihjeet ja virhekohtainen palaute.
-- [ ] Päätä mille nykyisen oppimisuudistuksen teoria-/taitoyhteydelle ne kuuluvat; ei uutta pakollista pelaamisen hierarkiaa.
-- [ ] Omistajan päätös: hyväksytäänkö **kahden tehtävän** pilotti ilman koko keikka 3:n lupausta?
+### P1 – Uuden Kotikulman keikan yksi lyhyt käsikirjoitus (vain dokumentaatio)
+- [ ] Kirjoita yksi kohtaus: kokonaista kappaletta kuunnellaan, valitaan tavoitteeseen sopiva lopetus, kuullaan valinnan seuraus, saadaan perusteltu jälkipalaute.
+- [ ] Tee 2 aidosti erilaista alkuperäistä musiikkiesimerkkiä samalla taitotavoitteella; dokumentoi niiden harmonia, loput ja kuultava ero.
+- [ ] Määritä ero nykyiseen treenitehtävään: keikalla ei ole viittä samanlaista välitarkistusta, vaan 1–2 mielekästä päätöstä musiikin kulussa.
+- [ ] Suunnittele säilyttävä navigaatio: Bändiharjoitus 1 → Kotikulman keikka → Bändiharjoitus 2 sekä vapaa harjoittelu ja jo suoritettujen käyttäjien yhteensopivuus.
+- [ ] Omistajan päätös: hyväksytäänkö tämä **yksi** uusi keikkakohtaus pilotiksi?
 
-### P2 – Pieni tekninen pilotti (oma haara ja draft-PR)
-- [ ] Tee rajattu `compare-change` ja `bass-contour` -laajennus olemassa olevaan `Task`-rakenteeseen ja toistimeen. Käytä nykyisiä bändikerroksia.
-- [ ] Lisää 2–3 selvästi erilaista ääniesimerkkiä kumpaankin. Ei pelkkää vastausten kirjainsekoitusta.
-- [ ] Aja musiikkiteoriatestit, äänivaihtoehtojen analyysi, unit-/build-/Playwright-testit sekä manuaalinen kuuntelu.
-- [ ] Säilytä `#kappale-N` / `#harjoitus-N` -reitit, vanhat suoritukset, esteetön käyttö, puhelinleveydet, ei pakkomikkiä.
-- [ ] Valinnainen, erillinen **Suno-encore-assetin kokeilu**; siitä oma sisältöpäätös, ei pilottitehtävien riippuvuus.
-- [ ] Ei suoraa pushia `beta`/`main`-haaroihin eikä mergeä/julkaisua ilman omistajan hyväksyntää.
+### P2 – Rajattu prototyyppi hyväksytyssä omassa toteutushaarassa
+- [ ] Toteuta **vain yksi** Kotikulman keikan kohtaus ja sen 1–2 musiikillista valintaa käyttäen nykyisiä soittimen/sovituksen osia, mikäli mahdollista.
+- [ ] Vältä yleisen "keikkamoottorin" rakentamista ennen kuin toista käyttökohdetta todella tarvitaan.
+- [ ] Säilytä nykyiset kappaletunnisteet 1–9, tallenne, vanhat syvälinkit ja käyttäjän pääsy nykyiseen keikkaan 2. Lisää uusi kohtaus erillisenä, yhteensopivana tapahtumana.
+- [ ] Testaa valitun vaihtoehdon vaikutus, todellinen musiikillinen toimivuus, keskeytys, ääniviive, mobiili sekä vanhojen tallenteiden säilyminen.
+- [ ] Sunon **yksi vapaaehtoinen** keikkakatkelma voidaan kokeilla rinnakkaisena audio-assetina omilla hyväksyntäehdoillaan; tekniikka ei saa riippua sen saatavuudesta.
 
-### P3 – Oikea kokeilu ja jatkopäätös
-- [ ] Kokeile muutamalla aloittelijalla ja jo soittavalla ihmisellä ilman jatkuvaa opastusta; kirjaa laadulliset havainnot, ei tilastollisina oppimistuloksina.
-- [ ] Tarkkaile: löytääkö tehtävän; kuuleeko eron; ymmärtääkö palautteen; pystyykö toistamaan taidon *uudessa* näytteessä; onko kierros kiinnostava; jaksaako kuunnella encoren vai ohittaako sen.
-- [ ] Vertaile aloittelijan ja kokeneemman etenemistä; älä nosta vaikeutta automaattisesti ilman todennettuja perusteita.
-- [ ] Omistajan päätös: (A) jatka suunniteltuun keikkaan 3, (B) korjaa pilottia, (C) jätä uusi mekanismi pois.
+### P3 – Käytettävyys- ja oppimiskoe
+- [ ] Kokeile ilman jatkuvaa opastusta sekä aloittelijalla että aiemmin soittaneella. Tuntuuko keikka keikalta, treeni treeniltä?
+- [ ] Mittaa laadullisesti, siirtyykö treenissä opittu taito keikan **uuteen** musiikkiesimerkkiin.
+- [ ] Tarkkaile ymmärrettävyyttä, toiston määrää, valintojen selkeyttä, Suno-katkelman hyötyä ja mahdollisuutta ohittaa se.
+- [ ] Omistajan päätös: laajennetaanko Kotikulman keikkaa, täydennetäänkö Bändiharjoitus 2:ta uusilla tehtävillä, vai korjataanko ensin pilottia?
 
-### P4 – Laajennus vain osoitetun hyödyn perusteella
-- [ ] Kirjoita kappaleiden 12–14 käsikirjoitukset vasta P3:n jälkeen.
-- [ ] Arvioi siirtovaikutus (uusi sävellaji, groove, soitinääni), lyhyet kertaukset ja mahdollinen varovainen osaamisnäkymä.
-- [ ] Keikat 4–6 säilyvät ehdotuksina; älä aloita niiden koodausta samalla kertaa.
+### P4 – Myöhemmät treenit ja esiintymiset vain todetun hyödyn perusteella
+- [ ] Hahmottele **Toinen keikka** vasta, kun Bändiharjoitus 2:n kappaleet 6–9 ovat hyväksytyt ja ensimmäisen keikan kokeesta on näyttöä.
+- [ ] Harkitse seuraaviin bändiharjoituksiin `compare-change`, `bass-contour`, `spot-event`, `phrase-response` ja oikean kitaran vapaaehtoisia tehtäviä.
+- [ ] Älä toteuta koko tarinakarttaa, uusia tallennusmalleja tai keikkojen nimeämismigraatioita yhdessä jätti-PR:ssä.
 
 ## 8. Kokeen onnistumisen tarkistus
 
@@ -162,7 +185,7 @@ Ennen teknistä GO-päätöstä pilotista pitää olla todennettavissa:
 2. **Oppiminen näkyvissä:** pelaaja osaa omin sanoin tai uuden näytteen kautta kuvata, mikä muuttui; ensimmäinen oikein napautettu vaihtoehto ei yksin riitä.
 3. **Vaihtelua:** sama taito kahdessa erilaisessa musiikillisessa tilanteessa, ei toistoa peräkkäin ellei kyse ole kertaamisesta.
 4. **Kohtuullinen vaikeus:** vihjeet auttavat etenemään, eivät suoraan paljasta oikeaa säveltä; uuden tehtävän vaatimukset ovat johdonmukaiset edellisen jälkeen.
-5. **Musiikki palkitsee:** encoren voi kuunnella tai ohittaa, ja se liittyy musiikilliseen tavoitteeseen.
+5. **Musiikki palkitsee:** keikka sisältää aidon musiikillisen kokonaisuuden ja valintojen seuraukset; mahdollisen encoren voi kuunnella tai ohittaa.
 6. **Tekninen turva:** ääni pysähtyy vaihdettaessa, vanha tallenne säilyy, mobiili ja näppäimistö toimivat, oikeudet ovat kunnossa, testit dokumentoitu.
 7. **Katselmointierottelu:** automaattitestit, todellinen kuuntelukoe, käyttäjätesti ja omistajan hyväksyntä ilmoitetaan erikseen.
 
@@ -172,11 +195,11 @@ Ennen teknistä GO-päätöstä pilotista pitää olla todennettavissa:
 
 1. Claude viimeistelee `feature/ensikeikka-toinen-ilta`-työnsä omassa työpuussaan. Codexin keskeneräisiä Oppimiskartan ja Riffikaiun haaroja ei kosketa.
 2. Ensikeikka 2 kuunnellaan ja hyväksytään erikseen. Tämän suunnitelman omistaja voi hyväksyä myös ennen toteutuskoodia.
-3. Luo myöhemmin **erillinen käsikirjoitus-PR** vain tehtäville 10–11 ja niiden musiikillisille varianteille.
+3. Luo myöhemmin **erillinen käsikirjoitus-PR** yhdelle Kotikulman keikan kohtaukselle ja kahdelle erilaiselle musiikilliselle esimerkille. Älä varaa kappaletunnisteita tai muuta vanhoja ennen teknistä päätöstä.
 4. Toteutushaara otetaan tuolloin hyväksytystä, tuoreesta yhteisestä pohjasta eikä tästä dokumenttihaarasta. Tarkista `git status --porcelain` ja `git worktree list`; jos työkopio ei ole puhdas, älä resetoi/stashaa toisen työtä.
 5. Yksi rajattu toteutus-PR, sen jälkeen todellinen kuuntelu- ja käyttäjäkoe. Erilliset päätökset beta-mergeen ja tuotantoon.
 
-**Avoimet omistajan päätökset:** keikka 2:n hyväksyntä; pilotti 10–11; Sunon oikeudet ja julkaisukelpoisen äänen valinta; jatketaanko kokeen jälkeen keikkaan 3. Oletusarvo on **EI VIELÄ HYVÄKSYTTY**.
+**Avoimet omistajan päätökset:** nykyisten kappaleiden 6–9 kuulonvarainen hyväksyntä; bändiharjoitus–keikka-rakenteen hyväksyntä; ensimmäinen Kotikulman keikan pilottikohtaus; Sunon oikeudet ja julkaisukelpoisen äänen valinta; jatketaanko kokeen perusteella laajempiin esiintymisiin. Oletusarvo on **EI VIELÄ HYVÄKSYTTY**.
 
 ## 10. Suorat lähteet
 
