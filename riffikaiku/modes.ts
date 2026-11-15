@@ -29,6 +29,17 @@ export function modeFrom(search: string): Mode | null {
   const tila = new URLSearchParams(search).get('tila');
   return tila === 'harjoitus' || tila === 'peli' ? tila : null;
 }
-/** Suhteellinen osoite: toimii sekä /riffikaiku.html- että /riffikaiku-poluilla. */
-export const modeHref = (mode: Mode | null) => mode ? `?tila=${mode}` : './' + (typeof location === 'undefined' ? 'riffikaiku.html' : location.pathname.split('/').pop() || 'riffikaiku.html');
+/** Suhteellinen osoite säilyttää Oppimiskartan aiheen käyttötapaa vaihdettaessa. */
+export function modeHref(mode: Mode | null): string {
+  const current = typeof location === 'undefined' ? undefined : location;
+  const parameters = new URLSearchParams();
+  const topic = new URLSearchParams(current?.search).get('aihe');
+  if (mode) parameters.set('tila', mode);
+  if (topic) parameters.set('aihe', topic);
+
+  const query = parameters.toString();
+  const filename = current?.pathname.split('/').pop() || 'riffikaiku.html';
+  const path = mode ? '' : './' + filename;
+  return query ? path + '?' + query : path;
+}
 export const pageTitle = (mode: Mode | null) => `${mode ? MODES[mode].title + ' · ' : ''}Riffikaiku (beta) – Musiikin kartta`;

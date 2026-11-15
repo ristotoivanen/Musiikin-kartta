@@ -2,6 +2,7 @@
 import { useEffect, useRef, useSyncExternalStore, type RefObject } from 'react';
 import type { GameState, RiffGame } from './game';
 import { GameRound } from './GameRound';
+import { modeHref } from './modes';
 import { LEVELS } from './riffs';
 import { Breadcrumbs, ModeTag } from './ui';
 
@@ -52,7 +53,7 @@ function GameHome({ game, s, titleRef }: { game: RiffGame; s: GameState; titleRe
           {isCurrent ? 'Jatka' : done ? 'Pelaa uudelleen' : 'Aloita'}</button>}
       </li>;
     })}</ol>
-    <p className="riff-help">Muiden kielten kotitreenit tulevat myöhemmin. Haluatko soittaa oikealla kitaralla? <a href="?tila=harjoitus">Riffiharjoitus – oikea kitara</a>.</p>
+    <p className="riff-help">Muiden kielten kotitreenit tulevat myöhemmin. Haluatko soittaa oikealla kitaralla? <a href={modeHref('harjoitus')}>Riffiharjoitus – oikea kitara</a>.</p>
   </section>;
 }
 

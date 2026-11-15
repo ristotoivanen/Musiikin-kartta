@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, useSyncExternalStore, type RefObject } fro
 import type { Mark } from '../harjoittelija/engine';
 import type { Position } from '../harjoittelija/music';
 import type { MicState } from './mic';
+import { modeHref } from './modes';
 import { MicBar, MicPanel } from './PracticeMic';
 import { STEP_LABEL, StepContent, StepNav } from './PracticeSteps';
 import type { PracticeState, RiffPractice } from './practice';
@@ -64,7 +65,7 @@ function PracticeHome({ s, m, practice, titleRef }: { s: PracticeState; m: MicSt
     })}
     {legacy > 0 && <p className="riff-help" data-testid="legacy-mic">Aiemman version mikrofonipelin tulokset ovat tallessa ({legacy} läpäistyä riffiä).
       Niitä ei lasketa tämän harjoituksen kuittauksiksi.</p>}
-    <p className="riff-help">Haluatko pelata ilman kitaraa? <a href="?tila=peli">Riffikaiku-peli – virtuaalikitara</a>.</p>
+    <p className="riff-help">Haluatko pelata ilman kitaraa? <a href={modeHref('peli')}>Riffikaiku-peli – virtuaalikitara</a>.</p>
   </>;
 }
 

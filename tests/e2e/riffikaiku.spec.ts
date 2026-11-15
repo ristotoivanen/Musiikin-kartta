@@ -202,9 +202,13 @@ test.describe('Riffikaiku-peli – virtuaalikitara', () => {
 
   test('opastus: malli soi heti, harjoittelu ei arvioi, Nyt riffataan! aloittaa oton; oikea ja väärä välähtävät', async ({ page, isMobile }) => {
     await mockAudio(page);
+    const start = Date.now();
+    await page.clock.install({ time: start });
     await page.goto('/riffikaiku.html?tila=peli');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Kuuntele ja toista');
     expect(await tones(page)).toEqual([]); // ei ääntä ennen valintaa
+    // Pidä kahden sävelen malli soimassa, kun testi tarkistaa otelautaa ja kokeilee säveliä.
+    await page.clock.pauseAt(start + 60_000);
     await press(page.getByRole('button', { name: 'Aloita peli: lyhyt opastus' }), isMobile);
     await expect(heading(page)).toHaveText('Kotitreeni 1 · Opastus');
     await expect(heading(page)).toBeFocused();
@@ -228,6 +232,7 @@ test.describe('Riffikaiku-peli – virtuaalikitara', () => {
     await expect(count(page)).toHaveCount(0);
     expect((await stored(page))?.results ?? []).toEqual([]);
     await takeTurn(page, isMobile);
+    await page.clock.resume();
     await expect(listenButton(page)).toHaveCount(0); // mallia ei kuunnella kesken oton
     await expect(page.locator('.riff-board .dot')).toHaveCount(0); // vastaukset piilossa
     await expect(count(page)).toHaveText('Ratkaistu 0/2');

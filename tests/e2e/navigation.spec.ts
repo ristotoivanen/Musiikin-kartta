@@ -174,6 +174,32 @@ test.describe('Oppimiskartan navigointi ja paluu', () => {
     await expect(page).toHaveURL('/oppi/otelauta/index.html');
   });
 
+  test('Riffikaiun käyttötavat säilyttävät paluun Oppimiskartan aiheeseen', async ({ page }) => {
+    const topic = '/oppi/korva/index.html';
+    const start = '/riffikaiku.html?aihe=aihe-korva';
+    const practice = '/riffikaiku.html?tila=harjoitus&aihe=aihe-korva';
+    const game = '/riffikaiku.html?tila=peli&aihe=aihe-korva';
+    const returnToTopic = page.getByRole('link', { name: 'Takaisin aiheeseen' });
+    await page.goto(topic);
+    await page.getByRole('link', { name: 'Riffikaiku · matki neljän sävelen riffi' }).click();
+    await expect(page).toHaveURL(start);
+    await page.getByTestId('mode-harjoitus').click();
+    await expect(page).toHaveURL(practice);
+    await expect(returnToTopic).toBeVisible();
+    await page.getByRole('link', { name: 'Riffikaiku-peli – virtuaalikitara', exact: true }).click();
+    await expect(page).toHaveURL(game);
+    await expect(returnToTopic).toBeVisible();
+    await page.getByRole('link', { name: 'Riffiharjoitus – oikea kitara', exact: true }).click();
+    await expect(page).toHaveURL(practice);
+
+    await page.getByRole('navigation', { name: 'Sijainti' }).getByRole('link', { name: 'Riffikaiku', exact: true }).click();
+    await expect(page).toHaveURL(start);
+    await page.getByTestId('mode-peli').click();
+    await expect(page).toHaveURL(game);
+    await returnToTopic.click();
+    await expect(page).toHaveURL(topic);
+  });
+
   test('vanha #osiot, teoriaoppaan hakemisto ja suorat aihelinkit toimivat', async ({ page }) => {
     await page.goto('/index.html#osiot');
     await expect(page.locator('#osiot')).toBeVisible();
