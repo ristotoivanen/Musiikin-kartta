@@ -154,6 +154,11 @@ function output(path, contents) {
     changed++;
   }
 }
+const anchorDoc = {
+  _comment: 'Johdettu kanonisista book/osa-*.html -sivuista. Muodostetaan uudelleen tools/oppimiskartta-sivut.mjs -skriptillä; sisältää luvussa sijaitsevat ankkurit, jotta uudet lukusivut ovat suoraan linkitettävissä.',
+  anchors: Object.fromEntries(owner)
+};
+output('assets/oppimiskartan-ankkurit.json', JSON.stringify(anchorDoc, null, 2) + '\n');
 for (const topic of manifest) output('aiheet/' + topic.id + '.html', topicPage(topic));
 for (const number of [...chapters.keys()].sort((a, b) => a - b)) output('book/' + chapterPath(number), lessonPage(number));
 console.log((check ? 'Tarkistettu' : 'Päivitetty') + ' 8 aihe- ja 28 lukusivua' + (changed ? ', ' + changed + ' tiedostoa' : ''));
