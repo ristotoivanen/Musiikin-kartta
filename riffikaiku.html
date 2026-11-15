@@ -7,7 +7,7 @@
   <meta name="robots" content="noindex">
   <title>Riffikaiku (beta) – Musiikin kartta</title>
   <link rel="stylesheet" href="assets/otelauta.css?v=36a704ebe6">
-  <link rel="stylesheet" href="assets/riffikaiku/app.css?v=95ee6db7db">
+  <link rel="stylesheet" href="assets/riffikaiku/app.css?v=0312a49219">
   <link rel="stylesheet" href="assets/paavalikko.css?v=59824281af">
   <script defer src="assets/oppimiskartta.js"></script>
 </head>
@@ -26,7 +26,7 @@
   <footer>Musiikin kartta · Riffikaiku (beta) · Tulokset vain omassa selaimessasi.</footer>
   <script type="module">
     const dev = import.meta.env?.DEV === true;
-    import(/* @vite-ignore */ dev ? './riffikaiku/main.tsx' : './assets/riffikaiku/app.js?v=341012035c87').catch(error => {
+    import(/* @vite-ignore */ dev ? './riffikaiku/main.tsx' : './assets/riffikaiku/app.js?v=6ce07e0a0cd6').catch(error => {
       console.error('Riffikaiun lataus epäonnistui', error);
       document.getElementById('riffikaiku').textContent = 'Riffikaiun lataus ei onnistunut. Lataa sivu uudelleen. Kehitysympäristössä aja npm run build.';
     });

@@ -1,19 +1,20 @@
-/** Mikrofonin aputyökalut: äänitulon valinta, diagnostiikka ja viritin. Vain näyttävät tilaa; eivät vastaa peliin. */
+/** Mikrofonin aputyökalut: äänitulon valinta, diagnostiikka ja viritin. Vain näyttävät tilaa; eivät vastaa harjoitukseen. */
 import type { ReactNode } from 'react';
 import { toDb } from '../harjoittelija/vendor/pitchDetector';
-import { noteName, type Diagnostics, type GameState, type RiffGame } from './game';
+import type { Diagnostics, MicController, MicState } from './mic';
 import type { HoldReason } from './pluck';
+import { noteName } from './riffs';
 import { IN_TUNE_CENTS, OPEN_TUNING, type TunerReading } from './tuner';
 
 const fi = (value: number, digits = 1) => value.toFixed(digits).replace('.', ',');
 const db = (rms: number) => { const v = Math.round(toDb(rms)); return `${v < 0 ? '−' : ''}${Math.abs(v)} dB`; };
 const signed = (cents: number) => (cents > 0 ? '+' : cents < 0 ? '−' : '±') + fi(Math.abs(cents), 0);
 
-export function DeviceSelect({ s, game }: { s: GameState; game: RiffGame }) {
+export function DeviceSelect({ s, mic }: { s: MicState; mic: MicController }) {
   const known = s.devices.some(d => d.id === s.device);
   return <div className="riff-device">
     <label htmlFor="riff-device">Äänitulo</label>
-    <select id="riff-device" value={known || !s.device ? s.device : ''} onChange={e => game.setDevice(e.target.value)}>
+    <select id="riff-device" value={known || !s.device ? s.device : ''} onChange={e => mic.setDevice(e.target.value)}>
       <option value="">Järjestelmän oletus</option>
       {s.devices.map(d => <option key={d.id} value={d.id}>{d.label}</option>)}
     </select>
@@ -41,10 +42,10 @@ const REASON_TEXT: Record<HoldReason, string> = {
   stabilizing: 'Sävel vakautuu.',
 };
 const ARMED_TEXT = { quiet: 'hiljaisuuden jälkeen', onset: 'uusi aluke', 'pitch-change': 'sävelen vaihto' } as const;
-const ROUTE_TEXT = { game: 'riffiyritykseen', 'mic-check': 'mikrofonitestiin', 'not-routed': 'ei välitetty (ei vastausvuoroa)' } as const;
+const ROUTE_TEXT = { practice: 'harjoitukseen', check: 'mikrofonitestiin', 'not-routed': 'ei välitetty (ei kuunteluvuoroa)' } as const;
 
 /** Viisi erillistä vaihetta: ääni → sävelkorkeus → vakaus → uusi näppäily → välitys pelille. */
-export function DiagnosticsView({ s }: { s: GameState }) {
+export function DiagnosticsView({ s }: { s: MicState }) {
   const d: Diagnostics | null = s.diag;
   if (!d) return <p className="riff-help" data-testid="diag">Odotetaan mikrofonin ensimmäisiä analyysitietoja…</p>;
   const f = d.frame, p = d.pluck, sound = f.rms >= d.minRms;
@@ -65,10 +66,10 @@ export function DiagnosticsView({ s }: { s: GameState }) {
         p.candidate ? <>{noteName(p.candidate.midi)}: {Math.round(p.candidate.heldMs)} / 240 ms</> : p.reason ? REASON_TEXT[p.reason] : '–', 'stable')}
       {stage(p.armed, '4. Uusi näppäily', <>{p.armed ? `Valmis hyväksymään (${ARMED_TEXT[p.armedBy!]}).` : p.reason ? REASON_TEXT[p.reason] : 'Odotetaan uutta näppäystä.'}
         {p.last && <> Viimeisin: <strong>{noteName(p.last.midi)}</strong> ({ARMED_TEXT[p.last.armedBy]}), näppäilyjä {p.count}.</>}</>, 'pluck')}
-      {stage(d.routed.last?.route === 'game', '5. Välitetty pelille', d.routed.last
+      {stage(d.routed.last?.route === 'practice' || d.routed.last?.route === 'check', '5. Välitetty harjoitukselle', d.routed.last
         ? <>{noteName(d.routed.last.midi)} → {ROUTE_TEXT[d.routed.last.route]} · yhteensä {d.routed.count}</> : 'Ei vielä näppäilyjä.', 'routed')}
     </ol>
-    <p className="riff-help">Taustakohina {s.noise ? `${db(s.noise.noise)} → äänikynnys ${db(s.minRms)}` : `ei mitattu, oletuskynnys ${db(s.minRms)}`}. Diagnostiikka ei lähetä mitään peliin.</p>
+    <p className="riff-help">Taustakohina {s.noise ? `${db(s.noise.noise)} → äänikynnys ${db(s.minRms)}` : `ei mitattu, oletuskynnys ${db(s.minRms)}`}. Diagnostiikka ei lähetä mitään harjoitukseen.</p>
   </div>;
 }
 
@@ -78,14 +79,14 @@ const TUNER_TEXT = {
   far: '', flat: 'Liian matala – kiristä kieltä hieman.', 'in-tune': 'Vireessä!', sharp: 'Liian korkea – löysää kieltä hieman.',
 } as const;
 
-export function TunerView({ s, game }: { s: GameState; game: RiffGame }) {
+export function TunerView({ s, mic }: { s: MicState; mic: MicController }) {
   const r: TunerReading | null = s.tuner;
   const cents = r?.cents ?? 0, show = r && ['flat', 'in-tune', 'sharp'].includes(r.status);
   const needle = 50 + Math.max(-50, Math.min(50, cents));
   return <div className="riff-tuner" data-testid="tuner">
     <fieldset className="riff-strings"><legend>Kieli</legend>
-      <button type="button" aria-pressed={s.tunerTarget === null} onClick={() => game.setTunerTarget(null)}>Auto</button>
-      {OPEN_TUNING.map(string => <button key={string.midi} type="button" aria-pressed={s.tunerTarget === string.midi} onClick={() => game.setTunerTarget(string.midi)}>
+      <button type="button" aria-pressed={s.tunerTarget === null} onClick={() => mic.setTunerTarget(null)}>Auto</button>
+      {OPEN_TUNING.map(string => <button key={string.midi} type="button" aria-pressed={s.tunerTarget === string.midi} onClick={() => mic.setTunerTarget(string.midi)}>
         <strong>{string.name}</strong><small>{string.number}. kieli</small></button>)}
     </fieldset>
     <div className={`riff-tuner-readout ${r?.status ?? 'no-signal'}`} role="status" data-testid="tuner-status" data-status={r?.status ?? 'no-signal'}>
@@ -101,6 +102,6 @@ export function TunerView({ s, game }: { s: GameState; game: RiffGame }) {
         : TUNER_TEXT[r?.status ?? 'no-signal']}</p>
       {r?.frequency && r.status !== 'far' && <p className="riff-help" data-testid="tuner-frequency">Mitattu {fi(r.frequency, 2)} Hz{r.heardMidi !== undefined ? ` · lähin sävel ${noteName(r.heardMidi)}` : ''}</p>}
     </div>
-    <p className="riff-help">A4 = 440 Hz. Vihreä alue on ±{IN_TUNE_CENTS} senttiä. Viritin käyttää samaa sävelentunnistusta kuin peli, mutta sen lukemat eivät koskaan mene peliin.</p>
+    <p className="riff-help">A4 = 440 Hz. Vihreä alue on ±{IN_TUNE_CENTS} senttiä. Viritin käyttää samaa sävelentunnistusta kuin harjoitus, mutta sen lukemat eivät koskaan mene harjoitukseen.</p>
   </div>;
 }

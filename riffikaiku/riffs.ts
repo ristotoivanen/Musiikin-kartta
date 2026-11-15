@@ -3,6 +3,8 @@
  * kolmella neljän sävelen riffillä. Kaikki riffit ovat tätä peliä varten tehtyjä lyhyitä,
  * monofonisia aiheita (ei kappaleiden lainauksia).
  *
+ * Samat kotitreenit ovat käytössä sekä oikean kitaran riffiharjoituksessa että virtuaalikitaran pelissä.
+ *
  * Toteutettu: Kotitreeni 1 (B-kieli) ja Kotitreeni 2 (G-kieli). Suunnitelma muista kielistä ja
  * myöhemmistä kokonaisuuksista: riffikaiku/KEHITYSSUUNNITELMA.md. Uusi kotitreeni lisätään tähän
  * listaan; pelilogiikka, tallennus ja käyttöliittymä lukevat rakenteen täältä.
@@ -11,6 +13,11 @@
  * korostetaan – ei pakottava sääntö: oikea MIDI-sävel hyväksytään miltä kieleltä tahansa, eikä
  * mikrofoni tunnista kieltä. Jokaisen riffin jokainen sävel löytyy harjoituskieleltä (testi varmistaa).
  */
+import { note, stringName } from '../harjoittelija/music';
+
+/** Sävelnimi oktaavinumerolla (B3, C4…), sama esitys molemmissa käyttötavoissa. */
+export const noteName = (midi: number) => note(midi, false, true);
+
 /** Vapaiden kielten MIDI-korkeudet ohuimmasta paksuimpaan (sama kuin otelauta.js:n OPEN_PITCHES). */
 export const OPEN_STRINGS = [64, 59, 55, 50, 45, 40] as const;
 export const ALL_STRINGS = [0, 1, 2, 3, 4, 5];
@@ -26,6 +33,20 @@ export type Riff = {
   /** Lyhyt soittovinkki pelaajalle (näkyy vihjeessä). */
   tip: string;
 };
+/**
+ * Pelin opastustaso (virtuaalikitara). Määritellään kotitreenin datassa; peli ei tarkista tasonumeroita.
+ * - guided: malli soi heti ja sävelet sekä ehdotetut otelautapaikat näkyvät harjoittelussa valmiiksi.
+ * - memory: malli soi heti, mutta sävelet ja paikat avataan erikseen painikkeesta.
+ * - challenge: kuulonvarainen; sävelet avataan erikseen eikä automaattisia muistivihjeitä anneta.
+ * Harjoittelun apu ei koskaan vaikuta tähtiin; vain arvioitavassa otossa pyydetty Vihje vaikuttaa.
+ */
+export type Guidance = 'guided' | 'memory' | 'challenge';
+export const GUIDANCE: Record<Guidance, { autoplay: boolean; showNotes: boolean; memoryHints: boolean; label: string }> = {
+  guided: { autoplay: true, showNotes: true, memoryHints: true, label: 'Opastettu' },
+  memory: { autoplay: true, showNotes: false, memoryHints: true, label: 'Muistista' },
+  challenge: { autoplay: true, showNotes: false, memoryHints: false, label: 'Haaste' },
+};
+
 export type Level = {
   number: number;
   /** Näyttönimi, esim. ”Kotitreeni 1”. */
@@ -36,6 +57,8 @@ export type Level = {
   strings: number[];
   /** Harjoitusohje (sama mikrofonille ja virtuaalikitaralle). */
   instruction: string;
+  /** Pelin opastustaso (ks. GUIDANCE). Oikean kitaran harjoitus ei käytä tätä. */
+  guidance: Guidance;
   riffs: Riff[];
 };
 
@@ -55,13 +78,13 @@ export const CHECK_MIDI = 59;
 export const TUTORIAL: Riff = riff('opastus', 'Opastus: kaksi säveltä', on(B, [0, 1]), 'Vapaa B-kieli ja sitten 1. nauha.');
 
 export const LEVELS: readonly Level[] = [
-  { number: 1, name: 'Kotitreeni 1', title: 'B-kieli', strings: [B], instruction: 'Soita riffi B-kieleltä.', riffs: [
+  { number: 1, name: 'Kotitreeni 1', title: 'B-kieli', strings: [B], instruction: 'Soita riffi B-kieleltä.', guidance: 'guided', riffs: [
     // Sävelet B3, C4 ja D4: vapaa kieli, 1. ja 3. nauha.
     riff('b-kaari', 'Ensimmäinen kaiku', on(B, [0, 1, 3, 1]), 'Vapaa kieli, 1., 3. ja takaisin 1. nauhaan.'),
     riff('b-vaihto', 'Edestakaisin', on(B, [1, 0, 1, 3]), '1. nauha, vapaa kieli, 1. ja 3. nauha.'),
     riff('b-takaisin', 'Kaari takaisin', on(B, [0, 3, 1, 0]), 'Vapaa kieli, 3. ja 1. nauha ja taas vapaa kieli.'),
   ] },
-  { number: 2, name: 'Kotitreeni 2', title: 'G-kieli', strings: [G], instruction: 'Soita riffi G-kieleltä.', riffs: [
+  { number: 2, name: 'Kotitreeni 2', title: 'G-kieli', strings: [G], instruction: 'Soita riffi G-kieleltä.', guidance: 'guided', riffs: [
     // Sävelet G3, A3 ja B3: vapaa kieli, 2. ja 4. nauha. Vaihtelevampi: toisto ja hyppy.
     riff('g-nousu', 'G-kielen kaari', on(G, [0, 2, 4, 2]), 'Vapaa kieli, 2., 4. ja takaisin 2. nauhaan.'),
     riff('g-toisto', 'Kaksi samaa', on(G, [2, 2, 0, 4]), 'Kaksi erillistä näppäystä 2. nauhalla, sitten vapaa kieli ja 4. nauha. Vaimenna kieli hetkeksi samojen sävelten välissä.'),
@@ -76,3 +99,11 @@ export const riffById = (id: string) => RIFFS.find(r => r.id === id) ?? (id === 
 /** Löytyykö sävel annetuilta kieliltä nauhoilta 0–5. */
 export const playableOn = (midi: number, strings: number[]) =>
   strings.some(s => midi - OPEN_STRINGS[s] >= FRET_MIN && midi - OPEN_STRINGS[s] <= FRET_MAX);
+/** Riffin harjoituskokonaisuus ja järjestysnumero siinä (1–3). */
+export function riffPlace(riffId: string): { level: Level; riff: Riff; number: number } | undefined {
+  const level = levelOf(riffId);
+  const riff = level?.riffs.find(r => r.id === riffId);
+  return level && riff ? { level, riff, number: level.riffs.indexOf(riff) + 1 } : undefined;
+}
+/** Kielen nimi ja nauha luettavasti: ”B-kieli, 1. nauha” tai ”B-kieli, vapaa”. */
+export const spotText = (spot: Spot) => `${stringName[spot.string]}-kieli, ${spot.fret === 0 ? 'vapaa kieli' : `${spot.fret}. nauha`}`;

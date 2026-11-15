@@ -7,13 +7,6 @@
 .riff-back { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; min-height: 44px;
   border: 1px solid var(--line); border-radius: 8px; font-size: 14px; font-weight: 650; text-decoration: none; }
 .riff-back:hover { background: var(--panel); border-color: var(--lavender); }
-.riff-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 12px; margin: 12px 0 18px; }
-.riff-choice-option { display: grid; grid-template-rows: 1fr auto; }
-.riff-choice { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; padding: 14px 16px; border-radius: 14px; }
-.riff-choice strong { font-size: 20px; }
-.riff-choice:hover, .riff-choice:focus-visible { border-color: var(--lavender); }
-.riff-choice span { color: inherit; opacity: .85; font-size: 14px; line-height: 1.45; font-weight: 400; }
-.riff-choice .riff-choice-level { font-weight: 700; opacity: 1; }
 .riff-help { color: var(--muted); font-size: 14px; }
 .riff-top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; }
 .riff-top h1 { font-size: 24px; }
@@ -146,3 +139,115 @@
 .riff-board.focus-s5 tbody tr:nth-child(6) > th { background: var(--focus-head); color: var(--text); box-shadow: inset 4px 0 0 var(--focus-edge); }
 .riff-focus-legend { display: flex; align-items: center; gap: 8px; margin: 6px 0 0; font-weight: 650; }
 .riff-focus-legend .swatch { width: 22px; height: 8px; border-radius: 4px; background: var(--gold); }
+
+/* ---- 0.4: kaksi käyttötapaa ---- */
+/* Sijaintipolku: paluu harjoitusvalikkoon aina ensimmäisenä. */
+/* Paluu harjoitusvalikkoon ensin; polku Riffikaiku › käyttötapa sen perässä (kapealla näytöllä omalla rivillään). */
+.riff-crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; margin: 0 0 10px; font-size: 14px; }
+.riff-crumbs ol { list-style: none; display: flex; flex-wrap: wrap; align-items: center; gap: 0 10px; padding: 0; margin: 0; }
+.riff-crumbs li { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.riff-crumbs li + li::before { content: '›'; color: var(--muted); }
+.riff-crumbs li > a { display: inline-flex; align-items: center; min-height: 44px; color: var(--lavender); }
+.riff-crumbs li[aria-current] { color: var(--muted); }
+/* Käyttötavan tunniste: harjoitus mintunvihreä, peli laventeli. */
+.riff-mode-tag { display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 3px 10px; border-radius: 999px; font-size: 13px; font-weight: 750;
+  letter-spacing: .02em; border: 1px solid currentColor; }
+.riff-mode-tag::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.riff-mode-tag.harjoitus { color: var(--good); }
+.riff-mode-tag.peli { color: var(--lavender); }
+.riff-game[data-mode="harjoitus"] .riff-play { border-top: 4px solid var(--good); }
+.riff-game[data-mode="peli"] .riff-play { border-top: 4px solid var(--lavender); }
+.riff-round-heading .riff-mode-tag { margin-bottom: 6px; }
+/* Aloitussivun kortit: Musiikin kartan learning-card, koko kortti on linkki. */
+.riff-modes { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); margin: 12px 0 18px; }
+.riff-mode-card { text-decoration: none; align-items: stretch; }
+.riff-mode-card .learning-arrow { align-self: center; }
+.riff-mode-card.harjoitus .learning-number { color: var(--good); }
+.riff-mode-card .learning-card-body .riff-card-progress { color: var(--text); font-size: 14px; font-weight: 650; }
+.riff-mode-card:hover .learning-card-body small, .riff-mode-card:focus-visible .learning-card-body small { text-decoration: underline; }
+.riff-mode-card:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+/* Pelin valikko */
+.riff-score { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; }
+.riff-score div { flex: 1 1 120px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+.riff-score dt { font-size: 13px; color: var(--muted); }
+.riff-score dt small { font-size: 12px; }
+.riff-score dd { margin: 2px 0 0; font-size: 24px; font-weight: 800; }
+.riff-play-button { min-height: 52px; font-size: 18px; padding: 10px 20px; }
+.riff-level-riffs { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 4px; }
+.riff-level-riffs > span { color: var(--muted); }
+.riff-level-riffs > span.passed { color: var(--text); }
+.riff-level-riffs > span.star { color: var(--gold); }
+/* Kotitreenin riffit pelinäkymässä */
+.riff-run { list-style: none; display: flex; gap: 6px; padding: 0; margin: 8px 0 0; }
+.riff-run li { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--line); font-size: 13px; font-weight: 800; color: var(--muted); }
+.riff-run li.passed { border-color: var(--good); color: var(--good); }
+.riff-run li.current { border-color: var(--gold); color: var(--text); }
+.riff-achievement { margin: 6px 0 10px; padding: 8px 12px; border-radius: 10px; background: color-mix(in srgb, var(--gold) 18%, var(--panel)); border: 1px solid var(--gold); font-weight: 700; }
+.riff-cleared-badge { font-size: clamp(30px, 8vw, 40px); letter-spacing: .1em; color: var(--gold); margin: 0; }
+/* Otelaudan välähdys: oikea painallus vihreä, väärä punaisen reunan kanssa. */
+.riff-board .practice-board .wrong .dot { animation: riff-shake .25s ease-in-out; }
+@keyframes riff-shake { 0%, 100% { transform: translateX(0); } 33% { transform: translateX(-3px); } 66% { transform: translateX(3px); } }
+@media (prefers-reduced-motion: reduce) { .riff-board .practice-board .wrong .dot { animation: none; } }
+
+/* Riffiharjoitus */
+.riff-process { margin: 0 0 16px; padding-left: 22px; display: grid; gap: 4px; line-height: 1.5; }
+.riff-steps ol { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding: 0; margin: 10px 0; }
+.riff-steps button { width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 48px; padding: 6px 8px;
+  border-radius: 10px; background: var(--panel); color: var(--muted); font-weight: 650; text-align: center; line-height: 1.2; }
+.riff-steps button[aria-current="step"] { color: var(--text); border: 2px solid var(--good); background: color-mix(in srgb, var(--good) 14%, var(--panel)); }
+.riff-step-number { display: grid; place-items: center; flex: 0 0 24px; height: 24px; border-radius: 50%; background: var(--bg); font-size: 12px; font-weight: 800; }
+.riff-step-progress { font-weight: 400; font-size: 13px; }
+.riff-step h2 { margin: 0 0 6px; font-size: clamp(20px, 4.5vw, 24px); outline: none; }
+.riff-micbar { margin: 8px 0 12px; padding: 10px 14px; border: 1px solid var(--line); border-left: 4px solid var(--muted); border-radius: 10px; background: var(--panel); }
+.riff-micbar.on { border-left-color: var(--good); }
+.riff-micbar.error { border-left-color: var(--wrong); }
+.riff-micbar p { margin: 4px 0; }
+.riff-actions.compact { margin: 6px 0 0; }
+.riff-notes { margin: 8px 0; padding-left: 22px; line-height: 1.6; }
+.riff-tip { padding-left: 10px; border-left: 4px solid var(--gold); }
+.riff-feedback.near, .riff-feedback.hint { border-color: var(--gold); }
+.riff-feedback.uncertain { border-color: var(--muted); border-left-style: dashed; }
+.riff-feedback.done { border-color: var(--good); font-weight: 650; }
+.riff-slots li.found { border-color: #1c7f66; background: #83ddc3; color: #10261f; }
+.riff-slots li.found .slot-symbol { color: #1c7f66; }
+.riff-slots li.shown { border-color: var(--lavender); background: var(--bg); color: var(--text); }
+.riff-practice-footer { padding-top: 12px; border-top: 1px solid var(--line); }
+.riff-practice-footer button.marked { border-color: var(--good); color: var(--good); }
+.riff-marked-badge { color: var(--good); font-weight: 650; }
+.riff-set { margin: 10px 0 16px; }
+.riff-set h3 { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; margin: 0 0 8px; font-size: 18px; }
+.riff-set-count { font-size: 14px; font-weight: 400; color: var(--muted); }
+.riff-set-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.riff-set-item { width: 100%; display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; text-align: left; background: var(--panel); }
+.riff-set-item > span:last-child { display: grid; gap: 2px; }
+.riff-set-item small { color: var(--muted); font-weight: 400; font-size: 13px; }
+.riff-set-mark { display: grid; place-items: center; flex: 0 0 30px; height: 30px; border-radius: 50%; background: var(--bg); color: var(--muted); font-weight: 800; }
+.riff-set-item.marked .riff-set-mark { background: var(--good); color: #16121f; }
+.riff-limits { margin-top: 14px; }
+.riff-limits summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-weight: 650; color: var(--lavender); }
+.riff-limits ul { margin: 4px 0; padding-left: 22px; display: grid; gap: 4px; line-height: 1.5; color: var(--muted); }
+@media (max-width: 520px) {
+  .riff-steps button { flex-direction: column; gap: 2px; font-size: 13px; padding: 6px 4px; }
+  .riff-step-number { flex: none; width: 24px; }
+  .riff-practice-footer button { flex: 1 1 140px; }
+  .riff-score dd { font-size: 20px; }
+}
+
+/* ---- 0.5: pelin riffinäkymä – harjoittele → soita muistista → tulos ---- */
+.riff-flow { list-style: none; display: flex; flex-wrap: wrap; gap: 4px 6px; padding: 0; margin: 12px 0 4px; font-size: 13px; counter-reset: flow; }
+.riff-flow li { counter-increment: flow; display: flex; align-items: center; gap: 6px; padding: 3px 10px 3px 4px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+.riff-flow li::before { content: counter(flow); display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--bg); font-weight: 800; font-size: 12px; }
+.riff-flow li[aria-current="step"] { color: var(--text); border-color: var(--lavender); font-weight: 700; }
+.riff-flow li[aria-current="step"]::before { background: var(--lavender); color: #16121f; }
+h2.riff-status { outline: none; }
+.riff-stage-text { margin: 0 0 6px; }
+.riff-play.stage-take { border-top-color: var(--gold); }
+.riff-practice-actions { margin-top: 6px; }
+.riff-go { display: grid; justify-items: start; gap: 2px; margin: 16px 0 4px; }
+.riff-go-button { min-height: 56px; padding: 12px 28px; font-size: 20px; font-weight: 800; }
+.riff-go p { margin: 2px 0 0; }
+@media (max-width: 520px) {
+  .riff-go { justify-items: stretch; }
+  .riff-go-button { width: 100%; }
+}
