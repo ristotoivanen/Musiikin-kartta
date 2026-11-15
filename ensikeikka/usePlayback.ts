@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { TakePlayer } from './audio';
 
+/**
+ * Koko sivu käyttää yhtä soitinta ja AudioContextia. Kappaleesta toiseen siirtyminen ei luo uutta
+ * kontekstia, joten iOS:n äänilupa säilyy eikä suljetun kontekstin perään avattava konteksti jumitu.
+ */
+let shared: TakePlayer | null = null;
+
 export function usePlayback() {
   const player = useRef<TakePlayer | null>(null);
   const request = useRef(0);
@@ -22,7 +28,7 @@ export function usePlayback() {
       document.removeEventListener('visibilitychange', onVisibility);
       window.removeEventListener('pagehide', stop);
       request.current++;
-      player.current?.dispose();
+      player.current?.stop();
       player.current = null;
     };
   }, []);
@@ -32,7 +38,7 @@ export function usePlayback() {
     const id = ++request.current;
     setActive(true);
     setStatus(`Käynnistyy… ${label}`);
-    player.current ??= new TakePlayer();
+    player.current ??= shared ??= new TakePlayer();
     player.current.playSamples(render, offset, completed => {
       if (id !== request.current) return;
       stop();

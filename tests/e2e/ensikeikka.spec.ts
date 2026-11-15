@@ -14,13 +14,14 @@ const songs = [
 type Playback = { offset: number; duration: number; hasAudio: boolean; stopped: boolean };
 
 declare global {
-  interface Window { ensikeikkaPlayback: Playback[] }
+  interface Window { ensikeikkaPlayback: Playback[]; ensikeikkaSources: AudioBufferSourceNode[] }
 }
 
 // Tallenna oikeiden Web Audio -solmujen kutsut. Selain tuottaa äänen ja lähettää ended-tapahtuman itse.
 async function observePlayback(page: Page) {
   await page.addInitScript(() => {
     window.ensikeikkaPlayback = [];
+    window.ensikeikkaSources = [];
     const observed = new WeakMap<AudioBufferSourceNode, Playback>();
     const start = AudioBufferSourceNode.prototype.start;
     const stop = AudioBufferSourceNode.prototype.stop;
@@ -34,6 +35,7 @@ async function observePlayback(page: Page) {
       const playback = { offset, duration: buffer.duration, hasAudio, stopped: false };
       observed.set(this, playback);
       window.ensikeikkaPlayback.push(playback);
+      window.ensikeikkaSources.push(this);
     };
     AudioBufferSourceNode.prototype.stop = function (when) {
       stop.call(this, when);
@@ -144,9 +146,8 @@ test('Kuuntelujen vaihto ja keskeytys eivät kuittaa loppua kuulluksi', async ({
   const option = button(page, 'Lopetus B');
   const check = button(page, 'Tarkista valintani');
   const full = button(page, 'Kuuntele koko kappale valitulla lopetuksella');
-  const ending = button(page, 'Kuuntele valittu lopetus');
   await expect(full).toBeDisabled();
-  await expect(ending).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Kuuntele valittu lopetus' })).toHaveCount(0);
   await expect(page.getByRole('group', { name: 'Kokeile lopetuksia' })).toBeVisible();
   const controls = await page.getByRole('region', { name: 'Kappaleen tehtävä' }).getByRole('button')
     .evaluateAll(buttons => buttons.map(button => button.getBoundingClientRect().toJSON()));
@@ -172,7 +173,7 @@ test('Kuuntelujen vaihto ja keskeytys eivät kuittaa loppua kuulluksi', async ({
   await button(page, 'Pysäytä koko kappale').click();
   await expect(check).toBeDisabled();
 
-  await ending.click();
+  await option.click();
   await expect(playbackStatus(page)).toHaveText('Soitetaan · Lopetus B');
   await page.getByRole('link', { name: 'Takaisin keikkalistaan' }).click();
   expect(await lastPlayback(page)).toMatchObject({ stopped: true });
@@ -200,7 +201,8 @@ test('Toiston käynnistysvirhe kertoo tilanteen ja sallii uuden kuuntelun', asyn
   await button(page, 'Lopetus B').click();
   await expect(playbackStatus(page)).toHaveText('Ääni ei käynnistynyt. Yritä uudelleen.');
   await expect(check).toBeDisabled();
-  await button(page, 'Kuuntele valittu lopetus').click();
+  // Pysähtynyt lopetus käynnistyy uudelleen samasta painikkeesta.
+  await button(page, 'Lopetus B').click();
   await expect(playbackStatus(page)).toHaveText('Soitetaan · Lopetus B');
   await expect(check).toBeEnabled({ timeout: 9000 });
 });
@@ -265,4 +267,89 @@ test('Ensikeikka keskeyttää äänen palatessa ja säilyttää valmiit kappalee
   expect(await lastPlayback(page)).toMatchObject({ stopped: true });
   await expect(setlist.getByText('Suoritettu', { exact: true })).toHaveCount(5);
   expect(await savedProgress(page)).toEqual({ version: 1, completed: [1, 2, 3, 4, 5] });
+});
+
+test('Lopetuspainike valitsee ja soittaa, pysäyttää ja vaihtaa toistoa ilman päällekkäistä ääntä', async ({ page, isMobile }) => {
+  test.setTimeout(45000);
+  await observePlayback(page);
+  await page.goto(`${gamePath}#keikkalista`);
+  await button(page, 'Aloita keikka 1').click();
+  const [a, b] = [button(page, 'Lopetus A'), button(page, 'Lopetus B')];
+  const check = button(page, 'Tarkista valintani');
+  const press = async (target: typeof a) => {
+    if (isMobile) await target.tap();
+    else {
+      await target.focus();
+      await page.keyboard.press('Space');
+    }
+  };
+  const sounding = () => page.evaluate(() => window.ensikeikkaPlayback.filter(item => !item.stopped).length);
+
+  // Aloitus: painallus valitsee ja soittaa.
+  await expect(a).toHaveAccessibleDescription('Kuuntele');
+  await press(a);
+  await expect(a).toHaveAttribute('aria-pressed', 'true');
+  await expect(a).toHaveAccessibleDescription('Soi');
+  await expect(playbackStatus(page)).toHaveText('Soitetaan · Lopetus A');
+  expect(await lastPlayback(page)).toMatchObject({ hasAudio: true, stopped: false });
+  expect((await lastPlayback(page))?.offset).toBeCloseTo(4.8);
+
+  // Pysäytys: sama painike pysäyttää, valinta säilyy, keskeytynyttä ei kuitata kuulluksi.
+  await press(a);
+  await expect(playbackStatus(page)).toHaveText('Valmiina kuunteluun.');
+  expect(await lastPlayback(page)).toMatchObject({ stopped: true });
+  await expect(a).toHaveAttribute('aria-pressed', 'true');
+  await expect(a).toHaveAccessibleDescription('Kuuntele');
+  await expect(check).toBeDisabled();
+  await expect(page.getByText('Kuuntele valittu lopetus loppuun ennen tarkistusta.')).toBeVisible();
+
+  // Uudelleenaloitus ja vaihto: edellinen pysähtyy heti, vain yksi ääni soi.
+  await press(a);
+  await expect(a).toHaveAccessibleDescription('Soi');
+  await press(b);
+  await expect(b).toHaveAttribute('aria-pressed', 'true');
+  await expect(a).toHaveAttribute('aria-pressed', 'false');
+  await expect(b).toHaveAccessibleDescription('Soi');
+  await expect(a).toHaveAccessibleDescription('Kuuntele');
+  await expect(playbackStatus(page)).toHaveText('Soitetaan · Lopetus B');
+  expect(await page.evaluate(() => window.ensikeikkaPlayback.at(-2)?.stopped)).toBe(true);
+  expect(await sounding()).toBe(1);
+
+  // Edellisen toiston myöhässä saapuva päättymistapahtuma ei kuittaa mitään kuulluksi.
+  await page.evaluate(() => {
+    const previous = window.ensikeikkaSources.at(-2)!;
+    previous.dispatchEvent(new Event('ended'));
+    previous.onended?.(new Event('ended'));
+  });
+  await expect(a).toHaveAccessibleDescription('Kuuntele');
+  await expect(b).toHaveAccessibleDescription('Soi');
+  await expect(check).toBeDisabled();
+
+  // Loppuun kuunneltu lopetus sallii tarkistuksen, ja vastauslogiikka on ennallaan.
+  await expect(b).toHaveAccessibleDescription('Kuultu', { timeout: 10000 });
+  await expect(check).toBeEnabled();
+  await check.click();
+  await expect(page.getByRole('heading', { name: 'Oikein! Löysit kotiin!' })).toBeFocused();
+  expect(await sounding()).toBe(0);
+});
+
+test('Koko kappale ja lopetuskatkelma vaihtavat toistoa johdonmukaisesti', async ({ page }) => {
+  test.setTimeout(45000);
+  await observePlayback(page);
+  await page.goto(`${gamePath}#keikkalista`);
+  await button(page, 'Aloita keikka 1').click();
+  const a = button(page, 'Lopetus A');
+  await a.click();
+  await button(page, 'Kuuntele koko kappale valitulla lopetuksella').click();
+  await expect(playbackStatus(page)).toHaveText('Soitetaan · Lopetus A · koko kappale');
+  // Koko kappale ei näytä lopetuspainiketta soivana; painallus soittaa lopetuksen katkelman.
+  await expect(a).toHaveAccessibleDescription('Kuuntele');
+  await a.click();
+  await expect(playbackStatus(page)).toHaveText('Soitetaan · Lopetus A');
+  expect(await page.evaluate(() => window.ensikeikkaPlayback.filter(item => !item.stopped).length)).toBe(1);
+  await button(page, 'Kuuntele koko kappale valitulla lopetuksella').click();
+  await expect(a).toHaveAccessibleDescription('Kuuntele');
+  await button(page, 'Pysäytä koko kappale').click();
+  expect(await lastPlayback(page)).toMatchObject({ stopped: true });
+  await expect(button(page, 'Tarkista valintani')).toBeDisabled();
 });

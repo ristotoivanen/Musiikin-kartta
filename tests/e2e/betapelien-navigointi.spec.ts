@@ -70,6 +70,8 @@ test('Ensikeikan aloitusta ja paluulinkkiä voi käyttää näppäimistöllä', 
   await expect(listHeading).toBeFocused();
   await page.getByRole('button', { name: 'Takaisin Ensikeikan alkuun', exact: true }).focus();
   await page.keyboard.press('Enter');
+  // Alkunäkymä siirtää fokuksen otsikkoonsa. Odota sitä, ettei se vie fokusta paluulinkiltä.
+  await expect(page.getByRole('heading', { level: 1, name: 'Ensikeikka (beta)' })).toBeFocused();
   await back.focus();
   expect(await back.evaluate(el => getComputedStyle(el).outlineStyle)).toBe('solid');
   await page.keyboard.press('Enter');
