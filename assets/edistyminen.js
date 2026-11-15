@@ -1,7 +1,7 @@
 // Edistymisen merkintä ja vanhojen lukulinkkien ohjaus.
 //
-// Lukija voi merkitä luvun tehdyksi. Musiikin teoria -sivu (book/index.html) näyttää osien ja
-// kokonaisuuksien edistymisen sekä seuraavan luvun, ja etusivu lyhyen jatkamislinkin.
+// Lukija voi merkitä luvun, harjoituksen tai oppitunnin tehdyksi. Musiikin teoria -sivu
+// (book/index.html) laskee vain teoriaoppaan luvut ja näyttää seuraavan luvun.
 // Tieto tallentuu vain tämän selaimen localStorageen; jos tallennus ei ole käytössä (esimerkiksi
 // yksityinen ikkuna), painikkeet toimivat sivun ajan mutta merkinnät eivät säily.
 //
@@ -86,8 +86,7 @@
 
   const page = location.pathname.match(/(osa-\d+)(?:\.html)?\/?$/);
   const current = page && PARTS.find(part => part.slug === page[1]);
-  const lessonId = document.querySelector('main[data-theory-chapter]')?.dataset.theoryChapter;
-  const lesson = lessonId && ALL.find(({ id }) => id === lessonId);
+  const study = document.querySelector('main[data-study-item]');
   const resume = document.querySelector('#teoria-aloitus #jatka');
   const originalResume = resume && {
     label: resume.querySelector('.resume-label').textContent,
@@ -100,12 +99,13 @@
     followMovedAnchor();
     window.addEventListener('hashchange', followMovedAnchor);
     setupPart(current);
-  } else if (lesson) {
-    setupPart(lesson.part);
+  } else if (study) {
+    const { studyItem: id, studyKind: kind } = study.dataset;
+    setupCompletion([{ id, kind, button: study.querySelector('.done-toggle') }]);
   } else if (document.getElementById('teoria-aloitus')) {
     setupTheoryHome();
     setupTheoryAnchors();
-    window.addEventListener('pageshow', event => { if (event.persisted) setupTheoryHome(); });
+    onReadingChange(setupTheoryHome);
   } else if (document.querySelector('[data-study-total]')) {
     setupStudyTopic();
   } else if (document.getElementById('home-continue')) {
@@ -118,7 +118,7 @@
     };
     setupTopicList();
     refresh();
-    window.addEventListener('pageshow', event => { if (event.persisted) refresh(); });
+    onReadingChange(refresh);
   }
 
   function followMovedAnchor() {
@@ -149,15 +149,14 @@
   }
 
   function setupPart(part) {
-    let done = load();
-    const updateButtons = [];
+    const entries = [];
     const nav = document.querySelector('.contents');
     const summary = document.createElement('p');
     summary.className = 'progress-note';
     nav?.append(summary);
 
-    function refresh() {
-      const count = part.chapters.filter(([id]) => done.has(id)).length;
+    function refresh(done) {
+      const count = partCount(part, done);
       summary.textContent = count ? count + '/' + part.chapters.length + ' lukua tehty' : '';
       nav?.querySelectorAll('ol a').forEach(link => {
         link.parentElement.classList.toggle('is-done', done.has(link.getAttribute('href').slice(1)));
@@ -172,31 +171,49 @@
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'done-toggle';
-      const draw = () => {
-        const on = done.has(id);
-        button.setAttribute('aria-pressed', on);
-        button.textContent = on ? '✓ Luku tehty' : 'Merkitse luku tehdyksi';
-      };
-      button.addEventListener('click', () => {
-        done = load();
-        if (done.has(id)) done.delete(id); else done.add(id);
-        save(done);
-        redraw();
-      });
-      updateButtons.push(draw);
       row.append(button);
       section.append(row);
+      entries.push({ id, kind: 'luku', button });
     });
-    function redraw() {
-      updateButtons.forEach(draw => draw());
-      refresh();
+    setupCompletion(entries, refresh);
+  }
+
+  function setupCompletion(entries, afterRefresh) {
+    function refresh() {
+      const done = load();
+      for (const { id, kind, button } of entries) {
+        const on = done.has(id);
+        button.setAttribute('aria-pressed', String(on));
+        button.textContent = on ? '✓ ' + kind[0].toUpperCase() + kind.slice(1) + ' tehty' : 'Merkitse ' + kind + ' tehdyksi';
+      }
+      afterRefresh?.(done);
     }
-    redraw();
-    window.addEventListener('pageshow', event => {
-      if (!event.persisted) return;
-      done = load();
-      redraw();
+    for (const { id, button } of entries) {
+      button.addEventListener('click', () => {
+        const done = load();
+        if (done.has(id)) done.delete(id); else done.add(id);
+        save(done);
+        refresh();
+      });
+      button.disabled = false;
+    }
+    refresh();
+    onReadingChange(refresh);
+  }
+
+  function onReadingChange(refresh) {
+    window.addEventListener('pageshow', event => { if (event.persisted) refresh(); });
+    window.addEventListener('storage', event => {
+      if (event.key === KEY || event.key === OLD_KEY || event.key === null) refresh();
     });
+  }
+
+  function showTopicProgress(status, count, total) {
+    const complete = count === total;
+    status.textContent = complete ? '✓ Aihe käyty läpi' : count + '/' + total + ' sisältöä tehty';
+    status.classList.toggle('is-done', complete);
+    status.hidden = false;
+    return complete;
   }
 
   function setupStudyTopic() {
@@ -210,23 +227,21 @@
       for (const row of rows) {
         const marked = done.has(row.dataset.studyStatus);
         if (marked) count++;
-        row.textContent = marked ? 'Tehty' : 'Tekemättä';
+        row.textContent = marked ? '✓ Tehty' : 'Tekemättä';
         row.classList.toggle('is-done', marked);
         row.hidden = false;
       }
-      total.textContent = count + '/' + rows.length + ' teoriaoppaan lukua tehty';
-      total.hidden = false;
+      showTopicProgress(total, count, rows.length);
     };
 
     refresh();
-    window.addEventListener('pageshow', event => { if (event.persisted) refresh(); });
-    window.addEventListener('storage', event => { if (event.key === KEY || event.key === null) refresh(); });
+    onReadingChange(refresh);
   }
 
   function setupTopicList() {
     const button = document.getElementById('topic-toggle');
-    const topics = [...document.querySelectorAll('.topic-card[data-study-chapters]')].map(card => ({
-      card, chapters: card.dataset.studyChapters.split(' ').filter(Boolean)
+    const topics = [...document.querySelectorAll('.topic-card[data-study-items]')].map(card => ({
+      card, items: card.dataset.studyItems.split(' '), status: card.querySelector('.topic-status')
     }));
     if (!button || !topics.length) return;
 
@@ -253,9 +268,10 @@
       const done = load();
       const shown = new Set(state.shown);
       const completed = [];
-      for (const [index, {card, chapters}] of topics.entries()) {
-        if (index < initial || chapters.some(id => done.has(id))) shown.add(card.id);
-        if (chapters.length && chapters.every(id => done.has(id))) completed.push(card.id);
+      for (const [index, { card, items, status }] of topics.entries()) {
+        const count = items.filter(id => done.has(id)).length;
+        if (index < initial || count) shown.add(card.id);
+        if (showTopicProgress(status, count, items.length)) completed.push(card.id);
       }
       // Muista vain, mitkä aiheet ovat jo avanneet uuden kortin. Lukumerkinnät tulevat load()-funktiosta.
       const openedBy = new Set(state.openedBy);

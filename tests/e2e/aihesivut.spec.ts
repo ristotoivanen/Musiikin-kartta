@@ -195,16 +195,10 @@ for (const width of [320, 390, 768, 1024, 1440]) {
           };
         }));
         expect(boxes.length, context).toBeGreaterThanOrEqual(2);
-        const practices = boxes.filter(box => box.title.startsWith('Harjoitus · '));
-        expect(practices.length, context).toBeGreaterThan(0);
-        expect(practices.every(box => box.statusTop === null), context).toBe(true);
-        const progress = boxes.filter(box => box.statusTop !== null);
-        expect(progress.length, context).toBeGreaterThan(0);
-        for (const box of progress) {
-          expect(box.status, context).toBe('Tekemättä');
-          expect(box.statusTop!, context).toBeCloseTo(progress[0].statusTop!, 0);
-        }
+        expect(boxes.some(box => box.title.startsWith('Harjoitus · ')), context).toBe(true);
         for (const box of boxes) {
+          expect(box.status, context).toBe('Tekemättä');
+          expect(box.statusTop!, context).toBeCloseTo(boxes[0].statusTop!, 0);
           expect(box.description, context).not.toBe('');
           expect(box.size[1], context).toBeGreaterThanOrEqual(44);
           box.size.forEach((value, index) => expect(value, context).toBeCloseTo(boxes[0].size[index], 0));
@@ -221,8 +215,17 @@ test('ristiinlinkitys avaa saman opetussivun ja takaisinpaluu säilyttää läht
   await page.goto('/oppi/kitara/index.html');
   await page.getByRole('link', { name: 'Kitaran kielet ja sointumerkinnät', exact: true }).click();
   await expect(page).toHaveURL(guitarPath);
+  await page.getByRole('button', { name: 'Merkitse oppitunti tehdyksi' }).click();
   await page.goBack();
   await expect(page).toHaveURL('/oppi/kitara/index.html');
+  await expect(page.locator('[data-study-total]')).toHaveText('0/2 sisältöä tehty');
+  await page.goto(topicPath);
+  const guitarCard = page.locator('#valinta-kitaran-kielet-ja-sointumerkinnat');
+  await expect(guitarCard.locator('[data-study-status]')).toHaveText('✓ Tehty');
+  await expect(page.locator('[data-study-total]')).toHaveText('1/3 sisältöä tehty');
+  await guitarCard.click();
+  await expect(page).toHaveURL(guitarPath);
+  await expect(page.getByRole('button', { name: '✓ Oppitunti tehty' })).toHaveAttribute('aria-pressed', 'true');
   await page.goto('/oppi/korva/intervallit.html');
   await page.getByRole('link', { name: /Kertaa intervallit/ }).click();
   await expect(page).toHaveURL(intervalsPath + '#savelet-ja-intervallit');
@@ -232,13 +235,13 @@ test('ristiinlinkitys avaa saman opetussivun ja takaisinpaluu säilyttää läht
 test('vanhat ja virheelliset merkinnät eivät kaada sivua tai muutu sivua lukiessa', async ({ page }) => {
   await page.goto(topicPath);
   const total = page.locator('[data-study-total]');
-  await expect(total).toHaveText('0/1 teoriaoppaan lukua tehty');
+  await expect(total).toHaveText('0/3 sisältöä tehty');
   await page.evaluate(key => {
     localStorage.setItem('musiikin-kartta:tehdyt', JSON.stringify(['osa-1#savelet-ja-intervallit', '__proto__']));
     localStorage.setItem(key, '{"katkennut":');
   }, readingKey);
   await page.reload();
-  await expect(total).toHaveText('1/1 teoriaoppaan lukua tehty');
+  await expect(total).toHaveText('1/3 sisältöä tehty');
   expect(await page.evaluate(key => localStorage.getItem(key), readingKey)).toBe('{"katkennut":');
   await page.evaluate(key => localStorage.setItem(key, JSON.stringify(['tuleva-luku'])), readingKey);
   await page.goto('/index.html');

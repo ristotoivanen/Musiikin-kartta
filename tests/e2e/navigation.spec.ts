@@ -195,15 +195,15 @@ test.describe('Oppimiskartan navigointi ja paluu', () => {
     await page.goBack();
     await expect(page).toHaveURL('/oppi/rytmi/index.html');
     await expect(lesson).toBeFocused();
-    await expect(lesson.locator('[data-study-status]')).toHaveText('Tehty');
-    await expect(page.locator('[data-study-total]')).toHaveText('1/1 teoriaoppaan lukua tehty');
+    await expect(lesson.locator('[data-study-status]')).toHaveText('✓ Tehty');
+    await expect(page.locator('[data-study-total]')).toHaveText('1/4 sisältöä tehty');
     await page.goBack();
     await expect(rhythm).toBeFocused();
     await expect(page.locator('#home-continue')).toContainText('Jatka oppimista · Neljä otetta ja ensimmäinen kappale');
     await page.goForward();
     await expect(page).toHaveURL('/oppi/rytmi/index.html');
     await page.reload();
-    await expect(lesson.locator('[data-study-status]')).toHaveText('Tehty');
+    await expect(lesson.locator('[data-study-status]')).toHaveText('✓ Tehty');
   });
 
   test('selaimen paluu palauttaa oikean kortin vaikka osoitteessa olisi eri aihe', async ({ page }) => {

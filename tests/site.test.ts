@@ -92,6 +92,39 @@ describe('staattisen sivuston yhteensopivuus',()=>{
     expect(read('assets/edistyminen.js')).toContain("document.getElementById('home-continue')");
   });
 
+  it('aihekortit ja sisältösivut käyttävät samoja yksilöllisiä suoritustunnisteita', () => {
+    const byKind = { luku: 0, harjoitus: 0, oppitunti: 0 };
+    const allIds = new Set<string>();
+    const map = read('index.html');
+    for (const topic of topics) {
+      const items = studyFiles.filter(file => file.startsWith('oppi/' + topic + '/') && !file.endsWith('/index.html'));
+      const topicIds = new Set<string>();
+      for (const file of items) {
+        const html = read(file);
+        const main = html.match(/<main\b[^>]+>/)?.[0];
+        const id = main?.match(/data-study-item="([^"]+)"/)?.[1];
+        const kind = main?.match(/data-study-kind="(luku|harjoitus|oppitunti)"/)?.[1] as keyof typeof byKind | undefined;
+        if (!id || !kind) throw new Error(file + ' puuttuu suoritusseurannasta');
+        const slug = file.split('/').at(-1)!.replace(/\.html$/, '');
+        expect(id, file).toBe(kind === 'luku' ? slug : kind + ':' + slug);
+        if (kind === 'luku') expect(main, file).toContain('data-theory-chapter="' + id + '"');
+        else expect(main, file).not.toContain('data-theory-chapter=');
+        expect(allIds.has(id), file).toBe(false);
+        allIds.add(id);
+        topicIds.add(id);
+        byKind[kind]++;
+        expect(html.match(/class="done-toggle"/g), file).toHaveLength(1);
+      }
+      const topicPage = read('oppi/' + topic + '/index.html');
+      const cardIds = [...topicPage.matchAll(/data-study-status="([^"]+)"/g)].map(([, id]) => id);
+      const mapCard = map.match(new RegExp('<a[^>]+href="oppi/' + topic + '/index.html"[^>]+data-study-items="([^"]+)"'));
+      expect(cardIds.sort(), topic).toEqual([...topicIds].sort());
+      expect(mapCard?.[1].split(' ').sort(), topic).toEqual([...topicIds].sort());
+      expect(topicPage, topic).not.toContain('class="done-toggle"');
+    }
+    expect(byKind).toEqual({ luku: 28, harjoitus: 41, oppitunti: 1 });
+  });
+
   it('Oppimiskartan muodostus on toistettava ja linkit osoittavat olemassa oleviin kohteisiin', () => {
     const generator = fileURLToPath(new URL('../tools/oppimiskartta/rakenna.py', import.meta.url));
     const links = fileURLToPath(new URL('../tools/linkit/tarkista-linkit.py', import.meta.url));

@@ -113,6 +113,16 @@ class Page:
     chapter_number: str = ''
     parent: object = None
 
+    @property
+    def study_kind(self):
+        if self.chapter:
+            return 'luku'
+        return 'harjoitus' if self.parent else 'oppitunti'
+
+    @property
+    def study_id(self):
+        return self.chapter or f'{self.study_kind}:{Path(self.path).stem}'
+
 
 def rel(target, output):
     return posixpath.relpath(target, posixpath.dirname(output) or '.')
@@ -122,9 +132,13 @@ def link(url, label, attrs='', *, attrib='href'):
     return f'<a {attrib}="{escape(url)}"{attrs}>{escape(label)}</a>'
 
 
-def stylesheet(path, output):
+def versioned_url(path, output):
     version = hashlib.sha256((ROOT / path).read_bytes()).hexdigest()[:10]
-    return f'  <link rel="stylesheet" href="{rel(path, output)}?v={version}">'
+    return f'{rel(path, output)}?v={version}'
+
+
+def stylesheet(path, output):
+    return f'  <link rel="stylesheet" href="{versioned_url(path, output)}">'
 
 
 def part_anchor(ref):
@@ -278,7 +292,7 @@ def choice(page, index, exercise_descriptions):
     number = f'<span class="study-number" aria-hidden="true">{index:02}</span>'
     title = ('Harjoitus · ' if page.parent else '') + page.title
     description = exercise_descriptions[slug] if page.parent else page.goal
-    status = f'<span data-study-status="{page.chapter}" class="study-status" hidden></span>' if page.chapter else ''
+    status = f'<span data-study-status="{page.study_id}" class="study-status" hidden></span>'
     return (f'<a class="study-choice" id="valinta-{slug}" href="{posixpath.basename(page.path)}">{number}'
             f'<strong class="study-title">{escape(title)}</strong>'
             f'<span class="study-choice-details"><span class="study-description">{escape(description)}</span>{status}</span>'
@@ -353,9 +367,15 @@ def page_content(page, topic, step, books, targets, audio):
         markup = re.sub(r'<p class="et-fallback">[^<]*</p>',
                         '<p class="et-fallback">Kysymysten soittaminen tarvitsee JavaScriptin ja selaimen äänituen.</p>',
                         markup)
+    completion = ('<p class="done-row"><button type="button" class="done-toggle" aria-pressed="false" disabled>'
+                  f'Merkitse {page.study_kind} tehdyksi</button></p>')
+    if page.chapter:
+        markup = markup.removesuffix('</section>') + '\n  ' + completion + '\n</section>'
     parts.append(wrap_rhythm_tables(markup))
     if page.parent:
         parts.append('<p class="study-guide">' + link(url, 'Ohje ja esimerkit · ' + page.parent.title) + '</p>')
+    if not page.chapter:
+        parts.append(completion)
     return '\n'.join(parts)
 
 
@@ -380,12 +400,12 @@ def render(topic, content, nav, page=None):
     if not page:
         content += '\n<p class="study-reference">' + link(rel('book/index.html', output), 'Teoriaoppaan kaikki osat') + '</p>'
     progress = f' data-theory-chapter="{page.chapter}"' if page and page.chapter else ''
-    scripts = ['assets/oppimiskartta.js']
-    if page is None or page.chapter:
-        scripts.append('assets/edistyminen.js')
+    if page:
+        progress += f' data-study-item="{page.study_id}" data-study-kind="{page.study_kind}"'
+    scripts = [rel('assets/oppimiskartta.js', output), versioned_url('assets/edistyminen.js', output)]
     if page and 'data-korvatreeni=' in page.markup:
-        scripts += ['assets/harjoitustausta.js', 'assets/korvatreeni.js']
-    scripts = '\n'.join(f'  <script src="{rel(path, output)}"></script>' for path in scripts)
+        scripts += [rel(path, output) for path in ('assets/harjoitustausta.js', 'assets/korvatreeni.js')]
+    scripts = '\n'.join(f'  <script src="{url}"></script>' for url in scripts)
     return f'''<!doctype html>
 {GENERATED}
 <html lang="fi">
@@ -425,11 +445,14 @@ def replace_block(source, start, end, value, name):
 def home_grid(topics):
     cards = []
     for topic in topics:
-        chapters = " ".join(page.chapter for page in topic["pages"] if page.chapter)
-        cards.append(f'''    <a class="topic-card" id="{topic['anchor']}" href="{topic['path']}" data-study-chapters="{escape(chapters)}">
+        items = " ".join(page.study_id for page in topic["pages"])
+        cards.append(f'''    <a class="topic-card" id="{topic['anchor']}" href="{topic['path']}" data-study-items="{escape(items)}">
       <span class="topic-number" aria-hidden="true">{topic['number']:02}</span>
       <strong class="topic-title">{escape(topic['title'])}</strong>
-      <span class="topic-description">{escape(topic['summary'])}</span>
+      <span class="topic-details">
+        <span class="topic-description">{escape(topic['summary'])}</span>
+        <span class="topic-status" hidden></span>
+      </span>
       <span class="topic-arrow" aria-hidden="true">→</span>
     </a>''')
     return '\n'.join(cards)
@@ -467,6 +490,8 @@ def collect(config, books):
     paths = [topic['path'] for topic in topics] + [page.path for page in all_pages]
     if len(set(paths)) != len(paths) or len({topic['anchor'] for topic in topics}) != len(topics):
         raise ValueError('Oppimiskartassa on päällekkäisiä osoitteita tai aihetunnisteita')
+    if len({page.study_id for page in all_pages}) != len(all_pages):
+        raise ValueError('Oppimiskartassa on päällekkäisiä suoritusmerkinnän tunnisteita')
     return all_pages
 
 
@@ -508,6 +533,8 @@ def pages():
     home = block('oppimiskartta:kortit', home_grid(topics))
     home = block('oppimiskartta:aloitus', '    ' + link(start, 'Kuuntele pulssi', ' data-return-topic="aihe-rytmi"'))
     home = block('oppimiskartta:reitit', map_routes)
+    home = re.sub(r'(?<=src=")assets/edistyminen\.js(?:\?v=[a-f0-9]+)?(?=")',
+                  versioned_url('assets/edistyminen.js', 'index.html'), home)
     output['index.html'] = home
     script_path = 'assets/oppimiskartta.js'
     script = (ROOT / script_path).read_text(encoding='utf-8')
