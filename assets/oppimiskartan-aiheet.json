@@ -1,0 +1,266 @@
+{
+  "_comment": "Oppimiskartan 8 aiheen sisällöt. Pysyvät lukunumerot ovat assets/edistyminen.js:n mukaiset. Muutos tähän tiedostoon edellyttää oppimissivujen generointia ja testien tarkistusta.",
+  "topics": [
+    {
+      "id": "kitara",
+      "title": "Kitaran perusteet",
+      "description": "Kitaran kielet, sointumerkinnät ja ensimmäiset otteet.",
+      "links": [
+        {
+          "type": "chapter",
+          "number": 2,
+          "title": "Neljä otetta ja ensimmäinen kappale"
+        },
+        {
+          "type": "resource",
+          "href": "book/osa-1.html#kitaran-merkinnat",
+          "title": "Kitaran kielet ja merkinnät"
+        },
+        {
+          "type": "resource",
+          "href": "book/osa-1.html#kolme-cowboyta",
+          "title": "Kokeile ensimmäistä kappaletta"
+        }
+      ]
+    },
+    {
+      "id": "rytmi",
+      "title": "Rytmi",
+      "description": "Pulssi, neljään laskeminen ja komppi.",
+      "links": [
+        {
+          "type": "chapter",
+          "number": 1,
+          "title": "Pulssi ja komppi"
+        },
+        {
+          "type": "resource",
+          "href": "book/osa-1.html#alas-ylos-komppi",
+          "title": "Kokeile alas–ylös-komppia"
+        }
+      ]
+    },
+    {
+      "id": "nuotit",
+      "title": "Sävelnimet ja musiikin lukeminen",
+      "description": "Sävelnimet, intervallit ja sointumerkinnät.",
+      "links": [
+        {
+          "type": "chapter",
+          "number": 4,
+          "title": "Sävelet ja intervallit"
+        },
+        {
+          "type": "resource",
+          "href": "book/osa-1.html#kitaran-merkinnat",
+          "title": "Kitaran kielet ja sointumerkinnät"
+        }
+      ]
+    },
+    {
+      "id": "korva",
+      "title": "Sävelkorva ja melodia",
+      "description": "Kotisävel, intervallit ja kuullun musiikin matkiminen.",
+      "links": [
+        {
+          "type": "chapter",
+          "number": 3,
+          "title": "Musiikki on kieli"
+        },
+        {
+          "type": "chapter",
+          "number": 10,
+          "title": "Sävellajin tunnistaminen"
+        },
+        {
+          "type": "chapter",
+          "number": 17,
+          "title": "Asteet ja intervallit korvalla"
+        },
+        {
+          "type": "chapter",
+          "number": 18,
+          "title": "Bassolinjan kuuleminen"
+        },
+        {
+          "type": "chapter",
+          "number": 19,
+          "title": "Sointujen tunnistaminen"
+        },
+        {
+          "type": "chapter",
+          "number": 26,
+          "title": "Kuule septimi"
+        },
+        {
+          "type": "resource",
+          "href": "riffikaiku.html",
+          "title": "Riffikaiku · matki neljän sävelen riffi"
+        },
+        {
+          "type": "resource",
+          "href": "pelit/ensikeikka/",
+          "title": "Ensikeikka · etsi melodialle lopetus"
+        }
+      ]
+    },
+    {
+      "id": "otelauta",
+      "title": "Otelauta",
+      "description": "Sävelten sijainnit, oktaavit ja CAGED.",
+      "links": [
+        {
+          "type": "chapter",
+          "number": 13,
+          "title": "Otelauta ja oktaavimuodot"
+        },
+        {
+          "type": "chapter",
+          "number": 14,
+          "title": "Sävelet E- ja A-kielellä"
+        },
+        {
+          "type": "chapter",
+          "number": 16,
+          "title": "CAGED"
+        },
+        {
+          "type": "resource",
+          "href": "kitaraharjoittelija.html?polku=otelauta&harjoitus=savelten-etsinta",
+          "title": "Etsi sävelet otelaudalta"
+        },
+        {
+          "type": "resource",
+          "href": "otelautaharjoittelija.html",
+          "title": "Tutki otelautakarttaa"
+        }
+      ]
+    },
+    {
+      "id": "soinnut",
+      "title": "Soinnut ja harmonia",
+      "description": "Sointujen rakenne, tehtävät ja sointuotteet.",
+      "links": [
+        {
+          "type": "chapter",
+          "number": 6,
+          "title": "Harmoninen kenttä"
+        },
+        {
+          "type": "chapter",
+          "number": 7,
+          "title": "Roomalaiset numerot"
+        },
+        {
+          "type": "chapter",
+          "number": 8,
+          "title": "Sointujen tehtävät"
+        },
+        {
+          "type": "chapter",
+          "number": 11,
+          "title": "Kvinttiympyrä"
+        },
+        {
+          "type": "chapter",
+          "number": 15,
+          "title": "Barré-soinnut ja numerokartta"
+        },
+        {
+          "type": "chapter",
+          "number": 25,
+          "title": "Septimisoinnut"
+        },
+        {
+          "type": "chapter",
+          "number": 27,
+          "title": "ii–V–I ja äänenkuljetus"
+        },
+        {
+          "type": "resource",
+          "href": "kitaraharjoittelija.html?polku=soinnut",
+          "title": "Harjoittele sointuja ja sointusäveliä"
+        },
+        {
+          "type": "resource",
+          "href": "otelautaharjoittelija.html#soinnut",
+          "title": "Tutki sointukarttaa"
+        }
+      ]
+    },
+    {
+      "id": "asteikot",
+      "title": "Asteikot ja moodit",
+      "description": "Asteikkojen sävelet, pentatoniset ja moodien erot.",
+      "links": [
+        {
+          "type": "chapter",
+          "number": 5,
+          "title": "Asteikot"
+        },
+        {
+          "type": "chapter",
+          "number": 22,
+          "title": "Pentatoniikka"
+        },
+        {
+          "type": "chapter",
+          "number": 28,
+          "title": "Moodit käytännössä"
+        },
+        {
+          "type": "resource",
+          "href": "kitaraharjoittelija.html?polku=asteikot",
+          "title": "Pentatoniset ja moodit: harjoitukset"
+        },
+        {
+          "type": "resource",
+          "href": "otelautaharjoittelija.html",
+          "title": "Näytä asteikot otelaudalla"
+        }
+      ]
+    },
+    {
+      "id": "kappaleet",
+      "title": "Kappaleet ja oma musiikki",
+      "description": "Kappaleiden mukana soittaminen, improvisointi ja säveltäminen.",
+      "links": [
+        {
+          "type": "chapter",
+          "number": 9,
+          "title": "Kolme cowboyta roomalaisin numeroin"
+        },
+        {
+          "type": "chapter",
+          "number": 12,
+          "title": "Transponointi"
+        },
+        {
+          "type": "chapter",
+          "number": 20,
+          "title": "Kappaleen purkaminen ilman nuotteja"
+        },
+        {
+          "type": "chapter",
+          "number": 21,
+          "title": "Improvisointi"
+        },
+        {
+          "type": "chapter",
+          "number": 23,
+          "title": "Sovittaminen"
+        },
+        {
+          "type": "chapter",
+          "number": 24,
+          "title": "Oman kappaleen tekeminen ja oma ilmaisu"
+        },
+        {
+          "type": "resource",
+          "href": "kitaraharjoittelija.html?polku=kappaleet",
+          "title": "Avaa kappaleharjoittelija"
+        }
+      ]
+    }
+  ]
+}
