@@ -43,48 +43,52 @@ describe('staattisen sivuston yhteensopivuus',()=>{
     expect(read('book/osa-8.html')).toContain('assets/audio/osa-8/em-c-tausta.m4a');
   });
 
-  it('etusivun kahdeksan oppimisaihetta säilyttävät nykyiset teoria- ja harjoittelureitit', () => {
+  it('Oppimiskartan 8 aihetta avaavat omat sivut ja 28 teoria-osiota omat luvut', () => {
     const html = read('index.html');
-    const ids = [...html.matchAll(/<details class="topic-card" id="aihe-([^"]+)">/g)].map(m => m[1]);
-    expect(ids).toEqual(['kitara', 'rytmi', 'nuotit', 'korva', 'otelauta', 'soinnut', 'asteikot', 'kappaleet']);
-    expect(html).toContain('href="book/osa-1.html#pulssi-ja-komppi"');
-    expect(html).toContain('href="riffikaiku.html"');
-    expect(html).toContain('href="pelit/ensikeikka/"');
-    expect(html).toContain('href="kitaraharjoittelija.html?polku=otelauta&amp;harjoitus=savelten-etsinta"');
+    const slugs = ['kitara', 'rytmi', 'nuotit', 'korva', 'otelauta', 'soinnut', 'asteikot', 'kappaleet'];
+    const links = [...html.matchAll(/<a class="topic-card" id="aihe-([^"]+)" href="aiheet\/([^"]+)[.]html"/g)];
+    expect(links).toHaveLength(8);
+    expect(links.map(m => m[1])).toEqual(slugs);
+    expect(links.map(m => m[2])).toEqual(slugs);
+    expect(html).not.toContain('<details class="topic-card"');
     expect(html).toContain('<title>Oppimiskartta – Musiikin kartta</title>');
-    expect(html).toContain('<h2 id="oppimisaiheet">Oppimiskartta</h2>');
-    expect(html).not.toContain('Nykyiset oppaat ja työkalut');
-    expect(html).not.toContain('class="area"');
-    expect(html).toContain('href="otelautaharjoittelija.html#soinnut">Tutki sointukarttaa');
-    const linkedParts = new Set([...html.matchAll(/href="book[/]osa-([0-9]+)[.]html(?:#[^"]*)?"/g)].map(m => Number(m[1])));
-    expect([...linkedParts].sort((a, b) => a - b)).toEqual(Array.from({ length: 11 }, (_, n) => n + 1));
-    expect(html).toContain('href="index.html#oppimisaiheet">Oppimiskartta</a>');
+    expect(html).toContain('id="home-continue"');
+    expect(html).toContain('followOldTrainerLink()');
     expect(html).toContain('href="pdf/musiikin-kartta.pdf"');
     expect(html).toContain('href="book/sanasto.html"');
-    expect(html).toContain('id="harjoittelija"');
-    expect(html).toContain('followOldTrainerLink()');
-    expect(html).toContain('id="home-continue"');
-    expect(html).not.toContain('class="hero-actions"');
-    const chapters = [...html.matchAll(/data-theory-chapter="(osa-[0-9]+)#([^"]+)" href="book[/](osa-[0-9]+)[.]html#([^"]+)"/g)];
-    expect(chapters).toHaveLength(28);
-    expect(new Set(chapters.map(m => m[1] + '#' + m[2])).size).toBe(28);
-    for (const [, part, anchor, target, targetAnchor] of chapters) {
-      expect(target).toBe(part);
-      expect(targetAnchor).toBe(anchor);
-      expect(read('book/' + target + '.html')).toContain('id="' + anchor + '"');
-    }
-    expect(html.match(/class="topic-group-title">Teoria/g)).toHaveLength(8);
-    expect(read('assets/edistyminen.js')).toContain("document.getElementById('home-continue')");
-
-    // Taitotunnisteet eivät kuulu ensimmäisen vaiheen käyttäjän valikkoteksteihin.
     expect(html).not.toContain('SCALE-CONNECT');
-    expect(html).not.toContain('EAR-ECHO');
+    const chapters: number[] = [];
+    for (const slug of slugs) {
+      const topic = read('aiheet/' + slug + '.html');
+      expect(topic).toContain('<h1>');
+      expect(topic).toContain('href="../index.html#oppimisaiheet"');
+      expect(topic).toContain('Takaisin Oppimiskarttaan');
+      expect(topic).not.toContain('H- ja B-sävelnimet');
+      for (const match of topic.matchAll(/href="\.\.\/book\/luku-([0-9]+)[.]html"/g)) {
+        const n = Number(match[1]);
+        chapters.push(n);
+        const chapter = read('book/luku-' + n + '.html');
+        expect(chapter).toContain('class="chapter"');
+        expect(chapter).toContain('id="chapter-parent"');
+        expect(chapter).toContain('assets/edistyminen.js');
+        expect(chapter).toContain('Takaisin aiheeseen');
+      }
+    }
+    expect(chapters).toHaveLength(28);
+    expect([...new Set(chapters)].sort((a,b) => a-b)).toEqual(Array.from({length:28},(_,i)=>i+1));
+    const names = read('book/luku-4.html');
+    expect(names).toContain('id="h-savelnimi"');
+    expect(names).toContain('B♭');
+    expect(names).toContain('href="h-savelnimen-alkupera.html"');
+    expect(read('book/h-savelnimen-alkupera.html')).toContain('href="luku-4.html#h-savelnimi"');
+    expect(read('assets/edistyminen.js')).toContain('singleChapter');
   });
 
   it('jokaisella pääsivulla on sama päävalikko samassa järjestyksessä ja oikea aktiivinen osio',()=>{
     const pages:[string,string|null,string][]=[
       ['index.html',null,'page'],['book/index.html','teoria','true'],['otelautaharjoittelija.html','otelauta','page'],['kitaraharjoittelija.html','kitara','page'],
       ['riffikaiku.html','kitara','true'],['pelit/ensikeikka/index.html','kitara','true'],
+      ...['kitara','rytmi','nuotit','korva','otelauta','soinnut','asteikot','kappaleet'].map(slug=>['aiheet/'+slug+'.html','teoria','page'] as [string,string,string]),
       ...readdirSync(new URL('../book/',import.meta.url)).filter(f=>f.endsWith('.html')&&f!=='index.html').map(f=>['book/'+f,'teoria','true'] as [string,string,string]),
     ];
     const targets={teoria:'index.html#oppimisaiheet',otelauta:'otelautaharjoittelija.html',kitara:'kitaraharjoittelija.html'};
