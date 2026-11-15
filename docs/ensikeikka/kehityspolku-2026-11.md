@@ -125,33 +125,35 @@ Nykyisen kehityshaaran toisen keikan (6–9, suunnitellut Ensitreenit) tehtävä
 
 **Ensimmäinen poikkiaiheinen kokeilu vasta Ensikeikka-pilotin jälkeen:** tee vain yksi lyhyt "kitaristi soittaa – vastaa takaisin" -bänditreeninäkymä, joka käyttää Riffikaiun nykyistä tehtävää tai syvälinkkiä. Mittaa ymmärtääkö käyttäjä yhteyden, löytääkö hän tehtävän ja palaako hän samaan oppimiskontekstiin. Vasta sen jälkeen arvioidaan rytmi-, sointu- ja pentatonisten harjoitusten laajennusta. Tämä **ei** oikeuta koodaamaan uutta yhteistä pelimoottoria eikä ohittamaan #54:n päätösportteja.
 
-### Tavoite: soittaminen ilman jatkuvaa tabin tai sointukaavion seuraamista
+### Punainen lanka: taidosta itsenäiseen musisointiin
 
-**Omistajan tarkennus 15.11.2026:** Musiikin kartan tulee auttaa oppijaa **soittamaan oikeaa kitaraa, ymmärtämään musiikkia, muistamaan opittu, soveltamaan sitä uusiin kappaleisiin ja improvisoimaan**. Pelitehtävän onnistuminen on välietappi, ei lopullinen näyttö soittotaidosta. Tätä sovelletaan mahdollisuuksien mukaan yhtenäisen oppimisrakenteen sisällä ([päätehtävälista #54](https://github.com/ristotoivanen/Musiikin-kartta/issues/54), [yhtenäisen oppimisen luonnos PR #53](https://github.com/ristotoivanen/Musiikin-kartta/pull/53)).
+**Omistajan tarkennus 15.11.2026:** Musiikin kartan tavoitteena on, että ihminen oppii ymmärtämään ja kuulemaan musiikkia, soittamaan oikeaa kitaraa, muistamaan oppimaansa sekä soveltamaan ja improvisoimaan. Tämä on **koko oppimisen taustalla vaikuttava suunta, ei kuusi pakollista askelta jokaiseen tehtävään**. Samoja asioita voidaan harjoitella eri järjestyksissä, palata niihin ja yhdistää niistä vähitellen uutta osaamista. Jatkosuunnitelma noudattaa edelleen yhtenäisen oppimisen päälinjaa ([#54](https://github.com/ristotoivanen/Musiikin-kartta/issues/54), [PR #53](https://github.com/ristotoivanen/Musiikin-kartta/pull/53)).
 
-**Periaatteellinen oppimiskaari (ei pakollinen kuuden portin lukitus):**
+**Jokaiselle oppimisaiheelle valitaan sille parhaiten sopivat harjoitusmuodot.** Ne voivat olla juuri kyseistä taitoa varten tehtyjä uusia harjoituksia **tai** jo käytössä olevia samoja pelejä, näkymiä ja soittoharjoituksia. Ei kopioida samaa asiaa uuteen ohjelmaan eikä pakoteta samaa menetelmäsarjaa kaikille aiheille.
 
-| Vaihe | Oppijan toiminta | Mitä voi päätellä? |
+| Opittava asia | Mahdollisia tilanteeseen sopivia keinoja | Ei pakollista |
 | --- | --- | --- |
-| 1. Kuule ja ymmärrä | Lyhyt kuunteluesimerkki + juuri tarvittava teoria | Tunnistaa tarkoituksen ja esimerkin, ei vielä soittotaitoa |
-| 2. Oivalla pelissä | Kokeilee, vertaa, tunnistaa ja saa palautteen | Osoittaa rajatun kuuntelu-/hahmotustaidon |
-| 3. Soita oikealla kitaralla | Harjoittelee näppäilyn, sormituksen, rytmin ja puhtaan äänen vihjeillä | Fyysinen taito vaatii oikean soiton, pelkkä klikkaus ei riitä |
-| 4. Soita muistista | Soittaa fraasin, sointukierron tai kompin vähentäen tabeja/kaavioita | Opitun saa palautettua ilman jatkuvaa visuaalista mallia |
-| 5. Sovella uuteen | Sama taito toisen sävellajin, tempon, grooven tai sointukierron kanssa | Näyttöä siirtovaikutuksesta, ei vain ulkoa opitusta yhdestä katkelmasta |
-| 6. Improvisoi ja osallistu | Vastaa fraasiin, muuttaa rytmiä, valitsee sopivia säveliä ja reagoi taustabändiin | Luova musiikillinen soveltaminen, ei automaattisesti objektiivinen oikein/väärin |
+| **Rytmi ja komppi** | Pulssin kuuntelu, taputus, soittaminen rumpalin mukana, tauon tunnistaminen, kompin vaihto | Sävelasteikko- tai otelautapeli |
+| **Soinnut** | Lyhyt teoria, otteen näyttö, oikean kitaran sointuvaihdot, soinnun kuuleminen bändin taustassa | Jokaisen soinnun erillinen kuulomonivalinta |
+| **Otelauta ja sävelet** | Virtuaalinen säveljahti, saman sävelen etsiminen eri kieliltä, soittaminen oikealla kitaralla | Valmis kokonainen kappale jokaiselle sävelelle |
+| **Sävelkorva ja harmonia** | Kuuntele vaihtoehtoja, tutki melodian ja basson suhdetta, vertaile lopetuksia | Pakollinen kitaralla suoritettava osuus joka tehtävään |
+| **Pentatoninen ja melodiat** | Otelautakuvio, lyhyt muistifraasi, korvakuulolta matkiminen, taustan päälle soittaminen | Kaikkia kuutta menetelmää samassa järjestyksessä |
+| **Improvisointi** | Kuuntele bändin fraasi, vastaa omalla soitolla, kokeile eri säveliä ja rytmejä, kuuntele tulos | Yksi objektiivinen oikein/väärin-vastaus |
+| **Kappaleharjoittelu** | Riffin tai sointukierron oppiminen, pienet osat, yhteissoitto, muistista soittaminen | Pitkä teoriaosuus ennen jokaista yritystä |
 
-**Asteittain katoava tuki (fading):** alussa näkyvät sävelet, sormitus, tabulatuuri tai sointukaavio; seuraavaksi vain osittainen vihje; lopuksi soitetaan ilman näyttöä. Käyttäjä saa avata vihjeet uudelleen, eikä poistaminen ole rangaistus tai pakko. Harjoittelun voi aloittaa suoraan sopivalta tasolta. Uuden kappaleen tabien tai sointumerkkien käyttö **ei ole epäonnistuminen**: riippumattomuuden tavoite koskee jo opitun musiikin ja musiikillisten suhteiden hallintaa, ei kaiken uuden materiaalin lukemista kieltäen.
+**Suunnittelijan neljä kysymystä jokaiselle oppimisaiheelle:**
+1. Mitä taitoa tai ymmärrystä tämä aihe kehittää, ja miten se liittyy muihin taitoihin?
+2. Millä keinoilla juuri tämä taito parhaiten opitaan? Tarvitaanko teoria, peli, oikea kitara, kuuntelu, yhdessä soittaminen tai jokin muu?
+3. Mitä jo valmista peliä, harjoitetta, otelautaa, äänimateriaalia tai syvälinkkiä voidaan hyödyntää? Tehdään uusi toiminto **vain, jos nykyinen ei riitä**.
+4. Miten huomataan mielekäs edistyminen ja miten taitoa pääsee käyttämään myöhemmin uudessa yhteydessä?
 
-**Taidon osoittamisen rehellisyys:**
-- `kuunneltu` / `pelissä ratkaistu` ei ole sama kuin `kitaralla soitettu`.
-- Oikean kitaran tehtävä ilman mikrofonia voi sisältää soittajan oman kuittauksen tai ohjeen itsensä kuunteluun; sitä ei esitetä järjestelmän varmentamana soittosuorituksena.
-- Mikrofonilla arvioitu yksittäinen sävel, jos toteutetaan, ei yksin todenna oikeaa sormitusta, rytmiä, puhtautta, improvisaatiota tai kappaleen hallintaa. Epävarmuus ja yksityisyys käsiteltävä erikseen.
-- Soittosuoritusta arvioidaan tilanteeseen sopivasti: tasainen pulssi, tunnistettava fraasi, siisti soinnunvaihto, musiikillinen sopivuus ja kyky palauttaa asia muistista. Ei keksittyä universaalia "soitit oikein" -prosenttia.
-- Taito varmistuu uskottavammin, kun pelaaja palaa siihen myöhemmin ja onnistuu **toisessa musiikillisessa esimerkissä**.
+**Muistin ja itsenäisyyden tavoite kulkee mukana tarpeen mukaan.** Kun tuttu fraasi tai sointu on opittu, tabit, sointukaaviot ja sävelvihjeet voidaan piilottaa asteittain, mutta niiden avaaminen pysyy mahdollisena. Uuden kappaleen opettelu nuotista tai tabista ei ole epäonnistuminen. Tavoitteena on, ettei jo opittuun musiikkiin tai omaan improvisointiin tarvitse jatkuvasti katsoa näyttöä.
 
-**Esimerkki A-mollipentatonisesta (sisällön tavoite, ei uusi erillinen polku):** kuule pieni A-molliblues-fraasi → opettele miksi A–C–D–E–G sopivat kyseiseen ympäristöön → löydä sävelet virtuaaliotelaudalta → soita helpot sävelet ja fraasi oikealla kitaralla tabin kanssa → soita sama muistista → vastaa kitaristin fraasiin A-mollitaustan päällä → tee oma kahden tahdin vastaus → kokeile uutta taustaa tai rytmiä ja kuuntele, miten oma ratkaisu sopii.
+**Mitä oppimisnäyttö tarkoittaa:** pelissä oikein tehty valinta osoittaa rajattua tunnistamista, ei fyysistä kitaransoittoa; ilman mikrofonia tehty oikean kitaran harjoitus voidaan kuitata itsearviona, ei automaattisesti varmennettuna suorituksena. Mikrofoni ei yksin varmista rytmiä, sormitusta, puhtautta tai musiikillista improvisointia. Harjoituksia suunniteltaessa erotetaan kuuleminen, ymmärtäminen, soittaminen, muistaminen ja uuden musiikin soveltaminen toisistaan, mutta niitä ei pakoteta kaikille samaan vaiheputkeen.
 
-**Kehitystapa:** tätä periaatetta ei toteuteta lisäämällä samaan PR:ään kaikkia soitto-, muistamis- ja improvisointitehtäviä. Jokaiseen valittuun oppimisaiheeseen tehdään pieni yhteys nykyisen teorian, pelin, fyysisen soittotehtävän, muistivaiheen ja sovelluksen välille. Ensimmäinen rajattu esimerkki suunnitellaan vasta asianomaisen oppimisjakson hyväksynnän jälkeen; nykyiset Riffikaiku, Otelautaopas ja Kitaraharjoittelija säilyttävät itsenäiset käyttötapansa.
+**Esimerkki saman taidon joustavasta harjoittelusta:** A-mollipentatonista voi opetella ensin näkemällä sävelet, ensin kuulemalla pienen fraasin tai suoraan soittamalla helppoa kuviota. Myöhemmin voi kokeilla muistista, vastata Riffikaiussa kuultuun ideaan ja improvisoida bändin taustan kanssa. Nämä ovat vaihtoehtoisia ja toisiaan tukevia harjoittelutapoja; oppija voi palata aiempaan ja valita itselleen sopivan reitin.
+
+**Toteutusraja:** tämä ei käynnistä yhteistä pelimoottoria tai kaikkien oppimisaiheiden muuttamista bänditarinaksi. Nykyiset teoriaopas, Riffikaiku, Otelautaopas ja Kitaraharjoittelija säilyvät. Bändiharjoitukset ovat yksi hyödyllinen soveltamisen ympäristö siellä, missä musiikillinen tilanne sitä tukee. Toteutus tehdään aikanaan taito- ja pilottikohtaisesti #54:n hyväksymisrajoissa.
 
 ### Kotikulman keikan pilottikohtaus: ensimmäinen oikea esiintyminen
 
