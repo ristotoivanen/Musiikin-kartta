@@ -731,7 +731,7 @@ test.describe('responsiivisuus, teemat ja saavutettavuus', () => {
   test('saavutettavuus: yksi h1, nimetyt painikkeet ja linkit, vaiheen aria-current ja kohdistus', async ({ page }) => {
     await mockAudio(page);
     const check = async () => {
-      expect(await page.locator('h1').count()).toBe(1);
+      await expect(page.locator('h1')).toHaveCount(1); // odottaa piirtoa (hidas verkko)
       const unnamed = await page.locator('button:visible, a:visible, select:visible').evaluateAll(els => els
         .filter(el => !(el.getAttribute('aria-label') || el.textContent?.trim() || (el.id && document.querySelector(`label[for="${el.id}"]`))))
         .map(el => el.outerHTML.slice(0, 80)));
