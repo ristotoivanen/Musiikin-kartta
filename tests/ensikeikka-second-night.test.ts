@@ -51,6 +51,8 @@ describe('Kotikulmien keikat -luettelo', () => {
       const song = songs[id];
       expect(song.tasks).toHaveLength(1);
       expect(song.tasks[0]).toMatchObject({ kind: 'choose', answer: firstNight[id].target, heading: 'Kuuntele kappale ja valitse lopetus' });
+      expect(Object.keys((song.tasks[0] as ChooseTask).wrong!).sort()).toEqual(LETTERS.filter(letter => letter !== firstNight[id].target));
+      expect(song.tasks[0].hints).toHaveLength(2);
       for (const ending of [null, ...LETTERS]) {
         const expected = renderV1(gigArrangements[id], ending === null ? null : firstNight[id].endings[ending], rate);
         const actual = renderSong(song, ending, rate);
@@ -251,6 +253,28 @@ describe.each(secondNight)('Kappale $id – $title: ääni', song => {
       expect(ratio).toBeLessThan(.85);
       expect(peak(isolated)).toBeLessThanOrEqual(.9 + 1e-6);
     }
+  });
+
+  it('tuo basson kuuluviin myös puhelimen kaiuttimen taajuuksilla', () => {
+    // Kaksi peräkkäistä 300 Hz:n ylipäästöä (12 dB/oktaavi) jäljittelee pientä kaiutinta.
+    const phone = (samples: Float32Array) => {
+      let output = samples;
+      for (let pass = 0; pass < 2; pass++) {
+        const a = 1 / (1 + 2 * Math.PI * 300 / rate);
+        const next = new Float32Array(output.length);
+        for (let i = 1; i < output.length; i++) next[i] = a * (next[i - 1] + output[i] - output[i - 1]);
+        output = next;
+      }
+      return output;
+    };
+    const final = song.endings[song.target];
+    const from = Math.round(songExcerpt(song) * rate);
+    const bright = renderTake(song.arrangement, final, rate, ['bass']);
+    const soft = renderTake({ ...song.arrangement, bassTone: undefined }, final, rate, ['bass']);
+    expect(energy(phone(bright), from) / energy(phone(soft), from)).toBeGreaterThan(2.5);
+    const isolated = renderSong(song, song.target, rate, ['bass']);
+    const mix = renderSong(song, song.target, rate);
+    expect(energy(phone(isolated), from) / energy(phone(mix), from)).toBeGreaterThan(.15);
   });
 
   it('soittaa bassokulun sävel kerrallaan kuultavasti', () => {

@@ -33,7 +33,22 @@ export type Arrangement = {
   comp?: number[];
   /** Virvelin ja hi-hatin iskut tahdissa. Oletus on keikan 1 perusgroove. */
   drums?: { snare: readonly number[]; hats: readonly number[] };
+  /**
+   * Bassosoundi. Oletus on keikan 1 pehmeä basso. Kirkkaampi soundi kantaa sävelkorkeuden
+   * yläsävelinä myös puhelimen kaiuttimeen, joka ei toista basson perustaajuutta.
+   */
+  bassTone?: BassTone;
 };
+
+export type BassTone = { partials: readonly number[]; gain: number; decay: number };
+const defaultBass: BassTone = { partials: BASS_PARTIALS, gain: .14, decay: 3.1 };
+/** Basso, jonka sävelkorkeus kuuluu myös pienestä kaiuttimesta. */
+export const BRIGHT_BASS: BassTone = { partials: [.26, .3, .26, .2, .14, .09], gain: .17, decay: 1.8 };
+/**
+ * Erilliskuuntelun basso korostaa 2.–6. yläsäveltä. Kulun suunta ja askeleet kuuluvat silloin
+ * myös puhelimen kaiuttimesta, vaikka perustaajuus jäisi kuulumatta.
+ */
+const MAGNIFIED_BASS: BassTone = { partials: [.18, .38, .32, .26, .18, .12], gain: .16, decay: 1.6 };
 
 /**
  * Viimeisen tahdin vaihtoehto. `lead` on melodian loppusävel. `chord` korvaa bändin loppusoinnun:
@@ -51,7 +66,7 @@ export function endingExcerpt({ harmony, tempo = 100 }: Arrangement) {
 export function renderArrangementBand(
   arrangement: Arrangement, rate: number, layers: readonly Layer[] = ALL_LAYERS, finalChord?: Chord | null,
 ) {
-  const { harmony, tempo = 100, comp = [0, 1.5, 2.5], drums = defaultDrums } = arrangement;
+  const { harmony, tempo = 100, comp = [0, 1.5, 2.5], drums = defaultDrums, bassTone = defaultBass } = arrangement;
   const beat = 60 / tempo;
   const bar = 4 * beat;
   const band = new Float32Array(Math.round((harmony.length * bar + SONG_TAIL) * rate));
@@ -69,7 +84,7 @@ export function renderArrangementBand(
       if (bassOn) walk.forEach(([midi, step], note) => {
         const next = walk[note + 1]?.[1] ?? 4;
         const duration = Math.min(.49, (next - step) * beat - .03);
-        addVoice(band, rate, start + step * beat, duration, pluck(midi, BASS_PARTIALS, .14, duration, 3.1));
+        addVoice(band, rate, start + step * beat, duration, pluck(midi, bassTone.partials, bassTone.gain, duration, bassTone.decay));
       });
     } else {
       // Kutsujärjestys on sama kuin keikan 1 alkuperäisessä moottorissa, joten sen ääni ei muutu.
@@ -78,7 +93,8 @@ export function renderArrangementBand(
         const duration = closing ? bar + .22 : .49;
         if (drumsOn) addVoice(band, rate, time, .22, kick);
         if (bassOn) addVoice(band, rate, time, duration,
-          pluck(step === 0 ? current.bass : current.fifth, BASS_PARTIALS, .14, duration, closing ? 1.35 : 3.1));
+          pluck(step === 0 ? current.bass : current.fifth, bassTone.partials, bassTone.gain, duration,
+            closing ? 1.35 : bassTone.decay));
       }
     }
     if (!closing && drumsOn) {
@@ -134,7 +150,8 @@ export function renderArrangement(arrangement: Arrangement, ending: string | nul
 export function renderIsolated(
   arrangement: Arrangement, final: FinalBar, rate: number, layers: readonly Layer[], from: number,
 ) {
-  const part = renderTake(arrangement, final, rate, layers);
+  const onlyBass = layers.length === 1 && layers[0] === 'bass';
+  const part = renderTake(onlyBass ? { ...arrangement, bassTone: MAGNIFIED_BASS } : arrangement, final, rate, layers);
   const full = renderTake(arrangement, final, rate);
   const first = Math.round(from * rate);
   const rms = (samples: Float32Array) => {

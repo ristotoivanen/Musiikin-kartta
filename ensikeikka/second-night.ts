@@ -1,4 +1,4 @@
-import { chord } from './arrangement';
+import { BRIGHT_BASS, chord } from './arrangement';
 import type { Song } from './tasks';
 
 /*
@@ -18,7 +18,7 @@ export const secondNight = {
   6: {
     id: 6, title: 'Melodia jatkaa matkaa', keyName: 'F-duuri', root: 'F',
     arrangement: {
-      tempo: 96, comp: [0, 1.5, 2, 3],
+      tempo: 96, comp: [0, 1.5, 2, 3], bassTone: BRIGHT_BASS,
       harmony: [
         F,
         chord('D2', 'A2', ['A2', 'D3', 'F3']),
@@ -46,7 +46,7 @@ export const secondNight = {
       answer: 'B',
       retry: 'Tämäkin sävel sopii viimeiseen sointuun. Vertaa sitä basson viimeiseen säveleen.',
       wrong: {
-        A: 'Tämä sävel sopii bändin viimeiseen sointuun, joten loppu kuulostaa vakaalta. Melodia jää kuitenkin kotisävelen viereen eikä soi samaa säveltä kuin basso. Hyräile basson viimeinen sävel ja vertaa.',
+        A: 'Tämä sävel sopii bändin viimeiseen sointuun, joten loppu kuulostaa vakaalta. Se ei kuitenkaan ole sama sävel, jota basso soittaa lopussa. Hyräile basson viimeinen sävel ja vertaa.',
         C: 'Melodia hyppää ylöspäin ja jää soimaan kirkkaasti. Sävel sopii sointuun, mutta loppu jää avoimeksi, ikään kuin kappale voisi vielä jatkua. Kuuntele, mihin melodia pääsee yhdellä pienellä askeleella.',
       },
       hints: [
@@ -55,12 +55,12 @@ export const secondNight = {
       ],
       success: { title: 'Oikein! Löysit kotiin!', text: 'Melodia laskeutui askeleen kotisävelelle, ja basso soitti samaa säveltä.' },
     }],
-    explanation: 'Viimeisessä F-duurisoinnussa soivat F, A ja C, joten kaikki kolme lopetusta sopivat bändiin. Melodian G laskeutuu askeleen F:ään. F on kappaleen kotisävel, ja basso soittaa sitä lopussa. A ja C kuulostavat vakailta, koska ne ovat kotisoinnun terssi ja kvintti. Niissä melodia kuitenkin jää kodin viereen.',
+    explanation: 'Viimeisessä F-duurisoinnussa soivat F, A ja C, joten kaikki kolme lopetusta sopivat bändiin. Melodian G laskeutuu askeleen F:ään. F on kappaleen kotisävel, ja basso soittaa sitä lopussa. A ja C kuulostavat vakailta, koska ne ovat kotisoinnun terssi ja kvintti. Niissä melodia ei kuitenkaan pääse kotiin asti.',
   },
   7: {
     id: 7, title: 'Basso kertoo suunnan', keyName: 'A-duuri', root: 'A',
     arrangement: {
-      tempo: 88, comp: [0, 1.5, 2.5, 3],
+      tempo: 88, comp: [0, 1.5, 2.5, 3], bassTone: BRIGHT_BASS,
       harmony: [
         A,
         chord('D3', 'A2', ['D3', 'F#3', 'A3']),
@@ -93,7 +93,7 @@ export const secondNight = {
       retry: 'Melodia on sama kaikissa lopetuksissa. Kuuntele, mitä basso tekee.',
       wrong: {
         A: 'Melodia on sama kuin muissa lopetuksissa, mutta basso kääntyy viime hetkellä alaspäin. Loppu kuulostaa yllättävältä ja vähän surulliselta, ikään kuin kappale voisi vielä jatkua. Kuuntele, mihin basson nouseva kulku luontevimmin jatkuisi.',
-        B: 'Tässä basso palaa takaisin lähtösäveleensä, ja bändi jää odottamaan. Melodian ja bändin välille jää jännite. Kuuntele, missä lopetuksessa basso jatkaa nousuaan.',
+        B: 'Tässä basso palaa takaisin lähtösäveleensä, ja bändi jää odottamaan. Melodian ja bändin välille jää jännite. Kuuntele basso erikseen: mihin suuntaan se liikkuu viimeisellä askeleella?',
       },
       isolate: ['bass'],
       hints: [
@@ -107,7 +107,7 @@ export const secondNight = {
   8: {
     id: 8, title: 'Kaksi mahdollista loppua', keyName: 'D-molli', root: 'D',
     arrangement: {
-      tempo: 84, comp: [0, 2, 3], drums: { snare: [2], hats: [0, 1, 2, 3] },
+      tempo: 84, comp: [0, 2, 3], drums: { snare: [2], hats: [0, 1, 2, 3] }, bassTone: BRIGHT_BASS,
       harmony: [
         Dm,
         chord('Bb2', 'F2', ['D3', 'F3', 'Bb3']),
@@ -153,7 +153,7 @@ export const secondNight = {
           answer: 'A',
           wrong: {
             B: 'Kuuntele lopetus B uudelleen. Voisiko kappale loppua siihen?',
-            C: 'Lopetuksessa C melodia jää kodin viereen, mutta bändi palaa kotiin. Kysymykseksi jäävässä lopetuksessa myös bändi jää odottamaan jatkoa.',
+            C: 'Lopetuksessa C bändi palaa kotiin, mutta melodia päättyy eri säveleen kuin basso. Kysymykseksi jäävässä lopetuksessa myös bändi jää odottamaan jatkoa.',
           },
         },
       ],
@@ -168,7 +168,7 @@ export const secondNight = {
   9: {
     id: 9, title: 'Illan viimeinen encore', keyName: 'E-duuri', root: 'E',
     arrangement: {
-      tempo: 112, comp: [0, 1, 1.5, 2.5, 3],
+      tempo: 112, comp: [0, 1, 1.5, 2.5, 3], bassTone: BRIGHT_BASS,
       harmony: [
         E,
         chord('C#3', 'G#2', ['C#3', 'E3', 'G#3']),
@@ -201,7 +201,7 @@ export const secondNight = {
       retry: 'Melodia ei vielä palaa kotiin. Kuuntele vain melodia ja vertaa lopetuksia.',
       wrong: {
         B: 'Tämä sävel sopii viimeiseen sointuun ja kuulostaa vakaalta, mutta melodia kääntyy takaisin ylöspäin eikä pääse kotiin asti. Muistatko kappaleen 6?',
-        C: 'Tämä sävel hankaa bändin viimeistä sointua vasten ja kaipaa vielä pientä nousua. Se on lähellä kotia mutta ei koti.',
+        C: 'Tämä sävel hankaa bändin viimeistä sointua vasten ja kaipaa vielä jatkoa. Kuuntele vain melodia ja vertaa, mihin askelkulku pysähtyy.',
       },
       isolate: ['melody'],
       hints: [
@@ -233,6 +233,6 @@ export const secondNight = {
       ],
       success: { title: 'Oikein! Kuulit, miksi loppu toimii.', text: 'Basso nousee ja melodia laskeutuu. Kun ne saapuvat kotiin kahdesta suunnasta, loppu kuulostaa erityisen varmalta.' },
     }],
-    explanation: 'Melodia laskeutuu B:stä askel kerrallaan E:hen, joka on kappaleen kotisävel. Samaan aikaan basso nousee B:stä C♯:n ja D♯:n kautta E:hen. Kun äänet liikkuvat toisiaan kohti, puhutaan vastaliikkeestä. G♯ sopisi loppusointuun, mutta silloin melodia jäisi kodin viereen. D♯ on vain puoliaskelen päässä kodista ja hankaa loppusointua vasten.',
+    explanation: 'Melodia laskeutuu B:stä askel kerrallaan E:hen, joka on kappaleen kotisävel. Samaan aikaan basso nousee B:stä C♯:n ja D♯:n kautta E:hen. Kun äänet liikkuvat toisiaan kohti, puhutaan vastaliikkeestä. G♯ sopisi loppusointuun, mutta silloin melodia ei pääsisi kotiin asti. D♯ on vain puoliaskelen päässä kodista ja hankaa loppusointua vasten.',
   },
 } satisfies Record<number, Song>;
