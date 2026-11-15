@@ -101,6 +101,30 @@ Nykyisen kehityshaaran toisen keikan (6–9, suunnitellut Ensitreenit) tehtävä
 
 **Tila:** sisältösuunnittelun linjaus, ei nykyisten kappaleiden hyväksytty tekstimuutos eikä pyyntö puuttua Clauden keskeneräiseen haaraan.
 
+### Bänditreenit muissakin oppimisaiheissa (laajennusehdotus)
+
+**Periaate:** sama bändi ja sen uskottava harjoitustilanne voivat antaa musiikillisen syyn opetella myös muita Musiikin kartan taitoja. **Bänditreenit ei ole uusi, kaiken sisällön korvaava oppimisportaali, pelimoottori tai toinen opetussuunnitelma.** Se on tarvittaessa käytettävä **tarinallinen ja musiikillinen konteksti** olemassa oleville harjoituksille ja niiden syvälinkeille. Yhtenäisen oppimisrakenteen pääsuunnitelma ja päätösportit ovat [issue #54](https://github.com/ristotoivanen/Musiikin-kartta/issues/54) ja [PR #53](https://github.com/ristotoivanen/Musiikin-kartta/pull/53).
+
+| Opittava taito | Uskottava tilanne bänditreeneissä | Toteutusperiaate |
+| --- | --- | --- |
+| **Sävelkorva ja melodia** | Laulaja/kitaristi kysyy, tuleeko fraasi kotiin vai jääkö se avoimeksi | Ensitreenien 1–9 nykyinen toimiva kuuntelupeli; eri kappale-esimerkit |
+| **Rytmi ja komppi** | Rumpali näyttää sykkeen ja ehdottaa muutosta komppiin | Kuule–taputa/soita–vertaa; erota onnistunut kuuntelu ja oikea soitto |
+| **Soinnut ja harmonia** | Basisti aloittaa kierron, kitaristi kokeilee siihen sopivaa sointua | Olemassa olevien sointuharjoitusten käyttö ja tarkoitukseen sopivuuden kuuleminen |
+| **Otelauta ja sävelten löytäminen** | Bändin jäsen pyytää tiettyä säveltä tai saman sävelen toisesta kohdasta | Avaa sopiva nykyinen otelauta-/sävelharjoitus, ei kopioida otelaudan koodia |
+| **Riffikaiku ja melodinen vastaus** | Kitaristi soittaa lyhyen fraasin: "Vastaatko tähän?" | Linkitä tai integroi rajatusti nykyiseen Riffikaikuun; säilytä sen soitto-/kuuntelutavat |
+| **Pentatoninen ja improvisointi** | Bändi jää pyörittämään helppoa blueskiertoa, kitaristi kokeilee vastausfraasia | Lyhyt kuultava esimerkki, otelauta-/kitaratehtävä ja taustalla soitto, alussa ilman pakollista mikkiä |
+| **Kappaleen rakenne** | Bändi miettii, missä kohtaa nostetaan dynamiikkaa tai jätetään tauko | A/B-vertailu sekä sen kuuleminen koko kappaleessa |
+
+**Säännöt:**
+1. Valitse bänditreenikehys vain, jos se auttaa ymmärtämään kyseistä musiikillista taitoa. Kaikkia teoriaosia, teknisiä sormiharjoituksia tai yksinäistä harjoittelua ei tarvitse väkisin lavastaa bändin keskusteluksi.
+2. **Yksi oppimistavoite, useita harjoitustapoja**: lyhyt teoria, kuuntelu, virtuaalinen tehtävä, oikea kitara ja soveltaminen tarpeen mukaan. Sama taito näkyy Musiikin kartan nykyisissä aiheissa; bänditarina linkittää ne, ei tee niistä kopioita.
+3. Tarinalause vastaa todellista musiikkia: soittajan kommentti ei saa väittää basson nousevan, ellei käytetystä äänestä kuulu nousua. Oikeat/avoimet musiikilliset ratkaisut erotellaan annettuun tavoitteeseen perustuen.
+4. Hyödynnä nykyisiä pelejä ja URL:itä: Riffikaiku, Otelautaopas ja Kitaraharjoittelija säilyvät itsenäisesti käytettävinä, myös ilman tätä tarinaa.
+5. Oikeaa kitaransoittoa ei väitetä varmennetuksi ruutuvastauksen perusteella, eikä mikrofoni ole oletuksena pakollinen. Jos mikrofoni tulee mukaan, onnistumisen arviointi ja yksityisyys suunnitellaan erikseen.
+6. Sama bändi voi toistua eri tehtävissä, mutta **älä rakenna raskasta pysyvää hahmo-, keskustelu- tai quest-moottoria** ennen näyttöä siitä, että kevyt yhteinen kehys oikeasti lisää ymmärtämistä.
+
+**Ensimmäinen poikkiaiheinen kokeilu vasta Ensikeikka-pilotin jälkeen:** tee vain yksi lyhyt "kitaristi soittaa – vastaa takaisin" -bänditreeninäkymä, joka käyttää Riffikaiun nykyistä tehtävää tai syvälinkkiä. Mittaa ymmärtääkö käyttäjä yhteyden, löytääkö hän tehtävän ja palaako hän samaan oppimiskontekstiin. Vasta sen jälkeen arvioidaan rytmi-, sointu- ja pentatonisten harjoitusten laajennusta. Tämä **ei** oikeuta koodaamaan uutta yhteistä pelimoottoria eikä ohittamaan #54:n päätösportteja.
+
 ### Kotikulman keikan pilottikohtaus: ensimmäinen oikea esiintyminen
 
 **Musiikillinen tarkoitus:** osoita, että Ensitreeneissä kuultu melodian kotiin palaaminen sekä basson ja soinnun toiminta on tunnistettavissa myös uudessa musiikillisessa tilanteessa.
