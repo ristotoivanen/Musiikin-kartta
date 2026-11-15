@@ -251,3 +251,16 @@ h2.riff-status { outline: none; }
   .riff-go { justify-items: stretch; }
   .riff-go-button { width: 100%; }
 }
+/* Harjoittelun valintapainikkeet eivät kilpaile Nyt riffataan! -painikkeen kanssa. */
+.riff-practice-actions button[aria-pressed="true"] { background: var(--panel); color: var(--text); border-color: var(--lavender); }
+.riff-board-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: 6px 0 0; font-size: 13px; color: var(--muted); }
+.riff-board-legend .swatch { width: 14px; height: 14px; border-radius: 50%; display: inline-block; margin-left: 6px; }
+.riff-board-legend .swatch:first-child { margin-left: 0; }
+.riff-board-legend .model { background: var(--gold); }
+.riff-board-legend .own { background: var(--purple-dark); border: 2px solid #fff; }
+.riff-board-legend .spot { background: var(--good); }
+@media (max-width: 520px) {
+  /* Puhelimella Nyt riffataan! pysyy näkyvissä harjoittelun ajan, vaikka otelauta vierisi alle. */
+  .riff-go { position: sticky; bottom: 0; z-index: 2; margin: 12px -12px 0; padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    background: var(--panel); border-top: 1px solid var(--line); box-shadow: 0 -8px 16px rgb(0 0 0 / .25); }
+}

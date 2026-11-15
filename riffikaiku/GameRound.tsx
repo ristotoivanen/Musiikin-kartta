@@ -90,7 +90,9 @@ export function GameRound({ game, s, titleRef, onHome }: { game: RiffGame; s: Ga
   const stage = STAGE[s.phase] ?? { title: '', text: '' };
   const practice = s.phase === 'practice', take = s.phase === 'take', result = s.phase === 'success' || s.phase === 'retry';
   const showNotes = (practice && s.notesShown) || (take && s.hint);
-  const flash: Mark[] = tapped ? [{ ...tapped.p, kind: tapped.result === 'right' ? 'answer' : tapped.result === 'wrong' ? 'wrong' : 'playing',
+  // Oma painallus: otossa vihreä (oikein) tai punainen (väärin); vapaassa kokeilussa violetti, jotta se
+  // erottuu mallin kultaisesta ”nyt soi” -korostuksesta.
+  const flash: Mark[] = tapped ? [{ ...tapped.p, kind: tapped.result === 'right' ? 'answer' : tapped.result === 'wrong' ? 'wrong' : 'anchor',
     label: tapped.result === 'wrong' ? '✗' : noteName(tapped.p.midi) }] : [];
   const marks: Mark[] = [...(showNotes ? riffMarks(s.riff, s.playing) : []), ...flash];
   const listenButton = (primary = false) => <button type="button" className={primary ? 'primary' : ''} onClick={() => game.listen()} aria-pressed={s.modelPlaying} data-testid="listen">
@@ -137,6 +139,11 @@ export function GameRound({ game, s, titleRef, onHome }: { game: RiffGame; s: Ga
 
       <RiffBoard focus={s.level.strings} marks={marks} disabled={false} onAnswer={tap}
         caption={take ? 'Virtuaalikitara: soita riffi muistista – painallukset tarkistetaan' : 'Virtuaalikitara: kokeile säveliä vapaasti (ei arvioida)'} />
+      {!take && <p className="riff-board-legend" data-testid="board-legend">
+        <span className="swatch model" aria-hidden="true" /> malli soi nyt
+        <span className="swatch own" aria-hidden="true" /> oma painalluksesi
+        {showNotes && <><span className="swatch spot" aria-hidden="true" /> ehdotettu paikka (järjestysnumero)</>}
+      </p>}
 
       {practice && <div className="riff-go">
         <button type="button" className="primary riff-go-button" onClick={() => game.startTake()} aria-describedby="riff-go-text">Nyt riffataan!</button>

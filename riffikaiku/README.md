@@ -42,8 +42,8 @@ ks. [HYVAKSYNTAKOKEET.md](HYVAKSYNTAKOKEET.md).
 
 | Tiedosto | Tehtävä |
 |---|---|
-| `game.ts` | `RiffGame`: pelin tilakone ilman mikrofonia; läpäisyt, tähdet ja ennätykset. |
-| `GameView.tsx` | Pelin valikko, pelinäkymä ja kotitreenin onnittelu. |
+| `game.ts` | `RiffGame`: pelin tilakone ilman mikrofonia (harjoittelu → otto → tulos); läpäisyt, tähdet ja ennätykset. |
+| `GameView.tsx`, `GameRound.tsx` | Pelin valikko ja kotitreenin onnittelu; riffinäkymä (harjoittelu, otto, tulos). |
 
 Käännös: `vite.riffikaiku.config.ts` → `assets/riffikaiku/` (`emptyOutDir` koskee vain sitä).
 Aja aina `npm run build` (se luo myös lisenssitiedoston ja päivittää `riffikaiku.html`:n `app.js?v=`-tunnisteen).
@@ -143,33 +143,67 @@ samassa paneelissa, sekä ”Mitä mikrofoni tunnistaa – ja mitä ei” -ohje.
 tauolla ja sen jälkeen suojavaihe (OutputSettler). Taustavälilehti tai irrotettu laite sulkee mikrofonin
 ja kertoo syyn; harjoittelu jatkuu ilman mikrofonia, ja sen voi ottaa uudelleen käyttöön.
 
-## Riffikaiku-peli – virtuaalikitara (0.4)
+## Riffikaiku-peli – virtuaalikitara (0.5)
 
 Pelin valikko: tulostaulu (läpäistyt riffit, tähdet, kotitreenit), Pelaa / Jatka -painike ja kotitreenit,
 joissa jokaisen riffin tila (○ ei läpäisty, ✓ läpäisty, ★ läpäisty ilman vihjettä). Kotitreeni 2 avautuu
 Kotitreeni 1:n suorittamisesta.
 
-1. **Valmis (ready):** uusi riffi ei soi itsestään. Pelaaja painaa **Kuuntele riffi**.
-2. **Vuoro:** otelaudan painallus soi ja välähtää: oikea vihreänä sävelnimellä, väärä punaisena ✗ (lyhyt
-   tärähdys, ei animaatiota `prefers-reduced-motion`-asetuksella).
-3. **Pallukat:** harmaa · **vihreä** (heti oikein) · **punainen** (väärä, myös väärä oktaavi; oikeaa ei
-   paljasteta) · **keltainen** (oikea virheen jälkeen). Symbolit ✓ ✗ ↻ ja ruudunlukijan teksti.
-   Otsikon alla kotitreenin riffit (✓/★/numero) kertovat etenemisen.
-4. **Virheetön:** ”Riffi läpäisty!” ja saavutus: **Ensimmäinen läpäisy**, **Tähti** (ilman vihjettä) tai
-   **Uusi ennätys** (vähemmän vääriä säveliä kuin aiemmin). Pelaaja valitsee Seuraava riffi tai Soita uudelleen.
-5. **Loppuun keltaisilla:** tulos jää näkyviin, ei automaattista mallia; vapaa kokeilu ei muuta mitään;
-   **Yritä uudelleen** aloittaa uuden arvioitavan yrityksen. Muistivihjeet kolmannen epäonnistumisen jälkeen.
-6. **Kuuntele riffi kesken yrityksen** ei nollaa mitään; sama painike pysäyttää.
-7. Kolmen läpäistyn riffin jälkeen onnittelu tähtineen (Jatka / Pelaa uudelleen / Pelin valikko).
-   Seuraavaan siirrytään vain pelaajan valinnasta.
+### Riffin kulku: Kuuntele → Harjoittele vapaasti → Nyt riffataan! → Palaute → Jatka
 
-**Lopeta peli** palaa pelin valikkoon; edistyminen on jo tallennettu. Pelin näppäimistökäyttö:
-otelaudan nuolinäppäimet, Home/End ja Enter/välilyönti (yhteinen `Board`).
+Kaikki vaiheet vaihtuvat samassa näkymässä. Vaiherivi (Kuuntele ja harjoittele · Soita muistista · Tulos)
+ja vaiheen otsikko (Harjoittele / Sinun vuorosi! / tulos) kertovat, missä ollaan; kohdistus siirtyy
+otsikkoon vaiheen vaihtuessa.
 
-**Muistivihjeet:** saman riffin kolmannen loppuun soitetun epäonnistuneen yrityksen jälkeen uusi
-yritys näyttää harmaina ne paikat, jotka pelaaja on jollakin aiemmalla yrityksellä soittanut **heti
-oikein**; muut ovat tyhjiä. Paikkakohtainen, ei hyväksy mitään, nollautuu seuraavassa riffissä.
-Manuaalinen **Vihje** on erillinen ja kirjataan tulokseen (`hint`); vihjeen kanssa ei saa tähteä.
+| Tila (`game.ts`) | Mitä tapahtuu | Mitä kirjataan |
+|---|---|---|
+| `home` | Pelin valikko | – |
+| `practice` | **Malli soi heti**, kun riffi avataan pelaajan painalluksesta (Aloita peli, kotitreenin valinta, Jatka, Seuraava riffi, Harjoittele lisää). Mallin voi pysäyttää ja kuunnella uudelleen. Otelauta soi myös mallin aikana. Sävelet ja ehdotetut paikat näytetään opastustason mukaan, ja ne voi näyttää tai piilottaa. | Ei mitään |
+| `take` | Alkaa vain **Nyt riffataan!** -painikkeesta: malli pysähtyy, vastaukset piiloon, uusi yritys ja kierrostunniste. Ensimmäinen painallus tämän jälkeen on ensimmäinen tarkistettava sävel. Mallia ei soiteta kesken oton. **Vihje** näyttää sävelet ja paikat (kirjataan). **Harjoittele vielä** palaa harjoitteluun. | Vain loppuun soitettu otto |
+| `success` / `retry` | Tulos, pallukat ja saavutus jäävät näkyviin. **Yritä uudelleen** = uusi otto heti, ilman mallia. **Harjoittele lisää** = harjoitteluun, malli soi. **Kuuntele riffi** ja vapaa otelauta eivät muuta tulosta. **Seuraava riffi** vain läpäisyn jälkeen. | – |
+| `level-complete` | Kolmen läpäistyn riffin jälkeen onnittelu tähtineen (Jatka / Pelaa uudelleen / Pelin valikko). | Kotitreeni suoritettu |
+
+Kesken jätetty otto (Harjoittele vielä, Lopeta peli, riffin vaihto) ei ole tulos eikä epäonnistunut yritys.
+Aiemmat läpäisyt, tähdet ja ennätykset säilyvät aina. Ei aikarajaa, elämiä eikä rytmin pisteytystä.
+
+**Otossa:** pallukat harmaa · **vihreä** (heti oikein) · **punainen** (väärä, myös väärä oktaavi; oikeaa ei
+paljasteta) · **keltainen** (oikea virheen jälkeen). Painallus välähtää otelaudalla vihreänä tai punaisena ✗.
+Harjoittelussa oma painallus näkyy violettina ja mallin soiva sävel kultaisena (selite otelaudan alla).
+
+**Ääni:** malli ja otelaudan sävelet soivat kahdella erillisellä `ReferencePlayer`-soittimella samassa
+äänikontekstissa (kummankin sävelen huippu 0,22, yhteensä enintään 0,44). `stopReference()` pysäyttää vain
+mallin; `stopModel()` (riffin vaihto, valikko, sivulta poistuminen) pysäyttää molemmat. Malli käynnistyy
+pelaajan painalluksen käsittelijästä (ei Reactin efektistä), joten StrictMode tai uudelleenrenderöinti ei
+soita sitä kahdesti, ja selain sallii äänen. Jos äänimoottori ei silti käynnisty (automaattisen toiston esto,
+mykistetty Safari-välilehti), näkyy ohje ja **Kuuntele riffi** käynnistää mallin käsin. Taustavälilehti
+pysäyttää mallin. Myöhässä palaava tai pysäytetty malli ohitetaan (`modelOp`).
+
+### Opastustasot (`riffs.ts`: `Level.guidance`, `GUIDANCE`)
+
+| Taso | Malli soi heti | Sävelet ja paikat harjoittelussa | Automaattiset muistivihjeet |
+|---|---|---|---|
+| `guided` | kyllä | näkyvissä valmiiksi | kyllä |
+| `memory` | kyllä | avataan painikkeesta | kyllä |
+| `challenge` | kyllä | avataan painikkeesta | ei |
+
+Kotitreenit 1–2 ovat `guided`. Taso luetaan kotitreenin datasta; peli ei tarkista tasonumeroita, joten
+myöhemmän kotitreenin avun määrä muuttuu pelkällä datamuutoksella. Harjoitteluun pääsee aina takaisin.
+
+### Tähdet ja apu
+
+- **Läpäisy:** otto, jossa kaikki pallukat vihreinä.
+- **Tähti:** läpäisy ilman otossa pyydettyä **Vihjettä** (`hint`-kirjaus).
+- **Harjoittelun apu** (mallin kuuntelu, sävelet, paikat, vapaa kokeilu) ei vaikuta tähtiin.
+- **Muistivihjeet** (kolmannen epäonnistuneen oton jälkeen, jos taso sallii) näyttävät harmaina vain ne
+  sävelnimet, jotka pelaaja on aiemmalla otolla soittanut **heti oikein**. Korjattuja (keltaisia) kohtia eikä
+  otelautapaikkoja näytetä, eikä muistivihje hyväksy mitään. Siksi ne eivät estä tähteä. Muisti nollautuu
+  läpäisyn jälkeen ja seuraavassa riffissä.
+- **Ennätys:** vähemmän vääriä säveliä kuin aiemmin (`best`). Mallin kuuntelukerrat ennen ottoa kirjataan
+  tulokseen (`replays`), automaattinen ensisoitto ei.
+
+**Lopeta peli** palaa pelin valikkoon. Näppäimistö: otelaudan nuolinäppäimet, Home/End ja Enter/välilyönti
+(yhteinen `Board`); Nyt riffataan! on tavallinen painike. Puhelimella Nyt riffataan! pysyy näkyvissä
+ruudun alareunassa harjoittelun ajan.
 
 ### Otelauta
 
@@ -249,10 +283,21 @@ Syötteen tulkinta (näppäily vs. painallus) ja äänen hallinta pysyvät ytime
 | Säveljono, kotitreenit, tallennus ja yhteensopivuus | `tests/riffikaiku-sequence.test.ts` |
 | Harjoitus ja mikrofonin ohjain (korvikeääni) | `tests/riffikaiku-practice.test.ts` |
 | Peli (korvikeääni) | `tests/riffikaiku-game.test.ts` |
+| Mallin ja otelaudan soittimet erillään, äänitasot | `tests/riffikaiku-audio.test.ts` |
 | Signaaliketju synteettisellä kitaralla oikean Pitchyn läpi | `tests/riffikaiku-pipeline.test.ts`, `tests/riffikaiku-pluck-tuner.test.ts` |
 | Selain (Chromium, työpöytä ja puhelinmitat) korvatuilla äänirajapinnoilla | `tests/e2e/riffikaiku.spec.ts` |
 
 Simuloidut mikrofonitestit eivät ole oikean kitaran hyväksymistestejä: ks. [HYVAKSYNTAKOKEET.md](HYVAKSYNTAKOKEET.md).
+
+Pelin selaintestit, joissa mallisoiton kesto ratkaisee (automaattinen toisto, pysäytys, äänen pysähtyminen),
+pysäyttävät sivun kellon (`page.clock.install` + `pauseAt`) ja siirtävät aikaa vain `runFor`-kutsuilla.
+Pelkkä `install()` ei pysäytä aikaa. Huom: mallin aikana soiva sävel näkyy otelaudalla soivana (`playing`),
+ei vastauspisteenä, joten ”kaikki vastauspisteet näkyvissä” toteutuu vasta mallin jälkeen.
+
+**Pelin käsin tarkistus** (esikatselussa, kaiuttimella ja puhelimella): malli soi heti riffin avautuessa;
+oma sävel ja malli kuuluvat yhtä aikaa ja erottuvat; Pysäytä katkaisee vain mallin; Nyt riffataan! löytyy
+puhelimella vierittämättä; harjoittelun painallukset eivät näy otossa; Harjoittele vielä ei muuta tulosta;
+mykistetyssä Safari-välilehdessä näkyy ohje ja Kuuntele riffi toimii.
 
 ## Tunnetut rajoitukset
 
@@ -270,3 +315,6 @@ Simuloidut mikrofonitestit eivät ole oikean kitaran hyväksymistestejä: ks. [H
 - Mallin ääni voi kuulua mikrofoniin myös suojavaiheen jälkeen kaikuisassa huoneessa; kuulokkeet auttavat.
 - Muistivihjelaskuri (peli) ja Kokeile muistista -kierros (harjoitus) eivät säily sivun latauksen yli.
 - Rytmiä ei arvioida kummassakaan käyttötavassa.
+- Pelin automaattista mallisoittoa ei ole kokeiltu oikeilla puhelimilla (iOS Safari: mykistyskytkin ja
+  välilehden mykistys). Esto näkyy ohjeena, ja malli käynnistyy käsin.
+- Mallin tempo on kiinteä 0,8 s / sävel; hidastusta ei ole.

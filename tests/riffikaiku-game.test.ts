@@ -249,6 +249,22 @@ describe('tulos ja jatko', () => {
     expect(t.s()).toMatchObject({ failedAttempts: 0, memory: [null, null, null, null] }); // läpäisyn jälkeen uusi sarja
   });
 
+  it('muistivihjeet eivät paljasta vaikeaa kohtaa eivätkä paikkoja; ne eivät estä tähteä, otossa pyydetty Vihje estää', async () => {
+    const t = setup({ tutorialDone: true });
+    t.game.play(); await t.toTake();
+    for (let i = 0; i < 3; i++) { failTake(t, 1); t.game.retry(); }
+    // Vain heti oikein soitetut kohdat näkyvät; korjattu (keltainen) kohta 2 jää piiloon. Ei sävelvihjettä eikä paikkoja.
+    expect(t.s()).toMatchObject({ phase: 'take', memory: [59, null, 62, 60], notesShown: false, hint: false });
+    t.playBoard(KT1[0]);
+    expect(t.s()).toMatchObject({ phase: 'success', achievement: { firstPass: true, firstStar: true } });
+    expect(t.store.data.results.at(-1)).toMatchObject({ hint: false, passed: true });
+    const u = setup({ tutorialDone: true });
+    u.game.play(); await u.toTake();
+    for (let i = 0; i < 3; i++) { failTake(u, 1); u.game.retry(); }
+    u.game.toggleHint(); u.playBoard(KT1[0]);
+    expect(u.s()).toMatchObject({ phase: 'success', achievement: { firstPass: true, firstStar: false } });
+  });
+
   it('Seuraava riffi vasta läpäisyn jälkeen; kolmannen jälkeen onnittelunäkymä', async () => {
     const t = setup({ tutorialDone: true });
     t.game.play();

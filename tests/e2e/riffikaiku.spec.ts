@@ -116,6 +116,15 @@ const rowStyle = (page: Page, string: number) => rows(page).nth(string).evaluate
 async function playFrets(page: Page, frets: number[], touch: boolean, string = 1) {
   for (const fret of frets) await press(cell(page, string, fret), touch);
 }
+/**
+ * Pysäytetty sivukello: ajastimet (mallisoiton kesto, korostukset) etenevät vain page.clock.runFor-kutsuilla.
+ * Pelkkä install() ei pysäytä aikaa.
+ */
+async function pausedClock(page: Page) {
+  const start = new Date('2026-11-16T10:00:00Z');
+  await page.clock.install({ time: start });
+  await page.clock.pauseAt(new Date(start.getTime() + 1000));
+}
 async function hideTab(page: Page, hidden: boolean) {
   await page.evaluate(h => {
     Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => h ? 'hidden' : 'visible' });
@@ -201,6 +210,10 @@ test.describe('Riffikaiku-peli – virtuaalikitara', () => {
   }
 
   test('opastus: malli soi heti, harjoittelu ei arvioi, Nyt riffataan! aloittaa oton; oikea ja väärä välähtävät', async ({ page, isMobile }) => {
+    // Sivun kello pysäytetään (pauseAt), ja aika etenee vain runFor-kutsuilla. Aiemmin tarkistus
+    // ”kaksi vastauspistettä” odotti huomaamatta mallin loppumista (soiva sävel näkyy soivana, ei
+    // vastauspisteenä), joten ”Pysäytä kuuntelu” oli jo vaihtunut, kun sitä tarkistettiin.
+    await pausedClock(page);
     await mockAudio(page);
     await page.goto('/riffikaiku.html?tila=peli');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Kuuntele ja toista');
@@ -216,7 +229,12 @@ test.describe('Riffikaiku-peli – virtuaalikitara', () => {
     expect((await audio(page)).opens).toBe(0);
     // Opastettu taso: sävelet ja ehdotetut paikat näkyvät harjoittelussa.
     await expect(page.getByTestId('hint')).toContainText('B3 – C4');
-    await expect(page.locator('.riff-board td.target .dot')).toHaveCount(2);
+    await expect(page.locator('.riff-board td.target .dot')).toHaveText(['1', '2']);
+    // Mallin soiva sävel korostuu otelaudalla (playing) ja pallukassa.
+    await page.clock.runFor(100);
+    await expect(page.locator('.riff-board td.playing .dot')).toHaveText('1');
+    await expect(page.locator('.riff-board td.target .dot')).toHaveText(['2']);
+    await expect(listenButton(page)).toHaveText('Pysäytä kuuntelu');
     await expect(rows(page)).toHaveCount(6);
     const [b, g] = [await rowStyle(page, 1), await rowStyle(page, 2)];
     expect(b.opacity).toBe(1); expect(g.opacity).toBeLessThan(1); expect(b.head).not.toBe(g.head);
@@ -224,9 +242,14 @@ test.describe('Riffikaiku-peli – virtuaalikitara', () => {
     await clearTones(page);
     await playFrets(page, [3, 0, 1], isMobile);
     expect(await tones(page)).toEqual([62, 59, 60]);
-    await expect(listenButton(page)).toHaveText('Pysäytä kuuntelu');
+    await expect(listenButton(page)).toHaveText('Pysäytä kuuntelu'); // painallukset eivät pysäyttäneet mallia
     await expect(count(page)).toHaveCount(0);
     expect((await stored(page))?.results ?? []).toEqual([]);
+    // Malli päättyy normaalisti (2 × 0,8 s + 0,35 s), eikä vuoro ala itsestään.
+    await page.clock.runFor(2000);
+    await expect(listenButton(page)).toHaveText('Kuuntele riffi');
+    await expect(page.locator('.riff-board td.target .dot')).toHaveText(['1', '2']);
+    await expect(status(page)).toHaveText('Harjoittele');
     await takeTurn(page, isMobile);
     await expect(listenButton(page)).toHaveCount(0); // mallia ei kuunnella kesken oton
     await expect(page.locator('.riff-board .dot')).toHaveCount(0); // vastaukset piilossa
@@ -250,6 +273,67 @@ test.describe('Riffikaiku-peli – virtuaalikitara', () => {
     await expect(heading(page)).toHaveText('Kotitreeni 1 · Riffi 1/3');
     await expect(heading(page)).toBeFocused();
     await expect.poll(() => tones(page)).toEqual([59, 60, 62, 60]);
+  });
+
+  test('mallin pysäytys kesken toiston ja uusi kuuntelu; pysäytetty malli ei palaa myöhemmin', async ({ page }) => {
+    await pausedClock(page);
+    await mockAudio(page);
+    await seedRiff(page);
+    await page.goto('/riffikaiku.html?tila=peli');
+    await page.locator('.riff-play-button').click();
+    await expect.poll(() => tones(page)).toEqual([59, 60, 62, 60]);
+    await expect(listenButton(page)).toHaveText('Pysäytä kuuntelu');
+    await page.clock.runFor(1000); // kesken toiston
+    await expect.poll(async () => (await audio(page)).outputConnections).toBe(1);
+    await listenButton(page).click();
+    await expect(listenButton(page)).toHaveText('Kuuntele riffi');
+    expect((await audio(page)).outputConnections).toBe(0); // malli irrotettu kaiuttimista heti
+    await page.clock.runFor(4000); // alkuperäisen mallin loppuaika ohitetaan
+    await expect(listenButton(page)).toHaveText('Kuuntele riffi');
+    await clearTones(page);
+    await listenButton(page).click();
+    await expect.poll(() => tones(page)).toEqual([59, 60, 62, 60]);
+    await expect(listenButton(page)).toHaveText('Pysäytä kuuntelu');
+    await page.clock.runFor(3700);
+    await expect(listenButton(page)).toHaveText('Kuuntele riffi');
+    await expect(status(page)).toHaveText('Harjoittele');
+  });
+
+  test('ääni pysähtyy taustavälilehdellä, pelistä poistuttaessa ja riffin vaihtuessa (ei päällekkäisiä malleja)', async ({ page }) => {
+    await pausedClock(page);
+    await mockAudio(page);
+    await seedRiff(page);
+    await page.goto('/riffikaiku.html?tila=peli');
+    const connections = async () => (await audio(page)).outputConnections;
+    await page.locator('.riff-play-button').click();
+    await expect.poll(connections).toBe(1);
+    await hideTab(page, true);
+    await expect(listenButton(page)).toHaveText('Kuuntele riffi');
+    expect(await connections()).toBe(0);
+    await hideTab(page, false);
+    await expect(status(page)).toHaveText('Harjoittele'); // harjoittelu säilyy
+    await listenButton(page).click();
+    await expect.poll(connections).toBe(1);
+    await page.getByRole('button', { name: 'Lopeta peli' }).click();
+    expect(await connections()).toBe(0);
+    await page.locator('.riff-play-button').click();
+    await page.getByRole('button', { name: 'Nyt riffataan!' }).click();
+    expect(await connections()).toBe(0); // Nyt riffataan! pysäyttää mallin
+    await playFrets(page, [0, 1, 3, 1], false);
+    await expect(status(page)).toHaveText('Riffi läpäisty!');
+    expect(await connections()).toBe(1); // viimeinen oma sävel soi vielä omalla soittimellaan
+    await page.clock.runFor(1200); // yhden sävelen soitin vapautuu 0,8 + 0,35 s jälkeen
+    expect(await connections()).toBe(0);
+    await listenButton(page).click();
+    await expect.poll(connections).toBe(1);
+    await cell(page, 1, 5).click(); // oma sävel mallin aikana: kaksi erillistä soitinta
+    await expect.poll(connections).toBe(2);
+    await clearTones(page);
+    await page.getByRole('button', { name: 'Seuraava riffi' }).click();
+    await expect.poll(() => tones(page)).toEqual([60, 59, 60, 62]);
+    expect(await connections()).toBe(1); // vanha malli ja oma sävel irrotettiin, uusi malli soi
+    await page.evaluate(() => window.dispatchEvent(new Event('pagehide')));
+    expect(await connections()).toBe(0);
   });
 
   test('automaattinen toisto estetty: ohje näkyy, harjoittelu toimii ja Kuuntele riffi käynnistää mallin käsin', async ({ page }) => {
