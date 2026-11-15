@@ -3,6 +3,7 @@
 // Alkuperäinen book/osa-*.html säilyy vanhojen linkkien, tulosteen ja lähteiden lähteenä.
 // Käyttö: node tools/oppimiskartta-sivut.mjs [--check]
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -10,6 +11,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const check = process.argv.includes('--check');
 const read = path => readFileSync(resolve(root, path), 'utf8');
 const manifest = JSON.parse(read('assets/oppimiskartan-aiheet.json')).topics;
+const styleVersion = createHash('sha256').update(read('assets/oppimiskartta-sivut.css')).digest('hex').slice(0, 10);
 const escape = s => String(s).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
 const progress = read('assets/edistyminen.js');
 const chapters = new Map();
@@ -98,7 +100,7 @@ function topicPage(topic) {
     '<meta name="viewport" content="width=device-width, initial-scale=1">' +
     '<title>' + escape(topic.title) + ' – Oppimiskartta</title>' +
     '<link rel="stylesheet" href="../assets/paavalikko.css?v=59824281af">' +
-    '<link rel="stylesheet" href="../assets/oppimiskartta-sivut.css">' +
+    '<link rel="stylesheet" href="../assets/oppimiskartta-sivut.css?v=' + styleVersion + '">' +
     '<script defer src="../assets/oppimiskartta.js"></script></head><body>' +
     nav('../') + '<main class="topic-page" data-topic-page="' + escape(topic.id) + '">' +
     '<nav class="breadcrumb" aria-label="Murupolku"><a href="../index.html#oppimisaiheet">← Oppimiskartta</a></nav>' +
@@ -127,7 +129,7 @@ function lessonPage(number) {
     '<title>' + title + ' – Oppimiskartta</title>' +
     '<link rel="stylesheet" href="reader.css?v=65711fca9c">' +
     '<link rel="stylesheet" href="../assets/paavalikko.css?v=59824281af">' +
-    '<link rel="stylesheet" href="../assets/oppimiskartta-sivut.css">' +
+    '<link rel="stylesheet" href="../assets/oppimiskartta-sivut.css?v=' + styleVersion + '">' +
     '<script defer src="../assets/oppimiskartta.js"></script></head>' +
     '<body class="lesson-page">' + nav('../') +
     '<main><header class="hero"><div class="frame"><p class="part-number">Luku ' + number + '</p>' +
