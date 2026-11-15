@@ -50,6 +50,10 @@ describe('staattisen sivuston yhteensopivuus',()=>{
     expect(links).toHaveLength(8);
     expect(links.map(m => m[1])).toEqual(slugs);
     expect(links.map(m => m[2])).toEqual(slugs);
+    const numbers = [...html.matchAll(/<a class="topic-card"[^>]*><span class="topic-number" aria-hidden="true">([0-9]{2})<\/span>/g)].map(m => m[1]);
+    expect(numbers).toEqual(slugs.map((_, i) => String(i + 1).padStart(2, '0')));
+    expect(html).toContain('suositeltuun aloitusjärjestykseen');
+    expect(html).toContain('Voit silti valita minkä tahansa aiheen');
     expect(html).not.toContain('<details class="topic-card"');
     expect(html).toContain('<title>Oppimiskartta – Musiikin kartta</title>');
     expect(html).toContain('id="home-continue"');
@@ -60,6 +64,8 @@ describe('staattisen sivuston yhteensopivuus',()=>{
     const chapters: number[] = [];
     for (const slug of slugs) {
       const topic = read('aiheet/' + slug + '.html');
+      const number = String(slugs.indexOf(slug) + 1).padStart(2, '0');
+      expect(topic).toContain('Aihe ' + number + ' / 08 · Suositeltu järjestys');
       expect(topic).toContain('<h1>');
       expect(topic).toContain('href="../index.html#oppimisaiheet"');
       expect(topic).toContain('Takaisin Oppimiskarttaan');
