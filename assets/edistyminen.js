@@ -116,6 +116,7 @@
       setupPracticeSummary(content);
       home.replaceChildren(content);
     };
+    setupTopicList();
     refresh();
     window.addEventListener('pageshow', event => { if (event.persisted) refresh(); });
   }
@@ -220,6 +221,90 @@
     refresh();
     window.addEventListener('pageshow', event => { if (event.persisted) refresh(); });
     window.addEventListener('storage', event => { if (event.key === KEY || event.key === null) refresh(); });
+  }
+
+  function setupTopicList() {
+    const button = document.getElementById('topic-toggle');
+    const topics = [...document.querySelectorAll('.topic-card[data-study-chapters]')].map(card => ({
+      card, chapters: card.dataset.studyChapters.split(' ').filter(Boolean)
+    }));
+    if (!button || !topics.length) return;
+
+    const key = 'musiikin-kartta:aihenakyma';
+    const initial = 3;
+    const navigation = performance.getEntriesByType('navigation')[0];
+    let state = readPreference() ?? { expanded: false, shown: [], openedBy: [] };
+    let returningTo = navigation?.type === 'back_forward' ? history.state?.returnTopic : null;
+
+    function readPreference() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(key) ?? 'null');
+        return {
+          expanded: saved?.expanded === true,
+          shown: Array.isArray(saved?.shown) ? saved.shown : [],
+          openedBy: Array.isArray(saved?.openedBy) ? saved.openedBy : []
+        };
+      } catch {
+        return null;
+      }
+    }
+
+    function refresh() {
+      const done = load();
+      const shown = new Set(state.shown);
+      const completed = [];
+      for (const [index, {card, chapters}] of topics.entries()) {
+        if (index < initial || chapters.some(id => done.has(id))) shown.add(card.id);
+        if (chapters.length && chapters.every(id => done.has(id))) completed.push(card.id);
+      }
+      // Muista vain, mitkä aiheet ovat jo avanneet uuden kortin. Lukumerkinnät tulevat load()-funktiosta.
+      const openedBy = new Set(state.openedBy);
+      for (const id of completed) {
+        if (openedBy.has(id)) continue;
+        const next = topics.find(({card}) => !shown.has(card.id));
+        if (!next) break;
+        shown.add(next.card.id);
+        openedBy.add(id);
+      }
+      const ids = topics.map(({card}) => card.id);
+      state = { expanded: state.expanded, shown: ids.filter(id => shown.has(id)), openedBy: ids.filter(id => openedBy.has(id)) };
+      const raw = JSON.stringify(state);
+      try {
+        if (localStorage.getItem(key) !== raw) localStorage.setItem(key, raw);
+      } catch { /* Näkymä toimii myös ilman tallennusta. */ }
+
+      const anchor = location.hash.slice(1);
+      let extra = 0;
+      for (const {card} of topics) {
+        const collapsible = !shown.has(card.id) && card.id !== anchor && card.id !== returningTo;
+        card.hidden = collapsible && !state.expanded;
+        if (collapsible) extra++;
+      }
+      button.hidden = extra === 0;
+      button.setAttribute('aria-expanded', String(state.expanded || extra === 0));
+      button.textContent = state.expanded ? 'Näytä vähemmän' : 'Näytä kaikki aiheet (' + extra + ' lisää)';
+    }
+
+    button.addEventListener('click', () => {
+      state.expanded = !state.expanded;
+      refresh();
+    });
+    window.addEventListener('pageshow', event => {
+      if (!event.persisted) return;
+      returningTo = history.state?.returnTopic;
+      state = readPreference() ?? state;
+      refresh();
+    });
+    window.addEventListener('hashchange', () => {
+      returningTo = null;
+      refresh();
+    });
+    window.addEventListener('storage', event => {
+      if (![KEY, OLD_KEY, key, null].includes(event.key)) return;
+      state = readPreference() ?? state;
+      refresh();
+    });
+    refresh();
   }
 
   // Musiikin kartan etusivu: vain lyhyt jatkamislinkki, osien lista on Musiikin teoria -sivulla.

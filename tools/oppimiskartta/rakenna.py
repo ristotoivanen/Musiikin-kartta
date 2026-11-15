@@ -273,28 +273,37 @@ def listed(items, *, ordered=False):
     return f'<{tag} {attrs}>\n' + '\n'.join(f'  <li>{item}</li>' for item in items) + f'\n</{tag}>'
 
 
-def choice(page, index, first):
+def choice(page, index, exercise_descriptions):
+    slug = Path(page.path).stem
     number = f'<span class="study-number" aria-hidden="true">{index:02}</span>'
     title = ('Harjoitus · ' if page.parent else '') + page.title
-    goal = f'<span class="study-description">{escape(page.goal)}</span>' if page.goal else ''
-    start = '<span class="study-start">Aloita tästä</span>' if first else ''
+    description = exercise_descriptions[slug] if page.parent else page.goal
     status = f'<span data-study-status="{page.chapter}" class="study-status" hidden></span>' if page.chapter else ''
-    style = ' class="study-choice study-choice-practice"' if page.parent else ' class="study-choice"'
-    return (f'<a{style} id="valinta-{Path(page.path).stem}" href="{posixpath.basename(page.path)}">{number}<span class="study-choice-label">'
-            f'{start}<strong>{escape(title)}</strong>{goal}{status}</span><span aria-hidden="true">→</span></a>')
+    return (f'<a class="study-choice" id="valinta-{slug}" href="{posixpath.basename(page.path)}">{number}'
+            f'<strong class="study-title">{escape(title)}</strong>'
+            f'<span class="study-choice-details"><span class="study-description">{escape(description)}</span>{status}</span>'
+            '<span class="study-arrow" aria-hidden="true">→</span></a>')
 
 
-def topic_home(topic, lookup):
+def topic_home(topic, lookup, exercise_descriptions):
     parts = [f'<p class="study-meta">Aihe {topic["number"]:02}</p>',
              f'<h1>{escape(topic["title"])}</h1>', f'<p class="lead">{escape(topic["lead"])}</p>',
              '<p class="study-status" data-study-total hidden></p>']
     step = 0
+    groups = []
+    rows = []
     for group in topic['groups']:
-        links = []
-        for page in group['pages']:
-            step += 1
-            links.append(choice(page, step, step == 1))
-        parts.append(section(group['title'], listed(links, ordered=True)))
+        links = [choice(page, number, exercise_descriptions)
+                 for number, page in enumerate(group['pages'], step + 1)]
+        size = len(links)
+        rows.append(f'auto repeat({size}, var(--study-card-tracks))')
+        start = '<p class="study-start">Aloita tästä</p>' if step == 0 else ''
+        heading = f'<div class="study-choice-heading"><h2>{escape(group["title"])}</h2>{start}</div>'
+        groups.append(f'<section class="study-group" style="--study-group-span: {1 + size * 2}">\n'
+                      + indent(heading + '\n' + listed(links, ordered=True), '  ') + '\n</section>')
+        step += size
+    parts.append(f'<div class="study-card-groups" style="--study-rows: {" ".join(rows)}">\n'
+                 + indent('\n'.join(groups), '  ') + '\n</div>')
     if topic.get('tools'):
         links = []
         for tool in topic['tools']:
@@ -366,9 +375,10 @@ def render(topic, content, nav, page=None):
     output = page.path if page else topic['path']
     title = page.title if page else topic['title']
     styles = '\n'.join(stylesheet(path, output) for path in ('book/reader.css', 'assets/paavalikko.css', 'assets/oppi.css'))
-    path_to_map = rel('index.html', output) + '#' + topic['anchor']
-    parent = f'\n        <li>{link("index.html", topic["title"])}</li>' if page else ''
-    footer = link('index.html', topic['title']) if page else link(rel('book/index.html', output), 'Teoriaoppaan kaikki osat')
+    back_href = 'index.html' if page else rel('index.html', output) + '#' + topic['anchor']
+    back_label = topic['back_label'] if page else 'Oppimiskarttaan'
+    if not page:
+        content += '\n<p class="study-reference">' + link(rel('book/index.html', output), 'Teoriaoppaan kaikki osat') + '</p>'
     progress = f' data-theory-chapter="{page.chapter}"' if page and page.chapter else ''
     scripts = ['assets/oppimiskartta.js']
     if page is None or page.chapter:
@@ -391,17 +401,11 @@ def render(topic, content, nav, page=None):
 {indent(rebase(nav, "book/osa-2.html", output, {}), '    ')}
   </header>
   <main class="frame study-page" id="oppi-sisalto"{progress}>
-    <nav class="study-path" aria-label="Sijainti">
-      <ol role="list">
-        <li>{link(path_to_map, 'Oppimiskartta')}</li>{parent}
-      </ol>
+    <nav class="study-up" aria-label="Paluunavigointi">
+      <a class="study-back" href="{escape(back_href)}"><span aria-hidden="true">←</span> {escape(back_label)}</a>
     </nav>
 {indent(content, '    ')}
   </main>
-  <footer class="site-footer frame study-footer">
-    {link(path_to_map, 'Takaisin Oppimiskarttaan')}
-    {footer}
-  </footer>
 {scripts}
 </body>
 </html>
@@ -421,7 +425,8 @@ def replace_block(source, start, end, value, name):
 def home_grid(topics):
     cards = []
     for topic in topics:
-        cards.append(f'''    <a class="topic-card" id="{topic['anchor']}" href="{topic['path']}">
+        chapters = " ".join(page.chapter for page in topic["pages"] if page.chapter)
+        cards.append(f'''    <a class="topic-card" id="{topic['anchor']}" href="{topic['path']}" data-study-chapters="{escape(chapters)}">
       <span class="topic-number" aria-hidden="true">{topic['number']:02}</span>
       <strong class="topic-title">{escape(topic['title'])}</strong>
       <span class="topic-description">{escape(topic['summary'])}</span>
@@ -476,13 +481,17 @@ def pages():
     lookup = {topic['slug']: (topic['path'], topic['title']) for topic in topics}
     lookup.update({page.path.removeprefix('oppi/').removesuffix('.html'): (page.path, page.title) for page in all_pages})
     targets = index_targets(all_pages)
+    exercise_slugs = {Path(page.path).stem for page in all_pages if page.parent}
+    exercise_descriptions = config['exercise_descriptions']
+    if set(exercise_descriptions) != exercise_slugs or any(not text.strip() for text in exercise_descriptions.values()):
+        raise ValueError('Jokainen harjoitus tarvitsee oman kuvauksen aiheet.json-tiedostossa')
     audio = config.get('exercise_audio', {})
-    if set(audio) - {Path(page.path).stem for page in all_pages if page.parent}:
+    if set(audio) - exercise_slugs:
         raise ValueError('Ääniesimerkin harjoitussivu puuttuu')
 
     output = {}
     for topic in topics:
-        output[topic['path']] = render(topic, topic_home(topic, lookup), nav)
+        output[topic['path']] = render(topic, topic_home(topic, lookup, exercise_descriptions), nav)
         sequence = topic['pages']
         for index, page in enumerate(sequence):
             content = page_content(page, topic, index + 1, books, targets, audio)

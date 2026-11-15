@@ -50,14 +50,14 @@ describe('staattisen sivuston yhteensopivuus',()=>{
 
   it('kahdeksan numeroitua korttia avaa omat aihesivunsa ja vanhat ankkurit säilyvät', () => {
     const html = read('index.html');
-    const cards = [...html.matchAll(/<a class="topic-card" id="(aihe-[^"]+)" href="oppi\/([^/]+)\/index.html">\s*<span class="topic-number" aria-hidden="true">(\d\d)<\/span>/g)];
+    const cards = [...html.matchAll(/<a class="topic-card" id="(aihe-[^"]+)" href="oppi\/([^/]+)\/index.html"[^>]*>\s*<span class="topic-number" aria-hidden="true">(\d\d)<\/span>/g)];
     expect(cards.map(card => card[1])).toEqual(['aihe-kitara', 'aihe-rytmi', 'aihe-nuotit', 'aihe-korva', 'aihe-otelauta', 'aihe-soinnut', 'aihe-asteikot', 'aihe-kappaleet']);
     expect(cards.map(card => card[2])).toEqual(topics);
     expect(cards.map(card => card[3])).toEqual(['01', '02', '03', '04', '05', '06', '07', '08']);
     expect(html).not.toContain('<details class="topic-card"');
     expect(html).not.toContain('#h-savelnimi');
     expect(html).toContain('<title>Oppimiskartta – Musiikin kartta</title>');
-    expect(html).toContain('<h2 id="oppimisaiheet">Oppimiskartta</h2>');
+    expect(html).toContain('<h1 id="oppimisaiheet">Oppimiskartta</h1>');
     expect(html).not.toContain('Nykyiset oppaat ja työkalut');
     expect(html).not.toContain('class="area"');
     expect(html).toContain('href="index.html#oppimisaiheet">Oppimiskartta</a>');

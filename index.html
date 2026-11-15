@@ -4,95 +4,84 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Oppimiskartta – Musiikin kartta</title>
+<link rel="stylesheet" href="assets/otelauta.css?v=36a704ebe6">
 <style>
-  :root {
-    --purple: #6d4aff;
-    --purple-dark: #4b2fd6;
-    --lavender: #b5a3ff;
-    --bg: #16121f;
-    --panel: #221b31;
-    --text: #efeaff;
-    --muted: #a89fc4;
+  :root { color-scheme: dark; }
+  .map-main { max-width: 1100px; }
+  .map-intro { max-width: 46.25rem; margin-bottom: 1.5rem; }
+  .map-intro h1 {
+    font-size: clamp(1.625rem, 5vw, 2.375rem);
+    scroll-margin-top: .75rem;
+    overflow-wrap: anywhere;
+    hyphens: auto;
   }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    padding: 0 0 60px;
-    background: var(--bg);
-    color: var(--text);
-    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-    line-height: 1.55;
-  }
-  .hero {
-    padding: 48px 20px 32px;
-    text-align: center;
-    background: linear-gradient(180deg, #1d1730 0%, var(--bg) 100%);
-    border-bottom: 1px solid #2d2444;
-  }
-  .hero h1 { font-size: 34px; margin: 0 0 8px; letter-spacing: .5px; }
-  .hero h1 span { color: var(--lavender); }
-  .hero p.tagline { color: var(--muted); max-width: 620px; margin: 0 auto; font-size: 16px; }
-  a { color: var(--lavender); }
-  :focus-visible { outline: 2px solid #75e5c6; outline-offset: 2px; }
-  main { max-width: 900px; margin: 0 auto; padding: 0 18px; }
-  section { margin-top: 44px; }
-  h2 { font-size: 22px; margin: 0 0 14px; }
-  h3 { font-size: 17px; margin: 30px 0 8px; }
-  h2::after { content:""; display:block; width:56px; height:3px; background: var(--purple); border-radius:2px; margin-top:8px; }
-  .tools-note { color: var(--muted); font-size: 14px; max-width: 720px; }
-  .continue { margin: 14px 0 0; font-size: 15px; font-weight: 700; }
-
-  .learning-lead { max-width: 740px; margin: 0 0 20px; color: var(--muted); }
-  .start-here { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--lavender); border-radius: 16px; background: #2b2342; }
-  .start-here strong { font-size: 18px; }
-  .start-here p { max-width: 580px; margin: 5px 0 0; color: var(--muted); }
-  .start-here a { flex-shrink: 0; padding: 10px 13px; border-radius: 8px; background: var(--purple-dark); color: var(--text); font-weight: 700; text-decoration: none; }
-  .start-here a:hover { background: var(--purple); }
+  .map-intro > p { margin: 0; color: var(--muted); font-size: 1.125rem; }
+  .continue { margin: .6rem 0 0; }
+  .start-here { margin: 0 0 .9rem; color: var(--muted); font-size: .9rem; }
+  .start-here a { font-weight: 700; }
   .topic-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     grid-auto-rows: 1fr;
-    gap: .75rem;
+    gap: .875rem;
   }
   .topic-card {
+    --number-size: 2.8125rem;
     display: grid;
-    grid-template-columns: 2.4ch minmax(0, 1fr) 1em;
-    grid-template-rows: minmax(2lh, auto) 1fr;
-    gap: .2rem .7rem;
+    grid-template-columns: var(--number-size) minmax(0, 1fr) 1.6rem;
+    grid-template-rows: auto 1fr;
     align-items: start;
-    padding: .85rem 1rem;
+    gap: .3125rem 1.125rem;
+    min-block-size: 6.25rem;
+    padding: 1.25rem;
     border: 1px solid #71638c;
-    border-radius: .875rem;
+    border-radius: 1rem;
     background: var(--panel);
     color: var(--text);
     text-decoration: none;
-    scroll-margin-top: .75rem;
     overflow-wrap: anywhere;
+    scroll-margin-top: .75rem;
   }
   @supports (grid-template-rows: subgrid) {
     .topic-card { grid-row: span 2; grid-template-rows: subgrid; }
   }
-  .topic-card:hover { border-color: var(--lavender); background: #2b2342; }
+  .topic-card[hidden], #topic-toggle[hidden] { display: none; }
+  #topic-toggle {
+    margin-block-start: .875rem;
+    min-height: 44px;
+    max-inline-size: 100%;
+    overflow-wrap: anywhere;
+  }
+  .topic-card:hover, .topic-card:focus-visible {
+    border-color: var(--lavender);
+    background: var(--bg);
+  }
   .topic-card:focus-visible { outline-offset: 3px; }
-  .topic-title { grid-area: 1 / 2; font-size: 1.05rem; line-height: 1.35; }
-  .topic-number, .topic-arrow { grid-row: 1; color: var(--lavender); line-height: 1.4; }
-  .topic-number { grid-column: 1; font-weight: 700; font-variant-numeric: tabular-nums; }
-  .topic-arrow { grid-column: 3; text-align: end; }
-  .topic-description { grid-area: 2 / 2; color: var(--muted); font-size: .9rem; }
-  @media (max-width: 740px) {
-    .topic-grid { grid-template-columns: minmax(0, 1fr); }
-    .start-here { flex-direction: column; align-items: stretch; }
-    .start-here a { align-self: start; }
+  .topic-number, .topic-arrow { grid-row: 1 / -1; align-self: center; }
+  .topic-number {
+    grid-column: 1;
+    display: grid;
+    place-items: center;
+    min-block-size: var(--number-size);
+    border-radius: .75rem;
+    background: var(--bg);
+    color: var(--lavender);
+    font-weight: 750;
+    font-variant-numeric: tabular-nums;
+    font-size: 1.1875rem;
+  }
+  .topic-title { grid-area: 1 / 2; font-size: 1.1875rem; line-height: 1.35; }
+  .topic-description { grid-area: 2 / 2; color: var(--muted); line-height: 1.5; }
+  .topic-arrow { grid-column: 3; text-align: end; font-size: 1.5625rem; }
+  .map-resources { margin: 1.5rem 0 0; font-size: .875rem; }
+  @media (max-width: 600px) {
+    .map-main { padding: 22px 12px 0; }
   }
   @media (max-width: 470px) {
-    .hero { padding: 20px 16px 14px; }
-    .hero h1 { font-size: 28px; }
-    .start-here { gap: 8px; padding: 12px; }
-    .learning-overview { margin-top: 24px; }
-  }
-  footer {
-    margin-top: 60px; padding-top: 20px; border-top: 1px solid #2d2444;
-    text-align: center; color: var(--muted); font-size: 13px;
+    .topic-card { --number-size: 2.1875rem; padding: .875rem; column-gap: .75rem; }
+    .topic-title { font-size: 1rem; }
+    .topic-number { font-size: .9375rem; }
+    .topic-description { font-size: .875rem; }
   }
 </style>
 <link rel="stylesheet" href="assets/paavalikko.css?v=59824281af">
@@ -111,68 +100,64 @@
   </nav>
 </header>
 
-<div class="hero">
-  <h1>Musiikin <span>kartta</span></h1>
-  <p class="tagline">Musiikin teoriaa ja kitaraharjoituksia.</p>
-  <div id="home-continue"></div>
-</div>
-
-<main>
-
-<section class="learning-overview" id="osiot" aria-labelledby="oppimisaiheet">
-  <h2 id="oppimisaiheet">Oppimiskartta</h2>
-  <div class="start-here">
-    <div><strong>Aloita musiikin pulssista</strong><p>Kuuntele esimerkkiä ja taputa sen mukana. Tarvitset vain kädet.</p></div>
+<main class="map-main">
+<section id="osiot" aria-labelledby="oppimisaiheet">
+  <div class="map-intro">
+    <h1 id="oppimisaiheet">Oppimiskartta</h1>
+    <p>Valitse aihe ja etene teoriasta harjoituksiin omaan tahtiisi.</p>
+    <div id="home-continue"></div>
+  </div>
+  <p class="start-here">
   <!-- oppimiskartta:aloitus -->
     <a href="oppi/rytmi/kuuntele-pulssi.html" data-return-topic="aihe-rytmi">Kuuntele pulssi</a>
   <!-- /oppimiskartta:aloitus -->
-  </div>
-  <p class="learning-lead">Valitse teoriaa, harjoituksia ja pelejä haluamassasi järjestyksessä.</p>
-  <nav class="topic-grid" aria-label="Oppimisen aiheet">
+    ja taputa esimerkin mukana.
+  </p>
+  <nav class="topic-grid" id="oppimisaihelista" aria-label="Oppimisen aiheet">
   <!-- oppimiskartta:kortit -->
-    <a class="topic-card" id="aihe-kitara" href="oppi/kitara/index.html">
+    <a class="topic-card" id="aihe-kitara" href="oppi/kitara/index.html" data-study-chapters="sointukierrot">
       <span class="topic-number" aria-hidden="true">01</span>
       <strong class="topic-title">Kitaran perusteet</strong>
       <span class="topic-description">Avoimet soinnut ja ensimmäinen kappale.</span>
       <span class="topic-arrow" aria-hidden="true">→</span>
     </a>
-    <a class="topic-card" id="aihe-rytmi" href="oppi/rytmi/index.html">
+    <a class="topic-card" id="aihe-rytmi" href="oppi/rytmi/index.html" data-study-chapters="pulssi-ja-komppi">
       <span class="topic-number" aria-hidden="true">02</span>
       <strong class="topic-title">Rytmi</strong>
       <span class="topic-description">Pulssi, neljään laskeminen ja komppi.</span>
       <span class="topic-arrow" aria-hidden="true">→</span>
     </a>
-    <a class="topic-card" id="aihe-nuotit" href="oppi/savelnimet/index.html">
+    <a class="topic-card" id="aihe-nuotit" href="oppi/savelnimet/index.html" data-study-chapters="savelet-ja-intervallit">
       <span class="topic-number" aria-hidden="true">03</span>
       <strong class="topic-title">Sävelnimet ja sointumerkinnät</strong>
       <span class="topic-description">Kielten nimet, intervallit ja sointukaaviot.</span>
       <span class="topic-arrow" aria-hidden="true">→</span>
     </a>
-    <a class="topic-card" id="aihe-korva" href="oppi/korva/index.html">
+    <a class="topic-card" id="aihe-korva" href="oppi/korva/index.html" data-study-chapters="musiikki-on-kieli savellajin-tunnistaminen intervallit basso soinnut septimi-korvalla">
       <span class="topic-number" aria-hidden="true">04</span>
       <strong class="topic-title">Sävelkorva ja melodia</strong>
       <span class="topic-description">Kotisävel, melodia ja sointujen kuuntelu.</span>
       <span class="topic-arrow" aria-hidden="true">→</span>
     </a>
-    <a class="topic-card" id="aihe-otelauta" href="oppi/otelauta/index.html">
+    <a class="topic-card" id="aihe-otelauta" href="oppi/otelauta/index.html" data-study-chapters="otelauta perussavel caged">
       <span class="topic-number" aria-hidden="true">05</span>
       <strong class="topic-title">Otelauta</strong>
       <span class="topic-description">Sävelten sijainnit, oktaavit ja CAGED.</span>
       <span class="topic-arrow" aria-hidden="true">→</span>
     </a>
-    <a class="topic-card" id="aihe-soinnut" href="oppi/soinnut/index.html">
+    <a class="topic-card" id="aihe-soinnut" href="oppi/soinnut/index.html" data-study-chapters="harmoninen-kentta roomalaiset-numerot sointujen-tehtavat kvinttiympyra barre septimisoinnut ii-v-i">
       <span class="topic-number" aria-hidden="true">06</span>
       <strong class="topic-title">Soinnut ja harmonia</strong>
       <span class="topic-description">Sointujen rakenne, tehtävät ja otteet.</span>
       <span class="topic-arrow" aria-hidden="true">→</span>
     </a>
-    <a class="topic-card" id="aihe-asteikot" href="oppi/asteikot/index.html">
+    <a class="topic-card" id="aihe-asteikot" href="oppi/asteikot/index.html" data-study-chapters="asteikot pentatoniikka moodit">
       <span class="topic-number" aria-hidden="true">07</span>
       <strong class="topic-title">Asteikot ja moodit</strong>
       <span class="topic-description">Duuri, molli, pentatoniikka ja moodit.</span>
       <span class="topic-arrow" aria-hidden="true">→</span>
     </a>
-    <a class="topic-card" id="aihe-kappaleet" href="oppi/kappaleet/index.html">
+    <a class="topic-card" id="aihe-kappaleet" href="oppi/kappaleet/index.html" data-study-chapters="kappale-asteina transponointi kappale improvisointi sovittaminen oma-kappale">
       <span class="topic-number" aria-hidden="true">08</span>
       <strong class="topic-title">Kappaleet ja oma musiikki</strong>
       <span class="topic-description">Soita mukana, improvisoi ja tee oma kappale.</span>
@@ -180,11 +165,9 @@
     </a>
   <!-- /oppimiskartta:kortit -->
   </nav>
-  <p class="tools-note">Opiskele järjestyksessä <a href="book/index.html">11-osaisen teoriaoppaan</a> avulla tai käytä <a href="pdf/musiikin-kartta.pdf">tulostettavaa PDF-opasta</a> ja <a href="book/sanasto.html">sanastoa</a>.</p>
+  <button type="button" id="topic-toggle" aria-controls="oppimisaihelista" aria-expanded="false" hidden>Näytä kaikki aiheet</button>
+  <p class="tools-note map-resources">Opiskele järjestyksessä <a href="book/index.html">11-osaisen teoriaoppaan</a> avulla tai käytä <a href="pdf/musiikin-kartta.pdf">tulostettavaa PDF-opasta</a> ja <a href="book/sanasto.html">sanastoa</a>.</p>
 </section>
-
-
-
 </main>
 
 <footer>

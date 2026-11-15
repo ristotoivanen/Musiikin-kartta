@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
 const topicPath = '/oppi/savelnimet/index.html';
 const intervalsPath = '/oppi/savelnimet/savelet-ja-intervallit.html';
@@ -6,6 +6,9 @@ const guitarPath = '/oppi/savelnimet/kitaran-kielet-ja-sointumerkinnat.html';
 const practicePath = '/oppi/savelnimet/siirra-yhta-sormea.html';
 const topicName = 'Sävelnimet ja sointumerkinnät';
 const readingKey = 'musiikin-kartta:luvut';
+const backNavigation = (page: Page) => page.getByRole('navigation', { name: 'Paluunavigointi' });
+const back = (page: Page) => backNavigation(page).getByRole('link');
+const exactBack = (page: Page, name: string) => backNavigation(page).getByRole('link', { name, exact: true });
 
 test('pääaiheen kortti avaa oman sivunsa ja selaimen paluu löytää kortin', async ({ page }) => {
   await page.goto('/index.html#oppimisaiheet');
@@ -58,10 +61,9 @@ test('oppitunneilla on oma sisältö, toimiva ääni ja reitit aiheeseen', async
   await expect(page).toHaveURL(practicePath);
   await expect(page.getByRole('heading', { level: 1, name: /Siirrä yhtä sormea/ })).toBeVisible();
   await expect(page.getByText(/^Soita A-kielen 3\. nauha/)).toBeVisible();
-  const path = page.getByRole('navigation', { name: 'Sijainti' });
-  await path.getByRole('link', { name: topicName }).click();
+  await exactBack(page, 'Sävelnimiin ja sointumerkintöihin').click();
   await expect(page).toHaveURL(topicPath);
-  await page.getByRole('link', { name: 'Takaisin Oppimiskarttaan' }).click();
+  await exactBack(page, 'Oppimiskarttaan').click();
   await expect(page).toHaveURL('/index.html#aihe-nuotit');
   await expect(page.locator('#aihe-nuotit')).toBeFocused();
 });
@@ -94,17 +96,17 @@ test('aihe, oppitunnit ja harjoitus mahtuvat 320 pikselin näyttöön', async ({
 });
 
 const topics = [
-  ['kitara', 'kitara', 'Kitaran perusteet'],
-  ['rytmi', 'rytmi', 'Rytmi'],
-  ['nuotit', 'savelnimet', topicName],
-  ['korva', 'korva', 'Sävelkorva ja melodia'],
-  ['otelauta', 'otelauta', 'Otelauta'],
-  ['soinnut', 'soinnut', 'Soinnut ja harmonia'],
-  ['asteikot', 'asteikot', 'Asteikot ja moodit'],
-  ['kappaleet', 'kappaleet', 'Kappaleet ja oma musiikki'],
+  ['kitara', 'kitara', 'Kitaran perusteet', 'Kitaran perusteisiin'],
+  ['rytmi', 'rytmi', 'Rytmi', 'Rytmiin'],
+  ['nuotit', 'savelnimet', topicName, 'Sävelnimiin ja sointumerkintöihin'],
+  ['korva', 'korva', 'Sävelkorva ja melodia', 'Sävelkorvaan ja melodiaan'],
+  ['otelauta', 'otelauta', 'Otelauta', 'Otelautaan'],
+  ['soinnut', 'soinnut', 'Soinnut ja harmonia', 'Sointuihin ja harmoniaan'],
+  ['asteikot', 'asteikot', 'Asteikot ja moodit', 'Asteikkoihin ja moodeihin'],
+  ['kappaleet', 'kappaleet', 'Kappaleet ja oma musiikki', 'Kappaleisiin ja omaan musiikkiin'],
 ] as const;
 
-for (const [anchor, slug, title] of topics) {
+for (const [anchor, slug, title, backName] of topics) {
   test(title + ' · jokainen askel ja resurssi löytyy', async ({ page, request }) => {
     const map = '/index.html#aihe-' + anchor;
     const topic = '/oppi/' + slug + '/index.html';
@@ -113,6 +115,11 @@ for (const [anchor, slug, title] of topics) {
     await expect(page).toHaveURL(topic);
     await expect(page.getByRole('heading', { level: 1, name: title })).toBeVisible();
     await expect(page.getByText('Aloita tästä', { exact: true })).toBeVisible();
+    await expect(back(page)).toHaveCount(1);
+    await expect(exactBack(page, 'Oppimiskarttaan')).toHaveAttribute('href', '../../index.html#aihe-' + anchor);
+    await expect(page.locator('a[href="../../index.html#aihe-' + anchor + '"]')).toHaveCount(1);
+    await expect(page.locator('a.study-back')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Teoriaoppaan kaikki osat' })).toHaveAttribute('href', '../../book/index.html');
     const choices = page.locator('a.study-choice');
     expect(await choices.count()).toBeGreaterThanOrEqual(2);
     const paths = await choices.evaluateAll(nodes => nodes.map(node => new URL((node as HTMLAnchorElement).href).pathname));
@@ -122,8 +129,12 @@ for (const [anchor, slug, title] of topics) {
       await expect(page.getByRole('heading', { level: 1 }), path).toBeVisible();
       const number = String(index + 1).padStart(2, '0');
       await expect(page.locator('.study-meta'), path).toHaveText(new RegExp('^(Oppitunti|Harjoitus) ' + number));
-      await expect(page.getByRole('navigation', { name: 'Sijainti' }).getByRole('link', { name: title }))
-        .toHaveAttribute('href', 'index.html');
+      await expect(back(page), path).toHaveCount(1);
+      await expect(exactBack(page, backName), path).toHaveAttribute('href', 'index.html');
+      await expect(page.locator('a[href="index.html"]'), path).toHaveCount(1);
+      const backBeforeTitle = await backNavigation(page).evaluate(nav =>
+        Boolean(nav.compareDocumentPosition(document.querySelector('h1')!) & Node.DOCUMENT_POSITION_FOLLOWING));
+      expect(backBeforeTitle, path).toBe(true);
       for (const [rel, neighbor] of [['prev', paths[index - 1]], ['next', paths[index + 1]]] as const) {
         const link = page.locator('a[rel="' + rel + '"]');
         if (neighbor) await expect(link).toHaveAttribute('href', neighbor.split('/').at(-1)!);
@@ -139,8 +150,70 @@ for (const [anchor, slug, title] of topics) {
       expect(response.headers()['content-type'], resource).toMatch(/^(audio|video)\//);
       await response.dispose();
     }
-    await page.getByRole('link', { name: 'Takaisin Oppimiskarttaan' }).click();
+    await exactBack(page, backName).click();
+    await expect(page).toHaveURL(topic);
+    await exactBack(page, 'Oppimiskarttaan').click();
     await expect(page).toHaveURL(map);
+  });
+}
+
+for (const width of [320, 390, 768, 1024, 1440]) {
+  test('kaikkien aiheiden sisältökortit kohdistuvat leveydellä ' + width + ' px myös suurennetulla tekstillä', async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    for (const [, slug, title] of topics) {
+      await page.goto('/oppi/' + slug + '/index.html');
+      for (const scale of ['', '200%']) {
+        const context = title + ' · ' + width + ' px · ' + (scale || '100%');
+        await page.evaluate(size => { document.documentElement.style.fontSize = size; }, scale);
+        expect(await page.evaluate(() => document.documentElement.scrollWidth), context).toBeLessThanOrEqual(width);
+
+        const boxes = await page.locator('a.study-choice').evaluateAll(cards => cards.map(card => {
+          const rect = card.getBoundingClientRect();
+          const style = getComputedStyle(card);
+          const parts = ['.study-number', '.study-title', '.study-description', '.study-arrow']
+            .map(selector => card.querySelector(selector)!);
+          const status = card.querySelector('[data-study-status]');
+          const textFits = parts.every(part => {
+            const range = document.createRange();
+            range.selectNodeContents(part);
+            return [...range.getClientRects()].every(line =>
+              line.left >= rect.left - 1 && line.right <= rect.right + 1 &&
+              line.top >= rect.top - 1 && line.bottom <= rect.bottom + 1);
+          });
+          return {
+            size: [rect.width, rect.height],
+            offsets: parts.flatMap(part => {
+              const box = part.getBoundingClientRect();
+              return [box.left - rect.left, box.top - rect.top];
+            }),
+            style: [style.backgroundColor, style.borderColor, style.borderRadius, style.padding],
+            title: parts[1].textContent!.trim(),
+            description: parts[2].textContent!.trim(),
+            status: status?.textContent?.trim(),
+            statusTop: status ? status.getBoundingClientRect().top - rect.top : null,
+            textFits,
+          };
+        }));
+        expect(boxes.length, context).toBeGreaterThanOrEqual(2);
+        const practices = boxes.filter(box => box.title.startsWith('Harjoitus · '));
+        expect(practices.length, context).toBeGreaterThan(0);
+        expect(practices.every(box => box.statusTop === null), context).toBe(true);
+        const progress = boxes.filter(box => box.statusTop !== null);
+        expect(progress.length, context).toBeGreaterThan(0);
+        for (const box of progress) {
+          expect(box.status, context).toBe('Tekemättä');
+          expect(box.statusTop!, context).toBeCloseTo(progress[0].statusTop!, 0);
+        }
+        for (const box of boxes) {
+          expect(box.description, context).not.toBe('');
+          expect(box.size[1], context).toBeGreaterThanOrEqual(44);
+          box.size.forEach((value, index) => expect(value, context).toBeCloseTo(boxes[0].size[index], 0));
+          box.offsets.forEach((value, index) => expect(value, context).toBeCloseTo(boxes[0].offsets[index], 0));
+          expect(box.style, context).toEqual(boxes[0].style);
+          expect(box.textFits, context).toBe(true);
+        }
+      }
+    }
   });
 }
 
@@ -190,7 +263,16 @@ test.describe('Oppimiskartta ilman JavaScriptiä', () => {
   test.use({ javaScriptEnabled: false });
 
   test('staattiset linkit ja tehtävien ohjeet toimivat', async ({ page }) => {
-    await page.goto('/index.html#oppimisaiheet');
+    await page.goto(practicePath);
+    const practiceBack = exactBack(page, 'Sävelnimiin ja sointumerkintöihin');
+    await expect(practiceBack).toHaveAttribute('href', 'index.html');
+    await expect(practiceBack).toHaveCSS('border-top-style', 'solid');
+    await practiceBack.focus();
+    await expect(practiceBack).toHaveCSS('outline-style', 'solid');
+    await practiceBack.press('Enter');
+    await expect(page).toHaveURL(topicPath);
+    await exactBack(page, 'Oppimiskarttaan').click();
+    await expect(page).toHaveURL('/index.html#aihe-nuotit');
     await page.locator('#aihe-nuotit').click();
     await expect(page).toHaveURL(topicPath);
     await expect(page.locator('[data-study-total]')).toBeHidden();
@@ -201,8 +283,8 @@ test.describe('Oppimiskartta ilman JavaScriptiä', () => {
     await page.getByRole('link', { name: 'Seuraava · Siirrä yhtä sormea' }).click();
     await expect(page).toHaveURL(practicePath);
     await expect(page.getByText(/^Soita A-kielen 3\. nauha/)).toBeVisible();
-    await page.getByRole('link', { name: 'Takaisin Oppimiskarttaan' }).click();
-    await expect(page).toHaveURL('/index.html#aihe-nuotit');
+    await practiceBack.click();
+    await expect(page).toHaveURL(topicPath);
     await page.goto('/oppi/korva/mika-aste-soi.html');
     await expect(page.getByText(/Kysymysten soittaminen tarvitsee JavaScriptin/)).toBeVisible();
   });
@@ -234,8 +316,8 @@ test('korvaharjoitus toipuu äänilaitteen käynnistysvirheestä', async ({ page
   await expect(answer).toBeEnabled();
   await answer.click();
   await expect(feedback).toHaveText(/Oikein|Ei aivan/);
-  await page.getByRole('link', { name: 'Takaisin Oppimiskarttaan' }).click();
-  await expect(page).toHaveURL('/index.html#aihe-korva');
+  await exactBack(page, 'Sävelkorvaan ja melodiaan').click();
+  await expect(page).toHaveURL('/oppi/korva/index.html');
   expect(errors).toEqual([]);
 });
 

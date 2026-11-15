@@ -3,6 +3,7 @@
   "topics": [
     {
       "slug": "kitara", "anchor": "aihe-kitara", "title": "Kitaran perusteet",
+      "back_label": "Kitaran perusteisiin",
       "summary": "Avoimet soinnut ja ensimmäinen kappale.",
       "lead": "Ota kitara käteen. Opettele neljä avointa otetta ja soita ensimmäinen kappale hitaasti sointu kerrallaan.",
       "groups": [
@@ -14,6 +15,7 @@
     },
     {
       "slug": "rytmi", "anchor": "aihe-rytmi", "title": "Rytmi",
+      "back_label": "Rytmiin",
       "summary": "Pulssi, neljään laskeminen ja komppi.",
       "lead": "Löydä kappaleen tasainen pulssi. Ota sitten kitara mukaan ja pidä käsi liikkeessä myös sointua vaihtaessa.",
       "groups": [
@@ -25,6 +27,7 @@
     },
     {
       "slug": "savelnimet", "anchor": "aihe-nuotit", "title": "Sävelnimet ja sointumerkinnät",
+      "back_label": "Sävelnimiin ja sointumerkintöihin",
       "summary": "Kielten nimet, intervallit ja sointukaaviot.",
       "lead": "Lue kitaran sointukarttaa ja nimeä sävelet. Mittaa sävelten välejä nauhoina ja kuuntele, miten yksi sävel muuttaa soinnun.",
       "groups": [
@@ -37,6 +40,7 @@
     },
     {
       "slug": "korva", "anchor": "aihe-korva", "title": "Sävelkorva ja melodia",
+      "back_label": "Sävelkorvaan ja melodiaan",
       "summary": "Kotisävel, melodia ja sointujen kuuntelu.",
       "lead": "Kuuntele, mihin melodia haluaa päättyä. Hyräile kuulemasi ennen kuin etsit säveliä tai sointuja kitaralta.",
       "groups": [
@@ -59,6 +63,7 @@
     },
     {
       "slug": "otelauta", "anchor": "aihe-otelauta", "title": "Otelauta",
+      "back_label": "Otelautaan",
       "summary": "Sävelten sijainnit, oktaavit ja CAGED.",
       "lead": "Etsi sama sävel useasta kohdasta. Käytä paksuja kieliä lähtöpisteinä ja tunnista avoimista otteista tutut muodot eri puolilla otelautaa.",
       "groups": [
@@ -76,6 +81,7 @@
     },
     {
       "slug": "soinnut", "anchor": "aihe-soinnut", "title": "Soinnut ja harmonia",
+      "back_label": "Sointuihin ja harmoniaan",
       "summary": "Sointujen rakenne, tehtävät ja otteet.",
       "lead": "Rakenna asteikosta sointuja, kuuntele niiden tehtäviä ja siirrä sointukiertoja. Syvennä lopuksi nelisointuihin.",
       "groups": [
@@ -99,6 +105,7 @@
     },
     {
       "slug": "asteikot", "anchor": "aihe-asteikot", "title": "Asteikot ja moodit",
+      "back_label": "Asteikkoihin ja moodeihin",
       "summary": "Duuri, molli, pentatoniikka ja moodit.",
       "lead": "Soita duuri ja molli samalta lähtösäveleltä. Rajaa soittosi sitten viiteen säveleen ja kuuntele lopuksi moodien eroja.",
       "groups": [
@@ -118,6 +125,7 @@
     },
     {
       "slug": "kappaleet", "anchor": "aihe-kappaleet", "title": "Kappaleet ja oma musiikki",
+      "back_label": "Kappaleisiin ja omaan musiikkiin",
       "summary": "Soita mukana, improvisoi ja tee oma kappale.",
       "lead": "Soita sointukartasta ja kuuntele, miten kappale rakentuu. Käytä samoja taitoja omaan säestykseen ja lyhyeen äänitteeseen.",
       "groups": [
@@ -136,6 +144,49 @@
       "related": ["kitara/sointukierrot", "asteikot/pentatoniikka"]
     }
   ],
+  "exercise_descriptions": {
+    "kuuntele-pulssi": "Laske neljään ja taputa tahdin ensimmäisellä iskulla.",
+    "alas-ylos-yhdella-soinnulla": "Pidä komppikäsi tasaisessa liikkeessä G-soinnulla.",
+    "kaksi-sointua-yhdessa-tahdissa": "Vaihda G:stä D:hen kolmosella pysäyttämättä komppia.",
+    "soita-ensin-basso": "Soita tahdin ykkösellä perussävel ja lisää sitten ote.",
+    "taydenna-fraasi": "Hyräile puuttuva lopetussävel ja etsi se kitaralta.",
+    "siirra-yhta-sormea": "Kuuntele, mitä tapahtuu, kun E vaihtuu E♭:ksi.",
+    "etsi-puoliaskeleet": "Soita C-duuri ja c-molli sekä vertaa niiden askelia.",
+    "kolme-sointua-g-duurista": "Poimi joka toinen sävel G-duurin asteilta 1, 2 ja 5.",
+    "kaikuluotain": "Soita Olet mun kaikuluotain ja etsi asteikon soinnut.",
+    "siirra-kierto-d-duuriin": "Etsi D-duurin I–V–vi–IV-soinnut ja soita kierto.",
+    "laula-paluu": "Pysähdy G7- tai E7-soinnulle ja hyräile kotisävel.",
+    "sama-kappale-c-duurissa": "Korvaa asteet C-duurin soinnuilla ja soita katkelmat.",
+    "vaihda-kotisavelta": "Kuuntele kaksi katkelmaa ja etsi kummankin kotisävel.",
+    "siirra-keskelle-d": "Etsi D:n naapurit kvinttiympyrässä ja soita I–IV–V–I.",
+    "sovita-savellaji-laulajalle": "Hyräile kertosäe ja vertaa laulukorkeutta kapolla.",
+    "etsi-a-ilman-asteikkokuviota": "Soita A neljällä kielellä ja vertaa kahta oktaavia.",
+    "etsi-sama-savel": "Etsi G ja C eri kieliltä oktaavimuotojen avulla.",
+    "etsi-savel-kahdelta-kielelta": "Paikanna D, F ja B♭ paksulta E- ja A-kieleltä.",
+    "nimea-savel": "Nimeä kolme säveltä oktaavimuodon ja taulukon avulla.",
+    "etsi-barresointu": "Etsi perussävel ja siirrä kahta barré-muotoa.",
+    "rakenna-barre": "Aloita etusormella ja lisää otteen sormet vaiheittain.",
+    "siirra-kierto-c-duuriin": "Siirrä sama sointukuvio G-duurista C-duuriin.",
+    "soita-c-kahdesta-kohdasta": "Soita kaksi C-otetta ja etsi kummastakin perussävel.",
+    "mika-aste-soi": "Kuuntele sävel ja tunnista sen aste kotisävelestä.",
+    "etsi-jalkimmainen-savel": "Hyräile parin toinen sävel ja etsi se G-kieleltä.",
+    "kuuntele-bassolinja": "Etsi neljä bassosäveltä ensin yksin, sitten sointujen alta.",
+    "kumpi-on-molli": "Vertaa A- ja Am-otteita kuulemiisi sointuihin.",
+    "tunnista-sointutyyppi": "Erota duuri ja molli korvalla eri perussäveliltä.",
+    "mika-sointu-tulee": "Kuuntele bassoa ja tunnista liike pois kotisoinnusta.",
+    "tee-sointukartta": "Merkitse kappaleen bassosävelet ja täydennä soinnut.",
+    "etsi-ensimmainen-melodiasavel": "Hyräile aloitussävel ja etsi se kahdelta ohuimmalta kieleltä.",
+    "soita-kysymys-ja-vastaus": "Soita kysymys Em-tahdissa ja vastaus C-tahdissa.",
+    "tee-kolmesta-savelesta-melodia": "Muuntele A–C–D–A-fraasia taukojen ja rytmin avulla.",
+    "kysymys-ja-vastaus-koko-boksilla": "Soita kysymys ohuilla kielillä ja vastaa G- ja D-kielillä.",
+    "vaihda-saestysta": "Näppäile A-osa ja komppaa B-osa. Vaihda sitten tapoja.",
+    "aanita-kahdeksan-tahtia": "Keksi neljän tahdin melodia ja äänitä kaksi eri lopetusta.",
+    "lisaa-septimi": "Rakenna nelisoinnut G-duurin asteilta 1, 2 ja 5.",
+    "soita-septimisoinnut": "Soita C-duurin septimisoinnut E- ja A-kielen otteilla.",
+    "kolme-c-sointua": "Tunnista äänitteeltä C, C7 ja Cmaj7.",
+    "ii-v-i-kahdessa-savellajissa": "Soita kierto ja siirrä kaikki otteet viisi nauhaa ylemmäs.",
+    "vaihda-f-nauhaa-ylemmas": "Vertaa saman fraasin F- ja F♯-säveltä Am-taustalla."
+  },
   "exercise_audio": {
     "kuuntele-pulssi": ["osa-1#pulssi-aanite"],
     "soita-ensin-basso": ["osa-1#kappale-kuvaus"],
