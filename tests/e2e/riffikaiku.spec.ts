@@ -127,13 +127,48 @@ async function playFrets(page: Page, frets: number[], touch: boolean, string = 1
 const rowStyle = (page: Page, string: number) => rows(page).nth(string).evaluate(tr => ({
   opacity: Number(getComputedStyle(tr).opacity), head: getComputedStyle(tr.querySelector('th')!).backgroundColor, visible: (tr as HTMLElement).offsetHeight > 0 }));
 
+test('aloituksesta voi selata kummankin kitaran kotitreenejä ja kerrata ilman mikkiä', async ({ page, isMobile }) => {
+  await mockAudio(page);
+  await seedRiff(page, { level: 2, passed: [] }, { levels: { mic: [], board: [1] } });
+  await page.goto('/riffikaiku.html');
+  const initial = await stored(page);
+  const mic = page.getByRole('button', { name: 'Valitse kotitreeni oikealla kitaralla' });
+  if (isMobile) await mic.tap(); else await mic.press('Enter');
+  const levels = page.getByTestId('levels');
+  await expect(levels.getByRole('listitem').filter({ hasText: 'Kotitreeni 2 – G-kieli' })).toContainText('lukittu');
+  expect((await audio(page)).opens).toBe(0);
+  expect(await stored(page)).toEqual(initial);
+  await page.getByRole('button', { name: 'Takaisin aloitukseen' }).click();
+
+  await page.getByRole('button', { name: 'Valitse kotitreeni virtuaalikitaralla' }).click();
+  const repeat = levels.getByRole('button', { name: 'Harjoittele uudelleen' });
+  await expect(repeat).toBeVisible();
+  if (isMobile) await repeat.tap(); else await repeat.press('Enter');
+  await expect(heading(page)).toHaveText('Kotitreeni 1 · Riffi 1/3');
+  expect((await audio(page)).opens).toBe(0);
+  expect(await stored(page)).toMatchObject({ run: { mic: { level: 1 } }, levels: { mic: [], board: [1] } });
+});
+
+test('oikean kitaran kotitreenin valinta avaa mikrofonin valmistelun vasta valittaessa', async ({ page }) => {
+  await mockAudio(page);
+  await page.goto('/riffikaiku.html');
+  await page.getByRole('button', { name: 'Valitse kotitreeni oikealla kitaralla' }).click();
+  expect((await audio(page)).opens).toBe(0);
+  await page.getByTestId('levels').getByRole('button', { name: 'Jatka' }).click();
+  await expect(page.getByTestId('mic-setup')).toBeVisible();
+  expect((await audio(page)).opens).toBe(1);
+  await page.getByRole('button', { name: 'Takaisin aloitukseen' }).click();
+  expect((await audio(page)).stops).toBe(1);
+});
+
 test.describe('virtuaalikitara', () => {
   test.setTimeout(60000);
 
   test('aloitus Kotitreeni 1:stä: koko otelauta, B-kieli korostettu, malli vain pyynnöstä; läpäisyn jälkeen pelaaja valitsee jatkon', async ({ page, isMobile }) => {
     await mockAudio(page);
     await page.goto('/riffikaiku.html');
-    await expect(page.getByTestId('next-training')).toContainText('Kotitreeni 1 – B-kieli');
+    await expect(page.getByRole('button', { name: /Virtuaalikitara/ })).toContainText('Aloita Kotitreeni 1 – B-kieli');
+    await expect(page.getByRole('button', { name: /Oikea kitara/ })).toContainText('Aloita Kotitreeni 1 – B-kieli');
     await page.getByRole('button', { name: /Virtuaalikitara/ }).click();
     await expect(heading(page)).toHaveText('Kotitreeni 1 · Opastus');
     await expect(status(page)).toHaveText('Kuuntele riffi aloittaaksesi.');
@@ -386,8 +421,10 @@ test.describe('kotitreenit ja onnittelunäkymä', () => {
     await playFrets(page, [0, 2, 4, 2], isMobile, 2);
     await expect(status(page)).toHaveText('Riffi läpäisty!');
     await page.reload();
-    await expect(page.getByTestId('tally')).toHaveText('Oikea kitara: Kotitreeni 1, suoritettu 0/2 · Virtuaalikitara: Kotitreeni 2, suoritettu 1/2');
-    await expect(page.getByTestId('next-training')).toContainText('Kotitreeni 2 – G-kieli');
+    await expect(page.getByRole('button', { name: /Oikea kitara/ })).toContainText('Aloita Kotitreeni 1 – B-kieli');
+    const boardStart = page.getByRole('button', { name: /Virtuaalikitara/ });
+    await expect(boardStart).toContainText('Jatka Kotitreeni 2 – G-kieli');
+    await expect(boardStart).toContainText('Suoritettu 1/2');
     await page.getByRole('button', { name: /Virtuaalikitara/ }).click();
     await expect(heading(page)).toHaveText('Kotitreeni 2 · Riffi 2/3');
   });
@@ -412,7 +449,8 @@ test.describe('kotitreenit ja onnittelunäkymä', () => {
       stats: { mic: {}, board: { 'b-kaari': { done: 1, solo: 1, passed: 1, lastAt: 1 } } }, results: [],
       run: { mic: { level: 1, passed: [] }, board: { level: 3, passed: [] } }, levels: { mic: [], board: [1, 2] } })), KEY);
     await page.goto('/riffikaiku.html');
-    await expect(page.getByTestId('tally')).toHaveText('Oikea kitara: Kotitreeni 1, suoritettu 0/2 · Virtuaalikitara: Kotitreeni 1, suoritettu 0/2');
+    await expect(page.getByRole('button', { name: /Oikea kitara/ })).toContainText('Aloita Kotitreeni 1 – B-kieli');
+    await expect(page.getByRole('button', { name: /Virtuaalikitara/ })).toContainText('Aloita Kotitreeni 1 – B-kieli');
     await page.getByRole('button', { name: /Virtuaalikitara/ }).click();
     await expect(heading(page)).toHaveText('Kotitreeni 1 · Riffi 1/3');
     expect((await stored(page)).stats.board['b-kaari']).toMatchObject({ done: 1 });
@@ -628,6 +666,11 @@ test.describe('responsiivisuus ja teemat', () => {
       await mockAudio(page);
       await seedRiff(page);
       await page.goto('/riffikaiku.html');
+      const choices = page.locator('.riff-choices');
+      for (const { x, width: buttonWidth } of await choices.getByRole('button').evaluateAll(buttons => buttons.map(el => el.getBoundingClientRect().toJSON()))) {
+        expect(x).toBeGreaterThanOrEqual(0);
+        expect(x + buttonWidth).toBeLessThanOrEqual(width);
+      }
       const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
       expect(await overflow()).toBeLessThanOrEqual(0);
       await page.getByRole('button', { name: /Virtuaalikitara/ }).click();
