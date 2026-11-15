@@ -23,6 +23,7 @@ from urllib.parse import unquote
 
 ROOT = Path(__file__).resolve().parents[2]
 PAGES = (sorted(ROOT.glob('*.html')) + sorted((ROOT / 'book').glob('*.html'))
+         + sorted((ROOT / 'aiheet').glob('*.html'))
          + sorted((ROOT / 'pelit').glob('*/index.html')))
 EXTERNAL = re.compile(r'^(?:[a-z][a-z0-9+.-]*:|//)', re.I)
 PROGRESS = ROOT / 'assets' / 'edistyminen.js'

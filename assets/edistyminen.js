@@ -76,6 +76,8 @@
 
   const page = location.pathname.match(/(osa-\d+)(?:\.html)?\/?$/);
   const current = page && PARTS.find(part => part.slug === page[1]);
+  const singlePage = location.pathname.match(/\/luku-(\d+)\.html$/);
+  const singleChapter = singlePage && ALL.find(chapter => chapter.num === Number(singlePage[1]));
   const resume = document.querySelector('#teoria-aloitus #jatka');
   const originalResume = resume && {
     label: resume.querySelector('.resume-label').textContent,
@@ -88,6 +90,9 @@
     followMovedAnchor();
     window.addEventListener('hashchange', followMovedAnchor);
     setupPart(current);
+  } else if (singleChapter) {
+    // Yksittäinen luku käyttää samoja vanhoja id-tunnisteita ja tallennusavaimia.
+    setupPart({ chapters: [[singleChapter.id, singleChapter.num, singleChapter.title]] });
   } else if (document.getElementById('teoria-aloitus')) {
     setupTheoryHome();
     setupTheoryAnchors();
@@ -191,7 +196,7 @@
     p.className = 'continue';
     if (next) {
       const link = document.createElement('a');
-      link.href = 'book/' + next.part.slug + '.html#' + next.id;
+      link.href = 'book/luku-' + next.num + '.html';
       link.textContent = (next.part.advanced ? 'Peruspolku on tehty. Syventävä luku ' : 'Jatka: luku ') + next.num + ' · ' + next.title;
       p.append(link);
     } else {
@@ -248,7 +253,7 @@
         chapter.className = 'resume-chapter';
         chapter.textContent = 'Seuraavana luku ' + next.num + ' · ' + next.title;
         title.after(chapter);
-        action.href = next.part.slug + '.html#' + next.id;
+        action.href = 'luku-' + next.num + '.html';
         action.textContent = 'Jatka opiskelua';
       } else {
         label.textContent = 'Kaikki luvut tehty';

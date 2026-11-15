@@ -1,0 +1,30 @@
+/* Oppimiskartan erilliset aihe- ja teoriakohdesivut, ei vanhojen osasivujen tyylin korvaus. */
+:root { --bg: #16121f; --panel: #221b31; --line: #5a4b73; --text: #efeaff; --muted: #beb5d3; --accent: #b5a3ff; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 1rem/1.6 system-ui,-apple-system,"Segoe UI",sans-serif; }
+a { color: var(--accent); text-underline-offset: .18em; }
+:focus-visible { outline: 2px solid #75e5c6; outline-offset: 3px; }
+.topic-page { width: min(100% - 2rem, 60rem); margin: 2rem auto 4rem; }
+.breadcrumb { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; font-size: .94rem; color: var(--muted); margin-bottom: 1.75rem; }
+.breadcrumb a { font-weight: 650; }
+.breadcrumb span[aria-hidden] { color: var(--muted); }
+.topic-index { margin: 0 0 .5rem; font-size: .84rem; font-weight: 750; letter-spacing: .055em; color: var(--accent); }
+.topic-page h1 { margin: 0; font-size: clamp(1.85rem,4.4vw,2.7rem); line-height: 1.17; }
+.topic-lead { color: var(--muted); max-width: 49rem; margin: .8rem 0 2rem; }
+.topic-sections { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1rem; align-items: start; }
+.topic-section { border: 1px solid var(--line); border-radius: .9rem; padding: 1.1rem; background: var(--panel); }
+.topic-section h2 { font-size: 1.25rem; margin: 0 0 1rem; }
+.topic-section p { margin: 0 0 1rem; color: var(--muted); }
+.lesson-links { list-style: none; margin: 0; padding: 0; display: grid; gap: .55rem; }
+.lesson-links a { display: block; border: 1px solid var(--line); border-radius: .55rem; padding: .75rem .9rem; color: var(--text); text-decoration: none; }
+.lesson-links a:hover, .lesson-links a:focus-visible { border-color: var(--accent); background: #332949; }
+.lesson-links small { display: block; font-size: .83rem; color: var(--muted); }
+.topic-footer { border-top: 1px solid var(--line); margin-top: 2rem; padding-top: 1rem; }
+.book-lesson { width: min(100% - 2rem, 55rem); margin: 2rem auto 4rem; }
+.book-lesson .chapter h1 { max-width: none; }
+.book-lesson .chapter { margin-top: 1.2rem; }
+.book-lesson .chapter > h1 { font-size: clamp(1.85rem,4.4vw,2.7rem); }
+.book-lesson .chapter-number { margin-bottom: .45rem; }
+.book-lesson .lesson-nav { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .6rem 1rem; margin: 2rem 0 1rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+.book-lesson .lesson-note { color: var(--muted); font-size: .95rem; }
+@media(max-width:740px){.topic-sections{grid-template-columns:1fr}.topic-page,.book-lesson{margin-top:1.25rem}}
