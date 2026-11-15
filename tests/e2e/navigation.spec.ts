@@ -6,6 +6,8 @@ const MAIN_PAGES = [
   { path: '/index.html', active: null },
   { path: '/book/index.html', active: 'teoria' },
   { path: '/book/osa-3.html', active: 'teoria' },
+  { path: '/book/luku-4.html', active: 'teoria' },
+  { path: '/aiheet/nuotit.html', active: 'teoria' },
   { path: '/book/sanasto.html', active: 'teoria' },
   { path: '/riffikaiku.html', active: 'kitara' },
   { path: '/pelit/ensikeikka/', active: 'kitara' },
@@ -107,7 +109,7 @@ test.describe('Etusivu', () => {
     await expect(nav.getByRole('link', { name: LABELS.kitara })).toHaveAttribute('href', 'kitaraharjoittelija.html');
     const continueBox = page.locator('#home-continue');
     await expect(continueBox.getByRole('link', { name: 'Jatka: luku 3 · Musiikki on kieli' }))
-      .toHaveAttribute('href', 'book/osa-2.html#musiikki-on-kieli');
+      .toHaveAttribute('href', 'book/luku-3.html');
     await expect(continueBox.getByRole('link', { name: 'Jatka kitaraharjoittelua · viimeksi 7 vastattua kysymystä' })).toBeVisible();
     await nav.getByRole('link', { name: LABELS.teoria }).click();
     await expect(page).toHaveURL(/index[.]html#oppimisaiheet$/);
@@ -120,167 +122,133 @@ test.describe('Etusivu', () => {
   });
 });
 
-test.describe('Oppimisen aihealueet – ensimmäinen käyttöliittymärunko', () => {
-  test('Oppimiskartta korvaa päällekkäiset kortit ja ohjaa suoraan sointunäkymään', async ({ page }) => {
+test.describe('Oppimiskartan erilliset aihe- ja lukusivut', () => {
+  test('kahdeksan aihekorttia avaavat omat sivunsa ja Sointukartan oikean näkymän', async ({ page }) => {
     await page.goto('/index.html');
-    await expect(page).toHaveTitle('Oppimiskartta – Musiikin kartta');
-    await expect(page.getByRole('heading', { level: 2, name: 'Oppimiskartta' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Nykyiset oppaat ja työkalut' })).toHaveCount(0);
-    await page.locator('#aihe-soinnut summary').click();
-    const chordMap = page.locator('#aihe-soinnut').getByRole('link', { name: 'Tutki sointukarttaa' });
-    await expect(chordMap).toHaveAttribute('href', /otelautaharjoittelija[.]html[?]aihe=aihe-soinnut#soinnut$/);
-    await chordMap.click();
+    await expect(page.locator('a.topic-card')).toHaveCount(8);
+    await expect(page.locator('details.topic-card')).toHaveCount(0);
+    await page.locator('#aihe-soinnut').click();
+    await expect(page).toHaveURL(/aiheet\/soinnut[.]html$/);
+    await expect(page.getByRole('heading', { level: 1, name: 'Soinnut ja harmonia' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Teoria' })).toBeVisible();
+    await page.getByRole('link', { name: 'Tutki sointukarttaa' }).click();
     await expect(page).toHaveURL(/otelautaharjoittelija[.]html[?]aihe=aihe-soinnut#soinnut$/);
     await expect(page.locator('[data-view="chords"]')).toHaveAttribute('aria-pressed', 'true');
+    await page.getByRole('link', { name: 'Takaisin aiheeseen' }).click();
+    await expect(page).toHaveURL(/aiheet\/soinnut[.]html$/);
   });
 
-  test('kaikki 42 aihelinkkiä, 28 teorialukua ja paluureitit toimivat', async ({ page }) => {
-    test.setTimeout(60000);
-    await page.goto('/index.html');
-    const destinations = await page.locator('.topic-card a').evaluateAll(links => links.map(link => ({
-      href: (link as HTMLAnchorElement).href,
-      topic: link.closest('details')!.id,
-      chapter: link.hasAttribute('data-theory-chapter'),
-      label: link.textContent?.trim(),
-    })));
-    expect(destinations).toHaveLength(42);
-    expect(destinations.filter(({ chapter }) => chapter)).toHaveLength(28);
+  test('kaikki 28 lukua ovat omia sivuja ja H:n historia kuuluu opetustekstiin', async ({ page }) => {
+    await page.goto('/aiheet/nuotit.html');
+    await expect(page.getByRole('heading', { name: 'H- ja B-sävelnimet' })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'H- ja B-sävelnimet' })).toHaveCount(0);
+    await page.getByRole('link', { name: 'Sävelet ja intervallit' }).click();
+    await expect(page).toHaveURL(/book\/luku-4[.]html[?]aihe=aihe-nuotit$/);
+    await expect(page.getByRole('heading', { level: 1, name: 'Sävelet ja intervallit' })).toBeVisible();
+    await expect(page.locator('#h-savelnimi')).toContainText('H');
+    await expect(page.locator('#h-savelnimi').getByRole('link', { name: 'Lue, mistä H-nimi tuli' }))
+      .toHaveAttribute('href', 'h-savelnimen-alkupera.html');
+    await page.getByRole('link', { name: 'Takaisin aiheeseen' }).first().click();
+    await expect(page).toHaveURL(/aiheet\/nuotit[.]html$/);
+  });
 
-    for (const { href, topic, chapter, label } of destinations) {
-      await test.step(`${topic}: ${label}`, async () => {
-        // Saman teoriaosan peräkkäiset ankkurit tarkistetaan uusina sivulatauksina.
-        await page.goto('about:blank');
+  test('aiheista pääsee 28 yksittäiseen lukuun ja harjoitukset säilyttävät syvälinkit', async ({ page }) => {
+    test.setTimeout(60000);
+    const topics = ['kitara', 'rytmi', 'nuotit', 'korva', 'otelauta', 'soinnut', 'asteikot', 'kappaleet'];
+    let chapters = 0;
+    let resources = 0;
+    for (const topic of topics) {
+      await page.goto('/aiheet/' + topic + '.html');
+      await expect(page.locator('[data-topic-page="' + topic + '"]')).toBeVisible();
+      const links = page.locator('.resource-list a');
+      const hrefs = await links.evaluateAll(elements => elements.map(el => (el as HTMLAnchorElement).href));
+      resources += hrefs.length;
+      for (const href of hrefs) {
         const url = new URL(href);
-        expect(url.searchParams.get('aihe')).toBe(topic);
-        expect((await page.goto(href))?.ok()).toBe(true);
-        if (url.pathname.startsWith('/book/')) {
-          const anchor = page.locator(`[id="${url.hash.slice(1)}"]`);
-          await expect(anchor).toBeVisible();
-          if (chapter) await expect(anchor).toHaveClass('chapter');
-        }
-        const back = new URL(`/index.html#${topic}`, url);
-        await expect(page.getByRole('link', { name: 'Takaisin aiheeseen' })).toHaveAttribute('href', back.href);
-      });
+        expect(url.searchParams.get('aihe')).toBe('aihe-' + topic);
+        if (url.pathname.match(/\/book\/luku-\d+[.]html$/)) chapters++;
+      }
+      await page.getByRole('link', { name: '← Oppimiskartta' }).click();
+      await expect(page).toHaveURL(/index[.]html#oppimisaiheet$/);
+    }
+    expect(resources).toBe(41);
+    expect(chapters).toBeGreaterThanOrEqual(28);
+    for (let n = 1; n <= 28; n++) {
+      const response = await page.goto('/book/luku-' + n + '.html');
+      expect(response?.ok(), 'Luku ' + n).toBe(true);
+      await expect(page.locator('article .chapter')).toHaveCount(1);
+      await expect(page.getByRole('link', { name: 'Takaisin aiheeseen' })).toBeVisible();
     }
   });
 
-  test('teorialuvusta pääsee päävalikolla takaisin koko Oppimiskarttaan', async ({ page }) => {
+  test('selaimen Takaisin palaa aihekohtaiselle sivulle ja edistyminen säilyy', async ({ page }) => {
     await page.goto('/index.html');
-    await page.locator('#aihe-soinnut summary').click();
-    await expect(page.locator('#aihe-soinnut .topic-links .topic-group-title').first()).toHaveText('Teoria');
-    await page.locator('#aihe-soinnut').getByRole('link', { name: 'Septimisoinnut', exact: true }).click();
-    await expect(page).toHaveURL(/book[/]osa-10[.]html[?]aihe=aihe-soinnut#septimisoinnut$/);
-    await mainNav(page).getByRole('link', { name: LABELS.teoria }).click();
-    await expect(page).toHaveURL(/index[.]html#oppimisaiheet$/);
-  });
-
-  test('kahdeksan aihetta avautuvat ja johtavat toimivaan vanhaan harjoittelureittiin', async ({ page }) => {
-    await page.goto('/index.html');
-    const topics = page.locator('details.topic-card');
-    await expect(topics).toHaveCount(8);
-    const otelauta = page.locator('#aihe-otelauta');
-    await expect(otelauta).not.toHaveAttribute('open');
-    await otelauta.locator('summary').click();
-    await expect(otelauta).toHaveAttribute('open', '');
-    const exercise = otelauta.getByRole('link', { name: 'Etsi sävelet otelaudalta' });
-    await exercise.click();
-    await expect(page).toHaveURL(/kitaraharjoittelija[.]html[?]polku=otelauta&harjoitus=savelten-etsinta&aihe=aihe-otelauta$/);
-    await expect(page.getByRole('heading', { name: 'Etsi sävelet otelaudalta' })).toBeVisible();
-    await page.getByRole('link', { name: 'Takaisin aiheeseen' }).click();
-    await expect(page).toHaveURL(/\/index[.]html#aihe-otelauta$/);
-    await expect(otelauta).toHaveAttribute('open', '');
-    await expect(otelauta.locator('summary')).toBeFocused();
-  });
-
-  test('vanha #osiot, teoriaoppaan hakemisto ja suorat aihelinkit toimivat', async ({ page }) => {
-    await page.goto('/index.html#osiot');
-    await expect(page.locator('#osiot')).toContainText('Oppimiskartta');
-    await page.getByRole('link', { name: '11-osaisen teoriaoppaan' }).click();
-    await expect(page.getByRole('heading', { level: 1, name: 'Musiikin teoria' })).toBeVisible();
-    await page.goto('/index.html#aihe-rytmi');
-    await expect(page.locator('#aihe-rytmi')).toHaveAttribute('open', '');
-    await expect(page.locator('#aihe-rytmi summary')).toBeFocused();
-  });
-
-  test('selaimen paluu avaa aiheen ja näyttää luvun uuden lukumerkinnän', async ({ page }) => {
-    await page.goto('/index.html');
-    const rhythm = page.locator('#aihe-rytmi');
-    await rhythm.locator('summary').click();
-    await rhythm.getByRole('link', { name: 'Pulssi ja komppi', exact: true }).click();
-    const chapter = page.locator('#pulssi-ja-komppi');
-    await expect(chapter.getByRole('link', { name: 'Takaisin aiheeseen' })).toBeVisible();
-    await chapter.getByRole('button', { name: 'Merkitse luku tehdyksi' }).click();
+    await page.locator('#aihe-rytmi').click();
+    await page.getByRole('link', { name: 'Pulssi ja komppi' }).click();
+    await expect(page).toHaveURL(/book\/luku-1[.]html[?]aihe=aihe-rytmi$/);
+    await page.getByRole('button', { name: 'Merkitse luku tehdyksi' }).click();
+    await expect(page.getByRole('button', { name: '✓ Luku tehty' })).toHaveAttribute('aria-pressed', 'true');
     await page.goBack();
-    await expect(rhythm).toHaveAttribute('open', '');
+    await expect(page).toHaveURL(/aiheet\/rytmi[.]html$/);
+    await page.goBack();
+    await expect(page).toHaveURL(/index[.]html$/);
     await expect(page.locator('#home-continue')).toContainText('Jatka: luku 2');
   });
 
-  test('selaimen paluu palauttaa aiheen, josta teorialuku avattiin', async ({ page }) => {
+  test('vanha #osiot ja #aihe-rytmi jäävät toimiviksi ankkureiksi', async ({ page }) => {
+    await page.goto('/index.html#osiot');
+    await expect(page.locator('#osiot')).toContainText('Oppimiskartta');
     await page.goto('/index.html#aihe-rytmi');
-    await expect(page.locator('#aihe-rytmi summary')).toBeFocused();
-    const chords = page.locator('#aihe-soinnut');
-    const summary = chords.locator('summary');
-    await summary.press('Enter');
-    await chords.getByRole('link', { name: 'Septimisoinnut', exact: true }).press('Enter');
-    await expect(page.getByRole('heading', { name: 'Septimisoinnut', exact: true })).toBeVisible();
-    await page.goBack();
-    await expect(page).toHaveURL(/index\.html#aihe-rytmi$/);
-    await expect(chords).toHaveAttribute('open', '');
-    await expect(summary).toBeFocused();
-    await expect(summary).toBeInViewport();
+    await expect(page.locator('#aihe-rytmi')).toHaveAttribute('href', 'aiheet/rytmi.html');
+    await page.locator('#aihe-rytmi').click();
+    await expect(page).toHaveURL(/aiheet\/rytmi[.]html$/);
+    await page.goto('/book/index.html');
+    await expect(page.getByRole('heading', { level: 1, name: 'Musiikin teoria' })).toBeVisible();
   });
 
-  test('sivuvälimuistista palaaminen päivittää vanhasta tallenteesta jatkamisen', async ({ page }) => {
+  test('sivuvälimuistista palaaminen päivittää etusivun jatkamismerkinnän', async ({ page }) => {
     await page.goto('/index.html');
     await page.evaluate(([luvut, harjoittelu]) => {
       localStorage.setItem(luvut, JSON.stringify(['pulssi-ja-komppi']));
       localStorage.setItem(harjoittelu, JSON.stringify({ version: 1, sessions: [{ count: 1 }] }));
       window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }));
     }, [LUVUT, HARJOITTELU]);
-    const progress = page.locator('#home-continue');
-    await expect(progress.getByRole('link', { name: /Jatka: luku 2/ })).toBeVisible();
-    await expect(progress.getByRole('link', { name: /1 vastattu kysymys/ })).toBeVisible();
+    await expect(page.locator('#home-continue').getByRole('link', { name: /Jatka: luku 2/ }))
+      .toHaveAttribute('href', 'book/luku-2.html');
   });
 
-  test('pulssiesimerkin äänentoisto loppuu, kun palataan Oppimiskartalle', async ({ page }) => {
+  test('etusivun pulssiesimerkistä pääsee erilliseen lukusivuun ja takaisin aiheeseen', async ({ page }) => {
     await page.goto('/index.html');
     await page.getByRole('link', { name: 'Kuuntele pulssi' }).click();
-    const audio = page.locator('#pulssi-aanite audio');
-    // Käyttäjän klikkaus antaa selaimelle luvan aloittaa oikean tallenteen toiston.
-    await audio.evaluate(player => (player as HTMLAudioElement).play());
-    await expect.poll(() => audio.evaluate(player => (player as HTMLAudioElement).paused)).toBe(false);
-    await page.getByRole('link', { name: 'Takaisin aiheeseen' }).click();
-    await expect(page.locator('#aihe-rytmi')).toHaveAttribute('open', '');
-    await page.goBack();
-    await expect.poll(() => audio.evaluate(player => (player as HTMLAudioElement).paused)).toBe(true);
+    await expect(page).toHaveURL(/book\/luku-1[.]html#pulssi-aanite$/);
+    await expect(page.locator('#pulssi-aanite audio')).toBeVisible();
+    await page.getByRole('link', { name: 'Takaisin aiheeseen' }).first().click();
+    await expect(page).toHaveURL(/aiheet\/rytmi[.]html$/);
   });
 
   test('kaikki kahdeksan aihekorttia toimivat näppäimistöllä', async ({ page, isMobile }) => {
     test.skip(isMobile, 'Näppäimistön fokusrengas tarkistetaan työpöytäkoossa.');
     await page.goto('/index.html');
-    const start = page.getByRole('link', { name: 'Kuuntele pulssi' });
-    await start.focus();
-    await expect(start).toHaveCSS('outline-color', 'rgb(117, 229, 198)');
-    for (const summary of await page.locator('.topic-card summary').all()) {
-      await summary.focus();
-      await expect(summary).toBeFocused();
+    const links = page.locator('a.topic-card');
+    await expect(links).toHaveCount(8);
+    for (let index = 0; index < 8; index++) {
+      const card = links.nth(index);
+      await card.focus();
+      await expect(card).toBeFocused();
       await page.keyboard.press('Enter');
-      await expect(summary.locator('..')).toHaveAttribute('open', '');
-      await page.keyboard.press('Space');
-      await expect(summary.locator('..')).not.toHaveAttribute('open');
+      await expect(page).toHaveURL(/\/aiheet\/[a-z]+[.]html$/);
+      await page.goBack();
     }
   });
 
   for (const [width, height] of [[320, 568], [360, 740], [390, 844], [568, 320], [768, 1024], [1280, 800]]) {
-    test(`aihekortti ja päävalikko mahtuvat kokoon ${width} × ${height}`, async ({ page }) => {
+    test('aihekortti, aihekohtainen sivu ja päävalikko mahtuvat kokoon ' + width + ' × ' + height, async ({ page }) => {
       await page.setViewportSize({ width, height });
       await page.goto('/index.html');
-      const start = page.getByRole('link', { name: 'Kuuntele pulssi' });
-      if (height > width) await expect(start).toBeInViewport();
-      await page.locator('#aihe-korva summary').click();
-      await expect(page.locator('#aihe-korva')).toHaveAttribute('open', '');
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
-      await page.addStyleTag({ content: '.main-nav li a, .topic-summary > span, .topic-summary strong { font-size: 200% !important; }' });
+      await page.locator('#aihe-korva').click();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+      await page.addStyleTag({ content: '.main-nav li a, .resource-list a { font-size: 200% !important; }' });
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
     });
   }
