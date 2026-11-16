@@ -4,19 +4,28 @@
     {
       "slug": "kitara", "anchor": "aihe-kitara", "title": "Kitaran perusteet",
       "back_label": "Kitaran perusteisiin",
-      "summary": "Tutuista soinnuista kappaleen soittamiseen ja kuuntelemiseen.",
-      "lead": "Osaat jo virittää kitaran, lukea yksinkertaisen sointukaavion ja soittaa muutaman avoimen soinnun. Nyt käytät tuttuja otteita kappaleessa ja kuuntelet, mitä soinnun vaihtuminen tekee musiikille.",
+      "summary": "Tutustu Musiikin karttaan tutun sointukierron kautta.",
+      "lead": "Osaat jo muutaman avosoinnun. Musiikin kartassa opit kuulemaan, ymmärtämään ja käyttämään niitä kappaleissa ja omassa soitossasi.",
+      "introduction": {
+        "next_topics": {
+          "rytmi": "Pidä pulssi tasaisena sointujen vaihtuessa ja kokeile, miten eri kompit muuttavat saman kierron tuntua.",
+          "savelnimet": "Lue sointukartasta, mitä G, C ja D tarkoittavat. Opit myös nimeämään säveliä ja hahmottamaan niiden välejä.",
+          "korva": "Seuraa bassoa korvalla ja kuuntele, miltä paluu D:stä G:hen tuntuu kierron lopussa.",
+          "otelauta": "Etsi kierron perussävelet eri kieliltä ja löydä tutut sointuotteiden muodot eri puolilta otelautaa.",
+          "soinnut": "Tunnista, miksi G-duurissa G on kotisointu, C vie siitä poispäin ja D valmistaa paluuta. Kirjoita kierto asteina I–IV–V–I.",
+          "asteikot": "Tutki, millaisista sävelistä G-duuriasteikko rakentuu ja miten voit käyttää asteikon säveliä melodiassa.",
+          "kappaleet": "Soita sointukartasta, kuuntele kappaleen rakennetta tai keksi kierron päälle lyhyt oma fraasi."
+        }
+      },
       "groups": [
-        {"title": "Tutuista soinnuista kartalle", "lessons": [
+        {"title": "Valinnaiset lisäharjoitukset", "lessons": [
           {"standalone": "savelesta-sointuun", "title": "Sävelestä sointuun", "goal": "Kuuntele, miten yksittäisistä sävelistä syntyy sointu ja miten soinnuista muodostuu kierto."},
-          {"standalone": "vaihto-ja-sointukartta", "title": "Sointuvaihdot ja sointukartta", "goal": "Vaihda sointua tahdin rajalla ja seuraa lyhyen kappaleen rakennetta kartasta."}
-        ]},
-        {"title": "Soita ja kuuntele kappaletta", "lessons": [
+          {"standalone": "vaihto-ja-sointukartta", "title": "Sointuvaihdot ja sointukartta", "goal": "Vaihda sointua tahdin rajalla ja seuraa lyhyen kappaleen rakennetta kartasta."},
           {"source": "osa-1#sointukierrot", "goal": "Soita Kolme cowboyta -harjoitustaustan mukana ja löydä kartasta säkeistö, kertosäe ja kappaleen lopetus."},
           {"standalone": "mihin-kierto-paattyy", "title": "Mihin sointukierto päättyy?", "goal": "Vertaa kahta lopetusta ja kuuntele, miten basso auttaa tunnistamaan soinnun."}
         ]}
       ],
-      "related": ["savelnimet/kitaran-kielet-ja-sointumerkinnat", "rytmi"]
+      "related": []
     },
     {
       "slug": "rytmi", "anchor": "aihe-rytmi", "title": "Rytmi",

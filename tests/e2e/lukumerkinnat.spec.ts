@@ -54,8 +54,9 @@ async function expectTopicMark(page: Page, topic: Topic, item: Item, done: boole
   const marker = page.locator(`#valinta-${item.slug} [data-study-status]`);
   await expect(marker).toBeVisible();
   await expect(marker).toHaveText(done ? '✓ Tehty' : 'Tekemättä');
+  const unit = topic.path === '/oppi/kitara/index.html' ? 'lisäharjoitusta' : 'sisältöä';
   await expect(page.locator('[data-study-total]')).toHaveText(
-    `${done ? 1 : 0}/${topic.pages.length} sisältöä tehty`,
+    `${done ? 1 : 0}/${topic.pages.length} ${unit} tehty`,
   );
 }
 

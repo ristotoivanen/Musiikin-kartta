@@ -212,7 +212,10 @@
 
   function showTopicProgress(status, count, total) {
     const complete = count === total;
-    status.textContent = complete ? '✓ Aihe käyty läpi' : count + '/' + total + ' sisältöä tehty';
+    const optional = status.hasAttribute('data-optional-practice');
+    const unit = optional ? ' lisäharjoitusta tehty' : ' sisältöä tehty';
+    const done = optional ? '✓ Kaikki lisäharjoitukset tehty' : '✓ Aihe käyty läpi';
+    status.textContent = complete ? done : count + '/' + total + unit;
     status.classList.toggle('is-done', complete);
     status.hidden = false;
     return complete;
