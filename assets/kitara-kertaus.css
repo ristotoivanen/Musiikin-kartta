@@ -38,35 +38,124 @@
   margin-block-end: 0;
 }
 
-.recap-strings {
+.recap-notation > div > p:first-child,
+.recap-rhythm > div > p:first-child {
+  margin-block-start: 0;
+}
+
+.recap-notation > div + div {
+  margin-block-start: 1rem;
+}
+
+.recap-figure {
+  margin: .85rem 0 0;
+}
+
+.recap-figure figcaption {
+  margin-top: .4rem;
+  color: var(--muted);
+  font-size: .88rem;
+}
+
+.recap-neck {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: .4rem;
-  margin: 1rem 0;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: .25rem .6rem;
+}
+
+.recap-strings, .recap-fret-numbers, .recap-bar {
+  margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.recap-strings li {
+.recap-open, .recap-strings span, .recap-fret-numbers {
+  color: var(--muted);
+  font-size: .85rem;
+}
+
+.recap-fret-numbers {
   display: grid;
-  align-content: start;
-  gap: .2rem;
-  padding: .45rem .15rem;
+  grid-template-columns: 134fr 127fr 119fr 112fr 108fr;
+  text-align: center;
+}
+
+.recap-strings {
+  line-height: 1.5;
+}
+
+.recap-strings strong { color: var(--gold); }
+
+.recap-board {
+  position: relative;
+  border-radius: .35rem;
+  background: #30251e;
+}
+
+.recap-board svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.recap-board path {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.recap-frets { stroke: #9d876f; }
+.recap-nut { stroke: #ead9bf; stroke-width: 3; }
+.recap-wire { stroke: #ebe2f4; }
+.recap-wire-bass { stroke-width: 1.6; }
+
+.recap-section .chord-diagrams {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 5rem), 1fr));
+  gap: .35rem;
+}
+
+.recap-section .chord-diagram {
+  padding-inline: .25rem;
+  background: var(--bg);
+}
+
+.recap-section .chord-diagram svg {
+  width: min(100%, 6.75rem);
+  margin-inline: auto;
+}
+
+.recap-tab {
+  margin: 0;
   border: 1px solid var(--line);
-  border-radius: .45rem;
+  border-radius: .5rem;
+  background: var(--bg);
+  padding: .65em .55em;
+  font: clamp(.75rem, 4.7vw, .95rem)/1.35 ui-monospace, SFMono-Regular, Consolas, monospace;
+  color: var(--muted);
+  overflow-x: auto;
+}
+
+.recap-tab b { color: var(--gold); }
+
+.recap-bar {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding-block: .55rem;
+  border-inline: 2px solid var(--muted);
   background: var(--bg);
   text-align: center;
-  line-height: 1.35;
+  font-variant-numeric: tabular-nums;
 }
 
-.recap-strings strong {
-  font-size: 1.2rem;
-  color: var(--gold);
-}
-
-.recap-strings span {
-  font-size: .85rem;
-  color: var(--muted);
+.recap-bar li::before {
+  content: "";
+  display: block;
+  width: .48em;
+  aspect-ratio: 1;
+  margin: 0 auto .25rem;
+  border-radius: 50%;
+  background: var(--gold);
 }
 
 .recap-help {
@@ -77,11 +166,14 @@
 
 .recap-next { margin-top: 1rem; }
 
-@media (min-width: 29rem) {
-  .recap-strings { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-}
-
 @media (min-width: 48rem) {
-  .recap-sections { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .recap-fretboard { grid-column: 1 / -1; }
+  .recap-notation, .recap-rhythm {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    column-gap: 1.25rem;
+    align-items: start;
+  }
+  .recap-notation > div + div, .recap-rhythm .recap-figure {
+    margin-block-start: 0;
+  }
 }

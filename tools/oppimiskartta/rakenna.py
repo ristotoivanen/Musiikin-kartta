@@ -314,11 +314,29 @@ def study_ids(pages):
     return ' '.join(page.study_id for page in pages)
 
 
-def topic_home(topic, lookup, exercise_descriptions):
+def recap_chord_diagrams(match, books):
+    source, anchor = part_anchor(match[2])
+    book = books[source]
+    chapter = book.one('id', anchor)
+    diagrams = {}
+    for figure in book.nodes:
+        if not (chapter.inner <= figure.start < chapter.close and figure.has_class('chord-diagram')):
+            continue
+        caption = next(node for node in book.children(figure) if node.tag == 'figcaption')
+        diagrams[book.text(caption)] = book.fragment(figure)
+    chords = match[3].split()
+    if missing := set(chords) - diagrams.keys():
+        raise ValueError(f'{source}#{anchor}: sointukaavio puuttuu ({", ".join(sorted(missing))})')
+    return indent('\n'.join(diagrams[chord] for chord in chords), match[1])
+
+
+def topic_home(topic, lookup, exercise_descriptions, books):
     if topic.get('recap'):
         output = topic['path']
         source = CONFIG.parent / 'sisallot' / topic['slug'] / 'pikakertaus.html'
         body = rebase(source.read_text(encoding='utf-8').strip(), source.relative_to(ROOT).as_posix(), output, {})
+        body = re.sub(r'^([ ]*)<!-- sointukaaviot:(\S+) ([^\n]+?) -->',
+                      lambda match: recap_chord_diagrams(match, books), body, flags=re.MULTILINE)
         action = link(rel('index.html', output) + '#oppimisaiheet', 'Siirry Oppimiskarttaan', ' class="primary-link"')
         return f'''<header class="recap-header">
   <h1>{escape(topic['title'])}</h1>
@@ -589,7 +607,7 @@ def pages():
     output = {}
     for number, topic in enumerate(topics):
         next_topic = topics[number + 1] if number + 1 < len(topics) else None
-        output[topic['path']] = render(topic, topic_home(topic, lookup, exercise_descriptions), nav)
+        output[topic['path']] = render(topic, topic_home(topic, lookup, exercise_descriptions, books), nav)
         sequence = topic['pages']
         for index, page in enumerate(sequence):
             content = page_content(page, topic, index, next_topic, books, targets, audio)
