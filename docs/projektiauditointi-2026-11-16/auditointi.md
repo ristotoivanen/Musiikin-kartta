@@ -36,6 +36,14 @@ Alla **päätös** tarkoittaa käyttäjän rajaus- tai dokumentointipäätöstä
 - **Vanhentuneet kuvaukset:** #54:n historiallinen #55/#61-tilanne, #65:n viisisivuinen aloitusmalli, #61:n varhaisen Ensikeikan linkkiteksti sekä #79:n otsikon ja #86:ssa kuvatun toteutuksen välinen epäselvyys. Varmista #79:n hyväksynnässä, että 1–9, treenikerrat ja 10–12 kuvataan todellisen näkymän mukaisesti.
 - **Avoimet päätökset:** kumpi #62/#63:eista tarjoaa regressiottoman parannuksen nykybetaan, G1-pilotin sisältö ja A/E-vertailukynnys, Riffikaiun todellinen vaikeus oikealla soittimella, kuulo- ja mobiilihyväksynnät, näytteenottimen ja materiaalien valinta. Säilytä vanhojen pelien beta-merkintä käyttäjän julkaisulinjan mukaisesti.
 
+## Oppimiskartan keskustelukoosteen täydennys (16.11.2026)
+
+[Käyttäjän toimittama arkistointiyhteenveto](oppimiskartan-integraatio-arkistointikooste.md) tarkentaa alkuperäistä keskustelua: **01–08-numeroinnin periaate on hyväksytty**, mutta aiheiden täsmällinen pedagoginen etenemisjärjestys ei ole lopullinen. Aiempi auditointirivi `numerointi oli käyttäjän avoin kysymys` kuvaa aikaisempaa keskusteluvaihetta, ei tätä myöhemmin talteen otettua päätöstietoa. Sivujen omat osoitteet, paluureitit, H/B-selitys opetustekstissä sekä vanhojen linkkien ja suoritusten yhteensopivuus säilyvät sovittuina lähtökohtina.
+
+Vahvistamaton toteutusasia on **kumpi rinnakkaisista draft-prototyypeistä #62/#63**, jos kumpikaan, tuottaa vielä nykybetasta puuttuvan parannuksen. #62:n viimeisin HEAD on `3a985d1`, #63:n `f210a74`. #63 kuvaa kanonisista 11 teoriaosasta generoituja 8+28 sivuja; #62 vaatii kanonisen generaattorin ratkaisemista. Kummankaan omia automaattisia testejä ei PR-kuvauksissa ole vahvistettu ajetuiksi. Nykybeta on lisäksi päivittynyt alkuperäisen #61 → #55 → beta -ohjeen jälkeen: #55 on yhdistetty ja #57–#61:n sisältöä on jo betan historiassa. **Älä käsittele historiallista PR-järjestystä enää uutena yhdistämisohjeena.**
+
+Avoimet katselmoinnit, fyysiset testit, G1 ja A/E-kynnys sekä #62/#63:n vertailu ovat nykyisessä [#54:ssä](https://github.com/ristotoivanen/Musiikin-kartta/issues/54) ja tämän auditoinnin P0/P2-jaksossa. Älä luo niistä päällekkäisiä issueita. Arkistointikooste on nyt GitHubissa, mutta keskustelun arkistointi vaatii erillisen käyttäjän päätöksen.
+
 ## Riippuvuudet ja yhdistämisjärjestys
 
 ```mermaid
