@@ -1,5 +1,8 @@
 # GitHubin haarat ja PR:t 16.11.2026
 
+> **Ajantasaisuuslisäys 16.11.2026, vaiheen 2 tarkistus.** Alla olevat yksittäisten haarojen ahead/behind-luvut ja PR-tilat ovat alkuperäisen `beta f7a204b` -inventoinnin historiallinen kuva. GitHubin myöhempi `main` on `68b8a77`, `beta` on `f9964c5` ja niiden vertailu on **2/81** (ensin vain mainissa, sitten vain betassa). Uusin tarkistus palautti **60 GitHub-haaraa, 29 avointa PR:ää ja 28 avointa issuea**. [PR #83](https://github.com/ristotoivanen/Musiikin-kartta/pull/83) yhdistettiin betaan 16.11.2026; tämän inventaarion alempana oleva avoin #83-rivi on siis **vanhentunut**. #57–#61, #64 ja #65:n kärjet sisältyvät nykyiseen betan historiaan, mutta PR:t ovat yhä avoimia. #62/#63 ja aktiiviset Ensikeikka-/Riffikaiku-pinot vaativat erillisen delta- ja riippuvuusarvion ennen sulkemista tai yhdistämistä. [Uusin tarkistuspiste ja paikallisten worktreeiden rajaukset](auditointi.md#ajantasainen-tarkistuspiste-16112026--vaihe-16).
+
+
 Lähteet ovat GitHubin PR- ja check-run-rajapinnat ja Git-refit ennen auditointihaaran luontia. Vertailun vasen luku kertoo pohjan yksinomaiset commitit, oikea haaran yksinomaiset commitit. Commit-ero ei mittaa toiminnallista eroa. Suljetun PR:n yhdistäminen ei yksin todista, että nykyinen haarakärki on tallella.
 
 ## Avoimet PR:t
