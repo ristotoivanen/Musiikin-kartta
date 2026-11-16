@@ -59,8 +59,16 @@ Tehtävän `span: [alku, loppu]` rajaa ratkaisevan kohdan tahteihin. Katkelma le
 Harjoittelukierros arpoo version, jota ei juuri kuultu (`songVersion`, `versionCount`). Tunniste ja
 tallennus pysyvät samoina.
 
-**Koko keikka (`finale`):** keikan viimeisen kappaleen jälkeen "Kuuntele koko keikka" soittaa keikan
-kappaleet pelaajan soittamina versioina ja aplodit (`renderFinale`).
+**Arvotut kierrokset (`rounds`):** kappaleen tehtävät voidaan arpoa joukosta jokaisella yrityksellä
+(soundcheck, `drawSoundcheck`). Arvonta tallentuu yritykseen (`Attempt.rounds`), ja `songVersion`
+rakentaa siitä tehtävät ja selityksen. Etenemisen yritys arpoo kierroksensa kerran sivun aikana,
+harjoittelu joka kierroksella. Tallenne ei muutu.
+
+**Keikan biisit (`finale`):** keikan viimeisen vaiheen jälkeen "Kuuntele keikan biisit" soittaa
+`finale.songs`-kappaleet peräkkäin opetusversioina hyväksytyillä ratkaisuilla (`target`) ja lopuksi
+aplodit (`renderFinale`). Esitys ei riipu harjoittelusta eikä tallennetusta tilasta. `finale.note`
+kertoo kortissa, mitä esitys sisältää. Ensikeikalla soundcheck ei ole mukana. `unit` vaihtaa keikan
+laskurin sanan (esim. "vaihetta"), ja `completionSummary` vaihtaa valmistumiskortin yhteenvedon.
 
 Kappaleella voi olla useita tehtäviä peräkkäin (`tasks`). Väliin näytetään onnistumispalaute ja
 "Jatka vaiheeseen N". Valmis kappale soitetaan lopetuksella `target`.
