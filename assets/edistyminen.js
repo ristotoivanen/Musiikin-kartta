@@ -287,8 +287,8 @@
 
   function setupTopicList() {
     const button = document.getElementById('topic-toggle');
-    const topics = [...document.querySelectorAll('.topic-card[data-study-items]')].map(card => ({
-      card, items: card.dataset.studyItems.split(' '), status: card.querySelector('.topic-status')
+    const topics = [...document.querySelectorAll('.topic-card')].map(card => ({
+      card, items: card.dataset.studyItems?.split(' ') ?? [], status: card.querySelector('.topic-status')
     }));
     if (!button || !topics.length) return;
 
@@ -304,7 +304,7 @@
       for (const [index, { card, items, status }] of topics.entries()) {
         const count = items.filter(id => done.has(id)).length;
         if (index < initial || count) shown.add(card.id);
-        if (showTopicProgress(status, count, items.length)) completed.push(card.id);
+        if (status && items.length && showTopicProgress(status, count, items.length)) completed.push(card.id);
       }
       // Muista vain, mitkä aiheet ovat jo avanneet uuden kortin. Lukumerkinnät tulevat load()-funktiosta.
       const openedBy = new Set(state.openedBy);

@@ -16,7 +16,7 @@ const allTopics = [...initialTopics, 'aihe-korva', 'aihe-otelauta', 'aihe-soinnu
 const list = (page: Page) => page.locator('#oppimisaihelista');
 const toggle = (page: Page) => page.locator('#topic-toggle');
 const topic = (page: Page, id: string) => list(page).locator('#' + id);
-const kitaraProgress = (page: Page) => topic(page, 'aihe-kitara').locator('.topic-status');
+const rhythmProgress = (page: Page) => topic(page, 'aihe-rytmi').locator('.topic-status');
 
 async function expectTopics(page: Page, ids: string[]) {
   const links = list(page).getByRole('link');
@@ -50,68 +50,41 @@ test('uusi kävijä näkee kolme aihetta ja voi näyttää tai piilottaa lisäai
   await expectTopics(page, initialTopics);
 });
 
-test('aihe valmistuu ja avaa seuraavan aiheen vasta kaikkien viiden sisällön jälkeen', async ({ page, context }) => {
-  const topicTab = await context.newPage();
+test('kitaramerkinnät säilyvät ja vain varsinaisen aiheen valmistuminen näyttää uuden suosituksen', async ({ page, context }) => {
   const lessonTab = await context.newPage();
-  const practiceTab = await context.newPage();
-  await Promise.all([
-    page.goto(map),
-    topicTab.goto(kitaraTopic),
-    lessonTab.goto(kitaraLesson),
-    practiceTab.goto(kitaraPractice),
-  ]);
-  const topicProgress = topicTab.locator('[data-study-total]');
-  const lessonStatus = topicTab.locator('[data-study-status="sointukierrot"]');
-  const practiceStatus = topicTab.locator('[data-study-status="harjoitus:soita-ensin-basso"]');
-  const markPractice = practiceTab.getByRole('button', { name: 'Merkitse harjoitus tehdyksi' });
+  const guitarMarks = [...oldKitaraMarks, ...kitaraNewLessons.map(slug => 'oppitunti:' + slug)];
+  await page.goto(map);
+  const rhythmItems = (await topic(page, 'aihe-rytmi').getAttribute('data-study-items'))!.split(' ');
   await expectTopics(page, initialTopics);
-  await expect(kitaraProgress(page)).toHaveText('0/5 sisältöä tehty');
-  await expect(topicProgress).toHaveText('0/5 sisältöä tehty');
-  await expect(lessonStatus).toHaveText('Tekemättä');
-  await expect(practiceStatus).toHaveText('Tekemättä');
+  await expect(rhythmProgress(page)).toHaveText('0/4 sisältöä tehty');
 
+  await lessonTab.goto(kitaraLesson);
+  await lessonTab.evaluate(({ key, marks }) => localStorage.setItem(key, JSON.stringify(marks)),
+    { key: readingKey, marks: guitarMarks });
+  await expectTopics(page, initialTopics);
+  await expect(topic(page, 'aihe-kitara').locator('.topic-status')).toHaveCount(0);
+  await lessonTab.reload();
+  await expect(lessonTab.getByRole('button', { name: '✓ Luku tehty' })).toHaveAttribute('aria-pressed', 'true');
+
+  const partial = [...guitarMarks, ...rhythmItems.slice(1)];
+  await lessonTab.evaluate(({ key, marks }) => localStorage.setItem(key, JSON.stringify(marks)),
+    { key: readingKey, marks: partial });
+  await expect(rhythmProgress(page)).toHaveText('3/4 sisältöä tehty');
+  await expectTopics(page, initialTopics);
+  await lessonTab.goto('/oppi/rytmi/pulssi-ja-komppi.html');
   await lessonTab.getByRole('button', { name: 'Merkitse luku tehdyksi' }).click();
-  await expect(kitaraProgress(page)).toHaveText('1/5 sisältöä tehty');
-  await expect(topicProgress).toHaveText('1/5 sisältöä tehty');
-  await expect(lessonStatus).toHaveText('✓ Tehty');
-  await expect(practiceStatus).toHaveText('Tekemättä');
-  await expectTopics(page, initialTopics);
 
-  await markPractice.click();
-  await expect(topicProgress).toHaveText('2/5 sisältöä tehty');
-  await expect(kitaraProgress(page)).toHaveText('2/5 sisältöä tehty');
-  await expect(practiceStatus).toHaveText('✓ Tehty');
-  await expectTopics(page, initialTopics);
-
-  for (const [index, slug] of kitaraNewLessons.entries()) {
-    const cardStatus = topicTab.locator(`[data-study-status="oppitunti:${slug}"]`);
-    await expect(cardStatus).toHaveText('Tekemättä');
-    await lessonTab.goto('/oppi/kitara/' + slug + '.html');
-    await lessonTab.getByRole('button', { name: 'Merkitse oppitunti tehdyksi' }).click();
-    await expect(cardStatus).toHaveText('✓ Tehty');
-    if (index < kitaraNewLessons.length - 1) {
-      await expect(topicProgress).toHaveText(`${index + 3}/5 sisältöä tehty`);
-      await expectTopics(page, initialTopics);
-    }
-  }
-  await expect(topicProgress).toHaveText('✓ Aihe käyty läpi');
-  await expect(kitaraProgress(page)).toHaveText('✓ Aihe käyty läpi');
+  await expect(rhythmProgress(page)).toHaveText('✓ Aihe käyty läpi');
   const recommendedTopics = [...initialTopics, 'aihe-korva'];
   await expectTopics(page, recommendedTopics);
   await expect(toggle(page)).toHaveText('Näytä kaikki aiheet (4 lisää)');
   expect(await page.evaluate(key => JSON.parse(localStorage.getItem(key) ?? '[]'), readingKey))
-    .toEqual([...oldKitaraMarks, ...kitaraNewLessons.map(slug => 'oppitunti:' + slug)]);
+    .toEqual([...partial, rhythmItems[0]]);
+  await lessonTab.getByRole('button', { name: '✓ Luku tehty' }).click();
+  await expect(rhythmProgress(page)).toHaveText('3/4 sisältöä tehty');
   await lessonTab.goto('/book/index.html');
   await expect(lessonTab.locator('#jatka')).toContainText('1/28 lukua merkitty tehdyiksi');
 
-  await practiceTab.reload();
-  const undoPractice = practiceTab.getByRole('button', { name: '✓ Harjoitus tehty' });
-  await expect(undoPractice).toHaveAttribute('aria-pressed', 'true');
-  await undoPractice.click();
-  await expect(markPractice).toHaveAttribute('aria-pressed', 'false');
-  await expect(topicProgress).toHaveText('4/5 sisältöä tehty');
-  await expect(kitaraProgress(page)).toHaveText('4/5 sisältöä tehty');
-  await expect(practiceStatus).toHaveText('Tekemättä');
   await page.reload();
   await expectTopics(page, recommendedTopics);
   await toggle(page).click();
@@ -131,15 +104,9 @@ test('vanhat kitaran merkinnät ja aiemmin avattu aihe säilyvät uusien oppitun
   }, { readingKey, visibilityKey, previouslyShown, oldKitaraMarks });
   await page.reload();
   await expectTopics(page, previouslyShown);
-  await expect(kitaraProgress(page)).toHaveText('2/5 sisältöä tehty');
+  await expect(topic(page, 'aihe-kitara').locator('.topic-status')).toHaveCount(0);
   await page.goto(kitaraTopic);
-  await expect(page.locator('[data-study-total]')).toHaveText('2/5 sisältöä tehty');
-  for (const oldId of oldKitaraMarks) {
-    await expect(page.locator(`[data-study-status="${oldId}"]`)).toHaveText('✓ Tehty');
-  }
-  for (const slug of kitaraNewLessons) {
-    await expect(page.locator(`[data-study-status="oppitunti:${slug}"]`)).toHaveText('Tekemättä');
-  }
+  await expect(page.locator('[data-study-total], [data-study-status]')).toHaveCount(0);
   expect(await page.evaluate(key => JSON.parse(localStorage.getItem(key) ?? '[]'), readingKey)).toEqual(oldKitaraMarks);
   await page.goto(kitaraLesson + '#kolme-cowboyta');
   await expect(page.locator('#kolme-cowboyta audio')).toBeVisible();
@@ -158,9 +125,8 @@ test('kaikki teorialuvut tehnyt käyttäjä näkee säilyneet merkinnät ja kesk
   }, readingKey);
   expect(stored.count).toBe(28);
   await page.reload();
-  await expect(kitaraProgress(page)).toHaveText('1/5 sisältöä tehty');
+  await expect(topic(page, 'aihe-kitara').locator('.topic-status')).toHaveCount(0);
   await expect(list(page).locator('.topic-status')).toHaveText([
-    '1/5 sisältöä tehty',
     '1/4 sisältöä tehty',
     '1/3 sisältöä tehty',
     '6/14 sisältöä tehty',

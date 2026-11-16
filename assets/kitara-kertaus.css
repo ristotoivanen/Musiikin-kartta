@@ -1,0 +1,222 @@
+.recap-page {
+  max-width: 56rem;
+  padding-block: clamp(1.5rem, 5vw, 3.25rem) 2.5rem;
+}
+
+.recap-header {
+  margin-block-end: clamp(1.4rem, 4vw, 2rem);
+}
+
+.recap-header .lead {
+  margin-block-end: .65rem;
+}
+
+.recap-page .primary-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: 0;
+}
+
+.recap-sections {
+  display: grid;
+  gap: .85rem;
+}
+
+.recap-section {
+  padding: clamp(.85rem, 3vw, 1.4rem);
+  border: 1px solid var(--line);
+  border-radius: .75rem;
+  background: var(--panel);
+}
+
+.recap-section h2 {
+  margin: 0 0 .55rem;
+}
+
+.recap-section p:last-child {
+  margin-block-end: 0;
+}
+
+.recap-notation > div > p:first-child,
+.recap-rhythm > div > p:first-child {
+  margin-block-start: 0;
+}
+
+.recap-notation > div + div {
+  margin-block-start: 1rem;
+}
+
+.recap-figure {
+  margin: .85rem 0 0;
+}
+
+.recap-figure figcaption {
+  margin-top: .4rem;
+  color: var(--muted);
+  font-size: .88rem;
+}
+
+.recap-neck-section {
+  padding-inline: clamp(12px, 4vw, 1.4rem);
+}
+
+.recap-neck {
+  --recap-fret-columns: 134fr 127fr 119fr 112fr 108fr;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: .25rem clamp(.35rem, 2vw, .6rem);
+}
+
+.recap-strings, .recap-fret-numbers, .recap-fret-notes, .recap-bar {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recap-open, .recap-strings span, .recap-fret-numbers {
+  color: var(--muted);
+  font-size: .85rem;
+}
+
+.recap-fret-numbers {
+  display: grid;
+  grid-template-columns: var(--recap-fret-columns);
+  text-align: center;
+}
+
+.recap-strings {
+  line-height: 1.85;
+}
+
+.recap-strings strong { color: var(--gold); }
+
+.recap-board {
+  --recap-wood: #30251e;
+  position: relative;
+  border-radius: .35rem;
+  background: var(--recap-wood);
+}
+
+.recap-board svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.recap-board path {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.recap-frets { stroke: #9d876f; }
+.recap-nut { stroke: #ead9bf; stroke-width: 3; }
+.recap-wire {
+  stroke: #ebe2f4;
+  vector-effect: non-scaling-stroke;
+}
+
+.recap-fret-notes {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template: repeat(6, minmax(0, 1fr)) / var(--recap-fret-columns);
+  justify-items: center;
+  align-items: center;
+  color: var(--muted);
+  font-size: .75rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.recap-fret-notes li {
+  padding: .08em .12em;
+  background: var(--recap-wood);
+}
+
+.recap-note-names[open] {
+  margin-block: .5rem 1rem;
+  padding: .1rem clamp(8px, 2vw, 14px) .75rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line));
+  border-radius: .65rem;
+  background: var(--bg);
+}
+
+.recap-note-names summary {
+  min-height: 44px;
+  padding-block: .5rem;
+}
+
+.recap-note-names table {
+  table-layout: fixed;
+}
+
+.recap-section .chord-diagrams {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 5rem), 1fr));
+  gap: .35rem;
+}
+
+.recap-section .chord-diagram {
+  padding-inline: .25rem;
+  background: var(--bg);
+}
+
+.recap-section .chord-diagram svg {
+  width: min(100%, 6.75rem);
+  margin-inline: auto;
+}
+
+.recap-tab {
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: .5rem;
+  background: var(--bg);
+  padding: .65em .55em;
+  font: clamp(.75rem, 4.7vw, .95rem)/1.35 ui-monospace, SFMono-Regular, Consolas, monospace;
+  color: var(--muted);
+  overflow-x: auto;
+}
+
+.recap-tab b { color: var(--gold); }
+
+.recap-bar {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding-block: .55rem;
+  border-inline: 2px solid var(--muted);
+  background: var(--bg);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.recap-bar li::before {
+  content: "";
+  display: block;
+  width: .48em;
+  aspect-ratio: 1;
+  margin: 0 auto .25rem;
+  border-radius: 50%;
+  background: var(--gold);
+}
+
+.recap-help {
+  margin-top: 1.7rem;
+  padding-top: .65rem;
+  border-top: 1px solid var(--line);
+}
+
+.recap-next { margin-top: 1rem; }
+
+@media (min-width: 48rem) {
+  .recap-notation, .recap-rhythm {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    column-gap: 1.25rem;
+    align-items: start;
+  }
+  .recap-notation > div + div, .recap-rhythm .recap-figure {
+    margin-block-start: 0;
+  }
+}

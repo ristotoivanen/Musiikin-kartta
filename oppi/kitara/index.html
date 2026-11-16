@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="../../book/reader.css?v=65711fca9c">
   <link rel="stylesheet" href="../../assets/paavalikko.css?v=59824281af">
   <link rel="stylesheet" href="../../assets/oppi.css?v=cf1b18af1d">
+  <link rel="stylesheet" href="../../assets/kitara-kertaus.css?v=0073b54ff0">
 </head>
 <body>
   <a class="study-skip" href="#oppi-sisalto">Siirry sisältöön</a>
@@ -21,40 +22,132 @@
       </ul>
     </nav>
   </header>
-  <main class="frame study-page" id="oppi-sisalto" data-study-topic="aihe-kitara">
-    <nav class="study-up" aria-label="Paluunavigointi">
-      <a class="study-back" href="../../index.html#aihe-kitara"><span aria-hidden="true">←</span> Oppimiskarttaan</a>
-    </nav>
-    <p class="study-meta">Aihe 01</p>
-    <h1>Kitaran perusteet</h1>
-    <p class="lead">Osaat jo virittää kitaran, lukea yksinkertaisen sointukaavion ja soittaa muutaman avoimen soinnun. Nyt käytät tuttuja otteita kappaleessa ja kuuntelet, mitä soinnun vaihtuminen tekee musiikille.</p>
-    <p class="study-status" data-study-total hidden></p>
-    <div class="study-card-groups" style="--study-rows: auto repeat(2, var(--study-card-tracks)) auto repeat(3, var(--study-card-tracks))">
-      <section class="study-group" style="--study-group-span: 5">
-        <div class="study-choice-heading"><h2>Tutuista soinnuista kartalle</h2><p class="study-start">Aloita tästä</p></div>
-        <ol class="study-choices" role="list">
-          <li><a class="study-choice" id="valinta-savelesta-sointuun" href="savelesta-sointuun.html"><span class="study-number" aria-hidden="true">01</span><strong class="study-title">Sävelestä sointuun</strong><span class="study-choice-details"><span class="study-description">Kuuntele, miten yksittäisistä sävelistä syntyy sointu ja miten soinnuista muodostuu kierto.</span><span data-study-status="oppitunti:savelesta-sointuun" class="study-status" hidden></span></span><span class="study-arrow" aria-hidden="true">→</span></a></li>
-          <li><a class="study-choice" id="valinta-vaihto-ja-sointukartta" href="vaihto-ja-sointukartta.html"><span class="study-number" aria-hidden="true">02</span><strong class="study-title">Sointuvaihdot ja sointukartta</strong><span class="study-choice-details"><span class="study-description">Vaihda sointua tahdin rajalla ja seuraa lyhyen kappaleen rakennetta kartasta.</span><span data-study-status="oppitunti:vaihto-ja-sointukartta" class="study-status" hidden></span></span><span class="study-arrow" aria-hidden="true">→</span></a></li>
-        </ol>
+  <main class="frame study-page recap-page" id="oppi-sisalto" data-study-topic="aihe-kitara">
+    <header class="recap-header">
+      <h1>Kitaran perusteet</h1>
+      <p class="lead">Palauta mieleen kitaransoiton perustiedot, joita tarvitset Musiikin kartan muissa aiheissa. Kertaus vie 2–5 minuuttia.</p>
+      <a href="../../index.html#oppimisaiheet" class="primary-link">Siirry Oppimiskarttaan</a>
+    </header>
+    <div class="recap-sections">
+      <section class="recap-section recap-neck-section">
+        <h2>Kielet ja otelauta</h2>
+        <p>Vakiovire paksuimmasta kielestä ohuimpaan on <strong>E–A–D–G–B–e</strong>.</p>
+        <figure class="recap-figure">
+          <div class="recap-neck">
+            <span class="recap-open">Vapaa</span>
+            <ol class="recap-fret-numbers" role="list" aria-label="Nauhat vasemmalta oikealle">
+              <li>1</li><li>2</li><li>3</li><li>4</li><li>5</li>
+            </ol>
+            <ol class="recap-strings" role="list" aria-label="Vapaat kielet ylhäältä alas, ohuimmasta paksuimpaan">
+              <li><span>1.</span> <strong>e</strong></li>
+              <li><span>2.</span> <strong>B</strong></li>
+              <li><span>3.</span> <strong>G</strong></li>
+              <li><span>4.</span> <strong>D</strong></li>
+              <li><span>5.</span> <strong>A</strong></li>
+              <li><span>6.</span> <strong>E</strong></li>
+            </ol>
+            <div class="recap-board">
+              <svg viewBox="0 0 600 120" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+                <path class="recap-frets" d="M134 0v120 M261 0v120 M380 0v120 M492 0v120 M599 0v120"/>
+                <path class="recap-nut" d="M2 0v120"/>
+                <line class="recap-wire" x1="2" x2="600" y1="10" y2="10" stroke-width=".8"/>
+                <line class="recap-wire" x1="2" x2="600" y1="30" y2="30" stroke-width="1"/>
+                <line class="recap-wire" x1="2" x2="600" y1="50" y2="50" stroke-width="1.3"/>
+                <line class="recap-wire" x1="2" x2="600" y1="70" y2="70" stroke-width="1.7"/>
+                <line class="recap-wire" x1="2" x2="600" y1="90" y2="90" stroke-width="2.1"/>
+                <line class="recap-wire" x1="2" x2="600" y1="110" y2="110" stroke-width="2.5"/>
+              </svg>
+              <ol class="recap-fret-notes" role="list" aria-label="Luonnolliset sävelet nauhoilla 1–5">
+                <li style="grid-area: 1 / 1" aria-label="1. kieli, 1. nauha, F">F</li>
+                <li style="grid-area: 1 / 3" aria-label="1. kieli, 3. nauha, G">G</li>
+                <li style="grid-area: 1 / 5" aria-label="1. kieli, 5. nauha, A">A</li>
+                <li style="grid-area: 2 / 1" aria-label="2. kieli, 1. nauha, C">C</li>
+                <li style="grid-area: 2 / 3" aria-label="2. kieli, 3. nauha, D">D</li>
+                <li style="grid-area: 2 / 5" aria-label="2. kieli, 5. nauha, E">E</li>
+                <li style="grid-area: 3 / 2" aria-label="3. kieli, 2. nauha, A">A</li>
+                <li style="grid-area: 3 / 4" aria-label="3. kieli, 4. nauha, B">B</li>
+                <li style="grid-area: 3 / 5" aria-label="3. kieli, 5. nauha, C">C</li>
+                <li style="grid-area: 4 / 2" aria-label="4. kieli, 2. nauha, E">E</li>
+                <li style="grid-area: 4 / 3" aria-label="4. kieli, 3. nauha, F">F</li>
+                <li style="grid-area: 4 / 5" aria-label="4. kieli, 5. nauha, G">G</li>
+                <li style="grid-area: 5 / 2" aria-label="5. kieli, 2. nauha, B">B</li>
+                <li style="grid-area: 5 / 3" aria-label="5. kieli, 3. nauha, C">C</li>
+                <li style="grid-area: 5 / 5" aria-label="5. kieli, 5. nauha, D">D</li>
+                <li style="grid-area: 6 / 1" aria-label="6. kieli, 1. nauha, F">F</li>
+                <li style="grid-area: 6 / 3" aria-label="6. kieli, 3. nauha, G">G</li>
+                <li style="grid-area: 6 / 5" aria-label="6. kieli, 5. nauha, A">A</li>
+              </ol>
+            </div>
+          </div>
+          <figcaption>Kuten tabulatuurissa, ohuin kieli on ylimpänä. B tunnetaan perinteisessä suomalaisessa merkintätavassa H:na.</figcaption>
+        </figure>
+        <details class="recap-note-names">
+          <summary>Miksi sama sävel on B tai H?</summary>
+          <p>Taulukon jokaisella rivillä nimet tarkoittavat samaa sävelkorkeutta. Nimen tulkinta riippuu siitä, kumpaa käytäntöä nuoteissa tai sointumerkeissä käytetään.</p>
+          <table aria-label="B:n ja H:n vastineet">
+            <thead><tr><th scope="col">Kansainvälinen</th><th scope="col">Perinteinen suomalainen ja saksalainen</th></tr></thead>
+            <tbody>
+              <tr><td>B</td><td>H</td></tr>
+              <tr><td>B♭</td><td>B</td></tr>
+            </tbody>
+          </table>
+          <p>Keskiajan nuottikirjoituksessa samalla b-kirjaimella merkittiin kahta säveltä, joiden väli on puoliaskel. Pyöreä b (<i lang="la">b rotundum</i> eli <i lang="la">b molle</i>) tarkoitti alennettua B:tä. Kulmikas b (<i lang="la">b quadratum</i> eli <i lang="la">b durum</i>) tarkoitti luonnollista B:tä.</p>
+          <p>Willi Apelin mukaan kulmikas merkki sai myöhemmässä kirjoituksessa pientä h:ta muistuttavan muodon. Saksalaisissa urkutabulatuureissa sävelkorkeuksia merkittiin kirjaimin. Niissä h vakiintui luonnollisen sävelen nimeksi, ja b jäi alennetun sävelen merkiksi. Sama nimeämistapa on tuttu perinteisistä suomalaisista nuoteista.</p>
+          <p><strong>Musiikin kartassa käytetään kansainvälisiä sävelnimiä. B tarkoittaa siis samaa säveltä, jota perinteisessä suomalaisessa merkintätavassa kutsutaan H:ksi.</strong></p>
+          <p><small><a href="https://archive.org/details/notationofpolyph1953apel">Willi Apel, <cite>The Notation of Polyphonic Music</cite>, s. 21–22</a> · <a href="https://www.researchcatalogue.net/view/532888/730341/0/0">Christina Kwon, saksalainen urkutabulatuuri</a></small></p>
+        </details>
+        <p>Yksi nauha kitaran runkoa kohti nostaa säveltä puolisävelaskeleen. 12. nauhalla soi sama sävelnimi kuin vapaalla kielellä, oktaavia ylempänä.</p>
       </section>
-      <section class="study-group" style="--study-group-span: 7">
-        <div class="study-choice-heading"><h2>Soita ja kuuntele kappaletta</h2></div>
-        <ol class="study-choices" role="list">
-          <li><a class="study-choice" id="valinta-sointukierrot" href="sointukierrot.html"><span class="study-number" aria-hidden="true">03</span><strong class="study-title">Neljä otetta ja ensimmäinen kappale</strong><span class="study-choice-details"><span class="study-description">Soita Kolme cowboyta -harjoitustaustan mukana ja löydä kartasta säkeistö, kertosäe ja kappaleen lopetus.</span><span data-study-status="sointukierrot" class="study-status" hidden></span></span><span class="study-arrow" aria-hidden="true">→</span></a></li>
-          <li><a class="study-choice" id="valinta-soita-ensin-basso" href="soita-ensin-basso.html"><span class="study-number" aria-hidden="true">04</span><strong class="study-title">Harjoitus · Soita ensin basso</strong><span class="study-choice-details"><span class="study-description">Soita tahdin ykkösellä perussävel ja lisää sitten ote.</span><span data-study-status="harjoitus:soita-ensin-basso" class="study-status" hidden></span></span><span class="study-arrow" aria-hidden="true">→</span></a></li>
-          <li><a class="study-choice" id="valinta-mihin-kierto-paattyy" href="mihin-kierto-paattyy.html"><span class="study-number" aria-hidden="true">05</span><strong class="study-title">Mihin sointukierto päättyy?</strong><span class="study-choice-details"><span class="study-description">Vertaa kahta lopetusta ja kuuntele, miten basso auttaa tunnistamaan soinnun.</span><span data-study-status="oppitunti:mihin-kierto-paattyy" class="study-status" hidden></span></span><span class="study-arrow" aria-hidden="true">→</span></a></li>
-        </ol>
+      <section class="recap-section">
+        <h2>Soinnut ja merkinnät</h2>
+        <div class="recap-notation">
+          <div>
+            <p>Tuttuja avosointuja ovat <strong>G, C ja D</strong> (duuri) sekä <strong>Am ja Em</strong> (molli). Kirjain kertoo perussävelen, ja <strong>m</strong> tarkoittaa mollia. Mollisoinnun terssi on puolisävelaskelen alempana kuin samalta säveleltä rakennetun duurisoinnun.</p>
+            <p><em>Terssi, puolisävelaskel ja duurin sekä mollin ero saattavat vielä kuulostaa vierailta. Ei haittaa, nämäkin tulevat tutuiksi soiton varrella.</em></p>
+            <p><strong>Sointukaaviossa</strong> pystyviivat ovat kieliä, vaakaviivat nauhoja. Piste näyttää painettavan kohdan, ○ vapaan kielen ja × soittamatta jätettävän kielen. Kultainen merkki näyttää perussävelen. Kaavion pienet numerot ovat sorminumeroita.</p>
+            <div class="chord-diagrams" role="group" aria-label="Avosointujen kaaviot">
+              <figure class="chord-diagram"><figcaption>G</figcaption><svg viewBox="0 0 108 124" role="img" aria-label="G: paksu E-kieli 3. nauha keskisormella (perussävel), A-kieli 2. nauha etusormella, D-kieli vapaana, G-kieli vapaana (perussävel), B-kieli vapaana, ohut e-kieli 3. nauha nimettömällä (perussävel)."><line class="nut" x1="24" y1="30" x2="94" y2="30"/><line class="fret" x1="24" y1="48" x2="94" y2="48"/><line class="fret" x1="24" y1="66" x2="94" y2="66"/><line class="fret" x1="24" y1="84" x2="94" y2="84"/><line class="fret" x1="24" y1="102" x2="94" y2="102"/><line class="string" x1="24" y1="30" x2="24" y2="102"/><line class="string" x1="38" y1="30" x2="38" y2="102"/><line class="string" x1="52" y1="30" x2="52" y2="102"/><line class="string" x1="66" y1="30" x2="66" y2="102"/><line class="string" x1="80" y1="30" x2="80" y2="102"/><line class="string" x1="94" y1="30" x2="94" y2="102"/><circle class="root" cx="24" cy="75" r="6.5"/><text class="finger" x="24" y="118">2</text><circle class="tone" cx="38" cy="57" r="6.5"/><text class="finger" x="38" y="118">1</text><circle class="open" cx="52" cy="18" r="4.5"/><circle class="open root-open" cx="66" cy="18" r="4.5"/><circle class="open" cx="80" cy="18" r="4.5"/><circle class="root" cx="94" cy="75" r="6.5"/><text class="finger" x="94" y="118">3</text></svg><code>320003</code></figure>
+              <figure class="chord-diagram"><figcaption>C</figcaption><svg viewBox="0 0 108 124" role="img" aria-label="C: paksu E-kieli soittamatta, A-kieli 3. nauha nimettömällä (perussävel), D-kieli 2. nauha keskisormella, G-kieli vapaana, B-kieli 1. nauha etusormella (perussävel), ohut e-kieli vapaana."><line class="nut" x1="24" y1="30" x2="94" y2="30"/><line class="fret" x1="24" y1="48" x2="94" y2="48"/><line class="fret" x1="24" y1="66" x2="94" y2="66"/><line class="fret" x1="24" y1="84" x2="94" y2="84"/><line class="fret" x1="24" y1="102" x2="94" y2="102"/><line class="string" x1="24" y1="30" x2="24" y2="102"/><line class="string" x1="38" y1="30" x2="38" y2="102"/><line class="string" x1="52" y1="30" x2="52" y2="102"/><line class="string" x1="66" y1="30" x2="66" y2="102"/><line class="string" x1="80" y1="30" x2="80" y2="102"/><line class="string" x1="94" y1="30" x2="94" y2="102"/><text class="marker" x="24" y="22">×</text><circle class="root" cx="38" cy="75" r="6.5"/><text class="finger" x="38" y="118">3</text><circle class="tone" cx="52" cy="57" r="6.5"/><text class="finger" x="52" y="118">2</text><circle class="open" cx="66" cy="18" r="4.5"/><circle class="root" cx="80" cy="39" r="6.5"/><text class="finger" x="80" y="118">1</text><circle class="open" cx="94" cy="18" r="4.5"/></svg><code>x32010</code></figure>
+              <figure class="chord-diagram"><figcaption>D</figcaption><svg viewBox="0 0 108 124" role="img" aria-label="D: paksu E-kieli soittamatta, A-kieli soittamatta, D-kieli vapaana (perussävel), G-kieli 2. nauha etusormella, B-kieli 3. nauha nimettömällä (perussävel), ohut e-kieli 2. nauha keskisormella."><line class="nut" x1="24" y1="30" x2="94" y2="30"/><line class="fret" x1="24" y1="48" x2="94" y2="48"/><line class="fret" x1="24" y1="66" x2="94" y2="66"/><line class="fret" x1="24" y1="84" x2="94" y2="84"/><line class="fret" x1="24" y1="102" x2="94" y2="102"/><line class="string" x1="24" y1="30" x2="24" y2="102"/><line class="string" x1="38" y1="30" x2="38" y2="102"/><line class="string" x1="52" y1="30" x2="52" y2="102"/><line class="string" x1="66" y1="30" x2="66" y2="102"/><line class="string" x1="80" y1="30" x2="80" y2="102"/><line class="string" x1="94" y1="30" x2="94" y2="102"/><text class="marker" x="24" y="22">×</text><text class="marker" x="38" y="22">×</text><circle class="open root-open" cx="52" cy="18" r="4.5"/><circle class="tone" cx="66" cy="57" r="6.5"/><text class="finger" x="66" y="118">1</text><circle class="root" cx="80" cy="75" r="6.5"/><text class="finger" x="80" y="118">3</text><circle class="tone" cx="94" cy="57" r="6.5"/><text class="finger" x="94" y="118">2</text></svg><code>xx0232</code></figure>
+              <figure class="chord-diagram"><figcaption>Am</figcaption><svg viewBox="0 0 108 124" role="img" aria-label="Am: paksu E-kieli soittamatta, A-kieli vapaana (perussävel), D-kieli 2. nauha keskisormella, G-kieli 2. nauha nimettömällä (perussävel), B-kieli 1. nauha etusormella, ohut e-kieli vapaana."><line class="nut" x1="24" y1="30" x2="94" y2="30"/><line class="fret" x1="24" y1="48" x2="94" y2="48"/><line class="fret" x1="24" y1="66" x2="94" y2="66"/><line class="fret" x1="24" y1="84" x2="94" y2="84"/><line class="fret" x1="24" y1="102" x2="94" y2="102"/><line class="string" x1="24" y1="30" x2="24" y2="102"/><line class="string" x1="38" y1="30" x2="38" y2="102"/><line class="string" x1="52" y1="30" x2="52" y2="102"/><line class="string" x1="66" y1="30" x2="66" y2="102"/><line class="string" x1="80" y1="30" x2="80" y2="102"/><line class="string" x1="94" y1="30" x2="94" y2="102"/><text class="marker" x="24" y="22">×</text><circle class="open root-open" cx="38" cy="18" r="4.5"/><circle class="tone" cx="52" cy="57" r="6.5"/><text class="finger" x="52" y="118">2</text><circle class="root" cx="66" cy="57" r="6.5"/><text class="finger" x="66" y="118">3</text><circle class="tone" cx="80" cy="39" r="6.5"/><text class="finger" x="80" y="118">1</text><circle class="open" cx="94" cy="18" r="4.5"/></svg><code>x02210</code></figure>
+              <figure class="chord-diagram"><figcaption>Em</figcaption><svg viewBox="0 0 108 124" role="img" aria-label="Em: paksu E-kieli vapaana (perussävel), A-kieli 2. nauha keskisormella, D-kieli 2. nauha nimettömällä (perussävel), G-kieli vapaana, B-kieli vapaana, ohut e-kieli vapaana (perussävel)."><line class="nut" x1="24" y1="30" x2="94" y2="30"/><line class="fret" x1="24" y1="48" x2="94" y2="48"/><line class="fret" x1="24" y1="66" x2="94" y2="66"/><line class="fret" x1="24" y1="84" x2="94" y2="84"/><line class="fret" x1="24" y1="102" x2="94" y2="102"/><line class="string" x1="24" y1="30" x2="24" y2="102"/><line class="string" x1="38" y1="30" x2="38" y2="102"/><line class="string" x1="52" y1="30" x2="52" y2="102"/><line class="string" x1="66" y1="30" x2="66" y2="102"/><line class="string" x1="80" y1="30" x2="80" y2="102"/><line class="string" x1="94" y1="30" x2="94" y2="102"/><circle class="open root-open" cx="24" cy="18" r="4.5"/><circle class="tone" cx="38" cy="57" r="6.5"/><text class="finger" x="38" y="118">2</text><circle class="root" cx="52" cy="57" r="6.5"/><text class="finger" x="52" y="118">3</text><circle class="open" cx="66" cy="18" r="4.5"/><circle class="open" cx="80" cy="18" r="4.5"/><circle class="open root-open" cx="94" cy="18" r="4.5"/></svg><code>022000</code></figure>
+            </div>
+          </div>
+          <div>
+            <p><strong>Tabulatuurin</strong> kuusi viivaa kuvaavat kieliä, ohuin ylimpänä. Numero kertoo nauhan, ja 0 tarkoittaa vapaata kieltä.</p>
+            <figure class="recap-figure">
+              <pre class="recap-tab" aria-hidden="true">e ─────────&#10;B ─<b>0</b>─<b>1</b>─<b>3</b>───&#10;G ─────────&#10;D ─────────&#10;A ─────────&#10;E ─────────</pre>
+              <figcaption>Soita B-kieleltä vasemmalta oikealle vapaa kieli, 1. nauha ja 3. nauha.</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+      <section class="recap-section">
+        <h2>Rytmin perusteet</h2>
+        <div class="recap-rhythm">
+          <div>
+            <p><strong>Pulssi</strong> on musiikin tasainen syke. Yksi sykkeen askel on <strong>isku</strong>. Iskut muodostavat <strong>tahteja</strong>.</p>
+            <p><strong>4/4-tahtilajissa</strong> tahdissa on neljä neljäsosaiskua, jotka voi laskea <strong>1, 2, 3, 4</strong>. Kun sointu vaihtuu tahdin rajalla, uusi sointu alkaa tahdin ensimmäisellä iskulla.</p>
+          </div>
+          <figure class="recap-figure">
+            <ol class="recap-bar" aria-hidden="true">
+              <li>1</li><li>2</li><li>3</li><li>4</li>
+            </ol>
+            <figcaption>Yksi 4/4-tahti. Pisteet näyttävät neljä yhtä pitkää iskua tahtiviivojen välissä.</figcaption>
+          </figure>
+        </div>
       </section>
     </div>
-    <section class="study-group"><h2>Tutki myös</h2>
+    <section class="recap-help study-group">
+      <h2>Jos kaipaat tarkempaa kertausta</h2>
       <ul class="study-links">
         <li><a href="../savelnimet/kitaran-kielet-ja-sointumerkinnat.html">Kitaran kielet ja sointumerkinnät</a></li>
-        <li><a href="../rytmi/index.html">Rytmi</a></li>
+        <li><a href="../rytmi/pulssi-ja-komppi.html">Pulssi ja komppi</a></li>
       </ul>
     </section>
-    <p class="study-reference"><a href="../../book/index.html">Teoriaoppaan kaikki osat</a></p>
+    <p class="recap-next"><a href="../../index.html#oppimisaiheet" class="primary-link">Siirry Oppimiskarttaan</a></p>
   </main>
   <script src="../../assets/oppimiskartta.js"></script>
-  <script src="../../assets/edistyminen.js?v=0c1669a52d"></script>
+  <script src="../../assets/edistyminen.js?v=b570bd71cc"></script>
 </body>
 </html>

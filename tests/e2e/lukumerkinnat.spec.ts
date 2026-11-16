@@ -51,6 +51,11 @@ async function toggle(button: Locator, isMobile: boolean) {
 
 async function expectTopicMark(page: Page, topic: Topic, item: Item, done: boolean) {
   await page.goto(topic.path);
+  if (topic.name === 'kitara') {
+    await expect(page.locator('[data-study-total], [data-study-status]')).toHaveCount(0);
+    expect(await marks(page)).toEqual(done ? [item.id] : []);
+    return;
+  }
   const marker = page.locator(`#valinta-${item.slug} [data-study-status]`);
   await expect(marker).toBeVisible();
   await expect(marker).toHaveText(done ? '✓ Tehty' : 'Tekemättä');
