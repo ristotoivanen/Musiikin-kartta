@@ -16,11 +16,12 @@ avautuvana. Sisältöä lisättäessä mieti erikseen:
   toimivat sellaisenaan.
 
 **Pelin kulku 0.5:** Kuuntele → Harjoittele vapaasti → Nyt riffataan! → Palaute → Jatka (ks. README).
-Opastustaso on kotitreenin datassa (`guidance: 'guided' | 'memory' | 'challenge'`). Kun uusia kotitreenejä
-lisätään, suunniteltu eteneminen on: yhden kielen kotitreenit 1–6 `guided`, Treenikämppä (kaksi kieltä)
-`memory`, Studiosessiot `challenge`. Taso valitaan sisällön vaikeuden mukaan, ei numeron perusteella, ja se
-pitää koekäyttää: jos pelaajat jäävät `memory`-tasolla jumiin, sävelet kannattaa avata yhdellä painalluksella
-kuten nyt, ei piilottaa kokonaan.
+Opastustaso on kotitreenin datassa (`guidance: 'guided' | 'memory' | 'challenge'`). **Korvakuulo on
+oletus:** vain kahden sävelen opastus on `guided`, ja kotitreenit alkavat `memory`-tasolla, jolloin sävelet
+ja paikat ovat piilossa, kunnes pelaaja avaa ne. Kun uusia kotitreenejä lisätään, suunniteltu eteneminen
+on: yhden kielen kotitreenit `memory`, Treenikämppä (kaksi kieltä) `memory` tai `challenge`, Studiosessiot
+`challenge`. Taso valitaan sisällön vaikeuden mukaan, ei numeron perusteella, ja se pitää koekäyttää: jos
+pelaajat jäävät jumiin, sävelet kannattaa pitää yhden painalluksen päässä kuten nyt, ei poistaa kokonaan.
 
 Seuraavat askeleet, joita ei ole toteutettu:
 

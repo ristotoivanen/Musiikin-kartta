@@ -148,7 +148,7 @@ export function GameRound({ game, s, titleRef, onHome }: { game: RiffGame; s: Ga
       {practice && <div className="riff-go">
         <button type="button" className="primary riff-go-button" onClick={() => game.startTake()} aria-describedby="riff-go-text">Nyt riffataan!</button>
         <p id="riff-go-text" className="riff-help">Nyt soitat riffin muistista. Painalluksesi tarkistetaan.</p>
-        {guide.showNotes === false && !s.notesShown && <p className="riff-help">Tällä tasolla sävelet ovat piilossa, kunnes avaat ne. Harjoittelun apu ei vaikuta tähtiin.</p>}
+        {guide.showNotes === false && !s.notesShown && <p className="riff-help" data-testid="ear-help">Etsi sävelet korvakuulolta. Näytä sävelet paljastaa säveljonon ja paikat; harjoittelun apu ei vaikuta tähtiin.</p>}
       </div>}
 
       {take && <div className="riff-actions riff-main-actions">
