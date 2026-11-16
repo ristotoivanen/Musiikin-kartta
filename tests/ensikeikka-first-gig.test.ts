@@ -334,7 +334,7 @@ describe('Koko keikka ja tekniset apuvälineet', () => {
   it('nimeää soundcheckin vaiheeksi eikä väitä kolmea esitystä', () => {
     const gig = area.gigs[2];
     expect(progressText(gig, 1)).toBe('1 / 3 vaihetta');
-    expect(progressText(area.gigs[0], 2)).toBe('2 / 5 kappaletta');
+    expect(progressText(area.gigs[0], 2)).toBe('2 / 5 harjoitusta');
     expect(gig.completionSummary).toBe('Suoritit soundcheckin ja kaksi keikkabiisiä.');
     expect(soundcheck.completionTitle).toBe('Soundcheck valmis');
     expect(songs[11].completionTitle).toBeUndefined();

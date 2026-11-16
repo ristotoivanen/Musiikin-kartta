@@ -3,7 +3,7 @@ import { firstGig } from './first-gig';
 import { secondNight } from './second-night';
 import { gigArrangements, gigs as firstNight, type Gig as FirstNightSong } from './song-demo-score';
 import { naturalOrder, shuffledOrder } from './order';
-import { LETTERS, type Area, type ChooseTask, type Gig, type Letter, type Song, type Take } from './tasks';
+import { LETTERS, type Area, type ChooseTask, type Gig, type Letter, type Section, type Song, type Take } from './tasks';
 
 const melodyPrompt = 'Kuuntele lopetuksia. Mikä niistä tuntuu palaavan kotiin?';
 const closerPrompt = 'Useampi lopetus voi sopia kappaleeseen. Etsi sävel, johon melodia tuntuu palaavan kotiin.';
@@ -86,36 +86,45 @@ export const songs: Readonly<Record<number, Song>> = {
   ...firstGig,
 };
 
+/**
+ * Sisäiset keikat 1–3. Keikat 1 ja 2 ovat käyttäjälle Bänditreenien kaksi treenikertaa, keikka 3 on
+ * Ensikeikka. Tunnisteet, osoitteet `#keikka-N` ja tallenne pysyvät ennallaan.
+ */
 export const area: Area = {
-  title: 'Kotikulmien keikat',
+  title: 'Bänditreenit ja Ensikeikka',
   gigs: [{
     id: 1,
-    title: 'Ensimmäinen esiintyminen',
+    name: { heading: 'Treenikerta 1', nominative: 'treenikerta 1', partitive: 'treenikertaa 1', elative: 'treenikerrasta 1', genitive: 'treenikerran 1' },
+    title: 'Löydä kotisävel',
     description: 'Kuuntele keskeneräinen kappale, kokeile kolmea lopetusta ja valitse se, johon melodia tuntuu palaavan kotiin.',
     songs: [1, 2, 3, 4, 5],
     shuffleEndings: true,
-    completionTitle: 'Keikka valmis!',
+    unit: 'harjoitusta',
+    completionTitle: 'Treenikerta 1 valmis!',
   }, {
     id: 2,
-    title: 'Kotikulmien toinen ilta',
-    description: 'Läheisempiä lopetuksia, bassolinjan kuuntelua ja kaksivaiheinen encore. Melodian lisäksi kuunnellaan bändiä.',
+    name: { heading: 'Treenikerta 2', nominative: 'treenikerta 2', partitive: 'treenikertaa 2', elative: 'treenikerrasta 2', genitive: 'treenikerran 2' },
+    title: 'Kuuntele koko bändiä',
+    description: 'Läheisempiä lopetuksia, bassolinjan kuuntelua ja kaksivaiheinen päätöskappale. Melodian lisäksi kuunnellaan bändiä.',
     songs: [6, 7, 8, 9],
     requires: [1],
     shuffleEndings: true,
     freePractice: true,
     directStart: true,
-    completionTitle: 'Kotikulmien toinen ilta suoritettu!',
+    unit: 'harjoitusta',
+    completionTitle: 'Treenikerta 2 valmis!',
   }, {
     id: 3,
     name: { heading: 'Ensikeikka', nominative: 'Ensikeikka', partitive: 'Ensikeikkaa', elative: 'Ensikeikasta', genitive: 'Ensikeikan' },
     title: 'Kotikulman keikka',
-    description: 'Ensimmäinen esiintyminen: soundcheck, ensimmäinen biisi ja illan viimeinen kappale. Ensitreenien kuuntelutaidot pidemmässä musiikissa. Lopuksi kuulet koko keikan.',
+    description: 'Ensimmäinen esiintyminen: soundcheck, ensimmäinen biisi ja illan viimeinen kappale. Bänditreenien kuuntelutaidot pidemmässä musiikissa. Lopuksi kuulet keikan biisit.',
     songs: [10, 11, 12],
     requires: [1, 2],
     freePractice: true,
     directStart: true,
-    lockNote: 'Tavallisesti Ensikeikka avautuu, kun Ensitreenit eli keikat 1 ja 2 on suoritettu.',
-    directNote: 'Kuuntelutaidot jo hallussa? Suoritukset tallentuvat, ja Ensitreenit pysyvät ennallaan.',
+    requiredName: { nominative: 'Bänditreenit', genitive: 'Bänditreenien' },
+    lockNote: 'Tavallisesti Ensikeikka avautuu, kun Bänditreenit on suoritettu.',
+    directNote: 'Kuuntelutaidot jo hallussa? Suoritukset tallentuvat, ja Bänditreenit pysyvät ennallaan.',
     completionTitle: 'Ensikeikka soitettu!',
     unit: 'vaihetta',
     completionSummary: 'Suoritit soundcheckin ja kaksi keikkabiisiä.',
@@ -125,6 +134,47 @@ export const area: Area = {
     },
   }],
 };
+
+/**
+ * Käyttäjälle näkyvät kokonaisuudet omine näkymineen. Kokonaisuus näytetään vain, jos sen keikat
+ * ovat pelissä, joten keskeneräistä tai tyhjää Ensikeikka-valikkoa ei synny.
+ */
+export const sections: readonly Section[] = ([{
+  id: 'banditreenit',
+  hash: '#banditreenit',
+  title: 'Bänditreenit',
+  shortName: 'Bänditreenit',
+  description: 'Kaksi treenikertaa bändin kanssa. Kuuntele melodiaa, bassoa ja sointuja ja löydä kappaleiden kotisävelet.',
+  gigs: [1, 2],
+  unit: 'harjoitusta',
+  listTitle: 'Harjoitukset',
+  chooseLabel: 'Valitse harjoitus',
+  hideLabel: 'Piilota harjoitukset',
+  backLabel: 'Takaisin bänditreeneihin',
+  startLabel: 'Aloita treenit',
+  continueLabel: 'Jatka treenejä',
+  doneNote: 'Bänditreenit suoritettu!',
+  pendingNote: 'Bänditreenit ovat vielä kesken. Voit palata niihin milloin tahansa.',
+}, {
+  id: 'ensikeikka',
+  hash: '#keikka-3',
+  title: 'Ensikeikka – Kotikulman keikka',
+  shortName: 'Ensikeikka',
+  description: 'Ensimmäinen esiintyminen: soundcheck, ensimmäinen biisi ja illan viimeinen kappale. Lopuksi kuulet keikan biisit.',
+  gigs: [3],
+  unit: 'vaihetta',
+  listTitle: 'Settilista',
+  chooseLabel: 'Valitse kappale',
+  hideLabel: 'Piilota settilista',
+  backLabel: 'Takaisin Ensikeikkaan',
+  startLabel: 'Aloita Ensikeikka',
+  continueLabel: 'Jatka Ensikeikkaa',
+  doneNote: 'Ensikeikka suoritettu!',
+  pendingNote: 'Ensikeikka on vielä kesken.',
+}] satisfies Section[]).filter(section => section.gigs.every(id => area.gigs.some(gig => gig.id === id)));
+
+export const sectionOf = (gig: Gig) => sections.find(section => section.gigs.includes(gig.id))!;
+export const sectionGigs = (section: Section) => area.gigs.filter(gig => section.gigs.includes(gig.id));
 
 /** Keikan näkyvä nimi taivutuksineen ("keikka 2", "Ensikeikka"). */
 export function gigName(gig: Gig) {
@@ -162,9 +212,15 @@ export const versionCount = (song: Song) => 1 + (song.variants?.length ?? 0);
 /** Keikat, joiden suoritus avaa keikan normaalissa etenemisessä. */
 export const requiredGigs = (gig: Gig) => area.gigs.filter(other => gig.requires?.includes(other.id));
 
-/** "keikka 1" tai "keikat 1 ja 2"; `genitive` antaa muodon "keikan 1" / "keikkojen 1 ja 2". */
+/**
+ * Edellytettyjen keikkojen nimi: "treenikerta 1" / "treenikerran 1" tai yhteisnimi (`requiredName`),
+ * esimerkiksi "Bänditreenit" / "Bänditreenien".
+ */
 export function requiredText(gig: Gig, form: 'nominative' | 'genitive') {
-  const ids = requiredGigs(gig).map(other => other.id);
+  if (gig.requiredName) return gig.requiredName[form];
+  const required = requiredGigs(gig);
+  if (required.length === 1) return gigName(required[0])[form];
+  const ids = required.map(other => other.id);
   const list = ids.length > 1 ? `${ids.slice(0, -1).join(', ')} ja ${ids.at(-1)}` : `${ids[0]}`;
   if (form === 'genitive') return ids.length > 1 ? `keikkojen ${list}` : `keikan ${list}`;
   return ids.length > 1 ? `keikat ${list}` : `keikka ${list}`;

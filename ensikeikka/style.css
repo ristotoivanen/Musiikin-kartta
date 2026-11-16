@@ -110,7 +110,7 @@
   border: 1px solid var(--line);
   border-radius: 10px;
 }
-.concert .show-songs h4 { margin: 0; font-size: 16px; }
+.concert .show-songs h3, .concert .show-songs h4 { margin: 0; font-size: 16px; }
 .concert .show-card p { margin: 6px 0 10px; }
 .concert .gig-state { color: var(--muted); font-size: 14px; }
 .concert .gig-state[data-state="next"] { color: var(--warning); }
@@ -123,9 +123,13 @@
 
 /* Keikkakortit ja keikan 2 tehtävätyypit */
 .concert .show-card + .show-card { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
-.concert .show-card h3:focus { outline-offset: 4px; }
+.concert .show-card h2:focus, .concert h1:focus { outline-offset: 4px; }
+.concert .show-card h2 { font-size: 18px; }
 .concert .show-card .show-description { color: var(--muted); }
-.concert .show-card[data-state="locked"] h3 { color: var(--muted); }
+.concert .show-card[data-state="locked"] h2 { color: var(--muted); }
+.concert .section-card + .section-card { margin-top: 14px; }
+.concert .section-card .button-row { margin-top: 10px; }
+.concert .setlist-title { font-size: 17px; }
 .concert .gig-note { font-size: 14px; color: var(--muted); }
 .concert .gig-state[data-state="locked"] { color: var(--muted); }
 .concert .ending-choices button small { display: block; font-size: 12px; font-weight: 500; color: var(--muted); }

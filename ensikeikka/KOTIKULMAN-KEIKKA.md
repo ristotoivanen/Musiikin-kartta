@@ -112,8 +112,8 @@ Soundcheck (kappale 10) on edelleen keikan vaihe ja suoritus, mutta ei esitys. S
 
 ## Jatkokehitys (ei toteutettu)
 
-- Näkyvä nimistö **Ensitreenit** keikoille 1 ja 2 ja **Keikkakalenteri** omassa hyväksytyssä PR:ssään.
-  Tekniset tunnisteet (keikat 1–3, kappaleet 1–12, `#keikka-3`) voivat pysyä ennallaan.
+- **Keikkakalenteri** omassa hyväksytyssä PR:ssään. Keikkojen 1 ja 2 näkyvä nimistö on toteutettu
+  tehtävässä #79 nimellä **Bänditreenit** (treenikerrat 1 ja 2); tekniset tunnisteet pysyivät ennallaan.
 - Soundcheckiin rumpujen muutos rytmiopintojen jälkeen ja lisää kierroksia kuuntelutestin perusteella.
 - Pelaajan valitseman version tallentaminen, jos finaalin halutaan joskus toistavan henkilökohtaiset otot (vaatisi tallennusformaatin laajennuksen).
 - Ensimmäiseen biisiin kolmas versio ja jatkon valinta kesken soiton ilman pysähdystä.

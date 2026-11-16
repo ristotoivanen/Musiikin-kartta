@@ -102,7 +102,7 @@ export const secondNight = {
       ],
       success: { title: 'Oikein! Bändi palasi kotiin!', text: 'Basso nousi askel kerrallaan kotisävelelle, jossa melodia jo odotti.' },
     }],
-    explanation: 'Basso nousee E:stä F♯:n ja G♯:n kautta A:han. Sävel A on kappaleen kotisävel, ja melodia soi samaa säveltä. Lopetuksessa {A} basso kääntyy F♯:ään. Melodian sävel on yhä A, mutta sointu muuttuu mollisoinnuksi, ja loppu kuulostaa yllättävältä. Lopetuksessa {B} basso palaa E:hen, ja bändi jää odottamaan. Tätä kuuntelutapaa tarvitset illan viimeisessä kappaleessa.',
+    explanation: 'Basso nousee E:stä F♯:n ja G♯:n kautta A:han. Sävel A on kappaleen kotisävel, ja melodia soi samaa säveltä. Lopetuksessa {A} basso kääntyy F♯:ään. Melodian sävel on yhä A, mutta sointu muuttuu mollisoinnuksi, ja loppu kuulostaa yllättävältä. Lopetuksessa {B} basso palaa E:hen, ja bändi jää odottamaan. Tätä kuuntelutapaa tarvitset treenien päätöskappaleessa.',
   },
   8: {
     id: 8, title: 'Kaksi mahdollista loppua', keyName: 'D-molli', root: 'D',
@@ -166,7 +166,7 @@ export const secondNight = {
     explanation: 'Lopetus {B} päättyy kotiin: basso ja melodia soittavat D:tä, ja bändi palaa d-mollisointuun, jolla kappale alkoi. Lopetus {A} on avoin lopetus. Bändi siirtyy kirkkaaseen A-duurisointuun, ja melodia jää C♯:ään, joka odottaa nousua D:hen. Tällainen loppu sopii säkeistön päätteeksi, kun kappale jatkuu. Lopetuksessa {C} bändi on kotona, mutta melodia jää F:ään eli kotisoinnun terssiin. Se kuulostaa vakaalta mutta pehmeältä, ei pisteeltä.',
   },
   9: {
-    id: 9, title: 'Illan viimeinen encore', keyName: 'E-duuri', root: 'E',
+    id: 9, title: 'Treenien päätöskappale', keyName: 'E-duuri', root: 'E',
     arrangement: {
       tempo: 112, comp: [0, 1, 1.5, 2.5, 3], bassTone: BRIGHT_BASS,
       harmony: [
@@ -195,7 +195,7 @@ export const secondNight = {
     tasks: [{
       kind: 'choose',
       heading: 'Vaihe 1/2: Valitse melodian lopetus',
-      intro: 'Illan viimeinen kappale kokoaa kaiken yhteen. Kuuntele ensin melodiaa. Sen viimeinen sävel puuttuu.',
+      intro: 'Treenien viimeinen kappale kokoaa kaiken yhteen. Kuuntele ensin melodiaa. Sen viimeinen sävel puuttuu.',
       prompt: 'Lopetukset ovat lähellä toisiaan. Missä melodia palaa kotisävelelle?',
       answer: 'A',
       retry: 'Melodia ei vielä palaa kotiin. Kuuntele vain melodia ja vertaa lopetuksia.',

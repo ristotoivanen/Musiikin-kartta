@@ -133,9 +133,9 @@ test('Kappale 9: järjestys säilyy vaiheesta toiseen, ja uudelleenlataus aloitt
   await button(page, 'Jatka vaiheeseen 2').click();
   await expect(page.getByRole('heading', { name: 'Vaihe 2/2: Miksi lopetus toimii?' })).toBeFocused();
 
-  // Keikkalistalla käynti ei aloita uutta yritystä: vaihe ja järjestys säilyvät muistissa.
+  // Bänditreenien näkymässä käynti ei aloita uutta yritystä: vaihe ja järjestys säilyvät muistissa.
   await page.evaluate(() => { window.location.hash = '#keikkalista'; });
-  await expect(page.getByRole('heading', { name: 'Kotikulmien keikat', level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Bänditreenit', level: 1 })).toBeVisible();
   await page.evaluate(() => { window.location.hash = '#kappale-9'; });
   await expect(page.getByRole('heading', { name: 'Vaihe 2/2: Miksi lopetus toimii?' })).toBeVisible();
 

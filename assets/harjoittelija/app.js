@@ -6816,7 +6816,7 @@ function Tp(s) {
   return s && Object.hasOwn(zd, s) ? zd[s] : null;
 }
 const Mp = [
-  { id: "ear", number: "01", title: "Sävelkorva ja otelauta", description: "Opettele sävelten sijainnit ja harjoittele musiikkikorvaa lyhyillä peleillä.", example: "Sävelten etsintä · Riffikaiku · Ensikeikka" },
+  { id: "ear", number: "01", title: "Sävelkorva ja otelauta", description: "Opettele sävelten sijainnit ja harjoittele musiikkikorvaa lyhyillä peleillä.", example: "Sävelten etsintä · Riffikaiku · Bänditreenit" },
   { id: "scales", number: "02", title: "Skaalat ja moodit", description: "Valitse pentatoniset tai moodit ja etene kuuntelemisesta improvisointiin.", example: "A-mollipentatoninen tai C-jooninen" },
   { id: "chords", number: "03", title: "Soinnut ja musiikin rakenne", description: "Tunnista ensin tavalliset avoimet sointuotteet. Opettele rakenne niiden jälkeen.", example: "Ensimmäinen harjoitus: Tunnista avoin sointu" },
   { id: "songs", number: "04", title: "Kappaleharjoittelu", description: "Soita oikean kappaleen mukana ja säädä mallikitaran sekä laulun kuuluvuutta.", example: "Yksi sointu, kaksi askelta (normaali / akustinen)" }
@@ -6863,8 +6863,8 @@ function bp({ onBack: s, onNotes: a }) {
       /* @__PURE__ */ r.jsxs("a", { className: "learning-card", href: "pelit/ensikeikka/", children: [
         /* @__PURE__ */ r.jsx("span", { className: "learning-number", "aria-hidden": "true", children: "03" }),
         /* @__PURE__ */ r.jsxs("span", { className: "learning-card-body", children: [
-          /* @__PURE__ */ r.jsx("strong", { children: "Ensikeikka (beta)" }),
-          /* @__PURE__ */ r.jsx("span", { children: "Kuuntele kappaleita ja löydä melodian kotisävel viiden kappaleen ensikeikassa." }),
+          /* @__PURE__ */ r.jsx("strong", { children: "Bänditreenit ja Ensikeikka (beta)" }),
+          /* @__PURE__ */ r.jsx("span", { children: "Kuuntele bändiä kahdella treenikerralla ja löydä melodian kotisävel. Sen jälkeen vuorossa on Ensikeikka." }),
           /* @__PURE__ */ r.jsx("small", { children: "Avaa peli" })
         ] }),
         /* @__PURE__ */ r.jsx("span", { className: "learning-arrow", "aria-hidden": "true", children: "→" })

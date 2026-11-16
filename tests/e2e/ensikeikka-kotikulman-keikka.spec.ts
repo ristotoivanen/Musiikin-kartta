@@ -75,26 +75,35 @@ async function playToEnd(page: Page, label: string | RegExp) {
   await expect(status(page)).toHaveText('Valmiina kuunteluun.');
 }
 
-test('Ensikeikka näkyy Ensitreenien jälkeen omana korttinaan, ja sen voi aloittaa suoraan', async ({ page }) => {
+test('Ensikeikka on Bänditreenien jälkeen oma valintansa ja näkymänsä, ja sen voi aloittaa suoraan', async ({ page }) => {
   await setup(page, null, '');
-  await expect(page.getByText('Ensikeikka: avautuu keikkojen 1 ja 2 jälkeen tai suoraan aloittamalla')).toBeVisible();
-  await button(page, 'Kotikulmien keikat').click();
+  const summary = page.getByRole('region', { name: 'Ensikeikka – Kotikulman keikka' });
+  await expect(summary.getByText('Avautuu Bänditreenien jälkeen. Voit myös aloittaa suoraan.')).toBeVisible();
+  await expect(button(page, 'Avaa Bänditreenit')).toHaveClass(/primary/);
+  await expect(button(page, 'Avaa Ensikeikka')).not.toHaveClass(/primary/);
+  await button(page, 'Avaa Ensikeikka').click();
+  await expect(page).toHaveURL(/#keikka-3$/);
+  await expect(page.getByRole('heading', { level: 1, name: 'Ensikeikka – Kotikulman keikka' })).toBeFocused();
   const card = page.getByRole('region', { name: 'Ensikeikka – Kotikulman keikka' });
   await expect(card.getByText('0 / 3 vaihetta suoritettu')).toBeVisible();
-  await expect(card.getByText('Tavallisesti Ensikeikka avautuu, kun Ensitreenit eli keikat 1 ja 2 on suoritettu.')).toBeVisible();
+  await expect(card.getByText('Tavallisesti Ensikeikka avautuu, kun Bänditreenit on suoritettu.')).toBeVisible();
   const direct = card.getByRole('button', { name: 'Aloita suoraan Ensikeikasta' });
-  await expect(direct).toHaveAccessibleDescription(/Suoritukset tallentuvat, ja Ensitreenit pysyvät ennallaan/);
+  await expect(direct).toHaveAccessibleDescription(/Suoritukset tallentuvat, ja Bänditreenit pysyvät ennallaan/);
   await direct.click();
   await expect(page).toHaveURL(/#kappale-10$/);
   await expect(page.getByText('Ensikeikka – Kotikulman keikka', { exact: true })).toBeVisible();
+  // Takaisin-painike palaa Ensikeikan näkymään ja siitä alkuun.
   await page.goBack();
-  await expect(page).toHaveURL(/#keikkalista$/);
+  await expect(page).toHaveURL(/#keikka-3$/);
+  await expect(page.getByRole('heading', { level: 1, name: 'Ensikeikka – Kotikulman keikka' })).toBeFocused();
+  await page.goBack();
+  await expect(page.getByRole('heading', { level: 1, name: 'Bänditreenit ja Ensikeikka (beta)' })).toBeFocused();
 
   await setup(page, ensitreenit, '#keikka-3');
   await expect(page.getByRole('heading', { name: 'Ensikeikka – Kotikulman keikka' })).toBeFocused();
   await expect(page.getByRole('list', { name: 'Ensikeikan settilista' })).toBeVisible();
   await expect(card.getByRole('button', { name: 'Aloita Ensikeikka' })).toBeVisible();
-  await expect(page.getByText('Esiintymisalue suoritettu!')).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Takaisin harjoitusvalikkoon' })).toHaveCount(0);
 });
 
 test('Soundcheck: vertaile versioita, käytä erilliskuuntelua vihjeenä ja tunnista muutos', async ({ page, isMobile }) => {
@@ -275,7 +284,7 @@ test('Illan viimeinen kappale: basso vie uuteen kotiin, ja lopuksi soivat keikan
   await expect(card.getByRole('heading', { level: 3, name: 'Ensikeikka soitettu!' })).toBeVisible();
   await expect(card.getByText('Suoritit soundcheckin ja kaksi keikkabiisiä.')).toBeVisible();
   await expect(card.getByText(/Keikan biisit soivat valmiina peräkkäin oikeilla ratkaisuilla.*Soundcheck ei kuulu esitykseen/)).toBeVisible();
-  await expect(card.getByText(/Esiintymisalue suoritettu!/)).toBeVisible();
+  await expect(card.getByText(/Ensikeikka suoritettu!/)).toBeVisible();
   expect(await saved(page)).toEqual({ version: 1, completed: [...ensitreenit, 10, 11, 12] });
 
   const finale = card.getByRole('button', { name: 'Kuuntele keikan biisit' });
@@ -297,7 +306,7 @@ test('Illan viimeinen kappale: basso vie uuteen kotiin, ja lopuksi soivat keikan
   expect((await lastPlayback(page))?.duration).toBeCloseTo(set!.duration, 3);
   await card.getByRole('button', { name: 'Pysäytä keikan biisit' }).click();
   await page.goto(`${gamePath}#keikka-3`);
-  await expect(page.getByRole('region', { name: 'Ensikeikka – Kotikulman keikka' }).getByText('3 / 3 vaihetta suoritettu · Keikka suoritettu'))
+  await expect(page.getByRole('region', { name: 'Ensikeikka – Kotikulman keikka' }).getByText('3 / 3 vaihetta suoritettu · Ensikeikka suoritettu'))
     .toBeVisible();
 });
 
