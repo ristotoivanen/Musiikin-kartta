@@ -28,7 +28,7 @@
  */
 import { referenceAudioError } from '../harjoittelija/audio';
 import type { GameAudio } from './audioAdapter';
-import { GUIDANCE, LEVELS, TUTORIAL, noteName, type Guidance, type Level, type Riff } from './riffs';
+import { GUIDANCE, LEVELS, TUTORIAL, TUTORIAL_GUIDANCE, noteName, type Guidance, type Level, type Riff } from './riffs';
 import { SequencePractice, type SequenceChecker, type SlotMark } from './sequence';
 import type { RecordOutcome, RiffStore } from './store';
 
@@ -77,6 +77,8 @@ export type GameState = {
 /** Vaiheet, joissa otelauta soi vapaasti (ei arvioida). */
 const FREE_PLAY: Phase[] = ['practice', 'success', 'retry'];
 const pending = (riff: Riff): SlotMark[] => riff.midi.map(() => 'pending');
+/** Opastuksella on aina oma taso (guided); kotitreenin riffit käyttävät kotitreenin tasoa. */
+const guidanceOf = (pos: { tutorial: boolean; level: Level }): Guidance => pos.tutorial ? TUTORIAL_GUIDANCE : pos.level.guidance;
 const INPUT = 'board' as const;
 
 export class RiffGame {
@@ -94,7 +96,7 @@ export class RiffGame {
   constructor(private audio: Pick<GameAudio, 'playModel' | 'stopModel' | 'stopReference' | 'pluck'>, private store: RiffStore, private clock: () => number = () => performance.now()) {
     const pos = this.position();
     this.state = {
-      phase: 'home', ...pos, guidance: pos.level.guidance, index: 0, memory: [], failedAttempts: 0, playing: null, modelPlaying: false,
+      phase: 'home', ...pos, guidance: guidanceOf(pos), index: 0, memory: [], failedAttempts: 0, playing: null, modelPlaying: false,
       notesShown: false, hint: false, feedback: null, audioError: '', achievement: null, ...this.progressPatch(),
     };
   }
@@ -126,7 +128,7 @@ export class RiffGame {
     this.silence();
     this.series = null;
     const pos = this.position();
-    this.set({ phase: 'home', ...pos, guidance: pos.level.guidance, feedback: null, audioError: '', achievement: null, index: 0, hint: false,
+    this.set({ phase: 'home', ...pos, guidance: guidanceOf(pos), feedback: null, audioError: '', achievement: null, index: 0, hint: false,
       notesShown: false, memory: [], failedAttempts: 0, ...this.progressPatch() });
   }
   /**
@@ -156,7 +158,7 @@ export class RiffGame {
     const riff = pos.tutorial ? TUTORIAL : pos.riff;
     if (this.seriesRiff !== riff.id || !this.series) this.newSeries(riff);
     this.listens = 0;
-    const guidance = pos.level.guidance;
+    const guidance = guidanceOf(pos);
     this.set({ ...pos, riff, guidance, riffNumber: pos.tutorial ? 1 : pos.level.riffs.indexOf(riff) + 1, index: 0, marks: pending(riff),
       memory: this.memory(guidance, riff), failedAttempts: this.series!.failedAttempts, hint: false, notesShown: GUIDANCE[guidance].showNotes,
       feedback: null, audioError: '', achievement: null, ...this.progressPatch() });

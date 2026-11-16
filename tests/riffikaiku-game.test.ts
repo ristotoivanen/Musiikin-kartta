@@ -3,7 +3,7 @@
 // riffikaiku-practice.test.ts ja signaaliketju tiedostossa riffikaiku-pipeline.test.ts.
 import { afterEach, describe, it, expect, vi } from 'vitest';
 import { RiffGame, gameSummary } from '../riffikaiku/game';
-import { GUIDANCE, LEVELS, TUTORIAL, type Guidance, type Level } from '../riffikaiku/riffs';
+import { GUIDANCE, LEVELS, TUTORIAL, TUTORIAL_GUIDANCE, type Guidance, type Level } from '../riffikaiku/riffs';
 import { RiffStore } from '../riffikaiku/store';
 import { fakeAudio, flush, memoryStorage } from './riffikaikuFakes';
 
@@ -125,12 +125,13 @@ describe('vapaa harjoittelu', () => {
     expect(t.audio.calls).toEqual(['stop-reference']);
   });
 
-  it('sävelet ja paikat voi piilottaa ja näyttää; harjoittelun apu ei estä tähteä', async () => {
+  it('sävelet ja paikat voi näyttää ja piilottaa; harjoittelun apu ei estä tähteä', async () => {
     const t = setup({ tutorialDone: true });
     t.game.play();
-    expect(t.s().notesShown).toBe(true); // opastettu taso: valmiiksi näkyvissä
-    t.game.toggleNotes(); expect(t.s().notesShown).toBe(false);
+    expect(t.s().notesShown).toBe(false); // korvakuuloharjoittelu: kotitreeni alkaa piilotettuna
     t.game.toggleNotes(); expect(t.s().notesShown).toBe(true);
+    t.game.toggleNotes(); expect(t.s().notesShown).toBe(false);
+    t.game.toggleNotes(); expect(t.s().notesShown).toBe(true); // katsottu vastaus ennen ottoa
     await t.toTake();
     expect(t.s()).toMatchObject({ notesShown: false, hint: false }); // otossa vastaukset piilossa
     t.playBoard(KT1[0]);
@@ -368,9 +369,49 @@ describe('opastus ja kotitreenit', () => {
 });
 
 describe('opastustaso datasta (guided / memory / challenge)', () => {
-  it('nykyiset kotitreenit ovat aloittelijaystävällisiä (guided)', () => {
-    expect(LEVELS.map(l => l.guidance)).toEqual(['guided', 'guided']);
+  it('korvakuulo on oletus: kotitreenit 1–2 ovat memory-tasolla, opastuksella on oma guided-taso', () => {
+    expect(LEVELS.map(l => l.guidance)).toEqual(['memory', 'memory']);
+    expect(TUTORIAL_GUIDANCE).toBe('guided');
     expect(GUIDANCE.guided).toMatchObject({ autoplay: true, showNotes: true, memoryHints: true });
+    expect(GUIDANCE.memory).toMatchObject({ autoplay: true, showNotes: false, memoryHints: true });
+  });
+
+  it('opastus näyttää vastaukset, vaikka Kotitreeni 1 olisi piilotettu tai haastetaso', async () => {
+    for (const level1 of ['memory', 'challenge'] as const) {
+      const restore = withGuidance(1, level1);
+      try {
+        const t = setup();
+        expect(t.s()).toMatchObject({ phase: 'home', tutorial: true, guidance: 'guided' });
+        t.game.play();
+        expect(t.s()).toMatchObject({ phase: 'practice', tutorial: true, guidance: 'guided', notesShown: true, modelPlaying: true });
+        await t.toTake();
+        t.playBoard(TUTORIAL.midi);
+        expect(t.s()).toMatchObject({ phase: 'success', tutorial: true });
+        // Opastuksen jälkeen Kotitreeni 1 alkaa kotitreenin omalla tasolla: vastaukset piilossa.
+        t.game.next();
+        expect(t.s()).toMatchObject({ phase: 'practice', tutorial: false, guidance: level1, notesShown: false, modelPlaying: true });
+      } finally { restore(); }
+    }
+  });
+
+  it('Kotitreenit 1 ja 2 alkavat ilman vastauksia; kuuntelu ja vapaa kokeilu eivät kirjaa mitään', async () => {
+    for (const level of [1, 2]) {
+      const t = setup({ tutorialDone: true });
+      if (level === 2) t.store.startLevel('board', 2);
+      t.game.play();
+      expect(t.s()).toMatchObject({ phase: 'practice', level: LEVELS[level - 1], guidance: 'memory', notesShown: false, modelPlaying: true });
+      await t.finishModel();
+      t.game.listen(); await t.finishModel(); t.game.listen(); await t.finishModel(); // rajaton uudelleenkuuntelu
+      t.playBoard([59, 60, 64, 55, 57]);
+      expect(t.s()).toMatchObject({ phase: 'practice', index: 0, notesShown: false });
+      expect(t.store.data.results).toHaveLength(0);
+      // Harjoittele vielä ja Harjoittele lisää palaavat piilotettuun näkymään.
+      t.game.toggleNotes(); await t.toTake();
+      expect(t.s()).toMatchObject({ notesShown: false, hint: false });
+      t.game.practiceMore();
+      expect(t.s()).toMatchObject({ phase: 'practice', notesShown: false });
+      expect(t.store.data.results).toHaveLength(0);
+    }
   });
 
   it('memory: malli soi, mutta sävelet avataan erikseen; muistivihjeet käytössä', async () => {

@@ -36,7 +36,9 @@ export type Riff = {
 /**
  * Pelin opastustaso (virtuaalikitara). Määritellään kotitreenin datassa; peli ei tarkista tasonumeroita.
  * - guided: malli soi heti ja sävelet sekä ehdotetut otelautapaikat näkyvät harjoittelussa valmiiksi.
- * - memory: malli soi heti, mutta sävelet ja paikat avataan erikseen painikkeesta.
+ *   Vain kahden sävelen opastus (TUTORIAL_GUIDANCE).
+ * - memory: korvakuuloharjoittelu, kotitreenien oletus. Malli soi heti, mutta sävelet ja paikat ovat
+ *   piilossa, kunnes pelaaja avaa ne Näytä sävelet -painikkeella.
  * - challenge: kuulonvarainen; sävelet avataan erikseen eikä automaattisia muistivihjeitä anneta.
  * Harjoittelun apu ei koskaan vaikuta tähtiin; vain arvioitavassa otossa pyydetty Vihje vaikuttaa.
  */
@@ -77,14 +79,17 @@ export const CHECK_MIDI = 59;
 /** Opastus: kaksi säveltä B-kielellä Kotitreeni 1:n alussa (ei kuulu kolmeen riffiin). */
 export const TUTORIAL: Riff = riff('opastus', 'Opastus: kaksi säveltä', on(B, [0, 1]), 'Vapaa B-kieli ja sitten 1. nauha.');
 
+/** Opastuksen oma opastustaso: sävelet ja paikat näkyvät aina (ei peri Kotitreeni 1:n tasoa). */
+export const TUTORIAL_GUIDANCE: Guidance = 'guided';
+
 export const LEVELS: readonly Level[] = [
-  { number: 1, name: 'Kotitreeni 1', title: 'B-kieli', strings: [B], instruction: 'Soita riffi B-kieleltä.', guidance: 'guided', riffs: [
+  { number: 1, name: 'Kotitreeni 1', title: 'B-kieli', strings: [B], instruction: 'Soita riffi B-kieleltä.', guidance: 'memory', riffs: [
     // Sävelet B3, C4 ja D4: vapaa kieli, 1. ja 3. nauha.
     riff('b-kaari', 'Ensimmäinen kaiku', on(B, [0, 1, 3, 1]), 'Vapaa kieli, 1., 3. ja takaisin 1. nauhaan.'),
     riff('b-vaihto', 'Edestakaisin', on(B, [1, 0, 1, 3]), '1. nauha, vapaa kieli, 1. ja 3. nauha.'),
     riff('b-takaisin', 'Kaari takaisin', on(B, [0, 3, 1, 0]), 'Vapaa kieli, 3. ja 1. nauha ja taas vapaa kieli.'),
   ] },
-  { number: 2, name: 'Kotitreeni 2', title: 'G-kieli', strings: [G], instruction: 'Soita riffi G-kieleltä.', guidance: 'guided', riffs: [
+  { number: 2, name: 'Kotitreeni 2', title: 'G-kieli', strings: [G], instruction: 'Soita riffi G-kieleltä.', guidance: 'memory', riffs: [
     // Sävelet G3, A3 ja B3: vapaa kieli, 2. ja 4. nauha. Vaihtelevampi: toisto ja hyppy.
     riff('g-nousu', 'G-kielen kaari', on(G, [0, 2, 4, 2]), 'Vapaa kieli, 2., 4. ja takaisin 2. nauhaan.'),
     riff('g-toisto', 'Kaksi samaa', on(G, [2, 2, 0, 4]), 'Kaksi erillistä näppäystä 2. nauhalla, sitten vapaa kieli ja 4. nauha. Vaimenna kieli hetkeksi samojen sävelten välissä.'),

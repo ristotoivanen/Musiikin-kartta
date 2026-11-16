@@ -158,7 +158,7 @@ otsikkoon vaiheen vaihtuessa.
 | Tila (`game.ts`) | Mitä tapahtuu | Mitä kirjataan |
 |---|---|---|
 | `home` | Pelin valikko | – |
-| `practice` | **Malli soi heti**, kun riffi avataan pelaajan painalluksesta (Aloita peli, kotitreenin valinta, Jatka, Seuraava riffi, Harjoittele lisää). Mallin voi pysäyttää ja kuunnella uudelleen. Otelauta soi myös mallin aikana. Sävelet ja ehdotetut paikat näytetään opastustason mukaan, ja ne voi näyttää tai piilottaa. | Ei mitään |
+| `practice` | **Malli soi heti**, kun riffi avataan pelaajan painalluksesta (Aloita peli, kotitreenin valinta, Jatka, Seuraava riffi, Harjoittele lisää). Mallin voi pysäyttää ja kuunnella uudelleen. Otelauta soi myös mallin aikana. Sävelet ja ehdotetut paikat ovat kotitreeneissä piilossa (korvakuulo), ja ne voi näyttää tai piilottaa. | Ei mitään |
 | `take` | Alkaa vain **Nyt riffataan!** -painikkeesta: malli pysähtyy, vastaukset piiloon, uusi yritys ja kierrostunniste. Ensimmäinen painallus tämän jälkeen on ensimmäinen tarkistettava sävel. Mallia ei soiteta kesken oton. **Vihje** näyttää sävelet ja paikat (kirjataan). **Harjoittele vielä** palaa harjoitteluun. | Vain loppuun soitettu otto |
 | `success` / `retry` | Tulos, pallukat ja saavutus jäävät näkyviin. **Yritä uudelleen** = uusi otto heti, ilman mallia. **Harjoittele lisää** = harjoitteluun, malli soi. **Kuuntele riffi** ja vapaa otelauta eivät muuta tulosta. **Seuraava riffi** vain läpäisyn jälkeen. | – |
 | `level-complete` | Kolmen läpäistyn riffin jälkeen onnittelu tähtineen (Jatka / Pelaa uudelleen / Pelin valikko). | Kotitreeni suoritettu |
@@ -183,11 +183,25 @@ pysäyttää mallin. Myöhässä palaava tai pysäytetty malli ohitetaan (`model
 | Taso | Malli soi heti | Sävelet ja paikat harjoittelussa | Automaattiset muistivihjeet |
 |---|---|---|---|
 | `guided` | kyllä | näkyvissä valmiiksi | kyllä |
-| `memory` | kyllä | avataan painikkeesta | kyllä |
-| `challenge` | kyllä | avataan painikkeesta | ei |
+| `memory` | kyllä | piilossa, avataan **Näytä sävelet** -painikkeesta | kyllä |
+| `challenge` | kyllä | piilossa, avataan **Näytä sävelet** -painikkeesta | ei |
 
-Kotitreenit 1–2 ovat `guided`. Taso luetaan kotitreenin datasta; peli ei tarkista tasonumeroita, joten
-myöhemmän kotitreenin avun määrä muuttuu pelkällä datamuutoksella. Harjoitteluun pääsee aina takaisin.
+**Korvakuulo on oletus.** Riffikaiku kehittää sävelkorvaa, joten vastauksia ei näytetä ennen kuuntelua:
+
+- Vain kahden sävelen **opastus** on `guided` (`TUTORIAL_GUIDANCE`). Opastus saa aina oman tasonsa eikä
+  peri Kotitreeni 1:n tasoa.
+- **Kotitreenit 1–2 ovat `memory`.** Harjoittelu alkaa niin, että malli soi, neljä pallukkaa ovat tyhjinä,
+  eikä sävelnimiä, ehdotettuja nauhapaikkoja, järjestysnumeroita tai mallin soivaa paikkaa näytetä
+  otelaudalla. Harjoituskieli on silti korostettu. Pelaaja kokeilee säveliä vapaasti ja kuuntelee mallin
+  uudelleen niin monta kertaa kuin haluaa.
+- **Näytä sävelet** paljastaa säveljonon, soittovinkin ja ehdotetut paikat; **Piilota sävelet** palauttaa
+  piilon. Harjoittele vielä ja Harjoittele lisää palaavat aina tason oletusnäkymään (piiloon).
+- Arvioitava otto toimii kaikilla tasoilla samoin: vastaukset ovat piilossa, vain oton painallukset
+  tarkistetaan, ja otossa pyydetty Vihje estää tähden. Harjoittelussa katsotut vastaukset eivät vaikuta
+  tähtiin.
+
+Taso luetaan kotitreenin datasta; peli ei tarkista tasonumeroita, joten myöhemmän kotitreenin avun määrä
+muuttuu pelkällä datamuutoksella. Harjoitteluun pääsee aina takaisin.
 
 ### Tähdet ja apu
 
@@ -297,7 +311,8 @@ ei vastauspisteenä, joten ”kaikki vastauspisteet näkyvissä” toteutuu vast
 **Pelin käsin tarkistus** (esikatselussa, kaiuttimella ja puhelimella): malli soi heti riffin avautuessa;
 oma sävel ja malli kuuluvat yhtä aikaa ja erottuvat; Pysäytä katkaisee vain mallin; Nyt riffataan! löytyy
 puhelimella vierittämättä; harjoittelun painallukset eivät näy otossa; Harjoittele vielä ei muuta tulosta;
-mykistetyssä Safari-välilehdessä näkyy ohje ja Kuuntele riffi toimii.
+mykistetyssä Safari-välilehdessä näkyy ohje ja Kuuntele riffi toimii; opastus näyttää sävelet, mutta
+kotitreenin riffi alkaa ilman sävelnimiä ja paikkoja, ja Näytä/Piilota sävelet vaihtaa näkymän.
 
 ## Tunnetut rajoitukset
 

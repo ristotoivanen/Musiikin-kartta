@@ -273,6 +273,20 @@ test.describe('Riffikaiku-peli – virtuaalikitara', () => {
     await expect(heading(page)).toHaveText('Kotitreeni 1 · Riffi 1/3');
     await expect(heading(page)).toBeFocused();
     await expect.poll(() => tones(page)).toEqual([59, 60, 62, 60]);
+    // Korvakuuloharjoittelu: kotitreeni alkaa ilman vastauksia. Malli soi, mutta soiva sävel tai
+    // ehdotetut paikat eivät näy otelaudalla; harjoituskieli on silti korostettu.
+    await page.clock.runFor(100);
+    await expect(page.getByTestId('toggle-notes')).toHaveText('Näytä sävelet');
+    await expect(page.getByTestId('hint')).toHaveCount(0);
+    await expect(page.locator('.riff-board .dot')).toHaveCount(0);
+    await expect(page.getByTestId('ear-help')).toContainText('korvakuulolta');
+    expect((await rowStyle(page, 1)).opacity).toBe(1);
+    expect((await rowStyle(page, 2)).opacity).toBeLessThan(1);
+    await page.clock.runFor(4000);
+    await expect(listenButton(page)).toHaveText('Kuuntele riffi');
+    expect(await slotTexts(page)).toEqual(['', '', '', '']);
+    await expect(page.getByTestId('slots')).not.toContainText(/[A-G]\d/);
+    await expect(page.locator('.riff-board .dot')).toHaveCount(0);
   });
 
   test('mallin pysäytys kesken toiston ja uusi kuuntelu; pysäytetty malli ei palaa myöhemmin', async ({ page }) => {
@@ -364,17 +378,33 @@ test.describe('Riffikaiku-peli – virtuaalikitara', () => {
     await clearTones(page);
     await press(listenButton(page), isMobile);
     await expect.poll(() => tones(page)).toEqual([60, 59, 60, 62]);
-    await press(page.getByTestId('toggle-notes'), isMobile);
+    // Korvakuulo: vastaukset piilossa, kunnes pelaaja avaa ne; Piilota sävelet palauttaa piilon.
     await expect(page.getByTestId('hint')).toHaveCount(0);
     await expect(page.locator('.riff-board .dot')).toHaveCount(0);
     await press(page.getByTestId('toggle-notes'), isMobile);
+    await expect(page.getByTestId('toggle-notes')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.getByTestId('hint')).toContainText('C4 – B3 – C4 – D4');
+    await expect(page.locator('.riff-board td.target .dot')).toHaveText(['2', '1·3', '4']);
+    await press(page.getByTestId('toggle-notes'), isMobile);
+    await expect(page.getByTestId('toggle-notes')).toHaveText('Näytä sävelet');
+    await expect(page.getByTestId('hint')).toHaveCount(0);
+    await expect(page.locator('.riff-board .dot')).toHaveCount(0);
+    // Vapaa kokeilu soi, mutta ei kirjaa mitään.
+    const beforePractice = await stored(page);
+    await clearTones(page);
+    await playFrets(page, [3, 0], isMobile);
+    expect(await tones(page)).toEqual([62, 59]);
+    expect(await stored(page)).toEqual(beforePractice);
+    await press(page.getByTestId('toggle-notes'), isMobile); // katsottu vastaus ei estä tähteä
     await takeTurn(page, isMobile);
+    await expect(page.getByTestId('hint')).toHaveCount(0);
+    await expect(page.locator('.riff-board .dot')).toHaveCount(0);
     await playFrets(page, [1, 5], isMobile);
     await expect(count(page)).toHaveText('Ratkaistu 1/4');
     const before = await stored(page);
     await press(page.getByRole('button', { name: 'Harjoittele vielä' }), isMobile);
     await expect(status(page)).toHaveText('Harjoittele');
+    await expect(page.getByTestId('hint')).toHaveCount(0); // takaisin piilotettuun näkymään
     expect(await stored(page)).toEqual(before);
     expect(await marksOf(page)).toEqual(['pending', 'pending', 'pending', 'pending']);
     await takeTurn(page, isMobile);
@@ -850,6 +880,8 @@ test.describe('responsiivisuus, teemat ja saavutettavuus', () => {
     }));
     await page.goto('/riffikaiku.html?tila=peli');
     await page.locator('.riff-play-button').click();
+    await page.getByTestId('toggle-notes').click(); // korvakuulo: sävelnimet näkyvät vasta pyynnöstä
+    await expect(page.getByTestId('hint')).toBeVisible();
     expect((await ratios()).every(r => r >= 4.5)).toBe(true); // harjoittelun sävelnimet
     await page.getByRole('button', { name: 'Nyt riffataan!' }).click();
     await turn(page);
