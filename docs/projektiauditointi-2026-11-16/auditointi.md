@@ -2,6 +2,26 @@
 
 [Päätehtävälista #54](https://github.com/ristotoivanen/Musiikin-kartta/issues/54) · [Haarat ja PR:t](inventaario.md) · [Keskustelut ja arkistointi](keskustelut.md) · [Päätehtävälistan katselmoitu päivitys](tehtavalista-54.md)
 
+## Ajantasainen tarkistuspiste 16.11.2026 – vaihe 1/6
+
+**Tämä on myöhempi tarkistus kuin alla oleva alkuperäinen auditointilukitus `beta f7a204b`.** Vanhemman tarkistuspisteen 581/581-testit ja sen haarataulukot säilyvät historiallisena näyttönä; niitä ei saa automaattisesti lukea uusimman betan testituloksiksi.
+
+| Kohde | Tarkistettu tila |
+| --- | --- |
+| GitHub `main` | `68b8a772ac228371744e32b7fbc84c500b073687` |
+| GitHub `beta` | `f9964c5463411a99f961fa9f6eed3fd3d72e6aba` |
+| GitHubin `main...beta` | 2 vain `main`-haarassa, 81 vain `beta`-haarassa; erkaantunut historia |
+| GitHubin avoimet PR:t / issuet | 29 / 28; haarahaun palauttamat 60 GitHub-haaraa |
+| [PR #83](https://github.com/ristotoivanen/Musiikin-kartta/pull/83) | Yhdistetty `beta`-haaraan 16.11.2026; lähdehaaran kärki `fdeb26ecbbafdde3424c4c3c91d0da980234972d` |
+| [Betan Actions-ajo](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/43937905928) | Onnistui `f9964c5`-tarkistuspisteessä: npm-riippuvuudet, lint, yksikkötestit, build ja työnkulkuun rajatut Chromium/Playwright-testit; ei koko E2E-matriisi eikä fyysisiä laitekokeita |
+
+**PR-riippuvuuksien todettu nykytila:** #57–#61, #64 ja #65 ovat edelleen avoimia luonnoksia, vaikka niiden kärki-commitit ovat uusimman `beta`-historian esi-isiä. Tämä **ei** yksin osoita kyseisten PR:ien kaikkien katselmointi- tai toiminnallisten hyväksyntäehtojen täyttyneen. #62 ja #63 erkanevat `beta`-haarasta ja vaativat nykybeta-deltan sekä vaihtoehtoisten toteutusten vertailun. Aktiiviset pinot #76 → #80 → #86 (Ensikeikka), #64 → #75 → #81 (Riffikaiku) ja #37 → #38 → #39 (mobiili/harjoitukset) säilytetään erillään.
+
+**Omistajan Macista lukevasti vahvistettu:** `git ls-remote` vastasi yllä olevia GitHubin ref-tunnisteita. Paikallinen päätyöpuu on `main b04a50f` (351 commitia paikallista `origin/main`-viitettä jäljessä), `origin/main 68b8a77` ja `origin/beta f7a204b` (vanha viite). Päätyöpuun seuratut tiedostot olivat muuttumattomia, mutta seuraamattomina on `.DS_Store`, `test-results/.last-run.json` ja `transkriptiot/yksi-sointu-kaksi-askelta.md`. Viimeksi mainitun 28 kt:n hakemiston sisältöä eikä riippumatonta talteenottoa ole vahvistettu; säilytettävä. Runsaat erilliset worktreet, myös `/private/tmp`-polussa oleva detached HEAD, ovat olemassa. Niiden puhtautta tai sivuutettuja tiedostoja ei ole systemaattisesti varmennettu.
+
+**Tämän tarkistuspisteen rajaus:** Ei git pull/fetch/reset -toimintoja omistajan Macissa, ei PR-mergejä tai sulkemisia, ei haaran/worktreen poistoja. Seuraava vaihe on erillinen PR-kohtainen todellisen sisältödeltan ja riippuvuuksien katselmointi; vanhan snapshotin taulukoita ei saa tulkita nyt vallitsevaksi PR-tilaksi.
+
+
 ## Tilanne ja näyttö
 
 - **Tuotannon Git-pohja:** `main` `68b8a772ac228371744e32b7fbc84c500b073687`, yhdistetty julkaisu-PR [#42](https://github.com/ristotoivanen/Musiikin-kartta/pull/42) 14.11. Kitaraharjoittelija, Otelautaopas, teoria, aiempi navigaatio ja Riffikaiku/Ensikeikka-perusversiot ovat tässä julkaisupohjassa. Cloudflare-check on onnistunut.
