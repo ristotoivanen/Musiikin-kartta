@@ -330,11 +330,26 @@ def recap_chord_diagrams(match, books):
     return indent('\n'.join(diagrams[chord] for chord in chords), match[1])
 
 
+def recap_fret_notes():
+    open_strings = (64, 59, 55, 50, 45, 40)  # Vakiovire tabulatuurin järjestyksessä, ohuin e ensin.
+    natural_notes = {0: 'C', 2: 'D', 4: 'E', 5: 'F', 7: 'G', 9: 'A', 11: 'B'}
+    labels = []
+    for string, pitch in enumerate(open_strings, 1):
+        for fret in range(1, 6):
+            note = natural_notes.get((pitch + fret) % 12)
+            if note:
+                labels.append(f'<li style="grid-area: {string} / {fret}" '
+                              f'aria-label="{string}. kieli, {fret}. nauha, {note}">{note}</li>')
+    return '\n'.join(labels)
+
+
 def topic_home(topic, lookup, exercise_descriptions, books):
     if topic.get('recap'):
         output = topic['path']
         source = CONFIG.parent / 'sisallot' / topic['slug'] / 'pikakertaus.html'
         body = rebase(source.read_text(encoding='utf-8').strip(), source.relative_to(ROOT).as_posix(), output, {})
+        body = re.sub(r'^([ ]*)<!-- otelaudan-luonnolliset-savelet -->',
+                      lambda match: indent(recap_fret_notes(), match[1]), body, flags=re.MULTILINE)
         body = re.sub(r'^([ ]*)<!-- sointukaaviot:(\S+) ([^\n]+?) -->',
                       lambda match: recap_chord_diagrams(match, books), body, flags=re.MULTILINE)
         action = link(rel('index.html', output) + '#oppimisaiheet', 'Siirry Oppimiskarttaan', ' class="primary-link"')

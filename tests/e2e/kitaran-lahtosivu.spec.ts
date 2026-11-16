@@ -31,6 +31,50 @@ test.describe('Kitaran pikakertaus ilman JavaScriptiä', () => {
     await expect(page).toHaveURL(map);
   });
 
+  test('otelaudan kaikki luonnolliset sävelet vastaavat vakiovirettä', async ({ page }) => {
+    await page.goto(intro);
+    const list = page.getByRole('list', { name: 'Luonnolliset sävelet nauhoilla 1–5' });
+    const notes = list.getByRole('listitem');
+    const actual = await notes.evaluateAll(items => items.map(item => {
+      const style = getComputedStyle(item);
+      return { string: Number(style.gridRowStart), fret: Number(style.gridColumnStart), note: item.textContent };
+    }));
+    const pitches = ['C', null, 'D', null, 'E', 'F', null, 'G', null, 'A', null, 'B'];
+    const expected = [64, 59, 55, 50, 45, 40].flatMap((open, index) =>
+      Array.from({ length: 5 }, (_, fretIndex) => {
+        const fret = fretIndex + 1;
+        return { string: index + 1, fret, note: pitches[(open + fret) % 12] };
+      }).filter(position => position.note !== null));
+    expect(actual).toEqual(expected);
+    for (const [index, { string, fret, note }] of expected.entries()) {
+      await expect(notes.nth(index)).toHaveAccessibleName(`${string}. kieli, ${fret}. nauha, ${note}`);
+    }
+  });
+
+  test('H/B-selitys avautuu ja sulkeutuu osoittimella ja näppäimistöllä', async ({ page, isMobile }) => {
+    await page.goto(intro);
+    const disclosure = page.locator('.recap-note-names');
+    const summary = disclosure.locator('summary');
+    const table = disclosure.getByRole('table', { name: 'B:n ja H:n vastineet' });
+    await expect(summary).toHaveText('Miksi sama sävel on B tai H?');
+    await expect(table).toBeHidden();
+
+    if (isMobile) await summary.tap();
+    else await summary.click();
+    await expect(table).toBeVisible();
+    await expect(table.getByRole('cell')).toHaveText(['B', 'H', 'B♭', 'B']);
+    if (isMobile) await summary.tap();
+    else await summary.click();
+    await expect(table).toBeHidden();
+
+    await summary.focus();
+    await expect(summary).toBeFocused();
+    await summary.press('Enter');
+    await expect(table).toBeVisible();
+    await summary.press('Space');
+    await expect(table).toBeHidden();
+  });
+
   for (const width of [320, 360, 390]) {
     test('kertaus ja linkit mahtuvat leveyteen ' + width + ' px', async ({ page }) => {
       await page.setViewportSize({ width, height: 700 });
@@ -51,7 +95,7 @@ test.describe('Kitaran pikakertaus ilman JavaScriptiä', () => {
       }
       const frets = page.getByRole('list', { name: 'Nauhat vasemmalta oikealle' });
       await expect(frets.getByRole('listitem')).toHaveText(['1', '2', '3', '4', '5']);
-      await expect(page.getByText('B vastaa perinteisen suomalaisen merkintätavan H:ta.')).toBeVisible();
+      await expect(page.getByText('B tunnetaan perinteisessä suomalaisessa merkintätavassa H:na.')).toBeVisible();
       const chords = page.getByRole('group', { name: 'Avosointujen kaaviot' });
       await expect(chords.getByRole('img')).toHaveCount(5);
       const tab = page.locator('.recap-tab');
@@ -63,10 +107,31 @@ test.describe('Kitaran pikakertaus ilman JavaScriptiä', () => {
       await expect(page.locator('.recap-bar li')).toHaveText(['1', '2', '3', '4']);
       await expect(page.getByText('Yksi 4/4-tahti.', { exact: false })).toBeVisible();
 
+      await page.locator('.recap-note-names summary').click();
+      const labels = page.locator('.recap-fret-notes li');
+      const normalFontSize = await labels.first().evaluate(label => parseFloat(getComputedStyle(label).fontSize));
       for (const size of ['100%', '200%']) {
         await page.evaluate(value => { document.documentElement.style.fontSize = value; }, size);
         expect(await page.evaluate(() => document.documentElement.scrollWidth), size).toBeLessThanOrEqual(width);
         expect(await tab.evaluate(element => element.scrollWidth <= element.clientWidth), size).toBe(true);
+        const readable = await labels.evaluateAll((items, minFontSize) => {
+          const svg = document.querySelector('.recap-board svg')!;
+          const rect = svg.getBoundingClientRect();
+          const wires = Array.from(svg.querySelectorAll('.recap-wire'));
+          const headers = Array.from(document.querySelectorAll('.recap-fret-numbers li'));
+          return items.every(label => {
+            const style = getComputedStyle(label);
+            const wire = wires[Number(style.gridRowStart) - 1];
+            const fret = headers[Number(style.gridColumnStart) - 1].getBoundingClientRect();
+            const wireY = rect.top + Number(wire.getAttribute('y1')) * rect.height / 120;
+            const box = label.getBoundingClientRect();
+            return Math.abs(box.left + box.width / 2 - fret.left - fret.width / 2) < 1
+              && box.left > fret.left && box.right < fret.right
+              && box.top >= rect.top && box.bottom <= wireY - parseFloat(getComputedStyle(wire).strokeWidth) / 2
+              && box.width > 0 && parseFloat(style.fontSize) >= minFontSize;
+          });
+        }, normalFontSize * (size === '200%' ? 2 : 1));
+        expect(readable, size).toBe(true);
         for (const graphic of await page.locator('.recap-board svg, .chord-diagram svg, .recap-tab, .recap-bar').all()) {
           const box = await graphic.boundingBox();
           expect(box, size).not.toBeNull();
@@ -74,6 +139,7 @@ test.describe('Kitaran pikakertaus ilman JavaScriptiä', () => {
           expect(box!.x + box!.width, size).toBeLessThanOrEqual(width);
         }
       }
+      await page.locator('.recap-note-names summary').click();
 
       for (const [label, path] of [
         ['Kitaran kielet ja sointumerkinnät', '/oppi/savelnimet/kitaran-kielet-ja-sointumerkinnat.html'],

@@ -57,13 +57,18 @@
   font-size: .88rem;
 }
 
-.recap-neck {
-  display: grid;
-  grid-template-columns: max-content minmax(0, 1fr);
-  gap: .25rem .6rem;
+.recap-neck-section {
+  padding-inline: clamp(12px, 4vw, 1.4rem);
 }
 
-.recap-strings, .recap-fret-numbers, .recap-bar {
+.recap-neck {
+  --recap-fret-columns: 134fr 127fr 119fr 112fr 108fr;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: .25rem clamp(.35rem, 2vw, .6rem);
+}
+
+.recap-strings, .recap-fret-numbers, .recap-fret-notes, .recap-bar {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -76,12 +81,12 @@
 
 .recap-fret-numbers {
   display: grid;
-  grid-template-columns: 134fr 127fr 119fr 112fr 108fr;
+  grid-template-columns: var(--recap-fret-columns);
   text-align: center;
 }
 
 .recap-strings {
-  line-height: 1.5;
+  line-height: 1.85;
 }
 
 .recap-strings strong { color: var(--gold); }
@@ -109,6 +114,28 @@
 .recap-wire {
   stroke: #ebe2f4;
   vector-effect: non-scaling-stroke;
+}
+
+.recap-fret-notes {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template: repeat(6, minmax(0, 1fr)) / var(--recap-fret-columns);
+  justify-items: center;
+  align-items: start;
+  color: var(--muted);
+  font-size: .75rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.recap-note-names summary {
+  min-height: 44px;
+  padding-block: .5rem;
+}
+
+.recap-note-names table {
+  table-layout: fixed;
 }
 
 .recap-section .chord-diagrams {
