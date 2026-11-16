@@ -165,3 +165,55 @@ export function renderIsolated(
   const gain = Math.min(.8 * rms(full) / level, .9 / peak);
   return part.map(sample => sample * gain);
 }
+
+/** Leikkaa [from, to) sekunteina ja häivyttää lopun, jottei katkaisu napsahda. */
+export function cutSection(samples: Float32Array, rate: number, from: number, to: number, fade = .08) {
+  const first = Math.max(0, Math.round(from * rate));
+  const last = Math.min(samples.length, Math.round(to * rate));
+  const part = samples.slice(first, last);
+  const fadeFrames = Math.min(part.length, Math.round(fade * rate));
+  for (let i = 0; i < fadeFrames; i++) part[part.length - 1 - i] *= i / fadeFrames;
+  return part;
+}
+
+/** Yhdistää otot peräkkäin `gap` sekunnin tauoin. */
+export function concatenate(parts: readonly Float32Array[], rate: number, gap = .5) {
+  const silence = Math.round(gap * rate);
+  const total = parts.reduce((sum, part) => sum + part.length, 0) + silence * Math.max(0, parts.length - 1);
+  const out = new Float32Array(total);
+  let at = 0;
+  parts.forEach((part, index) => {
+    out.set(part, at);
+    at += part.length + (index < parts.length - 1 ? silence : 0);
+  });
+  return out;
+}
+
+/**
+ * Lyhyet aplodit keikan loppuun: satunnaisia, suodatettuja kohinaiskuja, jotka tihenevät ja
+ * vaimenevat. Siemen on kiinteä, joten ääni on joka kerta sama ja testattavissa.
+ */
+export function applause(rate: number, seconds = 3.2, level = .11) {
+  const out = new Float32Array(Math.round(seconds * rate));
+  let seed = 20261116;
+  const random = () => {
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+    return seed / 0x100000000;
+  };
+  const claps = Math.round(seconds * 26);
+  for (let clap = 0; clap < claps; clap++) {
+    // Tiheimmillään keskellä: aika painottuu kolmion muotoisesti.
+    const time = (random() + random()) / 2 * (seconds - .1);
+    const gain = level * (.5 + random() * .5) * Math.sin(Math.PI * time / seconds);
+    const start = Math.round(time * rate);
+    const length = Math.round(.03 * rate);
+    let previous = 0;
+    for (let i = 0; i < length && start + i < out.length; i++) {
+      const noise = random() * 2 - 1;
+      const high = noise - previous;
+      previous = noise;
+      out[start + i] += gain * high * Math.exp(-i / (.006 * rate));
+    }
+  }
+  return out;
+}

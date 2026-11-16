@@ -1,7 +1,8 @@
-import { endingExcerpt, renderIsolated, renderTake, type Layer } from './arrangement';
+import { applause, concatenate, cutSection, endingExcerpt, renderIsolated, renderTake, type Layer } from './arrangement';
+import { firstGig } from './first-gig';
 import { secondNight } from './second-night';
 import { gigArrangements, gigs as firstNight, type Gig as FirstNightSong } from './song-demo-score';
-import { LETTERS, type Area, type ChooseTask, type Letter, type Song } from './tasks';
+import { LETTERS, type Area, type ChooseTask, type Gig, type Letter, type Song, type Take } from './tasks';
 
 const melodyPrompt = 'Kuuntele lopetuksia. Mikä niistä tuntuu palaavan kotiin?';
 const closerPrompt = 'Useampi lopetus voi sopia kappaleeseen. Etsi sävel, johon melodia tuntuu palaavan kotiin.';
@@ -81,6 +82,7 @@ export const songs: Readonly<Record<number, Song>> = {
   1: firstNightSong(1, false), 2: firstNightSong(2, false),
   3: firstNightSong(3, true), 4: firstNightSong(4, true), 5: firstNightSong(5, true),
   ...secondNight,
+  ...firstGig,
 };
 
 export const area: Area = {
@@ -96,12 +98,69 @@ export const area: Area = {
     title: 'Kotikulmien toinen ilta',
     description: 'Läheisempiä lopetuksia, bassolinjan kuuntelua ja kaksivaiheinen encore. Melodian lisäksi kuunnellaan bändiä.',
     songs: [6, 7, 8, 9],
-    requires: 1,
+    requires: [1],
     freePractice: true,
     directStart: true,
     completionTitle: 'Kotikulmien toinen ilta suoritettu!',
+  }, {
+    id: 3,
+    name: { heading: 'Ensikeikka', nominative: 'Ensikeikka', partitive: 'Ensikeikkaa', elative: 'Ensikeikasta', genitive: 'Ensikeikan' },
+    title: 'Kotikulman keikka',
+    description: 'Ensimmäinen esiintyminen: soundcheck, ensimmäinen biisi ja illan viimeinen kappale. Ensitreenien kuuntelutaidot pidemmässä musiikissa. Lopuksi kuulet koko keikan.',
+    songs: [10, 11, 12],
+    requires: [1, 2],
+    freePractice: true,
+    directStart: true,
+    lockNote: 'Tavallisesti Ensikeikka avautuu, kun Ensitreenit eli keikat 1 ja 2 on suoritettu.',
+    directNote: 'Kuuntelutaidot jo hallussa? Suoritukset tallentuvat, ja Ensitreenit pysyvät ennallaan.',
+    completionTitle: 'Ensikeikka soitettu!',
+    unit: 'vaihetta',
+    completionSummary: 'Suoritit soundcheckin ja kaksi keikkabiisiä.',
+    finale: {
+      songs: [11, 12],
+      note: 'Keikan biisit soivat valmiina peräkkäin oikeilla ratkaisuilla: ensimmäinen biisi ja illan viimeinen kappale. Lopuksi yleisö taputtaa. Soundcheck ei kuulu esitykseen.',
+    },
   }],
 };
+
+/** Keikan näkyvä nimi taivutuksineen ("keikka 2", "Ensikeikka"). */
+export function gigName(gig: Gig) {
+  return gig.name ?? {
+    heading: `Keikka ${gig.id}`, nominative: `keikka ${gig.id}`, partitive: `keikkaa ${gig.id}`, elative: `keikasta ${gig.id}`,
+    genitive: `keikan ${gig.id}`,
+  };
+}
+
+/**
+ * Kappaleen musiikkiesimerkki. Versio 0 on kappale sellaisenaan; muut versiot korvaavat sen kentät
+ * (esimerkiksi toinen soundcheck tai toinen biisi), mutta tunniste ja tallennus pysyvät samoina.
+ */
+export function songVersion(song: Song, variant: number, rounds?: readonly number[]): Song {
+  const version = variant > 0 ? song.variants?.[variant - 1] : undefined;
+  const resolved = version ? { ...song, ...version, id: song.id } : song;
+  return rounds && resolved.rounds ? { ...resolved, ...resolved.rounds.build(rounds) } : resolved;
+}
+
+/** Arpoo kappaleen tehtäväkierrokset, jos kappaleella on kierrosjoukko. */
+export const drawRounds = (song: Song, random: () => number = Math.random) => song.rounds?.draw(random);
+
+/** Keikan etenemislaskuri, esim. "1 / 5 kappaletta" tai "1 / 3 vaihetta". */
+export const progressText = (gig: Gig, count: number) => `${count} / ${gig.songs.length} ${gig.unit ?? 'kappaletta'}`;
+
+export const versionCount = (song: Song) => 1 + (song.variants?.length ?? 0);
+
+/** Keikat, joiden suoritus avaa keikan normaalissa etenemisessä. */
+export const requiredGigs = (gig: Gig) => area.gigs.filter(other => gig.requires?.includes(other.id));
+
+/** "keikka 1" tai "keikat 1 ja 2"; `genitive` antaa muodon "keikan 1" / "keikkojen 1 ja 2". */
+export function requiredText(gig: Gig, form: 'nominative' | 'genitive') {
+  const ids = requiredGigs(gig).map(other => other.id);
+  const list = ids.length > 1 ? `${ids.slice(0, -1).join(', ')} ja ${ids.at(-1)}` : `${ids[0]}`;
+  if (form === 'genitive') return ids.length > 1 ? `keikkojen ${list}` : `keikan ${list}`;
+  return ids.length > 1 ? `keikat ${list}` : `keikka ${list}`;
+}
+
+export const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
 export function gigOf(song: number) {
   return area.gigs.find(gig => gig.songs.includes(song));
@@ -112,11 +171,44 @@ export function songExcerpt(song: Song) {
   return endingExcerpt(song.arrangement);
 }
 
-/** Renderöi kappaleen. `null` soittaa keskeneräisen version; `layers` soittaa vain valitut osat. */
-export function renderSong(song: Song, ending: Letter | null, rate: number, layers?: readonly Layer[]) {
-  const final = ending === null ? song.unfinished : song.endings[ending];
-  return layers ? renderIsolated(song.arrangement, final, rate, layers, songExcerpt(song))
-    : renderTake(song.arrangement, final, rate);
+const barLength = (take: { tempo: number }) => 4 * 60 / take.tempo;
+
+/** Otto, jonka kirjain valitsee: jatkotehtävässä kokonainen otto, muuten sovitus ja viimeinen tahti. */
+export function songTake(song: Song, ending: Letter | null): Take {
+  const own = ending === null ? undefined : song.takes?.[ending];
+  if (own) return own;
+  return { arrangement: song.arrangement, final: ending === null ? song.unfinished : song.endings[ending] };
+}
+
+/**
+ * Renderöi kappaleen. `null` soittaa keskeneräisen version; `layers` soittaa vain valitut osat.
+ * `span` rajaa soiton tahteihin [alku, loppu) ja häivyttää lopun.
+ */
+export function renderSong(song: Song, ending: Letter | null, rate: number, layers?: readonly Layer[], span?: readonly [number, number]) {
+  const { arrangement, final } = songTake(song, ending);
+  const from = span ? span[0] * barLength(arrangement) : songExcerpt(song);
+  const full = layers ? renderIsolated(arrangement, final, rate, layers, from) : renderTake(arrangement, final, rate);
+  return span ? cutSection(full, rate, span[0] * barLength(arrangement), span[1] * barLength(arrangement)) : full;
+}
+
+/** Ottojen renderöinti vertailutehtävään. `layers` normalisoi osan koko oton tasolle. */
+export function renderTakeAudio(take: Take, rate: number, layers?: readonly Layer[]) {
+  return layers ? renderIsolated(take.arrangement, take.final, rate, layers, 0) : renderTake(take.arrangement, take.final, rate);
+}
+
+/** Kaksi ottoa peräkkäin vertailua varten. */
+export function renderPair(takes: readonly [Take, Take], rate: number, layers?: readonly Layer[]) {
+  return concatenate(takes.map(item => renderTakeAudio(item, rate, layers)), rate, .6);
+}
+
+/**
+ * Keikan biisit yhtenä esityksenä: `gig.finale.songs` valmiina hyväksytyillä ratkaisuilla
+ * (opetusversio ja `target`) ja lopuksi aplodit. Esitys ei riipu pelaajan kokeilemista versioista
+ * eikä tallennetusta tilasta, joten se on sama myös uudelleenlatauksen jälkeen.
+ */
+export function renderFinale(gig: Gig, rate: number) {
+  const parts = (gig.finale?.songs ?? []).map(id => renderSong(songs[id], songs[id].target, rate));
+  return concatenate([...parts, applause(rate)], rate, .7);
 }
 
 export { LETTERS };

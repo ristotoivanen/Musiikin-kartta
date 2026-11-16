@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { SongPlayer, initialAttempt, type Attempt, type SongAction, type Update } from './GigPlayer';
-import { area, gigOf, songs } from './catalog';
+import { area, capitalize, drawRounds, gigName, gigOf, progressText, renderFinale, requiredGigs, requiredText, songs, songVersion, versionCount } from './catalog';
 import { areaComplete, followingSong, gigStatus, songAccess, type SongMode } from './setlist';
 import { shuffledOrder } from './order';
 import { clearProgress, completedPrefix, readProgress, saveProgress, storedSongs, withCompleted } from './progress';
@@ -62,8 +62,28 @@ function Ensikeikka() {
   });
   const [openGigs, setOpenGigs] = useState<number[]>(() => view.kind === 'area' && view.gig ? [view.gig] : []);
   const [attempts, setAttempts] = useState<Partial<Record<number, Attempt>>>({});
-  // Harjoittelukierros kuuluu yhdelle kappaleelle. Uusi kierros arpoo lopetusten järjestyksen.
-  const newRound = (song: number) => ({ song, attempt: { ...initialAttempt, order: shuffledOrder() } });
+  // Harjoittelu valitsee musiikkiesimerkin, jota ei juuri kuultu. Opetus käyttää versiota 0.
+  const lastVariant = useRef<Record<number, number>>({});
+  function pickVariant(song: number) {
+    const count = songs[song] ? versionCount(songs[song]) : 1;
+    if (count < 2) return 0;
+    const options = [...Array(count).keys()].filter(variant => variant !== (lastVariant.current[song] ?? 0));
+    const variant = options[Math.min(options.length - 1, Math.floor(Math.random() * options.length))];
+    lastVariant.current[song] = variant;
+    return variant;
+  }
+  // Etenemisen yritys arpoo kierroksensa (soundcheck) kerran sivun aikana, ja ne säilyvät yrityksen ajan.
+  const drawn = useRef<Partial<Record<number, readonly number[]>>>({});
+  function freshAttempt(song: number): Attempt {
+    if (!(song in drawn.current) && songs[song]) drawn.current[song] = drawRounds(songs[song]);
+    const rounds = drawn.current[song];
+    return rounds ? { ...initialAttempt, rounds } : initialAttempt;
+  }
+  // Harjoittelukierros kuuluu yhdelle kappaleelle. Uusi kierros arpoo esimerkin, kierrokset ja lopetusten järjestyksen.
+  const newRound = (song: number) => {
+    const rounds = songs[song] && drawRounds(songs[song]);
+    return { song, attempt: { ...initialAttempt, order: shuffledOrder(), variant: pickVariant(song), ...rounds && { rounds } } };
+  };
   const [practice, setPractice] = useState(() => newRound(view.kind === 'song' ? view.song : 0));
   const [saveFailed, setSaveFailed] = useState(false);
   const pendingFocus = useRef(window.location.hash !== '');
@@ -122,6 +142,7 @@ function Ensikeikka() {
     setSaveFailed(!clearProgress());
     setCompleted([]);
     setAttempts({});
+    drawn.current = {};
     setOpenGigs([]);
     window.scrollTo(0, 0);
     document.getElementById('keikkalista')?.focus({ preventScroll: true });
@@ -129,28 +150,33 @@ function Ensikeikka() {
 
   if (view.kind === 'song') {
     const { song: id, mode } = view;
-    const song = songs[id];
     const gig = gigOf(id)!;
     const isPractice = mode === 'practice';
     const songComplete = completed.includes(id);
     // Valmis kappale säilyttää tehtävän tilan (esim. kappaleen 9 vaiheen), jotta onnistumiskortti ei vaihdu.
     const attempt = isPractice ? practice.attempt : songComplete
-      ? { ...attempts[id] ?? initialAttempt, stage: 'complete' as const } : attempts[id] ?? initialAttempt;
+      ? { ...attempts[id] ?? freshAttempt(id), stage: 'complete' as const } : attempts[id] ?? freshAttempt(id);
+    const song = songVersion(songs[id], attempt.variant, attempt.rounds);
 
     const update: Update = changes => {
       const apply = (current: Attempt) => ({ ...current, ...(typeof changes === 'function' ? changes(current) : changes) });
       if (isPractice) setPractice(previous => ({ song: id, attempt: apply(previous.attempt) }));
-      else setAttempts(previous => ({ ...previous, [id]: apply(previous[id] ?? initialAttempt) }));
+      else setAttempts(previous => ({ ...previous, [id]: apply(previous[id] ?? freshAttempt(id)) }));
     };
 
     const gigNow = status(gig, completed);
     const nextSong = followingSong(gig.songs, id);
     const finishedGig = !isPractice && gigNow.complete && nextSong === undefined;
-    const followingGig = finishedGig ? area.gigs.find(item => item.requires === gig.id) : undefined;
+    // Seuraava keikka, jonka voi aloittaa normaalisti (esim. keikka 1 → keikka 2, Ensitreenit → Ensikeikka).
+    const followingGig = finishedGig
+      ? area.gigs.find(item => item.requires?.includes(gig.id) && status(item, completed).next !== undefined) : undefined;
     const followingStart = followingGig && status(followingGig, completed).next;
     const everything = finishedGig && areaComplete(area.gigs, completed);
-    const requiredGig = gigById(gig.requires);
-    const waiting = finishedGig && requiredGig && !status(requiredGig, completed).complete ? requiredGig : undefined;
+    const waiting = finishedGig ? requiredGigs(gig).find(other => !status(other, completed).complete) : undefined;
+    const finale = finishedGig && gig.finale ? {
+      label: 'Kuuntele keikan biisit', stopLabel: 'Pysäytä keikan biisit', status: 'keikan biisit', note: gig.finale.note,
+      render: (rate: number) => renderFinale(gig, rate),
+    } : undefined;
 
     // Jatkaminen tapahtuu vain painalluksesta: seuraava kappale, seuraava keikka tai settilista.
     const actions: SongAction[] = [];
@@ -160,20 +186,21 @@ function Ensikeikka() {
     } else if (!isPractice && songComplete && nextSong !== undefined) {
       actions.push({ label: 'Seuraava kappale', run: () => open(nextSong, completed.includes(nextSong) ? 'replay' : 'progress') });
     } else if (followingGig && followingStart !== undefined) {
-      actions.push({ label: `Aloita keikka ${followingGig.id}`, run: () => open(followingStart, 'progress') }, toSetlist);
+      actions.push({ label: `Aloita ${gigName(followingGig).nominative}`, run: () => open(followingStart, 'progress') }, toSetlist);
     } else actions.push(toSetlist);
 
-    return <SongPlayer key={`${id}-${mode}`} song={song} gigId={gig.id} showLabel={`Keikka ${gig.id} – ${gig.title}`}
+    return <SongPlayer key={`${id}-${mode}`} song={song} gigId={gig.id} showLabel={`${gigName(gig).heading} – ${gig.title}`}
       attempt={attempt} update={update} onList={toArea} onSetlist={() => toGig(gig.id)}
       actions={actions}
       onComplete={() => {
         if (isPractice) update({ stage: 'complete' });
         else if (!songComplete) recordSong(id);
       }}
-      completionTitle={isPractice ? 'Harjoittelu valmis' : finishedGig ? gig.completionTitle : 'Kappale valmis'}
-      completedCount={finishedGig ? gig.songs.length : undefined}
+      completionTitle={isPractice ? 'Harjoittelu valmis' : finishedGig ? gig.completionTitle : song.completionTitle ?? 'Kappale valmis'}
+      completedSummary={finishedGig ? gig.completionSummary ?? `Suoritit ${gig.songs.length} kappaletta.` : undefined}
       completionNote={everything ? `${area.title} on nyt kokonaan soitettu. Esiintymisalue suoritettu!`
-        : waiting ? `Keikka ${waiting.id} on vielä soittamatta. Esiintymisalue valmistuu, kun kaikki keikat on suoritettu.` : undefined}
+        : waiting ? `${capitalize(gigName(waiting).nominative)} on vielä soittamatta. Esiintymisalue valmistuu, kun kaikki keikat on suoritettu.` : undefined}
+      finale={finale}
       practice={isPractice} saving={mode === 'progress'} saveFailed={saveFailed} />;
   }
 
@@ -196,9 +223,9 @@ function Ensikeikka() {
           <ul className="area-summary" aria-label={`${area.title}: eteneminen`}>
             {area.gigs.map(gig => {
               const { count, complete, unlocked, direct } = status(gig, completed);
-              const locked = `avautuu keikan ${gig.requires} jälkeen${direct !== undefined ? ' tai suoraan aloittamalla' : ''}`;
+              const locked = `avautuu ${requiredText(gig, 'genitive')} jälkeen${direct !== undefined ? ' tai suoraan aloittamalla' : ''}`;
               return <li key={gig.id} className="gig-state" data-state={complete ? 'done' : unlocked ? 'next' : 'locked'}>
-                Keikka {gig.id}: {complete ? 'suoritettu' : unlocked ? `${count} / ${gig.songs.length} kappaletta` : locked}
+                {gigName(gig).heading}: {complete ? 'suoritettu' : unlocked ? progressText(gig, count) : locked}
               </li>;
             })}
           </ul>
@@ -247,26 +274,27 @@ function GigCard({ gig, completed, attempts, open, onOpen, onToggle }: {
   onToggle: () => void;
 }) {
   const { count, complete, unlocked, next, direct } = status(gig, completed);
-  const required = gigById(gig.requires);
+  const required = requiredGigs(gig).length > 0;
+  const name = gigName(gig);
   const started = count > 0 || gig.songs.some(song => attempts[song]);
   const listId = `show-${gig.id}-songs`;
   return (
     <section className="show-card" aria-labelledby={`show-${gig.id}-title`} data-state={complete ? 'done' : unlocked ? 'open' : 'locked'}>
-      <h3 id={`show-${gig.id}-title`} tabIndex={-1}>Keikka {gig.id} – {gig.title}</h3>
+      <h3 id={`show-${gig.id}-title`} tabIndex={-1}>{name.heading} – {gig.title}</h3>
       <p className="show-description">{gig.description}</p>
       <p className="gig-state" data-state={complete ? 'done' : unlocked ? 'next' : 'locked'}>
-        {count} / {gig.songs.length} kappaletta suoritettu
+        {progressText(gig, count)} suoritettu
         {complete && ' · Keikka suoritettu'}
       </p>
       {!unlocked && required && <>
-        <p className="gig-note">Tavallisesti keikka {gig.id} avautuu, kun keikka {required.id} on suoritettu.</p>
+        <p className="gig-note">{gig.lockNote ?? `Tavallisesti ${name.nominative} avautuu, kun ${requiredText(gig, 'nominative')} on suoritettu.`}</p>
         <div className="gig-options">
           {direct !== undefined && <div className="gig-option">
             <button onClick={() => onOpen(direct, 'progress')} aria-describedby={`show-${gig.id}-direct`}>
-              {started ? `Jatka keikkaa ${gig.id}` : `Aloita suoraan keikasta ${gig.id}`}
+              {started ? `Jatka ${name.partitive}` : `Aloita suoraan ${name.elative}`}
             </button>
             <p id={`show-${gig.id}-direct`} className="gig-note">
-              Kotisävelet jo tuttuja? Suoritukset tallentuvat. Keikka {required.id} pysyy ennallaan ja odottaa sinua.
+              {gig.directNote ?? `Kotisävelet jo tuttuja? Suoritukset tallentuvat. ${capitalize(requiredText(gig, 'nominative'))} pysyy ennallaan ja odottaa sinua.`}
             </p>
           </div>}
           {gig.freePractice && <div className="gig-option">
@@ -279,17 +307,17 @@ function GigCard({ gig, completed, attempts, open, onOpen, onToggle }: {
       </>}
       {(unlocked || !gig.freePractice) && <div className="button-row">
         {next !== undefined && <button className="primary" onClick={() => onOpen(next, 'progress')}>
-          {started ? `Jatka keikkaa ${gig.id}` : `Aloita keikka ${gig.id}`}
+          {started ? `Jatka ${name.partitive}` : `Aloita ${name.nominative}`}
         </button>}
         {complete && <button className="primary" onClick={() => onOpen(gig.songs[0], 'practice')}>
-          Harjoittele keikka {gig.id} uudelleen
+          Harjoittele {name.nominative} uudelleen
         </button>}
         <button aria-expanded={open} aria-controls={listId} onClick={onToggle}>
           {open ? 'Piilota settilista' : unlocked ? 'Valitse kappale' : 'Kokeile kappaleita'}
         </button>
       </div>}
       <h4 hidden={!open} className="setlist-title">Settilista</h4>
-      <ol id={listId} aria-label={`Keikan ${gig.id} settilista`} className="show-songs" role="list" hidden={!open}>
+      <ol id={listId} aria-label={`${capitalize(name.genitive)} settilista`} className="show-songs" role="list" hidden={!open}>
         {gig.songs.map(song => {
           const done = completed.includes(song);
           const state = done ? 'done' : song === next || song === direct ? 'next' : 'locked';
@@ -298,7 +326,7 @@ function GigCard({ gig, completed, attempts, open, onOpen, onToggle }: {
             <p className="gig-state" data-state={state}>
               {done ? 'Suoritettu' : song === next ? 'Seuraava kappale'
                 : song === direct ? 'Voit aloittaa tästä suoraan'
-                  : unlocked ? 'Avautuu edellisen kappaleen jälkeen' : `Avautuu keikan ${required?.id} jälkeen`}
+                  : unlocked ? 'Avautuu edellisen kappaleen jälkeen' : `Avautuu ${requiredText(gig, 'genitive')} jälkeen`}
             </p>
             {song === next && <button onClick={() => onOpen(song, 'progress')}>Avaa kappale {song}</button>}
             {song === direct && <button onClick={() => onOpen(song, 'progress')}

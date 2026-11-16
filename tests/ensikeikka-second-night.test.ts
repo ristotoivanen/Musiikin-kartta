@@ -35,12 +35,14 @@ const energy = (samples: Float32Array, start = 0, end = samples.length) => {
 const peak = (samples: Float32Array) => samples.reduce((max, sample) => Math.max(max, Math.abs(sample)), 0);
 
 describe('Kotikulmien keikat -luettelo', () => {
-  it('sisältää kaksi keikkaa, joiden kappaletunnisteet ovat yksilöllisiä', () => {
+  it('sisältää Ensitreenien kaksi keikkaa ja Ensikeikan, ja kappaletunnisteet ovat yksilöllisiä', () => {
     expect(area.gigs.map(gig => [gig.id, gig.title, gig.songs])).toEqual([
       [1, 'Ensimmäinen esiintyminen', [1, 2, 3, 4, 5]],
       [2, 'Kotikulmien toinen ilta', [6, 7, 8, 9]],
+      [3, 'Kotikulman keikka', [10, 11, 12]],
     ]);
-    expect(area.gigs[1]).toMatchObject({ requires: 1, freePractice: true, completionTitle: 'Kotikulmien toinen ilta suoritettu!' });
+    expect(area.gigs[1]).toMatchObject({ requires: [1], freePractice: true, completionTitle: 'Kotikulmien toinen ilta suoritettu!' });
+    expect(area.gigs[2]).toMatchObject({ requires: [1, 2], freePractice: true, directStart: true, finale: { songs: [11, 12] } });
     const ids = area.gigs.flatMap(gig => gig.songs);
     expect(new Set(ids).size).toBe(ids.length);
     for (const id of ids) expect(songs[id].id).toBe(id);

@@ -18,7 +18,19 @@ type TaskBase = {
   hints: readonly string[];
   /** Näytetään, kun tehtävä on ratkaistu. */
   success: Feedback;
+  /**
+   * Ratkaiseva kohta tahteina [alku, loppu) kappaleen alusta. Oletuksena kaksi viimeistä tahtia.
+   * Rajattu katkelma soitetaan leikattuna ja lyhyesti häivytettynä.
+   */
+  span?: readonly [from: number, to: number];
 };
+
+/** Bändin osa, jonka muutosta kuunnellaan vertailutehtävässä. */
+export type Part = 'bass' | 'comp' | 'melody';
+export const PARTS = ['bass', 'comp', 'melody'] as const satisfies readonly Part[];
+
+/** Yksi kokonainen soitettava otto: sovitus ja sen viimeinen tahti. */
+export type Take = { arrangement: Arrangement & { tempo: number }; final: FinalBar };
 
 /** Kuuntele lopetukset ja valitse yksi. Vaihtoehdot voivat vaihtaa melodiaa, bändiä tai molempia. */
 export type ChooseTask = TaskBase & {
@@ -55,7 +67,31 @@ export type ReasonTask = TaskBase & {
   isolate: readonly Layer[];
 };
 
-export type Task = ChooseTask | MatchTask | ReasonTask;
+/**
+ * Kuuntele saman kohdan kaksi versiota ja kerro, mikä osa muuttui. Versioissa muuttuu tasan
+ * yksi osa, ja muut osat soivat näytteen tarkkuudella samoin.
+ */
+export type CompareTask = TaskBase & {
+  kind: 'compare';
+  versions: readonly [Take, Take];
+  answer: Part;
+  wrong: Partial<Record<Part, string>>;
+};
+
+/**
+ * Kuuntele kappaleen alku ja vertaile kahta jatkoa (kappaleen `takes`). Valinta ratkeaa soittamalla
+ * koko kappale valitulla jatkolla; arvio perustuu bändin tavoitteeseen (`goal`).
+ */
+export type ContinueTask = TaskBase & {
+  kind: 'continue';
+  goal: string;
+  /** Alun pituus tahteina; jatkot alkavat tämän jälkeen. */
+  openingBars: number;
+  answer: Letter;
+  wrong: Partial<Record<Letter, string>>;
+};
+
+export type Task = ChooseTask | MatchTask | ReasonTask | CompareTask | ContinueTask;
 
 export type Song = {
   id: number;
@@ -71,7 +107,28 @@ export type Song = {
   tasks: readonly Task[];
   /** "Miksi tämä vastaus?" – näytetään vasta ratkaisun jälkeen. */
   explanation: string;
+  /** Kokonaiset vaihtoehtoiset otot (jatkotehtävä). Kirjain viittaa ottoon, ei viimeiseen tahtiin. */
+  takes?: Partial<Record<Letter, Take>>;
+  /**
+   * Saman taidon toiset musiikkiesimerkit. Opetus käyttää kappaletta sellaisenaan (versio 0) ja
+   * harjoittelu arpoo version, jottei vastausta opi muistamaan yhdestä äänitteestä.
+   */
+  variants?: readonly SongVariant[];
+  /**
+   * Tehtäväkierrokset arvotaan joukosta joka yrityksellä (soundcheck). `tasks` ja `explanation`
+   * ovat oletussarja; peli käyttää yrityksen arvontaa (`Attempt.rounds`) ja rakentaa tehtävät siitä.
+   */
+  rounds?: RoundPool;
+  /** Valmistumisen otsikko, jos kappale ei ole tavallinen esitys (esim. "Soundcheck valmis"). */
+  completionTitle?: string;
 };
+
+export type RoundPool = {
+  draw: (random: () => number) => number[];
+  build: (picks: readonly number[]) => Pick<Song, 'tasks' | 'explanation'>;
+};
+
+export type SongVariant = Partial<Omit<Song, 'id' | 'variants'>> & { name: string };
 
 export type Gig = {
   id: number;
@@ -79,8 +136,22 @@ export type Gig = {
   description: string;
   /** Kappaleiden tunnisteet ovat koko pelissä yksilöllisiä, koska tallenne käyttää niitä. */
   songs: readonly number[];
-  /** Keikka, jonka suoritus avaa tämän keikan normaalissa etenemisessä. */
-  requires?: number;
+  /** Keikat, joiden suoritus avaa tämän keikan normaalissa etenemisessä. */
+  requires?: readonly number[];
+  /** Näkyvä nimi taivutuksineen. Oletus on "keikka N". */
+  name?: GigName;
+  /** Lukitun keikan selitteet: tavallinen avautuminen ja suora aloitus. */
+  lockNote?: string;
+  directNote?: string;
+  /**
+   * Keikan lopuksi soitettava esitys: luetellut keikkabiisit valmiina peräkkäin hyväksytyillä
+   * ratkaisuilla (opetusversio ja `target`) ja aplodit. Soundcheck ei ole esitys, joten se jätetään pois.
+   */
+  finale?: { songs: readonly number[]; note: string };
+  /** Keikan vaiheiden nimi laskureissa partitiivissa. Oletus on "kappaletta". */
+  unit?: string;
+  /** Valmistumiskortin yhteenveto. Oletus on "Suoritit N kappaletta." */
+  completionSummary?: string;
   /** Sallii kappaleiden kokeilemisen ilman tallennusta, vaikka keikka ei olisi vielä auki. */
   freePractice?: boolean;
   /**
@@ -90,5 +161,7 @@ export type Gig = {
   directStart?: boolean;
   completionTitle: string;
 };
+
+export type GigName = { heading: string; nominative: string; partitive: string; elative: string; genitive: string };
 
 export type Area = { title: string; gigs: readonly Gig[] };
