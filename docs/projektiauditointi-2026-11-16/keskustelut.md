@@ -39,4 +39,8 @@ Projektin näkymässä näkyi 29 keskustelua. Lisäksi projektin nimellä tehty 
 | Vanhemmat, muunnellut, arkistoidut tai muut projektihaun ulkopuolelle jääneet keskustelut · tunnisteet puuttuvat | Ei saatavilla kattavasti | — | Yksilöi ennen talteenottoa | Säilytä |
 | Clauden erilliset sessiot ja paikallinen keskeneräinen työ · tunnisteet puuttuvat | Ei saatavilla | GitHubissa näkyvät tuotokset tarkistettu | Pyydä omistajalta aihekohtainen yhteenveto ennen kyseisen työn keskustelun arkistointia | Säilytä |
 
+## Täydennetty arkistointiaineisto 16.11.2026
+
+- [Oppimiskartan integraation, omien lukusivujen ja numeroinnin keskustelukooste](oppimiskartan-integraatio-arkistointikooste.md): käyttäjän toimittama alkuperäinen keskusteluyhteenveto, erillinen historiallinen päätöstieto (01–08) ja tarkistettu PR #55/#61/#62/#63:n nykytilanne. Ei anna merge- eikä arkistointilupaa; #54 seuraa jäljellä olevia toteutus- ja testitehtäviä.
+
 Ehdolla arkistoitavaksi ovat vain kolme yllä yksilöityä keskustelua. Tulos riippuu siitä, että käyttäjä voi avata oikean keskustelun, hyväksyy ehdokkaat ja pitää GitHubiin tallennettua yhteenvetoa riittävänä. Jos käsin arkistoidaan, avaa ChatGPT:n projektin keskusteluluettelo, tarkista näkyvä nimi ja tunniste, avaa keskustelun **…**-valikko, valitse **Arkistoi** ja varmista, että keskustelu poistui aktiivisesta luettelosta. Samannimisen keskustelun kohdalla tarkista linkki ennen muutosta. Asetusten arkistoitujen keskustelujen näkymä mahdollistaa tarkistuksen ja palauttamisen.
