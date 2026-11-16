@@ -110,3 +110,19 @@ Seuraavassa verrattiin kunkin PR:n **alkuperäisten muutostiedostojen Git-blob-t
 **Huomioita tarkkuudesta:** Esimerkiksi PR #59:n ja #61:n vanhoja generoituja Ensikeikan assettitiedostonimiä ei enää löydy betasta samoilla nimillä; #60:n vanha Riffikaiku-komponentti on korvautunut myöhemmän rakenteen yhteydessä. Kaikki nykybeta-blobista eroavat tiedostot eivät ole virheitä. #65:n ääninäytteiden ja generaattorin keskeiset tiedostot täsmäävät alkuperäiseen PR-kärkeen, mutta harjoitussivujen rakenne on kehittynyt #83:ssa. Ilman toiminnallisia ja fyysisiä testejä ei saa väittää alkuperäisten käytös- tai säilytysvaatimusten tulleen kokonaisuudessaan hyväksytyiksi.
 
 **Toimenpide tässä vaiheessa:** vain dokumentointi. Ei mergejä, PR-sulkemisia, haarapoistoja tai paikallisten työpuiden muutoksia. Seuraava riippuvuuksia koskeva tekninen arvio tehdään erikseen ajantasaisesta beta-tarkistuspisteestä.
+
+
+## Vaihe 6/6, paikallisen työn suojausarvio: keskeneräinen (17.11.2026)
+
+Käyttäjän Macissa ajettiin vain lukutarkistukset `git status --short`, `git status --porcelain=v1 -uall | wc -l` ja `git diff --stat` kahdessa työpuussa. **Tulos on varoitus, ei kopiointitodistus:**
+
+| Työpuu | Seurattuja muokattuja | Seuraamattomia | Yhteensä | Suojaustila |
+| --- | ---: | ---: | ---: | --- |
+| `worktrees/ensikeikka-vaihe-0` | 35 | 35 | 70 | Aiempi `78c4312`-Git-bundle vain historia; nykyisten 70 poikkeaman vastaavuus aikaisempaan TAR:iin tarkistamatta |
+| `worktrees/riffikaiku-beta` | 10 | 0 | 10 | Ei vahvistettua nykyisten 10 muutetun tiedoston erillistä talteenottoa |
+
+Ensikeikka-vaihe-0:n seuraamattomissa on kokonaisia uusia `ensikeikka/`-komponentteja, testejä ja `pelit/`-hakemisto; seurattu diff on 35 tiedostoa / 659 lisäystä / 498 poistoa. Riffikaiku-beta sisältää 10 seurattua muutosta, mukaan lukien `LearningPaths.tsx`, `NoteJourney.tsx`, `main.tsx` sekä generoituja `app.js`/`app.js.map`/`app.css`-tiedostoja (diff 3014 lisäystä / 2911 poistoa). Generoitujen tiedostojen suurta diffiä ei saa pitää automaattisesti poisheitettävänä.
+
+**Kriittinen raja:** suorita muuttuneiden ja seuraamattomien tiedostojen erilliset, ei-ylikirjoittavat paikalliset arkistot, tallenna viite-HEAD ja tiedostolistat, tarkista arkistojen luettavuus ja SHA-256, ja vertaa lähdetila myöhemmin ennen mitään siivousta. Työpuut voivat muuttua agenttien rinnakkaistyön aikana. Älä oleta, että aiemmin tehty commit-bundle suojaa muuttuneita tiedostoja, äläkä käytä `git reset`, `clean`, `stash` tai mergeä.
+
+Tarkka dokumentaatio ja tiedostoluokitus: [issue #54:n tarkistusmerkintä](https://github.com/ristotoivanen/Musiikin-kartta/issues/54#issuecomment-6931106124). Tämä vaihe jää **kesken**, kunnes uudet työpuutilan kopiot ja niiden tarkistukset on raportoitu. Koodia tai työpuita ei tässä GitHub-auditoinnin kirjauksessa muuteta.
