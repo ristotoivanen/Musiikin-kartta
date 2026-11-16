@@ -12,6 +12,7 @@ miten melodia ja harmonia päättävät ne. Peli julkaistaan hakemistoon `pelit/
 | `catalog.ts` | Esiintymisalue, keikat ja kappaleet 1–9. `renderSong` renderöi minkä tahansa kappaleen |
 | `song-demo-score.ts`, `approved-songs.ts` | Keikan 1 sovitukset (ennallaan) |
 | `second-night.ts` | Keikan 2 sovitukset, lopetukset, tehtävät ja palautteet |
+| `first-gig.ts` | Ensikeikka – Kotikulman keikka (kappaleet 10–12); käsikirjoitus `KOTIKULMAN-KEIKKA.md` |
 | `arrangement.ts` | Synteettinen bändi: rummut, basso, komppi ja melodia kerroksina |
 | `GigPlayer.tsx` | Kappaleen näkymä: tehtävä, vaiheet, valmiin kappaleen soitto |
 | `main.tsx` | Alku, keikkalista, osoitteet ja eteneminen |
@@ -25,6 +26,13 @@ miten melodia ja harmonia päättävät ne. Peli julkaistaan hakemistoon `pelit/
   lisää painikkeet, joilla valitun lopetuksen ratkaisevan kohdan voi kuunnella vain bassona tai melodiana.
 - **`match`** – Kuuntele kaikki lopetukset ja tunnista kuvauksen mukainen lopetus jokaiseen
   kysymykseen. Käytetään, kun useampi lopetus on musiikillisesti toimiva eikä yhtä voi merkitä vääräksi.
+- **`compare`** – Kuuntele saman kohdan kaksi versiota (`versions`) ja kerro, mikä osa muuttui
+  (basso, soinnut tai melodia). Muut osat soivat näytteen tarkkuudella samoin. Tarkin vihje avaa
+  osien erilliskuuntelun ("Vertaa vain bassoa").
+- **`continue`** – Kuuntele alku (`openingBars`) ja kaksi kokonaista jatkoa (kappaleen `takes`).
+  Valinta ratkeaa soittamalla koko kappale valitulla jatkolla, ja palaute tulee esityksen jälkeen.
+  Arvio perustuu bändin tavoitteeseen (`goal`), joten molemmat jatkot voivat olla musiikillisesti toimivia.
+  Jatkot numeroidaan (Jatko 1, Jatko 2), ja tekstit viittaavat niihin paikkamerkeillä `{A}`/`{B}`.
 - **`reason`** – Valitse väite, joka selittää kuulemasi ratkaisun. Basson erilliskuuntelu vaaditaan
   ennen tarkistusta, jos `isolate` sisältää basson.
 
@@ -44,6 +52,15 @@ keikka tai settilista, ja toissijainen on "Kuuntele uudelleen". Soittopainike on
 "Kuuntele uudelleen", joten fokus ei siirry. Selityksen avoin tila säilyy. Uudelleenkuuntelu ei tallenna
 mitään, ja keskeytetty toisto ei valmista kappaletta. Tilakoneen vaiheet `perform` ja `complete` säilyvät,
 mutta näkymä on sama. Jokaisen kappaleen selitys käsittelee myös väärät vaihtoehdot (yksikkötesti).
+
+Tehtävän `span: [alku, loppu]` rajaa ratkaisevan kohdan tahteihin. Katkelma leikataan ja häivytetään.
+
+**Versiot (`variants`):** saman taidon toiset musiikkiesimerkit. Opetus käyttää kappaletta sellaisenaan.
+Harjoittelukierros arpoo version, jota ei juuri kuultu (`songVersion`, `versionCount`). Tunniste ja
+tallennus pysyvät samoina.
+
+**Koko keikka (`finale`):** keikan viimeisen kappaleen jälkeen "Kuuntele koko keikka" soittaa keikan
+kappaleet pelaajan soittamina versioina ja aplodit (`renderFinale`).
 
 Kappaleella voi olla useita tehtäviä peräkkäin (`tasks`). Väliin näytetään onnistumispalaute ja
 "Jatka vaiheeseen N". Valmis kappale soitetaan lopetuksella `target`.
@@ -77,6 +94,10 @@ teksti (ohje, vihjeet, palaute) on datassa.
 
 - Keikan kappaleet avautuvat järjestyksessä. Keikasta lasketaan vain alusta yhtenäinen osa.
 - Keikka 2 avautuu, kun keikka 1 on valmis. Jos keikasta 2 on jo suorituksia, se pysyy auki.
+- Ensikeikka (keikka 3, `requires: [1, 2]`) avautuu, kun Ensitreenit eli keikat 1 ja 2 ovat valmiit.
+  Myös sen voi aloittaa suoraan tai kokeilla vapaasti. Esiintymisalue valmistuu vasta kaikkien kolmen
+  keikan jälkeen. Näkyvä nimistö (Ensitreenit, Keikkakalenteri) on jatkokehitystä, ja tekniset
+  tunnisteet (`#keikka-3`, kappaleet 10–12) pysyvät.
 - **Suora aloitus** (`directStart`): kokenut pelaaja voi aloittaa lukitun keikan 2 ensimmäisestä
   kappaleesta. Suoritukset tallentuvat normaalisti, keikka 1 ei merkitse itseään suoritetuksi, ja
   esiintymisalue valmistuu vasta molempien keikkojen jälkeen. Kun keikasta on yksi suoritus, se on auki.
@@ -111,5 +132,9 @@ pysäyttää soiton mutta ei sulje kontekstia.
 
 ```bash
 npx vitest run tests/ensikeikka*
-npx playwright test tests/e2e/ensikeikka.spec.ts tests/e2e/ensikeikka-toinen-ilta.spec.ts tests/e2e/betapelien-navigointi.spec.ts
+npx playwright test tests/e2e/ensikeikka.spec.ts tests/e2e/ensikeikka-toinen-ilta.spec.ts tests/e2e/ensikeikka-kotikulman-keikka.spec.ts tests/e2e/betapelien-navigointi.spec.ts
 ```
+
+Ensikeikan selaintestit eivät odota pitkiä soittoja. Kun oikea toisto on käynnistynyt, testi kutsuu
+ääniolion `ended`-käsittelijää, ja sovellus käsittelee sen kuin luonnollisen loppumisen. Ensitreenien
+testit odottavat soitot loppuun asti, joten oikea toisto on testattu myös kokonaan.
