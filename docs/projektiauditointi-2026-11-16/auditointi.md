@@ -87,3 +87,26 @@ Tämän auditoinnin muutokset rajoittuvat dokumentaatioon ja projektin ensisijai
 ## Yhdistämiskokeen havainnot
 
 Lukittuun betaan ajettu `git merge-tree` oli vain paikallinen yhdistämissimulaatio. #37–#39, #62/#63, #75/#81 ja #86 antoivat konflikteja. #46, #76, #80 ja #83 olivat teknisesti yhdistettävissä kyseisessä simulaatiossa. #86 osuu betan `index.html`:ään, #75/#81 Riffikaiun generoituun JS:ään ja HTML:ään. #37–#39 osuvat yhteiseen navigaatioon, teorialuvun sivuihin ja harjoittelijan tuotoksiin. #39:ssä on lisäksi lähdekonflikti `NoteJourney.tsx`:ssä. Tekninen tulos ei ratkaise käyttöliittymän, äänen tai opetussisällön hyväksyntää.
+
+
+## Vaihe 3/6: Vanhojen avointen PR:ien tila ja riippuvuudet (16.11.2026)
+
+Tarkistettu GitHubin nykyisen `beta f9964c5463411a99f961fa9f6eed3fd3d72e6aba` historiaan. PR:t #57–#61, #64 ja #65 ovat **kaikki yhä avoimia draft-PR:iä**, mutta niiden **HEAD-commitit ovat nykyisen betan esi-isiä** (GitHub compare: `HEAD...beta` on `ahead`, `behind=0`). Seitsemässä PR:ssä ei näkynyt yhtään kirjattua review-hyväksyntää. Tämän vuoksi vanhoja haaroja ei yhdistetä uudestaan eikä katselmointia merkitä hyväksytyksi pelkän esi-isyyden perusteella.
+
+Seuraavassa verrattiin kunkin PR:n **alkuperäisten muutostiedostojen Git-blob-tunnisteita** nykyisen betan Git-puuhun; lukumäärä ei mittaa toiminnallista yhtäpitävyyttä eikä äänitiedostojen käyttötestausta.
+
+| PR | Muuttuneita tiedostoja | Nykybeta vastaa täsmälleen | Riippuvuudet ja hallinnollinen arvio |
+| --- | ---: | ---: | --- |
+| [#57](https://github.com/ristotoivanen/Musiikin-kartta/pull/57) | 28 | 6 | Navigaatiovakautus integroitu #61:een; sulkemisehdokas **vasta** #56:n ja laite-/regressiohyväksynnän tarkistuksen jälkeen |
+| [#58](https://github.com/ristotoivanen/Musiikin-kartta/pull/58) | 3 | 0 | Alavalikon poisto integroitu #61:een; nykyisten reittien todellinen toiminta/issue #44 varmistettava |
+| [#59](https://github.com/ristotoivanen/Musiikin-kartta/pull/59) | 7 | 1 | Ensikeikan yhteinen tehtävä integroitu #61:een; uudempi erillinen Claude-ketju #76 → #80 → #86 aktiivinen, kuuntelu ja vanhat tallennukset vielä testattava |
+| [#60](https://github.com/ristotoivanen/Musiikin-kartta/pull/60) | 9 | 0 | Riffikaiun aloitus integroitu #61:een; **haara on PR #64:n pohja**, eikä sitä saa poistaa |
+| [#61](https://github.com/ristotoivanen/Musiikin-kartta/pull/61) | 45 | 11 | Sisältää #57–#60-yhteiskoosteen; **haara on #62:n ja #63:n pohja**. Aihe-/teoriasivujen vaihtoehdot ja nykybeta-delta vielä ratkaisematta |
+| [#64](https://github.com/ristotoivanen/Musiikin-kartta/pull/64) | 29 | 15 | Riffikaiun käyttötapojen erottelu on beta-historiassa; **haara on #75:n pohja**, ja #81 jatkaa #75:n päälle. Pidä kehitysketju aktiivisena |
+| [#65](https://github.com/ristotoivanen/Musiikin-kartta/pull/65) | 24 | 10 | Vanha viisisivuinen Kitaran perusteet -polku. **Kaikki 14 beta-tilaan nähden muuttunutta tiedostoa löytyvät myös sittemmin yhdistetyn #83:n muuttamien tiedostojen joukosta.** Vahva päällekkäisyyden selvityskohde; nykyisen 2–5 minuutin pikakertauksen sisällöllinen hyväksyntä vielä avoin |
+
+**Luokitus:** #57–#59 ja #65 ovat *hallinnollisen sulkemisen ehdokkaita* vasta toiminnallisten hyväksyntöjen ja jäljellä olevien riippuvuuksien jälkeen. #60, #61 ja #64 ovat *riippuvuushaaroja*, joita ei saa poistaa eikä käsitellä irrallisina PR:inä. PR:n sulkeminen, haaran poistaminen, työpuun poistaminen ja keskustelun arkistointi ovat eri päätöksiä.
+
+**Huomioita tarkkuudesta:** Esimerkiksi PR #59:n ja #61:n vanhoja generoituja Ensikeikan assettitiedostonimiä ei enää löydy betasta samoilla nimillä; #60:n vanha Riffikaiku-komponentti on korvautunut myöhemmän rakenteen yhteydessä. Kaikki nykybeta-blobista eroavat tiedostot eivät ole virheitä. #65:n ääninäytteiden ja generaattorin keskeiset tiedostot täsmäävät alkuperäiseen PR-kärkeen, mutta harjoitussivujen rakenne on kehittynyt #83:ssa. Ilman toiminnallisia ja fyysisiä testejä ei saa väittää alkuperäisten käytös- tai säilytysvaatimusten tulleen kokonaisuudessaan hyväksytyiksi.
+
+**Toimenpide tässä vaiheessa:** vain dokumentointi. Ei mergejä, PR-sulkemisia, haarapoistoja tai paikallisten työpuiden muutoksia. Seuraava riippuvuuksia koskeva tekninen arvio tehdään erikseen ajantasaisesta beta-tarkistuspisteestä.
