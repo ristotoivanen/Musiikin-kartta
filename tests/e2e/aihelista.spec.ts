@@ -161,13 +161,13 @@ test('kaikki teorialuvut tehnyt käyttäjä näkee säilyneet merkinnät ja kesk
   await expect(kitaraProgress(page)).toHaveText('1/5 lisäharjoitusta tehty');
   await expect(list(page).locator('.topic-status')).toHaveText([
     '1/5 lisäharjoitusta tehty',
-    '1/4 lisäharjoitusta tehty',
-    '1/3 lisäharjoitusta tehty',
-    '6/14 lisäharjoitusta tehty',
-    '3/8 lisäharjoitusta tehty',
-    '7/18 lisäharjoitusta tehty',
-    '3/7 lisäharjoitusta tehty',
-    '6/14 lisäharjoitusta tehty',
+    '1/4 sisältöä tehty',
+    '1/3 sisältöä tehty',
+    '6/14 sisältöä tehty',
+    '3/8 sisältöä tehty',
+    '7/18 sisältöä tehty',
+    '3/7 sisältöä tehty',
+    '6/14 sisältöä tehty',
   ]);
   expect(await page.evaluate(key => localStorage.getItem(key), readingKey)).toBe(stored.raw);
 });
