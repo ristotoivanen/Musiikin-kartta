@@ -159,8 +159,13 @@ describe('staattisen sivuston yhteensopivuus',()=>{
       const topicPage = read('oppi/' + topic + '/index.html');
       const cardIds = [...topicPage.matchAll(/data-study-status="([^"]+)"/g)].map(([, id]) => id);
       const mapCard = map.match(new RegExp('<a[^>]+href="oppi/' + topic + '/index.html"[^>]+data-study-items="([^"]+)"'));
-      expect(cardIds.sort(), topic).toEqual([...topicIds].sort());
-      expect(mapCard?.[1].split(' ').sort(), topic).toEqual([...topicIds].sort());
+      if (topic === 'kitara') {
+        expect(cardIds).toEqual([]);
+        expect(mapCard).toBeNull();
+      } else {
+        expect(cardIds.sort(), topic).toEqual([...topicIds].sort());
+        expect(mapCard?.[1].split(' ').sort(), topic).toEqual([...topicIds].sort());
+      }
       expect(topicPage, topic).not.toContain('class="done-toggle"');
     }
     expect(byKind).toEqual({ luku: 28, harjoitus: 41, oppitunti: 4 });
@@ -170,9 +175,10 @@ describe('staattisen sivuston yhteensopivuus',()=>{
     const studyRoutes = (topic: string) => [...read(`oppi/${topic}/index.html`)
       .matchAll(/<a class="study-choice"[^>]* href="([^"]+)\.html"/g)].map(([, route]) => route);
     expect(Object.values(legacyStudyRoutes).flat()).toHaveLength(70);
-    expect(studyRoutes('kitara')).toEqual([
-      'savelesta-sointuun', 'vaihto-ja-sointukartta', ...legacyStudyRoutes.kitara, 'mihin-kierto-paattyy',
-    ]);
+    expect(studyRoutes('kitara')).toEqual([]);
+    for (const slug of ['savelesta-sointuun', 'vaihto-ja-sointukartta', 'mihin-kierto-paattyy']) {
+      expect(studyFiles).toContain(`oppi/kitara/${slug}.html`);
+    }
     for (const [topic, routes] of Object.entries(legacyStudyRoutes)) {
       if (topic !== 'kitara') expect(studyRoutes(topic), topic).toEqual(routes);
       for (const route of routes) {

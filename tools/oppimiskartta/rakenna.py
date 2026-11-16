@@ -314,34 +314,22 @@ def study_ids(pages):
     return ' '.join(page.study_id for page in pages)
 
 
-def optional_progress(topic):
-    return ' data-optional-practice' if 'introduction' in topic else ''
-
-
-def topic_introduction(topic, lookup):
-    output = topic['path']
-    source = CONFIG.parent / 'sisallot' / topic['slug'] / 'johdanto.html'
-    example = rebase(source.read_text(encoding='utf-8').strip(), source.relative_to(ROOT).as_posix(), output, {})
-    choices = [link(rel(lookup[key][0], output), lookup[key][1]) + '<br>' + escape(description)
-               for key, description in topic['introduction']['next_topics'].items()]
-    return [
-        '<p class="study-guide">' + link('#jatkoaiheet', 'Valitse jatkoaihe') + '</p>',
-        example,
-        '<section class="study-group" aria-labelledby="jatkoaiheet">\n'
-        '  <h2 id="jatkoaiheet" tabindex="-1">Valitse seuraava aihe</h2>\n'
-        + indent(listed(choices), '  ') + '\n</section>',
-    ]
-
-
-def topic_home(topic, lookup, exercise_descriptions, introductions):
-    introduction = 'introduction' in topic
-    parts = [] if introduction else [f'<p class="study-meta">Aihe {topic["number"]:02}</p>']
-    parts.extend([f'<h1>{escape(topic["title"])}</h1>', f'<p class="lead">{escape(topic["lead"])}</p>'])
-    if introduction:
-        parts.extend(topic_introduction(topic, lookup))
-    total = f'<p class="study-status" data-study-total{optional_progress(topic)} hidden></p>'
-    if not introduction:
-        parts.append(total)
+def topic_home(topic, lookup, exercise_descriptions):
+    if topic.get('recap'):
+        output = topic['path']
+        source = CONFIG.parent / 'sisallot' / topic['slug'] / 'pikakertaus.html'
+        body = rebase(source.read_text(encoding='utf-8').strip(), source.relative_to(ROOT).as_posix(), output, {})
+        action = link(rel('index.html', output) + '#oppimisaiheet', 'Siirry Oppimiskarttaan', ' class="primary-link"')
+        return f'''<header class="recap-header">
+  <h1>{escape(topic['title'])}</h1>
+  <p class="lead">{escape(topic['lead'])}</p>
+  {action}
+</header>
+{body}
+<p class="recap-next">{action}</p>'''
+    parts = [f'<p class="study-meta">Aihe {topic["number"]:02}</p>',
+             f'<h1>{escape(topic["title"])}</h1>', f'<p class="lead">{escape(topic["lead"])}</p>',
+             '<p class="study-status" data-study-total hidden></p>']
     step = 0
     groups = []
     rows = []
@@ -350,9 +338,7 @@ def topic_home(topic, lookup, exercise_descriptions, introductions):
                  for number, page in enumerate(group['pages'], step + 1)]
         size = len(links)
         rows.append(f'auto repeat({size}, var(--study-card-tracks))')
-        start = ''
-        if step == 0:
-            start = total if introduction else '<p class="study-start">Aloita tästä</p>'
+        start = '<p class="study-start">Aloita tästä</p>' if step == 0 else ''
         heading = f'<div class="study-choice-heading"><h2>{escape(group["title"])}</h2>{start}</div>'
         groups.append(f'<section class="study-group" style="--study-group-span: {1 + size * 2}">\n'
                       + indent(heading + '\n' + listed(links, ordered=True), '  ') + '\n</section>')
@@ -366,10 +352,8 @@ def topic_home(topic, lookup, exercise_descriptions, introductions):
             href = scoped_url(url.path, url.query, url.fragment, topic['path'], topic)
             links.append(link(href, tool['title']))
         parts.append(section('Harjoittelijat ja työkalut', listed(links)))
-    related_keys = dict.fromkeys([*topic['related'], *introductions.get(topic['slug'], [])])
-    if related_keys:
-        related = [link(rel(lookup[key][0], topic['path']), lookup[key][1]) for key in related_keys]
-        parts.append(section('Tutki myös', listed(related)))
+    related = [link(rel(lookup[key][0], topic['path']), lookup[key][1]) for key in topic['related']]
+    parts.append(section('Tutki myös', listed(related)))
     return '\n'.join(parts)
 
 
@@ -437,9 +421,9 @@ def steps(topic, index, next_topic, *, bottom=False):
     sequence = topic['pages']
     page = sequence[index]
     items = []
-    if index == len(sequence) - 1:
+    if index == len(sequence) - 1 and not topic.get('recap'):
         live = ' aria-live="polite"' if bottom else ''
-        status = f'<p class="study-status" data-boundary-progress{optional_progress(topic)}{live} hidden></p>'
+        status = f'<p class="study-status" data-boundary-progress{live} hidden></p>'
         if next_topic is None:
             status += '<p class="study-status is-done" data-path-progress hidden>✓ Oppimispolku käyty läpi</p>'
         items.append(f'<div class="study-boundary-status">{status}</div>')
@@ -465,16 +449,20 @@ def steps(topic, index, next_topic, *, bottom=False):
 def render(topic, content, nav, page=None, *, path_items=()):
     output = page.path if page else topic['path']
     title = page.title if page else topic['title']
-    styles = '\n'.join(stylesheet(path, output) for path in ('book/reader.css', 'assets/paavalikko.css', 'assets/oppi.css'))
+    recap = not page and topic.get('recap')
+    stylesheets = ['book/reader.css', 'assets/paavalikko.css', 'assets/oppi.css']
+    if recap:
+        stylesheets.append('assets/kitara-kertaus.css')
+    styles = '\n'.join(stylesheet(path, output) for path in stylesheets)
     back_href = rel(topic['path'], output) if page else rel('index.html', output) + '#' + topic['anchor']
     back_label = topic['back_label'] if page else 'Oppimiskarttaan'
-    if not page:
+    if not page and not recap:
         content += '\n<p class="study-reference">' + link(rel('book/index.html', output), 'Teoriaoppaan kaikki osat') + '</p>'
     if page:
         progress = f' data-study-item="{page.study_id}" data-study-kind="{page.study_kind}"'
         if page.chapter:
             progress += f' data-theory-chapter="{page.chapter}"'
-        if page is topic['pages'][-1]:
+        if page is topic['pages'][-1] and not topic.get('recap'):
             progress += f' data-topic-items="{escape(study_ids(topic["pages"]))}"'
         if path_items:
             progress += f' data-path-items="{escape(study_ids(path_items))}"'
@@ -484,6 +472,12 @@ def render(topic, content, nav, page=None, *, path_items=()):
     if page and 'data-korvatreeni=' in page.markup:
         scripts += [rel(path, output) for path in ('assets/harjoitustausta.js', 'assets/korvatreeni.js')]
     scripts = '\n'.join(f'  <script src="{url}"></script>' for url in scripts)
+    page_class = ' recap-page' if recap else ''
+    if not recap:
+        back = f'''<nav class="study-up" aria-label="Paluunavigointi">
+  <a class="study-back" href="{escape(back_href)}"><span aria-hidden="true">←</span> {escape(back_label)}</a>
+</nav>'''
+        content = back + '\n' + content
     return f'''<!doctype html>
 {GENERATED}
 <html lang="fi">
@@ -498,10 +492,7 @@ def render(topic, content, nav, page=None, *, path_items=()):
   <header class="site-top">
 {indent(rebase(nav, "book/osa-2.html", output, {}), '    ')}
   </header>
-  <main class="frame study-page" id="oppi-sisalto"{progress}>
-    <nav class="study-up" aria-label="Paluunavigointi">
-      <a class="study-back" href="{escape(back_href)}"><span aria-hidden="true">←</span> {escape(back_label)}</a>
-    </nav>
+  <main class="frame study-page{page_class}" id="oppi-sisalto"{progress}>
 {indent(content, '    ')}
   </main>
 {scripts}
@@ -523,13 +514,15 @@ def replace_block(source, start, end, value, name):
 def home_grid(topics):
     cards = []
     for topic in topics:
-        items = study_ids(topic['pages'])
-        cards.append(f'''    <a class="topic-card" id="{topic['anchor']}" href="{topic['path']}" data-study-items="{escape(items)}">
+        items = status = ''
+        if not topic.get('recap'):
+            items = f' data-study-items="{escape(study_ids(topic["pages"]))}"'
+            status = '\n        <span class="topic-status" hidden></span>'
+        cards.append(f'''    <a class="topic-card" id="{topic['anchor']}" href="{topic['path']}"{items}>
       <span class="topic-number" aria-hidden="true">{topic['number']:02}</span>
       <strong class="topic-title">{escape(topic['title'])}</strong>
       <span class="topic-details">
-        <span class="topic-description">{escape(topic['summary'])}</span>
-        <span class="topic-status"{optional_progress(topic)} hidden></span>
+        <span class="topic-description">{escape(topic['summary'])}</span>{status}
       </span>
       <span class="topic-arrow" aria-hidden="true">→</span>
     </a>''')
@@ -582,15 +575,6 @@ def pages():
     book = books['book/osa-2.html']
     nav = book.fragment(book.one('aria-label', 'Päävalikko'))
     lookup = {topic['slug']: (topic['path'], topic['title']) for topic in topics}
-    introductions = {}
-    for topic in topics:
-        if 'introduction' not in topic:
-            continue
-        next_topics = topic['introduction']['next_topics']
-        if set(next_topics) != lookup.keys() - {topic['slug']} or not all(text.strip() for text in next_topics.values()):
-            raise ValueError(f'{topic["title"]}: johdanto tarvitsee kuvaukset kaikille jatkoaiheille')
-        for key in next_topics:
-            introductions.setdefault(key, []).append(topic['slug'])
     lookup.update({page.path.removeprefix('oppi/').removesuffix('.html'): (page.path, page.title) for page in all_pages})
     targets = index_targets(all_pages)
     exercise_slugs = {Path(page.path).stem for page in all_pages if page.parent}
@@ -601,16 +585,17 @@ def pages():
     if set(audio) - exercise_slugs:
         raise ValueError('Ääniesimerkin harjoitussivu puuttuu')
 
+    path_pages = [page for topic in topics if not topic.get('recap') for page in topic['pages']]
     output = {}
     for number, topic in enumerate(topics):
         next_topic = topics[number + 1] if number + 1 < len(topics) else None
-        output[topic['path']] = render(topic, topic_home(topic, lookup, exercise_descriptions, introductions), nav)
+        output[topic['path']] = render(topic, topic_home(topic, lookup, exercise_descriptions), nav)
         sequence = topic['pages']
         for index, page in enumerate(sequence):
             content = page_content(page, topic, index, next_topic, books, targets, audio)
             if not page.parent and page.source in books:
                 content += sources(books[page.source], page.path)
-            path_items = all_pages if next_topic is None and index == len(sequence) - 1 else ()
+            path_items = path_pages if next_topic is None and index == len(sequence) - 1 else ()
             output[page.path] = render(topic, content, nav, page, path_items=path_items)
 
     start = lookup[config['start']][0]

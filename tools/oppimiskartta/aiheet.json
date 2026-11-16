@@ -4,19 +4,9 @@
     {
       "slug": "kitara", "anchor": "aihe-kitara", "title": "Kitaran perusteet",
       "back_label": "Kitaran perusteisiin",
-      "summary": "Tutustu Musiikin karttaan tutun sointukierron kautta.",
-      "lead": "Osaat jo muutaman avosoinnun. Musiikin kartassa opit kuulemaan, ymmärtämään ja käyttämään niitä kappaleissa ja omassa soitossasi.",
-      "introduction": {
-        "next_topics": {
-          "rytmi": "Pidä pulssi tasaisena sointujen vaihtuessa ja kokeile, miten eri kompit muuttavat saman kierron tuntua.",
-          "savelnimet": "Lue sointukartasta, mitä G, C ja D tarkoittavat. Opit myös nimeämään säveliä ja hahmottamaan niiden välejä.",
-          "korva": "Seuraa bassoa korvalla ja kuuntele, miltä paluu D:stä G:hen tuntuu kierron lopussa.",
-          "otelauta": "Etsi kierron perussävelet eri kieliltä ja löydä tutut sointuotteiden muodot eri puolilta otelautaa.",
-          "soinnut": "Tunnista, miksi G-duurissa G on kotisointu, C vie siitä poispäin ja D valmistaa paluuta. Kirjoita kierto asteina I–IV–V–I.",
-          "asteikot": "Tutki, millaisista sävelistä G-duuriasteikko rakentuu ja miten voit käyttää asteikon säveliä melodiassa.",
-          "kappaleet": "Soita sointukartasta, kuuntele kappaleen rakennetta tai keksi kierron päälle lyhyt oma fraasi."
-        }
-      },
+      "summary": "Kertaa kielet, soinnut ja rytmin perusteet 2–5 minuutissa.",
+      "lead": "Palauta mieleen kitaransoiton perustiedot, joita tarvitset Musiikin kartan muissa aiheissa. Kertaus vie 2–5 minuuttia.",
+      "recap": true,
       "groups": [
         {"title": "Valinnaiset lisäharjoitukset", "lessons": [
           {"standalone": "savelesta-sointuun", "title": "Sävelestä sointuun", "goal": "Kuuntele, miten yksittäisistä sävelistä syntyy sointu ja miten soinnuista muodostuu kierto."},

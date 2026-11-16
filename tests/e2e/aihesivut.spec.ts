@@ -109,6 +109,14 @@ const topics = [
   ['kappaleet', 'kappaleet', 'Kappaleet ja oma musiikki', 'Kappaleisiin ja omaan musiikkiin'],
 ] as const;
 
+const guitarExercises = [
+  ['savelesta-sointuun', 'Sävelestä sointuun'],
+  ['vaihto-ja-sointukartta', 'Sointuvaihdot ja sointukartta'],
+  ['sointukierrot', 'Neljä otetta ja ensimmäinen kappale'],
+  ['soita-ensin-basso', 'Soita ensin basso'],
+  ['mihin-kierto-paattyy', 'Mihin sointukierto päättyy?'],
+].map(([slug, title]) => ({ path: '/oppi/kitara/' + slug + '.html', title }));
+
 for (const [topicIndex, [anchor, slug, title, backName]] of topics.entries()) {
   test(title + ' · jokainen askel ja resurssi löytyy', async ({ page, request }) => {
     const map = '/index.html#aihe-' + anchor;
@@ -117,22 +125,23 @@ for (const [topicIndex, [anchor, slug, title, backName]] of topics.entries()) {
     await page.locator('#aihe-' + anchor).click();
     await expect(page).toHaveURL(topic);
     await expect(page.getByRole('heading', { level: 1, name: title })).toBeVisible();
+    let items = guitarExercises;
     if (slug === 'kitara') {
-      await expect(page.getByRole('heading', { name: 'Valinnaiset lisäharjoitukset' })).toBeVisible();
+      await expect(page.locator('.study-choice, [data-study-total]')).toHaveCount(0);
     } else {
       await expect(page.getByText('Aloita tästä', { exact: true })).toBeVisible();
+      await expect(back(page)).toHaveCount(1);
+      await expect(exactBack(page, 'Oppimiskarttaan')).toHaveAttribute('href', '../../index.html#aihe-' + anchor);
+      await expect(page.locator('a[href="../../index.html#aihe-' + anchor + '"]')).toHaveCount(1);
+      await expect(page.locator('a.study-back')).toBeVisible();
+      await expect(page.getByRole('link', { name: 'Teoriaoppaan kaikki osat' })).toHaveAttribute('href', '../../book/index.html');
+      const choices = page.locator('a.study-choice');
+      expect(await choices.count()).toBeGreaterThanOrEqual(2);
+      items = await choices.evaluateAll(nodes => nodes.map(node => ({
+        path: new URL((node as HTMLAnchorElement).href).pathname,
+        title: node.querySelector('.study-title')!.textContent!.trim().replace(/^Harjoitus · /, ''),
+      })));
     }
-    await expect(back(page)).toHaveCount(1);
-    await expect(exactBack(page, 'Oppimiskarttaan')).toHaveAttribute('href', '../../index.html#aihe-' + anchor);
-    await expect(page.locator('a[href="../../index.html#aihe-' + anchor + '"]')).toHaveCount(1);
-    await expect(page.locator('a.study-back')).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Teoriaoppaan kaikki osat' })).toHaveAttribute('href', '../../book/index.html');
-    const choices = page.locator('a.study-choice');
-    expect(await choices.count()).toBeGreaterThanOrEqual(2);
-    const items = await choices.evaluateAll(nodes => nodes.map(node => ({
-      path: new URL((node as HTMLAnchorElement).href).pathname,
-      title: node.querySelector('.study-title')!.textContent!.trim().replace(/^Harjoitus · /, ''),
-    })));
     const audio = new Set<string>();
     for (const [index, { path, title: itemTitle }] of items.entries()) {
       expect((await page.goto(path))?.ok(), path).toBe(true);
@@ -201,8 +210,13 @@ for (const [topicIndex, [anchor, slug, title, backName]] of topics.entries()) {
     }
     await bottomSteps(page).getByRole('link', { name: backName, exact: true }).click();
     await expect(page).toHaveURL(topic);
-    await exactBack(page, 'Oppimiskarttaan').click();
-    await expect(page).toHaveURL(map);
+    if (slug === 'kitara') {
+      await page.getByRole('link', { name: 'Siirry Oppimiskarttaan', exact: true }).first().click();
+      await expect(page).toHaveURL('/index.html#oppimisaiheet');
+    } else {
+      await exactBack(page, 'Oppimiskarttaan').click();
+      await expect(page).toHaveURL(map);
+    }
   });
 }
 
@@ -212,8 +226,9 @@ for (const [index, [, slug, title]] of topics.slice(0, -1).entries()) {
     await page.goto('/oppi/' + slug + '/index.html');
     const choices = page.locator('.study-choice');
     const total = await choices.count();
-    const unit = slug === 'kitara' ? 'lisäharjoitusta' : 'sisältöä';
-    const lastUrl = await choices.last().evaluate(link => (link as HTMLAnchorElement).href);
+    const lastUrl = slug === 'kitara'
+      ? guitarExercises.at(-1)!.path
+      : await choices.last().evaluate(link => (link as HTMLAnchorElement).href);
     const nextPath = '/oppi/' + nextSlug + '/index.html?polku=aihe-' + nextAnchor;
     const mapCard = page.locator('#aihe-' + nextAnchor);
 
@@ -221,7 +236,9 @@ for (const [index, [, slug, title]] of topics.slice(0, -1).entries()) {
     if (index + 1 >= 3) await expect(mapCard).toBeHidden();
     await page.goto(lastUrl);
     for (const steps of [topSteps(page), bottomSteps(page)]) {
-      await expect(steps.locator('[data-boundary-progress]')).toHaveText(`0/${total} ${unit} tehty`);
+      const progress = steps.locator('[data-boundary-progress]');
+      if (slug === 'kitara') await expect(progress).toHaveCount(0);
+      else await expect(progress).toHaveText(`0/${total} sisältöä tehty`);
       await steps.getByRole('link', { name: 'Seuraava aihe: ' + nextTitle, exact: true }).click();
       await expect(page).toHaveURL(nextPath);
       await expect(page.getByRole('heading', { level: 1, name: nextTitle, exact: true })).toBeVisible();
@@ -237,7 +254,7 @@ for (const [index, [, slug, title]] of topics.slice(0, -1).entries()) {
   });
 }
 
-test('aiheen suoritusaste päivittyy molemmissa navigoinneissa ja kuittaus säilyy palatessa', async ({ page }) => {
+test('vanhan kitaratehtävän kuittaus säilyy palatessa ilman yhteistä suoritustilaa', async ({ page }) => {
   const chapter = '/oppi/kitara/sointukierrot.html';
   const practice = '/oppi/kitara/soita-ensin-basso.html';
   const last = '/oppi/kitara/mihin-kierto-paattyy.html';
@@ -251,22 +268,23 @@ test('aiheen suoritusaste päivittyy molemmissa navigoinneissa ja kuittaus säil
   await expect(page).toHaveURL(last);
 
   const progress = page.locator('[data-boundary-progress]');
-  await expect(progress).toHaveText(['2/5 lisäharjoitusta tehty', '2/5 lisäharjoitusta tehty']);
+  await expect(progress).toHaveCount(0);
   await page.getByRole('button', { name: 'Merkitse oppitunti tehdyksi' }).click();
   await expect(page).toHaveURL(last);
-  await expect(progress).toHaveText(['3/5 lisäharjoitusta tehty', '3/5 lisäharjoitusta tehty']);
+  await expect(page.getByRole('button', { name: '✓ Oppitunti tehty' })).toHaveAttribute('aria-pressed', 'true');
   await bottomSteps(page).getByRole('link', { name: 'Edellinen: Soita ensin basso', exact: true }).click();
   await expect(page).toHaveURL(practice);
   await expect(page.getByRole('button', { name: '✓ Harjoitus tehty' })).toHaveAttribute('aria-pressed', 'true');
   await page.goBack();
   await expect(page).toHaveURL(last);
   await page.getByRole('button', { name: '✓ Oppitunti tehty' }).click();
-  await expect(progress).toHaveText(['2/5 lisäharjoitusta tehty', '2/5 lisäharjoitusta tehty']);
+  expect(await page.evaluate(key => JSON.parse(localStorage.getItem(key) ?? '[]'), readingKey))
+    .toEqual(['sointukierrot', 'harjoitus:soita-ensin-basso']);
 });
 
 test('viimeinen sisältö tarjoaa paluun kartalle ja näyttää oppimispolun valmistumisen vasta kaikkien aiheiden jälkeen', async ({ page }) => {
   await page.goto('/index.html');
-  const keys = await page.locator('.topic-card').evaluateAll(cards => cards.map(card =>
+  const keys = await page.locator('.topic-card[data-study-items]').evaluateAll(cards => cards.map(card =>
     (card as HTMLElement).dataset.studyItems!.split(' ')));
   await page.goto('/oppi/kappaleet/index.html');
   const last = await page.locator('.study-choice').last().evaluate(link => (link as HTMLAnchorElement).href);
@@ -345,7 +363,7 @@ for (const width of [320, 390, 768, 1440]) {
 for (const width of [320, 390, 768, 1024, 1440]) {
   test('kaikkien aiheiden sisältökortit kohdistuvat leveydellä ' + width + ' px myös suurennetulla tekstillä', async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
-    for (const [, slug, title] of topics) {
+    for (const [, slug, title] of topics.slice(1)) {
       await page.goto('/oppi/' + slug + '/index.html');
       for (const scale of ['', '200%']) {
         const context = title + ' · ' + width + ' px · ' + (scale || '100%');
@@ -398,13 +416,12 @@ for (const width of [320, 390, 768, 1024, 1440]) {
 
 test('ristiinlinkitys avaa saman opetussivun ja takaisinpaluu säilyttää lähtöaiheen', async ({ page }) => {
   await page.goto('/oppi/kitara/index.html');
-  await page.getByText('Pikakertaus', { exact: true }).click();
   await page.getByRole('link', { name: 'Kitaran kielet ja sointumerkinnät', exact: true }).click();
   await expect(page).toHaveURL(guitarPath);
   await page.getByRole('button', { name: 'Merkitse oppitunti tehdyksi' }).click();
   await page.goBack();
   await expect(page).toHaveURL('/oppi/kitara/index.html');
-  await expect(page.locator('[data-study-total]')).toHaveText('0/5 lisäharjoitusta tehty');
+  await expect(page.locator('[data-study-total]')).toHaveCount(0);
   await page.goto(topicPath);
   const guitarCard = page.locator('#valinta-kitaran-kielet-ja-sointumerkinnat');
   await expect(guitarCard.locator('[data-study-status]')).toHaveText('✓ Tehty');

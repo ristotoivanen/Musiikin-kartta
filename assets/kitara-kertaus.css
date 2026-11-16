@@ -1,0 +1,87 @@
+.recap-page {
+  max-width: 56rem;
+  padding-block: clamp(1.5rem, 5vw, 3.25rem) 2.5rem;
+}
+
+.recap-header {
+  margin-block-end: clamp(1.4rem, 4vw, 2rem);
+}
+
+.recap-header .lead {
+  margin-block-end: .65rem;
+}
+
+.recap-page .primary-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: 0;
+}
+
+.recap-sections {
+  display: grid;
+  gap: .85rem;
+}
+
+.recap-section {
+  padding: clamp(.85rem, 3vw, 1.4rem);
+  border: 1px solid var(--line);
+  border-radius: .75rem;
+  background: var(--panel);
+}
+
+.recap-section h2 {
+  margin: 0 0 .55rem;
+}
+
+.recap-section p:last-child {
+  margin-block-end: 0;
+}
+
+.recap-strings {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .4rem;
+  margin: 1rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recap-strings li {
+  display: grid;
+  align-content: start;
+  gap: .2rem;
+  padding: .45rem .15rem;
+  border: 1px solid var(--line);
+  border-radius: .45rem;
+  background: var(--bg);
+  text-align: center;
+  line-height: 1.35;
+}
+
+.recap-strings strong {
+  font-size: 1.2rem;
+  color: var(--gold);
+}
+
+.recap-strings span {
+  font-size: .85rem;
+  color: var(--muted);
+}
+
+.recap-help {
+  margin-top: 1.7rem;
+  padding-top: .65rem;
+  border-top: 1px solid var(--line);
+}
+
+.recap-next { margin-top: 1rem; }
+
+@media (min-width: 29rem) {
+  .recap-strings { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+}
+
+@media (min-width: 48rem) {
+  .recap-sections { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .recap-fretboard { grid-column: 1 / -1; }
+}
