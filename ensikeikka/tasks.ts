@@ -140,6 +140,8 @@ export type Gig = {
   requires?: readonly number[];
   /** Näkyvä nimi taivutuksineen. Oletus on "keikka N". */
   name?: GigName;
+  /** Edellytettyjen keikkojen yhteisnimi lukitusteksteissä, esim. "Bänditreenit" / "Bänditreenien". */
+  requiredName?: { nominative: string; genitive: string };
   /** Lukitun keikan selitteet: tavallinen avautuminen ja suora aloitus. */
   lockNote?: string;
   directNote?: string;
@@ -170,3 +172,32 @@ export type Gig = {
 export type GigName = { heading: string; nominative: string; partitive: string; elative: string; genitive: string };
 
 export type Area = { title: string; gigs: readonly Gig[] };
+
+/**
+ * Käyttäjälle näkyvä kokonaisuus, jolla on oma näkymä: Bänditreenit (keikat 1–2) ja Ensikeikka
+ * (keikka 3). Sisäiset keikkatunnisteet ja osoitteet `#keikka-N` säilyvät.
+ */
+export type Section = {
+  id: string;
+  /** Näkymän osoite. Ensikeikalla se on sen ainoan keikan osoite. */
+  hash: string;
+  title: string;
+  /** Lyhyt nimi painikkeissa ("Avaa Bänditreenit"). */
+  shortName: string;
+  description: string;
+  gigs: readonly number[];
+  /** Laskurin sana partitiivissa ("harjoitusta", "vaihetta"). */
+  unit: string;
+  /** Kappalelistan otsikko ja avauspainikkeen teksti. */
+  listTitle: string;
+  chooseLabel: string;
+  hideLabel: string;
+  /** Paluupainike kappalenäkymästä. */
+  backLabel: string;
+  /** Ensisijainen aloitus: ennen ensimmäistä suoritusta ja sen jälkeen. */
+  startLabel: string;
+  continueLabel: string;
+  /** Kun kokonaisuus on valmis / kesken toisen kokonaisuuden lopussa. */
+  doneNote: string;
+  pendingNote: string;
+};

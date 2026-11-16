@@ -1,7 +1,13 @@
-# Ensikeikka – kehitysohje
+# Bänditreenit ja Ensikeikka – kehitysohje
 
-Ensikeikka on sävelkorvapeli, jossa pelaaja kuuntelee lyhyitä bändikappaleita ja ratkaisee,
-miten melodia ja harmonia päättävät ne. Peli julkaistaan hakemistoon `pelit/ensikeikka/`
+Sävelkorvapeli, jossa pelaaja kuuntelee lyhyitä bändikappaleita ja ratkaisee, miten melodia ja
+harmonia päättävät ne. Käyttäjälle peli on kaksi kokonaisuutta (tehtävä #79):
+
+- **Bänditreenit** (kappaleet 1–9): treenikerta 1 – Löydä kotisävel (sisäinen keikka 1, kappaleet 1–5)
+  ja treenikerta 2 – Kuuntele koko bändiä (keikka 2, kappaleet 6–9).
+- **Ensikeikka – Kotikulman keikka** (keikka 3, kappaleet 10–12).
+
+Hakemiston, tallenteen ja sisäisten tunnisteiden nimi on historiallisesti `ensikeikka`. Peli julkaistaan hakemistoon `pelit/ensikeikka/`
 (`npm run build`), ja sen lähteet ovat tässä hakemistossa.
 
 ## Rakenne
@@ -9,13 +15,13 @@ miten melodia ja harmonia päättävät ne. Peli julkaistaan hakemistoon `pelit/
 | Tiedosto | Tehtävä |
 | --- | --- |
 | `tasks.ts` | Tehtävätyypit (`choose`, `match`, `reason`), kappaleen ja keikan tyypit |
-| `catalog.ts` | Esiintymisalue, keikat ja kappaleet 1–9. `renderSong` renderöi minkä tahansa kappaleen |
+| `catalog.ts` | Kokonaisuudet (`sections`), keikat ja kappaleet. `renderSong` renderöi minkä tahansa kappaleen |
 | `song-demo-score.ts`, `approved-songs.ts` | Keikan 1 sovitukset (ennallaan) |
 | `second-night.ts` | Keikan 2 sovitukset, lopetukset, tehtävät ja palautteet |
 | `first-gig.ts` | Ensikeikka – Kotikulman keikka (kappaleet 10–12); käsikirjoitus `KOTIKULMAN-KEIKKA.md` |
 | `arrangement.ts` | Synteettinen bändi: rummut, basso, komppi ja melodia kerroksina |
 | `GigPlayer.tsx` | Kappaleen näkymä: tehtävä, vaiheet, valmiin kappaleen soitto |
-| `main.tsx` | Alku, keikkalista, osoitteet ja eteneminen |
+| `main.tsx` | Alkunäkymä, kokonaisuuksien näkymät, osoitteet ja eteneminen |
 | `setlist.ts`, `progress.ts` | Etenemisen säännöt ja tallennus |
 | `usePlayback.ts`, `audio.ts` | Yksi soitin kerrallaan; uusi soitto pysäyttää edellisen |
 
@@ -101,14 +107,12 @@ teksti (ohje, vihjeet, palaute) on datassa.
 `localStorage['musiikin-kartta:ensikeikka'] = { "version": 1, "completed": [1, 2, …] }`
 
 - Keikan kappaleet avautuvat järjestyksessä. Keikasta lasketaan vain alusta yhtenäinen osa.
-- Keikka 2 avautuu, kun keikka 1 on valmis. Jos keikasta 2 on jo suorituksia, se pysyy auki.
-- Ensikeikka (keikka 3, `requires: [1, 2]`) avautuu, kun Ensitreenit eli keikat 1 ja 2 ovat valmiit.
-  Myös sen voi aloittaa suoraan tai kokeilla vapaasti. Esiintymisalue valmistuu vasta kaikkien kolmen
-  keikan jälkeen. Näkyvä nimistö (Ensitreenit, Keikkakalenteri) on jatkokehitystä, ja tekniset
-  tunnisteet (`#keikka-3`, kappaleet 10–12) pysyvät.
-- **Suora aloitus** (`directStart`): kokenut pelaaja voi aloittaa lukitun keikan 2 ensimmäisestä
-  kappaleesta. Suoritukset tallentuvat normaalisti, keikka 1 ei merkitse itseään suoritetuksi, ja
-  esiintymisalue valmistuu vasta molempien keikkojen jälkeen. Kun keikasta on yksi suoritus, se on auki.
+- Treenikerta 2 avautuu, kun treenikerta 1 on valmis. Jos siitä on jo suorituksia, se pysyy auki.
+- Ensikeikka (keikka 3, `requires: [1, 2]`, `requiredName` "Bänditreenit") avautuu, kun Bänditreenit
+  ovat valmiit. Myös sen voi aloittaa suoraan tai kokeilla vapaasti.
+- **Suora aloitus** (`directStart`): kokenut pelaaja voi aloittaa lukitun treenikerran 2 tai Ensikeikan
+  ensimmäisestä kappaleesta. Suoritukset tallentuvat normaalisti, eikä edellytetty kokonaisuus merkitse
+  itseään suoritetuksi. Kun keikasta on yksi suoritus, se on auki.
 - **Vapaa harjoittelu** (`#harjoitus-N`): suoritetut kappaleet ja `freePractice`-keikan kaikki
   kappaleet. Ei koskaan muuta tallennetta. Jokainen harjoittelukierros arpoo lopetusten näkyvän
   järjestyksen (`order.ts`), ja järjestys pysyy samana koko kierroksen ajan. Kappalenäkymä kertoo,
@@ -122,15 +126,27 @@ teksti (ohje, vihjeet, palaute) on datassa.
   pakoteta eri kirjainta, koska sellaisesta säännöstä voisi päätellä vastauksen. Ensikeikka
   (kappaleet 10–12) käyttää etenemisessä alkuperäistä järjestystä.
 - **Uudelleenkuuntelu** (`#kappale-N` suoritetulle kappaleelle): valmis kappale ja selitys.
-- **Keikan uudelleenharjoittelu**: valmiin keikan kortin painike avaa kappaleet harjoitustilassa järjestyksessä.
+- **Uudelleenharjoittelu**: harjoituslistasta "Harjoittele uudelleen"; harjoittelu jatkuu seuraavaan kappaleeseen.
 - Versio pysyy 1:nä tarkoituksella. Vanha pelin versio lukee samasta tallenteesta kappaleet 1–5,
   ja uusi versio säilyttää tallennettaessa tuntemattomat tunnisteet.
 
-## Osoitteet
+## Näkymät ja osoitteet
 
-`#keikkalista`, `#keikka-N` (keikan settilista auki, `#settilista` = keikka 1), `#kappale-N`,
-`#harjoitus-N`. Jokainen siirtymä lisää selainhistoriaan merkinnän. Lukitun kappaleen osoite
-ohjautuu keikan korttiin.
+| Osoite | Näkymä |
+| --- | --- |
+| (ei hashia) | Alku: Bänditreenit ja Ensikeikka omina valintoinaan, eteneminen ja "Aloita alusta" |
+| `#banditreenit` | Bänditreenit: eteneminen N/9, yksi ensisijainen "Aloita treenit"/"Jatka treenejä" ja treenikerrat |
+| `#keikka-1`, `#keikka-2` | Bänditreenit, treenikerran harjoituslista auki (`#settilista` = treenikerta 1) |
+| `#keikka-3` | Ensikeikka: eteneminen N/3 vaihetta, aloitus ja settilista |
+| `#keikkalista` | Vanha keikkalista ohjautuu osoitteeseen `#banditreenit` |
+| `#kappale-N`, `#harjoitus-N` | Kappale etenemisessä, uudelleenkuuntelussa tai vapaassa harjoittelussa |
+
+Jokainen siirtymä lisää selainhistoriaan merkinnän, joten selaimen Takaisin ja Eteenpäin toimivat.
+Kappalenäkymän paluulinkki ("Takaisin bänditreeneihin" / "Takaisin Ensikeikkaan") vie kappaleen
+kokonaisuuteen niin, että sen treenikerta on auki. Lukitun kappaleen osoite ohjautuu samaan näkymään.
+Kokonaisuus näytetään vain, jos sen keikat ovat pelissä (`sections`), joten tyhjää Ensikeikka-valikkoa
+ei synny, jos kappaleita 10–12 ei ole mukana. Treenikerran kortilla ei ole omaa aloituspainiketta;
+poikkeus on suoraan aloitettu treenikerta 2, kun treenikerta 1 on kesken (toissijainen "Jatka treenikertaa 2").
 
 ## Ääni
 

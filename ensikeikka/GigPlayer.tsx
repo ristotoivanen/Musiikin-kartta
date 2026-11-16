@@ -429,14 +429,13 @@ function ContinueView({ song, task, attempt, update, sound, isPlaying, play, hea
 /** Valmiin kappaleen jatkotoiminto. Ensimmäinen on ensisijainen. */
 export type SongAction = { label: string; run: () => void };
 
-export function SongPlayer({ song, gigId, showLabel, attempt, update, onList, onSetlist, actions, finale, onComplete, completionTitle, completedSummary, completionNote, practice, saving, saveFailed }: {
+export function SongPlayer({ song, showLabel, back, attempt, update, actions, finale, onComplete, completionTitle, completedSummary, completionNote, practice, saving, saveFailed }: {
   song: Song;
-  gigId: number;
   showLabel: string;
+  /** Paluu kappaleen omaan kokonaisuuteen (Bänditreenit tai Ensikeikka). */
+  back: { label: string; href: string; run: () => void };
   attempt: Attempt;
   update: Update;
-  onList: () => void;
-  onSetlist: () => void;
   /** Jatkotoiminnot, jotka ilmestyvät onnistumiskorttiin, kun valmis kappale on kuultu. */
   actions: readonly SongAction[];
   /** Keikan viimeisen vaiheen jälkeen tarjottava esitys. `note` kertoo, mitä esitys sisältää. */
@@ -513,8 +512,7 @@ export function SongPlayer({ song, gigId, showLabel, attempt, update, onList, on
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
     sound.stop();
-    if (stage === 'complete') onSetlist();
-    else onList();
+    back.run();
   }
 
   const answerDetails = (
@@ -536,15 +534,15 @@ export function SongPlayer({ song, gigId, showLabel, attempt, update, onList, on
   return (
     <main className="concert">
       <nav className="start-navigation" aria-label="Palaa">
-        <a className="game-link" href={stage === 'complete' ? `./#keikka-${gigId}` : './#keikkalista'} onClick={returnToList}>
-          <span aria-hidden="true">←</span> {stage === 'complete' ? 'Takaisin settilistaan' : 'Takaisin keikkalistaan'}
+        <a className="game-link" href={back.href} onClick={returnToList}>
+          <span aria-hidden="true">←</span> {back.label}
         </a>
       </nav>
       <header className="intro">
-        <p className="project">{practice ? 'Ensikeikka · Harjoittelu' : showLabel}</p>
+        <p className="project">{showLabel}</p>
         <h1>Kappale {id} – {title}</h1>
         {practice && <p className="mode-note" data-mode="practice">Vapaa harjoittelu: tulos ei tallennu, ja vaihtoehtojen järjestys arvotaan joka kierrokselle.</p>}
-        {saving && stage !== 'complete' && <p className="mode-note" data-mode="saving">Suoritus tallentuu keikan etenemiseen.</p>}
+        {saving && stage !== 'complete' && <p className="mode-note" data-mode="saving">Suoritus tallentuu etenemiseen.</p>}
       </header>
       <section className="session gig-stage" aria-label="Kappaleen tehtävä">
         {stage === 'choose' && (task.kind === 'choose' ? <ChooseView {...taskProps} task={task} />

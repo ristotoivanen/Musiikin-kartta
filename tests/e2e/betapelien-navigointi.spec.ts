@@ -4,10 +4,10 @@ const trainerPath = '/kitaraharjoittelija.html?polku=otelauta';
 const ensikeikkaPath = '/pelit/ensikeikka/';
 const theoryPath = '/book/osa-2.html#ensikeikan-teoria';
 const progressKey = 'musiikin-kartta:ensikeikka';
-const theoryHeading = 'Ensikeikan teoria: Miten kuulet kotisävelen?';
+const theoryHeading = 'Bänditreenien teoria: Miten kuulet kotisävelen?';
 const games = [
   { title: 'Riffikaiku (beta)', path: '/riffikaiku.html' },
-  { title: 'Ensikeikka (beta)', path: ensikeikkaPath },
+  { title: 'Bänditreenit ja Ensikeikka (beta)', path: ensikeikkaPath },
 ];
 
 test('Molemmista peleistä pääsee harjoitusvalikkoon', async ({ page }) => {
@@ -25,7 +25,7 @@ test('Molemmista peleistä pääsee harjoitusvalikkoon', async ({ page }) => {
   }
 });
 
-test('Ensikeikan teoria ja palaaminen säilyttävät etenemisen', async ({ page }) => {
+test('Bänditreenien teoria ja palaaminen säilyttävät etenemisen', async ({ page }) => {
   const saved = { version: 1, completed: [1, 2] };
   await page.goto(ensikeikkaPath);
   await page.evaluate(([key, progress]) => localStorage.setItem(key, progress), [progressKey, JSON.stringify(saved)]);
@@ -52,26 +52,27 @@ test('Ensikeikan teoria ja palaaminen säilyttävät etenemisen', async ({ page 
     await expect(page).toHaveURL(theoryPath);
   }
 
-  await lesson.getByRole('link', { name: 'Harjoittele Ensikeikassa' }).click();
+  await lesson.getByRole('link', { name: 'Harjoittele Bänditreeneissä' }).click();
   await expect(page).toHaveURL(ensikeikkaPath);
   expect(await page.evaluate(key => JSON.parse(localStorage.getItem(key) ?? 'null'), progressKey)).toEqual(saved);
-  await page.getByRole('button', { name: 'Kotikulmien keikat' }).click();
-  await expect(page.getByText('2 / 5 kappaletta suoritettu')).toBeVisible();
+  await page.getByRole('button', { name: 'Avaa Bänditreenit' }).click();
+  await expect(page.getByText('2 / 9 harjoitusta suoritettu')).toBeVisible();
+  await expect(page.getByText('2 / 5 harjoitusta suoritettu')).toBeVisible();
 });
 
-test('Ensikeikan aloitusta ja paluulinkkiä voi käyttää näppäimistöllä', async ({ page, isMobile }) => {
+test('Bänditreenien avausta ja paluulinkkiä voi käyttää näppäimistöllä', async ({ page, isMobile }) => {
   test.skip(isMobile, 'Sarkainnäppäin testataan työpöydällä.');
   await page.goto(ensikeikkaPath);
   const back = page.getByRole('link', { name: 'Takaisin harjoitusvalikkoon' });
-  const start = page.getByRole('button', { name: 'Kotikulmien keikat' });
+  const start = page.getByRole('button', { name: 'Avaa Bänditreenit' });
   await start.focus();
   await page.keyboard.press('Enter');
-  const listHeading = page.getByRole('heading', { level: 1, name: 'Kotikulmien keikat' });
+  const listHeading = page.getByRole('heading', { level: 1, name: 'Bänditreenit' });
   await expect(listHeading).toBeFocused();
-  await page.getByRole('button', { name: 'Takaisin Ensikeikan alkuun', exact: true }).focus();
+  await page.getByRole('button', { name: 'Takaisin alkuun', exact: true }).focus();
   await page.keyboard.press('Enter');
   // Alkunäkymä siirtää fokuksen otsikkoonsa. Odota sitä, ettei se vie fokusta paluulinkiltä.
-  await expect(page.getByRole('heading', { level: 1, name: 'Ensikeikka (beta)' })).toBeFocused();
+  await expect(page.getByRole('heading', { level: 1, name: 'Bänditreenit ja Ensikeikka (beta)' })).toBeFocused();
   await back.focus();
   expect(await back.evaluate(el => getComputedStyle(el).outlineStyle)).toBe('solid');
   await page.keyboard.press('Enter');
@@ -86,13 +87,13 @@ for (const width of [320, 360, 390, 1440]) {
     await expect(page.getByRole('link', { name: 'Takaisin harjoitusvalikkoon' })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
 
-    await page.getByRole('button', { name: 'Kotikulmien keikat' }).click();
-    await page.getByRole('button', { name: 'Aloita keikka 1' }).click();
+    await page.getByRole('button', { name: 'Avaa Bänditreenit' }).click();
+    await page.getByRole('button', { name: 'Aloita treenit' }).click();
     await expect(page.getByRole('button', { name: 'Kuuntele keskeneräinen kappale' })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
 
     await page.goto(theoryPath);
-    const practice = page.getByRole('link', { name: 'Harjoittele Ensikeikassa' });
+    const practice = page.getByRole('link', { name: 'Harjoittele Bänditreeneissä' });
     await expect(practice).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
     await practice.click();
