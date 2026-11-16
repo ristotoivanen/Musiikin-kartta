@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { SongPlayer, initialAttempt, type Attempt, type SongAction, type Update } from './GigPlayer';
-import { area, capitalize, drawRounds, gigName, gigOf, progressText, renderFinale, requiredGigs, requiredText, songs, songVersion, versionCount } from './catalog';
+import { area, capitalize, drawRounds, gigName, gigOf, progressOrder, progressText, renderFinale, requiredGigs, requiredText, songs, songVersion, versionCount } from './catalog';
 import { areaComplete, followingSong, gigStatus, songAccess, type SongMode } from './setlist';
 import { shuffledOrder } from './order';
 import { clearProgress, completedPrefix, readProgress, saveProgress, storedSongs, withCompleted } from './progress';
@@ -72,12 +72,17 @@ function Ensikeikka() {
     lastVariant.current[song] = variant;
     return variant;
   }
-  // Etenemisen yritys arpoo kierroksensa (soundcheck) kerran sivun aikana, ja ne säilyvät yrityksen ajan.
-  const drawn = useRef<Partial<Record<number, readonly number[]>>>({});
+  // Etenemisen uusi yritys arvotaan kerran sivun aikana: kierrokset (soundcheck) ja Ensitreenien
+  // lopetusjärjestys. Yritys säilyy muistissa, joten järjestys ei vaihdu renderöinnissä, vaiheiden
+  // välillä eikä tarkistuksessa. Uudelleenlataus aloittaa keskeneräisen kappaleen uutena yrityksenä.
+  const fresh = useRef<Partial<Record<number, Attempt>>>({});
   function freshAttempt(song: number): Attempt {
-    if (!(song in drawn.current) && songs[song]) drawn.current[song] = drawRounds(songs[song]);
-    const rounds = drawn.current[song];
-    return rounds ? { ...initialAttempt, rounds } : initialAttempt;
+    const existing = fresh.current[song];
+    if (existing) return existing;
+    const rounds = songs[song] && drawRounds(songs[song]);
+    const attempt = { ...initialAttempt, order: progressOrder(song), ...rounds && { rounds } };
+    fresh.current[song] = attempt;
+    return attempt;
   }
   // Harjoittelukierros kuuluu yhdelle kappaleelle. Uusi kierros arpoo esimerkin, kierrokset ja lopetusten järjestyksen.
   const newRound = (song: number) => {
@@ -142,7 +147,7 @@ function Ensikeikka() {
     setSaveFailed(!clearProgress());
     setCompleted([]);
     setAttempts({});
-    drawn.current = {};
+    fresh.current = {};
     setOpenGigs([]);
     window.scrollTo(0, 0);
     document.getElementById('keikkalista')?.focus({ preventScroll: true });

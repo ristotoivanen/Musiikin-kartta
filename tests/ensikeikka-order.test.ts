@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { area, songs } from '../ensikeikka/catalog';
+import { area, progressOrder, songs } from '../ensikeikka/catalog';
 import { endingAt, fillLetters, naturalOrder, shownLetter, shuffledOrder, type Order } from '../ensikeikka/order';
 import { gigStatus, songAccess } from '../ensikeikka/setlist';
 import { LETTERS, type Letter, type Task } from '../ensikeikka/tasks';
@@ -110,6 +110,46 @@ describe('Harjoittelun lopetusjärjestys', () => {
         expect(explanation).toMatch(new RegExp(`[Ll]opetu\\w* ${shownLetter(order, id as Letter)}\\b`));
       }
     });
+  });
+});
+
+describe('Normaalin etenemisen lopetusjärjestys', () => {
+  const ensitreenit = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+  it('arpoo Ensitreenien kappaleissa 1–9 kaikki järjestykset, joten oikean vastauksen kirjain vaihtelee', () => {
+    expect(area.gigs.filter(gig => gig.shuffleEndings).flatMap(gig => gig.songs)).toEqual(ensitreenit);
+    for (const id of ensitreenit) {
+      const random = seeded(id);
+      const orders = new Set<string>();
+      const shownTargets = new Set<Letter>();
+      for (let attempt = 0; attempt < 200; attempt++) {
+        const order = progressOrder(id, random);
+        expect([...order].sort()).toEqual([...LETTERS]);
+        orders.add(order.join(''));
+        shownTargets.add(shownLetter(order, songs[id].target));
+        // Jokaisen tehtävän oikea vastaus löytyy näkyvän kirjaimen kautta samasta lopetuksesta.
+        for (const task of songs[id].tasks) {
+          if (task.kind === 'choose') expect(endingAt(order, shownLetter(order, task.answer))).toBe(task.answer);
+          if (task.kind === 'match') for (const question of task.questions) {
+            expect(endingAt(order, shownLetter(order, question.answer))).toBe(question.answer);
+          }
+        }
+      }
+      expect(orders.size, `kappale ${id}`).toBe(6);
+      expect(shownTargets, `kappale ${id}`).toEqual(new Set(LETTERS));
+    }
+  });
+
+  it('käyttää satunnaislukua vain uuden yrityksen alussa: sama luku antaa saman järjestyksen', () => {
+    expect(progressOrder(1, () => .999999)).toEqual(naturalOrder);
+    expect(progressOrder(1, () => 0)).toEqual(['B', 'C', 'A']);
+    expect(progressOrder(9, () => 0)).toEqual(progressOrder(9, () => 0));
+  });
+
+  it('ei muuta Ensikeikan kappaleiden 10–12 etenemisen järjestystä', () => {
+    for (const id of [10, 11, 12]) {
+      for (const value of [0, .4, .8]) expect(progressOrder(id, () => value)).toEqual(naturalOrder);
+    }
   });
 });
 

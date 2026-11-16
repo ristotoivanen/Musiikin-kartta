@@ -21,6 +21,10 @@ declare global {
 // Tallenna oikeiden Web Audio -solmujen kutsut. Selain tuottaa äänen ja lähettää ended-tapahtuman itse.
 async function observePlayback(page: Page) {
   await page.addInitScript(() => {
+    // Normaali eteneminen arpoo Ensitreenien lopetusjärjestyksen. Nämä testit kiinnittävät alkuperäisen
+    // järjestyksen (0,999), ellei testi aseta omaa arvoa. Arvottua järjestystä testaa
+    // ensikeikka-lopetusjarjestys.spec.ts.
+    if (!('ensikeikkaRandom' in window)) Math.random = () => .999;
     window.ensikeikkaPlayback = [];
     window.ensikeikkaSources = [];
     const observed = new WeakMap<AudioBufferSourceNode, Playback>();
