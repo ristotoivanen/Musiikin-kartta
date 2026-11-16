@@ -39,10 +39,18 @@ test.describe('Kitaran pikakertaus ilman JavaScriptiä', () => {
       await expect(page.getByRole('heading', { level: 2 })).toHaveText([
         'Kielet ja otelauta', 'Soinnut ja merkinnät', 'Rytmin perusteet', 'Jos kaipaat tarkempaa kertausta',
       ]);
-      const strings = page.getByRole('list', { name: 'Vapaat kielet paksuimmasta ohuimpaan' });
-      await expect(strings.locator('strong')).toHaveText(['E', 'A', 'D', 'G', 'B', 'e']);
-      await expect(strings.locator('span')).toHaveText(['6.', '5.', '4.', '3.', '2.', '1.']);
-      await expect(page.getByRole('list', { name: 'Nauhat' }).getByRole('listitem')).toHaveText(['1', '2', '3', '4', '5']);
+      const strings = page.getByRole('list', { name: 'Vapaat kielet ylhäältä alas, ohuimmasta paksuimpaan' });
+      await expect(strings.getByRole('listitem')).toHaveText(['1. e', '2. B', '3. G', '4. D', '5. A', '6. E']);
+      const wires = await page.locator('.recap-board line').evaluateAll(lines => lines.map(line => ({
+        row: Number(line.getAttribute('y1')),
+        thickness: parseFloat(getComputedStyle(line).strokeWidth),
+      })));
+      expect(wires.map(wire => wire.row)).toEqual([10, 30, 50, 70, 90, 110]);
+      for (const [index, wire] of wires.slice(1).entries()) {
+        expect(wire.thickness).toBeGreaterThan(wires[index].thickness);
+      }
+      const frets = page.getByRole('list', { name: 'Nauhat vasemmalta oikealle' });
+      await expect(frets.getByRole('listitem')).toHaveText(['1', '2', '3', '4', '5']);
       await expect(page.getByText('B vastaa perinteisen suomalaisen merkintätavan H:ta.')).toBeVisible();
       const chords = page.getByRole('group', { name: 'Avosointujen kaaviot' });
       await expect(chords.getByRole('img')).toHaveCount(5);

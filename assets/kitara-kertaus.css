@@ -106,8 +106,10 @@
 
 .recap-frets { stroke: #9d876f; }
 .recap-nut { stroke: #ead9bf; stroke-width: 3; }
-.recap-wire { stroke: #ebe2f4; }
-.recap-wire-bass { stroke-width: 1.6; }
+.recap-wire {
+  stroke: #ebe2f4;
+  vector-effect: non-scaling-stroke;
+}
 
 .recap-section .chord-diagrams {
   display: grid;
