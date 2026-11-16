@@ -252,16 +252,18 @@ test('Kappale 9: kaksivaiheinen encore ja Kotikulmien toisen illan valmistuminen
   await check.click();
   await expect(page.getByRole('heading', { name: 'Oikein! Kuulit, miksi loppu toimii.' })).toBeFocused();
   expect(await saved(page)).toEqual({ version: 1, completed: [...firstGig, 6, 7, 8, 42] });
-  await perform(page, 'Kotikulmien toinen ilta suoritettu!', 'Palaa settilistaan', { isMobile, thorough: true });
+  // Ensitreenit ovat valmiit, joten ensisijainen jatko on Ensikeikka. Esiintymisalue valmistuu vasta sen jälkeen.
+  await perform(page, 'Kotikulmien toinen ilta suoritettu!', 'Aloita Ensikeikka', { isMobile, thorough: true });
   await expect(page.getByText('Suoritit 4 kappaletta.')).toBeVisible();
-  await expect(page.getByText(/Esiintymisalue suoritettu!/)).toBeVisible();
+  await expect(page.getByText(/Esiintymisalue suoritettu/)).toHaveCount(0);
   expect(await saved(page)).toEqual({ version: 1, completed: [...firstGig, 6, 7, 8, 9, 42] });
 
   await button(page, 'Palaa settilistaan').click();
   await expect(page).toHaveURL(/#keikka-2$/);
   await expect(page.getByRole('heading', { name: 'Keikka 2 – Kotikulmien toinen ilta' })).toBeFocused();
   await expect(page.getByRole('list', { name: 'Keikan 2 settilista' }).getByText('Suoritettu', { exact: true })).toHaveCount(4);
-  await expect(page.getByText('Esiintymisalue suoritettu!')).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Ensikeikka – Kotikulman keikka' }).getByRole('button', { name: 'Aloita Ensikeikka' })).toBeVisible();
+  await expect(page.getByText('Esiintymisalue suoritettu!')).toHaveCount(0);
 });
 
 test('Tallenteen tilanteet: vanha versio, keskeneräiset ja valmiit keikat', async ({ page }) => {
@@ -285,10 +287,15 @@ test('Tallenteen tilanteet: vanha versio, keskeneräiset ja valmiit keikat', asy
     expect(await saved(page)).toEqual({ version: 1, completed });
   }
   await expect(page.getByText('Esiintymisalue suoritettu!')).toHaveCount(0);
+  // Ensitreenit valmiina: Ensikeikka avautuu, mutta esiintymisalue valmistuu vasta sen jälkeen.
   await page.evaluate(([key, value]) => localStorage.setItem(key, value), [progressKey, JSON.stringify({ version: 1, completed: [...firstGig, 6, 7, 8, 9] })]);
   await page.reload();
-  await expect(page.getByText('Esiintymisalue suoritettu!')).toBeVisible();
+  await expect(page.getByText('Esiintymisalue suoritettu!')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Aloita Ensikeikka' })).toBeVisible();
   await expect(gigCard(1).getByText('Keikka suoritettu', { exact: false })).toBeVisible();
+  await page.evaluate(([key, value]) => localStorage.setItem(key, value), [progressKey, JSON.stringify({ version: 1, completed: [...firstGig, 6, 7, 8, 9, 10, 11, 12] })]);
+  await page.reload();
+  await expect(page.getByText('Esiintymisalue suoritettu!')).toBeVisible();
 });
 
 test('Suorat osoitteet ja selaimen takaisin-painike', async ({ page }) => {
@@ -384,10 +391,11 @@ test('Koko käyttäjäpolku: tyhjästä tallenteesta molemmat keikat valmiiksi',
   await button(page, 'Basso nousee askel kerrallaan kotisävelelle samalla, kun melodia laskeutuu sinne.').click();
   await expect(button(page, 'Tarkista valintani')).toBeEnabled({ timeout: 10000 });
   await button(page, 'Tarkista valintani').click();
-  await perform(page, 'Kotikulmien toinen ilta suoritettu!', 'Palaa settilistaan');
+  await perform(page, 'Kotikulmien toinen ilta suoritettu!', 'Aloita Ensikeikka');
   expect(await saved(page)).toEqual({ version: 1, completed: [1, 2, 3, 4, 5, 6, 7, 8, 9] });
   await button(page, 'Palaa settilistaan').click();
-  await expect(page.getByText('Esiintymisalue suoritettu!')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Aloita Ensikeikka' })).toBeVisible();
+  await expect(page.getByText('Esiintymisalue suoritettu!')).toHaveCount(0);
   await page.getByRole('button', { name: 'Takaisin Ensikeikan alkuun' }).click();
   await expect(page.getByText('Keikka 2: suoritettu')).toBeVisible();
 });

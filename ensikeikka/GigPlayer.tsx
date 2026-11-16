@@ -309,7 +309,7 @@ function CompareView({ task, attempt, update, sound, isPlaying, play, heading, r
   const togglePair = (part?: Part) => {
     const key = part ? `pari-${part}` : 'pari';
     if (isPlaying(key)) sound.stop();
-    else play(key, part ? `Versiot peräkkäin · vain ${layerNames[part]}` : 'Versiot peräkkäin',
+    else play(key, part ? `Versiot peräkkäin · vain ${partNames[part].toLowerCase()}` : 'Versiot peräkkäin',
       rate => renderPair(task.versions, rate, part ? [part] : undefined),
       part ? undefined : () => update(current => ({ heard: remember(remember(current.heard, 'v1'), 'v2') })));
   };
