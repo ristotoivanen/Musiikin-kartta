@@ -1,13 +1,24 @@
 # Kitaran perusteet – soittajan lähtöruutu ja johdanto Musiikin karttaan
 
-**Suunnitelma v0.1 · 15.11.2026 · Tila: EHDOTUS, EI hyväksytty toteutuslupa**
+**Suunnitelma v0.2 · laadittu 15.11.2026, beta-lähtötaso tarkistettu 16.11.2026 · Tila: EHDOTUS, EI hyväksytty toteutuslupa**
 
 **Ensisijainen toteutustehtävä:** [#72](https://github.com/ristotoivanen/Musiikin-kartta/issues/72)  
 **Oppimisuudistuksen päätehtävälista:** [#54](https://github.com/ristotoivanen/Musiikin-kartta/issues/54)  
-**Aiempi Kitaran perusteet -toteutus:** [draft-PR #65](https://github.com/ristotoivanen/Musiikin-kartta/pull/65)  
+**Jo integroitu Kitaran perusteet -toteutus:** [beta-commit f7a204b](https://github.com/ristotoivanen/Musiikin-kartta/commit/f7a204bf8b4268e794c8afc7130cc799384f6946) (alkuperäinen [draft-PR #65](https://github.com/ristotoivanen/Musiikin-kartta/pull/65))  
 **Yhteinen oppimislogiikka:** [#49](https://github.com/ristotoivanen/Musiikin-kartta/issues/49), [draft-PR #53](https://github.com/ristotoivanen/Musiikin-kartta/pull/53)
 
 > Tämän dokumentin tehtävä on kuvata **jo kitaraa soittavan henkilön lähtöruutu**. Tämä on eri käyttötapaus kuin #54:n aloittelijalle suunnattu ”Soita ensimmäiset neljä iskua” -pilotti. Älä sekoita niitä tai korvaa toisella toista. Jatkopolut pysyvät vapaasti valittavissa.
+
+## 0. Lukittu beta-lähtötaso ja haaraperiaate (tarkistus 16.11.2026)
+
+Yhteinen **julkaistu beta on seuraavan uudistuksen lähtötaso**. GitHubista on vahvistettu seuraava:
+- `beta` ja `integration/beta-snapshot-20261115` osoittavat commit-tunnisteeseen `f7a204bf8b4268e794c8afc7130cc799384f6946`.
+- Tämä commit sisältää Kitaran perusteiden viisi sisältöä (alun perin PR #65, jäädytetty `49865f8a3cbe83010f1731966b592393dd0c39f6`), yhtenäisen Oppimiskartan sekä Ensikeikan ja Riffikaiun sovitut jäädytetyt versiot. Betan integraation oma lähde: [docs/CLAUDE_INTEGRAATIO_JATKO.md](../../docs/CLAUDE_INTEGRAATIO_JATKO.md).
+- [GitHub Actions -ajo 43755261098](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/43755261098) valmistui onnistuneesti tällä commitilla. Vahvistetut vaiheet sisältävät yksikkötestit, käännöksen sekä pelien ja navigoinnin selainajot. Integraatioraportin ilmoittamat numeeriset tulokset ovat **581 yksikkötestiä, 110 läpäissyttä selainkoetta ja 16 ehdollista ohitusta**; nämä lukumäärät perustuvat raporttiin, eivät tähän dokumenttipäivitykseen erikseen ajettuihin testeihin.
+- [Beta](https://beta.rinnepelto.com/) ja [Cloudflare-esikatselu](https://1e54ff88.musiikin-kartta.pages.dev/) ovat raportoidut julkaisuosoitteet. Näiden saavutettavuutta ei testattu tässä dokumentaatiomuutoksessa.
+- PR #65 **on edelleen avoin luonnos**, vaikka sen jäädytetty sisältö on jo betassa. PR:n tila ja koodin esiintyminen betassa ovat eri asioita. Älä yhdistä samaa sisältöä toistamiseen vain PR:n avoimuuden vuoksi.
+
+**Työohje jatkokehitykselle:** perusta uusi toteutustyötuote **ajantasaiseen `beta`-haaraan** ja käytä yllä olevaa SHA:ta dokumentoituna vertailupisteenä. Älä koodaa PR #65:n vanhasta pohjahaarasta, älä päivitä jäädytettyä integraatiohaaraa uudistuksen työpuuksi äläkä muuta Clauden keskeneräisiä Ensikeikka-/Riffikaiku-haaroja. Jos `beta` on välissä edennyt, tarkista sen uusi SHA ja vertaa erot ennen uutta haaraa. Dokumentaatio-PR #74 on vain suunnitelma; ei merge- eikä toteutuslupaa.
 
 ## 1. Ongelma, käyttäjä ja tavoite
 
@@ -25,9 +36,9 @@ Nykyisen aiheen nimi on **Kitaran perusteet**, mutta sivun pedagoginen tarkoitus
 
 **Ei tavoite:** virittämisen, soittoasennon, kitaran pitämisen, kaikkien avosointujen tai ensimmäisen kappaleen opettaminen perusteellisesti. Niille voi tarjota linkitetyn kertauksen tai erillisen aloittelijareitin.
 
-## 2. Varmennettu nykytila 15.11.2026
+## 2. Varmennettu nykytila 15.–16.11.2026
 
-Tarkastelun lähteet ovat repositorion beta-haara ja PR #65:n diffi/kuvaus. Päätöksessä on tarkistettava tilanne uudelleen, sillä haarat ja keskeneräinen koodi muuttuvat.
+Tarkastelun lähteet ovat repositorion yhteinen beta, alkuperäinen PR #65:n diffi/kuvaus ja beta-integraatioraportti. Edellä mainittu yhteinen SHA on lukittu vertailupiste; jatkossa betan tuore tila tarkistetaan uudelleen ennen toteutuksen aloittamista.
 
 ### Nykyinen Kitaran perusteet -sisältö beta-haarassa
 
@@ -37,7 +48,7 @@ Tarkastelun lähteet ovat repositorion beta-haara ja PR #65:n diffi/kuvaus. Pä�
 4. **Soita ensin basso** (teoriaoppaan harjoitus): G, A, C, D -bassosävelet ennen sointuja.
 5. **Mihin sointukierto päättyy?** (erillinen HTML-lähde): G–C–D–G vastaan G–C–D–D, kuuntelu ja oikealla kitaralla kokeilu.
 
-Käyttäjän aiemmassa kuvassa näkyi vielä kahden tehtävän näkymä. Siitä ei saa päätellä, että viiden osion työ puuttuisi; se on jo beta-haaran tiedostoissa. **PR #65 on avoin draft**, eikä sitä pidä sulkea tai korvata automaattisesti.
+Käyttäjän aiemmassa kuvassa näkyi vielä kahden tehtävän näkymä. Uudessa yhteisessä betassa on jo kaikki viisi sisältöä, joten toteutustehtävän lähtökohtana ovat nämä olemassa olevat sivut. **PR #65 on avoin draft**, mutta sen jäädytetty toteutus on integroitu betaan; alkuperäistä haaraa ei käsitellä uutena puuttuvana ominaisuutena.
 
 **Lähdekohteet:**
 - [aiheluettelo ja oppimispolun metadata](../../tools/oppimiskartta/aiheet.json)
@@ -174,7 +185,7 @@ Punainen lanka saa toistua, **ei sama tehtävä jokaisessa paikassa**. Oppimispo
 2. **Käytä nykyistä generaattoria:** aiheluettelo tools/oppimiskartta/aiheet.json; itsenäisten sisältöjen lähteet tools/oppimiskartta/sisallot/kitara/. Generoituja oppi/kitara/*.html-tiedostoja ei käsin muuteta lähteen ohitse.
 3. **Linkitä nykyiseen harjoittelijaan:** NoteJourney, ChordJourney ja nykyinen loppukuuntelu, jos palvelun navigaatiot ja syvälinkit tukevat rajattua esittelyä. Uudet variantit vain osoitettuun tarpeeseen.
 4. **Säilytä identiteetti:** vanhat URL:t, teoriaoppaan ankkurit, study-item-tunnisteet ja localStorage-migraatio. Jos sisältö siirtyy, älä nollaa vanhoja suorituksia.
-5. **Vältä kytkeytymistä keskeneräisiin töihin:** PR #65:n ja navigaatio-/Ensikeikka-/Riffikaiku-töiden muutoksiin ei sekoiteta tätä dokumentointi-PR:ää. Toteutus omassa myöhemmässä koodaus-PR:ssä sen jälkeen, kun integraatiopohja on vahvistettu.
+5. **Käytä julkaistua yhteistä betaa uutena pohjana:** nykyiset viisi Kitaran perusteet -sivua ovat jo mukana betassa commitissa `f7a204b`. Uuden toteutus-PR:n pohja on tarkistettava tuore `beta`, ei PR #65:n vanha kehityshaara. Älä sekoita mukaan kesken olevien Ensikeikka-/Riffikaiku-töiden uusia committeja; integraatio ja hyväksyntä ratkaistaan erikseen.
 6. **Ei toteutuksen oikoteitä:** ei uutta yleistä pelimoottoria, käyttäjätilijärjestelmää, pakollista mikrofonia, pelkkään vierailuun perustuvaa taitomerkintää tai automaattista julkaisemista.
 
 ### Luonteva työnjako
@@ -217,7 +228,7 @@ Paketit ovat toteutusjärjestys **hyväksymisen jälkeen**. Niistä voi tehdä r
 ## 9. Avoimet päätökset ennen toteutusta
 
 1. Hyväksyykö omistaja lyhyen lähtöruudun kohderyhmän ja kesto-/ohitusperiaatteen?
-2. Miten PR #65:n nykyinen viisisivuinen polku rajataan tai säilytetään ilman päällekkäistä työtä?
+2. Miten **betaan jo integroidut viisi Kitaran perusteiden sisältöä** käytetään, tiivistetään tai linkitetään ilman päällekkäistä työtä? PR #65:n avoin tila on hallinnollinen jatkoasia, ei puuttuva beta-sisältö.
 3. Riittääkö pelien esittelyyn suora linkitys nykyisiin tehtäviin vai tarvitaanko niistä rajattu introversio?
 4. Millä alkuperäisellä ja oikeuksiltaan varmennetulla harjoitusäänitteellä G–C–D–G-kokeilu tehdään?
 5. Onko #54:n vaadittu G1-päätös ja A/E-pilotin rajaus tehty; mihin vaiheeseen tämän aiheen toteutus sijoittuu?
