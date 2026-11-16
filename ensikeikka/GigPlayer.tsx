@@ -31,6 +31,8 @@ export type Attempt = {
   order: Order;
   /** Musiikkiesimerkin versio (0 = opetus). Harjoittelukierros arpoo sen kerran. */
   variant: number;
+  /** Arvotut tehtäväkierrokset (`Song.rounds`). Pysyvät samoina koko yrityksen ajan. */
+  rounds?: readonly number[];
 };
 
 export const initialAttempt: Attempt = {
@@ -427,7 +429,7 @@ function ContinueView({ song, task, attempt, update, sound, isPlaying, play, hea
 /** Valmiin kappaleen jatkotoiminto. Ensimmäinen on ensisijainen. */
 export type SongAction = { label: string; run: () => void };
 
-export function SongPlayer({ song, gigId, showLabel, attempt, update, onList, onSetlist, actions, finale, onComplete, completionTitle, completedCount, completionNote, practice, saving, saveFailed }: {
+export function SongPlayer({ song, gigId, showLabel, attempt, update, onList, onSetlist, actions, finale, onComplete, completionTitle, completedSummary, completionNote, practice, saving, saveFailed }: {
   song: Song;
   gigId: number;
   showLabel: string;
@@ -437,11 +439,11 @@ export function SongPlayer({ song, gigId, showLabel, attempt, update, onList, on
   onSetlist: () => void;
   /** Jatkotoiminnot, jotka ilmestyvät onnistumiskorttiin, kun valmis kappale on kuultu. */
   actions: readonly SongAction[];
-  /** Koko keikan esitys, joka tarjotaan keikan viimeisen kappaleen jälkeen. */
-  finale?: { label: string; render: (rate: number) => Float32Array };
+  /** Keikan viimeisen vaiheen jälkeen tarjottava esitys. `note` kertoo, mitä esitys sisältää. */
+  finale?: { label: string; stopLabel: string; status: string; note: string; render: (rate: number) => Float32Array };
   onComplete: () => void;
   completionTitle: string;
-  completedCount?: number;
+  completedSummary?: string;
   completionNote?: string;
   practice: boolean;
   /** Normaali eteneminen: ratkaisu tallentuu. */
@@ -572,7 +574,8 @@ export function SongPlayer({ song, gigId, showLabel, attempt, update, onList, on
           <div className="song-complete" aria-live="polite">
             {stage === 'complete' && <>
               <h3><span aria-hidden="true">✓</span> {completionTitle}</h3>
-              {completedCount !== undefined && <p>Suoritit {completedCount} kappaletta.</p>}
+              {completedSummary && <p>{completedSummary}</p>}
+              {finale && <p className="finale-note">{finale.note}</p>}
               {completionNote && <p className="tour-finished">{completionNote}</p>}
               {saveFailed && <p>Selain ei voinut tallentaa etenemistä. Suoritus näkyy tällä sivulla.</p>}
             </>}
@@ -582,9 +585,9 @@ export function SongPlayer({ song, gigId, showLabel, attempt, update, onList, on
               className={index === 0 ? 'primary' : undefined} onClick={() => { sound.stop(); action.run(); }}>{action.label}</button>)}
             {stage === 'complete' && finale && <button key="finale" onClick={() => {
               if (isPlaying('finale')) sound.stop();
-              else play('finale', 'koko keikkaa', finale.render);
+              else play('finale', finale.status, finale.render);
             }}>
-              <PlayIcon playing={isPlaying('finale')} /> {isPlaying('finale') ? 'Pysäytä koko keikka' : finale.label}
+              <PlayIcon playing={isPlaying('finale')} /> {isPlaying('finale') ? finale.stopLabel : finale.label}
             </button>}
             {/* Sama painike-elementti: "Soita valmis kappale" muuttuu valmistumisen jälkeen "Kuuntele uudelleen"
                 -painikkeeksi, joten fokus pysyy paikallaan. Uudelleenkuuntelu ei kutsu onComplete-käsittelijää. */}

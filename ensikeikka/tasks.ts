@@ -114,6 +114,18 @@ export type Song = {
    * harjoittelu arpoo version, jottei vastausta opi muistamaan yhdestä äänitteestä.
    */
   variants?: readonly SongVariant[];
+  /**
+   * Tehtäväkierrokset arvotaan joukosta joka yrityksellä (soundcheck). `tasks` ja `explanation`
+   * ovat oletussarja; peli käyttää yrityksen arvontaa (`Attempt.rounds`) ja rakentaa tehtävät siitä.
+   */
+  rounds?: RoundPool;
+  /** Valmistumisen otsikko, jos kappale ei ole tavallinen esitys (esim. "Soundcheck valmis"). */
+  completionTitle?: string;
+};
+
+export type RoundPool = {
+  draw: (random: () => number) => number[];
+  build: (picks: readonly number[]) => Pick<Song, 'tasks' | 'explanation'>;
 };
 
 export type SongVariant = Partial<Omit<Song, 'id' | 'variants'>> & { name: string };
@@ -131,8 +143,15 @@ export type Gig = {
   /** Lukitun keikan selitteet: tavallinen avautuminen ja suora aloitus. */
   lockNote?: string;
   directNote?: string;
-  /** Keikan lopuksi soitettava kokonainen esitys. */
-  finale?: boolean;
+  /**
+   * Keikan lopuksi soitettava esitys: luetellut keikkabiisit valmiina peräkkäin hyväksytyillä
+   * ratkaisuilla (opetusversio ja `target`) ja aplodit. Soundcheck ei ole esitys, joten se jätetään pois.
+   */
+  finale?: { songs: readonly number[]; note: string };
+  /** Keikan vaiheiden nimi laskureissa partitiivissa. Oletus on "kappaletta". */
+  unit?: string;
+  /** Valmistumiskortin yhteenveto. Oletus on "Suoritit N kappaletta." */
+  completionSummary?: string;
   /** Sallii kappaleiden kokeilemisen ilman tallennusta, vaikka keikka ei olisi vielä auki. */
   freePractice?: boolean;
   /**

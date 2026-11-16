@@ -114,7 +114,12 @@ export const area: Area = {
     lockNote: 'Tavallisesti Ensikeikka avautuu, kun Ensitreenit eli keikat 1 ja 2 on suoritettu.',
     directNote: 'Kuuntelutaidot jo hallussa? Suoritukset tallentuvat, ja Ensitreenit pysyvät ennallaan.',
     completionTitle: 'Ensikeikka soitettu!',
-    finale: true,
+    unit: 'vaihetta',
+    completionSummary: 'Suoritit soundcheckin ja kaksi keikkabiisiä.',
+    finale: {
+      songs: [11, 12],
+      note: 'Keikan biisit soivat valmiina peräkkäin oikeilla ratkaisuilla: ensimmäinen biisi ja illan viimeinen kappale. Lopuksi yleisö taputtaa. Soundcheck ei kuulu esitykseen.',
+    },
   }],
 };
 
@@ -130,10 +135,17 @@ export function gigName(gig: Gig) {
  * Kappaleen musiikkiesimerkki. Versio 0 on kappale sellaisenaan; muut versiot korvaavat sen kentät
  * (esimerkiksi toinen soundcheck tai toinen biisi), mutta tunniste ja tallennus pysyvät samoina.
  */
-export function songVersion(song: Song, variant: number): Song {
+export function songVersion(song: Song, variant: number, rounds?: readonly number[]): Song {
   const version = variant > 0 ? song.variants?.[variant - 1] : undefined;
-  return version ? { ...song, ...version, id: song.id } : song;
+  const resolved = version ? { ...song, ...version, id: song.id } : song;
+  return rounds && resolved.rounds ? { ...resolved, ...resolved.rounds.build(rounds) } : resolved;
 }
+
+/** Arpoo kappaleen tehtäväkierrokset, jos kappaleella on kierrosjoukko. */
+export const drawRounds = (song: Song, random: () => number = Math.random) => song.rounds?.draw(random);
+
+/** Keikan etenemislaskuri, esim. "1 / 5 kappaletta" tai "1 / 3 vaihetta". */
+export const progressText = (gig: Gig, count: number) => `${count} / ${gig.songs.length} ${gig.unit ?? 'kappaletta'}`;
 
 export const versionCount = (song: Song) => 1 + (song.variants?.length ?? 0);
 
@@ -190,14 +202,12 @@ export function renderPair(takes: readonly [Take, Take], rate: number, layers?: 
 }
 
 /**
- * Koko keikka yhtenä esityksenä: keikan kappaleet valmiina (pelaajan soittamina versioina)
- * ja lopuksi aplodit.
+ * Keikan biisit yhtenä esityksenä: `gig.finale.songs` valmiina hyväksytyillä ratkaisuilla
+ * (opetusversio ja `target`) ja lopuksi aplodit. Esitys ei riipu pelaajan kokeilemista versioista
+ * eikä tallennetusta tilasta, joten se on sama myös uudelleenlatauksen jälkeen.
  */
-export function renderFinale(gig: Gig, versions: Readonly<Record<number, number>>, rate: number) {
-  const parts = gig.songs.map(id => {
-    const song = songVersion(songs[id], versions[id] ?? 0);
-    return renderSong(song, song.target, rate);
-  });
+export function renderFinale(gig: Gig, rate: number) {
+  const parts = (gig.finale?.songs ?? []).map(id => renderSong(songs[id], songs[id].target, rate));
   return concatenate([...parts, applause(rate)], rate, .7);
 }
 

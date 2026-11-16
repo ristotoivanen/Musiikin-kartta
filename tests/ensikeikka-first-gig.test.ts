@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { noteToMidi } from '../harjoittelija/music';
 import { cutSection, renderTake, type Chord, type Layer } from '../ensikeikka/arrangement';
-import { area, renderFinale, renderSong, songVersion, songs, versionCount } from '../ensikeikka/catalog';
+import { readFileSync } from 'node:fs';
+import { area, drawRounds, progressText, renderFinale, renderSong, songVersion, songs, versionCount } from '../ensikeikka/catalog';
+import { SOUNDCHECK_ROUNDS, drawSoundcheck, soundcheckPool, soundcheckSet } from '../ensikeikka/first-gig';
 import { MASTER_GAIN } from '../ensikeikka/score';
 import { gigStatus, songAccess } from '../ensikeikka/setlist';
 import { storedSongs, withCompleted } from '../ensikeikka/progress';
@@ -20,7 +22,19 @@ const db = (a: number, b: number) => Math.abs(10 * Math.log10(a / b));
 const bar = (take: Take) => 4 * 60 / take.arrangement.tempo;
 const [soundcheck, firstSong, finalSong] = [songs[10], songs[11], songs[12]];
 const versionsOf = (song: Song) => Array.from({ length: versionCount(song) }, (_, index) => songVersion(song, index));
-const compareTasks = versionsOf(soundcheck).flatMap(version => version.tasks as CompareTask[]);
+const compareTasks = soundcheckPool.map((_, index) => soundcheckSet([index]).tasks[0] as CompareTask);
+/** Toistuva satunnaislukujono testejä varten. */
+const sequence = (values: readonly number[]) => { let i = 0; return () => values[i++ % values.length]; };
+/** Siemenellinen näennäissatunnaisluku (mulberry32). */
+function seeded(seed: number) {
+  return () => {
+    seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const answers = (picks: readonly number[]) => picks.map(index => soundcheckPool[index].answer);
 const continueVersions = versionsOf(firstSong);
 
 /** Painolliset iskut ovat sointusäveliä tai konsonansseja soivaan bassoon nähden. */
@@ -42,14 +56,74 @@ function render(take: Take, layers?: readonly Layer[]) {
 }
 
 describe('Soundcheck – Mikä muuttui?', () => {
-  it('käyttää kahta kierrossarjaa, ja kummassakin muuttuu kerran basso, soinnut ja melodia', () => {
-    expect(versionCount(soundcheck)).toBe(2);
-    for (const version of versionsOf(soundcheck)) {
-      expect(version.id).toBe(10);
-      expect(version.tasks.map(task => task.kind)).toEqual(['compare', 'compare', 'compare']);
-      expect(new Set((version.tasks as CompareTask[]).map(task => task.answer))).toEqual(new Set(PARTS));
+  it('arpoo kolme kierrosta yhdeksän kierroksen joukosta, kolme kutakin osaa', () => {
+    expect(versionCount(soundcheck)).toBe(1);
+    expect(soundcheckPool).toHaveLength(9);
+    for (const part of PARTS) expect(soundcheckPool.filter(item => item.answer === part)).toHaveLength(3);
+    // Kierrokset ovat eri pätkiä: sävellaji ja tempo eroavat saman osan kierroksissa.
+    const signature = (index: number) => {
+      const { tempo, harmony } = soundcheckPool[index].versions[0].arrangement;
+      return `${soundcheckPool[index].answer}-${tempo}-${harmony[0].bass}`;
+    };
+    expect(new Set(soundcheckPool.map((_, index) => signature(index))).size).toBe(9);
+    // Oletussarja on vain lähtökohta, kun kierroksia ei ole arvottu.
+    expect(soundcheck.tasks.map(task => (task as CompareTask).answer)).toEqual(['comp', 'bass', 'melody']);
+    expect(soundcheck.rounds).toBeDefined();
+  });
+
+  it('ei lupaa jokaisen osan esiintyvän kerran: kaikki 27 osasarjaa ovat mahdollisia', () => {
+    const seen = new Set<string>();
+    for (const a of PARTS) for (const b of PARTS) for (const c of PARTS) {
+      const value = (part: string) => (PARTS.indexOf(part as never) + .5) / PARTS.length;
+      // Joka kierroksella ensin osan arvonta, sitten kierroksen valinta osan sisältä.
+      const picks = drawSoundcheck(sequence([value(a), .5, value(b), .5, value(c), .5]));
+      expect(answers(picks)).toEqual([a, b, c]);
+      expect(new Set(picks).size).toBe(SOUNDCHECK_ROUNDS);
+      seen.add(answers(picks).join());
     }
-    expect(versionsOf(soundcheck)[0].tasks.map(task => (task as CompareTask).answer)).toEqual(['comp', 'bass', 'melody']);
+    expect(seen.size).toBe(27);
+  });
+
+  it('ei anna kahden ensimmäisen vastauksen paljastaa kolmatta', () => {
+    const random = seeded(20261116);
+    const thirds = new Map<string, Record<string, number>>();
+    const total = 18_000;
+    let allDifferent = 0;
+    for (let n = 0; n < total; n++) {
+      const [a, b, c] = answers(drawSoundcheck(random));
+      const counts = thirds.get(`${a},${b}`) ?? {};
+      counts[c] = (counts[c] ?? 0) + 1;
+      thirds.set(`${a},${b}`, counts);
+      if (new Set([a, b, c]).size === 3) allDifferent++;
+    }
+    expect(thirds.size).toBe(9);
+    for (const [prefix, counts] of thirds) {
+      const sum = Object.values(counts).reduce((x, y) => x + y, 0);
+      for (const part of PARTS) {
+        // Kolmannen kierroksen osa on tasajakautunut kahdesta ensimmäisestä riippumatta.
+        expect((counts[part] ?? 0) / sum, `${prefix} → ${part}`).toBeGreaterThan(.29);
+        expect((counts[part] ?? 0) / sum, `${prefix} → ${part}`).toBeLessThan(.38);
+      }
+    }
+    // Kaikki osat erikseen vain noin 6/27 sarjoista: sääntöä "jokainen osa kerran" ei ole.
+    expect(allDifferent / total).toBeGreaterThan(.18);
+    expect(allDifferent / total).toBeLessThan(.27);
+  });
+
+  it('rakentaa otsikot, palautteen ja selityksen arvotuista kierroksista', () => {
+    const picks = [6, 0, 3];
+    const version = songVersion(soundcheck, 0, picks);
+    expect(version.id).toBe(10);
+    expect(version.tasks.map(task => task.heading)).toEqual(['Soundcheck 1/3: Mikä muuttui?', 'Soundcheck 2/3: Mikä muuttui?', 'Soundcheck 3/3: Mikä muuttui?']);
+    expect(version.tasks.map(task => (task as CompareTask).answer)).toEqual(['comp', 'comp', 'melody']);
+    expect(version.tasks[0].intro).toMatch(/Ovet aukeavat pian/);
+    expect(version.explanation).toMatch(/useammin kuin kerran/);
+    expect(version.explanation).toMatch(/Ensimmäisellä kierroksella D-duurissa G-duurisointu.*Toisella kierroksella C-duurissa.*Kolmannella kierroksella a-mollissa melodia/);
+    // Sama arvonta antaa samat tehtävät (yritys säilyttää arvontansa).
+    expect(songVersion(soundcheck, 0, picks)).toEqual(version);
+    const drawn = drawRounds(soundcheck, seeded(1))!;
+    expect(drawn).toHaveLength(3);
+    expect(drawRounds(songs[11])).toBeUndefined();
   });
 
   describe.each(compareTasks.map((task, index) => [index + 1, task] as const))('kierros %i', (_, task) => {
@@ -192,6 +266,24 @@ describe('Illan viimeinen kappale – Kertosäe nousee', () => {
     expect(reason).toMatchObject({ kind: 'reason', answer: 'ylos', span: [3, 8] });
   });
 
+  it('perustelee vanhan kotisävelen virheen bändin tavoitteella eikä yleisellä riitelyllä', () => {
+    const choose = finalSong.tasks[1] as Task & { kind: 'choose' };
+    expect(choose.prompt).toMatch(/bändi haluaa päättää kappaleen uuteen kotiin/);
+    const feedback = choose.wrong!.A!;
+    expect(feedback).toMatch(/pieni septimi/);
+    expect(feedback).toMatch(/bluesissa ja rockissa sitä käytetään joskus tarkoituksella/);
+    expect(feedback).toMatch(/ei vastaa tavoitetta/);
+    for (const text of [feedback, finalSong.explanation]) expect(text).not.toMatch(/riitel|väärin kaikissa/);
+    expect(finalSong.explanation).toMatch(/G on A-duurisoinnun päällä pieni septimi.*tarkoituksella.*eikä päätä kappaletta uuteen kotiin/);
+  });
+
+  it('dokumentoi saman bassokulun kuin sovitus (G–G♯–A)', () => {
+    const script = readFileSync(new URL('../ensikeikka/KOTIKULMAN-KEIKKA.md', import.meta.url), 'utf8');
+    expect(script).toMatch(/G–G♯–A/);
+    expect(script).not.toMatch(/D–D♯–E/);
+    expect(finalSong.explanation).toMatch(/basso nousee G:stä G♯:n kautta A:han/);
+  });
+
   it('tekee vanhasta kotisävelestä väärän ja uudesta oikean', () => {
     const lead = (letter: 'A' | 'B' | 'C') => pc(noteToMidi(finalSong.endings[letter].lead!));
     expect(lead(finalSong.target)).toBe(pc(noteToMidi('A4')));
@@ -214,17 +306,38 @@ describe('Illan viimeinen kappale – Kertosäe nousee', () => {
 });
 
 describe('Koko keikka ja tekniset apuvälineet', () => {
-  it('soittaa keikan kappaleet ja aplodit yhtenä esityksenä ilman leikkautumista', () => {
+  it('soittaa vain keikkabiisit hyväksytyillä ratkaisuilla ja aplodit, ei soundcheckia', () => {
     const gig = area.gigs[2];
-    const finale = renderFinale(gig, {}, rate);
-    const parts = gig.songs.map(id => renderSong(songs[id], songs[id].target, rate).length);
-    expect(finale.length).toBeGreaterThan(parts.reduce((sum, length) => sum + length, 0));
-    expect(finale.length / rate).toBeGreaterThan(45);
-    expect(finale.length / rate).toBeLessThan(75);
+    expect(gig.finale?.songs).toEqual([11, 12]);
+    expect(gig.songs).toContain(10);
+    const finale = renderFinale(gig, rate);
+    const length = (id: number) => renderSong(songs[id], songs[id].target, rate).length;
+    const songsOnly = length(11) + length(12);
+    // Biisit, kaksi taukoa ja aplodit (noin 3 s), mutta ei soundcheckin pätkää.
+    expect(finale.length).toBeGreaterThan(songsOnly);
+    expect(finale.length).toBeLessThan(songsOnly + 5 * rate);
+    expect(finale.length).toBeLessThan(songsOnly + length(10));
+    expect(finale.length / rate).toBeGreaterThan(40);
+    expect(finale.length / rate).toBeLessThan(60);
     expect(peak(finale) * MASTER_GAIN).toBeLessThan(.9);
     expect(Math.abs(finale.at(-1)!)).toBeLessThan(.001);
-    // Harjoittelun versio muuttaa ensimmäisen biisin esityksessä.
-    expect(renderFinale(gig, { 11: 1 }, rate).length).not.toBe(finale.length);
+    // Esitys alkaa ensimmäisen biisin hyväksytyllä otolla.
+    const first = renderSong(songs[11], songs[11].target, rate);
+    expect(finale.subarray(0, first.length)).toEqual(first);
+    // Ei riipu pelaajan kokeiluista eikä tallennetusta tilasta: sama esitys myös uudelleenlatauksen jälkeen.
+    expect(renderFinale(gig, rate)).toEqual(finale);
+    expect(gig.finale?.note).toMatch(/oikeilla ratkaisuilla/);
+    expect(gig.finale?.note).toMatch(/Soundcheck ei kuulu esitykseen/);
+    expect(gig.finale?.note).not.toMatch(/soittamina|sinun|omat? otto/i);
+  });
+
+  it('nimeää soundcheckin vaiheeksi eikä väitä kolmea esitystä', () => {
+    const gig = area.gigs[2];
+    expect(progressText(gig, 1)).toBe('1 / 3 vaihetta');
+    expect(progressText(area.gigs[0], 2)).toBe('2 / 5 kappaletta');
+    expect(gig.completionSummary).toBe('Suoritit soundcheckin ja kaksi keikkabiisiä.');
+    expect(soundcheck.completionTitle).toBe('Soundcheck valmis');
+    expect(songs[11].completionTitle).toBeUndefined();
   });
 
   it('leikkaa katkelman ja häivyttää lopun', () => {
@@ -237,7 +350,8 @@ describe('Koko keikka ja tekniset apuvälineet', () => {
 
   it('nimeää jatkot numeroilla eikä paljasta oikeaa vastausta ennen ratkaisua', () => {
     const noteName = /(?<!\p{L})[A-G][♯♭]?(?!\p{L})/u;
-    for (const song of [soundcheck, firstSong, finalSong].flatMap(versionsOf)) {
+    const everyRound = songVersion(soundcheck, 0, soundcheckPool.map((_, index) => index));
+    for (const song of [everyRound, ...[firstSong, finalSong].flatMap(versionsOf)]) {
       for (const task of song.tasks) {
         const before = [task.heading, task.intro, ...task.hints,
           ...(task.kind === 'compare' ? Object.values(task.wrong) : []),

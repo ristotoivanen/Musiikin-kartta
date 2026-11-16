@@ -1,5 +1,5 @@
 import { BRIGHT_BASS, chord, type Arrangement, type Chord } from './arrangement';
-import type { CompareTask, Song, Take } from './tasks';
+import { PARTS, type CompareTask, type Feedback, type Part, type Song, type Take } from './tasks';
 
 /*
  * Ensikeikka – Kotikulman keikka: kappaleet 10–12. Käsikirjoitus ja vastausten perusteet ovat
@@ -39,12 +39,20 @@ const compareHints = [
   'Vertaa osia erikseen. Kun kuulet yhden osan molemmat versiot peräkkäin, muutos erottuu helpommin.',
 ];
 
-function round(heading: string, intro: string, versions: [Take, Take], answer: CompareTask['answer'], success: CompareTask['success']): CompareTask {
-  const wrong = Object.fromEntries(Object.entries(compareWrong).filter(([part]) => part !== answer));
-  return { kind: 'compare', heading, intro, versions, answer, wrong, hints: compareHints, success };
+type Round = Omit<CompareTask, 'heading' | 'intro' | 'hints' | 'wrong'> & {
+  /** Selitys ratkaisun jälkeen. Kierroksen sijainti lisätään eteen. */
+  explanation: string;
+};
+
+function round(versions: [Take, Take], answer: Part, success: Feedback, explanation: string): Round {
+  return { kind: 'compare', versions, answer, success, explanation };
 }
 
-// Soundcheck, opetusjärjestys.
+const chordsChanged = { title: 'Oikein! Soinnut muuttuivat.', text: 'Toisen tahdin duurisointu vaihtui mollisoinnuksi. Melodia ja basso pysyivät samoina.' };
+const bassChanged = { title: 'Oikein! Basso muuttui.', text: 'Ensimmäisessä versiossa basso nousi kotiin, toisessa se laskeutui. Soinnut ja melodia pysyivät samoina.' };
+const melodyChanged = { title: 'Oikein! Melodia muuttui.', text: 'Melodia soitti samat sävelet, mutta ensin ylöspäin ja sitten alaspäin. Bändi soitti molemmilla kerroilla samoin.' };
+
+// Soundcheckin kierrokset: kolme kutakin osaa eri sävellajeissa.
 const chordsC = (second: Chord) => take(100, [C, second, C], [
   ['G4', 0, 1], ['E4', 1, .5], ['G4', 1.5, .5], ['C5', 2, 1.5], ['B4', 3.5, .5],
   ['C5', 4, 1.5], ['F4', 5.5, .5], ['G4', 6, 1], ['F4', 7, 1],
@@ -56,8 +64,6 @@ const bassAm = (walk: readonly (readonly [string, number])[]) => take(96, [Am, c
 const melodyD = (second: Notes, lead: string) => take(108, [D, A, D], [
   ['F#4', 0, 1], ['A4', 1, .5], ['F#4', 1.5, .5], ['D4', 2, 2], ...second,
 ], lead);
-
-// Soundcheck, harjoittelun toinen kierrossarja.
 const melodyAm = (second: Notes, lead: string) => take(90, [Am, Dm, Am], [
   ['E4', 0, 1], ['A4', 1, 1], ['C5', 2, 1], ['B4', 3, 1], ...second,
 ], lead);
@@ -69,50 +75,89 @@ const chordsE = (second: Chord) => take(92, [E, second, E], [
   ['B4', 0, 1], ['G#4', 1, 1], ['E4', 2, 1.5], ['F#4', 3.5, .5],
   ['E4', 4, 1.5], ['A4', 5.5, .5], ['B4', 6, 1], ['A4', 7, 1],
 ], 'G#4');
+const chordsD = (second: Chord) => take(104, [D, second, D], [
+  ['A4', 0, 1], ['F#4', 1, .5], ['A4', 1.5, .5], ['D5', 2, 1.5], ['C#5', 3.5, .5],
+  ['D5', 4, 1.5], ['G4', 5.5, .5], ['A4', 6, 1], ['G4', 7, 1],
+], 'F#4');
+const bassF = (walk: readonly (readonly [string, number])[]) => take(98, [F, chord('C3', 'G2', ['Bb2', 'E3', 'G3'], walk), F], [
+  ['C5', 0, 1], ['A4', 1, 1], ['F4', 2, 1.5], ['G4', 3.5, .5],
+  ['E4', 4, 1], ['G4', 5, 1], ['C5', 6, 1], ['Bb4', 7, 1],
+], 'A4');
+const melodyEm = (second: Notes, lead: string) => take(96, [Em, Am, Em], [
+  ['B4', 0, 1], ['G4', 1, 1], ['E4', 2, 1.5], ['F#4', 3.5, .5], ...second,
+], lead);
 
-const soundcheckIntro = 'Ovet aukeavat pian. Bändi soittaa saman pätkän kahdesti, ja miksaaja kysyy, mikä muuttui.';
-
-const soundcheckTasks = [
-  round('Soundcheck 1/3: Mikä muuttui?', soundcheckIntro, [chordsC(F), chordsC(Fm)], 'comp', {
-    title: 'Oikein! Soinnut muuttuivat.',
-    text: 'Toisen tahdin duurisointu vaihtui mollisoinnuksi. Melodia ja basso pysyivät samoina.',
-  }),
-  round('Soundcheck 2/3: Mikä muuttui?', 'Sama kysymys, uusi pätkä. Jokin osa soittaa nyt toisin.', [
-    bassAm([['E2', 0], ['F#2', 2], ['G#2', 3]]), bassAm([['E3', 0], ['D3', 2], ['C3', 3]]),
-  ], 'bass', {
-    title: 'Oikein! Basso muuttui.',
-    text: 'Ensimmäisessä versiossa basso nousi kotiin, toisessa se laskeutui. Soinnut ja melodia pysyivät samoina.',
-  }),
-  round('Soundcheck 3/3: Mikä muuttui?', 'Viimeinen pätkä ennen ovien avaamista.', [
+/**
+ * Kierrosjoukko. Kolme ensimmäistä ovat oletussarja (soinnut, basso, melodia), jota käytetään,
+ * jos kierroksia ei ole arvottu, esimerkiksi yksikkötesteissä.
+ */
+export const soundcheckPool: readonly Round[] = [
+  round([chordsC(F), chordsC(Fm)], 'comp', chordsChanged,
+    'C-duurissa F-duurisointu vaihtui f-mollisoinnuksi: terssi A laski A♭:ksi.'),
+  round([bassAm([['E2', 0], ['F#2', 2], ['G#2', 3]]), bassAm([['E3', 0], ['D3', 2], ['C3', 3]])], 'bass', bassChanged,
+    'a-mollissa basso nousi E:stä F♯:n ja G♯:n kautta A:han, kun taas toisessa versiossa se laskeutui E:stä D:n ja C:n kautta.'),
+  round([
     melodyD([['E4', 4, 1], ['A4', 5, 1], ['C#5', 6, 1], ['E5', 7, 1]], 'D5'),
     melodyD([['E5', 4, 1], ['C#5', 5, 1], ['A4', 6, 1], ['E4', 7, 1]], 'D4'),
-  ], 'melody', {
-    title: 'Oikein! Melodia muuttui.',
-    text: 'Melodia soitti samat sävelet, mutta ensin ylöspäin ja sitten alaspäin. Bändi soitti molemmilla kerroilla samoin.',
-  }),
-] satisfies CompareTask[];
-
-const soundcheckPractice = [
-  round('Soundcheck 1/3: Mikä muuttui?', soundcheckIntro, [
+  ], 'melody', melodyChanged, 'D-duurissa melodia soitti A-duurisoinnun sävelet ensin ylöspäin ja sitten alaspäin.'),
+  round([
     melodyAm([['D4', 4, 1], ['F4', 5, 1], ['A4', 6, 1], ['D5', 7, 1]], 'C5'),
     melodyAm([['D5', 4, 1], ['A4', 5, 1], ['F4', 6, 1], ['D4', 7, 1]], 'C4'),
-  ], 'melody', {
-    title: 'Oikein! Melodia muuttui.',
-    text: 'Melodia kulki toisessa tahdissa ensin ylös ja sitten alas. Bändi soitti molemmilla kerroilla samoin.',
-  }),
-  round('Soundcheck 2/3: Mikä muuttui?', 'Sama kysymys, uusi pätkä. Jokin osa soittaa nyt toisin.', [
-    bassG([['D2', 0], ['E2', 2], ['F#2', 3]]), bassG([['D3', 0], ['C3', 2], ['B2', 3]]),
-  ], 'bass', {
-    title: 'Oikein! Basso muuttui.',
-    text: 'Basso nousi ensimmäisessä versiossa kotiin ja laskeutui toisessa. Soinnut ja melodia pysyivät samoina.',
-  }),
-  round('Soundcheck 3/3: Mikä muuttui?', 'Viimeinen pätkä ennen ovien avaamista.', [
-    chordsE(chord('A2', 'E2', ['C#3', 'E3', 'A3'])), chordsE(chord('A2', 'E2', ['C3', 'E3', 'A3'])),
-  ], 'comp', {
-    title: 'Oikein! Soinnut muuttuivat.',
-    text: 'Toisen tahdin duurisointu vaihtui mollisoinnuksi. Melodia ja basso pysyivät samoina.',
-  }),
-] satisfies CompareTask[];
+  ], 'melody', melodyChanged, 'a-mollissa melodia soitti d-mollisoinnun sävelet ensin ylöspäin ja sitten alaspäin.'),
+  round([bassG([['D2', 0], ['E2', 2], ['F#2', 3]]), bassG([['D3', 0], ['C3', 2], ['B2', 3]])], 'bass', bassChanged,
+    'G-duurissa basso nousi D:stä E:n ja F♯:n kautta G:hen ja toisessa versiossa laskeutui D:stä C:n ja B:n kautta.'),
+  round([chordsE(chord('A2', 'E2', ['C#3', 'E3', 'A3'])), chordsE(chord('A2', 'E2', ['C3', 'E3', 'A3']))], 'comp', chordsChanged,
+    'E-duurissa A-duurisointu vaihtui a-mollisoinnuksi: terssi C♯ laski C:ksi.'),
+  round([chordsD(chord('G2', 'D3', ['G3', 'B3', 'D4'])), chordsD(chord('G2', 'D3', ['G3', 'Bb3', 'D4']))], 'comp', chordsChanged,
+    'D-duurissa G-duurisointu vaihtui g-mollisoinnuksi: terssi B laski B♭:ksi.'),
+  round([bassF([['C2', 0], ['D2', 2], ['E2', 3]]), bassF([['C3', 0], ['Bb2', 2], ['A2', 3]])], 'bass', bassChanged,
+    'F-duurissa basso nousi C:stä D:n ja E:n kautta F:ään ja toisessa versiossa laskeutui C:stä B♭:n ja A:n kautta.'),
+  round([
+    melodyEm([['A4', 4, 1.5], ['C5', 5.5, .5], ['E5', 6, 1], ['A5', 7, 1]], 'G5'),
+    melodyEm([['A5', 4, 1.5], ['E5', 5.5, .5], ['C5', 6, 1], ['A4', 7, 1]], 'B4'),
+  ], 'melody', melodyChanged, 'e-mollissa melodia soitti a-mollisoinnun sävelet ensin ylöspäin ja sitten alaspäin.'),
+];
+
+export const SOUNDCHECK_ROUNDS = 3;
+
+/**
+ * Arpoo soundcheckin kierrokset. Jokaisen kierroksen osa arvotaan erikseen, joten sama osa voi
+ * muuttua useammin kuin kerran, eikä kahdesta ensimmäisestä vastauksesta voi päätellä kolmatta.
+ * Saman osan kierroksista valitaan vielä käyttämätön, joten sama pätkä ei toistu sarjassa.
+ */
+export function drawSoundcheck(random: () => number = Math.random): number[] {
+  const pick = <T>(items: readonly T[]) => items[Math.min(items.length - 1, Math.floor(random() * items.length))];
+  const used: number[] = [];
+  for (let n = 0; n < SOUNDCHECK_ROUNDS; n++) {
+    const part = pick(PARTS);
+    used.push(pick([...soundcheckPool.keys()].filter(index => soundcheckPool[index].answer === part && !used.includes(index))));
+  }
+  return used;
+}
+
+const soundcheckIntros = [
+  'Ovet aukeavat pian. Bändi soittaa saman pätkän kahdesti, ja miksaaja kysyy, mikä muuttui.',
+  'Sama kysymys, uusi pätkä. Jokin osa soittaa nyt toisin.',
+  'Viimeinen pätkä ennen ovien avaamista.',
+];
+const ordinal = ['Ensimmäisellä', 'Toisella', 'Kolmannella'];
+
+/** Soundcheckin tehtävät ja selitys valituista kierroksista. */
+export function soundcheckSet(picks: readonly number[]): Pick<Song, 'tasks' | 'explanation'> {
+  const rounds = picks.map(index => soundcheckPool[index]);
+  return {
+    tasks: rounds.map((item, n): CompareTask => ({
+      kind: 'compare', versions: item.versions, answer: item.answer, success: item.success,
+      heading: `Soundcheck ${n + 1}/${rounds.length}: Mikä muuttui?`,
+      intro: soundcheckIntros[n === 0 ? 0 : n === rounds.length - 1 ? 2 : 1],
+      hints: compareHints,
+      wrong: Object.fromEntries(Object.entries(compareWrong).filter(([part]) => part !== item.answer)),
+    })),
+    explanation: `Jokaisella kierroksella vain yksi osa soitti toisin, ja sama osa voi muuttua useammin kuin kerran. ${
+      rounds.map((item, n) => `${ordinal[n] ?? `${n + 1}.`} kierroksella ${item.explanation}`).join(' ')
+    } Kun kuuntelet yhtä soitinta kerrallaan, muutos löytyy, vaikka kaikki soittavat yhtä aikaa.`,
+  };
+}
 
 // Kappale 11: säkeistön alku ja kaksi jatkoa. Opetusversio C-duurissa, harjoittelun versio a-mollissa.
 const openingC: Notes = [
@@ -196,13 +241,9 @@ export const firstGig = {
     endings: { A: { lead: 'C5' }, B: { lead: 'C5' }, C: { lead: 'C5' } },
     unfinished: { lead: null },
     target: 'A',
-    tasks: soundcheckTasks,
-    explanation: 'Jokaisella kierroksella vain yksi osa soitti toisin. Ensimmäisellä kierroksella F-duurisointu vaihtui f-mollisoinnuksi: terssi A laski A♭:ksi. Toisella kierroksella basso nousi E:stä F♯:n ja G♯:n kautta A:han, kun taas toisessa versiossa se laskeutui E:stä D:n ja C:n kautta. Kolmannella kierroksella melodia soitti A-duurisoinnun sävelet ensin ylöspäin ja sitten alaspäin. Kun kuuntelet yhtä soitinta kerrallaan, muutos löytyy, vaikka kaikki soittavat yhtä aikaa.',
-    variants: [{
-      name: 'Harjoittelun soundcheck',
-      tasks: soundcheckPractice,
-      explanation: 'Ensimmäisellä kierroksella melodia soitti d-mollisoinnun sävelet ensin ylöspäin ja sitten alaspäin. Toisella kierroksella basso nousi D:stä E:n ja F♯:n kautta G:hen ja toisessa versiossa laskeutui D:stä C:n ja B:n kautta. Kolmannella kierroksella A-duurisointu vaihtui a-mollisoinnuksi: terssi C♯ laski C:ksi.',
-    }],
+    ...soundcheckSet([0, 1, 2]),
+    rounds: { draw: drawSoundcheck, build: soundcheckSet },
+    completionTitle: 'Soundcheck valmis',
   },
   11: {
     id: 11, title: 'Ensimmäinen biisi – Miten kappale jatkuu?', keyName: 'C-duuri', root: 'C',
@@ -291,11 +332,11 @@ export const firstGig = {
       kind: 'choose',
       heading: 'Vaihe 2/2: Valitse melodian lopetus',
       intro: 'Kertosäe on noussut. Melodian viimeinen sävel puuttuu.',
-      prompt: 'Kotisävel on vaihtunut. Missä lopetuksessa melodia päättyy uuteen kotiin?',
+      prompt: 'Kotisävel on vaihtunut, ja bändi haluaa päättää kappaleen uuteen kotiin. Missä lopetuksessa melodia päättyy uuteen kotisäveleen?',
       answer: 'B',
       retry: 'Melodia ei vielä päädy uuteen kotiin. Vertaa lopetusta basson viimeiseen säveleen.',
       wrong: {
-        A: 'Tämä oli kappaleen koti ennen nousua. Basso on vienyt bändin uuteen kotiin, joten vanha kotisävel riitelee nyt loppusoinnun kanssa.',
+        A: 'Tämä oli kappaleen koti ennen nousua. Uuden loppusoinnun päällä se on pieni septimi: bluesissa ja rockissa sitä käytetään joskus tarkoituksella, mutta se jättää loppuun jännitteen. Bändi halusi päättää kappaleen uuteen kotiin, joten tämä lopetus ei vastaa tavoitetta. Vertaa sitä basson viimeiseen säveleen.',
         C: 'Tämä sävel sopii loppusointuun ja kuulostaa vakaalta, mutta se ei ole uusi kotisävel. Vertaa sitä basson viimeiseen säveleen.',
       },
       isolate: ['melody'],
@@ -305,6 +346,6 @@ export const firstGig = {
       ],
       success: { title: 'Oikein! Melodia löysi uuden kodin.', text: 'Basso ja melodia päättyivät samaan, uuteen kotisäveleen.' },
     }],
-    explanation: 'Kertosäe alkaa G-duurissa ja palaa G:hen. Sen jälkeen basso nousee G:stä G♯:n kautta A:han, ja E7 johdattaa bändin A-duuriin. Kertosäe toistuu kokonaisen sävelaskeleen korkeammalta, joten kappaleen koti on nyt A. Sävel A päättää kappaleen uuteen kotiin. Vanha koti G on A-duurisoinnussa pieni septimi ja jää riitelemään. C♯ on uuden kotisoinnun terssi: vakaa, mutta ei koti.',
+    explanation: 'Kertosäe alkaa G-duurissa ja palaa G:hen. Sen jälkeen basso nousee G:stä G♯:n kautta A:han, ja E7 johdattaa bändin A-duuriin. Kertosäe toistuu kokonaisen sävelaskeleen korkeammalta, joten kappaleen koti on nyt A. Sävel A päättää kappaleen uuteen kotiin, kuten bändi halusi. Vanha koti G on A-duurisoinnun päällä pieni septimi. Blues- ja rock-kappaleissa sillä joskus lopetetaan tarkoituksella, mutta se jättää loppuun jännitteen eikä päätä kappaletta uuteen kotiin. C♯ on uuden kotisoinnun terssi: vakaa, mutta ei koti.',
   },
 } satisfies Record<number, Song>;

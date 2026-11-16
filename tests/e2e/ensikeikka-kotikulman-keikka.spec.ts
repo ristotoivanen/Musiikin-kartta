@@ -80,7 +80,7 @@ test('Ensikeikka näkyy Ensitreenien jälkeen omana korttinaan, ja sen voi aloit
   await expect(page.getByText('Ensikeikka: avautuu keikkojen 1 ja 2 jälkeen tai suoraan aloittamalla')).toBeVisible();
   await button(page, 'Kotikulmien keikat').click();
   const card = page.getByRole('region', { name: 'Ensikeikka – Kotikulman keikka' });
-  await expect(card.getByText('0 / 3 kappaletta suoritettu')).toBeVisible();
+  await expect(card.getByText('0 / 3 vaihetta suoritettu')).toBeVisible();
   await expect(card.getByText('Tavallisesti Ensikeikka avautuu, kun Ensitreenit eli keikat 1 ja 2 on suoritettu.')).toBeVisible();
   const direct = card.getByRole('button', { name: 'Aloita suoraan Ensikeikasta' });
   await expect(direct).toHaveAccessibleDescription(/Suoritukset tallentuvat, ja Ensitreenit pysyvät ennallaan/);
@@ -99,7 +99,8 @@ test('Ensikeikka näkyy Ensitreenien jälkeen omana korttinaan, ja sen voi aloit
 
 test('Soundcheck: vertaile versioita, käytä erilliskuuntelua vihjeenä ja tunnista muutos', async ({ page, isMobile }) => {
   test.setTimeout(60000);
-  await setup(page, ensitreenit, '#kappale-10');
+  // Satunnaisluku 0,5 arpoo joka kierrokselle soinnut: sama osa voi muuttua useammin kuin kerran.
+  await setup(page, ensitreenit, '#kappale-10', .5);
   await expect(page.getByRole('heading', { name: 'Soundcheck 1/3: Mikä muuttui?' })).toBeFocused();
   const check = button(page, 'Tarkista valintani');
   const [v1, v2] = [button(page, 'Versio 1'), button(page, 'Versio 2')];
@@ -146,19 +147,27 @@ test('Soundcheck: vertaile versioita, käytä erilliskuuntelua vihjeenä ja tunn
   await expect(check).toBeDisabled();
   await button(page, 'Kuuntele molemmat peräkkäin').click();
   await playToEnd(page, 'Versiot peräkkäin');
-  await press(page, button(page, 'Basso'), isMobile);
+  await press(page, button(page, 'Soinnut'), isMobile);
   await check.click();
+  await expect(page.getByRole('heading', { name: 'Oikein! Soinnut muuttuivat.' })).toBeFocused();
   await button(page, 'Jatka vaiheeseen 3').click();
 
+  await expect(page.getByRole('heading', { name: 'Soundcheck 3/3: Mikä muuttui?' })).toBeFocused();
   await button(page, 'Kuuntele molemmat peräkkäin').click();
   await playToEnd(page, 'Versiot peräkkäin');
   await press(page, button(page, 'Melodia'), isMobile);
   await check.click();
-  await expect(page.getByRole('heading', { name: 'Oikein! Melodia muuttui.' })).toBeFocused();
+  await expect(page.getByText(/Melodia on molemmissa versioissa sama/)).toBeVisible();
+  await press(page, button(page, 'Soinnut'), isMobile);
+  await check.click();
+  await expect(page.getByRole('heading', { name: 'Oikein! Soinnut muuttuivat.' })).toBeFocused();
   expect(await saved(page)).toEqual({ version: 1, completed: ensitreenit });
   await button(page, 'Soita valmis kappale').click();
   await playToEnd(page, 'valmista kappaletta');
-  await expect(page.locator('.success-card').getByRole('heading', { level: 3, name: 'Kappale valmis' })).toBeVisible();
+  await expect(page.locator('.success-card').getByRole('heading', { level: 3, name: 'Soundcheck valmis' })).toBeVisible();
+  await page.getByText('Selitä, miksi tämä toimii').click();
+  await expect(page.getByText(/sama osa voi muuttua useammin kuin kerran.*Ensimmäisellä kierroksella E-duurissa.*Toisella kierroksella D-duurissa.*Kolmannella kierroksella C-duurissa/))
+    .toBeVisible();
   expect(await saved(page)).toEqual({ version: 1, completed: [...ensitreenit, 10] });
   await button(page, 'Seuraava kappale').click();
   await expect(page).toHaveURL(/#kappale-11$/);
@@ -230,7 +239,7 @@ test('Harjoittelu arpoo toisen biisin ja numeroi jatkot uudelleen', async ({ pag
   expect(await saved(page)).toBeNull();
 });
 
-test('Illan viimeinen kappale: basso vie uuteen kotiin, ja lopuksi soi koko keikka', async ({ page, isMobile }) => {
+test('Illan viimeinen kappale: basso vie uuteen kotiin, ja lopuksi soivat keikan biisit', async ({ page, isMobile }) => {
   test.setTimeout(60000);
   await setup(page, [...ensitreenit, 10, 11], '#kappale-12');
   await expect(page.getByRole('heading', { name: 'Vaihe 1/2: Mihin basso vie?' })).toBeFocused();
@@ -264,19 +273,47 @@ test('Illan viimeinen kappale: basso vie uuteen kotiin, ja lopuksi soi koko keik
   await playToEnd(page, 'valmista kappaletta');
   const card = page.locator('.success-card');
   await expect(card.getByRole('heading', { level: 3, name: 'Ensikeikka soitettu!' })).toBeVisible();
-  await expect(card.getByText('Suoritit 3 kappaletta.')).toBeVisible();
+  await expect(card.getByText('Suoritit soundcheckin ja kaksi keikkabiisiä.')).toBeVisible();
+  await expect(card.getByText(/Keikan biisit soivat valmiina peräkkäin oikeilla ratkaisuilla.*Soundcheck ei kuulu esitykseen/)).toBeVisible();
   await expect(card.getByText(/Esiintymisalue suoritettu!/)).toBeVisible();
   expect(await saved(page)).toEqual({ version: 1, completed: [...ensitreenit, 10, 11, 12] });
 
-  const finale = card.getByRole('button', { name: 'Kuuntele koko keikka' });
+  const finale = card.getByRole('button', { name: 'Kuuntele keikan biisit' });
   await finale.click();
-  await expect(status(page)).toHaveText('Soitetaan · koko keikkaa');
+  await expect(status(page)).toHaveText('Soitetaan · keikan biisit');
   const set = await lastPlayback(page);
-  expect(set?.duration).toBeGreaterThan(45);
+  // Ensimmäinen biisi (noin 20 s), viimeinen kappale (noin 26 s) ja aplodit, ei soundcheckia.
+  expect(set?.duration).toBeGreaterThan(40);
+  expect(set?.duration).toBeLessThan(60);
   expect(set?.hasAudio).toBe(true);
-  await card.getByRole('button', { name: 'Pysäytä koko keikka' }).click();
+  await card.getByRole('button', { name: 'Pysäytä keikan biisit' }).click();
   expect(await lastPlayback(page)).toMatchObject({ stopped: true });
   expect(await saved(page)).toEqual({ version: 1, completed: [...ensitreenit, 10, 11, 12] });
+
+  // Uudelleenlatauksen jälkeen sama esitys on yhä tarjolla eikä riipu istunnon tilasta.
+  await setup(page, [...ensitreenit, 10, 11, 12], '#kappale-12');
+  await expect(card.getByText('Suoritit soundcheckin ja kaksi keikkabiisiä.')).toBeVisible();
+  await card.getByRole('button', { name: 'Kuuntele keikan biisit' }).click();
+  expect((await lastPlayback(page))?.duration).toBeCloseTo(set!.duration, 3);
+  await card.getByRole('button', { name: 'Pysäytä keikan biisit' }).click();
+  await page.goto(`${gamePath}#keikka-3`);
+  await expect(page.getByRole('region', { name: 'Ensikeikka – Kotikulman keikka' }).getByText('3 / 3 vaihetta suoritettu · Keikka suoritettu'))
+    .toBeVisible();
+});
+
+test('Soundcheckin harjoittelu arpoo uudet kierrokset, ja sama osa voi toistua', async ({ page }) => {
+  // Satunnaisluku 0 arpoo joka kierrokselle basson.
+  await setup(page, null, '#harjoitus-10', 0);
+  for (const step of [1, 2, 3]) {
+    await expect(page.getByRole('heading', { name: `Soundcheck ${step}/3: Mikä muuttui?` })).toBeFocused();
+    await button(page, 'Kuuntele molemmat peräkkäin').click();
+    await playToEnd(page, 'Versiot peräkkäin');
+    await button(page, 'Basso').click();
+    await button(page, 'Tarkista valintani').click();
+    await expect(page.getByRole('heading', { name: 'Oikein! Basso muuttui.' })).toBeFocused();
+    if (step < 3) await button(page, `Jatka vaiheeseen ${step + 1}`).click();
+  }
+  expect(await saved(page)).toBeNull();
 });
 
 for (const width of [320, 360, 390]) {

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { SongPlayer, initialAttempt, type Attempt, type SongAction, type Update } from './GigPlayer';
-import { area, capitalize, gigName, gigOf, renderFinale, requiredGigs, requiredText, songs, songVersion, versionCount } from './catalog';
+import { area, capitalize, drawRounds, gigName, gigOf, progressText, renderFinale, requiredGigs, requiredText, songs, songVersion, versionCount } from './catalog';
 import { areaComplete, followingSong, gigStatus, songAccess, type SongMode } from './setlist';
 import { shuffledOrder } from './order';
 import { clearProgress, completedPrefix, readProgress, saveProgress, storedSongs, withCompleted } from './progress';
@@ -72,8 +72,18 @@ function Ensikeikka() {
     lastVariant.current[song] = variant;
     return variant;
   }
-  // Harjoittelukierros kuuluu yhdelle kappaleelle. Uusi kierros arpoo esimerkin ja lopetusten järjestyksen.
-  const newRound = (song: number) => ({ song, attempt: { ...initialAttempt, order: shuffledOrder(), variant: pickVariant(song) } });
+  // Etenemisen yritys arpoo kierroksensa (soundcheck) kerran sivun aikana, ja ne säilyvät yrityksen ajan.
+  const drawn = useRef<Partial<Record<number, readonly number[]>>>({});
+  function freshAttempt(song: number): Attempt {
+    if (!(song in drawn.current) && songs[song]) drawn.current[song] = drawRounds(songs[song]);
+    const rounds = drawn.current[song];
+    return rounds ? { ...initialAttempt, rounds } : initialAttempt;
+  }
+  // Harjoittelukierros kuuluu yhdelle kappaleelle. Uusi kierros arpoo esimerkin, kierrokset ja lopetusten järjestyksen.
+  const newRound = (song: number) => {
+    const rounds = songs[song] && drawRounds(songs[song]);
+    return { song, attempt: { ...initialAttempt, order: shuffledOrder(), variant: pickVariant(song), ...rounds && { rounds } } };
+  };
   const [practice, setPractice] = useState(() => newRound(view.kind === 'song' ? view.song : 0));
   const [saveFailed, setSaveFailed] = useState(false);
   const pendingFocus = useRef(window.location.hash !== '');
@@ -132,6 +142,7 @@ function Ensikeikka() {
     setSaveFailed(!clearProgress());
     setCompleted([]);
     setAttempts({});
+    drawn.current = {};
     setOpenGigs([]);
     window.scrollTo(0, 0);
     document.getElementById('keikkalista')?.focus({ preventScroll: true });
@@ -144,13 +155,13 @@ function Ensikeikka() {
     const songComplete = completed.includes(id);
     // Valmis kappale säilyttää tehtävän tilan (esim. kappaleen 9 vaiheen), jotta onnistumiskortti ei vaihdu.
     const attempt = isPractice ? practice.attempt : songComplete
-      ? { ...attempts[id] ?? initialAttempt, stage: 'complete' as const } : attempts[id] ?? initialAttempt;
-    const song = songVersion(songs[id], attempt.variant);
+      ? { ...attempts[id] ?? freshAttempt(id), stage: 'complete' as const } : attempts[id] ?? freshAttempt(id);
+    const song = songVersion(songs[id], attempt.variant, attempt.rounds);
 
     const update: Update = changes => {
       const apply = (current: Attempt) => ({ ...current, ...(typeof changes === 'function' ? changes(current) : changes) });
       if (isPractice) setPractice(previous => ({ song: id, attempt: apply(previous.attempt) }));
-      else setAttempts(previous => ({ ...previous, [id]: apply(previous[id] ?? initialAttempt) }));
+      else setAttempts(previous => ({ ...previous, [id]: apply(previous[id] ?? freshAttempt(id)) }));
     };
 
     const gigNow = status(gig, completed);
@@ -163,8 +174,8 @@ function Ensikeikka() {
     const everything = finishedGig && areaComplete(area.gigs, completed);
     const waiting = finishedGig ? requiredGigs(gig).find(other => !status(other, completed).complete) : undefined;
     const finale = finishedGig && gig.finale ? {
-      label: 'Kuuntele koko keikka',
-      render: (rate: number) => renderFinale(gig, Object.fromEntries(gig.songs.map(item => [item, attempts[item]?.variant ?? 0])), rate),
+      label: 'Kuuntele keikan biisit', stopLabel: 'Pysäytä keikan biisit', status: 'keikan biisit', note: gig.finale.note,
+      render: (rate: number) => renderFinale(gig, rate),
     } : undefined;
 
     // Jatkaminen tapahtuu vain painalluksesta: seuraava kappale, seuraava keikka tai settilista.
@@ -185,8 +196,8 @@ function Ensikeikka() {
         if (isPractice) update({ stage: 'complete' });
         else if (!songComplete) recordSong(id);
       }}
-      completionTitle={isPractice ? 'Harjoittelu valmis' : finishedGig ? gig.completionTitle : 'Kappale valmis'}
-      completedCount={finishedGig ? gig.songs.length : undefined}
+      completionTitle={isPractice ? 'Harjoittelu valmis' : finishedGig ? gig.completionTitle : song.completionTitle ?? 'Kappale valmis'}
+      completedSummary={finishedGig ? gig.completionSummary ?? `Suoritit ${gig.songs.length} kappaletta.` : undefined}
       completionNote={everything ? `${area.title} on nyt kokonaan soitettu. Esiintymisalue suoritettu!`
         : waiting ? `${capitalize(gigName(waiting).nominative)} on vielä soittamatta. Esiintymisalue valmistuu, kun kaikki keikat on suoritettu.` : undefined}
       finale={finale}
@@ -214,7 +225,7 @@ function Ensikeikka() {
               const { count, complete, unlocked, direct } = status(gig, completed);
               const locked = `avautuu ${requiredText(gig, 'genitive')} jälkeen${direct !== undefined ? ' tai suoraan aloittamalla' : ''}`;
               return <li key={gig.id} className="gig-state" data-state={complete ? 'done' : unlocked ? 'next' : 'locked'}>
-                {gigName(gig).heading}: {complete ? 'suoritettu' : unlocked ? `${count} / ${gig.songs.length} kappaletta` : locked}
+                {gigName(gig).heading}: {complete ? 'suoritettu' : unlocked ? progressText(gig, count) : locked}
               </li>;
             })}
           </ul>
@@ -272,7 +283,7 @@ function GigCard({ gig, completed, attempts, open, onOpen, onToggle }: {
       <h3 id={`show-${gig.id}-title`} tabIndex={-1}>{name.heading} – {gig.title}</h3>
       <p className="show-description">{gig.description}</p>
       <p className="gig-state" data-state={complete ? 'done' : unlocked ? 'next' : 'locked'}>
-        {count} / {gig.songs.length} kappaletta suoritettu
+        {progressText(gig, count)} suoritettu
         {complete && ' · Keikka suoritettu'}
       </p>
       {!unlocked && required && <>

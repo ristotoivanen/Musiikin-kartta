@@ -42,7 +42,7 @@ describe('Kotikulmien keikat -luettelo', () => {
       [3, 'Kotikulman keikka', [10, 11, 12]],
     ]);
     expect(area.gigs[1]).toMatchObject({ requires: [1], freePractice: true, completionTitle: 'Kotikulmien toinen ilta suoritettu!' });
-    expect(area.gigs[2]).toMatchObject({ requires: [1, 2], freePractice: true, directStart: true, finale: true });
+    expect(area.gigs[2]).toMatchObject({ requires: [1, 2], freePractice: true, directStart: true, finale: { songs: [11, 12] } });
     const ids = area.gigs.flatMap(gig => gig.songs);
     expect(new Set(ids).size).toBe(ids.length);
     for (const id of ids) expect(songs[id].id).toBe(id);
