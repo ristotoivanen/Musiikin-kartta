@@ -2,6 +2,7 @@ import { applause, concatenate, cutSection, endingExcerpt, renderIsolated, rende
 import { firstGig } from './first-gig';
 import { secondNight } from './second-night';
 import { gigArrangements, gigs as firstNight, type Gig as FirstNightSong } from './song-demo-score';
+import { naturalOrder, shuffledOrder } from './order';
 import { LETTERS, type Area, type ChooseTask, type Gig, type Letter, type Song, type Take } from './tasks';
 
 const melodyPrompt = 'Kuuntele lopetuksia. Mikä niistä tuntuu palaavan kotiin?';
@@ -92,6 +93,7 @@ export const area: Area = {
     title: 'Ensimmäinen esiintyminen',
     description: 'Kuuntele keskeneräinen kappale, kokeile kolmea lopetusta ja valitse se, johon melodia tuntuu palaavan kotiin.',
     songs: [1, 2, 3, 4, 5],
+    shuffleEndings: true,
     completionTitle: 'Keikka valmis!',
   }, {
     id: 2,
@@ -99,6 +101,7 @@ export const area: Area = {
     description: 'Läheisempiä lopetuksia, bassolinjan kuuntelua ja kaksivaiheinen encore. Melodian lisäksi kuunnellaan bändiä.',
     songs: [6, 7, 8, 9],
     requires: [1],
+    shuffleEndings: true,
     freePractice: true,
     directStart: true,
     completionTitle: 'Kotikulmien toinen ilta suoritettu!',
@@ -140,6 +143,13 @@ export function songVersion(song: Song, variant: number, rounds?: readonly numbe
   const resolved = version ? { ...song, ...version, id: song.id } : song;
   return rounds && resolved.rounds ? { ...resolved, ...resolved.rounds.build(rounds) } : resolved;
 }
+
+/**
+ * Normaalin etenemisen uuden yrityksen lopetusjärjestys. Ensitreenit (`shuffleEndings`) arpovat
+ * sen kuten harjoittelu; muut keikat käyttävät alkuperäistä järjestystä.
+ */
+export const progressOrder = (song: number, random: () => number = Math.random) =>
+  gigOf(song)?.shuffleEndings ? shuffledOrder(random) : naturalOrder;
 
 /** Arpoo kappaleen tehtäväkierrokset, jos kappaleella on kierrosjoukko. */
 export const drawRounds = (song: Song, random: () => number = Math.random) => song.rounds?.draw(random);

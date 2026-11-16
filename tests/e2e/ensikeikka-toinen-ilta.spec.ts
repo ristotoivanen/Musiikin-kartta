@@ -14,6 +14,10 @@ declare global {
 
 async function observePlayback(page: Page) {
   await page.addInitScript(() => {
+    // Normaali eteneminen arpoo Ensitreenien lopetusjärjestyksen. Nämä testit kiinnittävät alkuperäisen
+    // järjestyksen (0,999), ellei testi aseta omaa arvoa. Arvottua järjestystä testaa
+    // ensikeikka-lopetusjarjestys.spec.ts.
+    if (!('ensikeikkaRandom' in window)) Math.random = () => .999;
     window.ensikeikkaPlayback = [];
     const observed = new WeakMap<AudioBufferSourceNode, Playback>();
     const start = AudioBufferSourceNode.prototype.start;
@@ -491,13 +495,14 @@ test('Harjoittelu sekoittaa lopetukset kierroksittain, mutta palaute puhuu valit
   await expect(page.getByText('Piste: Lopetuksessa C bändi on kotona, mutta kuuntele melodiaa. Soiko se samaa säveltä kuin basso?')).toBeVisible();
 });
 
-test('Harjoittelun järjestys ei vaikuta normaaliin etenemiseen eikä suoraan avattuun harjoitukseen jää alkuperäiseksi', async ({ page }) => {
+test('Normaali eteneminen ja suoraan avattu harjoitus arpovat järjestyksen (tehtävä #78)', async ({ page }) => {
   await controlRandom(page, 0);
   await start(page, [...firstGig, 6]);
   await page.goto(`${gamePath}#kappale-7`);
   await page.reload();
   await expect(page.getByText('Suoritus tallentuu keikan etenemiseen.')).toBeVisible();
-  await hear(page, 'C');
+  // Järjestyksessä B, C, A kotiin palaava lopetus (tunniste C) näkyy kirjaimella B.
+  await hear(page, 'B');
   await button(page, 'Tarkista valintani').click();
   await expect(page.getByRole('heading', { name: 'Oikein! Bändi palasi kotiin!' })).toBeFocused();
   await page.goto(`${gamePath}#harjoitus-6`);

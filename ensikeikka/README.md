@@ -111,8 +111,16 @@ teksti (ohje, vihjeet, palaute) on datassa.
   esiintymisalue valmistuu vasta molempien keikkojen jälkeen. Kun keikasta on yksi suoritus, se on auki.
 - **Vapaa harjoittelu** (`#harjoitus-N`): suoritetut kappaleet ja `freePractice`-keikan kaikki
   kappaleet. Ei koskaan muuta tallennetta. Jokainen harjoittelukierros arpoo lopetusten näkyvän
-  järjestyksen (`order.ts`), ja järjestys pysyy samana koko kierroksen ajan. Normaali eteneminen
-  käyttää aina alkuperäistä järjestystä. Kappalenäkymä kertoo, tallentuuko tulos.
+  järjestyksen (`order.ts`), ja järjestys pysyy samana koko kierroksen ajan. Kappalenäkymä kertoo,
+  tallentuuko tulos.
+- **Lopetusten järjestys normaalissa etenemisessä:** Ensitreenien kappaleet 1–9 (`shuffleEndings`
+  keikoilla 1 ja 2) arpovat näkyvän A/B/C-järjestyksen jokaiselle uudelle yritykselle (`progressOrder`).
+  Arvonta tehdään kerran, kun yritys alkaa, ja se säilyy vaiheiden, kuuntelun, vihjeiden ja
+  tarkistuksen ajan. Uudelleenlataus aloittaa keskeneräisen kappaleen uutena yrityksenä, ja
+  "Aloita alusta" arpoo uudet yritykset. Musiikki, oikea vastaus, palaute ja selitys kulkevat
+  lopetuksen tunnisteen mukana, joten vain näkyvä kirjain vaihtuu. Peräkkäisille yrityksille ei
+  pakoteta eri kirjainta, koska sellaisesta säännöstä voisi päätellä vastauksen. Ensikeikka
+  (kappaleet 10–12) käyttää etenemisessä alkuperäistä järjestystä.
 - **Uudelleenkuuntelu** (`#kappale-N` suoritetulle kappaleelle): valmis kappale ja selitys.
 - **Keikan uudelleenharjoittelu**: valmiin keikan kortin painike avaa kappaleet harjoitustilassa järjestyksessä.
 - Versio pysyy 1:nä tarkoituksella. Vanha pelin versio lukee samasta tallenteesta kappaleet 1–5,

@@ -37,7 +37,7 @@ jobs:
       - name: Test scale positions and bridge in browser
         run: npx playwright test tests/e2e/learning-paths.spec.ts --grep "positioiden 1 ja 2 yhdistäminen|positio 3 avautuu|yhdistämisen mallisoitto" --project=desktop
       - name: Test beta games and theory navigation
-        run: npx playwright test tests/e2e/betapelien-navigointi.spec.ts tests/e2e/ensikeikka.spec.ts tests/e2e/ensikeikka-toinen-ilta.spec.ts tests/e2e/ensikeikka-kotikulman-keikka.spec.ts tests/e2e/riffikaiku.spec.ts --workers=3
+        run: npx playwright test tests/e2e/betapelien-navigointi.spec.ts tests/e2e/ensikeikka.spec.ts tests/e2e/ensikeikka-toinen-ilta.spec.ts tests/e2e/ensikeikka-kotikulman-keikka.spec.ts tests/e2e/ensikeikka-lopetusjarjestys.spec.ts tests/e2e/riffikaiku.spec.ts --workers=3
       - name: Cache-bust compiled browser module
         run: |
           node --input-type=module <<'NODE'

@@ -152,6 +152,11 @@ export type Gig = {
   unit?: string;
   /** Valmistumiskortin yhteenveto. Oletus on "Suoritit N kappaletta." */
   completionSummary?: string;
+  /**
+   * Normaali eteneminen arpoo lopetusten näkyvän järjestyksen jokaiselle uudelle yritykselle, kuten
+   * harjoittelu. Käytössä Ensitreeneissä (kappaleet 1–9). Ilman sitä eteneminen käyttää alkuperäistä järjestystä.
+   */
+  shuffleEndings?: boolean;
   /** Sallii kappaleiden kokeilemisen ilman tallennusta, vaikka keikka ei olisi vielä auki. */
   freePractice?: boolean;
   /**
