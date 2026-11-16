@@ -92,9 +92,10 @@
 .recap-strings strong { color: var(--gold); }
 
 .recap-board {
+  --recap-wood: #30251e;
   position: relative;
   border-radius: .35rem;
-  background: #30251e;
+  background: var(--recap-wood);
 }
 
 .recap-board svg {
@@ -122,11 +123,24 @@
   display: grid;
   grid-template: repeat(6, minmax(0, 1fr)) / var(--recap-fret-columns);
   justify-items: center;
-  align-items: start;
+  align-items: center;
   color: var(--muted);
   font-size: .75rem;
   font-weight: 600;
   line-height: 1;
+}
+
+.recap-fret-notes li {
+  padding: .08em .12em;
+  background: var(--recap-wood);
+}
+
+.recap-note-names[open] {
+  margin-block: .5rem 1rem;
+  padding: .1rem clamp(8px, 2vw, 14px) .75rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line));
+  border-radius: .65rem;
+  background: var(--bg);
 }
 
 .recap-note-names summary {

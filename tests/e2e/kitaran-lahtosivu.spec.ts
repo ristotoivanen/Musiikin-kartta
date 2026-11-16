@@ -58,14 +58,19 @@ test.describe('Kitaran pikakertaus ilman JavaScriptiä', () => {
     const table = disclosure.getByRole('table', { name: 'B:n ja H:n vastineet' });
     await expect(summary).toHaveText('Miksi sama sävel on B tai H?');
     await expect(table).toBeHidden();
+    await expect(disclosure).toHaveCSS('border-top-style', 'none');
 
     if (isMobile) await summary.tap();
     else await summary.click();
     await expect(table).toBeVisible();
+    await expect(disclosure).toHaveCSS('border-top-style', 'solid');
+    await expect(disclosure).toHaveCSS('border-bottom-style', 'solid');
+    await expect(disclosure).not.toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
     await expect(table.getByRole('cell')).toHaveText(['B', 'H', 'B♭', 'B']);
     if (isMobile) await summary.tap();
     else await summary.click();
     await expect(table).toBeHidden();
+    await expect(disclosure).toHaveCSS('border-top-style', 'none');
 
     await summary.focus();
     await expect(summary).toBeFocused();
@@ -127,7 +132,7 @@ test.describe('Kitaran pikakertaus ilman JavaScriptiä', () => {
             const box = label.getBoundingClientRect();
             return Math.abs(box.left + box.width / 2 - fret.left - fret.width / 2) < 1
               && box.left > fret.left && box.right < fret.right
-              && box.top >= rect.top && box.bottom <= wireY - parseFloat(getComputedStyle(wire).strokeWidth) / 2
+              && Math.abs(box.top + box.height / 2 - wireY) < 1
               && box.width > 0 && parseFloat(style.fontSize) >= minFontSize;
           });
         }, normalFontSize * (size === '200%' ? 2 : 1));
