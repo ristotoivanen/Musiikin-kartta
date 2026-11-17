@@ -1,0 +1,26 @@
+.intervallitaulukko {
+  table-layout: fixed;
+  overflow-wrap: anywhere;
+}
+.intervallitaulukko th, .intervallitaulukko td {
+  padding-inline: .3em;
+}
+.intervallitaulukko thead th:first-child { width: 2.15em; }
+.intervallitaulukko thead th:last-child { width: 29%; }
+
+.intervallikysely input, .intervallikysely button {
+  box-sizing: border-box;
+  max-inline-size: 100%;
+  min-block-size: 44px;
+  padding: .35em .65em;
+  border: 1px solid var(--muted);
+  border-radius: .35em;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+.intervallikysely label span { display: block; font-weight: 700; }
+.intervallikysely input { display: block; width: 100%; margin-block: .35em .6em; }
+.intervallikysely button { cursor: pointer; color: var(--accent); overflow-wrap: anywhere; }
+.intervallikysely :is(input, button):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.intervallikysely [data-palaute]:empty { margin: 0; }

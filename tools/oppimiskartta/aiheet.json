@@ -37,7 +37,7 @@
       "groups": [
         {"title": "Merkinnät ja sävelvälit", "lessons": [
           {"source": "osa-1#kitaran-merkinnat", "excerpt": "kitaran-kielet-ja-sointumerkinnat", "title": "Kitaran kielet ja sointumerkinnät", "goal": "Lue kielten nimet ja sointukaavio. Kokeile ensimmäistä G-otetta."},
-          {"source": "osa-2#savelet-ja-intervallit", "goal": "Tunnista puoli- ja kokosävelaskel, kromaattinen asteikko ja tavallisimmat intervallit."}
+          {"source": "osa-2#savelet-ja-intervallit", "goal": "Nimeä intervallit priimistä oktaaviin ja palauta niiden puolisävelmäärät mieleen."}
         ]}
       ],
       "related": ["korva/intervallit", "asteikot/asteikot"]
