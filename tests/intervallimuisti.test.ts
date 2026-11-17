@@ -103,12 +103,13 @@ describe('intervallien teoria ja palautus', () => {
     }
   });
 
-  it('generoidun oppitunnin JS- ja CSS-linkit sekä kirjan CSS-linkki vastaavat sisältötiivisteitä', () => {
+  it('oppitunnin ja kirjan JS- ja CSS-linkit vastaavat sisältötiivisteitä', () => {
     const generated = readFileSync(new URL('../oppi/savelnimet/savelet-ja-intervallit.html', import.meta.url), 'utf8');
     const version = (file: string) => createHash('sha256')
       .update(readFileSync(new URL(`../assets/${file}`, import.meta.url))).digest('hex').slice(0, 10);
     expect(generated).toContain(`src="../../assets/intervallimuisti.js?v=${version('intervallimuisti.js')}"`);
     expect(generated).toContain(`href="../../assets/intervallimuisti.css?v=${version('intervallimuisti.css')}"`);
+    expect(chapter).toContain(`src="../assets/intervallimuisti.js?v=${version('intervallimuisti.js')}"`);
     expect(chapter).toContain(`href="../assets/intervallimuisti.css?v=${version('intervallimuisti.css')}"`);
   });
 

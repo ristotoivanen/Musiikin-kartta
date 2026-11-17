@@ -117,19 +117,25 @@ test('pohjaan jäänyt Enter säilyttää palautteen seuraavaan erilliseen paina
   await quiz.getByRole('textbox').fill('0');
   const status = quiz.getByRole('status');
   const next = quiz.getByRole('button', { name: 'Seuraava kysymys' });
+  const counter = quiz.locator('[data-kysymysnumero]');
+  const feedback = 'Oikein! Puhdas priimi on 0 pa. Esimerkki on A–A (sama korkeus).';
   await page.keyboard.down('Enter');
-  await expect(next).toBeFocused();
-  await expect(status).toContainText('Oikein!');
-  test.fail(true, '#96: Enterin automaattinen toisto aktivoi juuri kohdistetun Seuraava-painikkeen.');
   try {
+    await expect(next).toBeFocused();
+    await expect(status).toHaveText(feedback);
     await page.keyboard.down('Enter');
-    await expect(quiz.locator('[data-kysymysnumero]')).toHaveText('Kysymys 1 / 29', { timeout: 500 });
-    await expect(status).toContainText('Oikein!');
+    await page.keyboard.down('Enter');
+    await expect(counter).toHaveText('Kysymys 1 / 29');
+    await expect(status).toHaveText(feedback);
+    await expect(next).toBeFocused();
   } finally {
     await page.keyboard.up('Enter');
   }
+  await expect(status).toHaveText(feedback);
   await page.keyboard.press('Enter');
-  await expect(quiz.locator('[data-kysymysnumero]')).toHaveText('Kysymys 2 / 29');
+  await expect(counter).toHaveText('Kysymys 2 / 29');
+  await expect(quiz.getByRole('textbox')).toBeFocused();
+  await expect(status).toBeEmpty();
 });
 
 test('pohjaan jäänyt Enter säilyttää kierrostuloksen seuraavaan erilliseen painallukseen', async ({ page }) => {
@@ -143,20 +149,46 @@ test('pohjaan jäänyt Enter säilyttää kierrostuloksen seuraavaan erilliseen 
     await input.press('Enter');
     if (i < 29) await quiz.getByRole('button', { name: 'Seuraava kysymys' }).click();
   }
+  const restart = quiz.getByRole('button', { name: 'Kertaa uudelleen' });
+  const result = 'Muistiharjoitus päättyi. Oikein 1 / 29.';
   await expect(quiz.getByRole('button', { name: 'Näytä tulos' })).toBeFocused();
   await page.keyboard.down('Enter');
-  await expect(status).toHaveText('Muistiharjoitus päättyi. Oikein 1 / 29.');
-  await expect(quiz.getByRole('button', { name: 'Kertaa uudelleen' })).toBeFocused();
-  test.fail(true, '#96: Enterin automaattinen toisto aktivoi juuri kohdistetun Kertaa uudelleen -painikkeen.');
   try {
+    await expect(restart).toBeFocused();
+    await expect(status).toHaveText(result);
     await page.keyboard.down('Enter');
-    await expect(status).toHaveText('Muistiharjoitus päättyi. Oikein 1 / 29.', { timeout: 500 });
+    await page.keyboard.down('Enter');
+    await expect(status).toHaveText(result);
+    await expect(restart).toBeFocused();
+    await expect(input).toHaveCount(0);
   } finally {
     await page.keyboard.up('Enter');
   }
+  await expect(status).toHaveText(result);
   await page.keyboard.press('Enter');
   await expect(input).toBeFocused();
+  await expect(quiz.locator('[data-kysymysnumero]')).toHaveText('Kysymys 1 / 29');
   await expect(status).toBeEmpty();
+});
+
+test.describe('muistiharjoitus kosketusnäytöllä', () => {
+  test.use({ hasTouch: true });
+
+  test('palautteen voi lukea ennen erillistä kosketusta seuraavaan kysymykseen', async ({ page }) => {
+    await page.goto(studyPage);
+    const quiz = page.locator('.intervallikysely');
+    const input = quiz.getByRole('textbox');
+    const status = quiz.getByRole('status');
+    await quiz.getByRole('button', { name: 'Aloita muistiharjoitus' }).tap();
+    await input.fill('0');
+    await quiz.getByRole('button', { name: 'Tarkista vastaus' }).tap();
+    await expect(status).toContainText('Oikein!');
+    await expect(quiz.locator('[data-kysymysnumero]')).toHaveText('Kysymys 1 / 29');
+    await quiz.getByRole('button', { name: 'Seuraava kysymys' }).tap();
+    await expect(quiz.locator('[data-kysymysnumero]')).toHaveText('Kysymys 2 / 29');
+    await expect(input).toBeFocused();
+    await expect(status).toBeEmpty();
+  });
 });
 
 test('kesken poistuminen ja uudelleenlataus säilyttävät aiemmat luku- ja harjoittelutiedot', async ({ page }) => {
