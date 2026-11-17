@@ -189,13 +189,87 @@ const defaultContext: ContextFactory = () => {
   return new Context();
 };
 
+/**
+ * Lyhin seinäkelloaika kahden kellonäytteen välillä, ennen kuin renderöinnin pysähtymisestä
+ * päätellään mitään. Kontekstin kello etenee renderöintijaksoittain. Arvio: jakso on enintään
+ * 2048 näytettä (43 ms, 48 kHz), Bluetooth-ulostulollakin. Silloin 250 ms:iin mahtuu vähintään viisi
+ * jaksoa, ja toimiva kello etenee siinä ajassa vähintään (250 − 43) / 250 ≈ 0,83 seinäkellon nopeudella.
+ * Fyysisellä iPhonella mitattu nopeus oli näkyvällä sivulla 0,996–1,018 sekunnin välein otetuissa näytteissä (D6).
+ */
+export const CLOCK_WINDOW_MS = 250;
+/**
+ * Pienin hyväksyttävä kellon nopeus suhteessa seinäkelloon. Raja on toimivan (≥ 0,83) ja pysähtyneen
+ * kellon (fyysinen iPhone 17.11.2026: tasan 0 yli 100 sekunnin ajan) välissä.
+ */
+export const MIN_CLOCK_RATE = 0.5;
+/** Palautuksen suspend()- ja resume()-kutsujen enimmäisaika. iPhonella koko palautus kesti 14 ms. */
+export const RECOVERY_TIMEOUT_MS = 2000;
+/** Näin lähekkäiset näytteet yhdistetään, jotta nopeat painallukset eivät syrjäytä vanhempaa vertailukohtaa. */
+const SAMPLE_MERGE_MS = 50;
+const MAX_CLOCK_SAMPLES = 8;
+
+export type ClockState = 'advancing' | 'stalled' | 'unknown';
+
+/**
+ * AudioContextin renderöintikellon vahti. Fyysisellä iPhonella (iOS 27.2, Safari, 17.11.2026)
+ * näytön lukitus pysäytti renderöinnin: tila jäi 'running', mutta currentTime pysyi paikallaan,
+ * eikä yksikään raita kuulunut. Yksi lukema ei kerro mitään, joten nykyistä lukemaa verrataan
+ * uusimpaan näytteeseen, joka on vähintään CLOCK_WINDOW_MS vanha.
+ */
+export class ContextClockWatch {
+  private samples: { contextTime: number; wallMs: number }[] = [];
+
+  sample(contextTime: number, wallMs: number) {
+    if (!Number.isFinite(contextTime) || !Number.isFinite(wallMs)) return;
+    const last = this.samples.at(-1);
+    if (last && wallMs - last.wallMs < SAMPLE_MERGE_MS) this.samples.pop();
+    this.samples.push({ contextTime, wallMs });
+    if (this.samples.length > MAX_CLOCK_SAMPLES) this.samples.shift();
+  }
+
+  reset() { this.samples = []; }
+
+  check(contextTime: number, wallMs: number): ClockState {
+    if (!Number.isFinite(contextTime) || !Number.isFinite(wallMs)) return 'unknown';
+    for (let index = this.samples.length - 1; index >= 0; index--) {
+      const reference = this.samples[index];
+      const wall = wallMs - reference.wallMs;
+      if (wall < CLOCK_WINDOW_MS) continue;
+      const advanced = (contextTime - reference.contextTime) * 1000;
+      return advanced < wall * MIN_CLOCK_RATE ? 'stalled' : 'advancing';
+    }
+    return 'unknown';
+  }
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`${label}: aikakatkaisu ${ms} ms`)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+
+function describeError(cause: unknown): string {
+  const name = (cause as { name?: unknown } | null)?.name;
+  const message = (cause as { message?: unknown } | null)?.message;
+  if (typeof name === 'string' && name !== 'Error') return typeof message === 'string' && message ? `${name}: ${message}` : name;
+  return typeof message === 'string' ? message : String(cause);
+}
+
 /** Web Audio -reititys niille selaimille, joissa elementin volume ei toimi. */
 export class SongGainMixer {
   private context: AudioContext | null = null;
   private gains = new WeakMap<HTMLMediaElement, GainNode>();
+  private clock = new ContextClockWatch();
+  private recovery: Promise<boolean> | null = null;
   /** Viimeisin virhe käyttäjälle ja diagnostiikalle: virheitä ei niellä hiljaa. */
   lastError = '';
-  constructor(private create: ContextFactory = defaultContext, private nav: unknown = globalThis.navigator) {}
+  constructor(
+    private create: ContextFactory = defaultContext,
+    private nav: unknown = globalThis.navigator,
+    private now: () => number = () => performance.now(),
+  ) {}
 
   /** Web Audion tila ('running', 'suspended', 'interrupted' iOS:llä, 'closed') tai 'none'. */
   get state(): string { return this.context?.state ?? 'none'; }
@@ -207,8 +281,10 @@ export class SongGainMixer {
       if (!this.context || this.context.state === 'closed') {
         this.context = this.create();
         this.gains = new WeakMap();
+        this.clock.reset();
       }
-      if (this.context.state !== 'running') {
+      // Kesken olevan palautuksen suspend() → resume() -järjestykseen ei puututa.
+      if (this.context.state !== 'running' && !this.recovery) {
         void this.context.resume().catch(cause => { this.lastError = 'Web Audio ei käynnistynyt: ' + String(cause); });
       }
       return true;
@@ -216,6 +292,65 @@ export class SongGainMixer {
       this.lastError = 'Web Audio ei ole käytettävissä: ' + String(cause);
       return false;
     }
+  }
+
+  /** Kontekstin kello, kun konteksti on 'running'. Muissa tiloissa kellon pysähtyminen on odotettua. */
+  private runningTime(): number | null {
+    const context = this.context;
+    if (!context || context.state !== 'running') return null;
+    return typeof context.currentTime === 'number' ? context.currentTime : null;
+  }
+
+  /** Tallentaa kellonäytteen (tauko, näkyvyyden muutos, toiston alku). Muu kuin 'running' nollaa näytteet. */
+  observe() {
+    const time = this.runningTime();
+    if (time === null) this.clock.reset();
+    else this.clock.sample(time, this.now());
+  }
+
+  /**
+   * 'stalled', kun tila on 'running', mutta kello on edennyt alle MIN_CLOCK_RATE seinäkellosta
+   * vähintään CLOCK_WINDOW_MS pituisella välillä. 'unknown', jos vertailukohtaa ei vielä ole.
+   */
+  clockState(): ClockState {
+    const time = this.runningTime();
+    return time === null ? 'unknown' : this.clock.check(time, this.now());
+  }
+
+  get recovering(): boolean { return this.recovery !== null; }
+
+  /**
+   * Käynnistää pysähtyneen kontekstin uudelleen: suspend() ja sen jälkeen resume(). Kutsutaan vain
+   * käyttäjän Soita-painalluksesta. Samanaikaiset kutsut saavat saman lupauksen, joten palautuksia on
+   * kerrallaan yksi. Palauttaa true, kun konteksti on taas 'running'. Virhe ei heitä vaan palauttaa false.
+   */
+  recover(): Promise<boolean> {
+    if (this.recovery) return this.recovery;
+    const context = this.context;
+    if (!context) return Promise.resolve(false);
+    const run = async (): Promise<boolean> => {
+      try {
+        if (typeof context.suspend !== 'function' || typeof context.resume !== 'function') {
+          throw new Error('suspend() tai resume() puuttuu');
+        }
+        await withTimeout(context.suspend(), RECOVERY_TIMEOUT_MS, 'suspend()');
+        await withTimeout(context.resume(), RECOVERY_TIMEOUT_MS, 'resume()');
+        if (context.state !== 'running') throw new Error(`tila ${context.state} palautuksen jälkeen`);
+        if (context !== this.context) throw new Error('konteksti suljettiin palautuksen aikana');
+        // Vanhat näytteet kuvaavat pysähdystä. Uusi vertailukohta alkaa palautuksesta.
+        this.clock.reset();
+        this.observe();
+        return true;
+      } catch (cause) {
+        this.lastError = 'Web Audion palautus epäonnistui: ' + describeError(cause);
+        return false;
+      }
+    };
+    const recovery: Promise<boolean> = run().finally(() => {
+      if (this.recovery === recovery) this.recovery = null;
+    });
+    this.recovery = recovery;
+    return recovery;
   }
 
   /** Kytkee elementin yhden kerran: elementin oma ääni kulkee sen jälkeen vain GainNoden kautta. */
@@ -254,6 +389,7 @@ export class SongGainMixer {
     const context = this.context;
     this.context = null;
     this.gains = new WeakMap();
+    this.clock.reset();
     void context?.close().catch(() => {});
   }
 }

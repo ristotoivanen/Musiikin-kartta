@@ -258,6 +258,19 @@ versionvaihdossa. Mykistys hoidetaan edelleen `muted`-ominaisuudella.
   aloitusviive on iPhonella todennäköisesti 0 eikä 0,4 s. Tahdistin oppii viiveen, eikä sitä muutettu ilman mittausta.
   Jos iOS keskeyttää AudioContextin (esim. puhelu tai taustalle
   siirtyminen), seuraava Soita-painallus käynnistää sen uudelleen.
+- **Pysähtynyt renderöinti näytön lukituksen jälkeen** (issue #9, fyysinen
+  iPhone 16 Pro, iOS 27.2, 17.11.2026): tila jäi `running`, mutta
+  `AudioContext.currentTime` pysyi paikallaan, eikä yksikään raita kuulunut.
+  `suspend()` → `resume()` käyttäjän painalluksesta palautti äänen.
+  `ContextClockWatch` vertaa kontekstin kelloa seinäkelloon. Näytteet otetaan
+  tauolla, näkyvyyden muuttuessa ja toiston alussa. Pysähdys todetaan vasta,
+  kun kahden näytteen väli on vähintään 250 ms ja kello on edennyt alle
+  puolet seinäkellosta. Silloin Soita-painallus tekee yhden `suspend()` →
+  `resume()` -palautuksen ennen `play()`-kutsuja. Nopeat lisäpainallukset
+  odottavat samaa palautusta. Epäonnistunut palautus tai `NotAllowedError`
+  jättää soittimen pysäytetyksi ja näyttää ohjeen. Jos kello on pysähdyksissä
+  0,8 s toiston alun jälkeen, toisto pysäytetään ja käyttäjää pyydetään
+  painamaan Soita uudelleen. Raitojen tahdistusta korjaus ei muuta.
 
 **Skaalat ja moodit** on Soinnut ja sanat -osion alla oleva, aluksi
 suljettu osio (`SongScales.tsx`, `songScaleData.ts`). Siinä on vain
