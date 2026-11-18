@@ -1,7 +1,8 @@
 /* Musiikin kartan yhteinen päävalikko ja pääosioiden alavalikot.
  *
- * Sama merkintä toistuu jokaisella sivulla (staattinen sivusto ilman koostovaihetta), ja
- * tests/site.test.ts tarkistaa, että järjestys, osoitteet ja aktiivinen osio pysyvät yhtenäisinä.
+ * Sama merkintä toistuu jokaisella sivulla (staattinen sivusto ilman koostovaihetta). Valikon osiot
+ * ovat tools/oppimiskartta/sisaltorekisteri.json-tiedostossa, ja tools/oppimiskartta/rakenna-osiot.py
+ * päivittää merkinnän sivuille. tests/site.test.ts tarkistaa järjestyksen, osoitteet ja aktiivisen osion.
  * Aktiivinen pääosio merkitään aria-current-attribuutilla: "page", kun linkki osoittaa avattuun
  * sivuun, ja "true", kun sivu kuuluu osioon (esimerkiksi oppaan osat Oppimiskartan alla).
  * Tyylit eivät nojaa sivukohtaisiin muuttujiin, jotta valikko näyttää samalta oppaan,
@@ -56,12 +57,18 @@
 .section-nav a:hover { color: var(--nav-text); border-bottom-color: var(--nav-line); }
 .section-nav a[aria-current] { color: var(--nav-text); border-bottom-color: var(--nav-accent); }
 
-/* Mobiili: brändi ja osiot omille riveilleen, ei vaakavieritystä eikä kiinteää palkkia. */
+/* Keskikokoinen näyttö: neljä pääosiota mahtuvat brändin viereen vasta leveämmässä näkymässä. */
+@media (max-width: 900px) {
+  .main-nav li a { padding: 8px 10px; }
+}
+
+/* Mobiili: brändi omalle rivilleen ja neljä pääosiota 2 × 2 -ruudukkoon. Valikko on aina näkyvissä
+ * ilman avattavaa valikkoa, JavaScriptiä, vaakavieritystä tai kiinteää palkkia. */
 @media (max-width: 640px) {
   .main-nav { padding: 6px 12px 8px; gap: 2px; }
-  .main-nav ul { width: 100%; gap: 4px; flex-wrap: wrap; }
-  .main-nav li { flex: 1 1 auto; }
-  .main-nav li a { min-height: 44px; padding: 6px 6px; font-size: 14px; }
+  .main-nav ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; gap: 4px; }
+  .main-nav li { min-width: 0; }
+  .main-nav li a { min-height: 44px; padding: 6px 6px; font-size: 14px; white-space: normal; text-align: center; }
   .main-nav .nav-long { display: none; }
   .main-nav .nav-short { display: inline; }
   .section-nav { padding: 0 12px; gap: 0 12px; }

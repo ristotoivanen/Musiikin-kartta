@@ -1,18 +1,22 @@
 import { test, expect, type Page } from '@playwright/test';
 
 // Yhteinen päävalikko, Musiikin teoria -aloitusnäkymä ja edistymisen jatkuvuus.
-// Ylävalikon Oppimiskartta avaa aihejaottelun, vaikka kirjan vanha teoriaindeksi säilyy.
+// Neljä pääosiota: Opi & oivalla avaa Oppimiskartan aihejaottelun, vaikka kirjan vanha teoriaindeksi säilyy.
+// Sisältörekisteri: tools/oppimiskartta/sisaltorekisteri.json.
 const MAIN_PAGES = [
   { path: '/index.html', active: null },
   { path: '/book/index.html', active: 'teoria' },
   { path: '/book/osa-3.html', active: 'teoria' },
   { path: '/book/sanasto.html', active: 'teoria' },
-  { path: '/riffikaiku.html', active: 'kitara' },
-  { path: '/pelit/ensikeikka/', active: 'kitara' },
-  { path: '/otelautaharjoittelija.html', active: 'otelauta' },
+  { path: '/musapelit.html', active: 'pelit' },
+  { path: '/riffikaiku.html', active: 'pelit' },
+  { path: '/pelit/ensikeikka/', active: 'pelit' },
+  { path: '/kitaratreeni.html', active: 'kitara' },
   { path: '/kitaraharjoittelija.html', active: 'kitara' },
+  { path: '/soittopakki.html', active: 'pakki' },
+  { path: '/otelautaharjoittelija.html', active: 'pakki' },
 ] as const;
-const LABELS = { teoria: /^Oppimiskartta$/, otelauta: /^Otelautaopas$/, kitara: /^Kitaraharjoittelu$/ };
+const LABELS = { teoria: /^Opi & oivalla$/, pelit: /^Musapelit$/, kitara: /^Kitaratreeni$/, pakki: /^Soittopakki$/ };
 const mainNav = (page: Page) => page.getByRole('navigation', { name: 'Päävalikko' });
 const expandTopicList = (page: Page) => page.locator('#topic-toggle').click();
 const LUVUT = 'musiikin-kartta:luvut';
@@ -25,11 +29,12 @@ test.describe('Yhteinen päävalikko', () => {
       const nav = mainNav(page);
       await expect(nav).toBeVisible();
       const links = nav.getByRole('link');
-      await expect(links).toHaveCount(4);
+      await expect(links).toHaveCount(5);
       await expect(links.nth(0)).toHaveText('Musiikin kartta');
       await expect(links.nth(1)).toHaveText(LABELS.teoria);
-      await expect(links.nth(2)).toHaveText(LABELS.otelauta);
+      await expect(links.nth(2)).toHaveText(LABELS.pelit);
       await expect(links.nth(3)).toHaveText(LABELS.kitara);
+      await expect(links.nth(4)).toHaveText(LABELS.pakki);
       const current = nav.locator('[aria-current]');
       await expect(current).toHaveCount(1);
       if (active === null) await expect(current).toHaveText('Musiikin kartta');
@@ -42,8 +47,9 @@ test.describe('Yhteinen päävalikko', () => {
   test('jokainen päävalikon linkki vie oikeaan pääosioon', async ({ page }) => {
     const targets = [
       [LABELS.teoria, /\/index[.]html#oppimisaiheet$/, 'Oppimiskartta'],
-      [LABELS.otelauta, /\/otelautaharjoittelija\.html$/, 'Otelautaopas'],
-      [LABELS.kitara, /\/kitaraharjoittelija\.html$/, 'Kitaraharjoittelija'],
+      [LABELS.pelit, /\/musapelit\.html$/, 'Musapelit'],
+      [LABELS.kitara, /\/kitaratreeni\.html$/, 'Kitaratreeni'],
+      [LABELS.pakki, /\/soittopakki\.html$/, 'Soittopakki'],
     ] as const;
     for (const start of ['/index.html', '/book/osa-5.html', '/riffikaiku.html', '/pelit/ensikeikka/']) {
       for (const [name, url, heading] of targets) {
@@ -71,7 +77,7 @@ test.describe('Yhteinen päävalikko', () => {
     await page.keyboard.press('Tab');
     await expect(mainNav(page).getByRole('link', { name: LABELS.kitara })).toBeFocused();
     await page.keyboard.press('Enter');
-    await expect(page).toHaveURL(/kitaraharjoittelija\.html$/);
+    await expect(page).toHaveURL(/kitaratreeni\.html$/);
   });
 
   test('mobiilissa ei ole vaakavieritystä eivätkä valikon kohdat mene päällekkäin', async ({ page }) => {
@@ -158,7 +164,7 @@ test.describe('Oppimiskartan navigointi ja paluu', () => {
     await page.locator('#aihe-soinnut').click();
     await page.locator('#valinta-septimisoinnut').click();
     await expect(page).toHaveURL('/oppi/soinnut/septimisoinnut.html');
-    await mainNav(page).getByRole('link', { name: 'Oppimiskartta' }).click();
+    await mainNav(page).getByRole('link', { name: 'Opi & oivalla' }).click();
     await expect(page).toHaveURL('/index.html#oppimisaiheet');
     await expect(page.locator('a.topic-card')).toHaveCount(8);
   });
