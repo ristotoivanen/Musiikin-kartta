@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Locator } from '@playwright/test';
 
 const studyPage = '/oppi/savelnimet/savelet-ja-intervallit.html';
 const bookPage = '/book/osa-2.html#savelet-ja-intervallit';
@@ -36,8 +36,14 @@ for (const url of [studyPage, bookPage]) {
     await expect(summary).toBeFocused();
     await page.keyboard.press('Enter');
     await expect(table.getByRole('row')).toHaveCount(14);
+    await expect(table.getByRole('columnheader')).toHaveText(['Pa', 'Nimi', 'Sävelet']);
     await expect(table.getByRole('row', { name: /^6 tritonus/ })).toContainText('vähennetty kvintti');
+    await expect(table.getByRole('row', { name: /^6 tritonus/ })).toContainText('A–D♯ tai A–E♭');
     await expect(input).toHaveCount(0);
+    const scroller = lesson.getByRole('region', { name: 'Intervallitaulukon vieritys' });
+    await page.keyboard.press(tab);
+    await expect(scroller).toBeFocused();
+    await expect(scroller).toHaveCSS('outline-style', 'solid');
     await page.keyboard.press(tab);
     await expect(start).toBeFocused();
     await page.keyboard.press('Enter');
@@ -246,26 +252,139 @@ test.describe('intervalliteoria ilman JavaScriptiä', () => {
   }
 });
 
-for (const width of [320, 360, 390]) {
-  test(`teoria ja vastaaminen mahtuvat ${width} pikseliin myös 200 % tekstikoossa`, async ({ page }) => {
-    await page.setViewportSize({ width, height: 700 });
-    await page.goto(studyPage);
-    const lesson = page.locator('[data-intervallimuisti]');
-    const table = lesson.getByRole('table');
-    const questions = lesson.locator('.intervallikysely');
-    const start = questions.getByRole('button', { name: 'Aloita muistiharjoitus' });
-    await lesson.getByText('Kaikki 13 väliä priimistä oktaaviin').click();
-    for (const percentage of [100, 200]) {
-      await page.evaluate(size => { document.documentElement.style.fontSize = `${size}%`; }, percentage);
-      expect(await table.evaluate(node => node.scrollWidth), `${percentage} %`).toBeLessThanOrEqual(width);
-      expect(await lesson.evaluate(node => node.scrollWidth), `${percentage} %`).toBeLessThanOrEqual(width);
-      await expect(start).toBeVisible();
+async function brokenTableWords(table: Locator) {
+  return table.locator('caption, th, td').evaluateAll(cells => cells.flatMap(cell => {
+    const bounds = cell.getBoundingClientRect();
+    const lines = document.createTreeWalker(cell, NodeFilter.SHOW_TEXT);
+    const halfLine = parseFloat(getComputedStyle(cell).lineHeight) / 2;
+    const broken: string[] = [];
+    for (let node = lines.nextNode(); node; node = lines.nextNode()) {
+      for (const word of (node.textContent ?? '').matchAll(/\p{L}[\p{L}\p{M}]*[♯♭]?/gu)) {
+        const range = document.createRange();
+        range.setStart(node, word.index);
+        range.setEnd(node, word.index + word[0].length);
+        const rects = [...range.getClientRects()].filter(rect => rect.width > 0);
+        const centers = rects.map(rect => rect.top + rect.height / 2);
+        // Fonttien ylennys- ja alennusmerkeillä voi olla eri korkuiset suorakulmiot samalla rivillä.
+        if (Math.max(...centers) - Math.min(...centers) >= halfLine ||
+            rects.some(rect => rect.left < bounds.left - 1 || rect.right > bounds.right + 1)) {
+          broken.push(word[0]);
+        }
+      }
     }
-    await start.click();
-    const input = questions.getByRole('textbox');
-    await input.fill('1');
-    await input.press('Enter');
-    await expect(questions.getByRole('status')).toContainText('Puhdas priimi on 0 pa');
-    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+    return broken;
+  }));
+}
+
+for (const url of [studyPage, bookPage]) {
+  for (const width of [320, 360, 390]) {
+    test(`intervallitaulukon sanat pysyvät ehjinä ${width} pikselissä (${url})`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 700 });
+      await page.goto(url);
+      const lesson = page.locator('[data-intervallimuisti]');
+      const summary = lesson.locator('summary');
+      const table = lesson.getByRole('table', { name: 'Intervallit A:sta ylöspäin' });
+      const screenWidth = () => page.evaluate(() => document.documentElement.scrollWidth);
+
+      let normalFont = 0;
+      for (const size of [100, 200]) {
+        await page.evaluate(size => { document.documentElement.style.fontSize = `${size}%`; }, size);
+        const closedWidth = await screenWidth();
+        await summary.click();
+        await expect(table.getByRole('row')).toHaveCount(14);
+        expect(await brokenTableWords(table), `${size} %`).toEqual([]);
+        const font = await table.evaluate(node => parseFloat(getComputedStyle(node).fontSize));
+        if (size === 100) normalFont = font;
+        else expect(font).toBeCloseTo(normalFont * 2, 1);
+
+        const dimensions = await table.locator('..').evaluate(node => ({ visible: node.clientWidth, content: node.scrollWidth }));
+        expect(dimensions.visible, `${size} %`).toBeLessThanOrEqual(width);
+        if (width === 320 && size === 200) expect(dimensions.content).toBeGreaterThan(dimensions.visible);
+        // Kirjan asteikkotaulukon ennestään leveämpiä mittoja vertaillaan ennen taulukon avaamista.
+        expect(await screenWidth(), `${size} %`).toBeLessThanOrEqual(url === studyPage ? width : closedWidth);
+        await summary.click();
+      }
+
+      // Lomake säilyy käytettävänä suurennetulla tekstillä.
+      const quiz = lesson.locator('.intervallikysely');
+      await quiz.getByRole('button', { name: 'Aloita muistiharjoitus' }).click();
+      const input = quiz.getByRole('textbox');
+      await input.fill('1');
+      await input.press('Enter');
+      await expect(quiz.getByRole('status')).toContainText('Puhdas priimi on 0 pa');
+    });
+  }
+}
+
+for (const url of [studyPage, bookPage]) {
+  test(`intervallitaulukon näppäinvieritys pysyy vieritysalueella (${url})`, async ({ page, browserName }) => {
+    const tab = browserName === 'webkit' && process.platform === 'darwin' ? 'Alt+Tab' : 'Tab';
+    await page.setViewportSize({ width: 320, height: 700 });
+    await page.goto(url);
+    await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
+    const lesson = page.locator('[data-intervallimuisti]');
+    await lesson.locator('summary').press('Enter');
+    const scroller = lesson.getByRole('region', { name: 'Intervallitaulukon vieritys' });
+    await page.keyboard.press(tab);
+    await expect(scroller).toBeFocused();
+    const position = () => scroller.evaluate(node => node.scrollLeft);
+    const pageLeft = await page.evaluate(() => window.scrollX);
+    const end = await scroller.evaluate(node => node.scrollWidth - node.clientWidth);
+    expect(end).toBeGreaterThan(0);
+    // WebKit voi vielä vierittää kohdistettua aluetta, kun ensimmäinen nuolinäppäin painetaan.
+    await expect.poll(async () => {
+      await page.keyboard.press('ArrowRight');
+      return position();
+    }).toBeGreaterThanOrEqual(end - 1);
+    expect(await page.evaluate(() => window.scrollX)).toBe(pageLeft);
+    await expect.poll(async () => {
+      await page.keyboard.press('ArrowLeft');
+      return Math.abs(await position());
+    }).toBeLessThanOrEqual(1);
+    await page.keyboard.press(tab);
+    await expect(lesson.getByRole('button', { name: 'Aloita muistiharjoitus' })).toBeFocused();
+  });
+
+  test(`intervallitaulukko mahtuu työpöydälle ja tulostukseen (${url})`, async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto(url);
+    const lesson = page.locator('[data-intervallimuisti]');
+    await lesson.locator('summary').click();
+    const table = lesson.getByRole('table', { name: 'Intervallit A:sta ylöspäin' });
+    const scroller = lesson.getByRole('region', { name: 'Intervallitaulukon vieritys' });
+    const extraWidth = () => scroller.evaluate(node => node.scrollWidth - node.clientWidth);
+    expect(await extraWidth()).toBe(0);
+    expect(await brokenTableWords(table)).toEqual([]);
+
+    await page.setViewportSize({ width: 672, height: 900 });
+    await page.emulateMedia({ media: 'print' });
+    await expect(scroller).toHaveCSS('overflow-x', 'visible');
+    await expect(table.getByRole('row')).toHaveCount(14);
+    expect(await extraWidth()).toBe(0);
+    expect(await brokenTableWords(table)).toEqual([]);
   });
 }
+
+test('kosketuspyyhkäisy vierittää taulukkoa puhelinemulaatiossa', async ({ page, browserName, isMobile }) => {
+  test.skip(browserName !== 'chromium' || !isMobile, 'Playwrightin kosketuspyyhkäisy käyttää Chromiumin CDP:tä.');
+  await page.setViewportSize({ width: 320, height: 700 });
+  await page.goto(studyPage);
+  await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
+  const lesson = page.locator('[data-intervallimuisti]');
+  await lesson.locator('summary').tap();
+  const scroller = lesson.getByRole('region', { name: 'Intervallitaulukon vieritys' });
+  const header = scroller.getByRole('columnheader', { name: 'Pa' });
+  await header.scrollIntoViewIfNeeded();
+  const box = (await header.boundingBox())!;
+  const frame = (await scroller.boundingBox())!;
+  const session = await page.context().newCDPSession(page);
+  await session.send('Input.synthesizeScrollGesture', {
+    x: Math.round(frame.x + frame.width - 25),
+    y: Math.round(box.y + box.height / 2),
+    xDistance: -150,
+    gestureSourceType: 'touch',
+    preventFling: true,
+  });
+  await expect.poll(() => scroller.evaluate(node => node.scrollLeft)).toBeGreaterThan(0);
+  expect(await page.evaluate(() => window.scrollX)).toBe(0);
+});
