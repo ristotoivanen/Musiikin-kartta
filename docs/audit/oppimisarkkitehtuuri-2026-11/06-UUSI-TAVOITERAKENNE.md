@@ -1,0 +1,59 @@
+# Uusi opetussuunnitelma ja oppimiskokemus
+
+## Näkyvä ydinpolku
+
+Tavoite on aloittaa musiikin tekeminen ensimmäisellä kerralla. Etusivulla on ensisijainen jatko tai aloitus. Oppija valitsee soittamalla tai kuuntelemalla alkavan lyhyen tehtävän. Luettelo kuvaa suositeltua järjestystä. Ensimmäiset kaksi kokonaisuutta saavat vaihtaa paikkaa, ja valmiiksi osaava voi avata suoraan haluamansa tavoitteen. Kunkin rivin arviointi on esimerkki pienestä näytöstä. Harjoittelutulosten merkitys määritellään alempana.
+
+| Kokonaisuus ja tavoite | Taitoja ja juuri tarvittavat esitiedot | Kuuntele, opi ja soita | Sovella, saa palaute ja kertaa |
+| --- | --- | --- | --- |
+| 1. Soita ensimmäiset neljä iskua | GTR-ORIENT, GTR-CLEAN, TIME-PULSE, PRACTICE-SAFE, TOOL-AUDIO; ensimmäinen tehtävä edellyttää vain joko soitinta tai taputtamista | Nimeä paksu/ohut ja vapaa kieli. Säädä ääni, kuule neljä iskua, soita tai taputa, pysäytä yksi ääni. Näytä asento, kevyt painallus ja soittokäden vaihtoehdot. Tarkista yksittäisen kielen vire ennen uuden korkeuden matkimista. O1:n pulssiäänite. | Soita lyhyen taustan ensimmäinen rooli yhdellä kielellä. Kuuntele, jatkuiko pulssi tauolla ja kuuluiko ylimääräinen kieli. Toinen malli ensi kerralla, ilman soivaa klikkiä koko ajan. |
+| 2. Vastaa kahdella sävelellä | GTR-CLEAN, EAR-REL, EAR-ECHO, READ-TAB; kitaralla lisäksi vire ja kohdekieli. Näytä tab vain kun sitä käytetään. | Kuuntele ja hyräile kahden äänen kysymys, toista yhdellä kielellä. Tee toinen jono eri järjestyksessä. Testaa Riffikaiun betamekaniikkaa lyhytjonoisena, virtuaaliin on ohjaus ilman mikkiä. Opeta tauko ja kaksi rytmiarvoa yhdellä tahdilla. | Vastaa samaan taustaan joko mallisävelillä tai omalla kahden äänen lopetuksella. Kertauksessa uusi jono ja eri lähtöääni. Palaute suunta, järjestys tai pulssi kerrallaan. |
+| 3. Soita ensimmäinen kappale | TIME-PULSE ja yksi soiva ääni. Täydennetään READ-CHORD, PLAY-CHANGE, TIME-GROOVE, PLAY-SONG ja PRACTICE-LOOP. | Koeta ensin yhden kielen bassorooli tai komppi. Avaa yksi kaavio X/0-merkintöineen. Kuuntele sama kohta kahdella otteella, tarkista kielet, ajoita vaihto. Käytä O1:n harjoitetta ja Kappaleharjoittelijan sopivaa osuutta. | Sovittu osuus alusta loppuun. Täyden kierron versio mahdollinen eri päivänä. Silmukoi hankala vaihto, hidasta ja liitä takaisin kiertoon. Erota tasainen pulssi, puhtaus ja vähintään kerran jatkunut soitto kolmella lyhyellä kriteerillä. |
+| 4. Kuule, mihin melodia asettuu | EAR-HOME ja EAR-REL. Ensimmäinen kuuntelutehtävä ei vaadi nuottinimiä, otelautaa tai soittamista. Oikean kitaran vastaus tarvitsee yhden tutun soitettavan aseman. | O2:n taustan päältä kaksi päätöstä, Ensikeikan malliin verrattava valinta. Hyräile kotiääni, sitten vasta nimi tai tehtävä yhdellä kielellä. Kuuntele myös lause, joka jää muulle sävelelle, ja erikseen päätös tunnevaikutuksena. | Uusi katkelma ja eri lähtöääni. Kertaus seuraavalla käynnillä ennen uuden taustan vihjettä. Oppija nimeää tai hyräilee suhteellisen kodin ja soittaa sen halutessaan kitaralla. Erota soittimen asento kuuloarviosta. |
+| 5. Löydä sama sävel uudesta paikasta | GTR-ORIENT, PITCH-NAME, FRET-MAP, PITCH-STEP ja MELO-EAR. Korvakuulolta ensimmäinen lause onnistuu ilman koko otelaudan hallintaa. | O5:n sama A kahdesta paikasta ja A oktaavia ylempää. Paikanna muutama sävel Sävelten etsinnällä, kuuntele ja pudota vastausvihje. O7:n katkelma vaiheittain: hyräile, etsi aloitusääni, soita lause. | Siirrä lyhyt jono toiselle kielelle oikeassa oktaavissa ja kuvaile ero. Arvioi kuulonäyttö ja sijainti erikseen. Uusi melodia alkaa eri paikasta, tuki ensin piilossa. |
+| 6. Kuule ja rakenna sointukulku | PITCH-STEP, HARM-TRIAD, HARM-QUALITY, EAR-HOME, HARM-FUNCTION, HARM-KEY ja HARM-TRANSPOSE. Tarvittava merkintä opetetaan tehtävän sisällä. | Vertaa samalla perussävelellä duuria ja mollia, rakenna ensin kolme ääntä. O3:n Sointukartta ja sointusävelet, O7:n tehtävät ja lyhyt C–F–G–C- tai muu tuttu kierto. O4:n sävellaji ja siirto ensin kuulemalla ja suhteina. | Rakenna ja soita uusi sointu, muuta vain terssiä. Soita tai kuuntele tuttu kulku kahdessa sävellajissa ja perustele säilyneet suhteet. Jos yksi sointu vaihtaa nopeuden tai rekisterin, arvioi laatu uudella esimerkillä. |
+| 7. Improvisoi ja tee oma lyhyt musiikki | PLAY-IMPRO, SCALE-PENTA, CREATE-PIECE, tarvittaessa SCALE-CONNECT. Kahden äänen idean voi tehdä jo toisessa tehtävässä. | O8:n tausta ja rajattu pentatoninen alue. Näytä yksi musiikillinen lause ja sen tauko. Lisää toinen sijainti vasta kun ensimmäistä voi käyttää, ota nykyinen asteikkosilta mukaan. O9:n mallin avulla valitse rytmi tai kahden osan muoto. | Tee kahden tai neljän tahdin vastaus. Kuuntele tai äänitä omalle laitteelle kaksi versiota, valitse toimivampi ja perustele yksi ratkaisu. Uudella taustalla kokeile samaa ideaa eri lopetuksella. |
+
+**Syventävät ja valinnaiset reitit.**
+
+- **Siirrä ote ja avaa otelauta.** FRET-SHAPES, O5–6. Aloita kolmella kielisävelellä. Kuule ja nimeä juuri, siirrä muoto, lisää vasta sitten barré ja CAGEDin useat sijainnit. HARM-TRANSPOSE voi edetä samasta harjoituksesta.
+- **Tunnista kappaleen rakenne korvalla.** EAR-INTERVAL, MELO-EAR ja HARM-FUNCTION, O7:n kuuntelut. Aloita melodian lauseista ja basson liikkeestä. Koeta toisella kappaleella ja selitä, mikä kuulohavainto tuki tulkintaa.
+- **Vaihda sointuja pienin äänenliikkein.** HARM-7 ja HARM-VOICE, O10. Aloita läheisillä kolmisoinnuilla, lisää septimi sen vaikutuksen kuultuasi ja vasta sitten ii–V–I. Tarkistus omalla soittimella tai sävelvalinnalla. Merkitse valintatapa.
+- **Kuule moodin tunnussävel.** SCALE-MODE, O11 ja Moodipolku. Sama koti ja tausta, rinnakkaiset asteikot, yksi ero ensin. Tunnista ero ja improvisoi sen ympärillä. Nuotti- ja tabulatuurilukutaito saavat erilliset valinnaiset kortit. O9:n laajempi sovitus ja äänitys voi seurata kaikkia kolmea syvennystä.
+
+## Navigointi ja yhden kohteen rakenne
+
+Etusivun **Aloita tai jatka** vie ensimmäiseen tai viimeksi avoinna olleeseen kohteeseen. **Harjoittele vapaasti** vie löytyviin tehtäviin, joissa voi suodattaa esimerkiksi kuuntelun, soittimen, vihjeiden tai ajan mukaan. Säilytä vanhat osoitteet. Teoria ja Otelautaopas voivat jatkaa päävalikossa pilotin ajan, ja harjoittelun tarkka kohde avautuu suoraan. Takaisin-linkki ja selaimen Takaisin palauttavat saman kohteen sopivaan kohtaan ilman jatkuvaa ääntä. Yksi peli voi tarjota eri harjoituskirjaston kohteissa erilaisen tehtävän, jos vastetyyppi ja palautteen teksti vastaavat käyttötarkoitusta.
+
+Kohteen vähimmäissisältö on nimi tekemisenä, yksi tavoite, lyhyt malli ja seuraava toiminto. Tarjoa kevyet esitietokortit ennen sellaista toimintoa, jossa niiden puute estää yrittämisen. Viritys on ensimmäisen kuultavaa sävelkorkeutta vastaavan soiton edellä, tabin lukeminen ensimmäisen tabitehtävän edellä. Kuultavan päätöksen tapauksessa kontrasti toimii usein ennen käsitteen nimeämistä. Vihjettä voi pyytää. Jos oppija onnistuu mallin avulla, ehdota hieman muuttunutta, vihjeetöntä tehtävää. Vapaa harjoittelu sallii myös pelkän toiston. Perusteellisen virhepäättelyn jälkeen kerro täsmällinen seuraava teko. Yksi ohjaus riittää kerrallaan.
+
+**Puhelin ja muut käyttötavat.** Näytä kuunteluun selvä käyttäjän käynnistämä painike, pysäytys ja uusinta. Kuuntelu ja visuaalinen vastaus voidaan erottaa ajallisesti. Tekstivastine kuvaa tehtävän kulun, ohjaimet ja palautteen. Tarjoa vaihtoehto harjoitella musiikillista rakennetta visuaalisesti tai soittamalla, ja nimeä arvioitava taito syöttötavan mukaan. Koko tehtävä on käytettävissä näppäimistöllä, näkyvä kohdistus ja looginen tab-järjestys. Pidä otelaudan vaihtoehtona kieli- ja nauhalista. Kuva ja väri eivät yksin välitä oikeaa/väärää. Tarkista 320–360 CSS-pikselin näkymä, suurennus, kosketuskohteet, vähennetty liike, natiivin ruudunlukijan tilailmoitukset ja äänen pysäytys myös palatessa. Mikrofoni kytketään käyttäjän toimesta ja siitä voi poistua kesken tehtävän. [WCAG 2.2](https://www.w3.org/TR/WCAG22/).
+
+| Käyttäjä | Ensimmäinen sopiva reitti |
+| --- | --- |
+| Täysin aloittelija | 'Soita ensimmäiset neljä iskua' → osat, yksi kieli ja soittopulssi → kaksi ääntä → helpotettu kappaleen rooli. |
+| Muutaman soinnun osaava | Valitsee kappaleen, tarkistaa kahden soinnun vaihdon ilman mallia ja kokeilee taustan kanssa. Siirtyy kotisäveleen tai vaihtojen korjauskorttiin. |
+| Musiikinteorian opiskelija | Avaa rakentamistehtävän, vertaa duuria ja mollia samalla juurella, sen jälkeen osa 3/4 ja uusi kierto. |
+| Korvakuuloa harjoitteleva | Vertaa päätöksiä, käy O7:n harjoitteessa tai Riffikaiun kuuntelussa ja kertaa uudella mallilla. |
+| Improvisoija | Valitsee taustan ja kahden äänen idean, lisää pentatonisen alueen tai moodikontrastin kiinnostuksen mukaan. |
+| Lyhyesti pelaava | Suora linkki betapeliin tai yhteen tehtävään, pois yhtä suoraan. Pelikohtainen jatko kohti oikeaa soittoa. |
+| Mobiililla ja lyhyessä jaksossa opiskeleva | Yksi kuuntele–vastaa-tehtävä, luettava tai kuunneltava ohje, vähemmän valintoja. Kesken jääneestä kohdasta jatko. |
+
+## Edistymisen merkitys
+
+Pidä viimeksi avattu kohde ja oppimisnäytöt erillisinä. Tarjoa seuraava ehdotus viimeisimmän tavoitteen perusteella, mahdollinen kertaus mukaan lukien. Käyttäjä voi avata minkä tahansa aiheen. Välttämätön esitaidon puute johtaa pieneen tukeen ja saatavilla olevaan helpotettuun tehtävään.
+
+| Näyttö | Merkitys käyttöliittymässä |
+| --- | --- |
+| Luku avattu tai itse merkitty tehdyksi | Lukemis- tai tutustumishistoria. |
+| Tehtävä tai peli tehty | Harjoitteluhistoria, tekotapa mukana. |
+| Vihjeillä onnistunut | Ohjattu onnistuminen. Myös automaattinen vastausvihje merkitään. |
+| Uusi tehtävä itsenäisesti | Nimetyssä tehtävässä osoitettu osaaminen. Pidä rinnakkain arviointitapa, esimerkki ja yritys. Automaattinen tarkistus pätee vain mitattuun vasteeseen. |
+| Muistettu myöhemmin | Vihjeetön vastaavuudeltaan kalibroitu tehtävä viiveen jälkeen. Kirjaa viive. Uuden musiikillisen kontekstin siirtokokeella on oma tuloksensa. |
+| Sovellettu musiikkiin | Todiste uudesta tehtävästä. Kitaralla itse merkitty soveltaminen ja opettajan tai tutkimusarvioijan todentama suoritus näkyvät erillisinä arviointitapoina. Automaattinen sävelhavainto voi olla osa näyttöä. |
+
+Kertauksen alkuversio tarjoaa yhden uuden esimerkin seuraavalla käynnillä tai noin 1–3 päivän päästä, ja uuden valinnaisen kertauksen viikon päästä. Välit ovat pilotin käytännöllisiä oletuksia. Käyttäjä voi siirtää, ohittaa tai harjoitella sekaisin. Epäselvä signaali ja keskeytetty tehtävä raportoidaan teknisinä tiloina. Arvion hidas antaminen tai apuvälineen käyttö ei yksin alenna mielekästä osaamisnäyttöä. Arvioi pulssin tarkkuutta silloin, kun ajoitus on nimenomainen tavoite ja menetelmä pystyy mittaamaan sitä.
+
+**Tallennuksen vähimmäisratkaisu.** Pilotti voi alkaa yhdestä viimeksi avatusta kohteesta ja tutkimustilanteessa kirjattavista näytöistä. Jos näytöt tuodaan käyttäjälle, riittää versioitu paikallinen merkintä: taitotunniste, tehtävän versio, näyttömuoto, tuki ja syöte, aika ja tulos. Rajoita tiedot tarpeellisiin merkintöihin. Lue nykyinen luku-, harjoittelu- ja pelihistoria sen alkuperäisessä merkityksessä, säilytä vanhat avaimet, asetukset ja varmuuskopiot. Epäonnistunut luku tai kirjoitus jättää käyttökelpoisen istunnon. Toistettava tuonti ja skeemaversion tarkistus kuuluvat toteutuksen hyväksyntään. Selaimen alkuperän muuttuessa beta ja tuotanto pitävät omat tallenteensa. Kerro tämä käyttäjälle ja suunnittele mahdollinen vienti vasta osoitetun tarpeen mukaan. Tiheään käytetyn taidon tehtävävaikeutta voi arvioida myöhemmin. Nykyisen nopeuspainotteisen harjoittelurankingin rinnalle sopii kuvaava historia.
+
+[Nykyisen toteutuksen tallennuslähteet](01-NYKYTILA-JA-LAHTEET.md) · [Taitojen tehtäväkohtaiset minimit](02-PERUSTIEDOT-JA-ESITAIDOT.md) · [Harjoitteet ja arviointirajat](05-TEORIA-HARJOITUS-PELIKARTTA.md)
