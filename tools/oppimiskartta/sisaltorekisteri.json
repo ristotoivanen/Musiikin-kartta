@@ -317,6 +317,9 @@
       ],
       "tehtava": [
         "kuuntelutehtava"
+      ],
+      "lisaaiheet": [
+        "soinnut"
       ]
     },
     {
@@ -587,15 +590,6 @@
       ],
       "tehtava": [
         "soita"
-      ]
-    },
-    {
-      "sivu": "oppi/kappaleet/sovita-savellaji-laulajalle.html",
-      "tavat": [
-        "kitara"
-      ],
-      "tehtava": [
-        "korvalla"
       ]
     },
     {

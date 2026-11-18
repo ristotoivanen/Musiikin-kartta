@@ -309,9 +309,11 @@ def app_item(app, topic, mode):
             f'<span class="mode-card-arrow" aria-hidden="true">→</span></a></li>')
 
 
-def study_item(page, mode, registry):
+def study_item(page, mode, registry, topic):
     kind = next(k for k in page['tehtava'] if k in registry['tavat'][mode]['tehtavat'])
-    return (f'      <li><a href="{esc(with_params(page["osoite"], tapa=mode))}"><span class="mode-kind">'
+    # Lisäaiheesta avattaessa aihe kulkee mukana, jotta paluu osuu samaan aiheeseen. Oma aihe päätellään kansiosta.
+    aihe = topic['anchor'] if topic['slug'] != page['aihe'] else None
+    return (f'      <li><a href="{esc(with_params(page["osoite"], aihe=aihe, tapa=mode))}"><span class="mode-kind">'
             f'{esc(registry["tehtavat"][kind]["nimi"])}</span> <strong>{esc(page["nimi"])}</strong></a>'
             f'<span class="mode-desc">{esc(page["kuvaus"])}</span></li>')
 
@@ -379,7 +381,7 @@ def mode_page(mode, topics, apps, study, registry, counts):
             if pages:
                 heading = 'Kuuntelutehtävät oppitunneilta' if mode == 'pelit' else 'Soita oppitunnin harjoitus'
                 out.append(f'    <h3 class="mode-sub">{heading}</h3>\n')
-                out.append('    <ul class="mode-list" role="list">\n' + '\n'.join(study_item(p, mode, registry) for p in pages) + '\n    </ul>\n')
+                out.append('    <ul class="mode-list" role="list">\n' + '\n'.join(study_item(p, mode, registry, topic) for p in pages) + '\n    </ul>\n')
             if mode == 'kitara':
                 for helper in registry.get('apuvalineet', {}).get(slug, []):
                     app_id, _, view_id = helper['nakyma'].partition('/')
@@ -456,12 +458,33 @@ def build(registry_file=REGISTRY_FILE):
     for path in nav_pages(registry):
         text = (ROOT / path).read_text(encoding='utf-8')
         files[path] = with_tool_script(path, with_nav(path, text, registry))
-    files[TOOL_SCRIPT] = mode_script(topics, registry, counts)
+    files[TOOL_SCRIPT] = mode_script(topics, registry, counts, apps, study)
     return files
 
 
-def mode_script(topics, registry, counts):
-    """assets/oppimistapa.js:n tietolohko: aiheiden nimet ja oppimistapojen sisältömäärät aiheittain."""
+def mode_pages(mode, topics, registry, apps, study):
+    """Oppimistapaan kuuluvat sivut ja aiheet, joissa ne näkyvät (ensimmäinen on sivun oma aihe).
+    oppimistapa.js säilyttää ?tapa=…-parametrin vain näillä sivuilla ja näihin sivuihin vievissä linkeissä."""
+    anchors = {t['slug']: t['anchor'] for t in topics}
+    pages = {}
+    for page in (p for p in study.values() if mode in p['tavat']):
+        pages[page['osoite']] = [anchors[slug] for slug in page['aiheet']]
+    targets = [(a['osoite'], a['aiheet']) for a in apps.values()
+               if mode in a['tavat'] and a['aiheparametri'] and a['saatavuus'] != 'suunniteltu']
+    if mode == 'kitara':
+        for slug, helpers in registry.get('apuvalineet', {}).items():
+            for helper in helpers:
+                app_id, _, view_id = helper['nakyma'].partition('/')
+                view = next(v for v in apps[app_id]['nakymat'] if v['id'] == view_id)
+                targets.append((view['osoite'], [slug]))
+    for href, slugs in targets:
+        listed = pages.setdefault(page_path(href), [])
+        listed += [anchors[slug] for slug in slugs if anchors[slug] not in listed]
+    return dict(sorted(pages.items()))
+
+
+def mode_script(topics, registry, counts, apps, study):
+    """assets/oppimistapa.js:n tietolohko: aiheiden nimet, oppimistapojen sisältömäärät ja niihin kuuluvat sivut."""
     source = (ROOT / TOOL_SCRIPT).read_text(encoding='utf-8')
     start, end = '  // oppimistapa:tiedot\n', '  // /oppimistapa:tiedot\n'
     if source.count(start) != 1 or source.count(end) != 1:
@@ -469,7 +492,8 @@ def mode_script(topics, registry, counts):
     names = {s['id']: s for s in registry['osiot']}
     data = {t['anchor']: {'slug': t['slug'], 'title': t['title']} for t in topics}
     modes = {mode: {'nimi': names[mode]['nimi'], 'osoite': names[mode]['osoite'], 'tyhja': registry['tavat'][mode]['tyhja'],
-                    'aiheet': {t['anchor']: counts[mode][t['slug']] for t in topics if counts[mode].get(t['slug'])}}
+                    'aiheet': {t['anchor']: counts[mode][t['slug']] for t in topics if counts[mode].get(t['slug'])},
+                    'sivut': mode_pages(mode, topics, registry, apps, study)}
              for mode in MODES}
     block = (f'  const TOPICS = {json.dumps(data, ensure_ascii=False)};\n'
              f'  const MODES = {json.dumps(modes, ensure_ascii=False)};\n')

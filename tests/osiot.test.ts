@@ -125,6 +125,20 @@ describe('pääosiot ja sisältörekisteri', () => {
     expect(read('oppi/rytmi/index.html')).not.toContain('tapa=');
   });
 
+  it('oppimistapa.js tuntee vain oppimistapaan kuuluvat sivut ja niiden aiheet', () => {
+    const block = read('assets/oppimistapa.js').match(/const MODES = (\{.*\});\n/)![1];
+    const modes = JSON.parse(block) as Record<string, { sivut: Record<string, string[]> }>;
+    expect(modes.pelit.sivut['oppi/kappaleet/mika-sointu-tulee.html']).toEqual(['aihe-kappaleet', 'aihe-soinnut']);
+    expect(modes.kitara.sivut['oppi/rytmi/alas-ylos-yhdella-soinnulla.html']).toEqual(['aihe-rytmi']);
+    expect(modes.kitara.sivut['otelautaharjoittelija.html']).toEqual(['aihe-otelauta', 'aihe-soinnut', 'aihe-asteikot']);
+    // Opi & oivalla -sivut ja toisen oppimistavan sivut eivät ole mukana.
+    expect(modes.kitara.sivut).not.toHaveProperty(['oppi/rytmi/kuuntele-pulssi.html']);
+    expect(modes.kitara.sivut).not.toHaveProperty(['oppi/korva/mika-aste-soi.html']);
+    expect(modes.pelit.sivut).not.toHaveProperty(['oppi/rytmi/alas-ylos-yhdella-soinnulla.html']);
+    // Laulukorkeuden valinta ei ole kitaraharjoitus: kitaraa käytetään vain lisätehtävässä.
+    expect(modes.kitara.sivut).not.toHaveProperty(['oppi/kappaleet/sovita-savellaji-laulajalle.html']);
+  });
+
   it('Oppimiskartan sivujen alareunassa ei toisteta yläreunan aihepaluuta', () => {
     const pages = readdirSync(new URL('../oppi/', import.meta.url), { recursive: true }).map(String)
       .filter(file => file.endsWith('.html') && !file.endsWith('index.html'));

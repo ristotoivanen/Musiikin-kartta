@@ -56,6 +56,44 @@ test.describe('Kolme oppimistapaa ja Soittopakki', () => {
     await expect(page).toHaveURL(/kitaratreeni\.html#aihe-rytmi$/);
   });
 
+  test('oppimistapa jatkuu vain saman oppimistavan sivulle: toisen tavan sivulla on tavallinen navigointi', async ({ page }) => {
+    await page.goto('/oppi/rytmi/alas-ylos-yhdella-soinnulla.html?tapa=kitara');
+    const top = page.locator('.study-steps--top');
+    // Seuraava (Kaksi sointua yhdessä tahdissa) on Kitaratreenissä, Edellinen (Löydä pulssi ja ykkönen) ei ole.
+    await expect(top.locator('a[rel="next"]')).toHaveAttribute('href', /kaksi-sointua-yhdessa-tahdissa\.html\?tapa=kitara$/);
+    await expect(top.locator('a[rel="prev"]')).toHaveAttribute('href', 'kuuntele-pulssi.html');
+    await top.locator('a[rel="prev"]').click();
+    await expect(page).toHaveURL(/oppi\/rytmi\/kuuntele-pulssi\.html$/);
+    await expect(mainNav(page).getByRole('link', { name: 'Opi & oivalla' })).toHaveAttribute('aria-current', 'true');
+    await expect(mainNav(page).getByRole('link', { name: 'Kitaratreeni' })).not.toHaveAttribute('aria-current');
+    await expect(page.locator('.study-up .study-back')).toHaveText('← Rytmiin');
+    await expect(page.locator('.study-up .study-back')).toHaveAttribute('href', 'index.html');
+  });
+
+  test('oppimistapaan kuulumaton sivu ei muutu, vaikka osoitteessa olisi ?tapa=', async ({ page }) => {
+    await page.goto('/oppi/rytmi/kuuntele-pulssi.html?tapa=kitara');
+    await expect(page.locator('.study-up .study-back')).toHaveText('← Rytmiin');
+    await expect(mainNav(page).getByRole('link', { name: 'Opi & oivalla' })).toHaveAttribute('aria-current', 'true');
+    await expect(page.locator('.study-steps--bottom a[rel="next"]')).toHaveAttribute('href', 'alas-ylos-yhdella-soinnulla.html');
+    await page.goto('/oppi/korva/mika-aste-soi.html?tapa=kitara');
+    await expect(page.locator('.study-up .study-back')).toHaveText('← Sävelkorvaan ja melodiaan');
+  });
+
+  test('sama sisältö kahdessa aiheessa palaa siihen aiheeseen, josta se avattiin', async ({ page }) => {
+    await page.goto('/musapelit.html#aihe-soinnut');
+    await page.locator('#aihe-soinnut').getByRole('link', { name: /Mikä sointu tulee\?/ }).click();
+    await expect(page).toHaveURL(/oppi\/kappaleet\/mika-sointu-tulee\.html\?aihe=aihe-soinnut&tapa=pelit$/);
+    // Sama sivu ja suoritustunniste kuin Kappaleet-aiheessa.
+    await expect(page.locator('main')).toHaveAttribute('data-study-item', 'harjoitus:mika-sointu-tulee');
+    // Edellinen ja Seuraava eivät ole Musapeleissä, joten ne eivät saa parametria.
+    await expect(page.locator('.study-steps--bottom a[rel="next"]')).toHaveAttribute('href', 'tee-sointukartta.html');
+    await page.locator('.study-up').getByRole('link', { name: 'Musapelit: Soinnut ja harmonia' }).click();
+    await expect(page).toHaveURL(/musapelit\.html#aihe-soinnut$/);
+    await page.goto('/musapelit.html#aihe-kappaleet');
+    await page.locator('#aihe-kappaleet').getByRole('link', { name: /Mikä sointu tulee\?/ }).click();
+    await expect(page.locator('.study-up .study-back')).toHaveText('← Musapelit: Kappaleet ja oma musiikki');
+  });
+
   test('vanha suora osoite ilman oppimistapaa toimii kuten ennen', async ({ page }) => {
     await page.goto('/oppi/rytmi/alas-ylos-yhdella-soinnulla.html');
     await expect(page.locator('.study-up .study-back')).toHaveText('← Rytmiin');
@@ -204,6 +242,10 @@ test.describe('Pääosiot puhelimessa, näppäimistöllä, ilman JavaScriptiä j
       await expect(page).toHaveURL(/oppi\/rytmi\/alas-ylos-yhdella-soinnulla\.html\?tapa=kitara$/);
       // Ilman JavaScriptiä paluu toimii kuten ennen: Oppimiskartan aiheeseen.
       await expect(page.locator('.study-up .study-back')).toHaveAttribute('href', 'index.html');
+      await expect(page.locator('.study-steps--top a[rel="prev"]')).toHaveAttribute('href', 'kuuntele-pulssi.html');
+      await expect(page.locator('.study-steps--top a[rel="next"]')).toHaveAttribute('href', 'kaksi-sointua-yhdessa-tahdissa.html');
+      await expect(mainNav(page).getByRole('link', { name: 'Opi & oivalla' })).toHaveAttribute('aria-current', 'true');
+      await expect(page.locator('.study-modes')).toHaveCount(0);
       await page.goto('/soittopakki.html');
       await expect(page.getByRole('link', { name: 'Avaa Otelautaopas' })).toBeVisible();
     });

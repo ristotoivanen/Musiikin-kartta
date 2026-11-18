@@ -105,7 +105,7 @@
         {"title": "Harjoittele sointuja ja sointusäveliä", "href": "kitaraharjoittelija.html?polku=soinnut"},
         {"title": "Tutki sointukarttaa", "href": "otelautaharjoittelija.html#soinnut"}
       ],
-      "related": ["asteikot/asteikot", "korva/soinnut"]
+      "related": ["asteikot/asteikot", "korva/soinnut", "kappaleet/mika-sointu-tulee"]
     },
     {
       "slug": "asteikot", "anchor": "aihe-asteikot", "title": "Asteikot ja moodit",
