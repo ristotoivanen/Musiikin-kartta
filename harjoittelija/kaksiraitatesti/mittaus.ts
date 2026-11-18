@@ -17,7 +17,7 @@ export const PROBE_SIZE = 32768;
 const SEARCH_SECONDS = 1.5;
 
 // ---- Analysaattorit: asennetaan ennen kuin soitin luo MediaElementSourcet. ----
-const taps = new WeakMap<HTMLMediaElement, { analyser: AnalyserNode; context: BaseAudioContext }>();
+const taps = new WeakMap<HTMLMediaElement, { analyser: AnalyserNode; context: BaseAudioContext; source: MediaElementAudioSourceNode }>();
 
 /** Lisää jokaiseen MediaElementSourceen analysaattorin ennen GainNodea. Ei muuta äänen reittiä. */
 export function installTaps() {
@@ -29,7 +29,7 @@ export function installTaps() {
     const analyser = this.createAnalyser();
     analyser.fftSize = PROBE_SIZE;
     source.connect(analyser);
-    taps.set(element, { analyser, context: this });
+    taps.set(element, { analyser, context: this, source });
     return source;
   };
   (proto as unknown as { __kaksiraita?: boolean }).__kaksiraita = true;

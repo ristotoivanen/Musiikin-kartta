@@ -21,14 +21,24 @@ const FILES = {
 };
 const SEEK_PRECISION_SECONDS = 0.001;
 const MEASURE_DELAY_MS = 3000;
-const MEASURE_INTERVAL_MS = 5000;
 
 function readParams() {
   const params = new URLSearchParams(location.search);
   const raw = params.get('lahde');
   const source: Source = raw === 'wav' || raw === 'synteettinen' ? raw : 'mp3';
   const offset = Number(params.get('siirto') ?? '0');
-  return { source, sync: params.get('tahdistin') !== 'pois', offsetMs: source === 'synteettinen' && Number.isFinite(offset) ? offset : 0 };
+  // Tahdistimen koetilat: käytössä (B1), pois (B2) tai vain pakotetut tahdistukset ilman jatkuvia korjauskelauksia (B3).
+  const syncMode = params.get('tahdistin') === 'pois' ? 'pois' : params.get('tahdistin') === 'ei-korjauksia' ? 'ei-korjauksia' : 'kaytossa';
+  const interval = Number(params.get('mittausvali') ?? '5000');
+  // Moottori: 'nykyinen' = kappaleharjoittelijan toisto (PR #92), 'uusi' = korjausehdokas (load() tyhjentää
+  // äänipuskurin jokaisessa siirto-operaatiossa, ei korjauskelauksia, selkeä kelaustila).
+  const engine = params.get('moottori') === 'uusi' ? 'uusi' : 'nykyinen';
+  return {
+    source, engine, syncMode: engine === 'uusi' ? 'uusi-moottori' : syncMode,
+    sync: engine === 'nykyinen' && syncMode !== 'pois', corrections: engine === 'nykyinen' && syncMode === 'kaytossa',
+    offsetMs: source === 'synteettinen' && Number.isFinite(offset) ? offset : 0,
+    measureIntervalMs: Number.isFinite(interval) && interval >= 1000 ? interval : 5000,
+  };
 }
 
 function clock(seconds: number): string {
@@ -82,6 +92,9 @@ export function KaksiraitaTesti() {
   const [live, setLive] = useState<{ diff: number; tausta: number; kitara: number } | null>(null);
   const [ratings, setRatings] = useState<{ value: string; time: number }[]>([]);
   const [report, setReport] = useState('');
+  // Uusi moottori: kohta, josta seuraava Soita jatkaa, ja onko toistoa jo aloitettu (load() vasta toisella kerralla).
+  const resumeAt = useRef(0);
+  const started = useRef(false);
 
   const record = (event: string, details: Record<string, unknown> = {}) => log.current.record(event, details);
 
@@ -110,6 +123,8 @@ export function KaksiraitaTesti() {
     const backing = backingRef.current;
     const guitar = guitarRef.current;
     if (!backing || !guitar || !params.sync) return;
+    // B3: jatkuvat korjauskelaukset estetty, pakotetut tahdistukset (alku, kelaus, jatko) säilyvät.
+    if (!force && !params.corrections) return;
     forcing.current = force;
     aligner.current.align(backing, proxyFor(guitar), force);
   }
@@ -138,6 +153,8 @@ export function KaksiraitaTesti() {
     mixer.current?.observe();
     backingRef.current?.pause();
     guitarRef.current?.pause();
+    // C3: tavallinen jatko alkaa pysäytyskohdasta. Vanhaa kelauskohdetta ei säilytetä.
+    if (params.engine === 'uusi' && backingRef.current) resumeAt.current = backingRef.current.currentTime;
     setPlaying(false);
   }
 
@@ -146,6 +163,15 @@ export function KaksiraitaTesti() {
     if (!backing || !Number.isFinite(seconds)) return;
     const at = Math.max(0, Math.min(seconds, Number.isFinite(backing.duration) ? backing.duration : seconds));
     record('control', { control: 'kelaus', to: at });
+    if (params.engine === 'uusi') {
+      // C3: uusi käyttäjän kelaus ohittaa kaiken aiemman. Soiton aikana toisto aloitetaan tuoreilla
+      // elementeillä kelauskohdasta, tauolla kohta jää odottamaan seuraavaa Soita-painallusta.
+      resumeAt.current = at;
+      setPosition(at);
+      if (playing) void freshStart(at, 'kelaus');
+      else playbackRequest.current++;
+      return;
+    }
     pendingSeek.current = at;
     setPosition(at);
     setBackingTime(backing, at);
@@ -193,13 +219,14 @@ export function KaksiraitaTesti() {
     const periodic = () => {
       if (request !== playbackRequest.current) return;
       void measure('jatkuva', request);
-      timers.current.push(window.setTimeout(periodic, MEASURE_INTERVAL_MS));
+      timers.current.push(window.setTimeout(periodic, params.measureIntervalMs));
     };
-    timers.current.push(window.setTimeout(periodic, MEASURE_DELAY_MS + MEASURE_INTERVAL_MS));
+    timers.current.push(window.setTimeout(periodic, MEASURE_DELAY_MS + params.measureIntervalMs));
   }
 
   function followBacking(backing: HTMLAudioElement) {
     if (backing !== backingRef.current) return;
+    if (params.engine === 'uusi') { setPosition(backing.currentTime); return; }
     const target = pendingSeek.current;
     if (target === null) {
       setPosition(backing.currentTime);
@@ -226,6 +253,7 @@ export function KaksiraitaTesti() {
     if (!backing || !guitar) return;
     record('control', { control: playing ? 'tauko' : 'soita' });
     if (playing) { pause('painallus'); return; }
+    if (params.engine === 'uusi') return freshStart(resumeAt.current, started.current ? 'jatko' : 'käynnistys');
     setError('');
     const resumed = backing.currentTime > 0.05;
     const startAt = pendingSeek.current ?? backing.currentTime;
@@ -275,6 +303,100 @@ export function KaksiraitaTesti() {
     }
   }
 
+  /** Odottaa, että elementti on kelattu kohteeseen (metadata ladattu, ei kelausta kesken). */
+  function waitPositioned(element: HTMLAudioElement, target: number, timeoutMs = 5000): Promise<boolean> {
+    return new Promise(resolve => {
+      const done = () => element.readyState >= 1 && !element.seeking && Math.abs(element.currentTime - target) < 0.25;
+      if (done()) { resolve(true); return; }
+      const events = ['loadedmetadata', 'seeked', 'canplay', 'loadeddata'];
+      const check = () => { if (done()) finish(true); };
+      const timer = window.setTimeout(() => finish(false), timeoutMs);
+      function finish(ok: boolean) {
+        window.clearTimeout(timer);
+        for (const name of events) element.removeEventListener(name, check);
+        resolve(ok);
+      }
+      for (const name of events) element.addEventListener(name, check);
+    });
+  }
+
+  /**
+   * Korjausehdokas (C1): soitto, jatko ja kelaus aloitetaan aina tyhjällä äänipuskurilla yhteisestä kohdasta.
+   * iOS WebKit toistaa kelauksen ja tauon jälkeen MediaElementSourcen puskuriin jääneen vanhan äänen
+   * (simulaattorissa 0,85–0,96 s), eikä currentTime näytä sitä. load() luo elementille uuden mediasoittimen
+   * ja äänitapin, joiden puskuri on tyhjä. Elementti säilyttää MediaElementSource-kytkentänsä ja luvan
+   * soittaa (uusi elementti tarvitsisi uuden painalluksen). Molemmat kelataan kohteeseen ennen toistoa,
+   * ja toisto alkaa vasta, kun kumpikin on valmis. Toiston aikana ei tehdä korjauskelauksia (C2).
+   */
+  async function freshStart(target: number, phase: string) {
+    const request = ++playbackRequest.current;
+    clearTimers();
+    setError('');
+    const reload = started.current;
+    started.current = true;
+    record('tuore-aloitus', { phase, target, reload });
+    setPosition(target);
+    const backing = backingRef.current;
+    const guitar = guitarRef.current;
+    if (!backing || !guitar) return;
+    const gains = mixer.current ??= new SongGainMixer();
+    const routed = gains.unlock() && [backing, guitar].map(stem => gains.route(stem)).every(Boolean);
+    setNote(routed ? '' : 'Web Audio -kytkentä epäonnistui: ' + gains.lastError);
+    let recovery: Promise<boolean> | null = null;
+    if (routed && (gains.recovering || gains.clockState() === 'stalled')) {
+      record('palautus', { reason: gains.recovering ? 'kesken' : 'kello pysähtynyt' });
+      recovery = gains.recover();
+    }
+    applyLevels();
+    for (const element of [backing, guitar]) {
+      element.pause();
+      // Ensimmäisellä kerralla elementti on jo tuore. Myöhemmin load() tyhjentää äänipuskurin.
+      if (reload) element.load();
+      if (target > 0) {
+        record('seek-write', { track: element === backing ? 'tausta' : 'kitara', from: element.currentTime, to: target, forced: 'aloitus', readyState: element.readyState, paused: true });
+        element.currentTime = target;
+      }
+    }
+    if (recovery) {
+      const restored = await recovery;
+      record('palautus-tulos', { restored, error: restored ? '' : gains.lastError });
+      if (request !== playbackRequest.current) return;
+      if (!restored) { setError('Ääni ei palautunut: Web Audio on pysähtynyt. Lataa sivu uudelleen. ' + gains.lastError); return; }
+    }
+    const positioned = await Promise.all([waitPositioned(backing, target), waitPositioned(guitar, target)]);
+    record('kelattu', { tausta: positioned[0], kitara: positioned[1], tT: backing.currentTime, tK: guitar.currentTime });
+    // Uudempi painallus, kelaus tai tauko on ohittanut tämän aloituksen.
+    if (request !== playbackRequest.current) return;
+    if (!positioned.every(Boolean)) {
+      // Kelaus ei valmistunut: toistoa ei aloiteta väärästä kohdasta. Kohta säilyy seuraavaa yritystä varten.
+      record('kelaus-aikakatkaisu', { target });
+      resumeAt.current = target;
+      setPlaying(false);
+      setError('Kelaus ei valmistunut. Paina Soita uudelleen.');
+      return;
+    }
+    try {
+      await Promise.all([playTracked(backing, 'tausta'), playTracked(guitar, 'kitara')]);
+      if (request !== playbackRequest.current) return;
+      setPlaying(true);
+      record('toisto-alkoi', { tausta: backing.currentTime, kitara: guitar.currentTime });
+      scheduleMeasurements(phase, request);
+      if (routed) {
+        gains.observe();
+        window.setTimeout(() => {
+          if (request !== playbackRequest.current) return;
+          if (gains.state !== 'running') setError(`Ääni ei käynnistynyt (Web Audio: ${gains.state}).`);
+          else if (gains.clockState() === 'stalled') { pause('vahti'); setError('Ääni ei kulje: Web Audio on pysähtynyt. Paina Soita uudelleen.'); }
+        }, 800);
+      }
+    } catch (cause) {
+      if (request !== playbackRequest.current) return;
+      pause('virhe');
+      const notAllowed = (cause as { name?: unknown } | null)?.name === 'NotAllowedError';
+      setError(notAllowed ? 'Toisto vaatii uuden painalluksen. Paina Soita.' : 'Toisto epäonnistui.');
+    }
+  }
+
   function rate(value: string) {
     const time = backingRef.current?.currentTime ?? 0;
     record('kuulokuva', { value, time });
@@ -285,7 +407,8 @@ export function KaksiraitaTesti() {
     const backing = backingRef.current;
     return {
       meta: {
-        test: 'kaksiraitatesti', source: params.source, sync: params.sync, offsetMs: params.offsetMs,
+        test: 'kaksiraitatesti', source: params.source, sync: params.sync, syncMode: params.syncMode,
+        offsetMs: params.offsetMs, measureIntervalMs: params.measureIntervalMs, engine: params.engine,
         bundle: new URL(import.meta.url).searchParams.get('v'), files: urls, userAgent: navigator.userAgent,
         audioSession: (navigator as unknown as { audioSession?: { type?: string } }).audioSession?.type ?? null,
         contextSampleRate: tapOf(backing)?.context.sampleRate ?? null,
@@ -301,17 +424,59 @@ export function KaksiraitaTesti() {
     setReport(JSON.stringify(buildReport()));
   }
 
+  // Vakiokoe: sama järjestys joka tilassa, jotta kokeet B1–B4 ovat vertailukelpoisia.
+  // Kutsuu samoja toistofunktioita kuin painikkeet. Ensimmäinen Soita tapahtuu painalluksen aikana.
+  const toggleRef = useRef(togglePlayback);
+  toggleRef.current = togglePlayback;
+  const seekRef = useRef(seek);
+  seekRef.current = seek;
+  const scenario = useRef(false);
+  const [scenarioState, setScenarioState] = useState('');
+  async function runScenario() {
+    if (scenario.current || playing) return;
+    scenario.current = true;
+    const wait = (ms: number) => new Promise(resolve => window.setTimeout(resolve, ms));
+    const step = (name: string) => {
+      record('vakiokoe', { step: name, time: backingRef.current?.currentTime ?? 0 });
+      setScenarioState(name);
+    };
+    try {
+      step('soita');
+      const started = toggleRef.current();
+      await started;
+      await wait(25_000);
+      step('kelaus');
+      seekRef.current(params.source === 'synteettinen' ? 30 : 60);
+      await wait(15_000);
+      step('tauko');
+      await toggleRef.current();
+      await wait(3_000);
+      step('jatko');
+      await toggleRef.current();
+      await wait(15_000);
+      step('tauko-loppu');
+      await toggleRef.current();
+      step('valmis');
+    } finally {
+      scenario.current = false;
+    }
+  }
+
   // Selaintestit lukevat raportin suoraan, ettei moniMEGATAVUINEN teksti kulje sivun kautta joka kerta.
   const reportRef = useRef(buildReport);
   reportRef.current = buildReport;
   useEffect(() => {
-    (window as unknown as { kaksiraitatesti?: { report(): unknown } }).kaksiraitatesti = { report: () => reportRef.current() };
+    (window as unknown as { kaksiraitatesti?: { report(): unknown; seek(seconds: number): void } }).kaksiraitatesti = {
+      report: () => reportRef.current(),
+      // Selaintesteille: peräkkäiset ja keskeneräisen kelauksen aikana tehdyt kelaukset.
+      seek: seconds => seekRef.current(seconds),
+    };
   }, []);
 
-  // Elementtien tapahtumat ja 0,5 s:n näytteet mediakelloista.
+  // Elementtien tapahtumat.
   useEffect(() => {
     const pairs: [HTMLAudioElement | null, string][] = [[backingRef.current, 'tausta'], [guitarRef.current, 'kitara']];
-    const names = ['loadedmetadata', 'canplay', 'canplaythrough', 'play', 'playing', 'waiting', 'stalled', 'seeking', 'seeked', 'pause', 'ended', 'error'];
+    const names = ['loadstart', 'emptied', 'loadedmetadata', 'canplay', 'canplaythrough', 'play', 'playing', 'waiting', 'stalled', 'seeking', 'seeked', 'pause', 'ended', 'error'];
     const removers: (() => void)[] = [];
     for (const [element, track] of pairs) {
       if (!element) continue;
@@ -321,6 +486,11 @@ export function KaksiraitaTesti() {
         removers.push(() => element.removeEventListener(name, handler));
       }
     }
+    return () => removers.forEach(remove => remove());
+  }, []);
+
+  // 0,5 s:n näytteet mediakelloista, näkyvyys ja sivulta poistuminen.
+  useEffect(() => {
     const sampler = window.setInterval(() => {
       const backing = backingRef.current, guitar = guitarRef.current;
       if (!backing || !guitar) return;
@@ -340,7 +510,6 @@ export function KaksiraitaTesti() {
     };
     document.addEventListener('visibilitychange', visibility);
     return () => {
-      removers.forEach(remove => remove());
       clearInterval(sampler);
       document.removeEventListener('visibilitychange', visibility);
       playbackRequest.current++;
@@ -360,22 +529,28 @@ export function KaksiraitaTesti() {
     };
   });
   const seekTarget = params.source === 'synteettinen' ? 30 : 60;
-  const link = (source: Source, sync = true) => `?lahde=${source}${sync ? '' : '&tahdistin=pois'}`;
+  const link = (source: Source, mode = 'kaytossa') => `?lahde=${source}${mode === 'kaytossa' ? '' : '&tahdistin=' + mode}`;
   const modeLabel = params.source === 'mp3' ? 'MP3' : params.source === 'wav' ? 'WAV (0–120 s)'
     : `Synteettinen (kitara siirretty ${params.offsetMs} ms myöhemmäksi)`;
 
   return <main className="kaksiraita">
     <h1>Kahden raidan synkronointitesti</h1>
-    <p className="mode" data-source={params.source} data-sync={params.sync ? 'on' : 'off'}>
-      Tila: <strong>{modeLabel}</strong> · tahdistin <strong>{params.sync ? 'käytössä' : 'pois'}</strong>
+    <p className="mode" data-source={params.source} data-sync={params.sync ? 'on' : 'off'} data-sync-mode={params.syncMode}>
+      Tila: <strong>{modeLabel}</strong> · {params.engine === 'uusi'
+        ? <strong>uusi moottori (korjausehdokas)</strong>
+        : <>tahdistin <strong>{params.syncMode === 'kaytossa' ? 'käytössä' : params.syncMode === 'pois' ? 'pois' : 'ilman korjauskelauksia'}</strong></>}
     </p>
     <p className="links">
-      <a href={link('mp3')}>MP3</a> · <a href={link('wav')}>WAV</a> · <a href={link('synteettinen')}>Synteettinen</a> · <a href={link(params.source, !params.sync)}>tahdistin {params.sync ? 'pois' : 'käyttöön'}</a>
+      <a href={link('mp3')}>MP3</a> · <a href={link('wav')}>WAV</a> · <a href={link('synteettinen')}>Synteettinen</a> · <a href={link(params.source)}>tahdistin käyttöön</a> · <a href={link(params.source, 'pois')}>pois</a> · <a href={link(params.source, 'ei-korjauksia')}>ilman korjauksia</a> · <a href={`?lahde=${params.source}&moottori=uusi`}>uusi moottori</a>
     </p>
 
     <section className="player" aria-label="Testisoitin">
       <button type="button" className="play" onClick={() => void togglePlayback()}>{playing ? '■ Tauko' : '▶ Soita'}</button>
       <button type="button" onClick={() => seek(seekTarget)}>Siirry kohtaan {clock(seekTarget)}</button>
+      <button type="button" onClick={() => void runScenario()} disabled={scenarioState !== '' && scenarioState !== 'valmis'}>
+        Aja vakiokoe (n. 60 s)
+      </button>
+      {scenarioState && <output className="scenario" data-step={scenarioState}> Vakiokoe: {scenarioState}</output>}
       <output className="time">{clock(position)} / {clock(duration)}</output>
       {note && <p role="status">{note}</p>}
       {error && <p role="alert" className="error">{error}</p>}
@@ -387,7 +562,7 @@ export function KaksiraitaTesti() {
         onEnded={() => { pendingSeek.current = null; clearTimers(); record('ended', {}); guitarRef.current?.pause(); setPlaying(false); }}
         onPause={event => { if (event.currentTarget === backingRef.current) setPlaying(false); }} />
       <audio ref={guitarRef} src={urls.kitara} preload="metadata"
-        onLoadedMetadata={() => { if (backingRef.current?.paused) syncStems(true); }} />
+        onLoadedMetadata={() => { if (params.engine === 'nykyinen' && backingRef.current?.paused) syncStems(true); }} />
     </section>
 
     <section aria-label="Mediakellot">

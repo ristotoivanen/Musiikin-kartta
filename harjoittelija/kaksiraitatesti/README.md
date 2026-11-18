@@ -13,7 +13,8 @@ Tavoite on erottaa toisistaan neljä tekijää:
 | Raitamäärä | Kaksi raitaa (Kitara, Tausta) samalla toistopolulla kuin kolmen raidan soitin. |
 | Tiedostomuoto | Erilliset tilat `?lahde=mp3` ja `?lahde=wav`. |
 | Lähderaitojen kohdistus | Mitattu Macilla (alla) ja synteettinen aineisto, jonka kohdistus tunnetaan. |
-| Nykyinen tahdistin | Oletuksena käytössä. `&tahdistin=pois` ajaa saman toiston ilman korjauskelauksia. |
+| Nykyinen tahdistin | Oletuksena käytössä. `&tahdistin=pois` ajaa saman toiston ilman tahdistinta, `&tahdistin=ei-korjauksia` ilman toiston aikaisia korjauskelauksia. |
+| Toistotapa | `&moottori=uusi` on korjausehdokas, joka ei käytä tahdistinta (ks. [Korjausehdokas](#korjausehdokas-uusi-moottori)). |
 
 ## Tilat
 
@@ -25,7 +26,15 @@ Tavoite on erottaa toisistaan neljä tekijää:
   300 Hz, kitara 1500 Hz, väli vaihtelee 0,35–0,75 s. Kohdakkain ne kuulostavat yhdeltä iskulta.
   `&siirto=40` siirtää kitaraa 40 ms myöhemmäksi. Tämä on positiivinen kontrolli: mittauksen pitää
   näyttää −40 ms.
-- Kaikkiin tiloihin voi lisätä `&tahdistin=pois`.
+- Kaikkiin tiloihin voi lisätä:
+  - `&tahdistin=pois`: ei tahdistinta. Käyttäjän kelaus siirtää vain taustaa (koe B2).
+  - `&tahdistin=ei-korjauksia`: vain pakotetut tahdistukset (käynnistys, kelaus, jatko), ei toiston
+    aikaisia korjauskelauksia (koe B3).
+  - `&moottori=uusi`: korjausehdokas.
+  - `&mittausvali=2000`: renderöidyn kohdistuksen mittausväli millisekunteina (oletus 5000, vähintään 1000).
+- **Aja vakiokoe** -painike tekee saman järjestyksen joka tilassa: Soita, 25 s, kelaus (1:00,
+  synteettisessä 0:30), 15 s, Tauko 3 s, Soita, 15 s, Tauko. Ensimmäinen Soita on painallus, muut
+  vaiheet ohjelmallisia. Painiketta käytetään simulaattorikokeissa, ei fyysisen iPhonen testeissä.
 
 ## Lähdeaineisto
 
@@ -81,6 +90,173 @@ kelauskohdaksi esimerkiksi 60,009 s, ja tarkkuusehto on 1 ms. Silloin seuraava T
 kelauskohtaan (1:00), eli kohta toistui. Logiikka on kopioitu tuotannosta muuttamatta, joten sama on
 todennäköistä kappaleharjoittelijassa. Tätä ei ole todennettu fyysisellä iPhonella.
 
+## Juurisyyanalyysi (MK-20261118-01, 18.11.2026)
+
+### Lähtötiedot fyysiseltä iPhonelta
+
+Käyttäjän yhteenvedot kokeista M1 ja W1 (nykyinen soitin, tahdistin käytössä). Täysiä JSON-raportteja
+ei ole käytetty tässä analyysissä.
+
+| Koe | Vaihe | Mediakellojen ero | Renderöity ero | Kuulokuva |
+| --- | --- | --- | --- | --- |
+| M1 (MP3) | ennen kelausta | +21 ms | +21 ms | epätahdissa |
+| M1 | kelauksen jälkeen | −51 ms | −408 ms | ei yhteenvedossa |
+| M1 | Tauko → Soita | | ei luotettavaa (korjauskelauksia) | palasi kohtaan 1:00 |
+| W1 (WAV) | ennen käyttäjän kelausta, automaattisten korjausten jälkeen | −45 ms | −898 ms | epätahdissa |
+| W1 | kelauksen jälkeen | | +1320 ms, myöhemmin +96 ms | epätahdissa |
+| W1 | Tauko → Soita | | +360 ms, sitten −66 ms | epätahdissa, palasi kohtaan 1:00 |
+
+### Vahvistettu
+
+Fyysisellä iPhonella (M1, W1):
+
+1. Renderöity ero poikkesi mediakellojen erosta satoja millisekunteja (W1 −45 vs. −898 ms, M1 −51 vs.
+   −408 ms). Mediakellojen kohdistus ei kerro äänen kohdistuksesta.
+2. Tauko → Soita palasi kelauskohtaan 1:00 molemmissa kokeissa.
+3. W1:ssä renderöity ero muuttui jokaisen siirto-operaation yhteydessä (−898 → +1320 → +96 → +360 → −66 ms).
+
+iOS-simulaattorissa (iPhone 16 Pro, iOS 27.2, vakiokoe, taulukot alla):
+
+4. Kelaus siirtää kelatun raidan renderöityä ääntä mediakelloon nähden. WAV ilman tahdistinta (B2):
+   käyttäjän kelaama tausta +853 ms, kelaamaton kitara 0. MP3:lla 0…+949 ms.
+5. Myös pelkät pakotetut tahdistukset ilman korjauskelauksia (B3) tuottavat poikkeaman: MP3:n
+   käynnistyksessä −75 ms ja kelauksen jälkeen +970 ms.
+6. Korjauskelaukset (B1, B4) arpovat poikkeaman uudelleen. Synteettisellä aineistolla poikkeama oli
+   kelauksen jälkeen +943…+949 ms ja jatkon jälkeen +925…+931 ms, vaikka mediakellojen ero oli −64…−262 ms.
+7. Poikkeama muuttuu vain siirto-operaatioissa (kelaus, tauko ja soitto). Peräkkäisissä mittauksissa
+   se pysyy samana (esim. +853,1…+853,3 ms viidessä mittauksessa 5 s välein). Mittaus ei siis aiheuta
+   poikkeamaa. Synteettinen positiivinen kontrolli mitataan tasan −40,0 ms:ksi.
+8. `pendingSeek` jää voimaan. iOS raportoi kelauskohdaksi esimerkiksi 60,009 s, mutta ehto on 1 ms.
+   Kaikissa viidessä nykyisen soittimen vakiokokeessa Tauko → Soita kelasi taustan takaisin
+   kelauskohtaan (74,4 → 60 s, synteettisessä 44,4 → 30 s). Samalla kelauksen jälkeinen pakotettu
+   tahdistus jää tekemättä, koska `followBacking` odottaa yhä kelauksen valmistumista.
+9. Sunon uusien VBR-MP3:ien kelaus on epätarkka. Uudella moottorilla MP3:n poikkeama oli kelauksen
+   jälkeen −360 ms ja jatkon jälkeen +75…+120 ms, WAVilla samassa kokeessa 0.
+
+WebKitin lähdekoodista luettu (main-haara, ei vahvistettu laitteella):
+
+10. iOS:llä `MediaElementAudioSourceNode` saa äänen GPU-prosessin äänitapista
+    (`AudioSourceProviderAVFObjC`) jaetun rengaspuskurin (`CARingBuffer`) kautta. Puskuri on vähintään
+    1 s (`kRingBufferDuration`).
+11. Kelauksessa tai muussa katkoksessa tappi merkitsee puskurin tyhjennettäväksi, ja
+    `RemoteAudioSourceProviderProxy` lähettää `SetNeedsFlush`-viestin.
+    `WebAudioSourceProviderCocoa::setNeedsFlush()` asettaa lukukohdan puskurin vanhimpaan kehykseen
+    (`m_readCount = startFrame`). Graafi lukee siis jopa noin sekunnin vanhaa ääntä.
+12. Lukija tahdistuu uudelleen vain ylivuodossa (`m_readCount < startFrame`). Muuten ero säilyy
+    seuraavaan katkokseen asti.
+13. `currentTime` on soittimen oma arvio, joka ei näe tätä puskuria.
+
+### Todennäköiset selitykset
+
+- **Laitteen poikkeamat syntyvät samasta mekanismista kuin simulaattorissa.** Suuruusluokka
+  (0,36–1,3 s) vastaa puskurin kestoa, ja poikkeamat ilmaantuivat kelausten jälkeen, myös
+  tahdistimen omien korjauskelausten jälkeen. W1:n −898 ms on samaa suuruusluokkaa kuin
+  simulaattorin +853 ms. Tapahtumatasolla tätä ei ole todennettu, koska laitteen raportteja ei ole käytetty.
+- **Poikkeaman etumerkki riippuu kelaussuunnasta.** Puskurissa on kelausta edeltävän kohdan ääntä:
+  eteenpäin kelattu raita kuulostaa jäljessä olevalta, taaksepäin kelattu edellä olevalta. Tämä
+  selittää, miksi poikkeama vaihtaa merkkiä (W1: −898 → +1320 ms).
+- **Pakotettu tahdistus pysäytetyllä raidalla** (B3, −75 ms) viittaa siihen, että myös tauolla
+  tehty kelaus jättää puskuriin vanhaa ääntä, joskin vähemmän.
+
+### Avoimet kysymykset
+
+1. **Toimiiko uuden moottorin `load()` + `play()` fyysisellä iPhonella?** Simulaattorissa saman
+   elementin `play()` onnistui `load()`:n jälkeen. Uusien elementtien `play()` hylättiin
+   (`NotAllowedError`). Laitteen soittolupakäytäntö voi poiketa simulaattorista.
+2. **Onko käynnistyksen 10,7–21,3 ms:n jäännösero kuultava?** M1:ssä +21 / +21 ms kuultiin
+   epätahdissa. Ero näkyy sekä mediakelloissa että renderöidyssä äänessä, ja se on 512 kehyksen
+   (48 kHz) monikerta. Sen säätämiseen ei löytynyt toimivaa keinoa (ks. kielteiset tulokset).
+3. **Yhteinen noin 420 ms:n ero `currentTime`n ja renderöidyn äänen välillä** uuden moottorin
+   kelauksen ja jatkon jälkeen. Se on molemmilla raidoilla sama, joten se ei vaikuta raitojen väliseen
+   tahtiin. Tuotannossa sointunäyttö seuraa kuitenkin `currentTime`a.
+4. Tuotannon CBR-MP3:ien kelaustarkkuutta uudella moottorilla ei ole mitattu.
+5. Kolmen raidan tuotantosoitinta ei ole mitattu tällä tavalla. Logiikka on sama, joten sama mekanismi
+   on todennäköinen.
+
+### Tapahtumaketju nykyisessä soittimessa
+
+1. **Soita.** Pakotettu tahdistus kelaa pysäytetyn kitaran taustan kohtaan ennen `play()`-kutsua.
+   Jo tämä voi jättää kitaran puskuriin vanhaa ääntä (B3: −75 ms).
+2. **Toiston aikana** `StemAligner` vertaa mediakelloja. Kun ero ylittää 120 ms:n rajan, se
+   kirjoittaa kitaran `currentTime`-arvon (korjauskelaus).
+3. **WebKit** merkitsee kitaran puskurin tyhjennettäväksi ja siirtää lukukohdan vanhimpaan
+   kehykseen. Kitara kuuluu nyt jopa noin sekunnin väärästä kohdasta, mutta `currentTime` näyttää
+   uutta kohtaa.
+4. **Tahdistin** näkee mediakellot kohdakkain. Kuultava ero jää voimaan. Jos mediakellojen ero
+   ylittää rajan uudelleen, uusi korjauskelaus arpoo eron uudelleen (B1 ja B4: viisi korjausta
+   kelauksen jälkeen, poikkeama yhä noin +945 ms).
+5. **Käyttäjän kelaus.** Tausta kelataan ja kitara pakotetusti perään. Kummankin puskuri
+   tyhjennetään erikseen, ja poikkeama on raidoilla eri suuri (WAV B2: tausta +853 ms).
+6. **`pendingSeek` jää voimaan** (1 ms:n ehto, iOS raportoi 60,009 s). Tauko → Soita aloittaa
+   vanhasta kelauskohdasta. Kappale hyppää taaksepäin, ja uusi kelaus arpoo poikkeaman jälleen uudelleen.
+
+### Kokeet B1–B4 (simulaattori, vakiokoe)
+
+*Poikkeama* = renderöity ero − mediakellojen ero + tunnettu siirto (synteettisessä 40 ms). 0
+tarkoittaa, että kuultava ääni vastaa mediakelloja. Vain luotettavat mittaukset. Arvot ovat
+millisekunteja, ja kukin rivi on yksi vakiokoe.
+
+| Koe | Lähde ja tila | Käynnistys: media / poikkeama | Kelauksen jälkeen | Tauko → Soita | Korjauskelaukset (kelaus / jatko) | Taaksehyppy |
+| --- | --- | --- | --- | --- | --- | --- |
+| B1 | MP3, tahdistin käytössä | +10,7 / +10,6 | ei luotettavaa mittausta | ei luotettavaa mittausta | 5 / 3 | 74,4 → 60 s |
+| B2 | MP3, tahdistin pois | −10,7 / 0 | ¹ / 0…+949 | ¹ / −2160 (VBR-kelaus) | 0 / 0 | 74,4 → 60 s |
+| B2 | WAV, tahdistin pois | −10,7 / 0 | ¹ / +853 | ¹ / 0 | 0 / 0 | 74,4 → 60 s |
+| B3 | MP3, ei korjauskelauksia | +10,7 / −75 | ¹ / +967…+973 | ei luotettavaa mittausta | 0 / 0 | 74,5 → 60 s |
+| B4 | synteettinen +40, tahdistin käytössä | +10,7 / +10,7 | −262…−64 / +943…+949 | −131…−64 / +925…+931 | 5 / 3 | 44,4 → 30 s |
+
+¹ B2:ssa kitaraa ei kelata (ei tahdistinta), ja B3:ssa sen pakotettu tahdistus jää tekemättä
+`pendingSeek`-virheen vuoksi. Mediakellojen ero on siksi kymmeniä sekunteja. Poikkeama kertoo silti
+kelatun taustan puskurin tilan.
+
+### Kielteiset tulokset
+
+- **Uudet audioelementit jokaisessa siirto-operaatiossa:** ohjelmallinen `play()` hylättiin ilman
+  uutta painallusta (`NotAllowedError`). Hylätty.
+- **Jäännöseron hienosäätö `playbackRate`-arvolla** (0,98, `preservesPitch` päällä ja pois): kahdessa
+  ajossa kolmesta mediakello hyppäsi 1,2–1,4 s ja poikkeama oli −427…−440 ms. Haitallinen, poistettu.
+- **Tahdistimen 120 ms:n toleranssia ei muutettu.** Poikkeamat ovat satoja millisekunteja ja syntyvät
+  kelauksista. Tiukempi raja lisäisi korjauskelauksia ja sitä kautta poikkeamia.
+
+## Korjausehdokas: uusi moottori
+
+`&moottori=uusi`, vain testisivulla (`freshStart` tiedostossa `KaksiraitaTesti.tsx`). Tuotannon
+soitin ei muutu.
+
+- **C1, hallittu aloitus.** Jokainen Soita, jatko ja kelaus pysäyttää molemmat raidat ja kutsuu
+  `load()` (ei ensimmäisellä kerralla). Sitten molemmat kelataan samaan kohtaan, ja moottori odottaa,
+  että kumpikin on valmis (`readyState ≥ 1`, ei `seeking`, kohta ±0,25 s). Vasta sitten molemmille
+  kutsutaan `play()`. `load()` luo elementille uuden mediasoittimen ja äänitapin, joiden puskuri on
+  tyhjä. Elementti säilyttää `MediaElementSource`-kytkentänsä ja soittoluvan.
+- **C2, ei korjauskelauksia.** Toiston aikana raitoja ei kelata. `StemAligner`ia ei käytetä.
+- **C3, jatko ja kelaus.** Tauko tallentaa pysäytyskohdan, ja Soita jatkaa siitä. Uusi kelaus
+  ohittaa aiemmat: jokainen operaatio saa uuden pyyntötunnisteen, ja vanhentunut aloitus keskeytyy
+  ennen `play()`-kutsua. Jos kelaus ei valmistu 5 sekunnissa, toistoa ei aloiteta. Käyttäjä näkee
+  viestin ”Kelaus ei valmistunut. Paina Soita uudelleen.”
+- **C4, Web Audio -moottori säilyy.** `SongGainMixer`, PR #92:n AudioContext-palautus ja tasot ovat
+  ennallaan.
+
+Tulokset simulaattorissa, lopullinen käännös `59889d8823cb` (vakiokoe):
+
+| Lähde | Käynnistys: media / poikkeama | Kelauksen jälkeen | Tauko → Soita | Korjauskelaukset | Taaksehyppy |
+| --- | --- | --- | --- | --- | --- |
+| WAV | −10,7 / 0,0 | −21,3 / 0,0 | −21,3 / 0,0 | 0 | ei (tauko 74,327 s → jatko 74,327 s) |
+| synteettinen +40 | −21,3 / 0,0 (renderöity −61,3) | −10,6 / 0,0 (−50,7) | −10,7 / 0,0 (−50,7) | 0 | ei (44,345 → 44,345 s) |
+| MP3 (VBR), käännös `880eec2b66e3` | −22 / +0,5…+0,8 | −21,5 / −360 | −21…+23 / +75…+120 | 0 | ei |
+
+Sama moottori ilman myöhemmin poistettua hienosäätöä (käännös `880eec2b66e3`) antoi WAVilla ja
+synteettisellä aineistolla poikkeaman 0,0 kaikissa vaiheissa. Aloitus kesti simulaattorissa
+70–200 ms painalluksesta.
+
+Uusi moottori ei poista käynnistyksen jäännöseroa (0, ±10,7 tai ±21,3 ms). Se näkyy sekä
+mediakelloissa että renderöidyssä äänessä. VBR-MP3:n kelausvirhettä se ei myöskään korjaa, koska
+virhe on tiedostossa: tarkka kelaus vaatii CBR-MP3:n tai WAVin.
+
+**Arkkitehtuurivaihtoehto (ei toteutettu):** jos fyysinen iPhone osoittaa, että jäännösero on
+kuultava tai että `load()`-polku ei toimi laitteella, HTMLAudioElement-pohjainen toisto ei riitä.
+Silloin vaihtoehto on purkaa raidat `AudioBuffer`eiksi ja käynnistää ne `AudioBufferSourceNode`illa
+samalla `start(when, offset)`-hetkellä. Se antaa näytetarkan kohdistuksen, mutta 3:53 min stereo-
+raita vie noin 90 Mt muistia (48 kHz, float32), ja purku vie aikaa. Tämä vaatii erillisen suunnitelman.
+
 ## Mittaukset
 
 Raportti (Valitse raportti → kopioi) sisältää kaiken alla olevan:
@@ -121,10 +297,21 @@ Erot, jotka on kirjattu tähän tarkoituksella:
   - tahdistin pois
   - kelaus ja jatko
   - MP3-tila oikeilla raidoilla
+- `tests/e2e/kaksiraitatesti-moottori.spec.ts` (uusi moottori, Chromium, työpöytä ja puhelin):
+  - käynnistys, kelaus ja Tauko → Soita: renderöity ero = mediakellojen ero − 40 ms ±1,5 ms, ei
+    korjauskelauksia
+  - Tauko → Soita jatkaa pysäytyskohdasta eikä palaa vanhaan kelauskohtaan
+  - tauolla tehty kelaus: seuraava Soita alkaa kelauskohdasta
+  - kolme peräkkäistä kelausta, joista kaksi kesken edellisen: vain viimeisin toteutuu
+  - kelaus ei valmistu (`seeking` pysyy totena): toistoa ei aloiteta, virheilmoitus, seuraava
+    Soita toimii
 
 ## Rajoitukset
 
-- Simulaattori ja työpöytäselain eivät korvaa fyysistä iPhonea.
+- Simulaattori ja työpöytäselain eivät korvaa fyysistä iPhonea. Uuden moottorin hyväksyntä vaatii
+  onnistuneen fyysisen iPhonen testin.
+- Chromium ei toista iOS:n puskurivirhettä. Selaintestit todentavat uuden moottorin ohjauslogiikan
+  ja mittauksen, eivät WebKitin käytöstä.
 - WAV-tila kattaa vain kohdan 0–120 s.
 - Pages Function lukee koko tiedoston jokaista Range-pyyntöä varten, mikä voi hidastaa WAV-tilan latausta. Tämä on itsessään WAV-tilan mahdollinen sekoittava tekijä.
 - Akustisen kappaleen toistuva komppi voi tehdä yksittäisestä mittauksesta epävarman. Epävarmat mittaukset näytetään, mutta niitä ei lasketa yhteenvetoon.
