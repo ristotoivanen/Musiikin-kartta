@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  CLOCK_WINDOW_MS, ContextClockWatch, MIN_CLOCK_RATE, RECOVERY_TIMEOUT_MS,
   DEFAULT_SONG_VOLUME, MAX_DRIFT_SECONDS, MIN_DRIFT_FIX_INTERVAL_MS, SongGainMixer, TRACK_BALANCE,
   IOS_SEEK_LATENCY_SECONDS, StemAligner, elementVolumeWorks, initialSeekLatency, isIOSDevice, parseSongVolume, songVolumeMode,
   resetSharedSeekLatency, shouldCorrectDrift, trackLevel,
@@ -218,5 +219,211 @@ describe('StemAligner', () => {
     backing.currentTime = 52; stem.currentTime = 50;
     aligner.align(backing, stem, false, 2000);
     expect(aligner.latency).toBe(1.5);
+  });
+});
+
+describe('AudioContextin pysähtynyt kello (fyysinen iPhone, D5/D6 17.11.2026)', () => {
+  it('yksi lukema ei riitä: pysähdys todetaan vasta kahdesta vähintään 250 ms:n päässä olevasta näytteestä', () => {
+    const watch = new ContextClockWatch();
+    expect(watch.check(43.6907, 0)).toBe('unknown');
+    watch.sample(43.6907, 0);
+    expect(watch.check(43.6907, CLOCK_WINDOW_MS - 1)).toBe('unknown');
+    expect(watch.check(43.6907, CLOCK_WINDOW_MS)).toBe('stalled');
+  });
+
+  it('normaali kello etenee, myös karkealla 43 ms:n renderöintijaksolla', () => {
+    const watch = new ContextClockWatch();
+    watch.sample(10, 0);
+    expect(watch.check(10.25, 250)).toBe('advancing');
+    expect(watch.check(10 + 0.207, 250)).toBe('advancing');
+    expect(watch.check(13, 3000)).toBe('advancing');
+  });
+
+  it('raja on puolet seinäkellosta', () => {
+    expect(MIN_CLOCK_RATE).toBe(0.5);
+    const watch = new ContextClockWatch();
+    watch.sample(0, 0);
+    expect(watch.check(0.124, 250)).toBe('stalled');
+    expect(watch.check(0.126, 250)).toBe('advancing');
+  });
+
+  it('vertailukohta on uusin vähintään 250 ms vanha näyte', () => {
+    const watch = new ContextClockWatch();
+    watch.sample(0, 0);
+    watch.sample(0.9, 900);
+    // 100 ms vanha näyte on liian lähellä: verrataan alkuun, ja kello eteni 0,9 s sekunnissa.
+    expect(watch.check(0.9, 1000)).toBe('advancing');
+    // 400 ms myöhemmin vertailukohta on 900 ms:n näyte, eikä kello ole sen jälkeen edennyt.
+    expect(watch.check(0.9, 1300)).toBe('stalled');
+  });
+
+  it('D6:n luvut: lukitus pysäytti kellon 43,6907 s:iin, ja Soita-painallus tunnistaa sen', () => {
+    const watch = new ContextClockWatch();
+    // Viimeinen näyte piilossa (46 088 ms) ja paluu näkyviin (100 771 ms).
+    watch.sample(43.136, 46088);
+    watch.sample(43.6907, 100771);
+    expect(watch.check(43.6907, 102149)).toBe('stalled');
+    // Painallus 100 ms paluun jälkeen: vertailu piilotuksen aikaiseen näytteeseen (0,55 s / 54,8 s).
+    expect(watch.check(43.6907, 100871)).toBe('stalled');
+  });
+
+  it('lähekkäiset näytteet yhdistetään, joten nopeat painallukset eivät hävitä vertailukohtaa', () => {
+    const watch = new ContextClockWatch();
+    watch.sample(0, 0);
+    for (let ms = 300; ms <= 320; ms += 2) watch.sample(ms / 1000, ms);
+    expect(watch.check(0.33, 330)).toBe('advancing');
+    watch.sample(Number.NaN, 400);
+    expect(watch.check(Number.NaN, 700)).toBe('unknown');
+  });
+});
+
+describe('SongGainMixerin palautus pysähtyneestä kontekstista', () => {
+  /** Valekonteksti: kello ja tila asetetaan testissä, suspend() ja resume() kirjataan järjestyksessä. */
+  function fakeContext(state = 'running') {
+    const calls: string[] = [];
+    let release: (() => void) | null = null;
+    const context = {
+      state, currentTime: 0, destination: {},
+      holdSuspend: false, failSuspend: null as Error | null, failResume: null as Error | null, stayAfterResume: '',
+      suspend: vi.fn(() => {
+        calls.push('suspend');
+        if (context.failSuspend) return Promise.reject(context.failSuspend);
+        const done = () => { context.state = 'suspended'; };
+        if (!context.holdSuspend) { done(); return Promise.resolve(); }
+        return new Promise<void>(resolve => { release = () => { done(); resolve(); }; });
+      }),
+      resume: vi.fn(() => {
+        calls.push('resume');
+        if (context.state === 'closed') return Promise.reject(new DOMException('Suljettu', 'InvalidStateError'));
+        if (context.failResume) return Promise.reject(context.failResume);
+        context.state = context.stayAfterResume || 'running';
+        return Promise.resolve();
+      }),
+      close: vi.fn(() => { context.state = 'closed'; return Promise.resolve(); }),
+      createMediaElementSource: vi.fn(() => ({ connect: vi.fn() })),
+      createGain: vi.fn(() => ({ gain: { value: 1 }, connect: vi.fn() })),
+    };
+    return { context, calls, release: () => release?.() };
+  }
+
+  function stalledMixer(state = 'running') {
+    const fake = fakeContext(state);
+    const clock = { wall: 1000 };
+    const mixer = new SongGainMixer(() => fake.context as unknown as AudioContext, {}, () => clock.wall);
+    mixer.unlock();
+    fake.context.currentTime = 43.6907;
+    mixer.observe();
+    clock.wall += 300;
+    return { ...fake, mixer, clock };
+  }
+
+  it('tunnistaa running-tilan pysähtyneen kellon, mutta ei palauta sitä itse', () => {
+    const { mixer, context } = stalledMixer();
+    expect(mixer.state).toBe('running');
+    expect(mixer.clockState()).toBe('stalled');
+    mixer.unlock();
+    expect(context.suspend).not.toHaveBeenCalled();
+    expect(context.resume).not.toHaveBeenCalled();
+  });
+
+  it('normaali kello ja muut tilat eivät käynnistä palautusta', () => {
+    const { mixer, context, clock } = stalledMixer();
+    context.currentTime += 0.3;
+    expect(mixer.clockState()).toBe('advancing');
+    // Keskeytetty tai pysäytetty konteksti on odotetusti paikallaan: se ei ole pysähdys.
+    context.state = 'interrupted';
+    expect(mixer.clockState()).toBe('unknown');
+    mixer.observe();
+    context.state = 'running';
+    clock.wall += 1000;
+    expect(mixer.clockState()).toBe('unknown');
+    // Ilman kontekstia ei ole mitään palautettavaa.
+    const empty = new SongGainMixer(() => fakeContext().context as unknown as AudioContext, {}, () => 0);
+    expect(empty.clockState()).toBe('unknown');
+    empty.observe();
+    return expect(empty.recover()).resolves.toBe(false);
+  });
+
+  it('palauttaa kontekstin yhdellä suspend() → resume() -kierroksella ja aloittaa uuden vertailun', async () => {
+    const { mixer, context, calls, clock } = stalledMixer();
+    expect(await mixer.recover()).toBe(true);
+    expect(calls).toEqual(['suspend', 'resume']);
+    expect(mixer.state).toBe('running');
+    expect(mixer.recovering).toBe(false);
+    // Pysähdyksen aikaiset näytteet eivät enää kelpaa vertailuun.
+    expect(mixer.clockState()).toBe('unknown');
+    clock.wall += 300;
+    context.currentTime += 0.3;
+    expect(mixer.clockState()).toBe('advancing');
+  });
+
+  it('nopeat painallukset: kesken oleva palautus jaetaan, eikä unlock() sotke sitä', async () => {
+    const { mixer, context, calls, release } = stalledMixer();
+    context.holdSuspend = true;
+    const first = mixer.recover();
+    const second = mixer.recover();
+    expect(second).toBe(first);
+    expect(mixer.recovering).toBe(true);
+    // Toinen painallus kesken palautuksen: tila on jo 'suspended', mutta unlock() ei kutsu resume():a.
+    context.state = 'suspended';
+    expect(mixer.unlock()).toBe(true);
+    expect(context.resume).not.toHaveBeenCalled();
+    release();
+    expect(await Promise.all([first, second, mixer.recover()])).toEqual([true, true, true]);
+    expect(calls).toEqual(['suspend', 'resume']);
+    expect(mixer.recovering).toBe(false);
+  });
+
+  it('epäonnistunut suspend() palauttaa false, kirjaa syyn ja sallii uuden yrityksen', async () => {
+    const { mixer, context, calls } = stalledMixer();
+    context.failSuspend = new DOMException('Ei sallittu tässä tilassa', 'InvalidStateError');
+    expect(await mixer.recover()).toBe(false);
+    expect(mixer.lastError).toContain('InvalidStateError');
+    expect(mixer.recovering).toBe(false);
+    expect(calls).toEqual(['suspend']);
+    context.failSuspend = null;
+    expect(await mixer.recover()).toBe(true);
+    expect(calls).toEqual(['suspend', 'suspend', 'resume']);
+  });
+
+  it('resume() hylätään NotAllowedErrorilla tai konteksti ei palaa käyntiin: false ja syy talteen', async () => {
+    const denied = stalledMixer();
+    denied.context.failResume = new DOMException('Vaatii käyttäjän eleen', 'NotAllowedError');
+    expect(await denied.mixer.recover()).toBe(false);
+    expect(denied.mixer.lastError).toContain('NotAllowedError');
+    const stuck = stalledMixer();
+    stuck.context.stayAfterResume = 'interrupted';
+    expect(await stuck.mixer.recover()).toBe(false);
+    expect(stuck.mixer.lastError).toContain('interrupted');
+  });
+
+  it('jumiin jäänyt suspend() katkaistaan aikarajaan, eikä seuraava painallus jää odottamaan sitä', async () => {
+    vi.useFakeTimers();
+    try {
+      const { mixer, context } = stalledMixer();
+      context.holdSuspend = true;
+      const result = mixer.recover();
+      await vi.advanceTimersByTimeAsync(RECOVERY_TIMEOUT_MS);
+      expect(await result).toBe(false);
+      expect(mixer.lastError).toContain('aikakatkaisu');
+      expect(mixer.recovering).toBe(false);
+      expect(context.resume).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('sulkeminen kesken palautuksen tai puuttuva suspend() ei heitä virhettä', async () => {
+    const { mixer, context, release } = stalledMixer();
+    context.holdSuspend = true;
+    const result = mixer.recover();
+    mixer.close();
+    release();
+    expect(await result).toBe(false);
+    expect(mixer.state).toBe('none');
+    const legacy = stalledMixer();
+    (legacy.context as { suspend?: unknown }).suspend = undefined;
+    expect(await legacy.mixer.recover()).toBe(false);
+    expect(legacy.mixer.lastError).toContain('suspend() tai resume() puuttuu');
   });
 });
