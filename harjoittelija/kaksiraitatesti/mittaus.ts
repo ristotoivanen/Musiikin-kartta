@@ -46,19 +46,26 @@ export interface Reference {
   window(startSeconds: number, endSeconds: number): Promise<ReferenceWindow>;
 }
 
-/** WAV-tiedosto HTTP Range -pyynnöillä. Jos palvelin ei tue Rangea (200), koko tiedosto luetaan kerran. */
-export function wavReference(url: string): Reference {
+/**
+ * WAV-referenssi kerran ladatusta Blobista (ks. lataus.ts). Mittaukset lukevat vain Blobin osia
+ * eivätkä tee verkkopyyntöjä. Aiempi versio haki jokaisen mittausikkunan Range-pyynnöllä, ja
+ * epäonnistunut otsakehaku jäi välimuistiin, jolloin kaikki myöhemmät mittaukset epäonnistuivat.
+ * Nyt epäonnistunutta latausta ei jäädytetä: seuraava mittaus yrittää uudelleen.
+ */
+export function blobReference(load: () => Promise<Blob>): Reference {
   let header: Promise<WavInfo> | null = null;
-  let whole: Promise<ArrayBuffer> | null = null;
   async function bytes(start: number, end: number): Promise<Uint8Array> {
-    if (whole) return new Uint8Array(await whole, start, end - start + 1);
-    const response = await fetch(url, { headers: { Range: `bytes=${start}-${end}` } });
-    if (response.status === 206) return new Uint8Array(await response.arrayBuffer());
-    if (!response.ok) throw new Error(`Referenssi ${url}: HTTP ${response.status}`);
-    whole = response.arrayBuffer();
-    return new Uint8Array(await whole, start, end - start + 1);
+    const blob = await load();
+    return new Uint8Array(await blob.slice(start, end + 1).arrayBuffer());
   }
-  const info = () => (header ??= bytes(0, 4095).then(head => parseWavHeader(head.slice().buffer)));
+  const info = () => {
+    if (!header) {
+      const pending = bytes(0, 4095).then(head => parseWavHeader(head.slice().buffer));
+      header = pending;
+      pending.catch(() => { if (header === pending) header = null; });
+    }
+    return header;
+  };
   return {
     async durationSeconds() { const wav = await info(); return wav.frames / wav.sampleRate; },
     async window(startSeconds, endSeconds) {

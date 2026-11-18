@@ -20,7 +20,8 @@ Tavoite on erottaa toisistaan neljä tekijää:
 
 - `kaksiraitatesti.html?lahde=mp3`: Sunon alkuperäiset MP3:t muuttamattomina, koko kappale 3:53.
 - `kaksiraitatesti.html?lahde=wav`: samat raidat WAV-muodossa. Mukana on vain kohta 0–120 s, koska
-  Cloudflare Pages hyväksyy enintään 25 MiB:n tiedostot. Aikajana on sama kuin MP3:ssa.
+  Cloudflare Pages hyväksyy enintään 25 MiB:n tiedostot. Aikajana on sama kuin MP3:ssa. Tiedostot
+  ladataan kerran kokonaan ja soitetaan muistista (`&lataus=verkko` soittaa verkosta kuten PR #100).
 - `kaksiraitatesti.html?lahde=synteettinen`: selaimessa luodut 60 s:n raidat, joiden kohdistus
   tunnetaan näytteen tarkkuudella. Kummassakin raidassa on merkkiääni samoissa kohdissa: tausta
   300 Hz, kitara 1500 Hz, väli vaihtelee 0,35–0,75 s. Kohdakkain ne kuulostavat yhdeltä iskulta.
@@ -257,6 +258,107 @@ Silloin vaihtoehto on purkaa raidat `AudioBuffer`eiksi ja käynnistää ne `Audi
 samalla `start(when, offset)`-hetkellä. Se antaa näytetarkan kohdistuksen, mutta 3:53 min stereo-
 raita vie noin 90 Mt muistia (48 kHz, float32), ja purku vie aikaa. Tämä vaatii erillisen suunnitelman.
 
+## H1:n latausvika ja korjaus (18.11.2026)
+
+Fyysisen iPhonen testi H1 (WAV, uusi moottori, esikatselu) epäonnistui:
+- Käynnistys onnistui, ja mediakellojen ero oli vakaasti noin −21,3 ms.
+- Mittaukset epäonnistuivat, koska WAV-referenssien lataus palautti HTTP 503 -virheen.
+- Kelaus kohtaan 1:00 epäonnistui, eivätkä uusintayritykset palauttaneet toistoa.
+
+H1 ei siis kertonut tahdistuksesta mitään.
+
+### 503:n alkuperä (vahvistettu)
+
+- **Cloudflaren vastaus, ei selain.** Virheen sai toistettua Macilta `curl`illa ilman selainta.
+  - Vastaus: `HTTP 503`, `server: cloudflare`, runko `error code: 1102`. Koodi 1102 tarkoittaa, että Worker ylitti resurssirajansa.
+  - Selaimen resurssirajat tai mittauskoodin kuorma eivät näy HTTP-tilakoodeina.
+- **Syy on äänifunktiossa** `functions/assets/audio/[[path]].ts`. Se lukee koko tiedoston muistiin (`response.arrayBuffer()`) jokaista Range-pyyntöä varten ja palauttaa siitä palan.
+- **Mittaus esikatselusta:**
+
+  | Pyyntö | Onnistui |
+  | --- | --- |
+  | 23 Mt:n WAV, Range-pyynnöt (myös peräkkäin, ilman rinnakkaisuutta) | 24/36 |
+  | 23 Mt:n WAV, koko tiedosto ilman Rangea (välitetään virtana) | kaikki |
+  | Tuotannon 5,6–5,7 Mt:n MP3-raidat, Range-pyynnöt | 40/40 |
+  | Testisivun 5 Mt:n MP3, Range-pyynnöt | 11/12 |
+
+- **Toistomoottorin latausvirhe on seuraus, ei syy.** Kun `load()` tai mittaus tekee Range-pyynnön ja funktio vastaa 503, elementti saa `error`-tapahtuman.
+
+### Pyynnöt ennen korjausta
+
+Mitattu simulaattorissa paikallisella palvelimella, 60 s:n vakiokoe, WAV, uusi moottori, mittausväli 2 s.
+
+- **68 WAV-pyyntöä yhteensä.**
+- **Jokainen `load()`:** 3–4 Range-pyyntöä raitaa kohden (`bytes=0-1`, `bytes=0-`, loppupää ja yksi pala).
+- **Jokainen mittaus:** kaksi noin 707 kt:n Range-pyyntöä, yksi kummallekin referenssille. Mittaukset hakivat siis referenssiä verkosta joka kerta.
+- **Onnistumisen todennäköisyys:** kun Range-pyynnöistä onnistuu noin kaksi kolmesta, kahden raidan `load()` (8 pyyntöä) onnistuu kokonaan vain noin 4 %:n todennäköisyydellä. H1:n osoitteessa ollut `&mittausvali=2000` kaksinkertaisti mittauspyynnöt.
+- **Referenssin otsakehaun virhe jäi välimuistiin.** Yksi epäonnistunut otsakehaku esti kaikki myöhemmät mittaukset.
+
+### Kun yksi raita ei lataudu
+
+Tarkistettu simulaattorissa: kitaran WAV vastasi 503, tausta latautui.
+
+- **Uusi moottori:** kitara sai `error`-tapahtuman heti, mutta Soita odotti silti 5 s. Viesti ”Kelaus ei valmistunut” oli harhaanjohtava.
+- **Nykyinen moottori:** kitaran `play()` hylättiin (`NotSupportedError`), ja viesti oli yleinen ”Toisto epäonnistui”. Virhetilassa oleva elementti ei toipunut uusista painalluksista.
+
+### Todennäköinen tapahtumaketju H1:ssä
+
+1. Ensimmäiset pyynnöt onnistuivat, ja käynnistys toimi.
+2. Mittausreferenssin otsakehaku sai 503:n. Virhe jäi välimuistiin, joten kaikki mittaukset epäonnistuivat.
+3. Kelaus kutsui `load()`:n, joka teki uudet Range-pyynnöt. Ne saivat 503:n, elementti meni virhetilaan, ja toisto pysähtyi kohtaan 1:00.
+4. Jokainen uusintayritys teki uudet Range-pyynnöt, joista jokin epäonnistui taas.
+
+Laitteen raporttia ei ole käytetty, joten ketju on päätelty vasta simulaattorin ja Cloudflaren mittauksista.
+
+### Korjaus (vain testisivu)
+
+- **WAV ladataan kerran kokonaan ilman Rangea** (`lataus.ts`). Cloudflare välittää tällaisen vastauksen virtana, joten funktio ei kuormitu.
+  - Palvelinvirheet ja verkkovirheet uusitaan: 3 yritystä, väleinä 1 s ja 3 s.
+  - Jos tavuja ei tule 20 sekuntiin, yritys keskeytetään ja uusitaan.
+  - Puuttuvaa tiedostoa (404) ei uusita.
+- **WAV-tila soittaa muistikopiosta** (Blob-osoite). Mittausreferenssi luetaan samasta Blobista. Käynnistys, kelaus, jatko ja mittaukset eivät siis tee yhtään verkkopyyntöä. `&lataus=verkko` palauttaa PR #100:n verkkotoiston vianetsintää varten.
+- **MP3-tila soittaa yhä verkosta kuten tuotanto,** mutta sen mittausreferenssit ladataan samalla tavalla kerran.
+- **Epäonnistunutta latausta ei jäädytetä.** Mittaukset eivät kuitenkaan käynnistä uusia latauksia lopullisen virheen jälkeen, ettei vikatilassa synny pyyntötulvaa. Uusi yritys tehdään vain Yritä uudelleen -painikkeesta.
+- **Latauksen tila näkyy:** kummankin raidan edistyminen megatavuina, uusintayritykset ja virheen syy.
+  - WAV-tilassa Soita, kelaus ja vakiokoe ovat pois käytöstä, kunnes molemmat raidat ovat ladattu.
+  - Virhe näytetään hälytyksenä, jossa on Yritä uudelleen -painike.
+- **Verkosta soitettavan raidan latausvirhe näkyy heti** (`error`-tapahtuma):
+  - Toinen raita pysäytetään, eikä se jää soimaan yksin.
+  - Uusi moottori ei odota 5 sekuntia.
+  - Seuraava Soita lataa virhetilassa olevan elementin uudelleen. Tämä koskee molempia moottoreita.
+- **Ei muutettu:**
+  - tahdistusarkkitehtuuri ja uuden moottorin toistologiikka
+  - tuotannon äänifunktio ja tuotantosoitin.
+
+Oikea korjaus suurille tiedostoille olisi funktio, joka välittää pyydetyn alueen lukematta koko tiedostoa. Se on tuotantomuutos, eikä se kuulu tähän PR:ään.
+
+### Tulokset korjauksen jälkeen
+
+**iOS-simulaattori** (iPhone 16 Pro, iOS 27.2). Paikallinen palvelin jäljittelee vikoja: 503 kaikille Range-pyynnöille tai yhdelle raidalle, sekä viivästetty vastaus.
+
+| Koe | Vika | Tulos |
+| --- | --- | --- |
+| S1, WAV, uusi moottori, vakiokoe, mittausväli 2 s | Kaikki Range-pyynnöt 503 (kuten Cloudflare) | Koko koe toimi **kahdella pyynnöllä**: kumpikin WAV kerran, ilman Rangea. Ennen korjausta pyyntöjä oli 68. Renderöity ero oli sama kuin mediakellojen ero joka vaiheessa (+10,7 / −21,3 / −21,3 ms). 16 luotettavaa mittausta 23:sta, ei virheitä. |
+| S2, WAV | Kitara 503 aina | Kolme yritystä (0 s, 1 s, 4 s), sitten virhe: ”Äänitiedoston lataus epäonnistui: kitara (HTTP 503 (3 yritystä)). Toistoa ei voi aloittaa.” Soita pois käytöstä, painallus ei tee mitään. Vian poistuttua Yritä uudelleen latasi kitaran yhdellä pyynnöllä, ja toisto alkoi 92 ms Soita-painalluksesta. |
+| S3, WAV | Kitaran vastaus viivästyy 4 s | Edistyminen näkyi (”kitara 0,0 / ? Mt”), ja painikkeet olivat pois käytöstä. Lataus valmistui 4,05 s:ssa, ja toisto alkoi 70 ms painalluksesta. |
+| S4, MP3 verkosta, uusi moottori | Kitaran MP3 503 aina | Virhe näkyi heti sivun latauduttua. Soita vian aikana antoi latausvirheen 66 ms:ssa: ei 5 s:n odotusta, eikä tausta jäänyt soimaan. Vian poistuttua seuraava Soita latasi uudelleen, ja toisto alkoi 216 ms:ssa. |
+| S5, MP3 verkosta, nykyinen moottori | Kitaran MP3 503 aina | Soita vian aikana: `load()`-uusinta, kitaran `play()` hylättiin, ja kumpikin pysäytettiin 144 ms:ssa. Tausta ehti soida noin 50 ms. Vian poistuttua toisto alkoi normaalisti. |
+
+**Selaintestit** (Chromium, työpöytä ja puhelin): `tests/e2e/kaksiraitatesti-lataus.spec.ts`, 7 testiä.
+
+- WAV ladataan kerran ilman Rangea. Käynnistys, mittaukset, kelaus ja jatko eivät tee äänipyyntöjä.
+- 503 kahdesti, sitten onnistuu.
+- Pysyvä 503 ja Yritä uudelleen.
+- Viivästynyt ja pysähtynyt vastaus.
+- Verkosta soitettavan raidan 503 molemmilla moottoreilla.
+- MP3-tilan referenssivirhe: toisto toimii, eikä mittaus lataa uudelleen.
+
+**Yksikkötestit** (`tests/kaksiraitatesti-lataus.test.ts`):
+
+- `loadWhole`: uusinnat, 404, aikaraja, pysähtynyt virta ja vajaa tiedosto.
+- `OnceLoader`: yksi lataus, epäonnistunut ei jää välimuistiin.
+- `blobReference`: lukee ikkunat Blobista, eikä epäonnistunut otsakehaku jäädy.
+
 ## Mittaukset
 
 Raportti (Valitse raportti → kopioi) sisältää kaiken alla olevan:
@@ -305,6 +407,11 @@ Erot, jotka on kirjattu tähän tarkoituksella:
   - kolme peräkkäistä kelausta, joista kaksi kesken edellisen: vain viimeisin toteutuu
   - kelaus ei valmistu (`seeking` pysyy totena): toistoa ei aloiteta, virheilmoitus, seuraava
     Soita toimii
+- `tests/kaksiraitatesti-lataus.test.ts` ja `tests/e2e/kaksiraitatesti-lataus.spec.ts`: lataus ja
+  latausvirheet (ks. H1:n latausvika). Selaintestit ajetaan sarjassa, koska jokainen WAV-sivu lataa 46 Mt.
+- Mittaustestit ovat kuormaherkkiä: raskaassa rinnakkaisajossa mittaus voi valmistua vasta testin
+  aikarajan jälkeen. Tämä näkyi jo pohjahaarassa ja commitilla 95622ef (53/54 samassa ajossa).
+  Erikseen ajettuna testit menevät läpi.
 
 ## Rajoitukset
 
@@ -313,5 +420,6 @@ Erot, jotka on kirjattu tähän tarkoituksella:
 - Chromium ei toista iOS:n puskurivirhettä. Selaintestit todentavat uuden moottorin ohjauslogiikan
   ja mittauksen, eivät WebKitin käytöstä.
 - WAV-tila kattaa vain kohdan 0–120 s.
-- Pages Function lukee koko tiedoston jokaista Range-pyyntöä varten, mikä voi hidastaa WAV-tilan latausta. Tämä on itsessään WAV-tilan mahdollinen sekoittava tekijä.
+- Pages Function lukee koko tiedoston jokaista Range-pyyntöä varten. 23 Mt:n WAVeilla se aiheuttaa 503-virheitä (ks. H1:n latausvika). Siksi WAV-tila soittaa oletuksena muistikopiosta. Muistitoisto eroaa tuotannon verkkotoistosta. Puskurivirhe näkyi kuitenkin simulaattorissa myös muistista soitetulla synteettisellä aineistolla, joten tahdistuksen mittaus on vertailukelpoinen.
+- WAV-tila lataa ennen toistoa 46 Mt. Hitaalla yhteydellä tämä vie aikaa.
 - Akustisen kappaleen toistuva komppi voi tehdä yksittäisestä mittauksesta epävarman. Epävarmat mittaukset näytetään, mutta niitä ei lasketa yhteenvetoon.
