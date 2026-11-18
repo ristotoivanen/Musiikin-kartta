@@ -1,15 +1,31 @@
 import { execFileSync } from 'node:child_process';
-import { readFileSync, readdirSync } from 'node:fs';
+import { mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
 // Neljä pääosiota ja kolme oppimistapaa: tools/oppimiskartta/sisaltorekisteri.json ja rakenna-osiot.py.
 const read = (path: string) => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
 const builder = fileURLToPath(new URL('../tools/oppimiskartta/rakenna-osiot.py', import.meta.url));
-type App = { id: string; nimi: string; tavat: string[]; aiheet: string[]; osoite: string | null; saatavuus: string; tulos: string | null };
-const registry = JSON.parse(read('tools/oppimiskartta/sisaltorekisteri.json')) as {
-  osiot: { id: string; nimi: string; osoite: string }[]; sovellukset: App[]; oppisivut: Record<string, string[]>;
-};
+type App = { id: string; nimi: string; tavat: string[]; aiheet: string[]; osoite: string | null; saatavuus: string; tulos: string | null; valine: string };
+type StudyEntry = { sivu: string; tavat: string[]; tehtava: string[]; lisaaiheet?: string[] };
+type Registry = { osiot: { id: string; nimi: string; osoite: string }[]; sovellukset: App[]; oppisivut: StudyEntry[] };
+const registryText = read('tools/oppimiskartta/sisaltorekisteri.json');
+const registry = JSON.parse(registryText) as Registry;
+/** Ajaa rekisterin validoinnin muokatulle kopiolle. Palauttaa virhetekstin tai null. */
+function validateCopy(change: (copy: Registry) => void): string | null {
+  const copy = JSON.parse(registryText) as Registry;
+  change(copy);
+  const file = join(mkdtempSync(join(tmpdir(), 'rekisteri-')), 'rekisteri.json');
+  writeFileSync(file, JSON.stringify(copy));
+  try {
+    execFileSync('python3', [builder, '--rekisteri', file, '--validoi'], { stdio: 'pipe' });
+    return null;
+  } catch (error) {
+    return String((error as { stderr?: Buffer }).stderr);
+  }
+}
 const topics = (JSON.parse(read('tools/oppimiskartta/aiheet.json')) as { topics: { slug: string; anchor: string; title: string }[] }).topics;
 const sectionIds = (html: string) => [...html.matchAll(/<section class="mode-topic[^"]*" id="([^"]+)"/g)].map(m => m[1]);
 const sourceFiles = (dir: string): string[] => readdirSync(new URL('../' + dir, import.meta.url), { withFileTypes: true })
@@ -67,12 +83,58 @@ describe('pääosiot ja sisältörekisteri', () => {
     }
   });
 
-  it('peli ja kitaraharjoitus eivät ole samassa listassa samanarvoisina', () => {
-    // Sama sisältö saa kuulua useaan aiheeseen, mutta yksi sisältö kirjataan vain yhteen oppimistapaan:
-    // virtuaalinen valinta tai kuuntelu ei näy oikean kitaran harjoituksena.
-    const games = new Set(registry.oppisivut.pelit);
-    expect(registry.oppisivut.kitara.filter(path => games.has(path))).toEqual([]);
-    for (const app of registry.sovellukset) expect(app.tavat.includes('pelit') && app.tavat.includes('kitara'), app.id).toBe(false);
+  it('sisällöllä voi olla useita aiheita ja oppimistapoja', () => {
+    // Lisäaihe ja Soittopakin rinnalle lisätty oppimistapa ovat sallittuja, kun väline vastaa tehtävää.
+    expect(validateCopy(copy => {
+      copy.oppisivut.find(entry => entry.sivu === 'oppi/kappaleet/mika-sointu-tulee.html')!.lisaaiheet = ['soinnut'];
+      copy.sovellukset.find(app => app.id === 'harjoittelija:asteikot')!.tavat.push('pakki');
+      copy.oppisivut.find(entry => entry.sivu === 'oppi/korva/kumpi-on-molli.html')!.lisaaiheet = ['soinnut'];
+    })).toBeNull();
+  });
+
+  it('pelin tulosta ja oikealla kitaralla harjoittelua ei voi merkitä samaksi tehtäväksi', () => {
+    // Virtuaalinen peli ei kelpaa Kitaratreeniin eikä oikean kitaran harjoitus Musapeleihin.
+    expect(validateCopy(copy => { copy.sovellukset.find(app => app.id === 'peli:riffikaiku')!.tavat.push('kitara'); }))
+      .toContain('väline virtuaalikitara ei sovi oppimistapaan kitara');
+    expect(validateCopy(copy => { copy.sovellukset.find(app => app.id === 'harjoitus:riffiharjoitus')!.tavat.push('pelit'); }))
+      .toContain('väline oikea kitara ei sovi oppimistapaan pelit');
+    // Oppimiskartan sivu on Musapeleissä vain, jos sivulla on vuorovaikutteinen kuuntelutehtävä.
+    expect(validateCopy(copy => {
+      const entry = copy.oppisivut.find(item => item.sivu === 'oppi/korva/kumpi-on-molli.html')!;
+      entry.tavat.push('pelit'); entry.tehtava.push('kuuntelutehtava');
+    })).toContain('ei ole vuorovaikutteista harjoitusta');
+    expect(validateCopy(copy => { copy.oppisivut.find(item => item.sivu === 'oppi/korva/mika-aste-soi.html')!.tavat.push('kitara'); }))
+      .toContain('ei sovi oppimistapaan kitara');
+  });
+
+  it('rekisteri hylkää tuntemattoman aiheen ja puuttuvan osoitteen', () => {
+    expect(validateCopy(copy => { copy.sovellukset[0].aiheet = ['tuntematon']; })).toContain('aihetunniste');
+    expect(validateCopy(copy => { copy.sovellukset[0].osoite = 'puuttuu.html'; })).toContain('osoitetta puuttuu.html ei ole');
+    expect(validateCopy(copy => { copy.oppisivut[0].sivu = 'oppi/korva/puuttuu.html'; })).toContain('sivua ei ole');
+  });
+
+  it('Musapeleistä ja Kitaratreenistä avatut sisällöt kertovat oppimistavan, vanhat osoitteet eivät muutu', () => {
+    const games = read('musapelit.html');
+    const guitar = read('kitaratreeni.html');
+    expect(games).toContain('href="pelit/ensikeikka/index.html?aihe=aihe-korva&amp;tapa=pelit"');
+    expect(games).toContain('href="oppi/korva/mika-aste-soi.html?tapa=pelit"');
+    expect(guitar).toContain('href="oppi/rytmi/alas-ylos-yhdella-soinnulla.html?tapa=kitara"');
+    expect(guitar).toContain('href="otelautaharjoittelija.html?toonikka=A&amp;aihe=aihe-otelauta&amp;tapa=kitara#oktaavit"');
+    // Oppimiskartan omat linkit pysyvät ilman parametria.
+    expect(read('oppi/rytmi/index.html')).toContain('href="alas-ylos-yhdella-soinnulla.html"');
+    expect(read('oppi/rytmi/index.html')).not.toContain('tapa=');
+  });
+
+  it('Oppimiskartan sivujen alareunassa ei toisteta yläreunan aihepaluuta', () => {
+    const pages = readdirSync(new URL('../oppi/', import.meta.url), { recursive: true }).map(String)
+      .filter(file => file.endsWith('.html') && !file.endsWith('index.html'));
+    expect(pages.length).toBeGreaterThan(70);
+    for (const file of pages) {
+      const html = read('oppi/' + file);
+      expect(html, file).not.toContain('study-step-back');
+      expect(html, file).toContain('<a class="study-back"');
+      expect(html, file).toContain('assets/oppimistapa.js');
+    }
   });
 
   it('rekisterin tulosavaimet ovat nykyisessä koodissa käytössä olevia avaimia', () => {
@@ -85,6 +147,12 @@ describe('pääosiot ja sisältörekisteri', () => {
       const html = read(page);
       expect(html, page).not.toContain('localStorage');
       expect([...html.matchAll(/<script\b[^>]*>/g)].map(m => m[0]), page).toEqual(['<script defer src="assets/oppimiskartta.js">']);
+    }
+    // Oppimistavan säilyttävä skripti ei käytä tallennuksia.
+    expect(read('assets/oppimistapa.js')).not.toMatch(/localStorage|sessionStorage/);
+    for (const page of ['riffikaiku.html', 'kitaraharjoittelija.html', 'otelautaharjoittelija.html', 'pelit/ensikeikka/index.html']) {
+      const html = read(page);
+      expect(html.indexOf('oppimistapa.js'), page).toBeGreaterThan(html.indexOf('oppimiskartta.js'));
     }
   });
 });

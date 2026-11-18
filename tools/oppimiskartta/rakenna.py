@@ -472,8 +472,8 @@ def steps(topic, index, next_topic, *, bottom=False):
     else:
         url = rel('index.html', page.path) + '#' + topic['anchor']
         items.append(step_link(url, 'Oppimiskarttaan', ' class="study-step-map"'))
-    if bottom:
-        items.append(step_link(rel(topic['path'], page.path), topic['back_label'], ' class="study-step-back"'))
+    # Aiheeseen palataan sivun yläreunan paluulinkistä (study-up). Alareunassa ovat vain
+    # Edellinen/Seuraava-siirtymät, ei samaa paluupainiketta toiseen kertaan (#54, 18.11.2026).
     where, label = ('bottom', 'lopussa') if bottom else ('top', 'alussa')
     return (f'<nav class="study-steps study-steps--{where}" aria-label="Sisältönavigointi sivun {label}">\n'
             + indent('\n'.join(items), '  ') + '\n</nav>')
@@ -507,6 +507,9 @@ def render(topic, content, nav, page=None, *, path_items=()):
     scripts = [rel('assets/oppimiskartta.js', output), versioned_url('assets/edistyminen.js', output)]
     if page and 'data-korvatreeni=' in page.markup:
         scripts += [rel(path, output) for path in ('assets/harjoitustausta.js', 'assets/korvatreeni.js')]
+    # Musapeleistä ja Kitaratreenistä avattu sivu palaa samaan oppimistapaan (?tapa=…), ja aihesivulla
+    # näkyy saman aiheen vaihto. Muodostetaan komennolla tools/oppimiskartta/rakenna-osiot.py.
+    scripts.append(rel('assets/oppimistapa.js', output))
     scripts = '\n'.join(f'  <script src="{url}"></script>' for url in scripts)
     if interval_recall:
         url = versioned_url('assets/intervallimuisti.js', output)

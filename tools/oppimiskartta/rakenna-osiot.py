@@ -5,6 +5,7 @@ Käyttö repon juuresta:
 
     python3 tools/oppimiskartta/rakenna-osiot.py             muodostaa sivut ja päivittää päävalikot
     python3 tools/oppimiskartta/rakenna-osiot.py --tarkista  vain tarkistaa, paluukoodi 1 virheestä
+    python3 tools/oppimiskartta/rakenna-osiot.py --rekisteri polku.json --validoi   vain rekisterin validointi
 
 Lähteet:
   * tools/oppimiskartta/aiheet.json: kahdeksan aihetta, niiden pysyvät tunnisteet ja nimet (vain luku).
@@ -14,6 +15,7 @@ Lähteet:
 
 Tulokset:
   * musapelit.html, kitaratreeni.html ja soittopakki.html.
+  * assets/oppimistapa.js:n aihe- ja määrätiedot (oppimistavan säilyminen ja aihesivujen vaihto).
   * Päävalikko (<nav class="main-nav">) juuren ja book-kansion käsin ylläpidetyillä sivuilla.
     Ensikeikan käännös (vite.ensikeikka.config.ts) kopioi valikon musapelit.html-sivulta. Oppimiskartan generaattori (rakenna.py) kopioi valikon book/osa-2.html-sivulta, joten
     oppi-kansion sivut päivittyvät komennolla npm run build:oppimiskartta.
@@ -35,6 +37,10 @@ SECTION_IDS = ('opi', 'pelit', 'kitara', 'pakki')
 MODES = ('pelit', 'kitara')
 AVAILABILITY = {'valmis', 'beta', 'upotettu', 'suunniteltu'}
 TOOLS = ('valine', 'taito', 'kuvaus')
+TOOL_SCRIPT = 'assets/oppimistapa.js'
+# Työkalusivut, joilla Takaisin aiheeseen -linkki palaa oppimistapaan (?tapa=…). Ensikeikan sivun
+# skriptilinkki lisätään käännöksessä (vite.ensikeikka.config.ts).
+TOOL_PAGES = ('riffikaiku.html', 'kitaraharjoittelija.html', 'otelautaharjoittelija.html')
 NAV = re.compile(r'(?P<indent>[ \t]*)<nav class="main-nav" aria-label="Päävalikko">.*?</nav>', re.S)
 GENERATED = '<!-- Muodostettu komennolla python3 tools/oppimiskartta/rakenna-osiot.py. Älä muokkaa käsin. -->'
 
@@ -47,9 +53,9 @@ def esc(text):
     return html.escape(text, quote=True)
 
 
-def load():
+def load(registry_file=REGISTRY_FILE):
     topics = json.loads(TOPICS_FILE.read_text(encoding='utf-8'))
-    registry = json.loads(REGISTRY_FILE.read_text(encoding='utf-8'))
+    registry = json.loads(Path(registry_file).read_text(encoding='utf-8'))
     return topics, registry
 
 
@@ -63,11 +69,13 @@ def ids_in(path):
     return set(re.findall(r'(?<=\s)id="([^"]+)"', (ROOT / path).read_text(encoding='utf-8')))
 
 
-def with_topic(href, anchor):
-    """Lisää ?aihe=…-parametrin ennen ankkuria. Parametri tuo työkaluihin Takaisin aiheeseen -linkin."""
+def with_params(href, **params):
+    """Lisää kyselyparametrit ennen ankkuria. ?aihe=… tuo työkaluihin Takaisin aiheeseen -linkin ja
+    ?tapa=… palauttaa sen samaan oppimistapaan (assets/oppimistapa.js). Ilman niitä osoite toimii ennallaan."""
     parts = urlsplit(href)
-    query = (parts.query + '&' if parts.query else '') + 'aihe=' + anchor
-    return parts.path + '?' + query + ('#' + parts.fragment if parts.fragment else '')
+    extra = '&'.join(f'{key}={value}' for key, value in params.items() if value)
+    query = '&'.join(part for part in (parts.query, extra) if part)
+    return parts.path + ('?' + query if query else '') + ('#' + parts.fragment if parts.fragment else '')
 
 
 def study_page(path, topics_by_slug, config):
@@ -95,7 +103,7 @@ def study_page(path, topics_by_slug, config):
     if not description:
         raise RegistryError(f'{path}: sivulle ei löydy kuvausta aiheet.json-tiedostosta')
     return {
-        'id': main.group(1), 'laji': main.group(2), 'aihe': topic, 'osoite': path,
+        'id': main.group(1), 'laji': main.group(2), 'aihe': topic, 'osoite': path, 'interaktiivinen': 'data-korvatreeni=' in text,
         'nimi': html.unescape(re.sub(r'<[^>]+>', '', title.group(1))).strip(), 'kuvaus': description,
     }
 
@@ -130,6 +138,10 @@ def validate(config, registry):
             errors.append(f'{name}: tuntematon tai puuttuva aihetunniste {app.get("aiheet")}')
         if any(not app.get(field) for field in ('nimi',) + TOOLS):
             errors.append(f'{name}: nimi, väline, taito tai kuvaus puuttuu')
+        # Oppimistavan on vastattava todellista tehtävää: peli ei voi olla oikean kitaran harjoitus.
+        for mode in MODES:
+            if mode in app.get('tavat', []) and app.get('valine') not in registry['tavat'][mode]['valineet']:
+                errors.append(f'{name}: väline {app.get("valine")} ei sovi oppimistapaan {mode}')
         if app.get('saatavuus') == 'suunniteltu':
             if app.get('osoite'):
                 errors.append(f'{name}: suunnitellulla sisällöllä ei saa olla osoitetta ennen toteutusta')
@@ -149,21 +161,33 @@ def validate(config, registry):
         apps[name] = app
 
     study = {}
-    for mode, paths in registry['oppisivut'].items():
-        if mode not in MODES:
-            errors.append(f'oppisivut: tuntematon oppimistapa {mode}')
+    kinds = registry['tehtavat']
+    for entry in registry['oppisivut']:
+        path = entry.get('sivu', '?')
+        if path in study:
+            errors.append(f'{path}: sama sivu kahdesti oppisivuissa')
             continue
-        if len(set(paths)) != len(paths):
-            errors.append(f'oppisivut.{mode}: sama sivu kahdesti')
-        for path in paths:
-            try:
-                page = study_page(path, by_slug, config)
-            except RegistryError as error:
-                errors.append(str(error))
-                continue
-            if page['id'] in apps:
-                errors.append(f'{path}: suoritustunniste {page["id"]} on jo sovelluksella')
-            study.setdefault(path, page).setdefault('tavat', []).append(mode)
+        try:
+            page = study_page(path, by_slug, config)
+        except RegistryError as error:
+            errors.append(str(error))
+            continue
+        page['tavat'], page['tehtava'] = entry.get('tavat', []), entry.get('tehtava', [])
+        page['aiheet'] = [page['aihe']] + [t for t in entry.get('lisaaiheet', []) if t != page['aihe']]
+        if not page['tavat'] or any(mode not in MODES for mode in page['tavat']):
+            errors.append(f'{path}: tuntematon tai puuttuva oppimistapa {page["tavat"]}')
+        if not page['tehtava'] or any(kind not in kinds for kind in page['tehtava']):
+            errors.append(f'{path}: tuntematon tai puuttuva tehtävän laji {page["tehtava"]}')
+        if any(t not in by_slug for t in page['aiheet']):
+            errors.append(f'{path}: tuntematon lisäaihe {entry.get("lisaaiheet")}')
+        for mode in page['tavat']:
+            if mode in MODES and not set(page['tehtava']) & set(registry['tavat'][mode]['tehtavat']):
+                errors.append(f'{path}: tehtävän laji {page["tehtava"]} ei sovi oppimistapaan {mode}')
+        if 'kuuntelutehtava' in page['tehtava'] and not page['interaktiivinen']:
+            errors.append(f'{path}: kuuntelutehtäväksi merkityllä sivulla ei ole vuorovaikutteista harjoitusta')
+        if page['id'] in apps:
+            errors.append(f'{path}: suoritustunniste {page["id"]} on jo sovelluksella')
+        study[path] = page
 
     for topic, helpers in registry.get('apuvalineet', {}).items():
         if topic not in by_slug:
@@ -268,16 +292,15 @@ FOOT = '''<footer>
 '''
 
 TOOL_LABELS = {'oikea kitara': 'Oikea kitara', 'virtuaalikitara': 'Virtuaalikitara', 'kuuntelu': 'Kuuntelu',
-               'mikrofoni': 'Mikrofoni', 'näkymä': 'Otelautanäkymä'}
-KIND_LABELS = {'harjoitus': 'Harjoitus', 'oppitunti': 'Oppitunti', 'luku': 'Oppitunti'}
+               'otelautakuva': 'Otelautakuva, ei ääntä', 'mikrofoni': 'Mikrofoni', 'näkymä': 'Otelautanäkymä'}
 
 
 def badge(app):
     return ' <span class="mode-badge">beta</span>' if app['saatavuus'] == 'beta' else ''
 
 
-def app_item(app, topic):
-    href = with_topic(app['osoite'], topic['anchor']) if app['aiheparametri'] else app['osoite']
+def app_item(app, topic, mode):
+    href = with_params(app['osoite'], aihe=topic['anchor'], tapa=mode) if app['aiheparametri'] else app['osoite']
     tool = TOOL_LABELS[app['valine']]
     return (f'      <li><a class="mode-card" href="{esc(href)}">'
             f'<strong class="mode-card-title">{esc(app["nimi"])}{badge(app)}</strong>'
@@ -286,9 +309,11 @@ def app_item(app, topic):
             f'<span class="mode-card-arrow" aria-hidden="true">→</span></a></li>')
 
 
-def study_item(page):
-    return (f'      <li><a href="{esc(page["osoite"])}"><span class="mode-kind">{KIND_LABELS[page["laji"]]}</span> '
-            f'<strong>{esc(page["nimi"])}</strong></a><span class="mode-desc">{esc(page["kuvaus"])}</span></li>')
+def study_item(page, mode, registry):
+    kind = next(k for k in page['tehtava'] if k in registry['tavat'][mode]['tehtavat'])
+    return (f'      <li><a href="{esc(with_params(page["osoite"], tapa=mode))}"><span class="mode-kind">'
+            f'{esc(registry["tehtavat"][kind]["nimi"])}</span> <strong>{esc(page["nimi"])}</strong></a>'
+            f'<span class="mode-desc">{esc(page["kuvaus"])}</span></li>')
 
 
 def switch(topic, current, counts):
@@ -336,7 +361,7 @@ def mode_page(mode, topics, apps, study, registry, counts):
     for number, topic in enumerate(topics, 1):
         slug = topic['slug']
         topic_apps = [a for a in apps.values() if mode in a['tavat'] and slug in a['aiheet'] and a['saatavuus'] != 'suunniteltu']
-        pages = [p for p in study.values() if mode in p['tavat'] and p['aihe'] == slug]
+        pages = [p for p in study.values() if mode in p['tavat'] and slug in p['aiheet']]
         out.append(f'  <section class="mode-topic{"" if topic_apps or pages else " is-empty"}" id="{topic["anchor"]}" '
                    f'aria-labelledby="{topic["anchor"]}-otsikko">\n')
         out.append(f'    <h2 id="{topic["anchor"]}-otsikko"><span class="mode-num">{number:02d}</span> {esc(topic["title"])}</h2>\n')
@@ -350,17 +375,17 @@ def mode_page(mode, topics, apps, study, registry, counts):
                        f'<a href="oppi/{slug}/index.html">Opi &amp; oivalla</a>.{extra}</p>\n')
         else:
             if topic_apps:
-                out.append('    <ul class="mode-cards" role="list">\n' + '\n'.join(app_item(a, topic) for a in topic_apps) + '\n    </ul>\n')
+                out.append('    <ul class="mode-cards" role="list">\n' + '\n'.join(app_item(a, topic, mode) for a in topic_apps) + '\n    </ul>\n')
             if pages:
                 heading = 'Kuuntelutehtävät oppitunneilta' if mode == 'pelit' else 'Soita oppitunnin harjoitus'
                 out.append(f'    <h3 class="mode-sub">{heading}</h3>\n')
-                out.append('    <ul class="mode-list" role="list">\n' + '\n'.join(study_item(p) for p in pages) + '\n    </ul>\n')
+                out.append('    <ul class="mode-list" role="list">\n' + '\n'.join(study_item(p, mode, registry) for p in pages) + '\n    </ul>\n')
             if mode == 'kitara':
                 for helper in registry.get('apuvalineet', {}).get(slug, []):
                     app_id, _, view_id = helper['nakyma'].partition('/')
                     tool = apps[app_id]
                     view = next(v for v in tool['nakymat'] if v['id'] == view_id)
-                    href = with_topic(view['osoite'], topic['anchor']) if helper.get('aiheparametri') else view['osoite']
+                    href = with_params(view['osoite'], aihe=topic['anchor'], tapa=mode) if helper.get('aiheparametri') else view['osoite']
                     out.append(f'    <p class="mode-helper"><span>Soittopakista:</span> <a href="{esc(href)}">'
                                f'{esc(tool["nimi"])} · {esc(view["nimi"])}</a></p>\n')
             out.append(switch(topic, mode, counts) + '\n')
@@ -409,8 +434,8 @@ def toolkit_page(topics, apps, registry):
 OUTPUTS = ('musapelit.html', 'kitaratreeni.html', 'soittopakki.html')
 
 
-def build():
-    config, registry = load()
+def build(registry_file=REGISTRY_FILE):
+    config, registry = load(registry_file)
     apps, study = validate(config, registry)
     topics = config['topics']
     counts = {mode: {} for mode in MODES}
@@ -421,7 +446,8 @@ def build():
                     counts[mode][topic] = counts[mode].get(topic, 0) + 1
         for page in study.values():
             if mode in page['tavat']:
-                counts[mode][page['aihe']] = counts[mode].get(page['aihe'], 0) + 1
+                for topic in page['aiheet']:
+                    counts[mode][topic] = counts[mode].get(topic, 0) + 1
     files = {
         'musapelit.html': mode_page('pelit', topics, apps, study, registry, counts),
         'kitaratreeni.html': mode_page('kitara', topics, apps, study, registry, counts),
@@ -429,8 +455,36 @@ def build():
     }
     for path in nav_pages(registry):
         text = (ROOT / path).read_text(encoding='utf-8')
-        files[path] = with_nav(path, text, registry)
+        files[path] = with_tool_script(path, with_nav(path, text, registry))
+    files[TOOL_SCRIPT] = mode_script(topics, registry, counts)
     return files
+
+
+def mode_script(topics, registry, counts):
+    """assets/oppimistapa.js:n tietolohko: aiheiden nimet ja oppimistapojen sisältömäärät aiheittain."""
+    source = (ROOT / TOOL_SCRIPT).read_text(encoding='utf-8')
+    start, end = '  // oppimistapa:tiedot\n', '  // /oppimistapa:tiedot\n'
+    if source.count(start) != 1 or source.count(end) != 1:
+        raise RegistryError(f'{TOOL_SCRIPT}: tietolohkon rajat puuttuvat')
+    names = {s['id']: s for s in registry['osiot']}
+    data = {t['anchor']: {'slug': t['slug'], 'title': t['title']} for t in topics}
+    modes = {mode: {'nimi': names[mode]['nimi'], 'osoite': names[mode]['osoite'], 'tyhja': registry['tavat'][mode]['tyhja'],
+                    'aiheet': {t['anchor']: counts[mode][t['slug']] for t in topics if counts[mode].get(t['slug'])}}
+             for mode in MODES}
+    block = (f'  const TOPICS = {json.dumps(data, ensure_ascii=False)};\n'
+             f'  const MODES = {json.dumps(modes, ensure_ascii=False)};\n')
+    head, rest = source.split(start)
+    return head + start + block + end + rest.split(end, 1)[1]
+
+
+def with_tool_script(path, text):
+    """Lisää työkalusivulle oppimistapa.js:n heti oppimiskartta.js:n jälkeen (sama defer-järjestys)."""
+    if path not in TOOL_PAGES or TOOL_SCRIPT in text:
+        return text
+    tag = re.search(r'([ \t]*)<script defer src="assets/oppimiskartta\.js"></script>\n', text)
+    if not tag:
+        raise RegistryError(f'{path}: oppimiskartta.js-skriptiä ei löydy')
+    return text[:tag.end()] + f'{tag.group(1)}<script defer src="{TOOL_SCRIPT}"></script>\n' + text[tag.end():]
 
 
 def versioned(files):
@@ -447,12 +501,16 @@ def versioned(files):
 
 
 def main():
-    check = '--tarkista' in sys.argv[1:]
+    args = sys.argv[1:]
+    check = '--tarkista' in args
+    registry_file = args[args.index('--rekisteri') + 1] if '--rekisteri' in args else REGISTRY_FILE
     try:
-        files = versioned(build())
+        files = versioned(build(registry_file))
     except RegistryError as error:
         print('Sisältörekisterin virheet:\n' + str(error), file=sys.stderr)
         return 1
+    if '--validoi' in args:
+        return 0
     stale = [path for path, text in files.items()
              if not (ROOT / path).exists() or (ROOT / path).read_text(encoding='utf-8') != text]
     if check:

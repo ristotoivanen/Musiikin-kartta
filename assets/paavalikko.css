@@ -81,8 +81,17 @@
   .main-nav li a[aria-current], .section-nav a[aria-current] { border: 2px solid CanvasText; }
 }
 @media print {
-  .site-top { display: none; }
+  .site-top, .study-modes { display: none; }
 }
+
+/* Oppimiskartan aihesivun saman aiheen oppimistavat (assets/oppimistapa.js). */
+.study-modes {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0 .5rem;
+  margin: .25rem 0 1rem; font-size: .9375rem;
+}
+.study-modes > span:first-child { color: #c9c0e0; }
+.study-modes a { display: inline-flex; align-items: center; min-height: 44px; }
+.study-modes-count { color: #c9c0e0; font-size: .875rem; }
 
 .map-return {
   margin: 0;

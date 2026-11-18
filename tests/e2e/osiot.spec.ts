@@ -21,29 +21,84 @@ test.describe('Kolme oppimistapaa ja Soittopakki', () => {
     await expect(page).toHaveURL(/index\.html#aihe-nuotit$/);
   });
 
-  test('pelaaja löytää pelin, näkee harjoitettavan taidon ja palaa aiheeseen', async ({ page }) => {
+  test('pelaaja löytää pelin, näkee harjoitettavan taidon ja palaa samaan aiheeseen Musapeleissä', async ({ page }) => {
     await page.goto('/musapelit.html');
     const topic = page.locator('#aihe-korva');
     const card = topic.getByRole('link', { name: /Ensikeikka/ });
     await expect(card).toContainText('Harjoittaa: kotisävelen ja fraasin lopetuksen kuuleminen');
-    await expect(card).toHaveAttribute('href', 'pelit/ensikeikka/index.html?aihe=aihe-korva');
+    await expect(card).toHaveAttribute('href', 'pelit/ensikeikka/index.html?aihe=aihe-korva&tapa=pelit');
     await card.click();
-    await expect(page).toHaveURL(/pelit\/ensikeikka\/index\.html\?aihe=aihe-korva$/);
     await expect(mainNav(page).getByRole('link', { name: 'Musapelit' })).toHaveAttribute('aria-current', 'true');
+    await page.getByRole('link', { name: 'Takaisin: Musapelit: Sävelkorva ja melodia' }).click();
+    await expect(page).toHaveURL(/musapelit\.html#aihe-korva$/);
+  });
+
+  test('Musapeleistä avattu kuuntelutehtävä palaa Musapeleihin', async ({ page }) => {
+    await page.goto('/musapelit.html#aihe-korva');
+    await page.locator('#aihe-korva').getByRole('link', { name: /Mikä aste soi\?/ }).click();
+    await expect(page).toHaveURL(/oppi\/korva\/mika-aste-soi\.html\?tapa=pelit$/);
+    await expect(mainNav(page).getByRole('link', { name: 'Musapelit' })).toHaveAttribute('aria-current', 'true');
+    await page.locator('.study-up').getByRole('link', { name: 'Musapelit: Sävelkorva ja melodia' }).click();
+    await expect(page).toHaveURL(/musapelit\.html#aihe-korva$/);
+  });
+
+  test('Kitaratreenistä avattu harjoitus palaa Kitaratreeniin ja Edellinen/Seuraava pitää oppimistavan', async ({ page }) => {
+    await page.goto('/kitaratreeni.html#aihe-rytmi');
+    await page.locator('#aihe-rytmi').getByRole('link', { name: /Alas–ylös yhdellä soinnulla/ }).click();
+    await expect(page).toHaveURL(/alas-ylos-yhdella-soinnulla\.html\?tapa=kitara$/);
+    await expect(mainNav(page).getByRole('link', { name: 'Kitaratreeni' })).toHaveAttribute('aria-current', 'true');
+    await expect(mainNav(page).getByRole('link', { name: 'Opi & oivalla' })).not.toHaveAttribute('aria-current');
+    const bottom = page.locator('.study-steps--bottom');
+    await expect(bottom.locator('a[rel="next"]')).toHaveAttribute('href', /kaksi-sointua-yhdessa-tahdissa\.html\?tapa=kitara$/);
+    await bottom.locator('a[rel="next"]').click();
+    await expect(page.locator('.study-up .study-back')).toHaveText('← Kitaratreeni: Rytmi');
+    await page.locator('.study-up .study-back').click();
+    await expect(page).toHaveURL(/kitaratreeni\.html#aihe-rytmi$/);
+  });
+
+  test('vanha suora osoite ilman oppimistapaa toimii kuten ennen', async ({ page }) => {
+    await page.goto('/oppi/rytmi/alas-ylos-yhdella-soinnulla.html');
+    await expect(page.locator('.study-up .study-back')).toHaveText('← Rytmiin');
+    await expect(page.locator('.study-up .study-back')).toHaveAttribute('href', 'index.html');
+    await expect(mainNav(page).getByRole('link', { name: 'Opi & oivalla' })).toHaveAttribute('aria-current', 'true');
+    await expect(page.locator('.study-steps--bottom a[rel="next"]')).toHaveAttribute('href', 'kaksi-sointua-yhdessa-tahdissa.html');
+    await page.goto('/pelit/ensikeikka/index.html?aihe=aihe-korva');
     await page.getByRole('link', { name: 'Takaisin aiheeseen' }).click();
     await expect(page).toHaveURL(/oppi\/korva\/index\.html$/);
+  });
+
+  test('Oppimiskartan aihesivulla voi vaihtaa saman aiheen peleihin ja kitaratreeniin', async ({ page }) => {
+    await page.goto('/oppi/korva/index.html');
+    const modes = page.locator('.study-modes');
+    await expect(modes).toHaveText('Sama aihe: Musapelit (4) · Kitaratreeni (7)');
+    await page.goto('/oppi/rytmi/index.html');
+    await expect(page.locator('.study-modes')).toHaveText('Sama aihe: Musapelit (ei peliä) · Kitaratreeni (2)');
+    await page.locator('.study-modes').getByRole('link', { name: 'Kitaratreeni' }).click();
+    await expect(page).toHaveURL(/kitaratreeni\.html#aihe-rytmi$/);
+  });
+
+  test('pitkän sivun alareunassa on vain Edellinen/Seuraava ja yläreunan paluu löytyy näppäimistöllä', async ({ page, isMobile }) => {
+    await page.goto('/oppi/soinnut/septimisoinnut.html');
+    const bottom = page.locator('.study-steps--bottom');
+    await expect(bottom.getByRole('link')).toHaveText([/^← Edellinen:/, /^Seuraava:/]);
+    await expect(page.locator('.study-up .study-back')).toHaveText('← Sointuihin ja harmoniaan');
+    test.skip(isMobile, 'Sarkainnäppäin testataan työpöytäkoossa.');
+    await page.keyboard.press('Tab');
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('Tab');
+    await expect(page.locator('.study-up .study-back')).toBeFocused();
   });
 
   test('kitaristi löytää soittoharjoituksen ja avaa aiheeseen rajatun otelautatyökalun', async ({ page }) => {
     await page.goto('/kitaratreeni.html');
     const topic = page.locator('#aihe-otelauta');
-    await expect(topic.getByRole('link', { name: /Etsi sama sävel kaikilta kieliltä/ })).toHaveAttribute('href', 'oppi/otelauta/etsi-sama-savel.html');
+    await expect(topic.getByRole('link', { name: /Etsi sama sävel kaikilta kieliltä/ })).toHaveAttribute('href', 'oppi/otelauta/etsi-sama-savel.html?tapa=kitara');
     const helper = topic.getByRole('link', { name: 'Otelautaopas · Oktaavit' });
-    await expect(helper).toHaveAttribute('href', 'otelautaharjoittelija.html?toonikka=A&aihe=aihe-otelauta#oktaavit');
+    await expect(helper).toHaveAttribute('href', 'otelautaharjoittelija.html?toonikka=A&aihe=aihe-otelauta&tapa=kitara#oktaavit');
     await helper.click();
     await expect(page.getByRole('button', { name: 'Oktaavit', exact: true })).toHaveAttribute('aria-pressed', 'true');
-    await page.getByRole('link', { name: 'Takaisin aiheeseen' }).click();
-    await expect(page).toHaveURL(/oppi\/otelauta\/index\.html$/);
+    await page.getByRole('link', { name: 'Takaisin: Kitaratreeni: Otelauta' }).click();
+    await expect(page).toHaveURL(/kitaratreeni\.html#aihe-otelauta$/);
   });
 
   test('oppimistapaa vaihdetaan saman aiheen kohdalle ilman uutta navigointia', async ({ page }) => {
@@ -146,7 +201,9 @@ test.describe('Pääosiot puhelimessa, näppäimistöllä, ilman JavaScriptiä j
       await page.goto('/kitaratreeni.html');
       await expect(page.locator('section.mode-topic')).toHaveCount(8);
       await page.locator('#aihe-rytmi').getByRole('link', { name: /Alas–ylös yhdellä soinnulla/ }).click();
-      await expect(page).toHaveURL(/oppi\/rytmi\/alas-ylos-yhdella-soinnulla\.html$/);
+      await expect(page).toHaveURL(/oppi\/rytmi\/alas-ylos-yhdella-soinnulla\.html\?tapa=kitara$/);
+      // Ilman JavaScriptiä paluu toimii kuten ennen: Oppimiskartan aiheeseen.
+      await expect(page.locator('.study-up .study-back')).toHaveAttribute('href', 'index.html');
       await page.goto('/soittopakki.html');
       await expect(page.getByRole('link', { name: 'Avaa Otelautaopas' })).toBeVisible();
     });
