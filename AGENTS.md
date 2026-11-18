@@ -10,6 +10,12 @@ Tämä `AGENTS.md` ohjaa Codexin työtä tässä repositoriossa. Noudata aina te
 4. Tee toteutus omaan tehtäväkohtaiseen haaraan ja erilliseen työpuuhun. Jos työ riippuu keskeneräisestä PR-pinosta, varmista oikea pohjahaara; älä automaattisesti käytä `beta`-haaraa.
 5. Varmista, että muutos pysyy sovitussa tiedosto- ja ominaisuusrajauksessa. Pelkkä suunnittelutehtävä ei oikeuta koodimuutoksiin.
 
+## Yhteinen suunnittelu- ja katselmointiohje
+
+Lue [suunnittelu- ja PR-katselmointiohje](docs/suunnittelu/suunnittelu-ja-pr-katselmointi.md) ennen soveltuvaa suunnittelu-, toteutus-, dokumentointi- tai katselmointityötä. Noudata ohjeen ilmoitettua hyväksyntä- ja käyttöönottotilaa (§10). Jos dokumentti puuttuu työpuusta, kirjaa riippuvuus ja varmista tehtävän omistajalta käytettävä versio; älä korvaa sitä omalla rinnakkaisohjeella tai väitä ehdotusta hyväksytyksi.
+
+Käytä ohjeen §9:n PR-katselmointirunkoa muutoksen riskin ja soveltuvuuden mukaan. Perustele rajaus, linkitä tehtyä tarkistusta vastaava näyttö ja erota todennettu, puute, ei testattu sekä perustellusti ei sovellu. Testaamatonta ei saa merkitä todennetuksi. Dokumentaatiotyössä riittävät soveltuvat dokumentaatiotarkistukset. Linkitä sama näyttö tarvittaessa luovutusraporttiin; älä kopioi ohjeen kriteerejä tähän tiedostoon. Nykyiset Git-turvasäännöt ja hyväksymiskäytännöt säilyvät.
+
 ## Git-turvasäännöt
 
 - Älä muuta, siivoa, poista tai käytä toisen agentin työpuuta, haaraa, tallentamattomia muutoksia tai committeja.
