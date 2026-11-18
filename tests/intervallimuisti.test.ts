@@ -363,3 +363,15 @@ describe('tuettu monivalinta', () => {
       .toBeLessThan(10);
   });
 });
+
+describe('sävelnimien linjaus Sävelet ja intervallit -luvussa', () => {
+  it('luvussa ei mainita H-nimeä, ja vanha h-savelnimi-ankkuri säilyy', () => {
+    const section = chapter.slice(chapter.indexOf('<section class="chapter" id="savelet-ja-intervallit">'),
+      chapter.indexOf('<section class="chapter" id="asteikot">'));
+    const text = section.replace(/<[^>]+>/g, ' ');
+    expect(text).not.toMatch(/(^|[^\p{L}\p{N}])H(?![\p{L}\p{N}])/u);
+    expect(section).not.toContain('h-savelnimen-alkupera');
+    expect(section).toContain('<p id="h-savelnimi">');
+    expect(text).toContain('B on luonnollinen sävel ja B♭ puoliaskelta sitä matalampi.');
+  });
+});

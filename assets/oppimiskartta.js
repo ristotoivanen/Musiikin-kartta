@@ -2,6 +2,17 @@
   // oppimiskartta:aiheet
   const topicPaths = {"aihe-kitara": "oppi/kitara/index.html", "aihe-rytmi": "oppi/rytmi/index.html", "aihe-nuotit": "oppi/savelnimet/index.html", "aihe-korva": "oppi/korva/index.html", "aihe-otelauta": "oppi/otelauta/index.html", "aihe-soinnut": "oppi/soinnut/index.html", "aihe-asteikot": "oppi/asteikot/index.html", "aihe-kappaleet": "oppi/kappaleet/index.html"};
   // /oppimiskartta:aiheet
+  // Suora linkki suljetun <details>-osion sisältöön avaa osion, esimerkiksi
+  // Kitaran perusteiden B/H-selitys (#b-ja-h). Sama periaate kuin teoriaoppaan etusivulla.
+  function openLinkedDetails() {
+    let id = location.hash.slice(1);
+    try { id = decodeURIComponent(id); } catch { /* käytetään ankkuria sellaisenaan */ }
+    const target = id ? document.getElementById(id) : null;
+    const details = target?.closest('details');
+    if (details) details.open = true;
+  }
+  openLinkedDetails();
+  window.addEventListener('hashchange', openLinkedDetails);
   const entries = document.querySelectorAll('.topic-card, .study-choice[id], [data-return-topic]');
   const onMap = Boolean(document.querySelector('.topic-grid'));
   if (entries.length) {
