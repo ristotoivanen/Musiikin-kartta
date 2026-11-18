@@ -1,0 +1,18 @@
+<!doctype html><meta charset="utf-8">
+<script src="../../../../../assets/otelauta.js"></script>
+<script src="../../../../../assets/harjoitustausta.js"></script>
+<script src="../../../../../tools/aanet/esimerkit.js"></script>
+<script>
+window.build = async (bpm, parts) => {
+  // Score-luokka ei ole exportattu; rakennetaan tapahtumat samalla tavalla kuin Score.pick/drum.
+  const beat = 60 / bpm, ev = [];
+  if (parts.includes('click')) for (let b = 0; b < 20; b++) ev.push({ time: b * beat, drum: 'click', velocity: 1, accent: b % 4 === 0 });
+  if (parts.includes('guitar')) for (const bar of [1, 3]) for (let i = 0; i < 4; i++)
+    ev.push({ time: (bar * 4 + i) * beat, midi: 40, length: beat, voice: parts.voice ?? 'clean', velocity: .8, pan: -.2 });
+  const end = Math.max(...ev.map(e => e.time + (e.length ?? .3)));
+  const buf = await backingTrack.renderScore({ events: ev, duration: end + 1.6, gain: 1, reverb: parts.reverb ?? .14 });
+  const d = buf.getChannelData(0), sr = buf.sampleRate, hop = Math.round(sr * .005), rms = [];
+  for (let i = 0; i < d.length; i += hop) { let s = 0; for (let j = i; j < Math.min(i + hop, d.length); j++) s += d[j] * d[j]; rms.push(Math.sqrt(s / hop)); }
+  return { sr, dur: buf.duration, hopMs: 5, rms };
+};
+</script>

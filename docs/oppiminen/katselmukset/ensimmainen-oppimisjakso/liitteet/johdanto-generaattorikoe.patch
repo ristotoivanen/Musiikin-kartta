@@ -1,0 +1,70 @@
+diff --git a/tools/oppimiskartta/rakenna.py b/tools/oppimiskartta/rakenna.py
+index 67c6b27..fda6a59 100644
+--- a/tools/oppimiskartta/rakenna.py
++++ b/tools/oppimiskartta/rakenna.py
+@@ -112,9 +112,12 @@ class Page:
+     chapter: str = ''
+     chapter_number: str = ''
+     parent: object = None
++    kind: str = ''
+ 
+     @property
+     def study_kind(self):
++        if self.kind:
++            return self.kind
+         if self.chapter:
+             return 'luku'
+         return 'harjoitus' if self.parent else 'oppitunti'
+@@ -363,6 +366,14 @@ def topic_home(topic, lookup, exercise_descriptions, books):
+     parts = [f'<p class="study-meta">Aihe {topic["number"]:02}</p>',
+              f'<h1>{escape(topic["title"])}</h1>', f'<p class="lead">{escape(topic["lead"])}</p>',
+              '<p class="study-status" data-study-total hidden></p>']
++    if topic.get('intro_page'):
++        intro = topic['intro_page']
++        status = f'<span data-study-status="{intro.study_id}" class="study-status" hidden></span>'
++        parts.append('<section class="study-group study-intro"><div class="study-choice-heading"><h2>Aloita tästä</h2></div>'
++                     f'<a class="study-choice" id="valinta-{Path(intro.path).stem}" href="{posixpath.basename(intro.path)}">'
++                     f'<strong class="study-title">Harjoitus · {escape(intro.title)}</strong>'
++                     f'<span class="study-choice-details"><span class="study-description">{escape(intro.goal)}</span></span>'
++                     '<span class="study-arrow" aria-hidden="true">→</span></a></section>')
+     step = 0
+     groups = []
+     rows = []
+@@ -593,6 +604,11 @@ def collect(config, books):
+             raise ValueError(f'{topic["title"]}: vähintään yksi oppitunti tarvitaan')
+         topic['pages'] = sequence
+         all_pages.extend(sequence)
++        if 'intro' in topic:
++            intro, = lesson_pages(topic, topic['intro'], books, excerpts)
++            intro.kind = 'harjoitus'
++            topic['intro_page'] = intro
++            all_pages.append(intro)
+     book_chapters = {(part, node.attrs['id']) for part, book in books.items() for node in book.nodes if node.has_class('chapter')}
+     map_chapters = [(page.source, page.chapter) for page in all_pages if page.chapter]
+     if len(map_chapters) != len(book_chapters) or set(map_chapters) != book_chapters:
+@@ -636,6 +652,18 @@ def pages():
+                 content += sources(books[page.source], page.path)
+             path_items = path_pages if next_topic is None and index == len(sequence) - 1 else ()
+             output[page.path] = render(topic, content, nav, page, path_items=path_items)
++        if topic.get('intro_page'):
++            intro = topic['intro_page']
++            first = sequence[0]
++            body = '\n'.join([
++                '<p class="study-meta">Johdantoharjoitus</p>', f'<h1>{escape(intro.title)}</h1>',
++                f'<p class="lead">{escape(intro.goal)}</p>', rebase(intro.markup, intro.source, intro.path, targets, topic),
++                '<p class="done-row"><button type="button" class="done-toggle" aria-pressed="false" disabled>Merkitse harjoitus tehdyksi</button></p>',
++                '<nav class="study-steps study-steps--bottom" aria-label="Sisältönavigointi sivun lopussa">',
++                '  ' + step_link(rel(first.path, intro.path), f'Jatka: {first.title}', ' rel="next"', forward=True),
++                '  ' + step_link(rel(topic['path'], intro.path), topic['back_label'], ' class="study-step-back"'),
++                '</nav>'])
++            output[intro.path] = render(topic, body, nav, intro)
+ 
+     start = lookup[config['start']][0]
+     chapter_paths = {page.chapter: page.path for page in all_pages if page.chapter}
+diff --git a/tools/oppimiskartta/sisallot/rytmi/ensimmaiset-nelja-iskua.html b/tools/oppimiskartta/sisallot/rytmi/ensimmaiset-nelja-iskua.html
+new file mode 100644
+index 0000000..5e3a6f4
+--- /dev/null
++++ b/tools/oppimiskartta/sisallot/rytmi/ensimmaiset-nelja-iskua.html
+@@ -0,0 +1 @@
++<section class="practice" id="vaihe-1"><h2>1. Kuuntele esimerkki</h2><p>Paikkamerkki (validointikoe).</p><p><a href="../../../../oppi/rytmi/pulssi-ja-komppi.html">Pulssi ja komppi</a></p></section>
