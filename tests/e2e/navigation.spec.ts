@@ -508,9 +508,11 @@ test.describe('Vanhat osoitteet ja osioiden välinen jatkuvuus', () => {
     });
   }
 
-  test('otelaudan harjoitukset löytyvät Kitaraharjoittelusta', async ({ page }) => {
+  test('otelaudan harjoitukset löytyvät Kitaratreenin kautta Kitaraharjoittelijasta', async ({ page }) => {
     await page.goto('/otelautaharjoittelija.html');
     await mainNav(page).getByRole('link', { name: LABELS.kitara }).click();
+    await page.getByRole('link', { name: 'Kitaraharjoittelija', exact: true }).click();
+    await expect(page).toHaveURL(/kitaraharjoittelija\.html$/);
     await page.getByRole('button', { name: /^Sävelkorva ja otelauta/ }).click();
     await expect(page.getByRole('heading', { name: 'Sävelkorva ja otelauta' })).toBeVisible();
     await expect(page.getByRole('button', { name: /Sävelten etsintä/ })).toBeVisible();

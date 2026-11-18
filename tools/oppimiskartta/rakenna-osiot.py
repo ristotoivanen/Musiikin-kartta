@@ -328,6 +328,8 @@ def mode_page(mode, topics, apps, study, registry, counts):
     out.append('<main class="mode-main" id="sisalto">\n')
     out.append(f'  <div class="mode-intro">\n  <h1>{title}</h1>\n  <p class="mode-lead">{lead}</p>\n  </div>\n')
     if mode == 'kitara':
+        out.append('  <p class="mode-helper mode-all"><span>Kaikki harjoituspolut yhdessä paikassa:</span> '
+                   '<a href="kitaraharjoittelija.html">Kitaraharjoittelija</a></p>\n')
         out.append('  <p class="mode-note">Harjoitussivun <em>Merkitse tehdyksi</em> on oma kuittauksesi. '
                    'Se ei tarkoita, että soittotaito olisi todettu hallituksi.</p>\n')
     out.append(topic_jump(topics, mode, counts))
