@@ -48,21 +48,72 @@ käyttäjän aloittamaan navigoinnin alusta.
   `rakenna.py` kopioi valikon `book/osa-2.html`:stä muuttamattomana, ja Ensikeikan käännös kopioi sen
   `musapelit.html`:stä.
 
-**Jatkotyö #111:n jälkeen:** siirretään `aiheet.json`:n `tools`-linkit rekisteriin ja lisätään Oppimiskartan
-aihesivuille sama *Sama aihe: Musapelit · Kitaratreeni* -vaihto. Nyt se on vain uusissa näkymissä, koska
-aihesivut muodostaa `rakenna.py`.
+**Rekisterin joustavuus (katselmointikorjaus 2).** Sisällöllä voi olla useita aiheita (`aiheet`, oppisivuilla
+`lisaaiheet`) ja oppimistapoja (`tavat`). Yhden oppimistavan pakkoa ei ole. Erottelu tehdään todellisen tehtävän
+perusteella: Musapelit hyväksyy välineet *kuuntelu*, *virtuaalikitara* ja *otelautakuva* sekä oppisivuilla
+vain vuorovaikutteisen kuuntelutehtävän (sivulla on `data-korvatreeni`). Kitaratreeni hyväksyy vain *oikean
+kitaran* ja oppisivuilla tehtävälajit *Soita* ja *Korvalla kitaralle*. Siksi pelin tulosta ja oikealla kitaralla
+harjoittelua ei voi kirjata samaksi merkinnäksi. Riffikaiku on kaksi sisältöä samassa sovelluksessa: peli
+Musapeleissä ja harjoitus Kitaratreenissä. Testit: `tests/osiot.test.ts` (hyväksytyt ja hylätyt rekisterit).
+
+## C2. Oppimistavan säilyminen (katselmointikorjaus 1)
+
+- Musapeleistä ja Kitaratreenistä avatut linkit saavat parametrin `?tapa=pelit` tai `?tapa=kitara`.
+  `assets/oppimistapa.js` ohjaa silloin aihepaluun (*← Kitaratreeni: Rytmi*) ja työkalujen Takaisin-linkin
+  samaan oppimistapaan ja aiheeseen. Päävalikko näyttää osion aktiivisena, ja saman aiheen Edellinen/Seuraava
+  säilyttää parametrin. *Seuraava aihe* palaa Oppimiskarttaan.
+- **Vanhat suorat osoitteet eivät muutu:** ilman parametria ja ilman JavaScriptiä paluu toimii kuten ennenkin.
+  Parametri ei päädy tallennuksiin, koska `edistyminen.js` käyttää vain polkua.
+- Vaihtoehto `sessionStorage` (muistettu viimeisin oppimistapa) hylättiin. Se olisi muuttanut myös vanhojen
+  suorien osoitteiden käytöstä ja jäänyt voimaan seuraaviin käynteihin.
+- Tunnettu raja: jos Riffikaiun sisällä vaihtaa pelistä harjoitukseen, sovelluksen oma linkki säilyttää vain
+  `aihe`-parametrin. Paluu vie silloin Oppimiskartan aiheeseen. Korjaus kuuluisi Riffikaiun koodiin
+  (`riffikaiku/modes.ts`), jota tämä PR ei muuta.
+
+## C3. Oppimiskartan aihesivujen vaihto (katselmointikorjaus 3)
+
+- **Nyt (ei ristiriitaa #111:n kanssa):** `rakenna.py` liittää jokaiselle sivulle `assets/oppimistapa.js`:n
+  omalla rivillään. Skripti lisää aihesivulle rivin *Sama aihe: Musapelit (4) · Kitaratreeni (7)*. Määrät
+  muodostaa `rakenna-osiot.py` rekisteristä skriptin tietolohkoon. Ilman JavaScriptiä riviä ei näy, ja sivu
+  toimii kuten ennen. Rivi piilotetaan tulostettaessa.
+- **Myöhemmin, kun #111 on yhdistetty:** rivi siirretään staattiseksi HTML:ksi `topic_home()`-funktioon, jota
+  #111 muuttaa. `aiheet.json`:n `tools`-linkit voidaan samalla lukea rekisteristä. Tätä ei tehdä nyt, jotta
+  #111:n `topic_home`-muutokset eivät joudu ristiriitaan.
+
+## C4. Alareunan aihepaluu (katselmointikorjaus 4, #54 18.11.2026)
+
+- `rakenna.py`:n `steps()` ei enää lisää alareunaan *← Aiheeseen* -painiketta. Yläreunan paluu (`.study-up`)
+  ja alareunan Edellinen/Seuraava ovat ennallaan.
+- Pitkät sivut puhelimessa (390 × 800 px): 73 sivusta 14 on yli neljän näytön ja yksi (*Septimisoinnut*,
+  8,7 näyttöä) yli kahdeksan näytön mittainen. Niiden lopussa aiheeseen pääsee nyt Edellinen/Seuraava-linkeillä,
+  selaimen paluulla tai vierittämällä ylös. **Omistajan päätettäväksi:** riittääkö tämä vai halutaanko pitkille
+  sivuille esimerkiksi kiinteä yläreunan paluu. Kiinteä palkki on uusi käyttöliittymäratkaisu, joten sitä ei
+  tehty tässä. Aihesivujen pituus kuuluu #116:een.
+- **#111:n riippuvuus:** #111:n uusi `intro_content()` lisää paikkamerkkisivulle saman alareunan paluun.
+  Koeyhdistyksessä `tests/osiot.test.ts` havaitsee sen. Korjaus (kaksi riviä `intro_content`-funktiossa) kuuluu
+  #111:een tai yhdistämisen jälkeiseen sovitukseen, ei tähän PR:ään.
 
 ## D. Sisällön sijoittelun perusteet (pedagoginen arvio)
 
 - **Musapelit**: vain tehtävät, joissa on vuorovaikutteinen tunnistus ja palaute: Ensikeikka,
   Riffikaiku-peli, Sävelten etsintä, Tunnista avoin sointu sekä oppituntien kuuntelutehtävät *Mikä aste soi?*,
   *Tunnista sointutyyppi* ja *Mikä sointu tulee?*. Pelkkä äänite ilman palautetta ei ole peli.
-- **Kitaratreeni**: harjoittelija- ja Riffiharjoitus-sovellukset sekä ne 33 oppituntien harjoitusta ja 3 Kitaran perusteiden oppituntia, joiden
-  ohjeessa soitetaan tai etsitään säveliä omalla kitaralla. Kirjallisiksi jätettiin *Rakenna kolme sointua
-  G-duurista*, *Lisää septimi G-duurin sointuihin* ja *Nimeä sävel muodon avulla*. *Löydä pulssi ja ykkönen*
-  (taputus ja laskeminen) jää Opi & oivalla -osioon.
-- Yksi sisältö kuuluu vain yhteen oppimistapaan. Virtuaalinen valinta tai kuuntelu ei näy oikean kitaran
-  harjoituksena (testi `tests/osiot.test.ts`).
+- **Musapelien välineet tarkistettu koodista:** *Sävelten etsintä* ja *Tunnista avoin sointu* ovat äänettömiä
+  otelautakuvan tunnistustehtäviä (`NoteJourney`, `ChordJourney`), eikä niissä ole tallennusta. Rekisterissä
+  ollut Sävelten etsinnän tulosavain (`musiikin-kartta:harjoittelu`) oli virheellinen, koska se kuuluu vanhaan
+  harjoittelijamoottoriin. Avain on poistettu.
+- **Kitaratreeni**: harjoittelija- ja Riffiharjoitus-sovellukset sekä 33 oppituntien harjoitusta ja 3 Kitaran
+  perusteiden oppituntia, joiden ohjeessa soitetaan tai etsitään säveliä omalla kitaralla. Jokaisen sivun
+  tehtäväteksti luettiin uudelleen. Tehtävät jaetaan kahteen lajiin:
+  - *Soita* (28): soittotekniikka, otteet, kierrot, asteikot ja kappaleet.
+  - *Korvalla kitaralle* (8): ensin kuunnellaan tai hyräillään, sitten etsitään tai tarkistetaan kitaralla.
+    Näitä ovat *Täydennä fraasi*, *Vaihda kotisäveltä*, *Etsi jälkimmäinen sävel*, *Kuuntele basso*,
+    *Kumpi on molli?*, *Kolme C-sointua*, *Etsi ensimmäinen melodiasävel* ja *Sovita sävellaji laulajalle*.
+    Niissä ei ole vastauksen tarkistusta, joten ne eivät ole Musapelejä.
+- Kirjallisiksi jätettiin *Rakenna kolme sointua G-duurista*, *Lisää septimi G-duurin sointuihin* ja *Nimeä sävel
+  muodon avulla*. *Löydä pulssi ja ykkönen* (taputus ja laskeminen) jää Opi & oivalla -osioon.
+- Uusia aiheliitoksia (`lisaaiheet`) ei otettu käyttöön, koska ne ovat pedagogisia päätöksiä. Ehdokas omistajalle:
+  *Mikä sointu tulee?* (sointujen tehtävät) myös aiheeseen Soinnut ja harmonia.
 - Mikään näkymä ei näytä suoritustilaa eikä väitä taitoa hallituksi. Kitaratreeni kertoo, että
   *Merkitse tehdyksi* on oma kuittaus. Tallennusavaimia ei luoda, lueta uusissa näkymissä eikä muuteta.
 - Opetussisältöön, oikeisiin vastauksiin, pisteytykseen tai H/B-linjaukseen ei tehty muutoksia.
