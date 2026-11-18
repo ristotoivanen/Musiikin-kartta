@@ -1,12 +1,31 @@
-.intervallitaulukko {
-  table-layout: fixed;
-  overflow-wrap: anywhere;
+/* Leveä taulukko vierii omalla alueellaan. Reunavarjo näkyy, kun siinä suunnassa on lisää sisältöä. */
+.intervallitaulukon-vieritys {
+  max-inline-size: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-color: var(--muted) var(--panel);
+  background:
+    linear-gradient(to right, var(--bg) 60%, transparent) left / 1rem 100% local no-repeat,
+    linear-gradient(to left, var(--bg) 60%, transparent) right / 1rem 100% local no-repeat,
+    linear-gradient(to right, var(--muted), transparent) left / .45rem 100% scroll no-repeat,
+    linear-gradient(to left, var(--muted), transparent) right / .45rem 100% scroll no-repeat;
+}
+.intervallitaulukon-vieritys .intervallitaulukko {
+  table-layout: auto;
+  overflow-wrap: normal;
+  margin-block: 0;
 }
 .intervallitaulukko th, .intervallitaulukko td {
   padding-inline: .3em;
 }
 .intervallitaulukko thead th:first-child { width: 2.15em; }
-.intervallitaulukko thead th:last-child { width: 29%; }
+
+@media print {
+  .intervallitaulukon-vieritys {
+    overflow: visible;
+    background: none;
+  }
+}
 
 .intervallikysely input, .intervallikysely button {
   box-sizing: border-box;
