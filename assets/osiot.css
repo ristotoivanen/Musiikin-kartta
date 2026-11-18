@@ -1,0 +1,109 @@
+/* Musapelit-, Kitaratreeni- ja Soittopakki-näkymät (tools/oppimiskartta/rakenna-osiot.py).
+ *
+ * Pohjana ovat assets/otelauta.css:n värit ja etusivun Oppimiskartan korttityyli. Näkymässä on
+ * yksi otsikko, lyhyt johdanto, aiheiden pikavalinta ja aiheittain ryhmitellyt sisällöt.
+ * Sovellukset ovat kortteja, oppituntien harjoitukset tiivis tekstilista, jotta ruudulla ei ole
+ * kerralla suurta määrää painikkeita.
+ */
+.mode-skip {
+  position: absolute; left: -999px; top: 8px; z-index: 10;
+  padding: 10px 14px; border-radius: 8px; background: var(--panel); color: var(--text);
+}
+.mode-skip:focus { left: 8px; }
+.mode-sr {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.mode-main { max-width: 52rem; }
+.mode-intro { margin-bottom: 1.25rem; }
+.mode-intro h1 { overflow-wrap: anywhere; hyphens: auto; }
+.mode-lead { margin: 0; max-width: 44rem; color: var(--muted); font-size: 1.0625rem; }
+.mode-note { margin: 0 0 1.25rem; max-width: 44rem; color: var(--muted); font-size: .875rem; }
+
+/* Aiheiden pikavalinta: sama numerointi kuin Oppimiskartassa. */
+.mode-jump { margin: 0 0 1.75rem; }
+.mode-jump ol {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  gap: .375rem; margin: 0; padding: 0; list-style: none;
+}
+.mode-jump a {
+  display: flex; align-items: center; gap: .5rem; min-height: 44px; padding: .375rem .75rem;
+  border: 1px solid #453854; border-radius: .625rem; background: var(--panel);
+  color: var(--text); text-decoration: none; font-size: .9375rem; line-height: 1.3;
+}
+.mode-jump a:hover { border-color: var(--lavender); }
+.mode-jump .is-empty a { background: transparent; color: var(--muted); }
+.mode-count { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; }
+.mode-num { color: var(--lavender); font-weight: 750; font-variant-numeric: tabular-nums; }
+
+/* Aihe */
+.mode-topic, .mode-tool {
+  margin: 0 0 1.25rem; padding: 1.125rem 1.25rem 1rem;
+  border: 1px solid #453854; border-radius: 1rem; scroll-margin-top: .75rem;
+}
+.mode-topic:target, .mode-tool:target { border-color: var(--lavender); }
+.mode-topic h2, .mode-tool h2 { margin: 0 0 .75rem; font-size: 1.25rem; line-height: 1.3; overflow-wrap: anywhere; }
+.mode-topic.is-empty { padding-block: .75rem; border-style: dashed; }
+.mode-topic.is-empty h2 { margin-bottom: .25rem; font-size: 1.0625rem; color: var(--muted); }
+.mode-empty { margin: 0; color: var(--muted); }
+.mode-empty a { display: inline-block; min-height: 24px; }
+.mode-sub { margin: 1rem 0 .375rem; color: var(--muted); font-size: .8125rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+
+.mode-cards { display: grid; gap: .625rem; margin: 0; padding: 0; list-style: none; }
+.mode-card {
+  display: grid; grid-template-columns: minmax(0, 1fr) 1.5rem; gap: .25rem .75rem;
+  padding: .875rem 1rem; border: 1px solid #71638c; border-radius: .75rem;
+  background: var(--panel); color: var(--text); text-decoration: none;
+}
+.mode-card:hover, .mode-card:focus-visible { border-color: var(--lavender); background: var(--bg); }
+.mode-card-title, .mode-card-text, .mode-card-meta { grid-column: 1; overflow-wrap: anywhere; }
+.mode-card-title { font-size: 1.0625rem; }
+.mode-card-text { color: var(--text); line-height: 1.45; }
+.mode-card-meta { color: var(--muted); font-size: .8125rem; }
+.mode-card-arrow { grid-column: 2; grid-row: 1 / span 3; align-self: center; text-align: end; font-size: 1.375rem; color: var(--lavender); }
+.mode-badge {
+  display: inline-block; margin-left: .375rem; padding: 0 .375rem; border: 1px solid #71638c;
+  border-radius: .375rem; color: var(--muted); font-size: .75rem; font-weight: 600; vertical-align: .125em;
+}
+
+.mode-list { margin: 0; padding: 0; list-style: none; }
+.mode-list li { padding: .5rem 0; border-top: 1px solid #2d2444; }
+.mode-list li:first-child { border-top: 0; }
+.mode-list a { display: inline-block; min-height: 24px; padding: .125rem 0; }
+.mode-kind { color: var(--muted); font-size: .8125rem; font-weight: 600; }
+.mode-desc { display: block; color: var(--muted); font-size: .9375rem; line-height: 1.45; }
+.mode-tool > .mode-desc { margin: 0 0 .75rem; color: var(--text); max-width: 42rem; }
+
+.mode-helper { margin: .875rem 0 0; font-size: .9375rem; }
+.mode-helper span { color: var(--muted); }
+.mode-switch {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0 .5rem;
+  margin: .875rem 0 0; padding-top: .625rem; border-top: 1px solid #2d2444; font-size: .9375rem;
+}
+.mode-switch > span:first-child { color: var(--muted); }
+.mode-switch a { display: inline-flex; align-items: center; min-height: 44px; }
+.mode-none { color: var(--muted); font-size: .8125rem; margin-left: .25rem; }
+.mode-action {
+  display: inline-flex; align-items: center; min-height: 44px; padding: .5rem 1rem;
+  border: 1px solid var(--lavender); border-radius: .625rem; background: var(--purple-dark);
+  color: #fff; font-weight: 700; text-decoration: none;
+}
+.mode-action:hover { background: var(--purple); }
+.mode-main a:focus-visible, .mode-skip:focus-visible { outline: 2px solid #75e5c6; outline-offset: 2px; }
+footer { max-width: 52rem; margin: 2rem auto 0; padding: 0 18px; color: var(--muted); font-size: .875rem; }
+
+@media (max-width: 600px) {
+  .mode-main { padding: 22px 12px 0; }
+  .mode-jump ol { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mode-jump a { padding: .375rem .5rem; font-size: .875rem; gap: .375rem; }
+  .mode-topic, .mode-tool { padding: .875rem .875rem .75rem; }
+  .mode-card { padding: .75rem .875rem; }
+}
+@media print {
+  .mode-jump, .mode-switch, .mode-skip, .mode-card-arrow { display: none; }
+  .mode-topic, .mode-tool, .mode-card { border-color: #999; background: none; color: #000; }
+  .mode-card-text, .mode-desc, .mode-lead { color: #000; }
+}
+@media (forced-colors: active) {
+  .mode-card, .mode-jump a, .mode-topic, .mode-tool { border: 1px solid CanvasText; }
+}

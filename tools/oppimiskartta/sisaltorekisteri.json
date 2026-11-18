@@ -1,0 +1,165 @@
+{
+  "_ohje": [
+    "Musiikin kartan neljän pääosion ja kolmen oppimistavan yhteinen sisältörekisteri.",
+    "Aiheet (8 kpl), niiden pysyvät tunnisteet, nimet ja numerointi luetaan aiheet.json-tiedostosta. Niitä ei toisteta tässä.",
+    "Oppimiskartan sivuista (oppi/...) kirjataan vain osoite ja oppimistapa. Otsikko, aihe ja suoritustunniste luetaan muodostetusta sivusta.",
+    "Sovellukset (pelit, harjoittelijat, työkalut) kuvataan tässä kokonaan. Saatavuus 'suunniteltu' kirjataan, mutta sitä ei näytetä käyttäjälle.",
+    "Muodosta ja tarkista: python3 tools/oppimiskartta/rakenna-osiot.py [--tarkista]"
+  ],
+  "osiot": [
+    {"id": "opi", "nimi": "Opi & oivalla", "osoite": "index.html#oppimisaiheet",
+     "kuvaus": "Ymmärrä, miten musiikki toimii: oppitunnit, teoria, harjoitukset ja muistamistestit."},
+    {"id": "pelit", "nimi": "Musapelit", "osoite": "musapelit.html",
+     "kuvaus": "Kuuntele, tunnista ja pelaa. Pelit harjoittavat korvaa ja otelautatuntemusta."},
+    {"id": "kitara", "nimi": "Kitaratreeni", "osoite": "kitaratreeni.html",
+     "kuvaus": "Ota kitara käteen: soittoharjoitukset, asteikot ja kappaleet oikealla kitaralla."},
+    {"id": "pakki", "nimi": "Soittopakki", "osoite": "soittopakki.html",
+     "kuvaus": "Apuvälineet, joita voit käyttää itsenäisesti tai minkä tahansa harjoituksen tukena."}
+  ],
+  "sivujen_osiot": {
+    "index.html": "opi",
+    "book/": "opi",
+    "oppi/": "opi",
+    "musapelit.html": "pelit",
+    "riffikaiku.html": "pelit",
+    "pelit/ensikeikka/index.html": "pelit",
+    "kitaratreeni.html": "kitara",
+    "kitaraharjoittelija.html": "kitara",
+    "soittopakki.html": "pakki",
+    "otelautaharjoittelija.html": "pakki"
+  },
+  "tavat": {
+    "pelit": {"merkinta": "Ei peliä tässä aiheessa."},
+    "kitara": {"merkinta": "Ei soittoharjoitusta tässä aiheessa."}
+  },
+  "sovellukset": [
+    {
+      "id": "peli:ensikeikka", "nimi": "Ensikeikka", "tavat": ["pelit"], "aiheet": ["korva"],
+      "osoite": "pelit/ensikeikka/index.html", "aiheparametri": true,
+      "kuvaus": "Kuuntele kappale ja valitse melodialle lopetus, joka palaa kotiin.",
+      "taito": "Kotisävelen ja fraasin lopetuksen kuuleminen", "valine": "kuuntelu",
+      "saatavuus": "beta", "tulos": "musiikin-kartta:ensikeikka", "tuloksen_laji": "pelin tulos"
+    },
+    {
+      "id": "peli:riffikaiku", "nimi": "Riffikaiku-peli", "tavat": ["pelit"], "aiheet": ["korva"],
+      "osoite": "riffikaiku.html?tila=peli", "aiheparametri": true,
+      "kuvaus": "Kuuntele lyhyt riffi ja toista se virtuaalikitaralla.",
+      "taito": "Melodian muistaminen ja löytäminen otelaudalta kuulonvaraisesti", "valine": "virtuaalikitara",
+      "saatavuus": "beta", "tulos": "musiikin-kartta:riffikaiku:v1", "tuloksen_laji": "pelin tulos"
+    },
+    {
+      "id": "harjoittelija:savelten-etsinta", "nimi": "Sävelten etsintä", "tavat": ["pelit"], "aiheet": ["otelauta"],
+      "osoite": "kitaraharjoittelija.html?polku=otelauta&harjoitus=savelten-etsinta", "aiheparametri": true,
+      "kuvaus": "Etsi pyydetyn sävelen kaikki paikat virtuaaliselta otelaudalta.",
+      "taito": "Sävelten sijainnit otelaudalla", "valine": "virtuaalikitara",
+      "saatavuus": "valmis", "tulos": "musiikin-kartta:harjoittelu", "tuloksen_laji": "harjoittelijan tulos"
+    },
+    {
+      "id": "harjoittelija:avosoinnut", "nimi": "Tunnista avoin sointu", "tavat": ["pelit"], "aiheet": ["soinnut"],
+      "osoite": "kitaraharjoittelija.html?polku=soinnut", "aiheparametri": true,
+      "kuvaus": "Katso sointuote otelaudalla ja valitse, mikä avoin sointu se on.",
+      "taito": "Tavallisten avoimien sointuotteiden tunnistaminen", "valine": "virtuaalikitara",
+      "saatavuus": "valmis", "tulos": null, "tuloksen_laji": null
+    },
+    {
+      "id": "harjoitus:riffiharjoitus", "nimi": "Riffiharjoitus", "tavat": ["kitara"], "aiheet": ["korva"],
+      "osoite": "riffikaiku.html?tila=harjoitus", "aiheparametri": true,
+      "kuvaus": "Kuuntele riffi, opettele sen sävelet ja soita se omalla kitarallasi. Mikrofoni on valinnainen.",
+      "taito": "Kuullun melodian soittaminen oikealla kitaralla", "valine": "oikea kitara",
+      "saatavuus": "beta", "tulos": "musiikin-kartta:riffikaiku:v1", "tuloksen_laji": "mikrofonihavainto tai itse kuitattu"
+    },
+    {
+      "id": "harjoittelija:asteikot", "nimi": "Pentatoniset asteikot ja moodit", "tavat": ["kitara"], "aiheet": ["asteikot"],
+      "osoite": "kitaraharjoittelija.html?polku=asteikot", "aiheparametri": true,
+      "kuvaus": "Kuuntele, soita positio ylös ja alas, soita muistista ja improvisoi taustan päälle.",
+      "taito": "Asteikkoposition soittaminen ja käyttö improvisoinnissa", "valine": "oikea kitara",
+      "saatavuus": "valmis", "tulos": "musiikin-kartta:skaalapolku:v1", "tuloksen_laji": "itse kuitattu"
+    },
+    {
+      "id": "harjoittelija:kappaleet", "nimi": "Kappaleharjoittelija", "tavat": ["kitara"], "aiheet": ["kappaleet"],
+      "osoite": "kitaraharjoittelija.html?polku=kappaleet", "aiheparametri": true,
+      "kuvaus": "Soita oikean kappaleen mukana ja säädä mallikitaran ja laulun kuuluvuutta.",
+      "taito": "Kappaleen soittaminen mukana tasaisessa tempossa", "valine": "oikea kitara",
+      "saatavuus": "valmis", "tulos": null, "tuloksen_laji": null
+    },
+    {
+      "id": "tyokalu:otelautaopas", "nimi": "Otelautaopas", "tavat": ["pakki"], "aiheet": ["otelauta", "soinnut", "asteikot"],
+      "osoite": "otelautaharjoittelija.html", "aiheparametri": false,
+      "kuvaus": "Näytä asteikot, soinnut ja oktaavit otelaudalla mistä tahansa kotisävelestä.",
+      "taito": "Otelaudan hahmottaminen", "valine": "näkymä",
+      "saatavuus": "valmis", "tulos": null, "tuloksen_laji": null,
+      "nakymat": [
+        {"id": "asteikot", "nimi": "Asteikot ja moodit", "osoite": "otelautaharjoittelija.html?toonikka=A&asteikko=mp", "aihe": "asteikot",
+         "kuvaus": "A-mollipentatoninen valmiiksi valittuna. Vaihda asteikkoa ja kotisäveltä."},
+        {"id": "soinnut", "nimi": "Sointukartta", "osoite": "otelautaharjoittelija.html#soinnut", "aihe": "soinnut",
+         "kuvaus": "Sointuotteet, sointusävelet ja intervallit otelaudalla."},
+        {"id": "oktaavit", "nimi": "Oktaavit", "osoite": "otelautaharjoittelija.html?toonikka=A#oktaavit", "aihe": "otelauta",
+         "kuvaus": "Saman sävelen paikat eri kielillä oktaavimuotojen avulla."}
+      ]
+    },
+    {
+      "id": "tyokalu:viritin", "nimi": "Viritin", "tavat": ["pakki"], "aiheet": ["kitara"],
+      "osoite": "riffikaiku.html?tila=harjoitus", "aiheparametri": false,
+      "kuvaus": "Kitaran viritin, joka kuuntelee mikrofonin kautta. Se on toistaiseksi Riffiharjoituksen sisällä: valitse riffi ja paina Viritin.",
+      "taito": "Kitaran virittäminen", "valine": "mikrofoni",
+      "saatavuus": "upotettu", "tulos": null, "tuloksen_laji": null
+    },
+    {
+      "id": "tyokalu:metronomi", "nimi": "Metronomi", "tavat": ["pakki"], "aiheet": ["rytmi"],
+      "osoite": null, "aiheparametri": false,
+      "kuvaus": "Itsenäinen ja harjoituksiin upotettava metronomi (issue #84).",
+      "taito": "Tasainen tempo", "valine": "kuuntelu",
+      "saatavuus": "suunniteltu", "tulos": null, "tuloksen_laji": null
+    }
+  ],
+  "oppisivut": {
+    "pelit": [
+      "oppi/korva/mika-aste-soi.html",
+      "oppi/korva/tunnista-sointutyyppi.html",
+      "oppi/kappaleet/mika-sointu-tulee.html"
+    ],
+    "kitara": [
+      "oppi/kitara/vaihto-ja-sointukartta.html",
+      "oppi/kitara/sointukierrot.html",
+      "oppi/kitara/soita-ensin-basso.html",
+      "oppi/rytmi/alas-ylos-yhdella-soinnulla.html",
+      "oppi/rytmi/kaksi-sointua-yhdessa-tahdissa.html",
+      "oppi/savelnimet/siirra-yhta-sormea.html",
+      "oppi/korva/taydenna-fraasi.html",
+      "oppi/korva/vaihda-kotisavelta.html",
+      "oppi/korva/etsi-jalkimmainen-savel.html",
+      "oppi/korva/kuuntele-bassolinja.html",
+      "oppi/korva/kumpi-on-molli.html",
+      "oppi/korva/kolme-c-sointua.html",
+      "oppi/otelauta/etsi-a-ilman-asteikkokuviota.html",
+      "oppi/otelauta/etsi-sama-savel.html",
+      "oppi/otelauta/etsi-savel-kahdelta-kielelta.html",
+      "oppi/otelauta/soita-c-kahdesta-kohdasta.html",
+      "oppi/soinnut/kaikuluotain.html",
+      "oppi/soinnut/laula-paluu.html",
+      "oppi/soinnut/siirra-keskelle-d.html",
+      "oppi/soinnut/rakenna-barre.html",
+      "oppi/soinnut/etsi-barresointu.html",
+      "oppi/soinnut/siirra-kierto-c-duuriin.html",
+      "oppi/soinnut/siirra-kierto-d-duuriin.html",
+      "oppi/soinnut/soita-septimisoinnut.html",
+      "oppi/soinnut/ii-v-i-kahdessa-savellajissa.html",
+      "oppi/asteikot/etsi-puoliaskeleet.html",
+      "oppi/asteikot/tee-kolmesta-savelesta-melodia.html",
+      "oppi/asteikot/kysymys-ja-vastaus-koko-boksilla.html",
+      "oppi/asteikot/vaihda-f-nauhaa-ylemmas.html",
+      "oppi/kappaleet/sama-kappale-c-duurissa.html",
+      "oppi/kappaleet/sovita-savellaji-laulajalle.html",
+      "oppi/kappaleet/tee-sointukartta.html",
+      "oppi/kappaleet/etsi-ensimmainen-melodiasavel.html",
+      "oppi/kappaleet/soita-kysymys-ja-vastaus.html",
+      "oppi/kappaleet/vaihda-saestysta.html",
+      "oppi/kappaleet/aanita-kahdeksan-tahtia.html"
+    ]
+  },
+  "apuvalineet": {
+    "otelauta": [{"nakyma": "tyokalu:otelautaopas/oktaavit", "aiheparametri": true}],
+    "soinnut": [{"nakyma": "tyokalu:otelautaopas/soinnut", "aiheparametri": true}],
+    "asteikot": [{"nakyma": "tyokalu:otelautaopas/asteikot", "aiheparametri": true}]
+  }
+}
