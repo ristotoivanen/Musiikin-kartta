@@ -4,6 +4,8 @@ Musiikin kartta on avoin suomenkielinen verkko-opas musiikin teoriaan ja kitaran
 
 **[Lue opas verkossa](https://rinnepelto.com/)** · [Musiikin teoria](https://rinnepelto.com/book/) · [Avaa Otelautakartta](https://rinnepelto.com/otelautaharjoittelija.html)
 
+Suunnitteluun ja katselmointiin: [käytettävyyden, saavutettavuuden ja pedagogiikan yhteinen ohje](docs/suunnittelu/suunnittelu-ja-pr-katselmointi.md). Hyväksyntä- ja käyttöönottotila kerrotaan ohjeen alussa ja §10:ssä.
+
 ## Oppaan osat
 
 | Osa | Mitä opit |
