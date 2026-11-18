@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { SongGainMixer, StemAligner, trackLevel, type AlignableMedia } from '../songAudio';
 import {
-  arrayReference, blobReference, measureAlignment, seekLatencies, tapOf, TestLog,
+  arrayReference, blobReference, measureAlignment, outputSnapshot, seekLatencies, tapOf, TestLog,
   type AlignmentMeasurement, type MeasuredInput, type Reference,
 } from './mittaus';
 import { LoadError, OnceLoader, type LoadTiming } from './lataus';
@@ -345,9 +345,10 @@ export function KaksiraitaTesti() {
         { name: 'tausta', element: backing, reference: references.tausta, referenceOffsetSeconds: 0 },
         { name: 'kitara', element: guitar, reference: references.kitara, referenceOffsetSeconds: 0 },
       ];
-      const result = await measureAlignment(phase, inputs);
+      // Pyyntötunniste liittää mittauksen yksiselitteisesti aloitukseen (raporttianalyysi.ts).
+      const result: AlignmentMeasurement = { ...(await measureAlignment(phase, inputs)), request };
       log.current.measurements.push(result);
-      record('mittaus', { phase, mediaDiffMs: result.mediaDiffMs, renderedDiffMs: result.renderedDiffMs, reliable: result.reliable });
+      record('mittaus', { phase, mediaDiffMs: result.mediaDiffMs, renderedDiffMs: result.renderedDiffMs, reliable: result.reliable, request });
       setMeasurements(list => [...list, result]);
     } catch (cause) {
       record('mittausvirhe', { phase, reason: String(cause) });
@@ -431,7 +432,7 @@ export function KaksiraitaTesti() {
       if (request !== playbackRequest.current) return;
       syncStems();
       setPlaying(true);
-      record('toisto-alkoi', { tausta: backing.currentTime, kitara: guitar.currentTime });
+      record('toisto-alkoi', { tausta: backing.currentTime, kitara: guitar.currentTime, request });
       scheduleMeasurements(resumed ? 'jatko' : 'käynnistys', request);
       if (routed) {
         gains.observe();
@@ -501,7 +502,7 @@ export function KaksiraitaTesti() {
     setError('');
     const reload = started.current;
     started.current = true;
-    record('tuore-aloitus', { phase, target, reload });
+    record('tuore-aloitus', { phase, target, reload, request });
     setPosition(target);
     const backing = backingRef.current;
     const guitar = guitarRef.current;
@@ -532,12 +533,12 @@ export function KaksiraitaTesti() {
       if (!restored) { setError('Ääni ei palautunut: Web Audio on pysähtynyt. Lataa sivu uudelleen. ' + gains.lastError); return; }
     }
     const positioned = await Promise.all([waitPositioned(backing, target), waitPositioned(guitar, target)]);
-    record('kelattu', { tausta: positioned[0], kitara: positioned[1], tT: backing.currentTime, tK: guitar.currentTime });
+    record('kelattu', { tausta: positioned[0], kitara: positioned[1], tT: backing.currentTime, tK: guitar.currentTime, request });
     // Uudempi painallus, kelaus tai tauko on ohittanut tämän aloituksen.
     if (request !== playbackRequest.current) return;
     if (positioned.includes('virhe')) {
       // Raidan lataus epäonnistui: kumpaakaan ei soiteta. Kohta säilyy, ja seuraava Soita lataa uudelleen.
-      record('latausvirhe', { target, tausta: mediaErrorText(backing), kitara: mediaErrorText(guitar) });
+      record('latausvirhe', { target, tausta: mediaErrorText(backing), kitara: mediaErrorText(guitar), request });
       resumeAt.current = target;
       setPlaying(false);
       setError(loadFailureText());
@@ -546,7 +547,7 @@ export function KaksiraitaTesti() {
     if (positioned.includes('aikakatkaisu')) {
       // Kelaus ei valmistunut: toistoa ei aloiteta väärästä kohdasta. Kohta säilyy seuraavaa yritystä varten.
       const late = TRACKS.filter((_, index) => positioned[index] !== 'valmis');
-      record('kelaus-aikakatkaisu', { target, raidat: late });
+      record('kelaus-aikakatkaisu', { target, raidat: late, request });
       resumeAt.current = target;
       setPlaying(false);
       setError(`Kelaus ei valmistunut (${late.join(', ')}). Paina Soita uudelleen.`);
@@ -556,7 +557,7 @@ export function KaksiraitaTesti() {
       await Promise.all([playTracked(backing, 'tausta'), playTracked(guitar, 'kitara')]);
       if (request !== playbackRequest.current) return;
       setPlaying(true);
-      record('toisto-alkoi', { tausta: backing.currentTime, kitara: guitar.currentTime });
+      record('toisto-alkoi', { tausta: backing.currentTime, kitara: guitar.currentTime, request });
       scheduleMeasurements(phase, request);
       if (routed) {
         gains.observe();
@@ -584,7 +585,8 @@ export function KaksiraitaTesti() {
     const backing = backingRef.current;
     return {
       meta: {
-        test: 'kaksiraitatesti', source: params.source, sync: params.sync, syncMode: params.syncMode,
+        // Versio 2 (MK-20261119-01): request-tunnisteet, mittausten captureMs ja ulostulon viivearviot.
+        test: 'kaksiraitatesti', reportVersion: 2, source: params.source, sync: params.sync, syncMode: params.syncMode,
         offsetMs: params.offsetMs, measureIntervalMs: params.measureIntervalMs, engine: params.engine, loading: params.loading,
         bundle: new URL(import.meta.url).searchParams.get('v'), files: urls, userAgent: navigator.userAgent,
         length: params.length, wideScenario: params.wideScenario, measure: params.measure,
@@ -597,6 +599,7 @@ export function KaksiraitaTesti() {
         })(),
         audioSession: (navigator as unknown as { audioSession?: { type?: string } }).audioSession?.type ?? null,
         contextSampleRate: tapOf(backing)?.context.sampleRate ?? null,
+        audioOutput: (() => { const context = tapOf(backing)?.context; return context ? outputSnapshot(context) : null; })(),
       },
       seekLatencies: seekLatencies(log.current.events),
       measurements: log.current.measurements,

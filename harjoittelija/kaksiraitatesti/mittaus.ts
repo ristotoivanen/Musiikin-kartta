@@ -106,9 +106,41 @@ export interface MeasuredTrack {
   error?: string;
 }
 
+/**
+ * Selaimen omat arviot graafin ja ulostulon välisestä viiveestä mittaushetkellä (MK-20261119-01).
+ * Vain kirjataan: ne eivät vaikuta mittarin laskentaan. Kaikki selaimet eivät tue kaikkia kenttiä
+ * (null), eikä arvoihin välttämättä sisälly Bluetooth-viive.
+ */
+export interface OutputSnapshot {
+  baseLatency: number | null;
+  outputLatency: number | null;
+  /** getOutputTimestamp(): kontekstin aika, joka oli ulostulossa hetkellä performanceTime (ms). */
+  timestamp: { contextTime: number; performanceTime: number } | null;
+}
+
+type LatencyContext = { baseLatency?: unknown; outputLatency?: unknown; getOutputTimestamp?: () => { contextTime?: number; performanceTime?: number } };
+
+export function outputSnapshot(context: BaseAudioContext): OutputSnapshot {
+  const source = context as unknown as LatencyContext;
+  const number = (value: unknown) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
+  let timestamp: OutputSnapshot['timestamp'] = null;
+  try {
+    const stamp = typeof source.getOutputTimestamp === 'function' ? source.getOutputTimestamp() : null;
+    const contextTime = number(stamp?.contextTime), performanceTime = number(stamp?.performanceTime);
+    if (contextTime !== null && performanceTime !== null) timestamp = { contextTime, performanceTime };
+  } catch { /* Ei tukea tai konteksti suljettu. */ }
+  return { baseLatency: number(source.baseLatency), outputLatency: number(source.outputLatency), timestamp };
+}
+
 export interface AlignmentMeasurement {
   phase: string;
   ms: number;
+  /** performance.now() samalla hetkellä, kun näytteet ja mediakellot luettiin (ms ilmaisee valmistumisen). */
+  captureMs: number;
+  /** Aloituspyynnön tunniste (testisivu lisää), jotta mittaus liittyy yksiselitteisesti oikeaan jaksoon. */
+  request?: number;
+  /** Selaimen viivearviot kaappaushetkellä. Ei kuuluva ääni, ks. OutputSnapshot. */
+  output: OutputSnapshot | null;
   contextTime: number;
   sampleRate: number;
   /** Montako kaappausyritystä tarvittiin, jotta molemmat näytteet ovat samasta renderöintijaksosta. */
@@ -137,6 +169,7 @@ export async function measureAlignment(phase: string, inputs: MeasuredInput[]): 
   let probes: Float32Array[] = [];
   let media: number[] = [];
   let contextTime = 0;
+  let captureMs = 0;
   // Kaappaus samasta renderöintijaksosta: kontekstin kello ei saa muuttua lukujen välissä.
   for (;;) {
     attempts++;
@@ -144,9 +177,12 @@ export async function measureAlignment(phase: string, inputs: MeasuredInput[]): 
     probes = tapped.map(({ tap }) => { const buffer = new Float32Array(PROBE_SIZE); tap!.analyser.getFloatTimeDomainData(buffer); return buffer; });
     media = tapped.map(({ input }) => input.element.currentTime);
     contextTime = context.currentTime;
+    captureMs = performance.now();
     if (contextTime === before || attempts >= 8) break;
     await new Promise(resolve => setTimeout(resolve, 0));
   }
+  // Luetaan heti kaappauksen jälkeen samassa tehtävässä, ennen referenssi-ikkunoiden asynkronista lukua.
+  const output = outputSnapshot(context);
   const rate = context.sampleRate;
   const probeSeconds = PROBE_SIZE / rate;
   const tracks: MeasuredTrack[] = [];
@@ -177,7 +213,7 @@ export async function measureAlignment(phase: string, inputs: MeasuredInput[]): 
   const [tausta, kitara] = tracks;
   const both = tausta.reliable && kitara.reliable && tausta.renderedTime !== null && kitara.renderedTime !== null;
   return {
-    phase, ms: Math.round(performance.now()), contextTime, sampleRate: rate, attempts, tracks,
+    phase, ms: Math.round(performance.now()), captureMs: Math.round(captureMs * 10) / 10, output, contextTime, sampleRate: rate, attempts, tracks,
     mediaDiffMs: (kitara.mediaTime - tausta.mediaTime) * 1000,
     renderedDiffMs: both ? (kitara.renderedTime! - tausta.renderedTime!) * 1000 : null,
     reliable: both,
