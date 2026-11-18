@@ -60,8 +60,16 @@ Musapeleissä ja harjoitus Kitaratreenissä. Testit: `tests/osiot.test.ts` (hyv�
 
 - Musapeleistä ja Kitaratreenistä avatut linkit saavat parametrin `?tapa=pelit` tai `?tapa=kitara`.
   `assets/oppimistapa.js` ohjaa silloin aihepaluun (*← Kitaratreeni: Rytmi*) ja työkalujen Takaisin-linkin
-  samaan oppimistapaan ja aiheeseen. Päävalikko näyttää osion aktiivisena, ja saman aiheen Edellinen/Seuraava
-  säilyttää parametrin. *Seuraava aihe* palaa Oppimiskarttaan.
+  samaan oppimistapaan ja aiheeseen, ja päävalikko näyttää osion aktiivisena.
+- **Jäsenyystarkistus (korjauskierros 2):** `rakenna-osiot.py` kirjoittaa skriptin tietolohkoon kunkin
+  oppimistavan sivut ja aiheet, joissa ne näkyvät (`MODES.*.sivut`). Oppimistapa on voimassa vain näillä
+  sivuilla. Edellinen/Seuraava saa parametrin vain, kun kohdesivu kuuluu samaan oppimistapaan.
+  Esimerkki: Kitaratreenin *Alas–ylös yhdellä soinnulla* → Edellinen *Löydä pulssi ja ykkönen* avautuu ilman
+  parametria, Opi & oivalla aktiivisena ja paluulla *← Rytmiin*. Seuraava *Kaksi sointua yhdessä tahdissa*
+  pysyy Kitaratreenissä. Jos osoitteeseen lisätään `?tapa=` käsin sivulle, joka ei kuulu oppimistapaan,
+  parametri ohitetaan.
+- Sisältö voi näkyä oppimistavassa useassa aiheessa. Lisäaiheesta avattaessa linkissä kulkee myös `?aihe=…`,
+  jotta paluu osuu samaan aiheeseen.
 - **Vanhat suorat osoitteet eivät muutu:** ilman parametria ja ilman JavaScriptiä paluu toimii kuten ennenkin.
   Parametri ei päädy tallennuksiin, koska `edistyminen.js` käyttää vain polkua.
 - Vaihtoehto `sessionStorage` (muistettu viimeisin oppimistapa) hylättiin. Se olisi muuttanut myös vanhojen
@@ -83,15 +91,17 @@ Musapeleissä ja harjoitus Kitaratreenissä. Testit: `tests/osiot.test.ts` (hyv�
 ## C4. Alareunan aihepaluu (katselmointikorjaus 4, #54 18.11.2026)
 
 - `rakenna.py`:n `steps()` ei enää lisää alareunaan *← Aiheeseen* -painiketta. Yläreunan paluu (`.study-up`)
-  ja alareunan Edellinen/Seuraava ovat ennallaan.
+  ja alareunan Edellinen/Seuraava ovat ennallaan. **Omistaja hyväksyi poiston.**
 - Pitkät sivut puhelimessa (390 × 800 px): 73 sivusta 14 on yli neljän näytön ja yksi (*Septimisoinnut*,
   8,7 näyttöä) yli kahdeksan näytön mittainen. Niiden lopussa aiheeseen pääsee nyt Edellinen/Seuraava-linkeillä,
-  selaimen paluulla tai vierittämällä ylös. **Omistajan päätettäväksi:** riittääkö tämä vai halutaanko pitkille
-  sivuille esimerkiksi kiinteä yläreunan paluu. Kiinteä palkki on uusi käyttöliittymäratkaisu, joten sitä ei
-  tehty tässä. Aihesivujen pituus kuuluu #116:een.
+  selaimen paluulla tai vierittämällä ylös. **Omistajan päätös:** kiinteää paluupainiketta ei toteuteta nyt.
+  Käytettävyys testataan ensin oikealla puhelimella, ja tarvittaessa arvioidaan kevyttä *Takaisin alkuun* -linkkiä.
+  Aihesivujen pituus kuuluu #116:een.
 - **#111:n riippuvuus:** #111:n uusi `intro_content()` lisää paikkamerkkisivulle saman alareunan paluun.
-  Koeyhdistyksessä `tests/osiot.test.ts` havaitsee sen. Korjaus (kaksi riviä `intro_content`-funktiossa) kuuluu
-  #111:een tai yhdistämisen jälkeiseen sovitukseen, ei tähän PR:ään.
+  Koeyhdistyksessä `tests/osiot.test.ts` havaitsee sen. **Omistajan päätös:** korjaus tehdään #111:n omassa
+  sovituksessa. Paikkamerkkisivua ei yhdistetä eikä julkaista keskeneräisenä.
+- Koeyhdistys 19.11. (`f039a09` + #111 `794d106`): `rakenna.py` ja `aiheet.json` yhdistyvät ilman ristiriitoja.
+  81 generoidun sivun ristiriidat ratkesivat ajamalla generaattorit uudelleen, ja tarkistukset menivät läpi.
 
 ## D. Sisällön sijoittelun perusteet (pedagoginen arvio)
 
@@ -106,14 +116,22 @@ Musapeleissä ja harjoitus Kitaratreenissä. Testit: `tests/osiot.test.ts` (hyv�
   perusteiden oppituntia, joiden ohjeessa soitetaan tai etsitään säveliä omalla kitaralla. Jokaisen sivun
   tehtäväteksti luettiin uudelleen. Tehtävät jaetaan kahteen lajiin:
   - *Soita* (28): soittotekniikka, otteet, kierrot, asteikot ja kappaleet.
-  - *Korvalla kitaralle* (8): ensin kuunnellaan tai hyräillään, sitten etsitään tai tarkistetaan kitaralla.
+  - *Korvalla kitaralle* (7): ensin kuunnellaan tai hyräillään, sitten etsitään tai tarkistetaan kitaralla.
     Näitä ovat *Täydennä fraasi*, *Vaihda kotisäveltä*, *Etsi jälkimmäinen sävel*, *Kuuntele basso*,
-    *Kumpi on molli?*, *Kolme C-sointua*, *Etsi ensimmäinen melodiasävel* ja *Sovita sävellaji laulajalle*.
-    Niissä ei ole vastauksen tarkistusta, joten ne eivät ole Musapelejä.
+    *Kumpi on molli?*, *Kolme C-sointua* ja *Etsi ensimmäinen melodiasävel*. Niissä ei ole vastauksen
+    tarkistusta, joten ne eivät ole Musapelejä.
+- **Kitaran rooli tarkistettu (korjauskierros 2):** jokaisessa *Korvalla kitaralle* -tehtävässä kitara on osa
+  ratkaisua: kuultu sävel, basso tai sointu löydetään tai sitä verrataan omalla kitaralla (esim. A- ja Am-otteet,
+  G-kielen nauhat 2/4/7, A-kielen C–D–E–G). *Sovita sävellaji laulajalle* poistettiin Kitaratreenistä, koska sen
+  ydin on laulukorkeuden valinta äänitteiden avulla ja kitaraa käytetään vain lisätehtävässä (kapo 1. nauhalla).
+  Se on edelleen Opi & oivalla -osiossa.
 - Kirjallisiksi jätettiin *Rakenna kolme sointua G-duurista*, *Lisää septimi G-duurin sointuihin* ja *Nimeä sävel
   muodon avulla*. *Löydä pulssi ja ykkönen* (taputus ja laskeminen) jää Opi & oivalla -osioon.
-- Uusia aiheliitoksia (`lisaaiheet`) ei otettu käyttöön, koska ne ovat pedagogisia päätöksiä. Ehdokas omistajalle:
-  *Mikä sointu tulee?* (sointujen tehtävät) myös aiheeseen Soinnut ja harmonia.
+- **Omistajan päätös (korjauskierros 2):** *Mikä sointu tulee?* liitetään myös aiheeseen Soinnut ja harmonia.
+  Se käyttää samaa sivua (`oppi/kappaleet/mika-sointu-tulee.html`) ja suoritustunnistetta
+  (`harjoitus:mika-sointu-tulee`). Rekisterissä on `lisaaiheet: ["soinnut"]` (Musapelit), ja Soinnut ja harmonia
+  -aihesivun *Tutki myös* -listassa on linkki (`aiheet.json`:n `related`). Kappaleet-aiheen numerointi ja
+  laskurit pysyvät ennallaan.
 - Mikään näkymä ei näytä suoritustilaa eikä väitä taitoa hallituksi. Kitaratreeni kertoo, että
   *Merkitse tehdyksi* on oma kuittaus. Tallennusavaimia ei luoda, lueta uusissa näkymissä eikä muuteta.
 - Opetussisältöön, oikeisiin vastauksiin, pisteytykseen tai H/B-linjaukseen ei tehty muutoksia.
