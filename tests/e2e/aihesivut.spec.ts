@@ -603,9 +603,10 @@ test('H-nimitys ja sen historia ovat vain Kitaran perusteissa, ja vanhat syväli
   }
   await expect(page).toHaveURL(/\/book\/osa-2\.html#h-savelnimi$/);
 
+  // Suora linkki avaa Kitaran perusteiden B/H-selityksen.
   await page.goto('/oppi/kitara/index.html#b-ja-h');
   const explanation = page.locator('#b-ja-h');
-  await explanation.locator('summary').click();
+  await expect(explanation).toHaveAttribute('open', '');
   await expect(explanation.getByRole('table', { name: 'B:n ja H:n vastineet' })).toBeVisible();
   await expect(explanation.getByRole('link', { name: /Willi Apel/ })).toBeVisible();
   await expect(explanation.getByRole('link', { name: /Christina Kwon/ })).toBeVisible();
@@ -617,4 +618,19 @@ test('H-nimitys ja sen historia ovat vain Kitaran perusteissa, ja vanhat syväli
   await expect(page.locator('a[href*="#h-savelnimi"]')).toHaveCount(0);
   await backLink.click();
   await expect(page).toHaveURL('/oppi/kitara/index.html#b-ja-h');
+  // Paluulinkki näyttää selityksen avattuna eikä vain suljettua otsikkoa.
+  await expect(explanation).toHaveAttribute('open', '');
+  await expect(explanation.getByRole('table', { name: 'B:n ja H:n vastineet' })).toBeVisible();
+  await expect(explanation.locator('summary')).toBeInViewport();
+
+  // Ilman ankkuria selitys pysyy suljettuna, ja ankkurin vaihtaminen sivulla avaa sen.
+  await page.goto('/oppi/kitara/index.html');
+  await expect(explanation).not.toHaveAttribute('open');
+  await page.evaluate(() => { location.hash = 'b-ja-h'; });
+  await expect(explanation).toHaveAttribute('open', '');
+
+  // Teoriaoppaan lisämateriaaleissa ei ole enää linkkiä H-artikkeliin. Artikkeli on silti olemassa.
+  await page.goto('/book/index.html');
+  await expect(page.locator('section.extras a[href*="h-savelnimen-alkupera"]')).toHaveCount(0);
+  await expect(page.locator('section.extras').getByRole('link', { name: 'Sanasto' })).toBeVisible();
 });
