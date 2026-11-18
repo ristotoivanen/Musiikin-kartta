@@ -490,6 +490,93 @@ H2:ssa ääni ja mediaelementin aikajana erosivat noin 425 ms, ja ero oli molemm
 
 Poikkeama syntyy `load()`:n ja kelauksen jälkeen. Se ei vaikuta raitojen keskinäiseen tahtiin, mutta vaikuttaa kaikkeen, mikä seuraa `currentTime`a (sointunäyttö, harjoituksen aikajana). Mittarin laskentaa ei ole muutettu. Asia pidetään erillisenä, ja sitä ei ole korjattu tässä.
 
+**Täsmennys (MK-20261119-01).** Taulukko mittaa mediakellon ja Web Audio -graafin käsittelemän kohdan eroa (M − R), ei kuultavaa ääntä eikä näyttöä. Sen vaikutusta siihen, mitä käyttäjä näkee ja kuulee, ei ole mitattu. WebKitin puskurointiselitys on hypoteesi, ei todennettu juurisyy. Ks. *Raporttianalyysi ja H3* alla ja `NAYTTO-AANI-MITTAUSSUUNNITELMA.md`.
+
+## Raporttianalyysi ja H3 (MK-20261119-01, 18.11.2026)
+
+### Neljä eri aikaa
+
+| Lyhenne | Mikä | Mitataanko |
+| --- | --- | --- |
+| **M** | mediaelementin `currentTime` | kyllä, 0,5 s välein ja jokaisessa mittauksessa |
+| **R** | Web Audio -graafin juuri käsittelemä kohta (analysaattori ennen GainNodea) | kyllä, ristikorrelaatiolla |
+| **O** | kaiuttimesta tai kuulokkeista kuuluva kohta | ei. Raportti v2 kirjaa vain selaimen arviot `baseLatency`, `outputLatency` ja `getOutputTimestamp()` (voivat puuttua, eivätkä välttämättä sisällä Bluetoothia) |
+| **V** | milloin tapahtuma näkyy näytöllä | ei |
+
+- Raitojen keskinäinen ero mitataan graafissa ennen miksausta, joten se pätee myös kuultuun ääneen: ulostulon viive on molemmille raidoille sama.
+- **M − R ei ole kuultavan äänen ja näytön ero.** Kuultavan ja näkyvän eron selvittäminen vaatii näyttö–ääni-mittauksen (`NAYTTO-AANI-MITTAUSSUUNNITELMA.md`).
+
+### H3, fyysinen iPhone (täyspitkä AAC, uusi moottori)
+
+Kaksi ajoa. Raakaraportit ovat omistajalla, eikä niitä ole vielä ajettu analyysityökalun läpi.
+
+| Kriteeri | Tila | Peruste |
+| --- | --- | --- |
+| A1 Soita ≤ 3,0 s | **käyttäjän vahvistama** | 2,61 s ja 2,20 s |
+| A2 Molemmat raidat latautuvat | **käyttäjän vahvistama** | ensimmäisellä yrityksellä, ei latausvirheitä |
+| B1 Kelaus | **käyttäjän vahvistama** | toimi |
+| B2 Tauko → Soita | **käyttäjän vahvistama** | toimi. ±0,3 s:n rajaa ei ole tarkistettu lokista. |
+| B3 Nopea kaksoiskelaus (kilpatilanne) | **ei todennettu** | Lokeista ei ole todennettu, että toinen painallus ohitti ensimmäisen ennen toiston alkua. Ei hyväksytty. |
+| B4 Ei aikakatkaisuja eikä verkkolatauksia | osittain | Latausvirheitä ei havaittu. Verkkopyyntöjen puuttumista ei voi todistaa raportista. |
+| C1 Luotettava mittaus jokaisessa jaksossa | **ei todennettu** | Jaksoittaista tarkistusta ei ole tehty. |
+| C2 \|renderöity\| ≤ 25 ms | **käyttäjän vahvistama** | luotettavissa mittauksissa alle 25 ms |
+| C2 \|renderöity − media\| ≤ 5 ms | **ei todennettu** | ei raportoitu |
+| D Kuulokuva | **käyttäjän havainto** | kaikki kokeillut siirtymät kuulostivat tahdissa |
+
+H3 on siis tuottanut onnistuneita fyysisen laitteen havaintoja, mutta kaikkia hyväksymiskriteerejä ei ole todennettu. Issue #9 on NO-GO.
+
+### Analyysityökalu
+
+```
+node tools/kaksiraitatesti-raportti.mts h3-1.json [h3-2.json …] [--json]
+```
+
+- Raportti: Tauko → Valitse raportti → kopioi koko teksti tiedostoon. Työkalu ei muuta tiedostoa eikä tee verkkopyyntöjä.
+- Logiikka on tiedostossa `raporttianalyysi.ts`.
+- **Jaksotus:** jokainen `tuore-aloitus` on yksi aloitusyritys.
+  - Aloitus *soi*, jos sitä seuraa `toisto-alkoi` ennen seuraavaa aloitusta. Testisivu kirjaa `toisto-alkoi`n vain ohittamattomalle aloitukselle.
+  - *Ohitettu* aloitus on sellainen, jonka uudempi aloitus korvasi ennen toiston alkua.
+  - Kelausjakso, jota edeltää ohitettu kelaus, on **kaksoiskelaus (kilpatilanne)**.
+  - Kelaus alle 3 s edellisen kelauksen toiston alusta on **peräkkäinen kelaus**. Se ei täytä B3:a.
+- **Mittausten liittäminen jaksoihin:**
+  - Raportti v1 (H3): kaappaus- tai valmistumisajan perusteella.
+  - Raportti v2: `request`-tunnisteella.
+- **Jaksoittain tulostetaan:**
+  - toiston alkukohta
+  - luotettavat mittaukset
+  - renderöity ero
+  - |renderöity − media|
+  - M − R raidoittain (vain raidan oma luotettava paikannus, joten kitara on mitattavissa jo intron aikana)
+  - ulostulon viivearvio (v2)
+  - kuulokuvat.
+- **Kriteerien A–D tila:** *täyttyy*, *ei täyty* tai *ei todennettu*. D on aina käyttäjän havainto.
+- **C1:n lyhyet jaksot:** alle 3,5 s:n jakso (esim. kaksoispainalluksen välijakso) ei voi sisältää mittausta, ja se raportoidaan erikseen.
+
+### Raportti v2 (testisivu)
+
+Toistoon, kelaukseen, tahdistukseen ja mittarin laskentaan ei tehty muutoksia. Lisätyt kirjauskentät:
+
+- `meta.reportVersion: 2`
+- `meta.audioOutput`: viivearviot raportin hetkellä.
+- `request` tapahtumissa `tuore-aloitus`, `kelattu`, `kelaus-aikakatkaisu`, `latausvirhe`, `toisto-alkoi` ja `mittaus` sekä jokaisessa mittauksessa.
+- Mittauksiin:
+  - `captureMs`: kaappaushetki. `ms` on mittauksen valmistumishetki referenssien luvun jälkeen.
+  - `output`: `baseLatency`, `outputLatency` ja `getOutputTimestamp()` kaappaushetkellä.
+
+### Chromium-tarkistus (Linux, Chromium 141)
+
+`tests/e2e/kaksiraitatesti-raportti.spec.ts`, AAC 0–120 s, H3:n järjestys. Kaksoiskelaus tehtiin samassa tehtävässä, joten kilpatilanne on varma.
+
+| Jakso | Luotettavia | Renderöity ero | M − R tausta / kitara | Ulostuloarvio |
+| --- | --- | --- | --- | --- |
+| käynnistys | 1 | 1,0 ms | 0,9 / 2,2 ms | 35,7 ms |
+| kelaus | 1 | −1,6 ms | 46,5 / 45,5 ms | 37,2 ms |
+| jatko | 1 | 1,0 ms | 44,7 / 46,2 ms | 35,0 ms |
+| kaksoiskelaus (1 ohitettu) | 1 | 1,0 ms | 45,2 / 46,8 ms | 34,9 ms |
+
+- Kelauksen jälkeinen noin +45 ms on aiemmin todettu Chromiumin AAC-viive (`iTunSMPB`), joten työkalu toistaa tunnetun havainnon.
+- Testi ajetaan `--mute-audio --disable-audio-output`, joten ulostuloarvio ei kuvaa todellista laitetta.
+
 ## Mittaukset
 
 Raportti (Valitse raportti → kopioi) sisältää kaiken alla olevan:
@@ -546,6 +633,11 @@ Erot, jotka on kirjattu tähän tarkoituksella:
 - `tests/e2e/kaksiraitatesti-latausmittaus.spec.ts`: latausaikojen mittaus H2:n verkkonopeudella, ajetaan
   vain pyydettäessä (`KAKSIRAITA_LATAUSMITTAUS=1`).
 - `tools/kaksiraitatesti-pakkaus.mts`: pakatun tiedoston siirtymä, keskinäinen kohdistus ja SNR lähteeseen.
+- `tests/kaksiraitatesti-raportti.test.ts`:
+  - raporttianalyysin jaksotus: kilpatilanne, peräkkäinen kelaus, tauko kesken aloituksen, raportti v1 ilman tunnisteita, nykyinen moottori
+  - H3-kriteerit, hylkäävät tapaukset ja raitakohtainen M − R
+  - ulostulon viivearvio ja `outputSnapshot`.
+- `tests/e2e/kaksiraitatesti-raportti.spec.ts`: oikean testisivun raportti v2 analysoidaan H3:n järjestyksessä, mukaan lukien varma kilpatilanne. Ajetaan sarjassa (WAV-referenssit).
 - Mittaustestit ovat kuormaherkkiä: raskaassa rinnakkaisajossa mittaus voi valmistua vasta testin
   aikarajan jälkeen. Tämä näkyi jo pohjahaarassa ja commitilla 95622ef (53/54 samassa ajossa).
   Erikseen ajettuna testit menevät läpi.
