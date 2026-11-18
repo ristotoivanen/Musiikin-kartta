@@ -709,6 +709,20 @@ Erot, jotka on kirjattu tähän tarkoituksella:
   aikarajan jälkeen. Tämä näkyi jo pohjahaarassa ja commitilla 95622ef (53/54 samassa ajossa).
   Erikseen ajettuna testit menevät läpi.
 
+## Tunnetut ongelmat: ajoittain epäonnistuvat selaintestit
+
+Molemmat esiintyvät myös muuttamattomassa pohjahaarassa. Niitä **ei luokitella** H4:n (PR #122) tai raporttianalyysin (PR #121) aiheuttamiksi regressioiksi. Testien rajoja ei ole muutettu.
+
+| Testi | Oire | Mitattu esiintyvyys (Linux, Chromium 141, `--workers=1`) | Pohjahaara |
+| --- | --- | --- | --- |
+| `tests/e2e/kaksiraitatesti.spec.ts:75`, synteettinen positiivinen kontrolli | `|renderöity + 40|` = 13,33 ms (raja 11 ms). Ero on mediakellojen käynnistysjaksotuksessa, ei mittauksessa: `renderöity − media + 40` pysyy alle 1,5 ms:n. | PR #122: 2/16. Muuttamaton PR #121 (`fecdfc1`): 3/16. Arvo on sama 13,33 ms kummassakin. | PR #121 |
+| `tests/e2e/kaksiraitatesti-pakattu.spec.ts:50`, AAC ja MP3 CBR, neljän vaiheen koe | `|renderöity − media|` = 1,7–2,0 ms (raja 1,5 ms) jossakin vaiheessa | PR #121: 4/10. Muuttamaton PR #106 (`c8a2da9`): 3/10. | PR #106 |
+
+- Kumpikin ilmiö liittyy Chromiumin raitojen käynnistysajoitukseen tai mittaushetken ajoitukseen kuormitetussa ajossa. Tämä vastaa aiempaa havaintoa kuormaherkistä mittaustesteistä (*Testit*-osio).
+- Erikseen ajettuina testit menevät useimmiten läpi.
+- Tällä koneella ei ole lukittua Chromium 1194:ää eikä Macin Chromea, joten ympäristö poikkeaa alkuperäisestä mittausympäristöstä.
+- **Ennen kuin rajoja muutetaan tai ongelma korjataan:** aja sama toistokoe Macilla alkuperäisessä ympäristössä ja vertaa pohjahaaraan. Tämä on erillinen päätös.
+
 ## Rajoitukset
 
 - Simulaattori ja työpöytäselain eivät korvaa fyysistä iPhonea. Uuden moottorin hyväksyntä vaatii
