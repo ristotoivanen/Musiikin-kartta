@@ -10,6 +10,12 @@ Tämä tiedosto koskee Claude Coden työskentelyä tässä repositoriossa. Teht�
 4. Käytä koodimuutoksiin omaa tehtäväkohtaista haaraa ja erillistä työpuuta. Riippuvaisen PR-pinon tapauksessa selvitä oikea pohjahaara; älä oleta `beta`-haaraa automaattiseksi pohjaksi.
 5. Pidä dokumentaation katselmointi ja kooditoteutus erillään, ellei toimeksianto nimenomaisesti yhdistä niitä.
 
+## Yhteinen suunnittelu- ja katselmointiohje
+
+Lue [suunnittelu- ja PR-katselmointiohje](docs/suunnittelu/suunnittelu-ja-pr-katselmointi.md) ennen soveltuvaa suunnittelu-, toteutus-, dokumentointi- tai katselmointityötä. Noudata ohjeen ilmoitettua hyväksyntä- ja käyttöönottotilaa (§10). Jos dokumentti puuttuu työpuusta, kirjaa riippuvuus ja varmista tehtävän omistajalta käytettävä versio; älä korvaa sitä omalla rinnakkaisohjeella tai väitä ehdotusta hyväksytyksi.
+
+Käytä ohjeen §9:n PR-katselmointirunkoa muutoksen riskin ja soveltuvuuden mukaan. Perustele rajaus, linkitä tehtyä tarkistusta vastaava näyttö ja erota todennettu, puute, ei testattu sekä perustellusti ei sovellu. Testaamatonta ei saa merkitä todennetuksi. Dokumentaatiotyössä riittävät soveltuvat dokumentaatiotarkistukset. Linkitä sama näyttö tarvittaessa luovutusraporttiin; älä kopioi ohjeen kriteerejä tähän tiedostoon. Nykyiset Git-turvasäännöt ja hyväksymiskäytännöt säilyvät.
+
 ## Git-turvasäännöt
 
 - Älä muuta, siivoa tai poista toisen agentin työpuuta, haaraa, committeja tai tallentamattomia muutoksia.
