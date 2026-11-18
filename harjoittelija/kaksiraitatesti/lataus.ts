@@ -8,6 +8,8 @@
  * ja sama Blob palvelee sekä toistoa (Blob-osoite) että mittausreferenssiä.
  */
 export interface LoadProgress { loaded: number; total: number | null; attempt: number }
+/** Onnistuneen yrityksen ajoitukset (ms yrityksen alusta): vastausotsakkeet, viimeinen tavu, Blob valmis. */
+export interface LoadTiming { attempt: number; headersMs: number; bodyMs: number; blobMs: number; bytes: number }
 export interface LoadOptions {
   /** Yritysten enimmäismäärä (oletus 3). */
   attempts?: number;
@@ -17,6 +19,9 @@ export interface LoadOptions {
   idleTimeoutMs?: number;
   onProgress?(progress: LoadProgress): void;
   onAttemptFailed?(failure: { attempt: number; reason: string; willRetry: boolean }): void;
+  onDone?(timing: LoadTiming): void;
+  /** Blobin MIME-tyyppi. Ohittaa palvelimen Content-Typen (esim. Pythonin palvelin antaa .m4a:lle audio/mp4a-latm). */
+  type?: string;
   fetchImpl?: typeof fetch;
   sleep?(ms: number): Promise<void>;
 }
@@ -52,6 +57,7 @@ async function attemptLoad(url: string, attempt: number, options: LoadOptions): 
   };
   arm();
   const limit = idleMs >= 1000 ? `${Math.round(idleMs / 1000)} s` : `${idleMs} ms`;
+  const began = performance.now();
   try {
     let response: Response;
     try {
@@ -61,10 +67,14 @@ async function attemptLoad(url: string, attempt: number, options: LoadOptions): 
     }
     if (!response.ok) throw new AttemptError(`HTTP ${response.status}`, retryableStatus(response.status));
     const total = Number(response.headers.get('Content-Length')) || null;
-    const type = response.headers.get('Content-Type') ?? 'application/octet-stream';
+    const type = options.type ?? response.headers.get('Content-Type') ?? 'application/octet-stream';
+    const headersMs = performance.now() - began;
     if (!response.body) {
-      const blob = await response.blob();
+      const data = await response.arrayBuffer();
+      const bodyMs = performance.now() - began;
+      const blob = new Blob([data], { type });
       options.onProgress?.({ loaded: blob.size, total, attempt });
+      options.onDone?.({ attempt, headersMs, bodyMs, blobMs: performance.now() - began, bytes: blob.size });
       return blob;
     }
     reader = response.body.getReader();
@@ -85,7 +95,10 @@ async function attemptLoad(url: string, attempt: number, options: LoadOptions): 
       options.onProgress?.({ loaded, total, attempt });
     }
     if (total !== null && loaded !== total) throw new AttemptError(`vajaa tiedosto (${loaded}/${total} tavua)`, true);
-    return new Blob(chunks as BlobPart[], { type });
+    const bodyMs = performance.now() - began;
+    const blob = new Blob(chunks as BlobPart[], { type });
+    options.onDone?.({ attempt, headersMs, bodyMs, blobMs: performance.now() - began, bytes: blob.size });
+    return blob;
   } finally {
     clearTimeout(idle);
   }

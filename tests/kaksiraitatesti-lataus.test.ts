@@ -91,6 +91,18 @@ describe('loadWhole', () => {
     expect(failures[0]).toMatch(/^lataus pysähtyi/);
   });
 
+  it('Blobin tyyppi voidaan asettaa (palvelimen Content-Type ohitetaan), ja ajoitukset raportoidaan', async () => {
+    const { fetchImpl } = scripted(() => new Response(bytes(10).buffer as ArrayBuffer, { status: 200, headers: { 'Content-Type': 'audio/mp4a-latm', 'Content-Length': '10' } }));
+    const timings: { attempt: number; headersMs: number; bodyMs: number; blobMs: number; bytes: number }[] = [];
+    const blob = await loadWhole('a.m4a', { ...noWait, fetchImpl, type: 'audio/mp4', onDone: timing => timings.push(timing) });
+    expect(blob.type).toBe('audio/mp4');
+    expect(timings).toHaveLength(1);
+    expect(timings[0].attempt).toBe(1);
+    expect(timings[0].bytes).toBe(10);
+    expect(timings[0].headersMs).toBeLessThanOrEqual(timings[0].bodyMs);
+    expect(timings[0].bodyMs).toBeLessThanOrEqual(timings[0].blobMs);
+  });
+
   it('vajaa tiedosto (Content-Length ei täsmää) yritetään uudelleen', async () => {
     const { calls, fetchImpl } = scripted(() => ok(bytes(4), 8), () => ok(bytes(8)));
     const blob = await loadWhole('a.wav', { ...noWait, fetchImpl });

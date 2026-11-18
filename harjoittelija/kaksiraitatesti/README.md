@@ -22,6 +22,9 @@ Tavoite on erottaa toisistaan neljä tekijää:
 - `kaksiraitatesti.html?lahde=wav`: samat raidat WAV-muodossa. Mukana on vain kohta 0–120 s, koska
   Cloudflare Pages hyväksyy enintään 25 MiB:n tiedostot. Aikajana on sama kuin MP3:ssa. Tiedostot
   ladataan kerran kokonaan ja soitetaan muistista (`&lataus=verkko` soittaa verkosta kuten PR #100).
+- `kaksiraitatesti.html?lahde=aac` ja `?lahde=mp3cbr`: samat raidat pakattuina (AAC-LC 192 kbit/s ja
+  MP3 CBR 192 kbit/s), ladataan kerran ja soitetaan muistista. `&pituus=koko` = koko kappale (3:53).
+  Mittausreferenssit (WAV) ladataan toistotiedostojen jälkeen; `&mittaus=pois` jättää ne pois.
 - `kaksiraitatesti.html?lahde=synteettinen`: selaimessa luodut 60 s:n raidat, joiden kohdistus
   tunnetaan näytteen tarkkuudella. Kummassakin raidassa on merkkiääni samoissa kohdissa: tausta
   300 Hz, kitara 1500 Hz, väli vaihtelee 0,35–0,75 s. Kohdakkain ne kuulostavat yhdeltä iskulta.
@@ -359,6 +362,134 @@ Oikea korjaus suurille tiedostoille olisi funktio, joka välittää pyydetyn alu
 - `OnceLoader`: yksi lataus, epäonnistunut ei jää välimuistiin.
 - `blobReference`: lukee ikkunat Blobista, eikä epäonnistunut otsakehaku jäädy.
 
+## Pakatut toistotiedostot (MK-20261118-03, 18.11.2026)
+
+**Lähtötilanne, fyysinen iPhone H2** (WAV, uusi moottori, kerran muistiin ladattu):
+- Lataus onnistui ja vei noin 11 s (46,1 Mt).
+- Renderöity ero oli useimmissa luotettavissa mittauksissa noin −16 ms.
+- Kelaus ja Tauko → Soita toimivat, ja kuulohavainnot olivat myönteiset.
+- Äänen ja mediakellon välillä oli noin 425 ms:n yhteinen poikkeama.
+- Käynnistyksestä ei saatu luotettavaa mittausta (intro 0–14 s on pelkkää kitaraa).
+
+**Kysymys:** voiko pakattu tiedosto lyhentää latausta ja pienentää muistia ilman, että kohdistus heikkenee?
+
+### Vaihe A: koodaus ja kohdistus (Mac, Applen dekooderi)
+
+- **Lähde:** samat WAVit. 0–120 s on koodattu testisivun WAVeista ja täyspitkä alkuperäisistä täysistä WAVeista (SHA-256 `191902b5…7e88`, `4ccb82cb…03d0`).
+- **Mittaus:** purettu tiedosto paikannettiin lähteestä ristikorrelaatiolla 6–9 kohdassa (`tools/kaksiraitatesti-pakkaus.mts`).
+
+| Muoto | Koko 0–120 s / koko kappale (raita) | Kooderin viive ja täyte | Purettu pituus | Siirtymä lähteeseen | Kitara − tausta | SNR kitara / tausta |
+| --- | --- | --- | --- | --- | --- | --- |
+| WAV 16 bit (vertailu) | 23,0 Mt / 44,8 Mt (ei mahdu Pagesiin) | – | sama | 0 | 0 | – |
+| AAC-LC 192 kbit/s, M4A (Applen kooderi) | 3,0 Mt / 5,8 Mt | 2112 + 960 näytettä, `iTunSMPB` | täsmälleen sama | ≤ 0,01 näytettä | ≤ 0,01 näytettä | 34,5 / 29,3 dB |
+| MP3 CBR 192 kbit/s (LAME 4.0) | 2,9 Mt / 5,6 Mt | 576 + 576 näytettä, LAME-otsake | täsmälleen sama | ≤ 0,03 näytettä | ≤ 0,03 näytettä | 27,9 / 26,2 dB |
+| Sunon MP3 (VBR, vain vertailuun) | – / 5,2–5,3 Mt | 576, LAME-otsake | 13,5 ms pidempi | < 0,3 näytettä | < 0,3 näytettä | – |
+
+- **Viive ja täyte:** kummankin kooderin viive ja täyte tunnistetaan ja poistetaan. Purettu tiedosto alkaa lähteen ensimmäisestä näytteestä ja on näytteen tarkkuudella sen pituinen.
+- **Keskinäinen kohdistus:** koodaus ei siirrä raitoja toisiinsa nähden.
+- **Laatu:** SNR mittaa aaltomuodon eroa, ei kuulohavaintoa.
+  - Samalla bittinopeudella AAC:n jäännöskohina on 3–6 dB pienempi kuin MP3:n.
+  - Tuotannon kappaleraidat ovat MP3 CBR 192 kbit/s, joten molemmat ovat vähintään tuotannon tasoa ja riittävät kitaraharjoitteluun.
+  - Kuuntelutestiä ei ole tehty.
+- **Selainten ero:**
+  - M4A:ssa ei ole edit list -taulukkoa. Applen soitin lukee viiveen `iTunSMPB`-tiedosta, mutta Chromium ei kelauksen jälkeen. Chromiumissa AAC:n yhteinen poikkeama on kelauksen jälkeen noin +45 ms (= 2112 näytettä) ja MP3:n noin +23 ms.
+  - Poikkeama on molemmilla raidoilla sama, joten raitojen keskinäinen ero on 0.
+  - Simulaattorin WebKitissä tätä eroa ei ole (vaihe C).
+
+### Vaihe B: lataus ja muisti
+
+**Latausaika (Chromium).** Verkko rajoitettiin H2:n nopeuteen: 4,19 Mt/s (46,08 Mt / 11 s) ja viive 30 ms (`tests/e2e/kaksiraitatesti-latausmittaus.spec.ts`, ajetaan pyydettäessä). WAV-tilan tulos 11,3 s vastaa H2:n havaintoa, joten olosuhde on kalibroitu.
+
+| Tila | Ladattu | Siirto | Blob | Lähde → metadata | Soita käytössä sivun avaamisesta | Painallus → toisto |
+| --- | --- | --- | --- | --- | --- | --- |
+| WAV 0–120 s | 46,1 Mt | 11,0–11,1 s | 15–21 ms | 59 ms | 11,3 s | 222 ms |
+| AAC 0–120 s | 6,0 Mt | 1,48 s | 1–2 ms | 44 ms | **1,6 s** | 38 ms |
+| MP3 CBR 0–120 s | 5,8 Mt | 1,42 s | 1–2 ms | 48 ms | **1,6 s** | 36 ms |
+| AAC koko kappale (3:53) | 11,6 Mt | 2,80 s | 2–3 ms | 75 ms | **3,0 s** | 43 ms |
+| MP3 CBR koko kappale | 11,2 Mt | 2,73 s | 3–5 ms | 85 ms | **2,9 s** | 23 ms |
+
+- **Ajan erittely:** siirto, Blobin luonti ja toiston valmistelu (lähde asetettu → `loadedmetadata`) mitataan erikseen. Erillistä purkuvaihetta ei ole: mediaelementti purkaa ääntä soiton aikana.
+- **Mittausreferenssit** (WAV, vain mittausta varten) ladataan vasta toistotiedostojen jälkeen, eivätkä ne vaikuta Soita-aikaan.
+
+**Muisti (iOS-simulaattori).** WebKit-prosessien `phys_footprint` (`footprint`), yksi välilehti, `&mittaus=pois` (ei WAV-referenssejä).
+
+| Tila | WebContent, huippu | Networking (Blobit), huippu | GPU (media), huippu | Yhteensä soiton aikana |
+| --- | --- | --- | --- | --- |
+| WAV 0–120 s | 195 Mt | 124 Mt | 86 Mt | 268 Mt |
+| AAC 0–120 s | 82 Mt | 58 Mt | 74 Mt | 240 Mt |
+| AAC koko kappale | 96 Mt | 66 Mt | 74 Mt | 239 Mt |
+| MP3 CBR koko kappale | 95 Mt | 65 Mt | 72 Mt | 239 Mt |
+
+- **Lataushuippu:** WebContentin huippu syntyy latauksen aikana, kun tavut kerätään ja Blob luodaan. Se on noin 2,9 × ladattu data.
+- **Täyspitkä WAV:** 89,6 Mt ei mahdu Pagesiin. Arvio samalla suhteella on noin 320 Mt WebContent-huippua ja noin 190 Mt Networking-huippua. Täyspitkä WAV ei ole käytännöllinen yhdellä latauskerralla.
+- **Täyspitkä pakattu:** sen muistinkulutus on lähes sama kuin 0–120 s:n pakatun.
+- **Simulaattori ei ole laite.** Arvot ovat suhteellisia vertailuja, eivät iPhonen absoluuttisia lukuja.
+
+### Vaihe C: tahdistusregressiot
+
+**iOS-simulaattori**, laaja vakiokoe (`&koe=laaja`, mittausväli 2 s):
+1. Soita, 25 s
+2. Kelaus kohtaan 1:00, 15 s
+3. Tauko 3 s, Soita, 15 s
+4. Kaksi peräkkäistä kelausta (0:30 ja sekunnin päästä 1:30), 15 s.
+
+Kaikki tilat 0–120 s.
+
+| Lähde | Renderöity ero: alku / kelaus / jatko / kaksoiskelaus | Renderöity − mediakellot | Yhteinen poikkeama (media − renderöity): alku / kelausten jälkeen | Luotettavia mittauksia | Virheet |
+| --- | --- | --- | --- | --- | --- |
+| WAV | +21,3 / −10,7 / +21,3 / +21,3 ms | 0,0 ms kaikissa | −23…−15 / −280…−271 ms | 21/29 | ei |
+| AAC | −21,3 / −21,3 / −21,3 / −21,3 ms | 0,0 ms kaikissa | −25…−16 / −281…−272 ms | 21/29 | ei |
+| MP3 CBR | −21,3 / −10,7 / −10,7 / −21,3 ms | 0,0 ms kaikissa | −25…−15 / −281…−271 ms | 21/29 | ei |
+
+- **Kaikilla lähteillä:**
+  - Tauko → Soita jatkoi pysäytyskohdasta.
+  - Kaksoiskelaus päätyi kohtaan 1:30.
+  - Korjauskelauksia ei tehty, eikä kelaus tehnyt verkkopyyntöjä.
+- **Jäännösero:** raitojen ero (0 / ±10,7 / ±21,3 ms) on sama aloituksen jaksotus kuin aiemmin. Se näkyy myös mediakelloissa, eikä se riipu koodekista.
+
+**Chromium** (`tests/e2e/kaksiraitatesti-pakattu.spec.ts`, työpöytä ja puhelin):
+- AAC ja MP3 CBR: renderöity − mediakellot = 0,0 ms aloituksessa, kelauksessa, jatkossa ja kaksoiskelauksessa.
+- Sivu tekee neljä äänipyyntöä (2 toisto, 2 referenssiä) ilman Rangea, eikä yhtään sen jälkeen.
+- Täyspitkä AAC: kelaus kohtaan 3:40 ilman verkkopyyntöjä.
+
+### Vaihe D: jatkoehdokas
+
+**AAC-LC 192 kbit/s (Applen kooderi, M4A), koko kappale, ladataan kerran muistiin.**
+
+| Tavoite | Tulos |
+| --- | --- |
+| Soita käytössä ≤ 3 s (H2:n verkkonopeus) | 0–120 s: 1,6 s ✓. Koko kappale: 3,0 s, rajalla. Laitteella sivun lataus lisää aikaa, joten tavoite voi ylittyä. |
+| Renderöity raitojen ero ≤ 25 ms | ≤ 21,3 ms ✓ (simulaattori) |
+| Renderöity − mediakellot ≤ 5 ms | 0,0 ms ✓ (simulaattori ja Chromium) |
+| Kelaus ja jatko eivät jätä pysyvää epätahtia | ✓, myös kaksoiskelaus |
+| Ei toistuvia verkkolatauksia kelauksessa | ✓ (0 pyyntöä) |
+| Ei merkittäviä laatuongelmia | Tuotannon MP3:n tasoa tai parempi (SNR). Kuuntelu tehdään laitetestissä. |
+
+**Perustelut:**
+- Tahdistus on simulaattorissa identtinen WAVin kanssa, ja yhteinen poikkeama on sama.
+- Samalla bittinopeudella AAC:n jäännöskohina on 3–6 dB pienempi kuin MP3:n.
+- Applen soitin poistaa kooderin viiveen myös kelauksen jälkeen.
+- Koko kappaleen muistihuiput ovat noin puolet 0–120 s:n WAVin huipuista.
+
+MP3 CBR 192 kbit/s on tulosten perusteella lähes yhtä hyvä varavaihtoehto. Chromiumissa sen yhteinen poikkeama on pienempi (+23 vs. +45 ms), ja se toimii laajimmin eri selaimissa.
+
+**Riskit:**
+- Koko kappaleen Soita-aika on H2:n verkossa tavoitteen rajalla. Jos laite ylittää 3 s, vaihtoehdot ovat pienempi bittinopeus (160 kbit/s ≈ 2,5 s) tai lataus osissa. Osissa lataus on erillinen suunnitelma.
+- Chromiumin +45 ms:n yhteinen poikkeama kelauksen jälkeen ei koske iPhonea, mutta koskee muita selaimia, jos ehdokas viedään tuotantoon.
+
+### Avoin asia: noin 425 ms:n yhteinen poikkeama
+
+H2:ssa ääni ja mediaelementin aikajana erosivat noin 425 ms, ja ero oli molemmilla raidoilla sama.
+
+| Mittaus | Yhteinen poikkeama kelauksen jälkeen |
+| --- | --- |
+| H2, laite | noin 425 ms |
+| Simulaattori, verkkotoisto | −420 ms |
+| Simulaattori, muistitoisto (WAV, AAC, MP3) | −276 ms |
+| Simulaattori, aloitus | −20 ms |
+
+Poikkeama syntyy `load()`:n ja kelauksen jälkeen. Se ei vaikuta raitojen keskinäiseen tahtiin, mutta vaikuttaa kaikkeen, mikä seuraa `currentTime`a (sointunäyttö, harjoituksen aikajana). Mittarin laskentaa ei ole muutettu. Asia pidetään erillisenä, ja sitä ei ole korjattu tässä.
+
 ## Mittaukset
 
 Raportti (Valitse raportti → kopioi) sisältää kaiken alla olevan:
@@ -409,6 +540,12 @@ Erot, jotka on kirjattu tähän tarkoituksella:
     Soita toimii
 - `tests/kaksiraitatesti-lataus.test.ts` ja `tests/e2e/kaksiraitatesti-lataus.spec.ts`: lataus ja
   latausvirheet (ks. H1:n latausvika). Selaintestit ajetaan sarjassa, koska jokainen WAV-sivu lataa 46 Mt.
+- `tests/e2e/kaksiraitatesti-pakattu.spec.ts`: AAC ja MP3 CBR. Lataus kerran ja referenssit sen jälkeen,
+  renderöity ero = mediakellot neljässä vaiheessa, ei verkkopyyntöjä kelauksissa, koko kappale.
+  Ajetaan sarjassa.
+- `tests/e2e/kaksiraitatesti-latausmittaus.spec.ts`: latausaikojen mittaus H2:n verkkonopeudella, ajetaan
+  vain pyydettäessä (`KAKSIRAITA_LATAUSMITTAUS=1`).
+- `tools/kaksiraitatesti-pakkaus.mts`: pakatun tiedoston siirtymä, keskinäinen kohdistus ja SNR lähteeseen.
 - Mittaustestit ovat kuormaherkkiä: raskaassa rinnakkaisajossa mittaus voi valmistua vasta testin
   aikarajan jälkeen. Tämä näkyi jo pohjahaarassa ja commitilla 95622ef (53/54 samassa ajossa).
   Erikseen ajettuna testit menevät läpi.
