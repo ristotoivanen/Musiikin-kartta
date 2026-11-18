@@ -5,7 +5,10 @@ import {
   type AlignmentMeasurement, type MeasuredInput, type Reference,
 } from './mittaus';
 import { LoadError, OnceLoader, type LoadTiming } from './lataus';
-import { encodeWav16, syntheticTracks } from './synteettinen';
+import { beepStarts, encodeWav16, syntheticTracks } from './synteettinen';
+import { NayttoAaniKoe, type PlayingSegment } from './NayttoAaniKoe';
+import { DESIGN_TARGET_MS, FLASH_MS, loadTrials } from './nayttoaani';
+import { outputEstimateMs } from './raporttianalyysi';
 
 /**
  * Kahden raidan synkronointitesti (issue #9). Ei tuotantosoitin.
@@ -47,9 +50,15 @@ const mimeFor = (url: string) => (url.endsWith('.m4a') ? 'audio/mp4' : url.endsW
 const SEEK_PRECISION_SECONDS = 0.001;
 const MEASURE_DELAY_MS = 3000;
 
+/** H4-säätökokeen aineisto: 240 s, 24 kHz (riittää 300 Hz:n ja 1,5 kHz:n merkkiäänille ja pienentää muistia). */
+const AV_SECONDS = 240;
+const AV_RATE = 24000;
+
 function readParams() {
   const params = new URLSearchParams(location.search);
-  const raw = params.get('lahde');
+  // H4 (MK-20261119-02): &koe=nayttoaani käyttää aina synteettistä aineistoa ja uutta moottoria.
+  const avTest = params.get('koe') === 'nayttoaani';
+  const raw = avTest ? 'synteettinen' : params.get('lahde');
   const source: Source = raw === 'wav' || raw === 'aac' || raw === 'mp3cbr' || raw === 'synteettinen' ? raw : 'mp3';
   const length: Length = (source === 'aac' || source === 'mp3cbr') && params.get('pituus') === 'koko' ? 'koko' : '120';
   const offset = Number(params.get('siirto') ?? '0');
@@ -58,22 +67,22 @@ function readParams() {
   const interval = Number(params.get('mittausvali') ?? '5000');
   // Moottori: 'nykyinen' = kappaleharjoittelijan toisto (PR #92), 'uusi' = korjausehdokas (load() tyhjentää
   // äänipuskurin jokaisessa siirto-operaatiossa, ei korjauskelauksia, selkeä kelaustila).
-  const engine = params.get('moottori') === 'uusi' ? 'uusi' : 'nykyinen';
+  const engine = avTest || params.get('moottori') === 'uusi' ? 'uusi' : 'nykyinen';
   // WAV-tila soittaa oletuksena kerran ladatusta muistikopiosta (Blob), koska Pagesin äänifunktio ei kestä
   // 23 Mt:n tiedostojen Range-pyyntöjä (503, error code 1102). &lataus=verkko palauttaa PR #100:n verkkotoiston.
   // MP3-tila soittaa aina verkosta kuten tuotanto. Synteettinen aineisto on aina muistissa.
   const loading = source === 'mp3' || (source === 'wav' && params.get('lataus') === 'verkko') ? 'verkko' : 'muisti';
   const idle = Number(params.get('latausaikaraja') ?? '20000');
   return {
-    source, length, engine, loading, loadIdleMs: Number.isFinite(idle) && idle >= 500 ? idle : 20000,
+    avTest, source, length, engine, loading, loadIdleMs: Number.isFinite(idle) && idle >= 500 ? idle : 20000,
     // Laaja vakiokoe lisää lopuksi kaksi peräkkäistä kelausta (MK-20261118-03, vaihe C).
     wideScenario: params.get('koe') === 'laaja',
     // &mittaus=pois: ei renderöityjä mittauksia eikä WAV-referenssejä (muistinkulutus ilman mittausvälineitä).
     measure: params.get('mittaus') !== 'pois',
     syncMode: engine === 'uusi' ? 'uusi-moottori' : syncMode,
     sync: engine === 'nykyinen' && syncMode !== 'pois', corrections: engine === 'nykyinen' && syncMode === 'kaytossa',
-    offsetMs: source === 'synteettinen' && Number.isFinite(offset) ? offset : 0,
-    measureIntervalMs: Number.isFinite(interval) && interval >= 1000 ? interval : 5000,
+    offsetMs: !avTest && source === 'synteettinen' && Number.isFinite(offset) ? offset : 0,
+    measureIntervalMs: Number.isFinite(interval) && interval >= 1000 ? interval : avTest ? 3000 : 5000,
   };
 }
 
@@ -102,7 +111,13 @@ function median(values: number[]): number | null {
 
 export function KaksiraitaTesti() {
   const params = useMemo(readParams, []);
-  const synthetic = useMemo(() => (params.source === 'synteettinen' ? syntheticTracks(60, 48000, params.offsetMs) : null), [params]);
+  const synthetic = useMemo(() => (params.source !== 'synteettinen' ? null
+    : params.avTest ? syntheticTracks(AV_SECONDS, AV_RATE, 0) : syntheticTracks(60, 48000, params.offsetMs)), [params]);
+  /** H4: merkkiäänten alkukohdat sekunteina (samat molemmilla raidoilla). */
+  const beeps = useMemo(() => (params.avTest && synthetic
+    ? beepStarts(synthetic.tausta.length, synthetic.sampleRate).map(start => start / synthetic.sampleRate) : []), [params, synthetic]);
+  const pageLoadId = useMemo(() => Date.now().toString(36) + Math.random().toString(36).slice(2, 6), []);
+  const [segment, setSegment] = useState<PlayingSegment | null>(null);
   const syntheticUrls = useMemo(() => {
     if (!synthetic) return null;
     const blob = (samples: Float32Array) => URL.createObjectURL(new Blob([encodeWav16(samples, synthetic.sampleRate)], { type: 'audio/wav' }));
@@ -293,6 +308,7 @@ export function KaksiraitaTesti() {
     playbackRequest.current++;
     clearTimers();
     record('pause-call', { cause });
+    setSegment(null);
     mixer.current?.observe();
     backingRef.current?.pause();
     guitarRef.current?.pause();
@@ -503,6 +519,7 @@ export function KaksiraitaTesti() {
     const reload = started.current;
     started.current = true;
     record('tuore-aloitus', { phase, target, reload, request });
+    setSegment(null);
     setPosition(target);
     const backing = backingRef.current;
     const guitar = guitarRef.current;
@@ -558,6 +575,7 @@ export function KaksiraitaTesti() {
       if (request !== playbackRequest.current) return;
       setPlaying(true);
       record('toisto-alkoi', { tausta: backing.currentTime, kitara: guitar.currentTime, request });
+      setSegment({ request, phase, startedMs: performance.now(), target });
       scheduleMeasurements(phase, request);
       if (routed) {
         gains.observe();
@@ -601,6 +619,11 @@ export function KaksiraitaTesti() {
         contextSampleRate: tapOf(backing)?.context.sampleRate ?? null,
         audioOutput: (() => { const context = tapOf(backing)?.context; return context ? outputSnapshot(context) : null; })(),
       },
+      // H4: kaikki tämän välilehden säätökokeet (myös aiemmilta sivulatauksilta, sessionStorage).
+      nayttoaani: params.avTest ? {
+        version: 1, pageLoadId, trials: loadTrials(), flashMs: FLASH_MS, designTargetMs: DESIGN_TARGET_MS,
+        synthetic: { seconds: AV_SECONDS, sampleRate: AV_RATE, beeps: beeps.length },
+      } : null,
       seekLatencies: seekLatencies(log.current.events),
       measurements: log.current.measurements,
       events: log.current.events,
@@ -756,6 +779,7 @@ export function KaksiraitaTesti() {
   const lengthLabel = params.length === 'koko' ? 'koko kappale' : '0–120 s';
   const modeLabel = params.source === 'mp3' ? 'MP3' : params.source === 'wav' ? `WAV (0–120 s, ${playsFromMemory ? 'muistista' : 'verkosta'})`
     : params.source === 'aac' ? `AAC 192 kbit/s (${lengthLabel}, muistista)` : params.source === 'mp3cbr' ? `MP3 CBR 192 kbit/s (${lengthLabel}, muistista)`
+    : params.avTest ? 'H4 näyttö–ääni-säätökoe (synteettinen 240 s, muistista)'
     : `Synteettinen (kitara siirretty ${params.offsetMs} ms myöhemmäksi)`;
 
   return <main className="kaksiraita">
@@ -768,6 +792,11 @@ export function KaksiraitaTesti() {
     <p className="links">
       <a href={link('mp3')}>MP3</a> · <a href={link('wav')}>WAV</a> · <a href={link('aac') + '&moottori=uusi'}>AAC</a> · <a href={link('mp3cbr') + '&moottori=uusi'}>MP3 CBR</a> · <a href={link('synteettinen')}>Synteettinen</a> · <a href={link(params.source)}>tahdistin käyttöön</a> · <a href={link(params.source, 'pois')}>pois</a> · <a href={link(params.source, 'ei-korjauksia')}>ilman korjauksia</a> · <a href={`?lahde=${params.source}&moottori=uusi`}>uusi moottori</a>
     </p>
+
+    {params.avTest && <NayttoAaniKoe backing={backingRef} beeps={beeps} segment={segment} playing={playing} filesReady={filesReady}
+      measurements={measurements} pageLoadId={pageLoadId} onToggle={() => void togglePlayback()} onSeek={seek} record={record}
+      outputNow={() => { const context = tapOf(backingRef.current)?.context; return context ? outputSnapshot(context) : null; }}
+      outputEstimate={outputEstimateMs} />}
 
     <section className="player" aria-label="Testisoitin">
       <button type="button" className="play" onClick={() => void togglePlayback()} disabled={!playing && !filesReady}>{playing ? '■ Tauko' : '▶ Soita'}</button>

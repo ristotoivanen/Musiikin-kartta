@@ -577,6 +577,73 @@ Toistoon, kelaukseen, tahdistukseen ja mittarin laskentaan ei tehty muutoksia. L
 - Kelauksen jälkeinen noin +45 ms on aiemmin todettu Chromiumin AAC-viive (`iTunSMPB`), joten työkalu toistaa tunnetun havainnon.
 - Testi ajetaan `--mute-audio --disable-audio-output`, joten ulostuloarvio ei kuvaa todellista laitetta.
 
+## H4: näyttö–ääni-säätökoe (MK-20261119-02)
+
+Toteutettu suunnitelman (`NAYTTO-AANI-MITTAUSSUUNNITELMA.md`) menetelmä M1. Laiteohje on tiedostossa `H4-OHJE.md`.
+- Tila: `?koe=nayttoaani`.
+- Toistomoottori, tuotantosoitin ja M − R -mittarin laskenta ovat ennallaan.
+
+### Koeasetelma
+
+- **Aineisto:** synteettinen 240 s, 24 kHz, muistista. Molemmissa raidoissa on samoissa kohdissa 30 ms:n merkkiääni (300 Hz ja 1,5 kHz), 0,35–0,75 s:n välein. Raidoissa on ääntä alusta asti, joten M − R on mitattavissa myös käynnistyksessä.
+- **Moottori:** uusi moottori (`freshStart`) samoin kuin H3:ssa.
+- **Välähdys:** ruutu välähtää 60 ms, kun `requestAnimationFrame`-silmukassa luettu `currentTime` ylittää kohdan merkkiääni + d.
+  - Välähdys piirretään suoraan DOMiin ilman Reactia.
+  - Kelauksen tai muun hypyn yli ei näytetä välähdyssarjaa.
+- **Säätö d:** −600…+600 ms, 10 ms:n askelin. Aloitusarvo arvotaan välillä ±300 ms jokaisen tallennuksen jälkeen.
+- **Protokolla:** kierros käynnistys → jatko → kelaus, viisi kierrosta. Tilanteet vuorottelevat, jotta väsymys ja oppiminen eivät painotu yhteen tilanteeseen.
+  - Käynnistys on aina alkuperäinen käynnistys: sivu ladataan uudelleen, eikä `load()`ia kutsuta.
+  - Kelauksen kohde on 1:30–2:50 kierroksen mukaan.
+  - Tallennus kirjaa *todellisen* tilanteen nykyisestä jaksosta, ei protokollan oletusta.
+  - Toinen tallennus samassa jaksossa merkitään toistosäädöksi (`sameOperation`). Toistosäädöt eivät ole riippumattomia havaintoja, joten niitä ei lasketa tilastoihin eikä protokollaan.
+- **Säilytys:** kokeet säilyvät sivun uudelleenlatauksen yli välilehden `sessionStorage`ssa. Raportin `nayttoaani.trials` sisältää kaikki välilehden kokeet.
+
+### Mitä kukin tallennus sisältää
+
+| Kenttä | Laji |
+| --- | --- |
+| `offsetMs` (d) | **käyttäjän säätämä arvo** |
+| `confidence`, `note` | **käyttäjän havainto** |
+| `output` | olosuhde: ulostulo, käyttäjän valinta. Ensimmäinen koe tehdään iPhonen kaiuttimella. |
+| `mediaMinusRendered` | **alkuperäinen M − R -mittaus** samasta jaksosta, raidoittain. Ei korvata eikä yhdistetä d:hen. |
+| `renderedDiffMedianMs` | raitojen renderöity ero samasta jaksosta |
+| `outputEstimateMs` | selaimen oma ulostuloviivearvio (jos saatavilla). Arvio, ei mittaus. |
+| `frames` | piirtokertojen määrä, mediaaniväli ja osuus piirroista, joissa `currentTime` ei muuttunut |
+| `situation`, `operationTarget`, `adjustMs`, `sliderStartMs`, `request`, `pageLoadId`, `userAgent` | olosuhteet |
+
+### Tulkinta
+
+- **d ≈ (M − O) − näytön viive**, missä M on `currentTime` ja O kuuluva kohta samalla hetkellä.
+- Tilanteiden **ero** d(tilanne) − d(käynnistys) poistaa näytön viiveen, jos se on vakio. Ero kertoo, muuttuuko äänen ja näytön suhde operaation jälkeen.
+- Analyysityökalu (`tools/kaksiraitatesti-raportti.mts`) tulostaa tilanteittain ja ulostuloittain:
+  - d:n keskiarvo, 95 %:n luottamusväli (t-jakauma), SD, mediaani ja vaihteluväli
+  - muutos käynnistyksestä Welchin luottamusvälillä
+  - M − R ja sen muutos rinnalla.
+- **±80 ms on alustava suunnittelutavoite, ei hyväksymisraja.** Työkalu luokittelee muutoksen luottamusvälin perusteella: *alle tavoitteen* (koko väli ±80 ms:n sisällä), *yli tavoitteen* (koko väli ulkopuolella) tai *epäselvä*.
+
+### Epävarmuuden lähteet
+
+| Lähde | Arvio | Huomio |
+| --- | --- | --- |
+| Ihmisen samanaikaisuusarvio | kokeen SD (5 toistoa per tilanne) | Arvioitu: kirjallisuuden mukaan luokkaa ±30–60 ms, todellinen hajonta saadaan kokeesta. |
+| Välähdyksen ajoitus piirtosykliin | 0–1 piirtoväli (120 Hz: 8,3 ms, 60 Hz: 16,7 ms) | Chromiumissa mitattu 1–16 ms (60 Hz). Kirjataan `frames.medianIntervalMs`. |
+| `currentTime`n päivitystarkkuus | `frames.staleShare` | Jos `currentTime` ei päivity joka piirrossa, välähdys myöhästyy. Mitataan laitteella. |
+| Näytön viive (kompositointi, paneeli) | ei mitattu | Oletetaan vakioksi. Kumoutuu tilanteiden erotuksessa. |
+| Ulostulon viive | ei mitattu (selaimen arvio kirjataan) | Sisältyy d:hen. Jos se on vakio, se kumoutuu erotuksessa. |
+
+### Testit
+
+- `tests/kaksiraitatesti-nayttoaani.test.ts`: 8 testiä.
+  - välähdysten ajoitus (myös hypyt, taaksepäin kelaus ja pysähtynyt kello)
+  - säädön rajat ja protokolla
+  - tallennus (myös estetty ja rikkinäinen tallennus)
+  - tilastot, Welchin ero, tavoiteluokitus ja yhteenveto.
+- `tests/e2e/kaksiraitatesti-nayttoaani.spec.ts` (Chromium, työpöytä ja puhelin), 3 testiä × 2:
+  - **Välähdyksen viive mediakellosta** (currentTime välähdyksessä − merkkiääni − d) oli 1,3–16,3 ms, eli yhden 60 Hz:n piirtovälin sisällä.
+  - **Koko kulku:** käynnistys, jatko (toistosäätö merkitään), kelaus 1:30, M − R rinnalla, jaksoanalyysi ja uudelleenlataus (kierros 2, kokeet säilyvät).
+  - **Asettelu:** 402 × 874 ja 375 × 667 ilman vaakavieritystä. 402 × 874:ssä tallennuspainike näkyy ilman vieritystä.
+- **Ei testattu:** WebKit, fyysinen iPhone, kuultava ääni ja todellinen näytön viive. Chromium ajetaan ilman ääniulostuloa.
+
 ## Mittaukset
 
 Raportti (Valitse raportti → kopioi) sisältää kaiken alla olevan:
