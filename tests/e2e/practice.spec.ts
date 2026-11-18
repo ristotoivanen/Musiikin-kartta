@@ -418,14 +418,14 @@ test.describe('sivuston yhtenäisyys', () => {
 
     await page.goto('/');
     const trainerLink = page.getByRole('navigation', { name: 'Päävalikko' })
-      .getByRole('link', { name: 'Kitaraharjoittelu', exact: true });
+      .getByRole('link', { name: 'Kitaratreeni', exact: true });
     await expect(trainerLink).toBeVisible();
-    await expect(trainerLink).toHaveAttribute('href', 'kitaraharjoittelija.html');
+    await expect(trainerLink).toHaveAttribute('href', 'kitaratreeni.html');
     await expect(page.locator('a[href="pdf/musiikin-kartta.pdf"]').first()).toBeVisible();
 
     // Yhdistetty otelautakartta: moodi valitaan pudotusvalikosta, ei enää painikkeesta.
     await page.goto('/otelautaharjoittelija.html');
-    await expect(page.getByRole('link', { name: 'Kitaraharjoittelu', exact: true })).toHaveAttribute('href', 'kitaraharjoittelija.html');
+    await expect(page.getByRole('link', { name: 'Kitaratreeni', exact: true })).toHaveAttribute('href', 'kitaratreeni.html');
     await page.getByRole('combobox', { name: 'Asteikko tai moodi' }).selectOption('dorian');
     await expect(page.locator('#selection-title')).toContainText('A-doorinen');
     await expect(page.locator('#board svg')).toBeVisible();
@@ -493,7 +493,8 @@ test.describe('sivuston yhtenäisyys', () => {
     await theory.click();
     await expect(page).toHaveURL(/osa-11\.html#moodit$/);
     await page.goBack();
-    await page.getByRole('navigation', { name: 'Päävalikko' }).getByRole('link', { name: 'Otelautaopas' }).click();
+    await page.getByRole('navigation', { name: 'Päävalikko' }).getByRole('link', { name: 'Soittopakki' }).click();
+    await page.getByRole('link', { name: 'Avaa Otelautaopas' }).click();
     await expect(page).toHaveURL(/otelautaharjoittelija\.html$/);
   });
 });

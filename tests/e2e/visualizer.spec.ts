@@ -78,12 +78,15 @@ async function expectBoardGrip(page: Page, frets: readonly Fret[], degrees: read
 }
 
 test.describe('Otelautakartta, vain visualisointi', () => {
-  test('Otelautaopas löytyy etusivun päävalikosta ilman vanhaa taustaraitalinkkiä', async ({ page }) => {
+  test('Otelautaopas löytyy etusivun päävalikosta Soittopakin kautta ilman vanhaa taustaraitalinkkiä', async ({ page }) => {
     await page.goto('/index.html');
-    const guideLink = page.getByRole('navigation', { name: 'Päävalikko' })
-      .getByRole('link', { name: 'Otelautaopas', exact: true });
-    await expect(guideLink).toBeVisible();
-    await expect(guideLink).toHaveAttribute('href', 'otelautaharjoittelija.html');
+    const toolkit = page.getByRole('navigation', { name: 'Päävalikko' })
+      .getByRole('link', { name: 'Soittopakki', exact: true });
+    await expect(toolkit).toBeVisible();
+    await expect(toolkit).toHaveAttribute('href', 'soittopakki.html');
+    await toolkit.click();
+    await expect(page.getByRole('link', { name: 'Avaa Otelautaopas' })).toHaveAttribute('href', 'otelautaharjoittelija.html');
+    await page.goto('/index.html');
     await expect(page.getByRole('link', { name: 'Soita taustan mukana' })).toHaveCount(0);
   });
 
@@ -508,7 +511,7 @@ test.describe('Otelautaoppaan ulkoasu', () => {
       .map(sel => el.querySelector(sel)!.getBoundingClientRect().top));
     expect(order).toEqual([...order].sort((a, b) => a - b));
     await expect(page.locator('#box-details')).not.toHaveAttribute('open');
-    await expect(page.getByRole('navigation', { name: 'Päävalikko' }).getByRole('link', { name: 'Otelautaopas' })).toHaveAttribute('aria-current', 'page');
+    await expect(page.getByRole('navigation', { name: 'Päävalikko' }).getByRole('link', { name: 'Soittopakki' })).toHaveAttribute('aria-current', 'true');
   });
 
   test('otelauta ei kapene: työpöydällä 1064 px, mobiilissa vähintään entinen näkyvä leveys', async ({ page }) => {
