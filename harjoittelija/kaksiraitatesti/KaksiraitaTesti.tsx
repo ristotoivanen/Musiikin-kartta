@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { SongGainMixer, StemAligner, trackLevel, type AlignableMedia } from '../songAudio';
 import {
-  arrayReference, measureAlignment, seekLatencies, tapOf, TestLog, wavReference,
+  arrayReference, blobReference, measureAlignment, seekLatencies, tapOf, TestLog,
   type AlignmentMeasurement, type MeasuredInput, type Reference,
 } from './mittaus';
+import { LoadError, OnceLoader } from './lataus';
 import { encodeWav16, syntheticTracks } from './synteettinen';
 
 /**
@@ -14,6 +15,13 @@ import { encodeWav16, syntheticTracks } from './synteettinen';
  * näkyvyyden menetys ja preload="metadata". Erot kolmen raidan soittimeen on lueteltu README:ssä.
  */
 type Source = 'mp3' | 'wav' | 'synteettinen';
+type Track = 'tausta' | 'kitara';
+const TRACKS: Track[] = ['tausta', 'kitara'];
+const TRACK_NAMES: Record<Track, string> = { tausta: 'tausta', kitara: 'kitara' };
+/** Kerran ladattavan WAV-tiedoston tila (lataus.ts). */
+interface FileState { state: 'odottaa' | 'lataa' | 'valmis' | 'virhe'; loaded: number; total: number | null; attempt: number; reason: string; url: string | null }
+const EMPTY_FILE: FileState = { state: 'odottaa', loaded: 0, total: null, attempt: 1, reason: '', url: null };
+const MEDIA_ERRORS: Record<number, string> = { 1: 'keskeytetty', 2: 'verkkovirhe', 3: 'purkuvirhe', 4: 'lähdettä ei voi toistaa' };
 const FOLDER = 'assets/audio/kaksiraitatesti/';
 const FILES = {
   mp3: { tausta: FOLDER + 'yksi-sointu-akustinen-tausta.mp3', kitara: FOLDER + 'yksi-sointu-akustinen-kitara.mp3' },
@@ -21,20 +29,44 @@ const FILES = {
 };
 const SEEK_PRECISION_SECONDS = 0.001;
 const MEASURE_DELAY_MS = 3000;
-const MEASURE_INTERVAL_MS = 5000;
 
 function readParams() {
   const params = new URLSearchParams(location.search);
   const raw = params.get('lahde');
   const source: Source = raw === 'wav' || raw === 'synteettinen' ? raw : 'mp3';
   const offset = Number(params.get('siirto') ?? '0');
-  return { source, sync: params.get('tahdistin') !== 'pois', offsetMs: source === 'synteettinen' && Number.isFinite(offset) ? offset : 0 };
+  // Tahdistimen koetilat: käytössä (B1), pois (B2) tai vain pakotetut tahdistukset ilman jatkuvia korjauskelauksia (B3).
+  const syncMode = params.get('tahdistin') === 'pois' ? 'pois' : params.get('tahdistin') === 'ei-korjauksia' ? 'ei-korjauksia' : 'kaytossa';
+  const interval = Number(params.get('mittausvali') ?? '5000');
+  // Moottori: 'nykyinen' = kappaleharjoittelijan toisto (PR #92), 'uusi' = korjausehdokas (load() tyhjentää
+  // äänipuskurin jokaisessa siirto-operaatiossa, ei korjauskelauksia, selkeä kelaustila).
+  const engine = params.get('moottori') === 'uusi' ? 'uusi' : 'nykyinen';
+  // WAV-tila soittaa oletuksena kerran ladatusta muistikopiosta (Blob), koska Pagesin äänifunktio ei kestä
+  // 23 Mt:n tiedostojen Range-pyyntöjä (503, error code 1102). &lataus=verkko palauttaa PR #100:n verkkotoiston.
+  // MP3-tila soittaa aina verkosta kuten tuotanto. Synteettinen aineisto on aina muistissa.
+  const loading = source === 'mp3' || (source === 'wav' && params.get('lataus') === 'verkko') ? 'verkko' : 'muisti';
+  const idle = Number(params.get('latausaikaraja') ?? '20000');
+  return {
+    source, engine, loading, loadIdleMs: Number.isFinite(idle) && idle >= 500 ? idle : 20000,
+    syncMode: engine === 'uusi' ? 'uusi-moottori' : syncMode,
+    sync: engine === 'nykyinen' && syncMode !== 'pois', corrections: engine === 'nykyinen' && syncMode === 'kaytossa',
+    offsetMs: source === 'synteettinen' && Number.isFinite(offset) ? offset : 0,
+    measureIntervalMs: Number.isFinite(interval) && interval >= 1000 ? interval : 5000,
+  };
 }
 
 function clock(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
   const whole = Math.floor(seconds);
   return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, '0')}`;
+}
+
+const mb = (bytes: number | null) => (bytes === null ? '?' : (bytes / 1e6).toFixed(1).replace('.', ','));
+
+function mediaErrorText(element: HTMLMediaElement): string {
+  const error = element.error;
+  if (!error) return '';
+  return (MEDIA_ERRORS[error.code] ?? `virhe ${error.code}`) + (error.message ? `: ${error.message}` : '');
 }
 
 const fmt = (value: number | null | undefined, digits = 1) => (value === null || value === undefined || !Number.isFinite(value) ? '–' : value.toFixed(digits));
@@ -49,18 +81,48 @@ function median(values: number[]): number | null {
 export function KaksiraitaTesti() {
   const params = useMemo(readParams, []);
   const synthetic = useMemo(() => (params.source === 'synteettinen' ? syntheticTracks(60, 48000, params.offsetMs) : null), [params]);
-  const urls = useMemo(() => {
-    if (!synthetic) return FILES[params.source as 'mp3' | 'wav'];
+  const syntheticUrls = useMemo(() => {
+    if (!synthetic) return null;
     const blob = (samples: Float32Array) => URL.createObjectURL(new Blob([encodeWav16(samples, synthetic.sampleRate)], { type: 'audio/wav' }));
     return { tausta: blob(synthetic.tausta), kitara: blob(synthetic.kitara) };
-  }, [params, synthetic]);
+  }, [synthetic]);
+  // WAV-tiedostot ladataan kerran kokonaan (ei Range-pyyntöjä). Ne ovat mittausreferenssi MP3- ja WAV-tilassa
+  // ja WAV-tilan toistolähde (Blob-osoite), jolloin load() ja kelaus eivät tee verkkopyyntöjä.
+  const playsFromMemory = params.source === 'wav' && params.loading === 'muisti';
+  const [files, setFiles] = useState<Record<Track, FileState>>({ tausta: EMPTY_FILE, kitara: EMPTY_FILE });
+  const fileLoads = useRef<Partial<Record<Track, Promise<Blob>>>>({});
+  const progressShown = useRef<Record<Track, number>>({ tausta: 0, kitara: 0 });
+  const loader = useMemo(() => new OnceLoader(url => {
+    const track: Track = url === FILES.wav.kitara ? 'kitara' : 'tausta';
+    return {
+      idleTimeoutMs: params.loadIdleMs,
+      onProgress: ({ loaded, total, attempt }) => {
+        if (loaded !== total && loaded - progressShown.current[track] < 1 << 20) return;
+        progressShown.current[track] = loaded;
+        setFiles(all => ({ ...all, [track]: { ...all[track], loaded, total, attempt } }));
+      },
+      onAttemptFailed: ({ attempt, reason, willRetry }) => {
+        progressShown.current[track] = 0;
+        record('lataus-yritys-epaonnistui', { track, attempt, reason, willRetry });
+      },
+    };
+  }), [params]);
+  const urls = syntheticUrls ?? (playsFromMemory
+    ? { tausta: files.tausta.url ?? undefined, kitara: files.kitara.url ?? undefined }
+    : FILES[params.source as 'mp3' | 'wav']);
   // Synteettisessä tilassa referenssi on siirtämätön alkuperäinen sisältö: siirretyn kitaran pitää
   // mitata siirron verran taustasta jäljessä, vaikka mediakellot ovat tasan.
   const source = useMemo(() => (synthetic && params.offsetMs !== 0 ? syntheticTracks(60, synthetic.sampleRate, 0) : synthetic), [params, synthetic]);
-  const references = useMemo<Record<'tausta' | 'kitara', Reference>>(() => source
+  const fetchRef = useRef<(track: Track) => Promise<Blob>>(() => Promise.reject(new Error('ei alustettu')));
+  const referenceRef = useRef<(track: Track) => Promise<Blob>>(() => Promise.reject(new Error('ei alustettu')));
+  // Lopullisesti epäonnistunutta latausta ei yritetä mittauksista uudelleen (ei pyyntötulvaa vikatilassa).
+  // Uusi yritys vain Yritä uudelleen -painikkeesta.
+  const loadFailed = useRef<Record<Track, boolean>>({ tausta: false, kitara: false });
+  const references = useMemo<Record<Track, Reference>>(() => source
     ? { tausta: arrayReference(source.tausta, source.sampleRate), kitara: arrayReference(source.kitara, source.sampleRate) }
     // MP3- ja WAV-tila mitataan samoja WAV-tiedostoja vastaan (MP3 ja WAV ovat näytetarkasti kohdakkain, ks. README).
-    : { tausta: wavReference(FILES.wav.tausta), kitara: wavReference(FILES.wav.kitara) }, [source]);
+    // Referenssi luetaan kerran ladatusta Blobista, joten mittaukset eivät tee verkkopyyntöjä.
+    : { tausta: blobReference(() => referenceRef.current('tausta')), kitara: blobReference(() => referenceRef.current('kitara')) }, [source]);
 
   const backingRef = useRef<HTMLAudioElement>(null);
   const guitarRef = useRef<HTMLAudioElement>(null);
@@ -82,8 +144,47 @@ export function KaksiraitaTesti() {
   const [live, setLive] = useState<{ diff: number; tausta: number; kitara: number } | null>(null);
   const [ratings, setRatings] = useState<{ value: string; time: number }[]>([]);
   const [report, setReport] = useState('');
+  // Uusi moottori: kohta, josta seuraava Soita jatkaa, ja onko toistoa jo aloitettu (load() vasta toisella kerralla).
+  const resumeAt = useRef(0);
+  const started = useRef(false);
 
   const record = (event: string, details: Record<string, unknown> = {}) => log.current.record(event, details);
+
+  /** Lataa raidan WAV-tiedoston (kerran). Sama lupaus palvelee toistoa ja mittausta. */
+  function fetchTrack(track: Track): Promise<Blob> {
+    const pending = loader.load(FILES.wav[track]);
+    if (fileLoads.current[track] === pending) return pending;
+    fileLoads.current[track] = pending;
+    const began = performance.now();
+    progressShown.current[track] = 0;
+    record('lataus-alku', { track, url: FILES.wav[track] });
+    setFiles(all => ({ ...all, [track]: { ...all[track], state: 'lataa', loaded: 0, reason: '' } }));
+    pending.then(blob => {
+      record('lataus-valmis', { track, bytes: blob.size, kestoMs: Math.round(performance.now() - began) });
+      setFiles(all => ({ ...all, [track]: { ...all[track], state: 'valmis', loaded: blob.size, total: blob.size, reason: '', url: playsFromMemory ? URL.createObjectURL(blob) : null } }));
+    }, (cause: unknown) => {
+      const reason = cause instanceof LoadError ? cause.message : String(cause);
+      record('lataus-virhe', { track, reason });
+      loadFailed.current[track] = true;
+      setFiles(all => ({ ...all, [track]: { ...all[track], state: 'virhe', reason } }));
+    });
+    return pending;
+  }
+  fetchRef.current = fetchTrack;
+  referenceRef.current = track => (loadFailed.current[track]
+    ? Promise.reject(new Error(`Mittausreferenssi (${track}) ei latautunut: ${files[track].reason}`))
+    : fetchTrack(track));
+
+  function retryFiles() {
+    for (const track of TRACKS) {
+      if (files[track].state !== 'virhe') continue;
+      loadFailed.current[track] = false;
+      void fetchTrack(track).catch(() => { /* Näkyy tilassa. */ });
+    }
+  }
+
+  const filesReady = !playsFromMemory || TRACKS.every(track => files[track].state === 'valmis');
+  const failedFiles = TRACKS.filter(track => files[track].state === 'virhe');
 
   /** Kitaran kelauskirjoitukset kirjataan. Sama olio joka kerta, jotta tahdistimen raitakohtainen muisti säilyy. */
   function proxyFor(element: HTMLMediaElement): AlignableMedia {
@@ -110,6 +211,8 @@ export function KaksiraitaTesti() {
     const backing = backingRef.current;
     const guitar = guitarRef.current;
     if (!backing || !guitar || !params.sync) return;
+    // B3: jatkuvat korjauskelaukset estetty, pakotetut tahdistukset (alku, kelaus, jatko) säilyvät.
+    if (!force && !params.corrections) return;
     forcing.current = force;
     aligner.current.align(backing, proxyFor(guitar), force);
   }
@@ -138,6 +241,8 @@ export function KaksiraitaTesti() {
     mixer.current?.observe();
     backingRef.current?.pause();
     guitarRef.current?.pause();
+    // C3: tavallinen jatko alkaa pysäytyskohdasta. Vanhaa kelauskohdetta ei säilytetä.
+    if (params.engine === 'uusi' && backingRef.current) resumeAt.current = backingRef.current.currentTime;
     setPlaying(false);
   }
 
@@ -146,6 +251,15 @@ export function KaksiraitaTesti() {
     if (!backing || !Number.isFinite(seconds)) return;
     const at = Math.max(0, Math.min(seconds, Number.isFinite(backing.duration) ? backing.duration : seconds));
     record('control', { control: 'kelaus', to: at });
+    if (params.engine === 'uusi') {
+      // C3: uusi käyttäjän kelaus ohittaa kaiken aiemman. Soiton aikana toisto aloitetaan tuoreilla
+      // elementeillä kelauskohdasta, tauolla kohta jää odottamaan seuraavaa Soita-painallusta.
+      resumeAt.current = at;
+      setPosition(at);
+      if (playing) void freshStart(at, 'kelaus');
+      else playbackRequest.current++;
+      return;
+    }
     pendingSeek.current = at;
     setPosition(at);
     setBackingTime(backing, at);
@@ -193,13 +307,14 @@ export function KaksiraitaTesti() {
     const periodic = () => {
       if (request !== playbackRequest.current) return;
       void measure('jatkuva', request);
-      timers.current.push(window.setTimeout(periodic, MEASURE_INTERVAL_MS));
+      timers.current.push(window.setTimeout(periodic, params.measureIntervalMs));
     };
-    timers.current.push(window.setTimeout(periodic, MEASURE_DELAY_MS + MEASURE_INTERVAL_MS));
+    timers.current.push(window.setTimeout(periodic, MEASURE_DELAY_MS + params.measureIntervalMs));
   }
 
   function followBacking(backing: HTMLAudioElement) {
     if (backing !== backingRef.current) return;
+    if (params.engine === 'uusi') { setPosition(backing.currentTime); return; }
     const target = pendingSeek.current;
     if (target === null) {
       setPosition(backing.currentTime);
@@ -224,9 +339,15 @@ export function KaksiraitaTesti() {
     const backing = backingRef.current;
     const guitar = guitarRef.current;
     if (!backing || !guitar) return;
+    if (!playing && !filesReady) return;
     record('control', { control: playing ? 'tauko' : 'soita' });
     if (playing) { pause('painallus'); return; }
+    if (params.engine === 'uusi') return freshStart(resumeAt.current, started.current ? 'jatko' : 'käynnistys');
     setError('');
+    // Latausvirheen jälkeen elementti ei toivu ilman load()-kutsua: uusi painallus yrittää latausta uudelleen.
+    for (const [element, track] of [[backing, 'tausta'], [guitar, 'kitara']] as const) {
+      if (element.error) { record('uusi-lataus', { track, reason: mediaErrorText(element) }); element.load(); }
+    }
     const resumed = backing.currentTime > 0.05;
     const startAt = pendingSeek.current ?? backing.currentTime;
     if (Number.isFinite(backing.duration) && startAt >= backing.duration - 0.05) seek(0);
@@ -271,7 +392,129 @@ export function KaksiraitaTesti() {
     } catch {
       if (request !== playbackRequest.current) return;
       pause('virhe');
-      setError('Toisto epäonnistui.');
+      setError(loadFailureText() || 'Toisto epäonnistui.');
+    }
+  }
+
+  /** Raitojen latausvirhe käyttäjälle, tyhjä jos kummallakaan raidalla ei ole virhettä. */
+  function loadFailureText(): string {
+    const failed = ([[backingRef.current, 'tausta'], [guitarRef.current, 'kitara']] as const)
+      .filter(([element]) => element?.error)
+      .map(([element, track]) => `${track}: ${mediaErrorText(element!)}`);
+    return failed.length ? `Äänitiedoston lataus epäonnistui (${failed.join('; ')}). Paina Soita yrittääksesi uudelleen.` : '';
+  }
+
+  /** Raidan latausvirhe kesken soiton tai ennen sitä: virhe näkyy heti, eikä toinen raita jää soimaan yksin. */
+  function onMediaError(track: Track, element: HTMLAudioElement) {
+    if (playing) pause('latausvirhe');
+    setError(`Äänitiedoston lataus epäonnistui (${track}: ${mediaErrorText(element)}). Paina Soita yrittääksesi uudelleen.`);
+  }
+
+  /**
+   * Odottaa, että elementti on kelattu kohteeseen (metadata ladattu, ei kelausta kesken). Latausvirhe
+   * keskeyttää odotuksen heti, jottei toisto jää odottamaan raitaa, joka ei koskaan valmistu.
+   */
+  function waitPositioned(element: HTMLAudioElement, target: number, timeoutMs = 5000): Promise<'valmis' | 'virhe' | 'aikakatkaisu'> {
+    return new Promise(resolve => {
+      const done = () => element.readyState >= 1 && !element.seeking && Math.abs(element.currentTime - target) < 0.25;
+      if (element.error) { resolve('virhe'); return; }
+      if (done()) { resolve('valmis'); return; }
+      const events = ['loadedmetadata', 'seeked', 'canplay', 'loadeddata', 'error'];
+      const check = () => { if (element.error) finish('virhe'); else if (done()) finish('valmis'); };
+      const timer = window.setTimeout(() => finish('aikakatkaisu'), timeoutMs);
+      function finish(result: 'valmis' | 'virhe' | 'aikakatkaisu') {
+        window.clearTimeout(timer);
+        for (const name of events) element.removeEventListener(name, check);
+        resolve(result);
+      }
+      for (const name of events) element.addEventListener(name, check);
+    });
+  }
+
+  /**
+   * Korjausehdokas (C1): soitto, jatko ja kelaus aloitetaan aina tyhjällä äänipuskurilla yhteisestä kohdasta.
+   * iOS WebKit toistaa kelauksen ja tauon jälkeen MediaElementSourcen puskuriin jääneen vanhan äänen
+   * (simulaattorissa 0,85–0,96 s), eikä currentTime näytä sitä. load() luo elementille uuden mediasoittimen
+   * ja äänitapin, joiden puskuri on tyhjä. Elementti säilyttää MediaElementSource-kytkentänsä ja luvan
+   * soittaa (uusi elementti tarvitsisi uuden painalluksen). Molemmat kelataan kohteeseen ennen toistoa,
+   * ja toisto alkaa vasta, kun kumpikin on valmis. Toiston aikana ei tehdä korjauskelauksia (C2).
+   */
+  async function freshStart(target: number, phase: string) {
+    const request = ++playbackRequest.current;
+    clearTimers();
+    setError('');
+    const reload = started.current;
+    started.current = true;
+    record('tuore-aloitus', { phase, target, reload });
+    setPosition(target);
+    const backing = backingRef.current;
+    const guitar = guitarRef.current;
+    if (!backing || !guitar) return;
+    const gains = mixer.current ??= new SongGainMixer();
+    const routed = gains.unlock() && [backing, guitar].map(stem => gains.route(stem)).every(Boolean);
+    setNote(routed ? '' : 'Web Audio -kytkentä epäonnistui: ' + gains.lastError);
+    let recovery: Promise<boolean> | null = null;
+    if (routed && (gains.recovering || gains.clockState() === 'stalled')) {
+      record('palautus', { reason: gains.recovering ? 'kesken' : 'kello pysähtynyt' });
+      recovery = gains.recover();
+    }
+    applyLevels();
+    for (const element of [backing, guitar]) {
+      element.pause();
+      // Ensimmäisellä kerralla elementti on jo tuore. Myöhemmin load() tyhjentää äänipuskurin.
+      // Latausvirheen jälkeen load() myös yrittää latausta uudelleen.
+      if (reload || element.error) element.load();
+      if (target > 0) {
+        record('seek-write', { track: element === backing ? 'tausta' : 'kitara', from: element.currentTime, to: target, forced: 'aloitus', readyState: element.readyState, paused: true });
+        element.currentTime = target;
+      }
+    }
+    if (recovery) {
+      const restored = await recovery;
+      record('palautus-tulos', { restored, error: restored ? '' : gains.lastError });
+      if (request !== playbackRequest.current) return;
+      if (!restored) { setError('Ääni ei palautunut: Web Audio on pysähtynyt. Lataa sivu uudelleen. ' + gains.lastError); return; }
+    }
+    const positioned = await Promise.all([waitPositioned(backing, target), waitPositioned(guitar, target)]);
+    record('kelattu', { tausta: positioned[0], kitara: positioned[1], tT: backing.currentTime, tK: guitar.currentTime });
+    // Uudempi painallus, kelaus tai tauko on ohittanut tämän aloituksen.
+    if (request !== playbackRequest.current) return;
+    if (positioned.includes('virhe')) {
+      // Raidan lataus epäonnistui: kumpaakaan ei soiteta. Kohta säilyy, ja seuraava Soita lataa uudelleen.
+      record('latausvirhe', { target, tausta: mediaErrorText(backing), kitara: mediaErrorText(guitar) });
+      resumeAt.current = target;
+      setPlaying(false);
+      setError(loadFailureText());
+      return;
+    }
+    if (positioned.includes('aikakatkaisu')) {
+      // Kelaus ei valmistunut: toistoa ei aloiteta väärästä kohdasta. Kohta säilyy seuraavaa yritystä varten.
+      const late = TRACKS.filter((_, index) => positioned[index] !== 'valmis');
+      record('kelaus-aikakatkaisu', { target, raidat: late });
+      resumeAt.current = target;
+      setPlaying(false);
+      setError(`Kelaus ei valmistunut (${late.join(', ')}). Paina Soita uudelleen.`);
+      return;
+    }
+    try {
+      await Promise.all([playTracked(backing, 'tausta'), playTracked(guitar, 'kitara')]);
+      if (request !== playbackRequest.current) return;
+      setPlaying(true);
+      record('toisto-alkoi', { tausta: backing.currentTime, kitara: guitar.currentTime });
+      scheduleMeasurements(phase, request);
+      if (routed) {
+        gains.observe();
+        window.setTimeout(() => {
+          if (request !== playbackRequest.current) return;
+          if (gains.state !== 'running') setError(`Ääni ei käynnistynyt (Web Audio: ${gains.state}).`);
+          else if (gains.clockState() === 'stalled') { pause('vahti'); setError('Ääni ei kulje: Web Audio on pysähtynyt. Paina Soita uudelleen.'); }
+        }, 800);
+      }
+    } catch (cause) {
+      if (request !== playbackRequest.current) return;
+      pause('virhe');
+      const notAllowed = (cause as { name?: unknown } | null)?.name === 'NotAllowedError';
+      setError(notAllowed ? 'Toisto vaatii uuden painalluksen. Paina Soita.' : loadFailureText() || 'Toisto epäonnistui.');
     }
   }
 
@@ -285,8 +528,10 @@ export function KaksiraitaTesti() {
     const backing = backingRef.current;
     return {
       meta: {
-        test: 'kaksiraitatesti', source: params.source, sync: params.sync, offsetMs: params.offsetMs,
+        test: 'kaksiraitatesti', source: params.source, sync: params.sync, syncMode: params.syncMode,
+        offsetMs: params.offsetMs, measureIntervalMs: params.measureIntervalMs, engine: params.engine, loading: params.loading,
         bundle: new URL(import.meta.url).searchParams.get('v'), files: urls, userAgent: navigator.userAgent,
+        fileLoads: Object.fromEntries(TRACKS.map(track => [track, { state: files[track].state, bytes: files[track].loaded, attempt: files[track].attempt, reason: files[track].reason }])),
         audioSession: (navigator as unknown as { audioSession?: { type?: string } }).audioSession?.type ?? null,
         contextSampleRate: tapOf(backing)?.context.sampleRate ?? null,
       },
@@ -301,26 +546,82 @@ export function KaksiraitaTesti() {
     setReport(JSON.stringify(buildReport()));
   }
 
+  // Vakiokoe: sama järjestys joka tilassa, jotta kokeet B1–B4 ovat vertailukelpoisia.
+  // Kutsuu samoja toistofunktioita kuin painikkeet. Ensimmäinen Soita tapahtuu painalluksen aikana.
+  const toggleRef = useRef(togglePlayback);
+  toggleRef.current = togglePlayback;
+  const seekRef = useRef(seek);
+  seekRef.current = seek;
+  const scenario = useRef(false);
+  const [scenarioState, setScenarioState] = useState('');
+  async function runScenario() {
+    if (scenario.current || playing || !filesReady) return;
+    scenario.current = true;
+    const wait = (ms: number) => new Promise(resolve => window.setTimeout(resolve, ms));
+    const step = (name: string) => {
+      record('vakiokoe', { step: name, time: backingRef.current?.currentTime ?? 0 });
+      setScenarioState(name);
+    };
+    try {
+      step('soita');
+      const started = toggleRef.current();
+      await started;
+      await wait(25_000);
+      step('kelaus');
+      seekRef.current(params.source === 'synteettinen' ? 30 : 60);
+      await wait(15_000);
+      step('tauko');
+      await toggleRef.current();
+      await wait(3_000);
+      step('jatko');
+      await toggleRef.current();
+      await wait(15_000);
+      step('tauko-loppu');
+      await toggleRef.current();
+      step('valmis');
+    } finally {
+      scenario.current = false;
+    }
+  }
+
   // Selaintestit lukevat raportin suoraan, ettei moniMEGATAVUINEN teksti kulje sivun kautta joka kerta.
   const reportRef = useRef(buildReport);
   reportRef.current = buildReport;
   useEffect(() => {
-    (window as unknown as { kaksiraitatesti?: { report(): unknown } }).kaksiraitatesti = { report: () => reportRef.current() };
+    (window as unknown as { kaksiraitatesti?: { report(): unknown; seek(seconds: number): void } }).kaksiraitatesti = {
+      report: () => reportRef.current(),
+      // Selaintesteille: peräkkäiset ja keskeneräisen kelauksen aikana tehdyt kelaukset.
+      seek: seconds => seekRef.current(seconds),
+    };
   }, []);
 
-  // Elementtien tapahtumat ja 0,5 s:n näytteet mediakelloista.
+  // WAV-tiedostot ladataan heti: WAV-tilassa toistoa varten, MP3-tilassa mittausreferenssiksi.
+  useEffect(() => {
+    if (params.source === 'synteettinen') return;
+    for (const track of TRACKS) void fetchRef.current(track).catch(() => { /* Näkyy tilassa. */ });
+  }, [params]);
+
+  // Elementtien tapahtumat.
   useEffect(() => {
     const pairs: [HTMLAudioElement | null, string][] = [[backingRef.current, 'tausta'], [guitarRef.current, 'kitara']];
-    const names = ['loadedmetadata', 'canplay', 'canplaythrough', 'play', 'playing', 'waiting', 'stalled', 'seeking', 'seeked', 'pause', 'ended', 'error'];
+    const names = ['loadstart', 'emptied', 'loadedmetadata', 'canplay', 'canplaythrough', 'play', 'playing', 'waiting', 'stalled', 'seeking', 'seeked', 'pause', 'ended', 'error'];
     const removers: (() => void)[] = [];
     for (const [element, track] of pairs) {
       if (!element) continue;
       for (const name of names) {
-        const handler = () => record(name, { track, time: element.currentTime, readyState: element.readyState, paused: element.paused });
+        const handler = () => record(name, {
+          track, time: element.currentTime, readyState: element.readyState, paused: element.paused,
+          ...(name === 'error' ? { code: element.error?.code ?? null, message: element.error?.message ?? '' } : {}),
+        });
         element.addEventListener(name, handler);
         removers.push(() => element.removeEventListener(name, handler));
       }
     }
+    return () => removers.forEach(remove => remove());
+  }, []);
+
+  // 0,5 s:n näytteet mediakelloista, näkyvyys ja sivulta poistuminen.
+  useEffect(() => {
     const sampler = window.setInterval(() => {
       const backing = backingRef.current, guitar = guitarRef.current;
       if (!backing || !guitar) return;
@@ -340,7 +641,6 @@ export function KaksiraitaTesti() {
     };
     document.addEventListener('visibilitychange', visibility);
     return () => {
-      removers.forEach(remove => remove());
       clearInterval(sampler);
       document.removeEventListener('visibilitychange', visibility);
       playbackRequest.current++;
@@ -360,23 +660,42 @@ export function KaksiraitaTesti() {
     };
   });
   const seekTarget = params.source === 'synteettinen' ? 30 : 60;
-  const link = (source: Source, sync = true) => `?lahde=${source}${sync ? '' : '&tahdistin=pois'}`;
-  const modeLabel = params.source === 'mp3' ? 'MP3' : params.source === 'wav' ? 'WAV (0–120 s)'
+  const link = (source: Source, mode = 'kaytossa') => `?lahde=${source}${mode === 'kaytossa' ? '' : '&tahdistin=' + mode}`;
+  const modeLabel = params.source === 'mp3' ? 'MP3' : params.source === 'wav' ? `WAV (0–120 s, ${playsFromMemory ? 'muistista' : 'verkosta'})`
     : `Synteettinen (kitara siirretty ${params.offsetMs} ms myöhemmäksi)`;
 
   return <main className="kaksiraita">
     <h1>Kahden raidan synkronointitesti</h1>
-    <p className="mode" data-source={params.source} data-sync={params.sync ? 'on' : 'off'}>
-      Tila: <strong>{modeLabel}</strong> · tahdistin <strong>{params.sync ? 'käytössä' : 'pois'}</strong>
+    <p className="mode" data-source={params.source} data-sync={params.sync ? 'on' : 'off'} data-sync-mode={params.syncMode}>
+      Tila: <strong>{modeLabel}</strong> · {params.engine === 'uusi'
+        ? <strong>uusi moottori (korjausehdokas)</strong>
+        : <>tahdistin <strong>{params.syncMode === 'kaytossa' ? 'käytössä' : params.syncMode === 'pois' ? 'pois' : 'ilman korjauskelauksia'}</strong></>}
     </p>
     <p className="links">
-      <a href={link('mp3')}>MP3</a> · <a href={link('wav')}>WAV</a> · <a href={link('synteettinen')}>Synteettinen</a> · <a href={link(params.source, !params.sync)}>tahdistin {params.sync ? 'pois' : 'käyttöön'}</a>
+      <a href={link('mp3')}>MP3</a> · <a href={link('wav')}>WAV</a> · <a href={link('synteettinen')}>Synteettinen</a> · <a href={link(params.source)}>tahdistin käyttöön</a> · <a href={link(params.source, 'pois')}>pois</a> · <a href={link(params.source, 'ei-korjauksia')}>ilman korjauksia</a> · <a href={`?lahde=${params.source}&moottori=uusi`}>uusi moottori</a>
     </p>
 
     <section className="player" aria-label="Testisoitin">
-      <button type="button" className="play" onClick={() => void togglePlayback()}>{playing ? '■ Tauko' : '▶ Soita'}</button>
-      <button type="button" onClick={() => seek(seekTarget)}>Siirry kohtaan {clock(seekTarget)}</button>
+      <button type="button" className="play" onClick={() => void togglePlayback()} disabled={!playing && !filesReady}>{playing ? '■ Tauko' : '▶ Soita'}</button>
+      <button type="button" onClick={() => seek(seekTarget)} disabled={!filesReady}>Siirry kohtaan {clock(seekTarget)}</button>
+      <button type="button" onClick={() => void runScenario()} disabled={!filesReady || (scenarioState !== '' && scenarioState !== 'valmis')}>
+        Aja vakiokoe (n. 60 s)
+      </button>
+      {scenarioState && <output className="scenario" data-step={scenarioState}> Vakiokoe: {scenarioState}</output>}
       <output className="time">{clock(position)} / {clock(duration)}</output>
+      {params.source !== 'synteettinen' && <p className="files" data-ready={filesReady ? 'kyllä' : 'ei'}>
+        {playsFromMemory ? 'Äänitiedostot' : 'Mittausreferenssit (WAV)'}:{' '}
+        {TRACKS.map((track, index) => <span key={track} data-track={track} data-state={files[track].state}>
+          {index ? ' · ' : ''}{TRACK_NAMES[track]} {files[track].state === 'valmis' ? `valmis (${mb(files[track].loaded)} Mt)`
+            : files[track].state === 'virhe' ? 'virhe'
+              : `${mb(files[track].loaded)} / ${mb(files[track].total)} Mt${files[track].attempt > 1 ? ` (yritys ${files[track].attempt})` : ''}`}
+        </span>)}
+      </p>}
+      {failedFiles.length > 0 && <p role="alert" className="error load-error">
+        {playsFromMemory ? 'Äänitiedoston' : 'Mittausreferenssin'} lataus epäonnistui: {failedFiles.map(track => `${TRACK_NAMES[track]} (${files[track].reason})`).join(', ')}.
+        {playsFromMemory ? ' Toistoa ei voi aloittaa.' : ' Toisto toimii, mutta mittaukset eivät.'}{' '}
+        <button type="button" onClick={retryFiles}>Yritä uudelleen</button>
+      </p>}
       {note && <p role="status">{note}</p>}
       {error && <p role="alert" className="error">{error}</p>}
       <audio ref={backingRef} src={urls.tausta} preload="metadata"
@@ -385,9 +704,11 @@ export function KaksiraitaTesti() {
         onCanPlay={event => retryPendingSeek(event.currentTarget)}
         onTimeUpdate={event => followBacking(event.currentTarget)}
         onEnded={() => { pendingSeek.current = null; clearTimers(); record('ended', {}); guitarRef.current?.pause(); setPlaying(false); }}
-        onPause={event => { if (event.currentTarget === backingRef.current) setPlaying(false); }} />
+        onPause={event => { if (event.currentTarget === backingRef.current) setPlaying(false); }}
+        onError={event => onMediaError('tausta', event.currentTarget)} />
       <audio ref={guitarRef} src={urls.kitara} preload="metadata"
-        onLoadedMetadata={() => { if (backingRef.current?.paused) syncStems(true); }} />
+        onLoadedMetadata={() => { if (params.engine === 'nykyinen' && backingRef.current?.paused) syncStems(true); }}
+        onError={event => onMediaError('kitara', event.currentTarget)} />
     </section>
 
     <section aria-label="Mediakellot">
@@ -409,7 +730,8 @@ export function KaksiraitaTesti() {
         {measurements.slice(-12).map(item => <li key={item.ms} data-reliable={item.reliable ? 'kyllä' : 'ei'}>
           {item.phase}: renderöity {fmt(item.renderedDiffMs)} ms, mediakellot {fmt(item.mediaDiffMs)} ms
           {' '}(korrelaatio T {fmt(item.tracks[0].score, 3)} / K {fmt(item.tracks[1].score, 3)}
-          {item.reliable ? '' : ', epävarma' + (item.tracks.some(track => track.probeRms <= 1e-4) ? ': raita hiljaa' : '')})
+          {item.reliable ? '' : ', epävarma' + (item.tracks.find(track => track.error)?.error ? ': ' + item.tracks.find(track => track.error)!.error
+            : item.tracks.some(track => track.probeRms <= 1e-4) ? ': raita hiljaa' : '')})
         </li>)}
       </ol>
     </section>

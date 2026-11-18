@@ -78,9 +78,11 @@ test.describe('Kahden raidan synkronointitesti', () => {
     const start = await firstReliable(page, 'käynnistys');
     // Renderöity ero = sisällön siirto (−40 ms) + mediakellojen jäännösero, jonka tahdistin jättää.
     expect(Math.abs(start.renderedDiffMs! - start.mediaDiffMs + 40)).toBeLessThan(1.5);
-    expect(Math.abs(start.renderedDiffMs! + 40)).toBeLessThan(10);
+    // Chromium aloittaa raidat 512 näytteen jaksoissa (48 kHz: 10,7 ms), joten kuormitetussa ajossa
+    // mediakellojen jäännösero voi olla yksi jakso. Raja sallii yhden jakson, ei enempää.
+    expect(Math.abs(start.renderedDiffMs! + 40)).toBeLessThan(11);
     // Tahdistin kohdistaa mediakellot, joten niiden ero ei paljasta siirtoa.
-    expect(Math.abs(start.mediaDiffMs)).toBeLessThan(10);
+    expect(Math.abs(start.mediaDiffMs)).toBeLessThan(11);
   });
 
   test('tahdistin pois: kitaraa ei kelata, mutta mittaukset toimivat', async ({ page }) => {
