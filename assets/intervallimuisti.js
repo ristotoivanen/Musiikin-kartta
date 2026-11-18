@@ -90,6 +90,11 @@ function mount(section) {
     input.focus();
   }
 
+  // Pohjassa pysyvä Enter ei saa aktivoida painiketta fokuksen siirryttyä.
+  section.querySelector('.intervallikysely').addEventListener('keydown', event => {
+    if (event.key === 'Enter' && event.repeat) event.preventDefault();
+  });
+
   start.hidden = false;
   start.addEventListener('click', () => {
     index = 0;

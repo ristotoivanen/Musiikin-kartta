@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { at, INTERVALS, noteToMidi, spell } from '../harjoittelija/music';
@@ -63,6 +64,53 @@ describe('intervallien teoria ja palautus', () => {
     expect(acceptsAnswer(nameAt(4).answers, 'M3')).toBe(true);
     expect(acceptsAnswer(nameAt(4).answers, 'm3')).toBe(false);
     expect(acceptsAnswer(nameAt(3).answers, 'terssi')).toBe(false);
+  });
+
+  it('A-taulukossa näkyy jokaiselle etäisyydelle oikea kirjoitusasu', () => {
+    expect(intervals.map(row => row.example)).toEqual([
+      'A–A (sama korkeus)', 'A–B♭', 'A–B', 'A–C', 'A–C♯', 'A–D',
+      'A–D♯ tai A–E♭', 'A–E', 'A–F', 'A–F♯', 'A–G', 'A–G♯', 'A–A (ylempi A)',
+    ]);
+  });
+
+  it('jokainen nimilyhenne kuuluu vain oikealle etäisyydelle', () => {
+    const expectedAliases = [
+      ['priimi', 'P1'], ['m2'], ['M2'], ['m3'], ['M3'], ['kvartti', 'P4'],
+      ['ylinouseva kvartti', 'vähennetty kvintti', 'A4', 'd5'], ['kvintti', 'P5'],
+      ['m6'], ['M6'], ['m7'], ['M7'], ['oktaavi', 'P8'],
+    ];
+    expect(intervals.map(row => row.aliases)).toEqual(expectedAliases);
+    for (const { pa, name, aliases } of intervals) {
+      for (const answer of [name, ...aliases]) {
+        const matching = intervals.filter(row => acceptsAnswer(nameAt(row.pa).answers, answer))
+          .map(row => row.pa);
+        expect(matching, answer).toEqual([pa]);
+      }
+    }
+  });
+
+  it('käsittelee yhdistetyt ääkköset ja Unicode-välit sekoittamatta nimiä tai lukuja', () => {
+    expect(acceptsAnswer(nameAt(6).answers, '  VA\u0308HENNETTY\u00a0\u2009KVINTTI  ')).toBe(true);
+    expect(acceptsAnswer(nameAt(6).answers, 'vahennetty kvintti')).toBe(false);
+    expect(acceptsAnswer(nameAt(6).answers, 'tritonus / A4')).toBe(false);
+    expect(acceptsAnswer(nameAt(3).answers, 'm 3')).toBe(false);
+    expect(acceptsAnswer(nameAt(4).answers, 'm3')).toBe(false);
+
+    const distance = questions.find(q => q.prompt === 'Kuinka monta puolisävelaskelta? pieni terssi')!;
+    expect(acceptsAnswer(distance.answers, ' 3\u00a0PA ')).toBe(true);
+    for (const invalid of ['-3', '3,5', '3.1', '33 pa', '3 pa lisää', 'NaN', '']) {
+      expect(acceptsAnswer(distance.answers, invalid), invalid).toBe(false);
+    }
+  });
+
+  it('oppitunnin ja kirjan JS- ja CSS-linkit vastaavat sisältötiivisteitä', () => {
+    const generated = readFileSync(new URL('../oppi/savelnimet/savelet-ja-intervallit.html', import.meta.url), 'utf8');
+    const version = (file: string) => createHash('sha256')
+      .update(readFileSync(new URL(`../assets/${file}`, import.meta.url))).digest('hex').slice(0, 10);
+    expect(generated).toContain(`src="../../assets/intervallimuisti.js?v=${version('intervallimuisti.js')}"`);
+    expect(generated).toContain(`href="../../assets/intervallimuisti.css?v=${version('intervallimuisti.css')}"`);
+    expect(chapter).toContain(`src="../assets/intervallimuisti.js?v=${version('intervallimuisti.js')}"`);
+    expect(chapter).toContain(`href="../assets/intervallimuisti.css?v=${version('intervallimuisti.css')}"`);
   });
 
   it('erottaa A–A♯:n ja A–B♭:n sekä soveltaa terssiä toisesta sävelestä', () => {
