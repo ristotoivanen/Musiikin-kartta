@@ -51,15 +51,10 @@ test('oppitunneilla on oma sisältö, toimiva ääni ja reitit aiheeseen', async
     return media.play();
   });
   await expect.poll(() => audio.evaluate(player => (player as HTMLAudioElement).currentTime)).toBeGreaterThan(0);
+  // H/B-selitys on Kitaran perusteissa. Tässä luvussa on vain kansainvälisten nimien lyhyt huomautus.
   const hNote = page.locator('#h-savelnimi');
-  await expect(hNote).toContainText('H ja B');
-  await hNote.getByRole('link', { name: 'Lue, mistä H-nimi tuli' }).click();
-  await expect(page).toHaveURL('/book/h-savelnimen-alkupera.html');
-  await expect(page.getByRole('link', { name: /^Christina Kwon · Saksalainen urkutabulatuuri/ })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Sävelet ja intervallit Oppimiskartassa' }))
-    .toHaveAttribute('href', '../oppi/savelnimet/savelet-ja-intervallit.html#h-savelnimi');
-  await page.goBack();
-  await expect(page).toHaveURL(intervalsPath);
+  await expect(hNote).toContainText('B on luonnollinen sävel ja B♭ puoliaskelta sitä matalampi.');
+  await expect(hNote.getByRole('link')).toHaveCount(0);
   await nextStep(page, 'Seuraava: Siirrä yhtä sormea').click();
   await expect(page).toHaveURL(practicePath);
   await expect(page.getByRole('heading', { level: 1, name: /Siirrä yhtä sormea/ })).toBeVisible();
@@ -591,4 +586,35 @@ test('tahtitaulukko ja korvaharjoituksen valitsin mahtuvat 320 pikseliin suurenn
   await table.focus();
   await expect(table).toBeFocused();
   await expect(table).toHaveCSS('outline-style', 'solid');
+});
+
+test('H-nimitys ja sen historia ovat vain Kitaran perusteissa, ja vanhat syvälinkit toimivat', async ({ page }) => {
+  const mentionsH = (text: string) => /(^|[^\p{L}\p{N}])H(?![\p{L}\p{N}])/u.test(text);
+  for (const url of [intervalsPath, '/book/osa-2.html#savelet-ja-intervallit']) {
+    await page.goto(url);
+    const chapter = page.locator('#savelet-ja-intervallit');
+    expect(mentionsH(await chapter.innerText()), url).toBe(false);
+    await expect(chapter.locator('a[href*="h-savelnimen-alkupera"]')).toHaveCount(0);
+  }
+  for (const url of [`${intervalsPath}#h-savelnimi`, '/book/osa-2.html#h-savelnimi', '/book/osa-1.html#h-savelnimi']) {
+    await page.goto(url);
+    await expect(page.locator('#h-savelnimi'), url).toBeVisible();
+    await expect(page.locator('#h-savelnimi')).toContainText('B♭');
+  }
+  await expect(page).toHaveURL(/\/book\/osa-2\.html#h-savelnimi$/);
+
+  await page.goto('/oppi/kitara/index.html#b-ja-h');
+  const explanation = page.locator('#b-ja-h');
+  await explanation.locator('summary').click();
+  await expect(explanation.getByRole('table', { name: 'B:n ja H:n vastineet' })).toBeVisible();
+  await expect(explanation.getByRole('link', { name: /Willi Apel/ })).toBeVisible();
+  await expect(explanation.getByRole('link', { name: /Christina Kwon/ })).toBeVisible();
+  await explanation.getByRole('link', { name: 'Lisälukemista: Mistä H-sävelen nimi tuli?' }).click();
+  await expect(page).toHaveURL('/book/h-savelnimen-alkupera.html');
+  await expect(page.getByRole('heading', { level: 1, name: 'Mistä H-sävelen nimi tuli?' })).toBeVisible();
+  const backLink = page.getByRole('link', { name: 'Takaisin Kitaran perusteiden B/H-selitykseen' });
+  await expect(backLink).toHaveAttribute('href', '../oppi/kitara/index.html#b-ja-h');
+  await expect(page.locator('a[href*="#h-savelnimi"]')).toHaveCount(0);
+  await backLink.click();
+  await expect(page).toHaveURL('/oppi/kitara/index.html#b-ja-h');
 });
