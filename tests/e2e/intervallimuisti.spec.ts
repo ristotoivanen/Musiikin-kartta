@@ -550,18 +550,26 @@ test('monivalinta tarkistaa vasta Tarkista-painikkeesta ja selittää oikean vas
   const radios = choice.getByRole('radio');
   await expect(radios).toHaveCount(4);
   await expect(radios.first()).toBeFocused();
-  expect(await choice.locator('.vaihtoehto').allTextContents()).toEqual(['0 pa', '3 pa', '4 pa', '7 pa']);
+  const order = await choice.locator('.vaihtoehto').allTextContents();
+  expect([...order].sort()).toEqual(['0 pa', '3 pa', '4 pa', '7 pa']);
+  const sameOrder = async () => expect((await choice.locator('.vaihtoehto').allTextContents())
+    .map(text => text.replace(/ – .*$/, ''))).toEqual(order);
   await check.click();
   await expect(status).toHaveText('Valitse ensin yksi vaihtoehto.');
+  await sameOrder();
+  await choice.getByRole('button', { name: 'Näytä vihje' }).click();
+  await sameOrder();
   await choice.getByRole('radio', { name: '3 pa' }).check();
-  // Valinta ei tarkistu itsestään.
+  // Valinta ei tarkistu itsestään, eikä vaihtoehtojen järjestys muutu kesken kysymyksen.
   await expect(status).toHaveText('Valitse ensin yksi vaihtoehto.');
+  await sameOrder();
   await expect(check).toBeEnabled();
   await expect(choice.getByRole('button', { name: 'Seuraava kysymys' })).toBeHidden();
   await check.click();
   await expect(status).toHaveText('Ei vielä. Oikea vastaus on 0 pa. Puhdas priimi on 0 pa. Esimerkki on A–A (sama korkeus).');
   await expect(choice.locator('label.oikea')).toHaveText('0 pa – oikea vastaus');
   await expect(choice.locator('label.vaara')).toHaveText('3 pa – valintasi');
+  await sameOrder();
   for (const radio of await radios.all()) await expect(radio).toBeDisabled();
   await expect(check).toBeDisabled();
   await expect(choice.getByRole('button', { name: 'Näytä vihje' })).toBeHidden();
@@ -569,8 +577,8 @@ test('monivalinta tarkistaa vasta Tarkista-painikkeesta ja selittää oikean vas
   await page.keyboard.press('Enter');
   await expect(group).toHaveAccessibleName('Kysymys 2 / 26 · Ankkurit Mikä on 4 pa:n tavallinen intervallinimi?');
   await expect(status).toBeEmpty();
-  expect(await choice.locator('.vaihtoehto').allTextContents())
-    .toEqual(['puhdas priimi', 'suuri terssi', 'puhdas kvintti', 'puhdas oktaavi']);
+  expect((await choice.locator('.vaihtoehto').allTextContents()).sort())
+    .toEqual(['puhdas kvintti', 'puhdas oktaavi', 'puhdas priimi', 'suuri terssi']);
   await expect(page.locator('[data-intervallimuisti] details')).not.toHaveAttribute('open');
 });
 
@@ -631,6 +639,11 @@ test('monivalinta toimii näppäimistöllä eikä pohjaan jäänyt Enter ohita p
   await expect(status).toBeEmpty();
   await page.keyboard.press('ArrowUp');
   await expect(radios.first()).toBeChecked();
+  // Vaihtoehtojen järjestys arvotaan, joten oikea vastaus valitaan nimellä välilyönnillä.
+  await choice.getByRole('radio', { name: '0 pa' }).focus();
+  await page.keyboard.press('Space');
+  await expect(choice.getByRole('radio', { name: '0 pa' })).toBeChecked();
+  await expect(status).toBeEmpty();
   await page.keyboard.press('Tab');
   const hintButton = choice.getByRole('button', { name: 'Näytä vihje' });
   await expect(hintButton).toBeFocused();
@@ -671,7 +684,7 @@ for (const url of [studyPage, bookPage]) {
       const choice = page.locator('.intervallivalinta');
       await choice.getByRole('button', { name: 'Aloita monivalinta' }).click();
       await choice.getByRole('button', { name: 'Näytä vihje' }).click();
-      await choice.getByRole('radio').nth(1).check();
+      await choice.getByRole('radio', { name: '3 pa' }).check();
       await choice.getByRole('button', { name: 'Tarkista' }).click();
       await expect(choice.getByRole('status')).toContainText('Oikea vastaus');
       // Kirjan sivulla on ennestään asteikkotaulukon aiheuttama leveys (QA-01). Uusi sisältö ei saa kasvattaa sitä.
@@ -709,4 +722,35 @@ test('kaksoisnapsautuksen toinen napsautus ei osu katoavan painikkeen tilalle tu
   await cards.getByRole('button', { name: 'Seuraava kortti' }).dispatchEvent('click', { detail: 2 });
   await expect(cards.locator('[data-korttinumero]')).toHaveText('Kortti 1 / 13 · Ankkuri');
   await expect(cards.locator('[data-korttietaisyys]')).toHaveText('0 puolisävelaskelta (0 pa)');
+});
+
+test('muistittelutila piilottaa myös tritonuksen lisänimet, mutta nimi ja lyhenne näkyvät', async ({ page }) => {
+  await page.goto(studyPage);
+  const cards = page.locator('.intervallikortit');
+  const card = cards.locator('[data-korttisisalto]');
+  const otherNames = card.locator('[data-korttimuutnimet]');
+  await cards.getByRole('button', { name: 'Muistittelutila' }).click();
+  const next = cards.getByRole('button', { name: 'Seuraava kortti' });
+  for (let i = 0; i < 8; i += 1) await next.click();
+  await expect(cards.locator('[data-korttinimi]')).toHaveText('Tritonus');
+  await expect(card.locator('[data-korttilyhenne]')).toHaveText('(A4 tai d5)');
+  await expect(otherNames).toBeHidden();
+  await expect(otherNames).toBeEmpty();
+  const hiddenText = await card.textContent();
+  // Parin otsikko (Pari: kvartti ja tritonus) kuuluu korttiin, lisänimet ja vastaus eivät.
+  await expect(cards.locator('[data-korttinumero]')).toHaveText('Kortti 9 / 13 · Pari: kvartti ja tritonus');
+  for (const secret of ['ylinouseva', 'vähennetty', 'A–D♯', 'A–E♭', 'pa)', 'puolisävelaskel']) {
+    expect(hiddenText, secret).not.toContain(secret);
+  }
+  await expect(card.getByRole('img')).toHaveCount(0);
+  await cards.getByRole('button', { name: 'Näytä vastaus' }).click();
+  await expect(otherNames).toHaveText('Myös ylinouseva kvartti tai vähennetty kvintti.');
+  await expect(card.locator('[data-korttietaisyys]')).toHaveText('6 puolisävelaskelta (6 pa)');
+  // Seuraavalle kortille siirryttäessä ja takaisin palattaessa lisänimet piiloutuvat taas.
+  await next.click();
+  await cards.getByRole('button', { name: 'Edellinen kortti' }).click();
+  await expect(cards.locator('[data-korttinimi]')).toHaveText('Tritonus');
+  await expect(otherNames).toBeHidden();
+  await cards.getByRole('button', { name: 'Muistittelutila' }).click();
+  await expect(otherNames).toHaveText('Myös ylinouseva kvartti tai vähennetty kvintti.');
 });

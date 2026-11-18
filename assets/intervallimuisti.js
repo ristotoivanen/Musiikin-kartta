@@ -35,74 +35,76 @@ export const cardExplanations = {
   11: 'Puolisävelaskeleen kapeampi kuin oktaavi.',
 };
 
-// Monivalinnan vihjeet muistuttavat yhdestä aiemmin opitusta ankkurista (viite). Viitettä ei
-// käytetä vastausvaihtoehtona, joten vihje ei voi sulkea vaihtoehtoja pois nimeämällä niitä.
-// Vihjeissä ei ole numeroita eikä kysytyn välin nimeä tai sävelparia.
+// Monivalinnan vihjeet muistuttavat aiemmin opituista väleistä (viitteet). Vihjeissä nimetyt
+// välit ovat aina viitteitä, eikä viite ole koskaan vastausvaihtoehto. Näin vihje ei sulje pois
+// yhtään vaihtoehtoa nimeämällä sen. Vihjeissä ei ole numeroita eikä kysytyn välin sävelparia,
+// ja nimikysymyksen vihje ei nimeä kysyttyä väliä. Säännöt tarkistetaan vihjeen tekstistä
+// testissä tests/intervallimuisti.test.ts.
 // etaisyys = vihje kysymykseen "Kuinka monta puolisävelaskelta on …?"
 // nimi = vihje kysymykseen "Mikä on … pa:n tavallinen intervallinimi?"
 export const hints = {
   0: {
-    viite: 12,
+    viitteet: [12],
     etaisyys: 'Priimi tarkoittaa ensimmäistä. Muista, että oktaavissa sama sävelnimi toistuu ylempänä.',
-    nimi: 'Sävel ei nouse lainkaan, joten kyse ei ole oktaavista. Kitaralla soitat saman nauhan uudelleen.',
+    nimi: 'Vertaa oktaaviin: siinä sama sävelnimi toistuu ylempänä. Tässä välissä sävel ei nouse lainkaan.',
   },
   3: {
-    viite: 4,
+    viitteet: [4],
     etaisyys: 'Pieni terssi on puolisävelaskeleen kapeampi kuin suuri terssi. Muista luvun alun mollisointu C–E♭–G.',
-    nimi: 'Tämä on mollisoinnun alimman ja keskimmäisen sävelen väli, kuten luvun alun C–E♭. Duurisoinnussa vastaava väli on puolisävelaskeleen leveämpi.',
+    nimi: 'Mollisoinnussa tämä on alimman ja keskimmäisen sävelen väli, kuten luvun alun C–E♭. Duurisoinnussa vastaava väli on puolisävelaskeleen leveämpi.',
   },
   4: {
-    viite: 3,
+    viitteet: [3],
     etaisyys: 'Suuri terssi on puolisävelaskeleen leveämpi kuin pieni terssi. Muista luvun alun duurisointu C–E–G.',
-    nimi: 'Tämä on duurisoinnun alimman ja keskimmäisen sävelen väli, kuten luvun alun C–E. Mollisoinnussa vastaava väli on puolisävelaskeleen kapeampi.',
+    nimi: 'Duurisoinnussa tämä on alimman ja keskimmäisen sävelen väli, kuten luvun alun C–E. Mollisoinnussa vastaava väli on puolisävelaskeleen kapeampi.',
   },
   7: {
-    viite: 12,
-    etaisyys: 'Kvintti on duuri- ja mollisoinnun ylin sävel perussävelestä laskettuna. Laske suuren terssin päälle pieni terssi.',
-    nimi: 'Tämä on voimasoinnun ja duurisoinnun ylin sävel perussävelestä laskettuna, kuten luvun alun C–G. Se on lähempänä oktaavia kuin lähtösäveltä.',
+    viitteet: [12],
+    etaisyys: 'Kvintti on duuri- ja mollisoinnun perussävelen ja ylimmän sävelen väli. Voimasoinnussa soivat perussävel, kvintti ja usein myös oktaavi.',
+    nimi: 'Tämä on duuri- ja mollisoinnun perussävelen ja ylimmän sävelen väli, kuten luvun alun C–G. Voimasoinnussa se soi perussävelen ja oktaavin välissä.',
   },
   12: {
-    viite: 0,
-    etaisyys: 'Oktaavissa sama sävelnimi toistuu ylempänä. Laske A-kielen nauhat vapaasta kielestä siihen nauhaan, jossa A soi uudelleen.',
-    nimi: 'Sama sävelnimi soi ylempänä, kuten kromaattisen harjoituksen lopussa. Priimissä sävel ei nouse, tässä se nousee koko matkan.',
+    viitteet: [0],
+    etaisyys: 'Oktaavissa sama sävelnimi toistuu ylempänä, toisin kuin priimissä. Laske A-kielen nauhat vapaasta kielestä siihen nauhaan, jossa A soi uudelleen.',
+    nimi: 'Sama sävelnimi soi ylempänä, kuten kromaattisen harjoituksen lopussa. Priimissä sävel ei nouse lainkaan.',
   },
   1: {
-    viite: 0,
+    viitteet: [3],
     etaisyys: 'Pieni sekunti on kokosävelaskelta kapeampi kuin pieni terssi.',
-    nimi: 'Lähde priimistä ja siirry viereiseen nauhaan. Kun sävelkirjaimet ovat vierekkäin, väli on jokin sekunneista.',
+    nimi: 'Tämä väli on kokosävelaskelta kapeampi kuin pieni terssi.',
   },
   2: {
-    viite: 4,
+    viitteet: [4],
     etaisyys: 'Kun soitat suuren sekunnin ja sen päälle toisen samanlaisen, päädyt suureen terssiin.',
-    nimi: 'Siirrä sormea kaksi nauhaa samalla kielellä. Sävelkirjaimet ovat vierekkäin, kuten C ja D.',
+    nimi: 'Kaksi tällaista väliä peräkkäin muodostavat suuren terssin.',
   },
   5: {
-    viite: 7,
+    viitteet: [7],
     etaisyys: 'Puhdas kvartti on kokosävelaskelta kapeampi kuin kvintti. Kitaran vierekkäiset kielet on useimmiten viritetty tämän välin päähän toisistaan.',
     nimi: 'Kitaran E- ja A-kielen vapaat sävelet ovat tämän välin päässä toisistaan. Kvintistä tämä väli on kokosävelaskelta kapeampi.',
   },
   6: {
-    viite: 7,
+    viitteet: [7, 12],
     etaisyys: 'Tritonus on puolisävelaskeleen kapeampi kuin kvintti.',
     nimi: 'Tämä väli on puolisävelaskeleen kapeampi kuin kvintti ja jakaa oktaavin kahteen yhtä suureen osaan. Sävelkirjoituksen mukaan sillä on useampi nimi.',
   },
   8: {
-    viite: 7,
+    viitteet: [7],
     etaisyys: 'Pieni seksti on puolisävelaskeleen leveämpi kuin kvintti.',
     nimi: 'Lähde kvintistä ja nouse vielä puolisävelaskel.',
   },
   9: {
-    viite: 12,
+    viitteet: [12, 3],
     etaisyys: 'Suuri seksti on pienen terssin verran kapeampi kuin oktaavi.',
     nimi: 'Laske oktaavista alaspäin pienen terssin verran.',
   },
   10: {
-    viite: 12,
+    viitteet: [12],
     etaisyys: 'Pieni septimi on kokosävelaskelta kapeampi kuin oktaavi.',
     nimi: 'Laske oktaavista alaspäin kokosävelaskel.',
   },
   11: {
-    viite: 12,
+    viitteet: [12],
     etaisyys: 'Suuri septimi on puolisävelaskeleen kapeampi kuin oktaavi.',
     nimi: 'Laske oktaavista alaspäin puolisävelaskel.',
   },
@@ -184,19 +186,32 @@ export function learningCards(intervals) {
 }
 
 /**
- * Vastausvaihtoehdot: oikea vastaus ja kolme sitä lähintä väliä samasta joukosta.
- * Vihjeen viiteväli ei ole koskaan vaihtoehto. Vaihtoehdot ovat puolisävelaskelten järjestyksessä.
+ * Vastausvaihtoehtojen joukko: oikea vastaus ja kolme sitä lähintä väliä samasta joukosta.
+ * Vihjeen viitevälit eivät ole koskaan vaihtoehtoja. Näyttöjärjestys sekoitetaan erikseen.
  */
 export function choiceOptions(pa, pool) {
-  const reference = hints[pa].viite;
-  const distractors = pool.filter(other => other !== pa && other !== reference)
+  const references = hints[pa].viitteet;
+  const distractors = pool.filter(other => other !== pa && !references.includes(other))
     .sort((a, b) => Math.abs(a - pa) - Math.abs(b - pa) || a - b)
     .slice(0, 3);
   return [pa, ...distractors].sort((a, b) => a - b);
 }
 
-/** Tuetun monivalinnan 26 kysymystä: ankkurit ensin, sitten muut välit, kumpaankin suuntaan. */
-export function choiceQuestions(intervals) {
+/** Fisher–Yates-sekoitus uuteen taulukkoon. random palauttaa luvun väliltä [0, 1). */
+export function shuffled(values, random = Math.random) {
+  const result = [...values];
+  for (let i = result.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+/**
+ * Tuetun monivalinnan 26 kysymystä: ankkurit ensin, sitten muut välit, kumpaankin suuntaan.
+ * Vaihtoehtojen järjestys arvotaan kerran kierrosta kohden, joten se ei vaihdu kesken kysymyksen.
+ */
+export function choiceQuestions(intervals, random = Math.random) {
   const byPa = new Map(intervals.map(interval => [interval.pa, interval]));
   const everyInterval = intervals.map(({ pa }) => pa);
   const toDistance = (pa, pool, phase) => {
@@ -204,7 +219,7 @@ export function choiceQuestions(intervals) {
     return {
       kind: 'etaisyys', pa, phase,
       prompt: `Kuinka monta puolisävelaskelta on ${interval.name}?`,
-      options: choiceOptions(pa, pool).map(value => ({ value: String(value), label: `${value} pa` })),
+      options: shuffled(choiceOptions(pa, pool), random).map(value => ({ value: String(value), label: `${value} pa` })),
       answer: String(pa),
       hint: hints[pa].etaisyys,
       explanation: explanation(interval),
@@ -213,7 +228,7 @@ export function choiceQuestions(intervals) {
   const toName = (pa, pool, phase) => ({
     kind: 'nimi', pa, phase,
     prompt: `Mikä on ${pa} pa:n tavallinen intervallinimi?`,
-    options: choiceOptions(pa, pool).map(value => ({ value: String(value), label: byPa.get(value).name })),
+    options: shuffled(choiceOptions(pa, pool), random).map(value => ({ value: String(value), label: byPa.get(value).name })),
     answer: String(pa),
     hint: hints[pa].nimi,
     explanation: explanation(byPa.get(pa)),
@@ -313,9 +328,10 @@ function mountCards(section, intervals) {
     number.textContent = `Kortti ${index + 1} / ${cards.length} · ${card.group}${last ? ' · viimeinen kortti' : ''}`;
     name.textContent = card.name[0].toUpperCase() + card.name.slice(1);
     abbreviation.textContent = card.abbreviation ? `(${card.abbreviation})` : '';
-    otherNames.textContent = card.otherNames ? `Myös ${card.otherNames}.` : '';
-    otherNames.hidden = !card.otherNames;
     const show = !hiding || revealed;
+    // Tritonuksen lisänimet kertovat sävelkirjoituksesta, joten ne piilotetaan vastauksen mukana.
+    otherNames.textContent = show && card.otherNames ? `Myös ${card.otherNames}.` : '';
+    otherNames.hidden = !(show && card.otherNames);
     // Muistittelutilassa vastausta ei ole sivulla lainkaan ennen näyttämistä.
     answer.hidden = !show;
     distance.textContent = show ? distanceText(card.pa) : '';
@@ -363,7 +379,7 @@ function mountCards(section, intervals) {
 function mountChoice(section, intervals) {
   const box = section.querySelector('.intervallivalinta');
   if (!box) return;
-  const questions = choiceQuestions(intervals);
+  let questions = choiceQuestions(intervals);
   const start = box.querySelector('[data-valinta-aloita]');
   const form = box.querySelector('[data-valinta]');
   const fieldset = form.querySelector('fieldset');
@@ -420,6 +436,8 @@ function mountChoice(section, intervals) {
   guardVanishingButton(next);
   start.hidden = false;
   start.addEventListener('click', () => {
+    // Uusi kierros arpoo vaihtoehdoille uuden järjestyksen.
+    questions = choiceQuestions(intervals);
     index = 0;
     correct = 0;
     start.hidden = true;

@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { at, INTERVALS, noteToMidi, spell } from '../harjoittelija/music';
 import {
   acceptsAnswer, anchors, cardExplanations, cardOrder, choiceOptions, choiceQuestions, hints, learningCards, recallQuestions,
+  shuffled,
 // @ts-expect-error Testattu selainmoduuli palvellaan suoraan JavaScriptinä.
 } from '../assets/intervallimuisti.js';
 
@@ -145,14 +146,37 @@ type Choice = {
   kind: 'etaisyys' | 'nimi'; pa: number; phase: string; prompt: string; answer: string; hint: string; explanation: string;
   options: { value: string; label: string }[];
 };
+// Toistettava näennäissatunnaisluku testejä varten (mulberry32).
+const seeded = (seed: number) => () => {
+  seed = (seed + 0x6d2b79f5) | 0;
+  let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+};
 const tritonusCell = /<tr data-pa="6"[^>]*><th[^>]*>6<\/th><td>tritonus<br>([^<]+)<\/td>/.exec(chapter)![1];
 const withOtherNames = intervals.map(row => ({ ...row, otherNames: row.pa === 6 ? tritonusCell : '' }));
 const cards: Card[] = learningCards(withOtherNames);
-const choices: Choice[] = choiceQuestions(intervals);
+const choices: Choice[] = choiceQuestions(intervals, seeded(1));
 const anchorSet = [0, 3, 4, 7, 12];
 const numberWords = /(?<!\p{L})(nolla\p{L}*|yksi|yhden|kaksi|kahden|kahteen|kolme\p{L}*|neljä\p{L}*|viisi|viiden|kuusi|kuuden|seitsemä\p{L}*|kahdeksa\p{L}*|yhdeksä\p{L}*|kymmene\p{L}*|yksitoista|yhdentoista|kaksitoista|kahdentoista)(?!\p{L})/iu;
 // Välien sanavartalot taivutusmuodot mukaan lukien (kvintti, kvintistä, kvintin …).
 const families = ['priim', 'sekun', 'terss', 'kvart', 'kvint', 'sekst', 'septim', 'oktaav', 'triton'];
+// Tunnistaa vihjeen tekstistä nimetyt välit taivutusmuodot mukaan lukien. Pelkkä parin
+// sanavartalo (esim. "sekunneista") viittaa molempiin pareihin.
+const intervalPatterns: [number[], RegExp][] = [
+  [[6], /(?<!\p{L})(?:triton\p{L}*|ylinousev\p{L}* kvart\p{L}*|vähennet\p{L}* kvint\p{L}*)/giu],
+  [[0], /(?<!\p{L})priim\p{L}*/giu],
+  [[12], /(?<!\p{L})oktaav\p{L}*/giu],
+  [[5], /(?<!\p{L})(?<!ylinousev\p{L}* )kvart\p{L}*/giu],
+  [[7], /(?<!\p{L})(?<!vähennet\p{L}* )kvint\p{L}*/giu],
+  ...([['sekun', 1], ['terss', 3], ['sekst', 8], ['septim', 10]] as const).flatMap(([stem, small]) => [
+    [[small], new RegExp(`(?<!\\p{L})pien\\p{L}* ${stem}\\p{L}*`, 'giu')],
+    [[small + 1], new RegExp(`(?<!\\p{L})suur\\p{L}* ${stem}\\p{L}*`, 'giu')],
+    [[small, small + 1], new RegExp(`(?<!\\p{L})(?<!(?:pien|suur)\\p{L}* )${stem}\\p{L}*`, 'giu')],
+  ] as [number[], RegExp][]),
+];
+const referencedIntervals = (text: string) =>
+  new Set(intervalPatterns.flatMap(([values, pattern]) => (text.match(pattern) ? values : [])));
 const lower = (text: string) => text.toLocaleLowerCase('fi');
 const mentions = (text: string, phrase: string) =>
   new RegExp(`(?<!\\p{L})${phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?!\\p{L})`, 'iu').test(text);
@@ -229,36 +253,62 @@ describe('tuettu monivalinta', () => {
     expect(positions.size).toBeGreaterThan(2);
   });
 
+  it('vihjeen tekstissä nimetyt välit tunnistetaan taivutusmuodoista', () => {
+    expect([...referencedIntervals('Pieni terssi on kapeampi kuin suuri terssi.')].sort((x, y) => x - y)).toEqual([3, 4]);
+    expect([...referencedIntervals('Kvintistä alaspäin, ei vähennetty kvintti eikä ylinouseva kvartti.')].sort((x, y) => x - y))
+      .toEqual([6, 7]);
+    expect([...referencedIntervals('suureen terssiin, pienen sekunnin, oktaavista, priimissä')].sort((x, y) => x - y))
+      .toEqual([0, 1, 4, 12]);
+    expect([...referencedIntervals('jokin sekunneista')].sort((x, y) => x - y)).toEqual([1, 2]);
+    expect([...referencedIntervals('Mollisoinnussa ja duurisoinnussa kokosävelaskel.')]).toEqual([]);
+  });
+
+  it('vihjeen nimeämät välit ovat sen viitteitä, eivätkä viitteet ole vastausvaihtoehtoja', () => {
+    for (const pa of Array.from({ length: 13 }, (_, value) => value)) {
+      const both = choices.filter(question => question.pa === pa);
+      expect(both.map(question => question.kind).sort(), String(pa)).toEqual(['etaisyys', 'nimi']);
+      const named = new Set(both.flatMap(question => [...referencedIntervals(question.hint)]));
+      named.delete(pa);
+      // viitteet-kenttä vastaa sitä, mitä vihjeiden teksti todella nimeää.
+      expect([...named].sort((x, y) => x - y), `${pa}: ${both.map(q => q.hint).join(' / ')}`)
+        .toEqual([...hints[pa].viitteet].sort((x: number, y: number) => x - y));
+      for (const question of both) {
+        expect(question.options.map(option => Number(option.value)).filter(value => hints[pa].viitteet.includes(value)),
+          question.prompt).toEqual([]);
+      }
+    }
+  });
+
   it('vihje ei näytä oikeaa vastausta eikä paljasta sitä poissulkemalla', () => {
     const rows = new Map(intervals.map(row => [row.pa, row]));
     for (const question of choices) {
       const { hint, pa } = question;
       const row = rows.get(pa)!;
       const context = `${question.prompt} / ${hint}`;
+      const named = referencedIntervals(hint);
       expect(hint.trim().length, context).toBeGreaterThan(20);
       // Ei numeroita, joten vihje ei kerro yhdenkään vaihtoehdon puolisävelmäärää.
       expect(hint, context).not.toMatch(/\d/);
-      // Vihjeen viiteväli ei ole vastausvaihtoehto.
-      expect(question.options.map(option => Number(option.value)), context).not.toContain(hints[pa].viite);
       // Kysytyn välin sävelpari ei näy vihjeessä.
       expect(hint, context).not.toContain(row.example.replace(/ \(.*\)$/, ''));
-      const eliminated = question.options.filter(option => option.value !== question.answer && (
-        question.kind === 'etaisyys'
-          ? false
-          : [option.label, ...rows.get(Number(option.value))!.aliases].some(name => mentions(hint, name))));
-      expect(eliminated.map(option => option.label), context).toEqual([]);
+      // Vihje saa nimetä vain viitteensä. Etäisyyskysymyksessä myös kysytyn välin nimi on jo kysymyksessä.
+      const allowed = new Set([...hints[pa].viitteet, ...(question.kind === 'etaisyys' ? [pa] : [])]);
+      expect([...named].filter(value => !allowed.has(value)), context).toEqual([]);
+      // Nimettyjen vaihtoehtojen poissulkeminen ei saa jättää vain yhtä vaihtoehtoa.
+      const excluded = question.options.filter(option => option.value !== question.answer && named.has(Number(option.value)));
+      expect(excluded.map(option => option.label), context).toEqual([]);
+      expect(question.options.length - excluded.length, context).toBeGreaterThanOrEqual(2);
       if (question.kind === 'etaisyys') {
         expect(hint, context).not.toMatch(numberWords);
       } else {
+        expect(named.has(pa), context).toBe(false);
         for (const name of [row.name, ...row.aliases]) expect(mentions(hint, name), `${context} (${name})`).toBe(false);
-        // Vihjeen välisana ei saa osoittaa vain oikeaan vaihtoehtoon.
+        // Välin sanavartalo (terss-, kvint- …) ei saa osoittaa vain oikeaan vaihtoehtoon.
         for (const family of families.filter(stem => lower(hint).includes(stem))) {
           const matching = question.options.filter(option => lower(option.label).includes(family));
           expect(matching.length === 1 && matching[0].value === question.answer, `${context} (${family})`).toBe(false);
         }
       }
-      // Jäljelle jää aina vähintään kaksi vaihtoehtoa, joita vihje ei sulje pois.
-      expect(question.options.length - eliminated.length, context).toBeGreaterThanOrEqual(2);
     }
   });
 
@@ -267,11 +317,49 @@ describe('tuettu monivalinta', () => {
       const options = choiceOptions(pa, anchorSet);
       expect(options, String(pa)).toHaveLength(4);
       expect(options).toContain(pa);
-      expect(options).not.toContain(hints[pa].viite);
-      expect(anchorSet).toContain(hints[pa].viite);
+      for (const reference of hints[pa].viitteet) {
+        expect(options).not.toContain(reference);
+        expect(anchorSet).toContain(reference);
+      }
     }
     const anchorHints = choices.slice(0, 10);
     expect(anchorHints.map(q => q.kind)).toEqual(Array.from({ length: 10 }, (_, i) => (i % 2 ? 'nimi' : 'etaisyys')));
     expect(new Set(anchorHints.map(q => q.hint)).size).toBe(10);
+  });
+
+  it('vaihtoehtojen järjestys arvotaan, mutta joukko ja kysymysten järjestys pysyvät', () => {
+    expect(shuffled([1, 2, 3, 4], () => 0)).toEqual([2, 3, 4, 1]);
+    expect(shuffled([1, 2, 3, 4], () => 0.999)).toEqual([1, 2, 3, 4]);
+    const first = choiceQuestions(intervals, seeded(7)) as Choice[];
+    const second = choiceQuestions(intervals, seeded(8)) as Choice[];
+    expect(first.map(q => q.prompt)).toEqual(second.map(q => q.prompt));
+    expect(first.some((q, i) => q.options.map(o => o.value).join() !== second[i].options.map(o => o.value).join())).toBe(true);
+    for (const question of first) {
+      const pool = question.phase === 'Ankkurit' ? anchorSet : Array.from({ length: 13 }, (_, pa) => pa);
+      expect(question.options.map(option => Number(option.value)).sort((x, y) => x - y), question.prompt)
+        .toEqual(choiceOptions(question.pa, pool));
+    }
+  });
+
+  it('oikea vastaus jakautuu tasaisesti kaikkiin neljään kohtaan', () => {
+    const random = seeded(2026);
+    const counts = [0, 0, 0, 0];
+    const rounds = 400;
+    for (let round = 0; round < rounds; round += 1) {
+      for (const question of choiceQuestions(intervals, random) as Choice[]) {
+        counts[question.options.findIndex(option => option.value === question.answer)] += 1;
+      }
+    }
+    const total = rounds * 26;
+    for (const count of counts) {
+      expect(count / total).toBeGreaterThan(0.22);
+      expect(count / total).toBeLessThan(0.28);
+    }
+    // Saman kierroksen sisällä oikea vastaus ei ole aina samassa kohdassa, eikä sitä voi päätellä
+    // puolisävelaskelten järjestyksestä.
+    const single = choiceQuestions(intervals, seeded(3)) as Choice[];
+    expect(new Set(single.map(q => q.options.findIndex(option => option.value === q.answer))).size).toBe(4);
+    expect(single.filter(q => q.options.map(o => Number(o.value)).every((v, i, all) => i === 0 || all[i - 1] < v)).length)
+      .toBeLessThan(10);
   });
 });
