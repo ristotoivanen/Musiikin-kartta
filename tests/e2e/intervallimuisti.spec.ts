@@ -30,7 +30,7 @@ for (const url of [studyPage, bookPage]) {
 
     await expect(table).toHaveCount(0);
     const summary = lesson.locator('summary');
-    for (let tabs = 0; tabs < 40 && !await summary.evaluate(node => node === document.activeElement); tabs += 1) {
+    for (let tabs = 0; tabs < 60 && !await summary.evaluate(node => node === document.activeElement); tabs += 1) {
       await page.keyboard.press(tab);
     }
     await expect(summary).toBeFocused();
@@ -44,7 +44,13 @@ for (const url of [studyPage, bookPage]) {
     await page.keyboard.press(tab);
     await expect(scroller).toBeFocused();
     await expect(scroller).toHaveCSS('outline-style', 'solid');
+    // Taulukon jälkeen tulevat A–A-harjoitus, Terssi muuttaa soinnun ja harjoitus. Oppimiskartassa
+    // harjoitus on linkki omalle sivulleen, kirjassa tekstiä.
     await page.keyboard.press(tab);
+    if (url === studyPage) {
+      await expect(lesson.getByRole('link', { name: 'Harjoitus · Siirrä yhtä sormea' })).toBeFocused();
+      await page.keyboard.press(tab);
+    }
     await expect(start).toBeFocused();
     await page.keyboard.press('Enter');
     await expect(table).toHaveCount(0);
@@ -239,9 +245,16 @@ test.describe('intervalliteoria ilman JavaScriptiä', () => {
     test(`taulukko ja ohje säilyvät käytettävissä (${url})`, async ({ page }) => {
       await page.goto(url);
       const lesson = page.locator('[data-intervallimuisti]');
-      const fallback = lesson.locator('noscript p');
+      const fallback = lesson.locator('.intervallikysely noscript p');
       await expect(fallback).toBeVisible();
       await expect(fallback).toContainText('Muistiharjoitus tarvitsee JavaScriptin.');
+      await expect(lesson.locator('.intervallikortit noscript p')).toHaveText(
+        'Opettelukortit tarvitsevat JavaScriptin. Voit opetella välit alla olevasta taulukosta.');
+      await expect(lesson.locator('.intervallivalinta noscript p')).toHaveText(
+        'Monivalintaharjoitus tarvitsee JavaScriptin. Voit kerrata välit alla olevasta taulukosta.');
+      await expect(lesson.getByRole('heading', { name: 'Intervallin nimi ja puolisävelaskeleet' })).toBeVisible();
+      await expect(lesson.getByText(/^Opettele ensin viisi ankkuria\./)).toBeVisible();
+      await expect(lesson.getByRole('radio')).toHaveCount(0);
       await expect(lesson.getByRole('button')).toHaveCount(0);
       await lesson.locator('summary').press('Enter');
       const table = lesson.getByRole('table', { name: 'Intervallit A:sta ylöspäin' });
@@ -342,6 +355,11 @@ for (const url of [studyPage, bookPage]) {
       return Math.abs(await position());
     }).toBeLessThanOrEqual(1);
     await page.keyboard.press(tab);
+    // Oppimiskartassa taulukon ja muistamistestin välissä on linkki Siirrä yhtä sormea -harjoitukseen.
+    if (url === studyPage) {
+      await expect(lesson.getByRole('link', { name: 'Harjoitus · Siirrä yhtä sormea' })).toBeFocused();
+      await page.keyboard.press(tab);
+    }
     await expect(lesson.getByRole('button', { name: 'Aloita muistiharjoitus' })).toBeFocused();
   });
 
@@ -387,4 +405,308 @@ test('kosketuspyyhkäisy vierittää taulukkoa puhelinemulaatiossa', async ({ pa
   });
   await expect.poll(() => scroller.evaluate(node => node.scrollLeft)).toBeGreaterThan(0);
   expect(await page.evaluate(() => window.scrollX)).toBe(0);
+});
+
+// Vaiheittainen oppiminen: opettelukortit, tuettu monivalinta ja muistamistesti viimeisenä.
+const cardNames = [
+  'Puhdas priimi', 'Pieni terssi', 'Suuri terssi', 'Puhdas kvintti', 'Puhdas oktaavi',
+  'Pieni sekunti', 'Suuri sekunti', 'Puhdas kvartti', 'Tritonus', 'Pieni seksti', 'Suuri seksti',
+  'Pieni septimi', 'Suuri septimi',
+];
+const cardPa = [0, 3, 4, 7, 12, 1, 2, 5, 6, 8, 9, 10, 11];
+const examples = [
+  'A–A (sama korkeus)', 'A–B♭', 'A–B', 'A–C', 'A–C♯', 'A–D', 'A–D♯ tai A–E♭', 'A–E', 'A–F', 'A–F♯', 'A–G', 'A–G♯',
+  'A–A (ylempi A)',
+];
+const distanceText = (pa: number) => (pa === 1 ? '1 puolisävelaskel (1 pa)' : `${pa} puolisävelaskelta (${pa} pa)`);
+
+for (const url of [studyPage, bookPage]) {
+  test(`intervalliosuus etenee opettelusta tuettuun harjoitteluun ja muistamistestiin (${url})`, async ({ page }) => {
+    await page.goto(url);
+    const lesson = page.locator('[data-intervallimuisti]');
+    const practice = url === studyPage
+      ? lesson.getByRole('link', { name: 'Harjoitus · Siirrä yhtä sormea' })
+      : lesson.locator('aside.practice');
+    const steps = [
+      lesson.getByRole('heading', { name: 'Intervallin nimi ja puolisävelaskeleet' }),
+      lesson.getByRole('heading', { name: 'Opettele välit kortti kerrallaan' }),
+      lesson.getByRole('heading', { name: 'Harjoittele valitsemalla' }),
+      lesson.locator('details'),
+      lesson.getByRole('heading', { name: 'Kromaattinen harjoitus A:sta A:han' }),
+      lesson.getByRole('heading', { name: 'Terssi muuttaa soinnun' }),
+      practice,
+      lesson.getByRole('heading', { name: 'Palauta intervallit mieleen' }),
+    ];
+    const handles = [];
+    for (const step of steps) {
+      await expect(step).toHaveCount(1);
+      handles.push(await step.elementHandle());
+    }
+    const ordered = await page.evaluate(nodes => nodes.slice(1).every((node, i) =>
+      Boolean(nodes[i]!.compareDocumentPosition(node!) & Node.DOCUMENT_POSITION_FOLLOWING)), handles);
+    expect(ordered).toBe(true);
+    // Muistamistesti on intervalliosuuden viimeinen osa.
+    expect(await lesson.evaluate(node => node.lastElementChild?.classList.contains('intervallikysely'))).toBe(true);
+    await expect(lesson.locator('.intervallikysely')).toHaveCount(1);
+    await expect(lesson.locator('details')).not.toHaveAttribute('open');
+    await expect(page.locator('#h-savelnimi')).toHaveCount(1);
+    await expect(page.locator('#savelet-ja-intervallit')).toHaveCount(1);
+  });
+}
+
+test('opettelukortit näyttävät 13 väliä ankkurit ensin ja niitä voi selata molempiin suuntiin', async ({ page }) => {
+  await page.goto(studyPage);
+  const cards = page.locator('.intervallikortit');
+  const card = cards.locator('[data-korttisisalto]');
+  const number = cards.locator('[data-korttinumero]');
+  const previous = cards.getByRole('button', { name: 'Edellinen kortti' });
+  const next = cards.getByRole('button', { name: 'Seuraava kortti' });
+  await expect(number).toHaveText('Kortti 1 / 13 · Ankkuri');
+  await expect(previous).toHaveAttribute('aria-disabled', 'true');
+  await previous.dispatchEvent('click');
+  await expect(number).toHaveText('Kortti 1 / 13 · Ankkuri');
+  for (let i = 0; i < 13; i += 1) {
+    const pa = cardPa[i];
+    await expect(cards.locator('[data-korttinimi]')).toHaveText(cardNames[i]);
+    await expect(number).toContainText(`Kortti ${i + 1} / 13 · ${i < 5 ? 'Ankkuri' : 'Pari: '}`);
+    await expect(card.locator('[data-korttietaisyys]')).toHaveText(distanceText(pa));
+    await expect(card.locator('[data-korttisavelet]')).toHaveText(`A:sta ylöspäin: ${examples[pa]}`);
+    await expect(card.getByRole('img')).toHaveAccessibleName(pa === 0
+      ? 'Etäisyys kuvana: sävel ei nouse lainkaan.'
+      : `Etäisyys kuvana: ${pa} oktaavin 12 puolisävelaskeleesta.`);
+    await expect(card.locator('.intervallimatka .kohde')).toHaveCount(1);
+    await expect(card.locator('.intervallimatka .kuljettu')).toHaveCount(Math.max(pa - 1, 0));
+    await expect(card.locator('[data-korttiselitys]')).not.toBeEmpty();
+    if (i < 12) await next.click();
+  }
+  await expect(number).toHaveText('Kortti 13 / 13 · Pari: septimit · viimeinen kortti');
+  await expect(next).toHaveAttribute('aria-disabled', 'true');
+  await next.dispatchEvent('click');
+  await expect(cards.locator('[data-korttinimi]')).toHaveText('Suuri septimi');
+  for (let i = 0; i < 4; i += 1) await previous.click();
+  await expect(cards.locator('[data-korttinimi]')).toHaveText('Tritonus');
+  await expect(card.locator('[data-korttilyhenne]')).toHaveText('(A4 tai d5)');
+  await expect(card.locator('[data-korttimuutnimet]')).toHaveText('Myös ylinouseva kvartti tai vähennetty kvintti.');
+  await expect(next).toHaveAttribute('aria-disabled', 'false');
+  await expect(card).toHaveAttribute('aria-live', 'polite');
+});
+
+test('muistittelutila piilottaa kortin vastauksen, kunnes se näytetään', async ({ page }) => {
+  await page.goto(studyPage);
+  const cards = page.locator('.intervallikortit');
+  const card = cards.locator('[data-korttisisalto]');
+  const toggle = cards.getByRole('button', { name: 'Muistittelutila' });
+  const reveal = cards.getByRole('button', { name: 'Näytä vastaus' });
+  const next = cards.getByRole('button', { name: 'Seuraava kortti' });
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  await expect(reveal).toBeHidden();
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  await next.click();
+  // Kortti 2: pieni terssi. Vain nimi ja lyhenne näkyvät.
+  await expect(cards.locator('[data-korttinimi]')).toHaveText('Pieni terssi');
+  await expect(card.locator('[data-korttilyhenne]')).toHaveText('(m3)');
+  await expect(card.locator('[data-korttivastaus]')).toBeHidden();
+  await expect(card.getByRole('img')).toHaveCount(0);
+  const hiddenText = await card.textContent();
+  for (const secret of ['pa', 'A–C', 'puolisävelaskel', 'Mollisoinnun']) expect(hiddenText).not.toContain(secret);
+  expect(await card.locator('.intervallimatka span').count()).toBe(0);
+  await expect(reveal).toBeVisible();
+  await reveal.focus();
+  await page.keyboard.press('Enter');
+  await expect(card.locator('[data-korttietaisyys]')).toHaveText('3 puolisävelaskelta (3 pa)');
+  await expect(card.locator('[data-korttisavelet]')).toHaveText('A:sta ylöspäin: A–C');
+  await expect(card.getByRole('img')).toBeVisible();
+  await expect(reveal).toBeHidden();
+  await expect(next).toBeFocused();
+  // Seuraava kortti alkaa taas piilotettuna, myös palattaessa takaisin.
+  await page.keyboard.press('Enter');
+  await expect(cards.locator('[data-korttinimi]')).toHaveText('Suuri terssi');
+  await expect(card.locator('[data-korttivastaus]')).toBeHidden();
+  await cards.getByRole('button', { name: 'Edellinen kortti' }).click();
+  await expect(cards.locator('[data-korttinimi]')).toHaveText('Pieni terssi');
+  await expect(card.locator('[data-korttivastaus]')).toBeHidden();
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  await expect(card.locator('[data-korttietaisyys]')).toHaveText('3 puolisävelaskelta (3 pa)');
+  await expect(reveal).toBeHidden();
+});
+
+const choiceAnswer = (prompt: string) => {
+  const distance = /^Kuinka monta puolisävelaskelta on (.+)\?$/.exec(prompt);
+  if (distance) return `${intervalNames.indexOf(distance[1])} pa`;
+  const name = /^Mikä on (\d+) pa:n tavallinen intervallinimi\?$/.exec(prompt);
+  return intervalNames[Number(name![1])];
+};
+
+test('monivalinta tarkistaa vasta Tarkista-painikkeesta ja selittää oikean vastauksen', async ({ page }) => {
+  await page.goto(studyPage);
+  const choice = page.locator('.intervallivalinta');
+  const status = choice.getByRole('status');
+  const check = choice.getByRole('button', { name: 'Tarkista' });
+  const group = choice.getByRole('group');
+  await choice.getByRole('button', { name: 'Aloita monivalinta' }).click();
+  await expect(group).toHaveAccessibleName('Kysymys 1 / 26 · Ankkurit Kuinka monta puolisävelaskelta on puhdas priimi?');
+  const radios = choice.getByRole('radio');
+  await expect(radios).toHaveCount(4);
+  await expect(radios.first()).toBeFocused();
+  expect(await choice.locator('.vaihtoehto').allTextContents()).toEqual(['0 pa', '3 pa', '4 pa', '7 pa']);
+  await check.click();
+  await expect(status).toHaveText('Valitse ensin yksi vaihtoehto.');
+  await choice.getByRole('radio', { name: '3 pa' }).check();
+  // Valinta ei tarkistu itsestään.
+  await expect(status).toHaveText('Valitse ensin yksi vaihtoehto.');
+  await expect(check).toBeEnabled();
+  await expect(choice.getByRole('button', { name: 'Seuraava kysymys' })).toBeHidden();
+  await check.click();
+  await expect(status).toHaveText('Ei vielä. Oikea vastaus on 0 pa. Puhdas priimi on 0 pa. Esimerkki on A–A (sama korkeus).');
+  await expect(choice.locator('label.oikea')).toHaveText('0 pa – oikea vastaus');
+  await expect(choice.locator('label.vaara')).toHaveText('3 pa – valintasi');
+  for (const radio of await radios.all()) await expect(radio).toBeDisabled();
+  await expect(check).toBeDisabled();
+  await expect(choice.getByRole('button', { name: 'Näytä vihje' })).toBeHidden();
+  await expect(choice.getByRole('button', { name: 'Seuraava kysymys' })).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(group).toHaveAccessibleName('Kysymys 2 / 26 · Ankkurit Mikä on 4 pa:n tavallinen intervallinimi?');
+  await expect(status).toBeEmpty();
+  expect(await choice.locator('.vaihtoehto').allTextContents())
+    .toEqual(['puhdas priimi', 'suuri terssi', 'puhdas kvintti', 'puhdas oktaavi']);
+  await expect(page.locator('[data-intervallimuisti] details')).not.toHaveAttribute('open');
+});
+
+test('vihje ei näytä vastausta ja monivalinnan voi tehdä alusta loppuun ja aloittaa uudelleen', async ({ page }) => {
+  await page.goto(studyPage);
+  const before = await page.evaluate(() => ({ ...localStorage }));
+  const choice = page.locator('.intervallivalinta');
+  const status = choice.getByRole('status');
+  const hintButton = choice.getByRole('button', { name: /vihje$/ });
+  const hint = choice.locator('[data-vihje]');
+  await choice.getByRole('button', { name: 'Aloita monivalinta' }).click();
+  for (let i = 1; i <= 26; i += 1) {
+    const prompt = await choice.locator('[data-valinta-kysymys]').innerText();
+    await expect(choice.locator('[data-valinta-numero]')).toHaveText(`Kysymys ${i} / 26 · ${i <= 10 ? 'Ankkurit' : 'Muut välit'}`);
+    const options = await choice.locator('.vaihtoehto').allTextContents();
+    expect(options, prompt).toHaveLength(4);
+    const answer = choiceAnswer(prompt);
+    expect(options, prompt).toContain(answer);
+    if (i <= 10) {
+      const anchors = ['0 pa', '3 pa', '4 pa', '7 pa', '12 pa', 'puhdas priimi', 'pieni terssi', 'suuri terssi', 'puhdas kvintti', 'puhdas oktaavi'];
+      for (const option of options) expect(anchors, prompt).toContain(option);
+    }
+    await expect(hint).toBeHidden();
+    await expect(hintButton).toHaveAttribute('aria-expanded', 'false');
+    await hintButton.click();
+    await expect(hintButton).toHaveAttribute('aria-expanded', 'true');
+    await expect(hint).toBeVisible();
+    const text = (await hint.innerText()).toLocaleLowerCase('fi');
+    expect(text, prompt).not.toMatch(/\d/);
+    expect(text, prompt).not.toContain(answer.endsWith(' pa') ? answer : answer.toLocaleLowerCase('fi'));
+    expect(options.filter(option => !option.endsWith(' pa') && text.includes(option)), prompt).toEqual([]);
+    await choice.getByRole('radio', { name: answer, exact: true }).check();
+    await choice.getByRole('button', { name: 'Tarkista' }).click();
+    await expect(status, prompt).toHaveText(/^Oikein! /);
+    await choice.getByRole('button', { name: i === 26 ? 'Näytä tulos' : 'Seuraava kysymys' }).click();
+  }
+  await expect(status).toHaveText(
+    'Monivalinta päättyi. Oikein 26 / 26. Kun valinnat sujuvat, kertaa taulukko ja tee lopuksi muistamistesti.');
+  expect(await page.evaluate(() => ({ ...localStorage }))).toEqual(before);
+  await expect(page.locator('[data-intervallimuisti] details')).not.toHaveAttribute('open');
+  const restart = choice.getByRole('button', { name: 'Aloita monivalinta alusta' });
+  await expect(restart).toBeFocused();
+  await restart.click();
+  await expect(choice.locator('[data-valinta-numero]')).toHaveText('Kysymys 1 / 26 · Ankkurit');
+  await expect(status).toBeEmpty();
+});
+
+test('monivalinta toimii näppäimistöllä eikä pohjaan jäänyt Enter ohita palautetta', async ({ page }) => {
+  await page.goto(bookPage);
+  const choice = page.locator('.intervallivalinta');
+  const status = choice.getByRole('status');
+  await choice.getByRole('button', { name: 'Aloita monivalinta' }).focus();
+  await page.keyboard.press('Enter');
+  const radios = choice.getByRole('radio');
+  await expect(radios.first()).toBeFocused();
+  await page.keyboard.press('ArrowDown');
+  await expect(radios.nth(1)).toBeChecked();
+  await expect(status).toBeEmpty();
+  await page.keyboard.press('ArrowUp');
+  await expect(radios.first()).toBeChecked();
+  await page.keyboard.press('Tab');
+  const hintButton = choice.getByRole('button', { name: 'Näytä vihje' });
+  await expect(hintButton).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(choice.locator('[data-vihje]')).toBeVisible();
+  await expect(choice.getByRole('button', { name: 'Piilota vihje' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(choice.getByRole('button', { name: 'Tarkista' })).toBeFocused();
+  const next = choice.getByRole('button', { name: 'Seuraava kysymys' });
+  const feedback = 'Oikein! Puhdas priimi on 0 pa. Esimerkki on A–A (sama korkeus).';
+  await page.keyboard.down('Enter');
+  try {
+    await expect(next).toBeFocused();
+    await expect(status).toHaveText(feedback);
+    await page.keyboard.down('Enter');
+    await page.keyboard.down('Enter');
+    await expect(status).toHaveText(feedback);
+    await expect(choice.locator('[data-valinta-numero]')).toHaveText('Kysymys 1 / 26 · Ankkurit');
+  } finally {
+    await page.keyboard.up('Enter');
+  }
+  await page.keyboard.press('Enter');
+  await expect(choice.locator('[data-valinta-numero]')).toHaveText('Kysymys 2 / 26 · Ankkurit');
+  await expect(radios.first()).toBeFocused();
+});
+
+for (const url of [studyPage, bookPage]) {
+  for (const width of [320, 360, 390]) {
+    test(`kortit ja monivalinta mahtuvat ${width} pikseliin 200 % tekstikoossa (${url})`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 800 });
+      await page.goto(url);
+      const screenWidth = () => page.evaluate(() => document.documentElement.scrollWidth);
+      await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
+      const baseline = await screenWidth();
+      const cards = page.locator('.intervallikortit');
+      for (let i = 0; i < 8; i += 1) await cards.getByRole('button', { name: 'Seuraava kortti' }).click();
+      await expect(cards.locator('[data-korttinimi]')).toHaveText('Tritonus');
+      const choice = page.locator('.intervallivalinta');
+      await choice.getByRole('button', { name: 'Aloita monivalinta' }).click();
+      await choice.getByRole('button', { name: 'Näytä vihje' }).click();
+      await choice.getByRole('radio').nth(1).check();
+      await choice.getByRole('button', { name: 'Tarkista' }).click();
+      await expect(choice.getByRole('status')).toContainText('Oikea vastaus');
+      // Kirjan sivulla on ennestään asteikkotaulukon aiheuttama leveys (QA-01). Uusi sisältö ei saa kasvattaa sitä.
+      expect(await screenWidth()).toBeLessThanOrEqual(url === studyPage ? width : baseline);
+      for (const box of [cards, choice]) {
+        const right = await box.evaluate(node => Math.max(...[node, ...node.querySelectorAll('*')]
+          .map(element => element.getBoundingClientRect().right)));
+        expect(right).toBeLessThanOrEqual(await box.evaluate(node => node.getBoundingClientRect().right) + 1);
+      }
+    });
+  }
+}
+
+test('kaksoisnapsautuksen toinen napsautus ei osu katoavan painikkeen tilalle tulevaan sisältöön', async ({ page }) => {
+  await page.goto(studyPage);
+  const details = page.locator('[data-intervallimuisti] details');
+  const summary = details.locator('summary');
+  const choice = page.locator('.intervallivalinta');
+  await choice.getByRole('button', { name: 'Aloita monivalinta' }).dblclick();
+  await expect(choice.locator('[data-valinta-numero]')).toHaveText('Kysymys 1 / 26 · Ankkurit');
+  await choice.getByRole('radio', { name: '0 pa' }).check();
+  await choice.getByRole('button', { name: 'Tarkista' }).click();
+  await choice.getByRole('button', { name: 'Seuraava kysymys' }).click();
+  // Sama tilanne kuin osoittimen alle siirtyvä taulukon otsikko kaksoisnapsautuksessa.
+  await summary.dispatchEvent('click', { detail: 2 });
+  await expect(choice.locator('[data-valinta-numero]')).toHaveText('Kysymys 2 / 26 · Ankkurit');
+  await expect(details).not.toHaveAttribute('open');
+  // Yksittäinen napsautus avaa taulukon heti.
+  await summary.dispatchEvent('click', { detail: 1 });
+  await expect(details).toHaveAttribute('open');
+
+  const cards = page.locator('.intervallikortit');
+  await cards.getByRole('button', { name: 'Muistittelutila' }).click();
+  await cards.getByRole('button', { name: 'Näytä vastaus' }).click();
+  await cards.getByRole('button', { name: 'Seuraava kortti' }).dispatchEvent('click', { detail: 2 });
+  await expect(cards.locator('[data-korttinumero]')).toHaveText('Kortti 1 / 13 · Ankkuri');
+  await expect(cards.locator('[data-korttietaisyys]')).toHaveText('0 puolisävelaskelta (0 pa)');
 });

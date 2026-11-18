@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="../../book/reader.css?v=65711fca9c">
   <link rel="stylesheet" href="../../assets/paavalikko.css?v=59824281af">
   <link rel="stylesheet" href="../../assets/oppi.css?v=cf1b18af1d">
-  <link rel="stylesheet" href="../../assets/intervallimuisti.css?v=af4bf9f951">
+  <link rel="stylesheet" href="../../assets/intervallimuisti.css?v=b2de7a6946">
 </head>
 <body>
   <a class="study-skip" href="#oppi-sisalto">Siirry sisältöön</a>
@@ -60,6 +60,49 @@
         <p>Opettele ensin viisi ankkuria. <strong>0 pa</strong> on puhdas priimi, <strong>3 pa</strong> pieni terssi, <strong>4 pa</strong> suuri terssi, <strong>7 pa</strong> puhdas kvintti ja <strong>12 pa</strong> puhdas oktaavi. Lyhenne <strong>pa</strong> tarkoittaa puolisävelaskelta.</p>
         <p>Priimin, kvartin, kvintin ja oktaavin peruslaatu on <strong>puhdas</strong>. Sekunnin, terssin, sekstin ja septimin peruslaadut ovat <strong>pieni</strong> ja <strong>suuri</strong>. Pieni on yhden puolisävelaskeleen vastaavaa suurta kapeampi. Näitä välejä voi myös muuttaa ylinouseviksi tai vähennetyiksi sävelkirjoituksen mukaan.</p>
         <p><strong>Sama etäisyys, eri nimi.</strong> A–A♯ on ylinouseva priimi, koska molemmissa sävelissä on A. A–B♭ on pieni sekunti, koska A:sta B:hen lasketaan kaksi sävelkirjainta. Molemmat ovat yhden puolisävelaskeleen päässä A:sta ja soivat kitaralla samasta nauhasta. Pelkästä etäisyydestä kysyttäessä käytämme taulukon tavallista nimeä.</p>
+        <div class="note intervallikortit">
+          <h2>Opettele välit kortti kerrallaan</h2>
+          <p>Kortit esittelevät ensin viisi ankkuria ja sitten loput kahdeksan väliä pareittain. Voit selata kortteja eteen- ja taaksepäin. Muistittelutilassa kortti näyttää vain välin nimen. Puolisävelaskeleet, sävelet ja etäisyyden kuva tulevat esiin, kun painat Näytä vastaus.</p>
+          <noscript><p>Opettelukortit tarvitsevat JavaScriptin. Voit opetella välit alla olevasta taulukosta.</p></noscript>
+          <div data-kortit hidden>
+            <div class="intervallikortti" data-korttisisalto aria-atomic="true">
+              <p class="intervallikortti-numero" data-korttinumero></p>
+              <p class="intervallikortti-nimi"><strong data-korttinimi></strong> <span data-korttilyhenne></span></p>
+              <p data-korttimuutnimet hidden></p>
+              <div data-korttivastaus>
+                <p class="intervallikortti-etaisyys" data-korttietaisyys></p>
+                <p data-korttisavelet></p>
+                <div class="intervallimatka" role="img" data-korttimatka></div>
+                <p data-korttiselitys></p>
+              </div>
+            </div>
+            <button type="button" data-korttinayta hidden>Näytä vastaus</button>
+            <div class="intervallikortit-selaus">
+              <button type="button" data-korttiedellinen>Edellinen kortti</button>
+              <button type="button" data-korttiseuraava>Seuraava kortti</button>
+            </div>
+            <p><button type="button" aria-pressed="false" data-muistittelu>Muistittelutila</button></p>
+          </div>
+        </div>
+        <div class="note intervallivalinta">
+          <h2>Harjoittele valitsemalla</h2>
+          <p>Tunnista välin nimi tai puolisävelaskelten määrä neljästä vaihtoehdosta. Ensin kysytään viisi ankkuria ja sitten loput välit. Valitse vastaus ja paina Tarkista. Vihjeen saat halutessasi, eikä tulosta tallenneta.</p>
+          <noscript><p>Monivalintaharjoitus tarvitsee JavaScriptin. Voit kerrata välit alla olevasta taulukosta.</p></noscript>
+          <button type="button" data-valinta-aloita hidden>Aloita monivalinta</button>
+          <form data-valinta hidden>
+            <fieldset>
+              <legend><span data-valinta-numero></span> <span data-valinta-kysymys></span></legend>
+              <div class="intervallivalinta-vaihtoehdot" data-vaihtoehdot></div>
+            </fieldset>
+            <p class="intervallivalinta-vihje" aria-live="polite" data-vihje hidden></p>
+            <div class="intervallivalinta-painikkeet">
+              <button type="button" aria-expanded="false" data-vihjenappi>Näytä vihje</button>
+              <button type="submit">Tarkista</button>
+            </div>
+          </form>
+          <p role="status" aria-atomic="true" data-valinta-palaute></p>
+          <button type="button" data-valinta-seuraava hidden>Seuraava kysymys</button>
+        </div>
         <details>
           <summary>Kaikki 13 väliä priimistä oktaaviin</summary>
           <div class="intervallitaulukon-vieritys" role="region" aria-label="Intervallitaulukon vieritys" tabindex="0">
@@ -87,9 +130,13 @@
         <h2>Kromaattinen harjoitus A:sta A:han</h2>
         <p>Soita kromaattinen asteikko A:sta seuraavaan A:han. Aloita paksun E-kielen (6.) nauhoilta 5–8, jatka A-kielen (5.) nauhoille 4–7 ja lopuksi D-kielen (4.) nauhoille 3–7. Vertaa soittamalla sama asteikko A-kielellä vapaasta kielestä (0) nauhalle 12.</p>
         <p>Sama väli toimii muualtakin. A–C ja C–E♭ ovat pieniä terssejä. Kummassakin on kolme sävelkirjainta ja kolme puolisävelaskelta.</p>
+
+        <h2>Terssi muuttaa soinnun</h2>
+        <p><strong>Kolmisoinnun</strong> sävelet voi järjestää perussäveleksi, terssiksi ja kvintiksi. C-duurisoinnussa ne ovat C, E ja G. C-mollisoinnussa C ja G pysyvät, mutta terssi laskee E♭:hen. Juuri tämä puolisävelaskel erottaa nämä kaksi sointua, ja sen kuulit luvun alun esimerkissä. Kitaralla sama sävel voi soida useammalla kielellä tai eri oktaaveissa, joten otteessa voi soida useampi kuin kolme kieltä.</p>
+        <p class="study-practice-link"><a href="siirra-yhta-sormea.html">Harjoitus · Siirrä yhtä sormea</a></p>
         <div class="note intervallikysely">
           <h2>Palauta intervallit mieleen</h2>
-          <p>Vastaa muistista. Aloita ankkureista ja jatka koko nimistöön. Nimikysymyksiin käy myös lyhenne, kuten P1, m3 tai M3. Pieni m tarkoittaa pientä ja iso M suurta.</p>
+          <p>Tämä on oppitunnin viimeinen harjoitus. Vastaa muistista ilman vaihtoehtoja ja vihjeitä. Aloita ankkureista ja jatka koko nimistöön. Nimikysymyksiin käy myös lyhenne, kuten P1, m3 tai M3. Pieni m tarkoittaa pientä ja iso M suurta.</p>
           <noscript><p>Muistiharjoitus tarvitsee JavaScriptin. Voit kerrata nimet yllä olevasta taulukosta.</p></noscript>
           <button type="button" data-aloita hidden>Aloita muistiharjoitus</button>
           <form data-kysymys hidden>
@@ -104,10 +151,6 @@
           <button type="button" data-seuraava hidden>Seuraava kysymys</button>
         </div>
       </div>
-
-      <h2>Terssi muuttaa soinnun</h2>
-      <p><strong>Kolmisoinnun</strong> sävelet voi järjestää perussäveleksi, terssiksi ja kvintiksi. C-duurisoinnussa ne ovat C, E ja G. C-mollisoinnussa C ja G pysyvät, mutta terssi laskee E♭:hen. Juuri tämä puolisävelaskel erottaa nämä kaksi sointua, ja sen kuulit luvun alun esimerkissä. Kitaralla sama sävel voi soida useammalla kielellä tai eri oktaaveissa, joten otteessa voi soida useampi kuin kolme kieltä.</p>
-      <p class="study-practice-link"><a href="siirra-yhta-sormea.html">Harjoitus · Siirrä yhtä sormea</a></p>
 
       <p class="done-row"><button type="button" class="done-toggle" aria-pressed="false" disabled>Merkitse luku tehdyksi</button></p>
     </section>
@@ -128,6 +171,6 @@
   </main>
   <script src="../../assets/oppimiskartta.js"></script>
   <script src="../../assets/edistyminen.js?v=b570bd71cc"></script>
-  <script type="module" src="../../assets/intervallimuisti.js?v=020103c77f"></script>
+  <script type="module" src="../../assets/intervallimuisti.js?v=0e1e3df59c"></script>
 </body>
 </html>

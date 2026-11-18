@@ -1,4 +1,112 @@
+// Sävelet ja intervallit -oppitunnin harjoitukset. Kaikki välien nimet, lyhenteet ja
+// sävelesimerkit luetaan sivun intervallitaulukosta (tr[data-pa]). Tämä moduuli lisää niihin
+// vain opetustekstit, harjoitusten järjestyksen ja vihjeet. Mitään ei tallenneta.
+//
+// Oppitunnin järjestys: opettelukortit, tuettu monivalinta, taulukko ja lopuksi kirjoitettava
+// 29 kysymyksen muistamistesti.
+
 export const anchors = [0, 3, 4, 7, 12];
+// Ankkurien jälkeen muut välit opetellaan pareittain.
+export const pairs = [[1, 2], [5, 6], [8, 9], [10, 11]];
+export const cardOrder = [...anchors, ...pairs.flat()];
+
+const groupNames = new Map([
+  ...anchors.map(pa => [pa, 'Ankkuri']),
+  [1, 'Pari: sekunnit'], [2, 'Pari: sekunnit'],
+  [5, 'Pari: kvartti ja tritonus'], [6, 'Pari: kvartti ja tritonus'],
+  [8, 'Pari: sekstit'], [9, 'Pari: sekstit'],
+  [10, 'Pari: septimit'], [11, 'Pari: septimit'],
+]);
+
+// Opettelukortin lyhyt selitys. Jokainen selitys sitoo välin aiemmin opittuun ankkuriin.
+export const cardExplanations = {
+  0: 'Kaksi säveltä samalla korkeudella. Kitaralla soitat saman nauhan uudelleen. Priimi on lähtökohta, josta muut välit lasketaan.',
+  3: 'Mollisoinnun terssi. Luvun alun C–E♭ on pieni terssi.',
+  4: 'Duurisoinnun terssi. Se on puolisävelaskeleen leveämpi kuin pieni terssi. Luvun alun C–E on suuri terssi.',
+  7: 'Duuri- ja mollisoinnun ylin sävel perussävelestä laskettuna. Suuri ja pieni terssi muodostavat yhdessä kvintin.',
+  12: 'Sama sävelnimi ylempänä. A-kielellä ylempi A soi 12. nauhalla.',
+  1: 'Puolisävelaskel eli viereinen nauha. A–B♭ on pieni sekunti. A–A♯ on yhtä kaukana, mutta sen nimi on ylinouseva priimi, koska sävelkirjain pysyy samana.',
+  2: 'Kokosävelaskel eli kahden nauhan siirto. Kaksi suurta sekuntia peräkkäin muodostavat suuren terssin.',
+  5: 'Kokosävelaskelta kapeampi kuin kvintti. Kitaran vierekkäiset kielet on useimmiten viritetty kvartin päähän toisistaan, esimerkiksi E- ja A-kieli.',
+  6: 'Puolisävelaskeleen kapeampi kuin kvintti. Tritonus jakaa oktaavin kahteen yhtä suureen osaan. Sävelkirjoituksen mukaan A–D♯ on ylinouseva kvartti ja A–E♭ vähennetty kvintti.',
+  8: 'Puolisävelaskeleen leveämpi kuin kvintti. Pieni ja suuri seksti eroavat puolisävelaskeleella.',
+  9: 'Pienen terssin verran kapeampi kuin oktaavi.',
+  10: 'Kokosävelaskelta kapeampi kuin oktaavi. Pieni ja suuri septimi eroavat puolisävelaskeleella.',
+  11: 'Puolisävelaskeleen kapeampi kuin oktaavi.',
+};
+
+// Monivalinnan vihjeet muistuttavat yhdestä aiemmin opitusta ankkurista (viite). Viitettä ei
+// käytetä vastausvaihtoehtona, joten vihje ei voi sulkea vaihtoehtoja pois nimeämällä niitä.
+// Vihjeissä ei ole numeroita eikä kysytyn välin nimeä tai sävelparia.
+// etaisyys = vihje kysymykseen "Kuinka monta puolisävelaskelta on …?"
+// nimi = vihje kysymykseen "Mikä on … pa:n tavallinen intervallinimi?"
+export const hints = {
+  0: {
+    viite: 12,
+    etaisyys: 'Priimi tarkoittaa ensimmäistä. Muista, että oktaavissa sama sävelnimi toistuu ylempänä.',
+    nimi: 'Sävel ei nouse lainkaan, joten kyse ei ole oktaavista. Kitaralla soitat saman nauhan uudelleen.',
+  },
+  3: {
+    viite: 4,
+    etaisyys: 'Pieni terssi on puolisävelaskeleen kapeampi kuin suuri terssi. Muista luvun alun mollisointu C–E♭–G.',
+    nimi: 'Tämä on mollisoinnun alimman ja keskimmäisen sävelen väli, kuten luvun alun C–E♭. Duurisoinnussa vastaava väli on puolisävelaskeleen leveämpi.',
+  },
+  4: {
+    viite: 3,
+    etaisyys: 'Suuri terssi on puolisävelaskeleen leveämpi kuin pieni terssi. Muista luvun alun duurisointu C–E–G.',
+    nimi: 'Tämä on duurisoinnun alimman ja keskimmäisen sävelen väli, kuten luvun alun C–E. Mollisoinnussa vastaava väli on puolisävelaskeleen kapeampi.',
+  },
+  7: {
+    viite: 12,
+    etaisyys: 'Kvintti on duuri- ja mollisoinnun ylin sävel perussävelestä laskettuna. Laske suuren terssin päälle pieni terssi.',
+    nimi: 'Tämä on voimasoinnun ja duurisoinnun ylin sävel perussävelestä laskettuna, kuten luvun alun C–G. Se on lähempänä oktaavia kuin lähtösäveltä.',
+  },
+  12: {
+    viite: 0,
+    etaisyys: 'Oktaavissa sama sävelnimi toistuu ylempänä. Laske A-kielen nauhat vapaasta kielestä siihen nauhaan, jossa A soi uudelleen.',
+    nimi: 'Sama sävelnimi soi ylempänä, kuten kromaattisen harjoituksen lopussa. Priimissä sävel ei nouse, tässä se nousee koko matkan.',
+  },
+  1: {
+    viite: 0,
+    etaisyys: 'Pieni sekunti on kokosävelaskelta kapeampi kuin pieni terssi.',
+    nimi: 'Lähde priimistä ja siirry viereiseen nauhaan. Kun sävelkirjaimet ovat vierekkäin, väli on jokin sekunneista.',
+  },
+  2: {
+    viite: 4,
+    etaisyys: 'Kun soitat suuren sekunnin ja sen päälle toisen samanlaisen, päädyt suureen terssiin.',
+    nimi: 'Siirrä sormea kaksi nauhaa samalla kielellä. Sävelkirjaimet ovat vierekkäin, kuten C ja D.',
+  },
+  5: {
+    viite: 7,
+    etaisyys: 'Puhdas kvartti on kokosävelaskelta kapeampi kuin kvintti. Kitaran vierekkäiset kielet on useimmiten viritetty tämän välin päähän toisistaan.',
+    nimi: 'Kitaran E- ja A-kielen vapaat sävelet ovat tämän välin päässä toisistaan. Kvintistä tämä väli on kokosävelaskelta kapeampi.',
+  },
+  6: {
+    viite: 7,
+    etaisyys: 'Tritonus on puolisävelaskeleen kapeampi kuin kvintti.',
+    nimi: 'Tämä väli on puolisävelaskeleen kapeampi kuin kvintti ja jakaa oktaavin kahteen yhtä suureen osaan. Sävelkirjoituksen mukaan sillä on useampi nimi.',
+  },
+  8: {
+    viite: 7,
+    etaisyys: 'Pieni seksti on puolisävelaskeleen leveämpi kuin kvintti.',
+    nimi: 'Lähde kvintistä ja nouse vielä puolisävelaskel.',
+  },
+  9: {
+    viite: 12,
+    etaisyys: 'Suuri seksti on pienen terssin verran kapeampi kuin oktaavi.',
+    nimi: 'Laske oktaavista alaspäin pienen terssin verran.',
+  },
+  10: {
+    viite: 12,
+    etaisyys: 'Pieni septimi on kokosävelaskelta kapeampi kuin oktaavi.',
+    nimi: 'Laske oktaavista alaspäin kokosävelaskel.',
+  },
+  11: {
+    viite: 12,
+    etaisyys: 'Suuri septimi on puolisävelaskeleen kapeampi kuin oktaavi.',
+    nimi: 'Laske oktaavista alaspäin puolisävelaskel.',
+  },
+};
 
 const spellingQuestions = [
   {
@@ -59,13 +167,315 @@ export function acceptsAnswer(answers, value) {
     : response.toLocaleLowerCase('fi') === answer.toLocaleLowerCase('fi'));
 }
 
-function mount(section) {
-  const intervals = Array.from(section.querySelectorAll('tr[data-pa]'), row => ({
-    pa: Number(row.dataset.pa),
-    name: row.cells[1].firstChild.textContent.trim(),
-    example: row.cells[2].textContent.trim(),
-    aliases: row.dataset.lyhenteet.split('|'),
+/** Opettelukortit korttijärjestyksessä: ensin ankkurit, sitten parit. */
+export function learningCards(intervals) {
+  return cardOrder.map(pa => {
+    const interval = intervals.find(row => row.pa === pa);
+    return {
+      pa,
+      name: interval.name,
+      otherNames: interval.otherNames ?? '',
+      abbreviation: interval.aliases.filter(alias => /^[mMPAd]\d+$/.test(alias)).join(' tai '),
+      example: interval.example,
+      group: groupNames.get(pa),
+      explanation: cardExplanations[pa],
+    };
+  });
+}
+
+/**
+ * Vastausvaihtoehdot: oikea vastaus ja kolme sitä lähintä väliä samasta joukosta.
+ * Vihjeen viiteväli ei ole koskaan vaihtoehto. Vaihtoehdot ovat puolisävelaskelten järjestyksessä.
+ */
+export function choiceOptions(pa, pool) {
+  const reference = hints[pa].viite;
+  const distractors = pool.filter(other => other !== pa && other !== reference)
+    .sort((a, b) => Math.abs(a - pa) - Math.abs(b - pa) || a - b)
+    .slice(0, 3);
+  return [pa, ...distractors].sort((a, b) => a - b);
+}
+
+/** Tuetun monivalinnan 26 kysymystä: ankkurit ensin, sitten muut välit, kumpaankin suuntaan. */
+export function choiceQuestions(intervals) {
+  const byPa = new Map(intervals.map(interval => [interval.pa, interval]));
+  const everyInterval = intervals.map(({ pa }) => pa);
+  const toDistance = (pa, pool, phase) => {
+    const interval = byPa.get(pa);
+    return {
+      kind: 'etaisyys', pa, phase,
+      prompt: `Kuinka monta puolisävelaskelta on ${interval.name}?`,
+      options: choiceOptions(pa, pool).map(value => ({ value: String(value), label: `${value} pa` })),
+      answer: String(pa),
+      hint: hints[pa].etaisyys,
+      explanation: explanation(interval),
+    };
+  };
+  const toName = (pa, pool, phase) => ({
+    kind: 'nimi', pa, phase,
+    prompt: `Mikä on ${pa} pa:n tavallinen intervallinimi?`,
+    options: choiceOptions(pa, pool).map(value => ({ value: String(value), label: byPa.get(value).name })),
+    answer: String(pa),
+    hint: hints[pa].nimi,
+    explanation: explanation(byPa.get(pa)),
+  });
+  const inBothDirections = (group, pool, phase) => group.flatMap((pa, index) => [
+    toDistance(pa, pool, phase),
+    toName(group[(index + 2) % group.length], pool, phase),
+  ]);
+  return [
+    ...inBothDirections(anchors, anchors, 'Ankkurit'),
+    ...inBothDirections(pairs.flat(), everyInterval, 'Muut välit'),
+  ];
+}
+
+function readIntervals(section) {
+  return Array.from(section.querySelectorAll('tr[data-pa]'), row => {
+    const [first, ...rest] = Array.from(row.cells[1].childNodes)
+      .filter(node => node.nodeType === Node.TEXT_NODE)
+      .map(node => node.textContent.trim())
+      .filter(Boolean);
+    return {
+      pa: Number(row.dataset.pa),
+      name: first,
+      otherNames: rest.join(' '),
+      example: row.cells[2].textContent.trim(),
+      aliases: row.dataset.lyhenteet.split('|'),
+    };
+  });
+}
+
+// Kun painike katoaa napsautuksesta, sen alla oleva sisältö siirtyy osoittimen kohdalle.
+// Kaksoisnapsautuksen toinen napsautus (detail > 1) ei saa avata taulukkoa, merkitä lukua
+// tehdyksi tai siirtää sivulta. Yksittäiset napsautukset ja näppäimistö toimivat normaalisti.
+let repeatedClickGuard = 0;
+function guardVanishingButton(button) {
+  button.addEventListener('click', () => { repeatedClickGuard = performance.now() + 600; });
+}
+if (typeof document !== 'undefined') {
+  document.addEventListener('click', event => {
+    if (event.detail > 1 && performance.now() < repeatedClickGuard) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+  }, true);
+}
+
+// Pohjassa pysyvä Enter ei saa aktivoida painiketta fokuksen siirryttyä.
+function ignoreRepeatedEnter(element) {
+  element.addEventListener('keydown', event => {
+    if (event.key === 'Enter' && event.repeat) event.preventDefault();
+  });
+}
+
+function distanceText(pa) {
+  return pa === 1 ? '1 puolisävelaskel (1 pa)' : `${pa} puolisävelaskelta (${pa} pa)`;
+}
+
+function drawTrack(track, pa) {
+  track.setAttribute('aria-label', pa === 0
+    ? 'Etäisyys kuvana: sävel ei nouse lainkaan.'
+    : `Etäisyys kuvana: ${pa} oktaavin 12 puolisävelaskeleesta.`);
+  track.replaceChildren(...Array.from({ length: 13 }, (_, step) => {
+    const cell = document.createElement('span');
+    if (step === 0) cell.className = 'lahto';
+    if (step > 0 && step <= pa) cell.className = step === pa ? 'kohde' : 'kuljettu';
+    if (pa === 0 && step === 0) cell.className = 'lahto kohde';
+    return cell;
   }));
+}
+
+function mountCards(section, intervals) {
+  const root = section.querySelector('[data-kortit]');
+  if (!root) return;
+  const cards = learningCards(intervals);
+  const part = name => root.querySelector(`[data-${name}]`);
+  const content = part('korttisisalto');
+  const number = part('korttinumero');
+  const name = part('korttinimi');
+  const abbreviation = part('korttilyhenne');
+  const otherNames = part('korttimuutnimet');
+  const answer = part('korttivastaus');
+  const distance = part('korttietaisyys');
+  const notes = part('korttisavelet');
+  const track = part('korttimatka');
+  const text = part('korttiselitys');
+  const reveal = part('korttinayta');
+  const previous = part('korttiedellinen');
+  const next = part('korttiseuraava');
+  const practice = part('muistittelu');
+  let index = 0;
+  let hiding = false;
+  let revealed = true;
+
+  function render() {
+    const card = cards[index];
+    const last = index === cards.length - 1;
+    number.textContent = `Kortti ${index + 1} / ${cards.length} · ${card.group}${last ? ' · viimeinen kortti' : ''}`;
+    name.textContent = card.name[0].toUpperCase() + card.name.slice(1);
+    abbreviation.textContent = card.abbreviation ? `(${card.abbreviation})` : '';
+    otherNames.textContent = card.otherNames ? `Myös ${card.otherNames}.` : '';
+    otherNames.hidden = !card.otherNames;
+    const show = !hiding || revealed;
+    // Muistittelutilassa vastausta ei ole sivulla lainkaan ennen näyttämistä.
+    answer.hidden = !show;
+    distance.textContent = show ? distanceText(card.pa) : '';
+    notes.textContent = show ? `A:sta ylöspäin: ${card.example}` : '';
+    text.textContent = show ? card.explanation : '';
+    if (show) drawTrack(track, card.pa);
+    else {
+      track.replaceChildren();
+      track.removeAttribute('aria-label');
+    }
+    reveal.hidden = show;
+    previous.setAttribute('aria-disabled', String(index === 0));
+    next.setAttribute('aria-disabled', String(last));
+  }
+
+  function move(step) {
+    const target = index + step;
+    if (target < 0 || target >= cards.length) return;
+    index = target;
+    revealed = !hiding;
+    render();
+  }
+
+  ignoreRepeatedEnter(root);
+  guardVanishingButton(reveal);
+  previous.addEventListener('click', () => move(-1));
+  next.addEventListener('click', () => move(1));
+  reveal.addEventListener('click', () => {
+    revealed = true;
+    render();
+    (index === cards.length - 1 ? previous : next).focus();
+  });
+  practice.addEventListener('click', () => {
+    hiding = !hiding;
+    revealed = !hiding;
+    practice.setAttribute('aria-pressed', String(hiding));
+    render();
+  });
+  render();
+  root.hidden = false;
+  // Ilmoitukset vasta käyttäjän toimista, ei sivun latautuessa.
+  content.setAttribute('aria-live', 'polite');
+}
+
+function mountChoice(section, intervals) {
+  const box = section.querySelector('.intervallivalinta');
+  if (!box) return;
+  const questions = choiceQuestions(intervals);
+  const start = box.querySelector('[data-valinta-aloita]');
+  const form = box.querySelector('[data-valinta]');
+  const fieldset = form.querySelector('fieldset');
+  const counter = form.querySelector('[data-valinta-numero]');
+  const prompt = form.querySelector('[data-valinta-kysymys]');
+  const options = form.querySelector('[data-vaihtoehdot]');
+  const hint = form.querySelector('[data-vihje]');
+  const hintButton = form.querySelector('[data-vihjenappi]');
+  const check = form.querySelector('[type="submit"]');
+  const status = box.querySelector('[data-valinta-palaute]');
+  const next = box.querySelector('[data-valinta-seuraava]');
+  hint.id = 'intervallivalinnan-vihje';
+  hintButton.setAttribute('aria-controls', hint.id);
+  let index = 0;
+  let correct = 0;
+  let answered = false;
+
+  function showHint(visible) {
+    hint.hidden = !visible;
+    hint.textContent = visible ? questions[index].hint : '';
+    hintButton.setAttribute('aria-expanded', String(visible));
+    hintButton.textContent = visible ? 'Piilota vihje' : 'Näytä vihje';
+  }
+
+  function showQuestion() {
+    const question = questions[index];
+    answered = false;
+    counter.textContent = `Kysymys ${index + 1} / ${questions.length} · ${question.phase}`;
+    prompt.textContent = question.prompt;
+    options.replaceChildren(...question.options.map(option => {
+      const label = document.createElement('label');
+      const input = document.createElement('input');
+      input.type = 'radio';
+      input.name = 'intervallivalinta';
+      input.value = option.value;
+      const text = document.createElement('span');
+      text.className = 'vaihtoehto';
+      text.textContent = option.label;
+      label.append(input, ' ', text);
+      return label;
+    }));
+    fieldset.disabled = false;
+    showHint(false);
+    hintButton.hidden = false;
+    check.disabled = false;
+    status.textContent = '';
+    next.hidden = true;
+    form.hidden = false;
+    options.querySelector('input').focus();
+  }
+
+  ignoreRepeatedEnter(box);
+  guardVanishingButton(start);
+  guardVanishingButton(next);
+  start.hidden = false;
+  start.addEventListener('click', () => {
+    index = 0;
+    correct = 0;
+    start.hidden = true;
+    showQuestion();
+  });
+  hintButton.addEventListener('click', () => showHint(hint.hidden));
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    if (answered) return;
+    const question = questions[index];
+    const chosen = form.elements.namedItem('intervallivalinta').value;
+    if (!chosen) {
+      status.textContent = 'Valitse ensin yksi vaihtoehto.';
+      return;
+    }
+    answered = true;
+    const accepted = chosen === question.answer;
+    correct += Number(accepted);
+    const right = question.options.find(option => option.value === question.answer);
+    for (const label of options.querySelectorAll('label')) {
+      const { value } = label.querySelector('input');
+      const mark = value === question.answer ? 'oikea vastaus' : value === chosen ? 'valintasi' : '';
+      if (!mark) continue;
+      label.classList.add(value === question.answer ? 'oikea' : 'vaara');
+      const note = document.createElement('span');
+      note.className = 'merkinta';
+      note.textContent = ` – ${mark}`;
+      label.querySelector('.vaihtoehto').append(note);
+    }
+    fieldset.disabled = true;
+    check.disabled = true;
+    hintButton.hidden = true;
+    next.textContent = index === questions.length - 1 ? 'Näytä tulos' : 'Seuraava kysymys';
+    next.hidden = false;
+    next.focus();
+    status.textContent = accepted
+      ? `Oikein! ${question.explanation}`
+      : `Ei vielä. Oikea vastaus on ${right.label}. ${question.explanation}`;
+  });
+  next.addEventListener('click', () => {
+    index += 1;
+    if (index < questions.length) {
+      showQuestion();
+      return;
+    }
+    form.hidden = true;
+    next.hidden = true;
+    start.textContent = 'Aloita monivalinta alusta';
+    start.hidden = false;
+    start.focus();
+    status.textContent = `Monivalinta päättyi. Oikein ${correct} / ${questions.length}. `
+      + 'Kun valinnat sujuvat, kertaa taulukko ja tee lopuksi muistamistesti.';
+  });
+}
+
+function mountRecall(section, intervals) {
   const questions = recallQuestions(intervals);
   const start = section.querySelector('[data-aloita]');
   const form = section.querySelector('[data-kysymys]');
@@ -90,10 +500,9 @@ function mount(section) {
     input.focus();
   }
 
-  // Pohjassa pysyvä Enter ei saa aktivoida painiketta fokuksen siirryttyä.
-  section.querySelector('.intervallikysely').addEventListener('keydown', event => {
-    if (event.key === 'Enter' && event.repeat) event.preventDefault();
-  });
+  ignoreRepeatedEnter(section.querySelector('.intervallikysely'));
+  guardVanishingButton(start);
+  guardVanishingButton(next);
 
   start.hidden = false;
   start.addEventListener('click', () => {
@@ -130,6 +539,13 @@ function mount(section) {
     start.focus();
     status.textContent = `Muistiharjoitus päättyi. Oikein ${correct} / ${questions.length}.`;
   });
+}
+
+function mount(section) {
+  const intervals = readIntervals(section);
+  mountCards(section, intervals);
+  mountChoice(section, intervals);
+  mountRecall(section, intervals);
 }
 
 if (typeof document !== 'undefined') {

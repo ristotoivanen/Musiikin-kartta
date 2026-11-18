@@ -2,8 +2,10 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { at, INTERVALS, noteToMidi, spell } from '../harjoittelija/music';
+import {
+  acceptsAnswer, anchors, cardExplanations, cardOrder, choiceOptions, choiceQuestions, hints, learningCards, recallQuestions,
 // @ts-expect-error Testattu selainmoduuli palvellaan suoraan JavaScriptinä.
-import { acceptsAnswer, recallQuestions } from '../assets/intervallimuisti.js';
+} from '../assets/intervallimuisti.js';
 
 const chapter = readFileSync(new URL('../book/osa-2.html', import.meta.url), 'utf8');
 const rows = /<tr data-pa="(\d+)" data-lyhenteet="([^"]+)"><th scope="row">(\d+)<\/th><td>([^<]+).*?<\/td><td>([^<]+)<\/td><\/tr>/g;
@@ -135,5 +137,141 @@ describe('intervallien teoria ja palautus', () => {
     const guitarRun = [[5, 5, 8], [4, 4, 7], [3, 3, 7]].flatMap(([string, first, last]) =>
       Array.from({ length: last - first + 1 }, (_, offset) => at(string, first + offset).midi));
     expect(guitarRun).toEqual(Array.from({ length: 13 }, (_, fret) => at(4, fret).midi));
+  });
+});
+
+type Card = { pa: number; name: string; otherNames: string; abbreviation: string; example: string; group: string; explanation: string };
+type Choice = {
+  kind: 'etaisyys' | 'nimi'; pa: number; phase: string; prompt: string; answer: string; hint: string; explanation: string;
+  options: { value: string; label: string }[];
+};
+const tritonusCell = /<tr data-pa="6"[^>]*><th[^>]*>6<\/th><td>tritonus<br>([^<]+)<\/td>/.exec(chapter)![1];
+const withOtherNames = intervals.map(row => ({ ...row, otherNames: row.pa === 6 ? tritonusCell : '' }));
+const cards: Card[] = learningCards(withOtherNames);
+const choices: Choice[] = choiceQuestions(intervals);
+const anchorSet = [0, 3, 4, 7, 12];
+const numberWords = /(?<!\p{L})(nolla\p{L}*|yksi|yhden|kaksi|kahden|kahteen|kolme\p{L}*|neljä\p{L}*|viisi|viiden|kuusi|kuuden|seitsemä\p{L}*|kahdeksa\p{L}*|yhdeksä\p{L}*|kymmene\p{L}*|yksitoista|yhdentoista|kaksitoista|kahdentoista)(?!\p{L})/iu;
+// Välien sanavartalot taivutusmuodot mukaan lukien (kvintti, kvintistä, kvintin …).
+const families = ['priim', 'sekun', 'terss', 'kvart', 'kvint', 'sekst', 'septim', 'oktaav', 'triton'];
+const lower = (text: string) => text.toLocaleLowerCase('fi');
+const mentions = (text: string, phrase: string) =>
+  new RegExp(`(?<!\\p{L})${phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?!\\p{L})`, 'iu').test(text);
+
+describe('opettelukortit', () => {
+  it('esittelevät ensin viisi ankkuria ja sitten muut välit loogisina pareina', () => {
+    expect(anchors).toEqual(anchorSet);
+    expect(cardOrder).toEqual([0, 3, 4, 7, 12, 1, 2, 5, 6, 8, 9, 10, 11]);
+    expect([...cardOrder].sort((a, b) => a - b)).toEqual(Array.from({ length: 13 }, (_, pa) => pa));
+    expect(cards.map(card => card.pa)).toEqual(cardOrder);
+    expect(cards.slice(0, 5).every(card => card.group === 'Ankkuri')).toBe(true);
+    expect(cards.slice(5).map(card => card.group)).toEqual([
+      'Pari: sekunnit', 'Pari: sekunnit', 'Pari: kvartti ja tritonus', 'Pari: kvartti ja tritonus',
+      'Pari: sekstit', 'Pari: sekstit', 'Pari: septimit', 'Pari: septimit',
+    ]);
+  });
+
+  it('näyttävät taulukon nimen, lyhenteen, puolisävelaskeleet ja sävelesimerkin jokaiselle välille', () => {
+    const byPa = new Map(cards.map(card => [card.pa, card]));
+    const abbreviations = ['P1', 'm2', 'M2', 'm3', 'M3', 'P4', 'A4 tai d5', 'P5', 'm6', 'M6', 'm7', 'M7', 'P8'];
+    for (const row of intervals) {
+      const card = byPa.get(row.pa)!;
+      expect(card.name).toBe(row.name);
+      expect(card.example).toBe(row.example);
+      expect(card.abbreviation).toBe(abbreviations[row.pa]);
+      expect(card.explanation.trim().length, row.name).toBeGreaterThan(20);
+      expect(card.explanation).toBe(cardExplanations[row.pa]);
+    }
+    expect(byPa.get(6)!.otherNames).toBe('ylinouseva kvartti tai vähennetty kvintti');
+    expect(cards.filter(card => card.otherNames).map(card => card.pa)).toEqual([6]);
+  });
+
+  it('selitykset erottavat sävelkirjoituksen etäisyydestä', () => {
+    expect(cardExplanations[1]).toContain('A–B♭ on pieni sekunti');
+    expect(cardExplanations[1]).toContain('A–A♯ on yhtä kaukana, mutta sen nimi on ylinouseva priimi');
+    expect(cardExplanations[6]).toContain('A–D♯ on ylinouseva kvartti ja A–E♭ vähennetty kvintti');
+    for (const text of Object.values(cardExplanations) as string[]) {
+      expect(text).not.toMatch(/aina|määrää nimen/i);
+    }
+  });
+});
+
+describe('tuettu monivalinta', () => {
+  it('kysyy jokaisen 13 välin kumpaankin suuntaan, ankkurit ensin', () => {
+    expect(choices).toHaveLength(26);
+    for (const kind of ['etaisyys', 'nimi'] as const) {
+      expect(choices.filter(q => q.kind === kind).map(q => q.pa).sort((a, b) => a - b))
+        .toEqual(Array.from({ length: 13 }, (_, pa) => pa));
+    }
+    const anchorPhase = choices.slice(0, 10);
+    expect(anchorPhase.every(q => q.phase === 'Ankkurit' && anchorSet.includes(q.pa))).toBe(true);
+    expect(choices.slice(10).every(q => q.phase === 'Muut välit' && !anchorSet.includes(q.pa))).toBe(true);
+    for (const question of anchorPhase) {
+      expect(question.options.every(option => anchorSet.includes(Number(option.value))), question.prompt).toBe(true);
+    }
+  });
+
+  it('jokaisessa kysymyksessä on neljä eri vaihtoehtoa, joista yksi on oikea', () => {
+    const names = new Map(intervals.map(row => [row.pa, row.name]));
+    const positions = new Set<number>();
+    for (const question of choices) {
+      const values = question.options.map(option => option.value);
+      expect(values, question.prompt).toHaveLength(4);
+      expect(new Set(values).size, question.prompt).toBe(4);
+      expect(values.filter(value => value === question.answer), question.prompt).toHaveLength(1);
+      expect(question.answer).toBe(String(question.pa));
+      positions.add(values.indexOf(question.answer));
+      for (const option of question.options) {
+        expect(option.label).toBe(question.kind === 'etaisyys' ? `${option.value} pa` : names.get(Number(option.value)));
+      }
+      if (question.kind === 'etaisyys') expect(question.prompt).toBe(`Kuinka monta puolisävelaskelta on ${names.get(question.pa)}?`);
+      else expect(question.prompt).toBe(`Mikä on ${question.pa} pa:n tavallinen intervallinimi?`);
+    }
+    expect(positions.size).toBeGreaterThan(2);
+  });
+
+  it('vihje ei näytä oikeaa vastausta eikä paljasta sitä poissulkemalla', () => {
+    const rows = new Map(intervals.map(row => [row.pa, row]));
+    for (const question of choices) {
+      const { hint, pa } = question;
+      const row = rows.get(pa)!;
+      const context = `${question.prompt} / ${hint}`;
+      expect(hint.trim().length, context).toBeGreaterThan(20);
+      // Ei numeroita, joten vihje ei kerro yhdenkään vaihtoehdon puolisävelmäärää.
+      expect(hint, context).not.toMatch(/\d/);
+      // Vihjeen viiteväli ei ole vastausvaihtoehto.
+      expect(question.options.map(option => Number(option.value)), context).not.toContain(hints[pa].viite);
+      // Kysytyn välin sävelpari ei näy vihjeessä.
+      expect(hint, context).not.toContain(row.example.replace(/ \(.*\)$/, ''));
+      const eliminated = question.options.filter(option => option.value !== question.answer && (
+        question.kind === 'etaisyys'
+          ? false
+          : [option.label, ...rows.get(Number(option.value))!.aliases].some(name => mentions(hint, name))));
+      expect(eliminated.map(option => option.label), context).toEqual([]);
+      if (question.kind === 'etaisyys') {
+        expect(hint, context).not.toMatch(numberWords);
+      } else {
+        for (const name of [row.name, ...row.aliases]) expect(mentions(hint, name), `${context} (${name})`).toBe(false);
+        // Vihjeen välisana ei saa osoittaa vain oikeaan vaihtoehtoon.
+        for (const family of families.filter(stem => lower(hint).includes(stem))) {
+          const matching = question.options.filter(option => lower(option.label).includes(family));
+          expect(matching.length === 1 && matching[0].value === question.answer, `${context} (${family})`).toBe(false);
+        }
+      }
+      // Jäljelle jää aina vähintään kaksi vaihtoehtoa, joita vihje ei sulje pois.
+      expect(question.options.length - eliminated.length, context).toBeGreaterThanOrEqual(2);
+    }
+  });
+
+  it('ankkurivaiheen vihjeet ja vaihtoehdot toimivat vain viidellä ankkurilla', () => {
+    for (const pa of anchorSet) {
+      const options = choiceOptions(pa, anchorSet);
+      expect(options, String(pa)).toHaveLength(4);
+      expect(options).toContain(pa);
+      expect(options).not.toContain(hints[pa].viite);
+      expect(anchorSet).toContain(hints[pa].viite);
+    }
+    const anchorHints = choices.slice(0, 10);
+    expect(anchorHints.map(q => q.kind)).toEqual(Array.from({ length: 10 }, (_, i) => (i % 2 ? 'nimi' : 'etaisyys')));
+    expect(new Set(anchorHints.map(q => q.hint)).size).toBe(10);
   });
 });
