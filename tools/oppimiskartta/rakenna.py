@@ -486,6 +486,9 @@ def render(topic, content, nav, page=None, *, path_items=()):
     stylesheets = ['book/reader.css', 'assets/paavalikko.css', 'assets/oppi.css']
     if recap:
         stylesheets.append('assets/kitara-kertaus.css')
+    interval_recall = page and 'data-intervallimuisti' in page.markup
+    if interval_recall:
+        stylesheets.append('assets/intervallimuisti.css')
     styles = '\n'.join(stylesheet(path, output) for path in stylesheets)
     back_href = rel(topic['path'], output) if page else rel('index.html', output) + '#' + topic['anchor']
     back_label = topic['back_label'] if page else 'Oppimiskarttaan'
@@ -505,6 +508,9 @@ def render(topic, content, nav, page=None, *, path_items=()):
     if page and 'data-korvatreeni=' in page.markup:
         scripts += [rel(path, output) for path in ('assets/harjoitustausta.js', 'assets/korvatreeni.js')]
     scripts = '\n'.join(f'  <script src="{url}"></script>' for url in scripts)
+    if interval_recall:
+        url = versioned_url('assets/intervallimuisti.js', output)
+        scripts += f'\n  <script type="module" src="{url}"></script>'
     page_class = ' recap-page' if recap else ''
     if not recap:
         back = f'''<nav class="study-up" aria-label="Paluunavigointi">

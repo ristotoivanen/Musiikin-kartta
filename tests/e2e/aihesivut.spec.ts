@@ -460,7 +460,13 @@ test('äänitiedostojen katketessa ilmoitus näkyy ja harjoitukseen voi silti si
     player.muted = true;
     void player.play().catch(() => {});
   });
-  await expect(page.getByRole('status')).toHaveText(/Ääniesimerkkiä ei voitu ladata/);
+  await expect(page.locator('figure.listen').getByRole('status')).toHaveText(/Ääniesimerkkiä ei voitu ladata/);
+  const recall = page.locator('.intervallikysely');
+  await recall.getByRole('button', { name: 'Aloita muistiharjoitus' }).click();
+  await expect(recall.getByRole('status')).toBeEmpty();
+  await recall.getByRole('textbox').fill('0');
+  await recall.getByRole('button', { name: 'Tarkista vastaus' }).click();
+  await expect(recall.getByRole('status')).toContainText('Oikein!');
   await nextStep(page, 'Seuraava: Siirrä yhtä sormea').click();
   await expect(page).toHaveURL(practicePath);
 });
