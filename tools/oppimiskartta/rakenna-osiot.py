@@ -28,7 +28,7 @@ import json
 import re
 import sys
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import parse_qs, urlsplit
 
 ROOT = Path(__file__).resolve().parents[2]
 TOPICS_FILE = ROOT / 'tools' / 'oppimiskartta' / 'aiheet.json'
@@ -138,6 +138,9 @@ def validate(config, registry):
             errors.append(f'{name}: tuntematon tai puuttuva aihetunniste {app.get("aiheet")}')
         if any(not app.get(field) for field in ('nimi',) + TOOLS):
             errors.append(f'{name}: nimi, väline, taito tai kuvaus puuttuu')
+        for key in app.get('tunnistus', []):
+            if key not in conditions(app.get('osoite') or '', [key]):
+                errors.append(f'{name}: tunnistusparametria {key} ei ole osoitteessa {app.get("osoite")}')
         # Oppimistavan on vastattava todellista tehtävää: peli ei voi olla oikean kitaran harjoitus.
         for mode in MODES:
             if mode in app.get('tavat', []) and app.get('valine') not in registry['tavat'][mode]['valineet']:
@@ -159,6 +162,25 @@ def validate(config, registry):
                 if view.get('aihe') not in app['aiheet']:
                     errors.append(f'{name}/{view.get("id")}: näkymän aihe ei kuulu työkalun aiheisiin')
         apps[name] = app
+
+    # Sama tiedosto eri oppimistavoissa: sisällöt on erotettava osoitteen parametreilla (tunnistus),
+    # muuten ?tapa= voisi jäädä voimaan väärässä sovelluksen tilassa (esim. Riffikaiun peli ja harjoitus).
+    by_file = {}
+    for app in apps.values():
+        for mode in (m for m in app.get('tavat', []) if m in MODES):
+            if app.get('osoite') and app.get('aiheparametri'):
+                by_file.setdefault(page_path(app['osoite']), []).append((mode, app))
+    for file, entries in by_file.items():
+        if len({mode for mode, _ in entries}) < 2:
+            continue
+        seen_conditions = {}
+        for mode, app in entries:
+            found = conditions(app['osoite'], app.get('tunnistus', []))
+            if not found:
+                errors.append(f'{app["id"]}: {file} on useassa oppimistavassa, joten tunnistus-parametrit tarvitaan')
+            elif seen_conditions.get(json.dumps(found, sort_keys=True), mode) != mode:
+                errors.append(f'{app["id"]}: {file} {found} on jo toisessa oppimistavassa')
+            seen_conditions[json.dumps(found, sort_keys=True)] = mode
 
     study = {}
     kinds = registry['tehtavat']
@@ -458,8 +480,14 @@ def build(registry_file=REGISTRY_FILE):
     for path in nav_pages(registry):
         text = (ROOT / path).read_text(encoding='utf-8')
         files[path] = with_tool_script(path, with_nav(path, text, registry))
-    files[TOOL_SCRIPT] = mode_script(topics, registry, counts, apps, study)
+    files[TOOL_SCRIPT] = mode_script(config, registry, counts, apps, study)
     return files
+
+
+def conditions(href, keys):
+    """Osoitteen kyselyparametrit, jotka tunnistavat sisällön samassa tiedostossa (esim. {'tila': 'peli'})."""
+    query = parse_qs(urlsplit(href).query)
+    return {key: query[key][0] for key in keys if key in query}
 
 
 def mode_pages(mode, topics, registry, apps, study):
@@ -467,36 +495,57 @@ def mode_pages(mode, topics, registry, apps, study):
     oppimistapa.js säilyttää ?tapa=…-parametrin vain näillä sivuilla ja näihin sivuihin vievissä linkeissä."""
     anchors = {t['slug']: t['anchor'] for t in topics}
     pages = {}
+
+    def add(path, required, slugs):
+        variants = pages.setdefault(path, [])
+        variant = next((v for v in variants if v['ehdot'] == required), None)
+        if variant is None:
+            variant = {'ehdot': required, 'aiheet': []}
+            variants.append(variant)
+        variant['aiheet'] += [anchors[slug] for slug in slugs if anchors[slug] not in variant['aiheet']]
+
     for page in (p for p in study.values() if mode in p['tavat']):
-        pages[page['osoite']] = [anchors[slug] for slug in page['aiheet']]
-    targets = [(a['osoite'], a['aiheet']) for a in apps.values()
-               if mode in a['tavat'] and a['aiheparametri'] and a['saatavuus'] != 'suunniteltu']
+        add(page['osoite'], {}, page['aiheet'])
+    for app in apps.values():
+        if mode in app['tavat'] and app['aiheparametri'] and app['saatavuus'] != 'suunniteltu':
+            add(page_path(app['osoite']), conditions(app['osoite'], app.get('tunnistus', [])), app['aiheet'])
     if mode == 'kitara':
         for slug, helpers in registry.get('apuvalineet', {}).items():
             for helper in helpers:
                 app_id, _, view_id = helper['nakyma'].partition('/')
                 view = next(v for v in apps[app_id]['nakymat'] if v['id'] == view_id)
-                targets.append((view['osoite'], [slug]))
-    for href, slugs in targets:
-        listed = pages.setdefault(page_path(href), [])
-        listed += [anchors[slug] for slug in slugs if anchors[slug] not in listed]
+                add(page_path(view['osoite']), conditions(view['osoite'], apps[app_id].get('tunnistus', [])), [slug])
     return dict(sorted(pages.items()))
 
 
-def mode_script(topics, registry, counts, apps, study):
+def related_contexts(config):
+    """Opi & oivalla: Tutki myös -linkit toisen aiheen sisältösivulle (aiheet.json, related). Sivun
+    aihepaluu saa palata lähtöaiheeseen vain näissä aiheissa (?aihe=… ohitetaan muuten)."""
+    paths = {}
+    for topic in config['topics']:
+        for key in topic['related']:
+            target = f'oppi/{key}.html'
+            if '/' in key and (ROOT / target).exists() and not key.startswith(topic['slug'] + '/'):
+                paths.setdefault(target, []).append(topic['anchor'])
+    return dict(sorted(paths.items()))
+
+
+def mode_script(config, registry, counts, apps, study):
     """assets/oppimistapa.js:n tietolohko: aiheiden nimet, oppimistapojen sisältömäärät ja niihin kuuluvat sivut."""
     source = (ROOT / TOOL_SCRIPT).read_text(encoding='utf-8')
     start, end = '  // oppimistapa:tiedot\n', '  // /oppimistapa:tiedot\n'
     if source.count(start) != 1 or source.count(end) != 1:
         raise RegistryError(f'{TOOL_SCRIPT}: tietolohkon rajat puuttuvat')
+    topics = config['topics']
     names = {s['id']: s for s in registry['osiot']}
-    data = {t['anchor']: {'slug': t['slug'], 'title': t['title']} for t in topics}
+    data = {t['anchor']: {'slug': t['slug'], 'title': t['title'], 'paluu': t['back_label']} for t in topics}
     modes = {mode: {'nimi': names[mode]['nimi'], 'osoite': names[mode]['osoite'], 'tyhja': registry['tavat'][mode]['tyhja'],
                     'aiheet': {t['anchor']: counts[mode][t['slug']] for t in topics if counts[mode].get(t['slug'])},
                     'sivut': mode_pages(mode, topics, registry, apps, study)}
              for mode in MODES}
     block = (f'  const TOPICS = {json.dumps(data, ensure_ascii=False)};\n'
-             f'  const MODES = {json.dumps(modes, ensure_ascii=False)};\n')
+             f'  const MODES = {json.dumps(modes, ensure_ascii=False)};\n'
+             f'  const RELATED = {json.dumps(related_contexts(config), ensure_ascii=False)};\n')
     head, rest = source.split(start)
     return head + start + block + end + rest.split(end, 1)[1]
 

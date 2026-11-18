@@ -385,9 +385,20 @@ def topic_home(topic, lookup, exercise_descriptions, books):
             href = scoped_url(url.path, url.query, url.fragment, topic['path'], topic)
             links.append(link(href, tool['title']))
         parts.append(section('Harjoittelijat ja työkalut', listed(links)))
-    related = [link(rel(lookup[key][0], topic['path']), lookup[key][1]) for key in topic['related']]
+    related = [link(related_url(lookup[key][0], topic), lookup[key][1]) for key in topic['related']]
     parts.append(section('Tutki myös', listed(related)))
     return '\n'.join(parts)
+
+
+def related_url(target, topic):
+    """Tutki myös -linkki. Toisen aiheen sisältösivulle viedään lähtöaihe (?aihe=…), jotta sivun
+    aihepaluu palaa siihen aiheeseen, josta käyttäjä tuli (assets/oppimistapa.js). Ilman parametria
+    sivu toimii kuten ennen: paluu vie sivun omaan aiheeseen. Suoritustunniste ei muutu."""
+    url = rel(target, topic['path'])
+    folder = posixpath.dirname(target)
+    if folder != posixpath.dirname(topic['path']) and not target.endswith('/index.html'):
+        url += '?aihe=' + topic['anchor']
+    return url
 
 
 def sources(book, output):

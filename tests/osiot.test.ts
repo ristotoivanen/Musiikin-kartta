@@ -107,6 +107,25 @@ describe('pääosiot ja sisältörekisteri', () => {
       .toContain('ei sovi oppimistapaan kitara');
   });
 
+  it('saman tiedoston eri oppimistavat on erotettava sovelluksen tilalla', () => {
+    expect(validateCopy(copy => { delete (copy.sovellukset.find(app => app.id === 'peli:riffikaiku') as { tunnistus?: string[] }).tunnistus; }))
+      .toContain('tunnistus-parametrit tarvitaan');
+    expect(validateCopy(copy => { (copy.sovellukset.find(app => app.id === 'harjoittelija:kappaleet') as { tunnistus?: string[] }).tunnistus = ['tila']; }))
+      .toContain('tunnistusparametria tila ei ole osoitteessa');
+  });
+
+  it('Opi & oivalla -lisäaihelinkki kuljettaa lähtöaiheen vain toisen aiheen sisältösivulle', () => {
+    const chords = read('oppi/soinnut/index.html');
+    expect(chords).toContain('href="../kappaleet/mika-sointu-tulee.html?aihe=aihe-soinnut"');
+    expect(chords).toContain('href="../korva/soinnut.html?aihe=aihe-soinnut"');
+    // Suoritustunniste on sama riippumatta reitistä.
+    expect(read('oppi/kappaleet/mika-sointu-tulee.html')).toContain('data-study-item="harjoitus:mika-sointu-tulee"');
+    const related = JSON.parse(read('assets/oppimistapa.js').match(/const RELATED = (\{.*\});\n/)![1]) as Record<string, string[]>;
+    expect(related['oppi/kappaleet/mika-sointu-tulee.html']).toEqual(['aihe-soinnut']);
+    // Aihesivuille vievät Tutki myös -linkit eivät saa parametria.
+    expect(read('oppi/rytmi/index.html')).toContain('href="../kitara/index.html"');
+  });
+
   it('rekisteri hylkää tuntemattoman aiheen ja puuttuvan osoitteen', () => {
     expect(validateCopy(copy => { copy.sovellukset[0].aiheet = ['tuntematon']; })).toContain('aihetunniste');
     expect(validateCopy(copy => { copy.sovellukset[0].osoite = 'puuttuu.html'; })).toContain('osoitetta puuttuu.html ei ole');
@@ -127,10 +146,17 @@ describe('pääosiot ja sisältörekisteri', () => {
 
   it('oppimistapa.js tuntee vain oppimistapaan kuuluvat sivut ja niiden aiheet', () => {
     const block = read('assets/oppimistapa.js').match(/const MODES = (\{.*\});\n/)![1];
-    const modes = JSON.parse(block) as Record<string, { sivut: Record<string, string[]> }>;
-    expect(modes.pelit.sivut['oppi/kappaleet/mika-sointu-tulee.html']).toEqual(['aihe-kappaleet', 'aihe-soinnut']);
-    expect(modes.kitara.sivut['oppi/rytmi/alas-ylos-yhdella-soinnulla.html']).toEqual(['aihe-rytmi']);
-    expect(modes.kitara.sivut['otelautaharjoittelija.html']).toEqual(['aihe-otelauta', 'aihe-soinnut', 'aihe-asteikot']);
+    type Variant = { ehdot: Record<string, string>; aiheet: string[] };
+    const modes = JSON.parse(block) as Record<string, { sivut: Record<string, Variant[]> }>;
+    expect(modes.pelit.sivut['oppi/kappaleet/mika-sointu-tulee.html']).toEqual([{ ehdot: {}, aiheet: ['aihe-kappaleet', 'aihe-soinnut'] }]);
+    expect(modes.kitara.sivut['oppi/rytmi/alas-ylos-yhdella-soinnulla.html']).toEqual([{ ehdot: {}, aiheet: ['aihe-rytmi'] }]);
+    expect(modes.kitara.sivut['otelautaharjoittelija.html']).toEqual([{ ehdot: {}, aiheet: ['aihe-otelauta', 'aihe-soinnut', 'aihe-asteikot'] }]);
+    // Sama tiedosto eri oppimistavoissa: sovelluksen tila ratkaisee (Riffikaiku, Kitaraharjoittelijan polut).
+    expect(modes.pelit.sivut['riffikaiku.html']).toEqual([{ ehdot: { tila: 'peli' }, aiheet: ['aihe-korva'] }]);
+    expect(modes.kitara.sivut['riffikaiku.html']).toEqual([{ ehdot: { tila: 'harjoitus' }, aiheet: ['aihe-korva'] }]);
+    expect(modes.pelit.sivut['kitaraharjoittelija.html'].map(v => v.ehdot))
+      .toEqual([{ polku: 'otelauta', harjoitus: 'savelten-etsinta' }, { polku: 'soinnut' }]);
+    expect(modes.kitara.sivut['kitaraharjoittelija.html'].map(v => v.ehdot)).toEqual([{ polku: 'asteikot' }, { polku: 'kappaleet' }]);
     // Opi & oivalla -sivut ja toisen oppimistavan sivut eivät ole mukana.
     expect(modes.kitara.sivut).not.toHaveProperty(['oppi/rytmi/kuuntele-pulssi.html']);
     expect(modes.kitara.sivut).not.toHaveProperty(['oppi/korva/mika-aste-soi.html']);

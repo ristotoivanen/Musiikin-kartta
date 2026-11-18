@@ -3,6 +3,7 @@
     "Musiikin kartan neljän pääosion ja kolmen oppimistavan yhteinen sisältörekisteri.",
     "Aiheet (8 kpl), niiden pysyvät tunnisteet, nimet ja numerointi luetaan aiheet.json-tiedostosta. Niitä ei toisteta tässä.",
     "Sisällöllä voi olla useita aiheita ja oppimistapoja. Oppimistavan on vastattava todellista tehtävää: Musapelit vaatii välineen kuuntelu, virtuaalikitara tai otelautakuva (tai oppisivulla vuorovaikutteisen kuuntelutehtävän), Kitaratreeni vaatii oikean kitaran (oppisivulla tehtävän soita tai korvalla). Siksi pelin tulos ja oikealla kitaralla harjoittelu eivät voi olla sama merkintä.",
+    "Jos sama tiedosto sisältää eri oppimistapoja (esim. riffikaiku.html?tila=peli ja ?tila=harjoitus), 'tunnistus' nimeää osoitteen parametrit, jotka erottavat sisällön. Oppimistapa (?tapa=) on voimassa vain, kun nämä parametrit täsmäävät.",
     "Oppimiskartan sivuista (oppisivut) kirjataan osoite, oppimistavat ja tehtävän laji. Otsikko, aihe ja suoritustunniste luetaan muodostetusta sivusta. Valinnainen 'lisaaiheet' liittää sivun myös muihin aiheisiin.",
     "Sovellukset (pelit, harjoittelijat, työkalut) kuvataan tässä kokonaan. Saatavuus 'suunniteltu' kirjataan, mutta sitä ei näytetä käyttäjälle.",
     "Muodosta ja tarkista: python3 tools/oppimiskartta/rakenna-osiot.py [--tarkista]"
@@ -114,6 +115,9 @@
       ],
       "osoite": "riffikaiku.html?tila=peli",
       "aiheparametri": true,
+      "tunnistus": [
+        "tila"
+      ],
       "kuvaus": "Kuuntele lyhyt riffi ja toista se virtuaalikitaralla.",
       "taito": "Melodian muistaminen ja löytäminen otelaudalta kuulonvaraisesti",
       "valine": "virtuaalikitara",
@@ -132,6 +136,10 @@
       ],
       "osoite": "kitaraharjoittelija.html?polku=otelauta&harjoitus=savelten-etsinta",
       "aiheparametri": true,
+      "tunnistus": [
+        "polku",
+        "harjoitus"
+      ],
       "kuvaus": "Napauta virtuaaliselta otelaudalta pyydetyn sävelen kaikki paikat nauhoilta 0–5.",
       "taito": "Sävelten sijainnit otelaudalla",
       "valine": "otelautakuva",
@@ -150,6 +158,9 @@
       ],
       "osoite": "kitaraharjoittelija.html?polku=soinnut",
       "aiheparametri": true,
+      "tunnistus": [
+        "polku"
+      ],
       "kuvaus": "Katso sointuotetta otelaudan kuvasta ja valitse, mikä avoin sointu se on.",
       "taito": "Tavallisten avoimien sointuotteiden tunnistaminen",
       "valine": "otelautakuva",
@@ -168,6 +179,9 @@
       ],
       "osoite": "riffikaiku.html?tila=harjoitus",
       "aiheparametri": true,
+      "tunnistus": [
+        "tila"
+      ],
       "kuvaus": "Kuuntele riffi, opettele sen sävelet ja soita se omalla kitarallasi. Mikrofoni on valinnainen.",
       "taito": "Kuullun melodian soittaminen oikealla kitaralla",
       "valine": "oikea kitara",
@@ -186,6 +200,9 @@
       ],
       "osoite": "kitaraharjoittelija.html?polku=asteikot",
       "aiheparametri": true,
+      "tunnistus": [
+        "polku"
+      ],
       "kuvaus": "Kuuntele, soita positio ylös ja alas, soita muistista ja improvisoi taustan päälle.",
       "taito": "Asteikkoposition soittaminen ja käyttö improvisoinnissa",
       "valine": "oikea kitara",
@@ -204,6 +221,9 @@
       ],
       "osoite": "kitaraharjoittelija.html?polku=kappaleet",
       "aiheparametri": true,
+      "tunnistus": [
+        "polku"
+      ],
       "kuvaus": "Soita oikean kappaleen mukana ja säädä mallikitaran ja laulun kuuluvuutta.",
       "taito": "Kappaleen soittaminen mukana tasaisessa tempossa",
       "valine": "oikea kitara",

@@ -94,6 +94,49 @@ test.describe('Kolme oppimistapaa ja Soittopakki', () => {
     await expect(page.locator('.study-up .study-back')).toHaveText('← Musapelit: Kappaleet ja oma musiikki');
   });
 
+  test('Opi & oivalla: Tutki myös -linkistä avattu harjoitus palaa lähtöaiheeseen', async ({ page }) => {
+    await page.goto('/oppi/soinnut/index.html');
+    await page.getByRole('region', { name: 'Tutki myös' }).or(page.locator('section.study-group', { hasText: 'Tutki myös' }))
+      .getByRole('link', { name: 'Mikä sointu tulee?' }).click();
+    await expect(page).toHaveURL(/oppi\/kappaleet\/mika-sointu-tulee\.html\?aihe=aihe-soinnut$/);
+    await expect(page.locator('main')).toHaveAttribute('data-study-item', 'harjoitus:mika-sointu-tulee');
+    await expect(page.locator('.study-up .study-back')).toHaveText('← Sointuihin ja harmoniaan');
+    // Päävalikko ja Kappaleet-aiheen Edellinen/Seuraava pysyvät ennallaan.
+    await expect(mainNav(page).getByRole('link', { name: 'Opi & oivalla' })).toHaveAttribute('aria-current', 'true');
+    await expect(page.locator('.study-steps--bottom a[rel="next"]')).toHaveAttribute('href', 'tee-sointukartta.html');
+    await page.locator('.study-up .study-back').click();
+    await expect(page).toHaveURL(/oppi\/soinnut\/index\.html$/);
+  });
+
+  test('lähtöaihe ohitetaan, jos sivu ei ole sen aiheen Tutki myös -listassa', async ({ page }) => {
+    await page.goto('/oppi/kappaleet/mika-sointu-tulee.html?aihe=aihe-rytmi');
+    await expect(page.locator('.study-up .study-back')).toHaveText('← Kappaleisiin ja omaan musiikkiin');
+    await page.goto('/oppi/kappaleet/mika-sointu-tulee.html');
+    await expect(page.locator('.study-up .study-back')).toHaveText('← Kappaleisiin ja omaan musiikkiin');
+    await expect(page.locator('.study-up .study-back')).toHaveAttribute('href', 'index.html');
+  });
+
+  test('oppimistapa vaatii sovelluksen oikean tilan: Riffikaiun peli ja harjoitus sekä harjoittelijan polut', async ({ page }) => {
+    // Kitaratreeni ei ole voimassa Riffikaiun pelitilassa eikä harjoittelijan Musapelit-polulla.
+    for (const path of ['/riffikaiku.html?tila=peli&aihe=aihe-korva&tapa=kitara', '/kitaraharjoittelija.html?polku=soinnut&aihe=aihe-soinnut&tapa=kitara']) {
+      await page.goto(path);
+      await expect(page.getByRole('link', { name: 'Takaisin aiheeseen' }), path).toBeVisible();
+      await expect(page.getByRole('link', { name: /^Takaisin: Kitaratreeni/ }), path).toHaveCount(0);
+    }
+    // Pelitilassa päävalikko pysyy sivun omassa osiossa (Musapelit).
+    await page.goto('/riffikaiku.html?tila=peli&aihe=aihe-korva&tapa=kitara');
+    await expect(mainNav(page).getByRole('link', { name: 'Musapelit' })).toHaveAttribute('aria-current', 'true');
+    await page.goto('/riffikaiku.html?tila=harjoitus&aihe=aihe-korva&tapa=kitara');
+    await expect(page.getByRole('link', { name: 'Takaisin: Kitaratreeni: Sävelkorva ja melodia' })).toHaveAttribute('href', /kitaratreeni\.html#aihe-korva$/);
+    await expect(mainNav(page).getByRole('link', { name: 'Kitaratreeni' })).toHaveAttribute('aria-current', 'true');
+    await page.goto('/riffikaiku.html?tila=peli&aihe=aihe-korva&tapa=pelit');
+    await expect(page.getByRole('link', { name: 'Takaisin: Musapelit: Sävelkorva ja melodia' })).toBeVisible();
+    await page.goto('/kitaraharjoittelija.html?polku=asteikot&aihe=aihe-asteikot&tapa=kitara');
+    await expect(page.getByRole('link', { name: 'Takaisin: Kitaratreeni: Asteikot ja moodit' })).toBeVisible();
+    await page.goto('/kitaraharjoittelija.html?polku=soinnut&aihe=aihe-soinnut&tapa=pelit');
+    await expect(page.getByRole('link', { name: 'Takaisin: Musapelit: Soinnut ja harmonia' })).toBeVisible();
+  });
+
   test('vanha suora osoite ilman oppimistapaa toimii kuten ennen', async ({ page }) => {
     await page.goto('/oppi/rytmi/alas-ylos-yhdella-soinnulla.html');
     await expect(page.locator('.study-up .study-back')).toHaveText('← Rytmiin');
@@ -246,6 +289,9 @@ test.describe('Pääosiot puhelimessa, näppäimistöllä, ilman JavaScriptiä j
       await expect(page.locator('.study-steps--top a[rel="next"]')).toHaveAttribute('href', 'kaksi-sointua-yhdessa-tahdissa.html');
       await expect(mainNav(page).getByRole('link', { name: 'Opi & oivalla' })).toHaveAttribute('aria-current', 'true');
       await expect(page.locator('.study-modes')).toHaveCount(0);
+      // Lähtöaiheen paluu on JavaScript-parannus: ilman sitä paluu vie sivun omaan aiheeseen.
+      await page.goto('/oppi/kappaleet/mika-sointu-tulee.html?aihe=aihe-soinnut');
+      await expect(page.locator('.study-up .study-back')).toHaveAttribute('href', 'index.html');
       await page.goto('/soittopakki.html');
       await expect(page.getByRole('link', { name: 'Avaa Otelautaopas' })).toBeVisible();
     });

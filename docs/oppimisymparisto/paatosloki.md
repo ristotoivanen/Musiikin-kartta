@@ -3,6 +3,18 @@
 Tehtävä: neljä pääosiota (*Opi & oivalla · Musapelit · Kitaratreeni · Soittopakki*) ja yksi yhteinen
 Oppimiskartta. Haara `claude/tender-maxwell-59f4we`, pohjana `origin/beta` @ `6562e141cd6f6beeb9dd1fb02134e276a2983ab8`.
 
+## Päätösten tila
+
+Tässä lokissa erotetaan kolme asiaa. Merkinnät myöhemmissä kohdissa viittaavat näihin.
+
+| Laji | Sisältö |
+| --- | --- |
+| **Omistajan nimenomainen päätös** | Alkuperäinen toimeksianto (18.11.2026): neljän pääosion nimet täsmälleen *Opi & oivalla · Musapelit · Kitaratreeni · Soittopakki*, kahdeksan aiheen yhteinen Oppimiskartta, Soittopakin sisältö (Otelautaopas, metronomi, viritin, muut myöhemmin), ei uusia pelejä tai soittomoottoreita, H/B-linjaus sekä vanhojen osoitteiden ja tallennusten säilyttäminen. |
+| **Katselmoinnissa alustavasti hyväksytty** (ei omistajan lopullinen hyväksyntä) | Katselmointi 1: neljän pääosion perusrakenne sekä Riffikaiun sijoittelu (peli Musapeleissä, harjoitus Kitaratreenissä). |
+| **Katselmoinnin suositus omistajalle** (toteutettu suosituksen mukaisesti, odottaa omistajan vahvistusta) | Katselmointi 2: (1) alareunan päällekkäisen aihepaluun poisto; (2) ei kiinteää paluupainiketta pitkille sivuille ennen oikean puhelimen testiä, tarvittaessa kevyt *Takaisin alkuun* -linkki; (3) luokittelu *Soita* / *Korvalla kitaralle* alustavasti; (4) *Mikä sointu tulee?* myös aiheeseen Soinnut ja harmonia samalla sisällöllä ja suoritustunnisteella. |
+| **Katselmoinnin korjausvaatimus** (toteutettu) | Katselmointi 1: oppimistavan säilyminen, rekisterin joustavuus, aihesivujen vaihto, alareunan paluu, riippuvuudet, pedagoginen tarkistus. Katselmointi 2: `?tapa=` vain saman oppimistavan kohdesivuille. Katselmointi 3: lisäaihelinkin paluukonteksti Opi & oivalla -osiossa, sovelluksen tilan huomioiva oppimistavan kelpoisuus ja tämän lokin täsmennys. |
+| **Toteuttajan oma ratkaisu** | Tekniset ja käytettävyysratkaisut, joihin toimeksianto valtuutti (esim. 2 × 2 -valikko, `?tapa=`-parametri, rekisterin rakenne). Perustelut alla. |
+
 ## A. Tarkistettu lähtötilanne (18.11.2026)
 
 | Kohde | Tila | Vaikutus tähän työhön |
@@ -78,6 +90,25 @@ Musapeleissä ja harjoitus Kitaratreenissä. Testit: `tests/osiot.test.ts` (hyv�
   `aihe`-parametrin. Paluu vie silloin Oppimiskartan aiheeseen. Korjaus kuuluisi Riffikaiun koodiin
   (`riffikaiku/modes.ts`), jota tämä PR ei muuta.
 
+## C2b. Sovelluksen tila ja Opi & oivalla -lähtöaihe (katselmointi 3)
+
+- **Sovelluksen tila:** sama tiedosto voi sisältää eri oppimistapoja (`riffikaiku.html?tila=peli` / `?tila=harjoitus`,
+  `kitaraharjoittelija.html?polku=…`). Rekisterin `tunnistus` nimeää ne osoitteen parametrit, jotka erottavat
+  sisällön. `MODES.*.sivut` sisältää jokaiselle tiedostolle muunnelmat `{ehdot, aiheet}`. `?tapa=` on voimassa
+  vain, kun ehdot täsmäävät. Esimerkiksi `riffikaiku.html?tila=peli&tapa=kitara` ohittaa Kitaratreenin, ja paluu
+  vie Oppimiskartan aiheeseen. Validointi vaatii tunnistuksen, jos sama tiedosto on useassa oppimistavassa, ja
+  hylkää kaksi samaa ehtoa eri tavoissa.
+- **Rajaus:** ehdot luetaan sivun latautuessa. Kitaraharjoittelijan sisäinen polun vaihto ilman sivun latausta
+  ei päivitä paluulinkkiä tai valikkoa, eikä sovelluslogiikkaa muutettu. Ilman `?tapa=`-parametria sivujen
+  staattinen päävalikko on ennallaan (Riffikaiku: Musapelit, Kitaraharjoittelija: Kitaratreeni) myös tiloissa,
+  jotka kuuluvat toiseen oppimistapaan. Tämä on havainto omistajalle, ei korjattu.
+- **Opi & oivalla -lähtöaihe:** `rakenna.py` (`related_url`) lisää *Tutki myös* -linkkiin `?aihe=<lähtöaihe>`,
+  kun kohde on toisen aiheen sisältösivu. `rakenna-osiot.py` muodostaa `aiheet.json`:n `related`-tiedoista
+  luettelon `RELATED`: sivu ja aiheet, joiden Tutki myös -listassa se on. `oppimistapa.js` ohjaa sivun yläreunan
+  aihepaluun lähtöaiheeseen vain, jos aihe on luettelossa. Esimerkki: Soinnut ja harmonia → *Mikä sointu tulee?*
+  → *← Sointuihin ja harmoniaan*. Sivu, suoritustunniste, Edellinen/Seuraava ja päävalikko pysyvät ennallaan.
+  Ilman parametria, ilman JavaScriptiä tai tuntemattomalla aiheella paluu vie sivun omaan aiheeseen kuten ennen.
+
 ## C3. Oppimiskartan aihesivujen vaihto (katselmointikorjaus 3)
 
 - **Nyt (ei ristiriitaa #111:n kanssa):** `rakenna.py` liittää jokaiselle sivulle `assets/oppimistapa.js`:n
@@ -91,14 +122,14 @@ Musapeleissä ja harjoitus Kitaratreenissä. Testit: `tests/osiot.test.ts` (hyv�
 ## C4. Alareunan aihepaluu (katselmointikorjaus 4, #54 18.11.2026)
 
 - `rakenna.py`:n `steps()` ei enää lisää alareunaan *← Aiheeseen* -painiketta. Yläreunan paluu (`.study-up`)
-  ja alareunan Edellinen/Seuraava ovat ennallaan. **Omistaja hyväksyi poiston.**
+  ja alareunan Edellinen/Seuraava ovat ennallaan. *Katselmoinnin suositus 1 (katselmointi 2), odottaa omistajan vahvistusta.*
 - Pitkät sivut puhelimessa (390 × 800 px): 73 sivusta 14 on yli neljän näytön ja yksi (*Septimisoinnut*,
   8,7 näyttöä) yli kahdeksan näytön mittainen. Niiden lopussa aiheeseen pääsee nyt Edellinen/Seuraava-linkeillä,
-  selaimen paluulla tai vierittämällä ylös. **Omistajan päätös:** kiinteää paluupainiketta ei toteuteta nyt.
+  selaimen paluulla tai vierittämällä ylös. *Katselmoinnin suositus 2:* kiinteää paluupainiketta ei toteuteta nyt.
   Käytettävyys testataan ensin oikealla puhelimella, ja tarvittaessa arvioidaan kevyttä *Takaisin alkuun* -linkkiä.
   Aihesivujen pituus kuuluu #116:een.
 - **#111:n riippuvuus:** #111:n uusi `intro_content()` lisää paikkamerkkisivulle saman alareunan paluun.
-  Koeyhdistyksessä `tests/osiot.test.ts` havaitsee sen. **Omistajan päätös:** korjaus tehdään #111:n omassa
+  Koeyhdistyksessä `tests/osiot.test.ts` havaitsee sen. *Katselmoinnin linjaus (katselmointi 2):* korjaus tehdään #111:n omassa
   sovituksessa. Paikkamerkkisivua ei yhdistetä eikä julkaista keskeneräisenä.
 - Koeyhdistys 19.11. (`f039a09` + #111 `794d106`): `rakenna.py` ja `aiheet.json` yhdistyvät ilman ristiriitoja.
   81 generoidun sivun ristiriidat ratkesivat ajamalla generaattorit uudelleen, ja tarkistukset menivät läpi.
@@ -127,11 +158,13 @@ Musapeleissä ja harjoitus Kitaratreenissä. Testit: `tests/osiot.test.ts` (hyv�
   Se on edelleen Opi & oivalla -osiossa.
 - Kirjallisiksi jätettiin *Rakenna kolme sointua G-duurista*, *Lisää septimi G-duurin sointuihin* ja *Nimeä sävel
   muodon avulla*. *Löydä pulssi ja ykkönen* (taputus ja laskeminen) jää Opi & oivalla -osioon.
-- **Omistajan päätös (korjauskierros 2):** *Mikä sointu tulee?* liitetään myös aiheeseen Soinnut ja harmonia.
+- *Katselmoinnin suositus 4 (katselmointi 2), odottaa omistajan vahvistusta:* *Mikä sointu tulee?* liitetään myös aiheeseen Soinnut ja harmonia.
   Se käyttää samaa sivua (`oppi/kappaleet/mika-sointu-tulee.html`) ja suoritustunnistetta
   (`harjoitus:mika-sointu-tulee`). Rekisterissä on `lisaaiheet: ["soinnut"]` (Musapelit), ja Soinnut ja harmonia
   -aihesivun *Tutki myös* -listassa on linkki (`aiheet.json`:n `related`). Kappaleet-aiheen numerointi ja
   laskurit pysyvät ennallaan.
+- Luokittelu *Soita* / *Korvalla kitaralle* on *katselmoinnin suositus 3* (alustava hyväksyntä), ei omistajan
+  lopullinen päätös.
 - Mikään näkymä ei näytä suoritustilaa eikä väitä taitoa hallituksi. Kitaratreeni kertoo, että
   *Merkitse tehdyksi* on oma kuittaus. Tallennusavaimia ei luoda, lueta uusissa näkymissä eikä muuteta.
 - Opetussisältöön, oikeisiin vastauksiin, pisteytykseen tai H/B-linjaukseen ei tehty muutoksia.
