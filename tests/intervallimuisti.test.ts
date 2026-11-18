@@ -129,8 +129,9 @@ describe('intervallien teoria ja palautus', () => {
     expect(acceptsAnswer(spelled[2].answers, 'pieni terssi')).toBe(true);
   });
 
-  it('kansalaisopiston nauhajono vastaa A-kielen nauhoja 0–12', () => {
-    expect(chapter).toContain('paksun E-kielen (6.) nauhat 5–8, sitten A-kielen nauhat 4–7 ja lopuksi D-kielen nauhat 3–7');
+  it('kromaattisen A–A-harjoituksen nauhat vastaavat A-kielen nauhoja 0–12', () => {
+    expect(chapter).toContain('<h3>Kromaattinen harjoitus A:sta A:han</h3>');
+    expect(chapter).toContain('paksun E-kielen (6.) nauhoilta 5–8, jatka A-kielen (5.) nauhoille 4–7 ja lopuksi D-kielen (4.) nauhoille 3–7');
     const guitarRun = [[5, 5, 8], [4, 4, 7], [3, 3, 7]].flatMap(([string, first, last]) =>
       Array.from({ length: last - first + 1 }, (_, offset) => at(string, first + offset).midi));
     expect(guitarRun).toEqual(Array.from({ length: 13 }, (_, fret) => at(4, fret).midi));
