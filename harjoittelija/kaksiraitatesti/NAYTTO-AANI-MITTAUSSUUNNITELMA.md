@@ -1,7 +1,11 @@
 # Näyttö–ääni-mittauksen suunnitelma (MK-20261119-01)
 
-**Tila:** suunnitelma, ei toteutettu.
-- Toteutus vaatii erillisen hyväksynnän.
+**Tila:** M1 toteutettu testisivulle (MK-20261119-02, `?koe=nayttoaani`, ks. README ja `H4-OHJE.md`). M2 ei toteutettu.
+- Omistajan täsmennykset 18.11.2026:
+  - ensimmäinen koe iPhonen kaiuttimella ilman Bluetoothia
+  - vähintään 5 toistoa per tilanne (käynnistys, tauko/jatko, kelaus)
+  - 80 ms on alustava suunnittelutavoite, ei hyväksymisraja
+  - M − R säilyy rinnalla muuttamattomana.
 - Tuotantosoitinta, toistomoottoria, `StemAligner`ia ja äänifunktiota ei muuteta.
 
 ## Kysymys

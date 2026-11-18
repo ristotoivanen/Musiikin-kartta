@@ -4,11 +4,13 @@
 // Käyttö (Node 22):
 //   node tools/kaksiraitatesti-raportti.mts h3-1.json [h3-2.json …] [--json]
 // Tulostaa jokaisesta raportista jaksot (käynnistys, kelaus, jatko, kaksoiskelaus), mittaukset
-// jaksoittain ja H3-kriteerien A–D tilan. --json tulostaa saman koneluettavana.
+// jaksoittain ja H3-kriteerien A–D tilan. H4-säätökokeen raportista (&koe=nayttoaani) myös säätöjen
+// yhteenvedon tilanteittain. --json tulostaa saman koneluettavana.
 // Ei muuta raportteja eikä tee verkkopyyntöjä.
 import { readFileSync } from 'node:fs';
 import { basename } from 'node:path';
 import { analyzeReport, evaluateH3, formatAnalysis, parseReport } from '../harjoittelija/kaksiraitatesti/raporttianalyysi.ts';
+import { formatAvSummary, parseTrials, summarizeTrials } from '../harjoittelija/kaksiraitatesti/nayttoaani.ts';
 
 const args = process.argv.slice(2);
 const json = args.includes('--json');
@@ -25,8 +27,10 @@ for (const file of files) {
     const report = parseReport(readFileSync(file, 'utf8'));
     const analysis = analyzeReport(report);
     const criteria = evaluateH3(report, analysis);
-    if (json) results.push({ file, analysis, criteria });
-    else console.log(formatAnalysis(basename(file), analysis, criteria));
+    const raw = (report as { nayttoaani?: { trials?: unknown } | null }).nayttoaani;
+    const av = raw ? summarizeTrials(parseTrials(JSON.stringify(raw.trials ?? []))) : null;
+    if (json) results.push({ file, analysis, criteria, nayttoaani: av });
+    else console.log(formatAnalysis(basename(file), analysis, criteria) + (av ? '\n' + formatAvSummary(av) : ''));
   } catch (cause) {
     failed = true;
     console.error(`${file}: ${cause instanceof Error ? cause.message : String(cause)}`);

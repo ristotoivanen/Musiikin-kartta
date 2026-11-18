@@ -279,7 +279,11 @@ export interface Criterion { id: string; label: string; verdict: Verdict; detail
 export const H3_LIMITS = { readyMs: 3000, positionS: 0.3, renderedMinusMediaMs: 5, renderedMs: 25 } as const;
 
 const s = (value: number) => value.toFixed(3).replace('.', ',');
-const msText = (value: number | null) => (value === null ? '–' : value.toFixed(1).replace('.', ',') + ' ms');
+const msText = (value: number | null) => {
+  if (value === null) return '–';
+  const text = value.toFixed(1);
+  return (Number(text) === 0 ? '0.0' : text).replace('.', ',') + ' ms';
+};
 
 function positionOk(start: Start, expected: number): boolean {
   return start.startedAt !== null && Math.abs(start.startedAt.tausta - expected) <= H3_LIMITS.positionS
