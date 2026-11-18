@@ -2,12 +2,12 @@
   // oppimiskartta:aiheet
   const topicPaths = {"aihe-kitara": "oppi/kitara/index.html", "aihe-rytmi": "oppi/rytmi/index.html", "aihe-nuotit": "oppi/savelnimet/index.html", "aihe-korva": "oppi/korva/index.html", "aihe-otelauta": "oppi/otelauta/index.html", "aihe-soinnut": "oppi/soinnut/index.html", "aihe-asteikot": "oppi/asteikot/index.html", "aihe-kappaleet": "oppi/kappaleet/index.html"};
   // /oppimiskartta:aiheet
-  const entries = document.querySelectorAll('.topic-card, .study-choice[id], [data-return-topic]');
+  const entries = document.querySelectorAll('.topic-card, .study-choice[id], .study-intro[id], [data-return-topic]');
   const onMap = Boolean(document.querySelector('.topic-grid'));
   if (entries.length) {
     function focusEntry(id) {
       const link = document.getElementById(id);
-      if (!link?.matches('.topic-card, .study-choice')) return;
+      if (!link?.matches('.topic-card, .study-choice, .study-intro')) return;
       link.focus({ preventScroll: true });
       link.scrollIntoView({ block: 'nearest' });
     }

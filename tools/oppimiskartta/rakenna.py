@@ -112,9 +112,12 @@ class Page:
     chapter: str = ''
     chapter_number: str = ''
     parent: object = None
+    kind: str = ''
 
     @property
     def study_kind(self):
+        if self.kind:
+            return self.kind
         if self.chapter:
             return 'luku'
         return 'harjoitus' if self.parent else 'oppitunti'
@@ -233,6 +236,17 @@ def lesson_pages(topic, item, books, excerpts):
         changes.append((node.start, node.end, f'<p class="study-practice-link">{preview}</p>'))
     page.markup = re.sub(r'(</?h)3(?=[\s>])', r'\g<1>2', book.fragment(chapter, changes))
     return [page, *tasks]
+
+
+def intro_page(topic, item, books):
+    """Aiheen numeroimaton johdantoharjoitus: oma sivu ja tunniste, ei etenemisjärjestyksessä eikä laskurissa."""
+    if topic.get('recap'):
+        raise ValueError(f'{topic["title"]}: kertausaiheella ei voi olla johdantoharjoitusta')
+    if set(item) != {'standalone', 'title', 'goal'}:
+        raise ValueError(f'{topic["title"]}: johdannossa pitää olla täsmälleen standalone, title ja goal')
+    page, = lesson_pages(topic, item, books, {})
+    page.kind = 'harjoitus'
+    return page
 
 
 def index_targets(pages):
@@ -363,6 +377,15 @@ def topic_home(topic, lookup, exercise_descriptions, books):
     parts = [f'<p class="study-meta">Aihe {topic["number"]:02}</p>',
              f'<h1>{escape(topic["title"])}</h1>', f'<p class="lead">{escape(topic["lead"])}</p>',
              '<p class="study-status" data-study-total hidden></p>']
+    intro = topic.get('intro_page')
+    if intro:
+        status = f'<span data-study-intro-status="{intro.study_id}" class="study-status" hidden></span>'
+        card = (f'<a class="study-intro" id="valinta-{Path(intro.path).stem}" href="{posixpath.basename(intro.path)}">'
+                f'<strong class="study-title">Harjoitus · {escape(intro.title)}</strong>'
+                f'<span class="study-choice-details"><span class="study-description">{escape(intro.goal)}</span>{status}</span>'
+                '<span class="study-arrow" aria-hidden="true">→</span></a>')
+        heading = '<div class="study-choice-heading"><h2>Johdanto</h2><p class="study-start">Aloita tästä</p></div>'
+        parts.append(f'<section class="study-intro-group">\n{indent(heading + chr(10) + card, "  ")}\n</section>')
     step = 0
     groups = []
     rows = []
@@ -371,7 +394,7 @@ def topic_home(topic, lookup, exercise_descriptions, books):
                  for number, page in enumerate(group['pages'], step + 1)]
         size = len(links)
         rows.append(f'auto repeat({size}, var(--study-card-tracks))')
-        start = '<p class="study-start">Aloita tästä</p>' if step == 0 else ''
+        start = '<p class="study-start">Aloita tästä</p>' if step == 0 and not intro else ''
         heading = f'<div class="study-choice-heading"><h2>{escape(group["title"])}</h2>{start}</div>'
         groups.append(f'<section class="study-group" style="--study-group-span: {1 + size * 2}">\n'
                       + indent(heading + '\n' + listed(links, ordered=True), '  ') + '\n</section>')
@@ -442,6 +465,25 @@ def page_content(page, topic, index, next_topic, books, targets, audio):
     return '\n'.join(parts)
 
 
+def intro_content(page, topic, targets):
+    first = topic['pages'][0]
+
+    def nav(bottom):
+        items = [step_link(rel(first.path, page.path), f'Seuraava: {first.title}', ' rel="next"', forward=True)]
+        if bottom:
+            items.append(step_link(rel(topic['path'], page.path), topic['back_label'], ' class="study-step-back"'))
+        where, label = ('bottom', 'lopussa') if bottom else ('top', 'alussa')
+        return (f'<nav class="study-steps study-steps--{where}" aria-label="Sisältönavigointi sivun {label}">\n'
+                + indent('\n'.join(items), '  ') + '\n</nav>')
+
+    return '\n'.join([
+        '<p class="study-meta">Johdantoharjoitus</p>', f'<h1>{escape(page.title)}</h1>',
+        f'<p class="lead">{escape(page.goal)}</p>', nav(False),
+        rebase(page.markup, page.source, page.path, targets, topic),
+        '<p class="done-row"><button type="button" class="done-toggle" aria-pressed="false" disabled>'
+        f'Merkitse {page.study_kind} tehdyksi</button></p>', nav(True)])
+
+
 def step_link(url, label, attrs, *, forward=False):
     arrow = '→' if forward else '←'
     marker = f'<span class="study-step-arrow" aria-hidden="true">{arrow}</span>'
@@ -502,6 +544,8 @@ def render(topic, content, nav, page=None, *, path_items=()):
             progress += f' data-topic-items="{escape(study_ids(topic["pages"]))}"'
         if path_items:
             progress += f' data-path-items="{escape(study_ids(path_items))}"'
+        if page is topic.get('intro_page'):
+            progress += ' data-study-intro'
     else:
         progress = f' data-study-topic="{topic["anchor"]}"'
     scripts = [rel('assets/oppimiskartta.js', output), versioned_url('assets/edistyminen.js', output)]
@@ -593,6 +637,9 @@ def collect(config, books):
             raise ValueError(f'{topic["title"]}: vähintään yksi oppitunti tarvitaan')
         topic['pages'] = sequence
         all_pages.extend(sequence)
+        if 'intro' in topic:
+            topic['intro_page'] = intro_page(topic, topic['intro'], books)
+            all_pages.append(topic['intro_page'])
     book_chapters = {(part, node.attrs['id']) for part, book in books.items() for node in book.nodes if node.has_class('chapter')}
     map_chapters = [(page.source, page.chapter) for page in all_pages if page.chapter]
     if len(map_chapters) != len(book_chapters) or set(map_chapters) != book_chapters:
@@ -636,14 +683,21 @@ def pages():
                 content += sources(books[page.source], page.path)
             path_items = path_pages if next_topic is None and index == len(sequence) - 1 else ()
             output[page.path] = render(topic, content, nav, page, path_items=path_items)
+        if intro := topic.get('intro_page'):
+            output[intro.path] = render(topic, intro_content(intro, topic, targets), nav, intro)
 
-    start = lookup[config['start']][0]
+    start = config['start']
+    if set(start) != {'page', 'lead'} or start['page'] not in lookup:
+        raise ValueError('Etusivun aloituksessa pitää olla olemassa oleva page ja johdantoteksti lead')
+    start_path, start_title = lookup[start['page']]
+    start_topic = next(topic for topic in topics if start_path.startswith(f'oppi/{topic["slug"]}/'))
     chapter_paths = {page.chapter: page.path for page in all_pages if page.chapter}
     map_routes = '<script type="application/json" id="oppimisreitit">' + json.dumps(chapter_paths, ensure_ascii=False) + '</script>'
     home = (ROOT / 'index.html').read_text(encoding='utf-8')
     block = lambda key, value: replace_block(home, f'<!-- {key} -->', f'<!-- /{key} -->', value, 'index.html')
     home = block('oppimiskartta:kortit', home_grid(topics))
-    home = block('oppimiskartta:aloitus', '    ' + link(start, 'Kuuntele pulssi', ' data-return-topic="aihe-rytmi"'))
+    start_link = link(start_path, start_title, f' data-return-topic="{start_topic["anchor"]}"')
+    home = block('oppimiskartta:aloitus', f'    {escape(start["lead"])} {start_link}')
     home = block('oppimiskartta:reitit', map_routes)
     home = re.sub(r'(?<=src=")assets/edistyminen\.js(?:\?v=[a-f0-9]+)?(?=")',
                   versioned_url('assets/edistyminen.js', 'index.html'), home)

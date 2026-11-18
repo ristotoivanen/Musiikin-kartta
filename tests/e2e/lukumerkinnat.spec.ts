@@ -20,13 +20,19 @@ const labels = {
   oppitunti: ['Merkitse oppitunti tehdyksi', '✓ Oppitunti tehty'],
 } as const;
 type Kind = keyof typeof labels;
+// Numeroimaton johdantoharjoitus ei kuulu aiheen laskuriin, joten se testataan erikseen (johdanto.spec.ts).
+const isIntro = (path: string) => /<main\b[^>]*\sdata-study-intro[\s>]/.test(read(path));
+const intros = readdirSync(new URL('oppi/', site), { withFileTypes: true })
+  .filter(entry => entry.isDirectory())
+  .flatMap(({ name }) => readdirSync(new URL(`oppi/${name}/`, site)).map(file => `oppi/${name}/${file}`))
+  .filter(path => path.endsWith('.html') && isIntro(path));
 
 const topics = readdirSync(new URL('oppi/', site), { withFileTypes: true })
   .filter(entry => entry.isDirectory())
   .map(({ name }) => {
     const directory = `oppi/${name}/`;
     const pages = readdirSync(new URL(directory, site))
-      .filter(file => file.endsWith('.html') && file !== 'index.html')
+      .filter(file => file.endsWith('.html') && file !== 'index.html' && !isIntro(`${directory}${file}`))
       .map(file => {
         const path = `${directory}${file}`;
         const slug = file.slice(0, -'.html'.length);
@@ -117,6 +123,7 @@ test('kaikki 73 sisältösivua kuuluvat suoritusmerkintöjen testiin', () => {
   const pages = topics.flatMap(topic => topic.pages);
   expect(topics).toHaveLength(8);
   expect(pages).toHaveLength(73);
+  expect(intros).toEqual(['oppi/rytmi/ensimmaiset-nelja-iskua.html']);
   expect(pages.filter(({ kind }) => kind === 'harjoitus')).toHaveLength(41);
   expect(pages.filter(({ kind }) => kind === 'oppitunti')).toHaveLength(4);
   expect([...chapterIds.values()].sort()).toEqual([...bookRoutes.keys()].sort());

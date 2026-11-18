@@ -1,5 +1,5 @@
 {
-  "start": "rytmi/kuuntele-pulssi",
+  "start": {"page": "rytmi/ensimmaiset-nelja-iskua", "lead": "Suositeltu aloitus:"},
   "topics": [
     {
       "slug": "kitara", "anchor": "aihe-kitara", "title": "Kitaran perusteet",
@@ -22,6 +22,8 @@
       "back_label": "Rytmiin",
       "summary": "Pulssi, neljään laskeminen ja komppi.",
       "lead": "Löydä kappaleen tasainen pulssi. Ota sitten kitara mukaan ja pidä käsi liikkeessä myös sointua vaihtaessa.",
+      "intro": {"standalone": "ensimmaiset-nelja-iskua", "title": "Ensimmäiset neljä iskua",
+                "goal": "Soita yhdellä vapaalla kielellä neljä ääntä tasaisen pulssin mukana, pysäytä ääni ja pidä neljän iskun tauko."},
       "groups": [
         {"title": "Pulssista komppiin", "lessons": [
           {"source": "osa-1#pulssi-ja-komppi", "goal": "Laske iskuja ja kahdeksasosia. Soita alas–ylös-komppia tasaisella kädellä."}
