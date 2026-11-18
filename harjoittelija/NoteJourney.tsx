@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Board } from './Board';
+import { ReferencePlayer, referenceAudioError } from './audio';
 import { fretName, note, pc, positionKey, positions, stringName, type Position } from './music';
 import type { Area, Mark } from './engine';
 
@@ -14,6 +15,39 @@ export function NoteJourney({ onBack }: { onBack: () => void }) {
   const [hintShown, setHintShown] = useState(false);
   const [message, setMessage] = useState('');
   const [mistakes, setMistakes] = useState(0);
+  const [audioError, setAudioError] = useState('');
+  const notePlayer = useRef(new ReferencePlayer());
+  const audioToken = useRef(0);
+
+  useEffect(() => {
+    const pauseWhenHidden = () => {
+      if (document.hidden) {
+        audioToken.current++;
+        notePlayer.current.stop();
+      }
+    };
+    document.addEventListener('visibilitychange', pauseWhenHidden);
+    return () => {
+      audioToken.current++;
+      notePlayer.current.stop();
+      document.removeEventListener('visibilitychange', pauseWhenHidden);
+    };
+  }, []);
+
+  function stopNote() {
+    audioToken.current++;
+    notePlayer.current.stop();
+    setAudioError('');
+  }
+
+  function playSelectedNote(midi: number) {
+    const token = ++audioToken.current;
+    setAudioError('');
+    // Käytä samaa äänimoottoria kuin muissa harjoituksissa. Uusi painallus katkaisee edellisen äänen.
+    void notePlayer.current.play([midi]).catch(error => {
+      if (audioToken.current === token) setAudioError(referenceAudioError(error));
+    });
+  }
 
   const finished = step >= NOTES.length;
   const target = NOTES[Math.min(step, NOTES.length - 1)];
@@ -30,6 +64,8 @@ export function NoteJourney({ onBack }: { onBack: () => void }) {
 
   function answer(p: Position) {
     if (finished || complete) return;
+    // Jokaisesta valitusta nauhapaikasta kuuluu sen todellinen sävel myös väärällä vastauksella.
+    playSelectedNote(p.midi);
     const key = positionKey(p);
     if (pc(p.midi) !== target) {
       setMistakes(n => n + 1);
@@ -51,6 +87,7 @@ export function NoteJourney({ onBack }: { onBack: () => void }) {
 
   function next() {
     if (!complete) return;
+    stopNote();
     setStep(n => n + 1);
     setFound([]);
     setHintShown(false);
@@ -58,6 +95,7 @@ export function NoteJourney({ onBack }: { onBack: () => void }) {
   }
 
   function restart() {
+    stopNote();
     setStep(0);
     setFound([]);
     setHintShown(false);
@@ -83,12 +121,13 @@ export function NoteJourney({ onBack }: { onBack: () => void }) {
           <h3>Etsi kaikki {note(target)}-sävelet</h3>
           <span>Sävel {step + 1} / {NOTES.length}</span>
         </div>
-        <p>Napauta otelaudalta kaikki {note(target)}-sävelet. Löydetyt kohdat jäävät näkyviin. Voit käyttää vihjettä tarvittaessa.</p>
+        <p>Napauta otelaudalta kaikki {note(target)}-sävelet. Valitsemasi sävel myös soi. Löydetyt kohdat jäävät näkyviin. Voit käyttää vihjettä tarvittaessa.</p>
         <p className="note-progress" role="status" aria-live="polite">Löydetty {found.length} / {wanted.length}</p>
         <Board area={AREA} marks={marks} onAnswer={answer} disabled={complete}
           caption="Otelauta" />
         <p className={complete ? 'feedback good' : 'feedback info'} data-testid="note-feedback"
           role="status" aria-live="polite">{message}</p>
+        {audioError && <p className="feedback info" role="status" data-testid="note-audio-error">{audioError}</p>}
         <div className="action-row">
           {!complete && <button type="button" aria-pressed={hintShown}
             onClick={() => setHintShown(v => !v)}>
