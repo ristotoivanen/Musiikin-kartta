@@ -14,7 +14,7 @@ for (let i = 0; i < N; i++) { let s = 0; for (let c = 0; c < CH; c++) s += raw[C
 const tausta = f32(`${dir}/tausta.f32`), kitara = f32(`${dir}/kitara.f32`);
 const beeps = JSON.parse(readFileSync(`${dir}/piippaukset.json`, 'utf8'));
 const flashData = JSON.parse(readFileSync(`${dir}/valahdykset.json`, 'utf8'));
-const flashes = flashData.flashes.map(f => f.alkuInterp);
+const flashesAll = flashData.flashes.map(f => f.alkuInterp);
 const fmt = (v, d = 1) => (v >= 0 ? '+' : '') + v.toFixed(d);
 const med = v => { const s = [...v].sort((a, b) => a - b); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
 const quant = (v, q) => { const s = [...v].sort((a, b) => a - b); return s[Math.min(s.length - 1, Math.floor(q * (s.length - 1)))]; };
@@ -73,6 +73,39 @@ for (const hz of [1500, 300]) {
   console.log(`\n${hz} Hz:n sovitettu suodin: tausta ${base.toExponential(2)}, kynnys ${thr.toExponential(2)}, huippuja ${found.length}`);
   console.log('  ajat', found.map(f => f.t.toFixed(4)).join(' '));
   console.log('  SNR (huippu / mediaanitausta)', found.map(f => f.snr.toFixed(0)).join(' '));
+}
+
+// --- 1b. Ylimääräiset tapahtumat (kalibrointi-iskut, kosketukset, toiston alku) pois ennen kohdistusta.
+//         Koko sarjalle haetaan yksi siirto, jolla mahdollisimman moni tapahtuma osuu aikataulun piippaukseen
+//         (±50 ms). Ehdokassiirrot ovat kaikki erotukset t_i − b_m. Siirto ratkaistaan koko kuviosta, ei
+//         yksittäisistä lähimmistä naapureista. Poistetut tapahtumat raportoidaan. Jos kaikki tapahtumat osuvat
+//         (kuten tallenteissa ilman iskuja), lista ei muutu ja tulos on sama kuin ennen tätä vaihetta.
+function robustFit(times, label) {
+  const TOL = 0.05;
+  const nearest = t => { let lo = 0, hi = beeps.length - 1; while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (beeps[mid] < t) lo = mid; else hi = mid; } return Math.abs(beeps[lo] - t) <= Math.abs(beeps[hi] - t) ? lo : hi; };
+  const score = off => { let n = 0; const res = []; for (const t of times) { const m = nearest(t - off); const r = t - off - beeps[m]; if (Math.abs(r) <= TOL) { n++; res.push(Math.abs(r)); } } return { n, mad: res.length ? med(res) : Infinity }; };
+  const cands = []; for (const t of times) for (const b of beeps) cands.push(t - b);
+  let best = null;
+  for (const off of cands) { const sc = score(off); if (!best || sc.n > best.n || (sc.n === best.n && sc.mad < best.mad)) best = { off, ...sc }; }
+  let second = null;
+  for (const off of cands) { if (Math.abs(off - best.off) < 0.1) continue; const sc = score(off); if (!second || sc.n > second.n) second = { off, ...sc }; }
+  let keep = [], removed = [];
+  times.forEach((t, i) => { const m = nearest(t - best.off); (Math.abs(t - best.off - beeps[m]) <= TOL ? keep : removed).push({ i, t, m }); });
+  // Toisto on yhtenäinen jakso: pisin osuvien tapahtumien ketju, jossa aikatauluindeksi kasvaa enintään 2:lla.
+  // Ketjun ulkopuoliset osumat (esim. isku, joka sattuu ±50 ms:n päähän jostain aikataulun piippauksesta) pois.
+  const blocks = []; for (const k of keep) { const last = blocks[blocks.length - 1]; if (last && k.m - last[last.length - 1].m <= 2 && k.m > last[last.length - 1].m) last.push(k); else blocks.push([k]); }
+  const main = blocks.reduce((a, b) => (b.length > a.length ? b : a), []);
+  removed = [...removed, ...keep.filter(k => !main.includes(k))].sort((a, b) => a.t - b.t);
+  keep = main;
+  const contiguous = keep.every((k, x) => x === 0 || k.m === keep[x - 1].m + 1);
+  console.log(`${label}: kuviohaku ±50 ms: ${keep.length}/${times.length} osuu aikatauluun (seuraavaksi paras siirto ${second ? second.n : 0}/${times.length}).${removed.length ? ' Poistetaan: ' + removed.map(r => r.t.toFixed(3) + ' s').join(', ') + '.' : ''}${contiguous ? '' : ' VAROITUS: hyväksytyt tapahtumat eivät ole peräkkäisiä aikataulussa (puuttuva piippaus tai välähdys).'}`);
+  return { keep: keep.map(k => k.i), removed, contiguous, best: best.n, second: second ? second.n : 0 };
+}
+const robust = { flashes: robustFit(flashesAll, 'Välähdykset') };
+const flashes = robust.flashes.keep.map(i => flashesAll[i]);
+for (const hz of [1500, 300]) {
+  robust[hz] = robustFit(results[hz].found.map(f => f.t), `Piippaukset ${hz} Hz`);
+  results[hz].found = robust[hz].keep.map(i => results[hz].found[i]);
 }
 
 const flashFits = scheduleFit(flashes, 'Välähdykset');
@@ -143,4 +176,5 @@ console.log('  kitara − tausta (ms)', xT.map((c, i) => ((xK[i].A - c.A) * 1000
 writeFileSync(`${dir}/paritus.json`, JSON.stringify({
   sliderMs, flashes, flashFit: flashFits.slice(0, 4), audioFit: { 300: audioFits[300].slice(0, 4), 1500: audioFits[1500].slice(0, 4) },
   audioPeaks: { 300: results[300].found, 1500: results[1500].found }, pairs, xcorr: { tausta: xT, kitara: xK },
+  kuviohaku: Object.fromEntries(Object.entries(robust).map(([k, r]) => [k, { osuu: r.best, seuraavaksiParas: r.second, perakkaiset: r.contiguous, poistetut: r.removed.map(x => x.t) }])),
 }, null, 1));

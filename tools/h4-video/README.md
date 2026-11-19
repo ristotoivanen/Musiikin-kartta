@@ -20,9 +20,23 @@ sh tools/h4-video/aja.sh <video.MOV> <ulostulokansio> <säädin ms> [ääniraida
 - Säädin on testisivun *Välähdyksen siirto* tallenteen aikana. Luetaan kuvasta.
 - Jos `node` ei ole PATHissa: `NODE=/polku/node sh tools/h4-video/aja.sh …`.
 
-Repoon tallennetaan vain johdetut tekstitulosteet ja pienet JSON-tiedostot hakemistoon `harjoittelija/kaksiraitatesti/raportit/h4-video/<tallenne>/`: `sha256.txt`, `info.txt`, `valahdykset.*`, `paritus.*`, `lisatarkistus.txt`, `raitaero*.txt` ja `taulukko.md`.
+Repoon tallennetaan vain johdetut tekstitulosteet ja pienet JSON-tiedostot hakemistoon `harjoittelija/kaksiraitatesti/raportit/h4-video/<tallenne>/`: `sha256.txt`, `info.txt`, `valahdykset.*`, `paritus.*`, `lisatarkistus.txt`, `raitaero.txt`, `taulukko.md`, `valotus.*` ja `kuvamalli.txt`. P1-tallenteesta lisäksi `roi.txt`, `iskut.*` ja `kalibrointi.*`.
 
-**Toistettavuus:** 19.11.2026 koko putki ajettiin repon versiolla uudelleen `IMG_0016.MOV`:lle. Kaikki tekstitulosteet ja `taulukko.md` olivat tavulleen samat. `paritus.json`:n SNR-arvoissa vaihteli seitsemäs merkitsevä numero (AAC-purku), mikä ei näy raportoiduissa luvuissa.
+### P1: kalibrointi-iskut samassa tallenteessa
+
+Ohje: `harjoittelija/kaksiraitatesti/H4-P1-KALIBROINTIOHJE.md`. Ensin `aja.sh`, sitten iskukohdan ROI valitaan kuvasta (`<ulostulokansio>/bin/frames <video> <kansio> <aika>`; PNG on puolikas, joten ROI = PNG-koordinaatit × 2):
+
+```bash
+sh tools/h4-video/kalibroi.sh <video.MOV> <ulostulokansio> <säädin ms> <x> <y> <leveys> <korkeus> <oikea|vasen|alas|ylos>
+```
+
+Synteettinen positiivinen ja negatiivinen kontrolli (noin 1 min, ei videota):
+
+```bash
+node tools/h4-video/testi-kalibrointi.mjs <työkansio repon ulkopuolella>
+```
+
+**Toistettavuus:** 19.11.2026 koko putki ajettiin repon versiolla uudelleen `IMG_0016.MOV`:lle. Kaikki tekstitulosteet ja `taulukko.md` olivat tavulleen samat. `paritus.json`:n SNR-arvoissa vaihteli seitsemäs merkitsevä numero (AAC-purku), mikä ei näy raportoiduissa luvuissa. Kuviohaun ja kuva-ajan mallin lisäämisen jälkeen (P1-valmistelu) putki ajettiin uudelleen molemmille videoille puhtaasta kloonista. `paritus.txt`:hen tuli kolme kuviohakuriviä, ja muut aiemmat tekstitulosteet pysyivät tavulleen samoina.
 
 ## Vaiheet
 
@@ -33,15 +47,23 @@ Repoon tallennetaan vain johdetut tekstitulosteet ja pienet JSON-tiedostot hakem
 | `aani.swift` | Ääniraidan purku float32-PCM:ksi (`aani.f32`). Kanavamäärä menee `aani.f32.json`:iin. AVFoundation soveltaa muokkauslistan, joten AAC:n esikuormitus on poistettu ja ääni on samalla aikajanalla kuin kuva. |
 | `sisalto.mts` | H4-aineisto (240 s, 24 kHz, siirto 0): `tausta.f32`, `kitara.f32` ja aikataulu `piippaukset.json`. |
 | `valahdys.mjs` | Välähdysten alkuhetket. Välähdysalue on se 60 solun joukko, jonka kirkkaus vaihtelee eniten. Kynnys on puolivälissä pimeän ja kirkkaan tason välillä, ja alku interpoloidaan kuvien aikaleimojen välistä. |
-| `paritus.mjs` | Piippaukset 300 ja 1500 Hz:n sovitetulla suotimella. Välähdykset ja piippaukset kohdistetaan aikatauluun **toisistaan riippumatta** jäännösten MAD-arvolla, ja parit muodostetaan aikatauluindeksin kautta. Lisäksi raidoittainen ristikorrelaatio koko sisältöön. |
+| `paritus.mjs` | Piippaukset 300 ja 1500 Hz:n sovitetulla suotimella. Ensin kuviohaku: yksi siirto koko sarjalle, ja aikatauluun sopimattomat tapahtumat (iskut, kosketukset) poistetaan ja raportoidaan. Sitten välähdykset ja piippaukset kohdistetaan aikatauluun **toisistaan riippumatta** jäännösten MAD-arvolla, ja parit muodostetaan aikatauluindeksin kautta. Lisäksi raidoittainen ristikorrelaatio koko sisältöön. |
 | `lisatarkistus.mjs` | Vaihtoehtoiset kohdistukset (±1, ±2 merkkiääntä), lähimmän naapurin vertailu ja bootstrap. |
 | `raitaero.mjs` | Raitaeron alkuperä: simulaatio tunnetuilla viiveillä ja kaiutinmalleilla sekä kaistakohtainen ristikorrelaatio. |
-| `taulukko.mjs` | Tapahtumataulukko ja yhteenveto: V − A, K = (V − A) − säädin ja d* = säädin − (V − A). |
+| `taulukko.mjs` | Tapahtumataulukko ja yhteenveto: V − A, K = (V − A) − säädin ja d* = säädin − (V − A). Ristikorrelaatiosta käytetään vain H4-toiston palat. |
+| `valotus.mjs` | Kuva-ajan malli välähdyksistä: alkukuva ja sen kirkkausosuus, rullaavan sulkimen suhde ρ = R/E ja valotusajan yläraja (ehdollinen 60 Hz:n näytölle). |
+| `kalibrointi.mjs` | Ilman iskuja (`kuvamalli.txt`): V − A kuva-ajan mallilla eri valotusajoilla. Iskujen kanssa: C, L = (V − A) − d − C, epävarmuuserät, ennalta kirjatut ehdot E1–E4 ja P2-valmius V1–V4. |
+| `roi.swift` | P1: iskukohdan alue (ROI) jokaisesta kuvasta luminanssina, samoissa koordinaateissa kuin `frames.swift`:n PNG × 2. |
+| `isku.mjs` | P1: iskun äänen alku (yli 1 kHz, 10 % huipusta) ja kosketushetki kuvasta (etureunan ekstrapolointi, peitolla painotettu). Laatuehdot ja hylkäyssyyt. |
+| `kalibroi.sh` | P1-vaiheet: `roi`, `isku.mjs`, `kalibrointi.mjs`. |
+| `sivuraitaero.mjs` | Sivun oman raporttien raitaeron (renderöity ja mediakellot) yhteenveto ja vertailu videon raitaeroon samalla merkillä. |
+| `testi-kalibrointi.mjs` | Synteettinen kontrolli: 3 skenaariota tunnetuilla arvoilla ja 2 negatiivista kontrollia (ajautuma, kimpoaminen). |
 
 ## Merkit
 
 - **V − A** = välähdyksen alku − merkkiäänen alku tallenteen aikajanalla. Positiivinen arvo: välähdys näkyi äänen jälkeen.
 - Sivu sytyttää välähdyksen, kun taustaraidan `currentTime` ylittää merkkiäänen kohdan + säädin d. Siksi **V − A = d + K**, missä K on laitteen ja kameran yhteinen termi (näytön viive − äänen viive + kameran oma kuva–ääni-ero).
+- **Kuva-ajan malli:** `valahdys.mjs`:n alkuhetki on lineaarinen interpolointi kuvien välillä. Iskujen kanssa vertailtaessa käytetään valotusmallia (`valotus.mjs`, `kalibrointi.mjs`), jossa välähdys ja isku määritetään samalla tavalla. `IMG_0016`:ssa malli siirtää V − A:ta noin 8–13 ms (`kuvamalli.txt`).
 - **d\* = d − (V − A)** on säädin, jolla välähdys ja ääni osuisivat tallenteessa kohdakkain. Se ei ole koehenkilön havaitsema samanaikaisuus, eikä se ole kalibroitu, ennen kuin kameran ero on mitattu.
 
 ## Tietosuoja

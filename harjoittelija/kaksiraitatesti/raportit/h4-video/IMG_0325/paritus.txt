@@ -6,6 +6,9 @@
 300 Hz:n sovitettu suodin: tausta 1.50e-3, kynnys 9.14e-3, huippuja 29
   ajat 0.4538 0.9669 1.6140 2.1781 2.7753 3.3237 3.7313 4.1212 4.6884 5.2903 5.7126 6.3598 7.0801 7.7337 8.1538 8.6499 9.0044 9.4310 10.0237 10.5873 11.1947 11.8194 12.3434 12.8532 13.2717 13.8990 14.5318 15.1413 15.5959
   SNR (huippu / mediaanitausta) 23 21 22 22 22 21 20 21 20 22 20 22 20 19 20 21 21 21 21 20 19 21 20 20 20 20 21 20 19
+Välähdykset: kuviohaku ±50 ms: 29/29 osuu aikatauluun (seuraavaksi paras siirto 16/29).
+Piippaukset 1500 Hz: kuviohaku ±50 ms: 29/29 osuu aikatauluun (seuraavaksi paras siirto 16/29).
+Piippaukset 300 Hz: kuviohaku ±50 ms: 29/29 osuu aikatauluun (seuraavaksi paras siirto 16/29).
 
 Välähdykset: 29 tapahtumaa, parhaat aikataulukohdistukset (j = ensimmäisen tapahtuman aikatauluindeksi)
   j=1  siirto -0.7441 s  MAD 3.58 ms  suurin poikkeama 11.0 ms  ±25 ms:n sisällä 29/29

@@ -186,17 +186,17 @@ Laitteita ei voi verrata keskenään, koska kuvaava kamera on eri, eikä kummank
 | Kameran (iPad 8) oma ääni–kuvaero | tuntematon, voi olla kymmeniä millisekunteja | **mittaamatta**: taputuskalibrointi samaan tallenteeseen (P1). Suurin avoin tekijä. |
 | Äänen vertailukohta: 300 Hz:n suodin vs laajakaistainen korrelaatio | noin 10 ms | Selitetty alakaistan lisäviiveellä (luku 5). Ensisijaisena laajakaista. Havaittu samanaikaisuus voi silti riippua siitä, mitä taajuuksia kuulija seuraa. |
 | Raitavalinta: tausta vs kitara | 16 ms | Välähdys on koodissa sidottu taustaraitaan. Kitara soi 16 ms myöhemmin. |
-| Välähdyksen alkuhetki 30 fps:llä | kuvaväli 33 ms. Jäännösten MAD 6,2 ms, suurin 15,5 ms. 21/38 osittaista ensimmäistä kuvaa. | Satunnainen osa näkyy hajonnassa. Systemaattinen osa (kuvan aikaleiman suhde valotukseen, rullaava suljin, kynnyksen valinta) on mittaamatta. |
+| Välähdyksen alkuhetki 30 fps:llä | kuvaväli 33 ms. Jäännösten MAD 6,2 ms, suurin 15,5 ms. 21/38 osittaista ensimmäistä kuvaa. | Satunnainen osa näkyy hajonnassa. **Päivitys 19.11.:** rullaava suljin näkyy osittaisissa kuvissa (R/E 0,28–0,81, lukusuunta pystyvideossa sivuttainen), ja valotusaika on enintään 18 ms, jos näyttö päivittyy 60 Hz:llä (`raportit/h4-video/IMG_0016/valotus.txt`). Valotusmallilla V − A on −152…−147 ms, kun lineaarisella interpoloinnilla se on −160 ms (`kuvamalli.txt`). Ero on mittaussopimus. P1:ssä välähdys ja isku mitataan samalla mallilla. |
 | Yksi käynnistys | n = 38 tapahtumaa yhdestä ajosta | Toistettavuus käynnistysten välillä ja jatko- ja kelaustilanteet mittaamatta (P2). |
 | Säätimen lukeminen kuvasta | – | Epätarkka, mutta kuvat 1,0 s ja 19,5 s sekä testaajan merkintä sopivat yhteen (−100 ms). |
 | Kellojen ajautuma | noin 26 ppm, alle 1 ms tallenteen aikana | Merkityksetön. Sovitettu lineaarisesti. |
 
 ## 8. Seuraava pienin askel ennen uusia johtopäätöksiä
 
-1. **Kalibrointi samaan tallenteeseen (P1, ei koodimuutoksia):**
-   - Taputetaan viisi kertaa kuvan keskellä ennen mittausta ja viisi kertaa sen jälkeen, iPhonen välähdyslaatikon korkeudella.
-   - Kamera tuetaan ja asetetaan 60 fps:lle, jos iPad sen sallii.
-   - Kameran ero vähennetään K:sta.
+1. **Kalibrointi samaan tallenteeseen (P1, ei koodimuutoksia):** viisi iskua ennen mittausta ja viisi sen jälkeen, ja kameran ero vähennetään K:sta.
+   - **Päivitetty ohje:** [`H4-P1-KALIBROINTIOHJE.md`](H4-P1-KALIBROINTIOHJE.md). Taputuksen sijaan isku kovaan vastakappaleeseen kuvan tasossa, jotta kosketushetki näkyy kuvasta.
+   - Iskukohta on välähdysalueen kanssa samassa pystylinjassa eikä samalla korkeudella, koska pystyvideon lukusuunta on sivuttainen.
+   - Kuvanopeus on sama kuin `IMG_0016`:ssa (30 fps).
 2. **Saman käynnistyksen sivuraportti** tallennetaan videon rinnalle. Raitaero (16 ms) voidaan silloin verrata sivun omiin raitakohtaisiin mittauksiin.
 3. **Useampi erillinen käynnistys**, sitten jatko ja kelaus (P2), ennen kuin tilannekohtaisista eroista sanotaan mitään.
 

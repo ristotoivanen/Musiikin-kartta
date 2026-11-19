@@ -1,0 +1,348 @@
+{
+ "kuvavaliMs": 16.666999999999987,
+ "valahdysalueenRivi": 0.6302083333333334,
+ "valahdysalueenRivit": [
+  0.2552083333333333,
+  0.7135416666666666
+ ],
+ "osittaisia": 7,
+ "kokonaisia": 22,
+ "rho": -3.5443637290585572,
+ "rhoVaihtelu": [
+  -3.85099009181233,
+  -2.7017947483614164
+ ],
+ "fOsittainen": [
+  0.6720936143437954,
+  0.9246943927717247
+ ],
+ "eYlaraja60HzMs": null,
+ "valahdykset": [
+  {
+   "pts": 0.15,
+   "kuva": 9,
+   "alkukuva": 9,
+   "ptsAlku": 0.15,
+   "f": 0.6720936143437954,
+   "fEdeltava": -0.0011560697504326032,
+   "tyyppi": "osittainen",
+   "fMin": 0.5558739255014326,
+   "fMax": 0.9328134373125375,
+   "kulmakerroin": -3.5443637290585572
+  },
+  {
+   "pts": 0.633333,
+   "kuva": 38,
+   "alkukuva": 38,
+   "ptsAlku": 0.633333,
+   "f": 0.6987297921478061,
+   "fEdeltava": 0,
+   "tyyppi": "osittainen",
+   "fMin": 0.5819304152637486,
+   "fMax": 0.9576221306650972,
+   "kulmakerroin": -3.6439985877728467
+  },
+  {
+   "pts": 1.15,
+   "kuva": 69,
+   "alkukuva": 69,
+   "ptsAlku": 1.15,
+   "f": 0.7353792294968766,
+   "fEdeltava": 0,
+   "tyyppi": "osittainen",
+   "fMin": 0.6036729857819906,
+   "fMax": 0.9876923076923076,
+   "kulmakerroin": -3.85099009181233
+  },
+  {
+   "pts": 1.783333,
+   "kuva": 107,
+   "alkukuva": 107,
+   "ptsAlku": 1.783333,
+   "f": 0.7986921399486953,
+   "fEdeltava": 0,
+   "tyyppi": "osittainen",
+   "fMin": 0.6395112016293278,
+   "fMax": 0.9993849938499385,
+   "kulmakerroin": -3.82391189311711
+  },
+  {
+   "pts": 2.351667,
+   "kuva": 141,
+   "alkukuva": 141,
+   "ptsAlku": 2.351667,
+   "f": 0.8470652393747653,
+   "fEdeltava": 0,
+   "tyyppi": "osittainen",
+   "fMin": 0.6779761904761904,
+   "fMax": 1,
+   "kulmakerroin": -3.517772928995001
+  },
+  {
+   "pts": 2.951667,
+   "kuva": 177,
+   "alkukuva": 177,
+   "ptsAlku": 2.951667,
+   "f": 0.8897128609786837,
+   "fEdeltava": 0,
+   "tyyppi": "osittainen",
+   "fMin": 0.702140309155767,
+   "fMax": 1,
+   "kulmakerroin": -3.225738155512374
+  },
+  {
+   "pts": 3.501667,
+   "kuva": 210,
+   "alkukuva": 210,
+   "ptsAlku": 3.501667,
+   "f": 0.9246943927717247,
+   "fEdeltava": 0,
+   "tyyppi": "osittainen",
+   "fMin": 0.7498555748122473,
+   "fMax": 1,
+   "kulmakerroin": -2.7017947483614164
+  },
+  {
+   "pts": 3.918333,
+   "kuva": 235,
+   "alkukuva": 235,
+   "ptsAlku": 3.918333,
+   "f": 0.9681818004874446,
+   "fEdeltava": 0,
+   "tyyppi": "kokonainen",
+   "fMin": 0.7696365767878078,
+   "fMax": 1
+  },
+  {
+   "pts": 4.301667,
+   "kuva": 258,
+   "alkukuva": 258,
+   "ptsAlku": 4.301667,
+   "f": 0.981251455192436,
+   "fEdeltava": 0,
+   "tyyppi": "kokonainen",
+   "fMin": 0.7968036529680366,
+   "fMax": 0.9958333333333333
+  },
+  {
+   "pts": 4.868333,
+   "kuva": 292,
+   "alkukuva": 292,
+   "ptsAlku": 4.868333,
+   "f": 0.993691614522668,
+   "fEdeltava": 0,
+   "tyyppi": "kokonainen",
+   "fMin": 0.8437132784958872,
+   "fMax": 1
+  },
+  {
+   "pts": 5.468333,
+   "kuva": 328,
+   "alkukuva": 328,
+   "ptsAlku": 5.468333,
+   "f": 0.9982363163308191,
+   "fEdeltava": 0,
+   "tyyppi": "kokonainen",
+   "fMin": 0.9011834319526628,
+   "fMax": 1
+  },
+  {
+   "pts": 5.885,
+   "kuva": 353,
+   "alkukuva": 353,
+   "ptsAlku": 5.885,
+   "f": 0.9993992176293982,
+   "fEdeltava": 0,
+   "tyyppi": "kokonainen",
+   "fMin": 0.9226713532513182,
+   "fMax": 1
+  },
+  {
+   "pts": 6.536667,
+   "kuva": 392,
+   "alkukuva": 392,
+   "ptsAlku": 6.536667,
+   "f": 0.9994119363943763,
+   "fEdeltava": 0,
+   "tyyppi": "kokonainen",
+   "fMin": 0.9608308605341245,
+   "fMax": 1
+  },
+  {
+   "pts": 7.253333,
+   "kuva": 435,
+   "alkukuva": 435,
+   "ptsAlku": 7.253333,
+   "f": 0.9964591075153849,
+   "fEdeltava": 0,
+   "tyyppi": "kokonainen",
+   "fMin": 0.9889982628836134,
+   "fMax": 1
+  },
+  {
+   "pts": 7.92,
+   "kuva": 475,
+   "alkukuva": 475,
+   "ptsAlku": 7.92,
+   "f": 1,
+   "fEdeltava": 0,
+   "tyyppi": "kokonainen",
+   "fMin": 0.9948156682027651,
+   "fMax": 1
+  },
+  {
+   "pts": 8.336667,
+   "kuva": 500,
+   "alkukuva": 500,
+   "ptsAlku": 8.336667,
+   "f": 1,
+   "fEdeltava": 0,
+   "tyyppi": "kokonainen",
+   "fMin": 0.9934911242603549,
+   "fMax": 1
+  },
+  {
+   "pts": 8.836667,
+   "kuva": 530,
+   "alkukuva": 530,
+   "ptsAlku": 8.836667,
+   "f": 1,
+   "fEdeltava": 0.0005807208762747408,
+   "tyyppi": "kokonainen",
+   "fMin": 0.9982057416267942,
+   "fMax": 1
+  },
+  {
+   "pts": 9.186667,
+   "kuva": 551,
+   "alkukuva": 551,
+   "ptsAlku": 9.186667,
+   "f": 1,
+   "fEdeltava": 0,
+   "tyyppi": "kokonainen",
+   "fMin": 1,
+   "fMax": 1
+  },
+  {
+   "pts": 9.62,
+   "kuva": 577,
+   "alkukuva": 577,
+   "ptsAlku": 9.62,
+   "f": 1,
+   "fEdeltava": 0,
+   "tyyppi": "kokonainen",
+   "fMin": 0.9900526623756584,
+   "fMax": 1
+  },
+  {
+   "pts": 10.205,
+   "kuva": 612,
+   "alkukuva": 612,
+   "ptsAlku": 10.205,
+   "f": 1,
+   "fEdeltava": 0.0017804160573452509,
+   "tyyppi": "kokonainen",
+   "fMin": 1,
+   "fMax": 1
+  },
+  {
+   "pts": 10.771667,
+   "kuva": 646,
+   "alkukuva": 646,
+   "ptsAlku": 10.771667,
+   "f": 1,
+   "fEdeltava": 0.0022942510161946482,
+   "tyyppi": "kokonainen",
+   "fMin": 0.9988558352402747,
+   "fMax": 1
+  },
+  {
+   "pts": 11.371667,
+   "kuva": 682,
+   "alkukuva": 682,
+   "ptsAlku": 11.371667,
+   "f": 1,
+   "fEdeltava": 0.004624499959234904,
+   "tyyppi": "kokonainen",
+   "fMin": 0.9968886123210952,
+   "fMax": 1
+  },
+  {
+   "pts": 12.005,
+   "kuva": 720,
+   "alkukuva": 720,
+   "ptsAlku": 12.005,
+   "f": 1,
+   "fEdeltava": 0.004961746485621519,
+   "tyyppi": "kokonainen",
+   "fMin": 0.9976289270895081,
+   "fMax": 1
+  },
+  {
+   "pts": 12.521667,
+   "kuva": 751,
+   "alkukuva": 751,
+   "ptsAlku": 12.521667,
+   "f": 1,
+   "fEdeltava": 0.007183456878104183,
+   "tyyppi": "kokonainen",
+   "fMin": 0.9994239631336406,
+   "fMax": 1
+  },
+  {
+   "pts": 13.038333,
+   "kuva": 782,
+   "alkukuva": 782,
+   "ptsAlku": 13.038333,
+   "f": 1,
+   "fEdeltava": 0.009863836336973228,
+   "tyyppi": "kokonainen",
+   "fMin": 0.9635083226632521,
+   "fMax": 1
+  },
+  {
+   "pts": 13.455,
+   "kuva": 807,
+   "alkukuva": 807,
+   "ptsAlku": 13.455,
+   "f": 1,
+   "fEdeltava": 0.008106545856401026,
+   "tyyppi": "kokonainen",
+   "fMin": 0.9685973482205164,
+   "fMax": 1
+  },
+  {
+   "pts": 14.09,
+   "kuva": 845,
+   "alkukuva": 845,
+   "ptsAlku": 14.09,
+   "f": 1,
+   "fEdeltava": 0.01208286985539487,
+   "tyyppi": "kokonainen",
+   "fMin": 0.9520239880059971,
+   "fMax": 1
+  },
+  {
+   "pts": 14.723333,
+   "kuva": 883,
+   "alkukuva": 883,
+   "ptsAlku": 14.723333,
+   "f": 0.9942229905618818,
+   "fEdeltava": 0.014127734706069404,
+   "tyyppi": "kokonainen",
+   "fMin": 0.9709489993544222,
+   "fMax": 1
+  },
+  {
+   "pts": 15.323333,
+   "kuva": 919,
+   "alkukuva": 919,
+   "ptsAlku": 15.323333,
+   "f": 1,
+   "fEdeltava": 0.018187165742269876,
+   "tyyppi": "kokonainen",
+   "fMin": 0.9352589641434262,
+   "fMax": 1
+  }
+ ]
+}

@@ -16,7 +16,10 @@ function fit(chunks) {
   const b = (n * sxy - sx * sy) / (n * sxx - sx * sx), a = (sy - b * sx) / n;
   return { at: t => a + b * t, slopePpm: b * 1e6, used: n, all: chunks.length };
 }
-const fT = fit(p.xcorr.tausta), fK = fit(p.xcorr.kitara);
+// Vain H4-toiston palat (välähdysten aikaväli ±0,5 s): P1-tallenteessa iskujen ja hiljaisuuden palat eivät kuvaa sisältöä.
+const fl0 = Math.min(...p.flashes) - 0.5, fl1 = Math.max(...p.flashes) + 0.5;
+const inH4 = c => Number.isFinite(c.peak) && c.s >= fl0 && c.s + 1 <= fl1;
+const fT = fit(p.xcorr.tausta.filter(inH4)), fK = fit(p.xcorr.kitara.filter(inH4));
 console.log('A_T sovitus', fT.used, '/', fT.all, 'kulmakerroin ppm', fT.slopePpm.toFixed(0), '| A_K', fK.used, '/', fK.all, fK.slopePpm.toFixed(0));
 const r300 = p.pairs.find(x => x.hz === 300).rows, r1500 = p.pairs.find(x => x.hz === 1500).rows;
 const rows = r300.map((r, i) => {

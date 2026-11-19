@@ -1,0 +1,15 @@
+Säädin d = -100 ms. Kuvaväli 33.33 ms. Välähdysalueen rivi 0.528. Ei kalibrointi-iskuja (iskut.json puuttuu): C, L ja ehdot E1–E4 eivät ole laskettavissa.
+Kuva-ajan malli: E ≤ 18.1 ms (60 Hz:n näytön oletuksella).
+
+H4-toisto: 38 välähdys–piippaus-paria (aikatauluindeksi j = 4), alkukuva osittainen 23, kokonainen 15
+  V − A vanhalla interpoloinnilla (valahdys.mjs): -160.0 ms
+  V − A kuva-ajan mallilla (valotuksen alku välähdysalueen rivillä), E | mediaani | bootstrap 95 %:
+  2 ms | -152.4 | -154.2…-149.8
+  4 ms | -151.4 | -153.2…-149.4
+  8 ms | -150.0 | -152.1…-148.3
+  12 ms | -148.7 | -151.3…-146.9
+  16 ms | -147.3 | -150.7…-145.3
+  20 ms (rajan yli) | -145.8 | -149.2…-143.5
+  25 ms (rajan yli) | -144.6 | -147.9…-141.1
+  30 ms (rajan yli) | -143.2 | -146.3…-138.7
+  Puolikkaat (E = 12 ms): n 19, -149.1 ms (-152.6…-144.1) | n 19, -148.2 ms (-151.3…-146.3)

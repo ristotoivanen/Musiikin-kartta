@@ -102,7 +102,7 @@ Omistajan tarkistuksen mukaan alkuperäisessä H4-raportissa **kolmella viidest�
 
 Vaiheet P0–P2 eivät vaadi koodimuutoksia eivätkä hankintoja. P3 vaatii hyväksynnän.
 
-**Tilanne 19.11.:** kaksi tallennetta analysoitu, kummassakin tavallinen video ja ääniraita mukana, ja paritus aikataulun kautta onnistui yksiselitteisesti. iPhone: [`H4-VIDEO-IPHONE-2026-11-19.md`](H4-VIDEO-IPHONE-2026-11-19.md) (`IMG_0016.MOV`, kuvaajana iPad, 30 fps). Erillinen iPad-pilotti: [`H4-VIDEO-PILOTTI-IPAD-2026-11-19.md`](H4-VIDEO-PILOTTI-IPAD-2026-11-19.md). Kameran kalibrointia (P1) ei vielä ole. Työkalut: [`tools/h4-video/`](../../tools/h4-video/README.md).
+**Tilanne 19.11.:** kaksi tallennetta analysoitu, kummassakin tavallinen video ja ääniraita mukana, ja paritus aikataulun kautta onnistui yksiselitteisesti. iPhone: [`H4-VIDEO-IPHONE-2026-11-19.md`](H4-VIDEO-IPHONE-2026-11-19.md) (`IMG_0016.MOV`, kuvaajana iPad, 30 fps). Erillinen iPad-pilotti: [`H4-VIDEO-PILOTTI-IPAD-2026-11-19.md`](H4-VIDEO-PILOTTI-IPAD-2026-11-19.md). Omistaja hyväksyi siirtymisen P1:een 19.11. P1:n ohje ja ennalta kirjatut ehdot: [`H4-P1-KALIBROINTIOHJE.md`](H4-P1-KALIBROINTIOHJE.md) (yksi tallenne: 5 iskua, H4-toisto, 5 iskua; sama iPad ja iPhone). Tallennetta ei vielä ole. Raitaeron vertailu sivun mittaukseen: [`H4-RAITAERO-VERTAILU-2026-11-19.md`](H4-RAITAERO-VERTAILU-2026-11-19.md). Työkalut: [`tools/h4-video/`](../../tools/h4-video/README.md).
 
 | Vaihe | Mitä | Läpäisyehto (vaiheen jatkamiselle, ei H4:n hyväksymiselle) |
 | --- | --- | --- |
