@@ -36,7 +36,7 @@ Synteettinen positiivinen ja negatiivinen kontrolli (noin 1 min, ei videota):
 node tools/h4-video/testi-kalibrointi.mjs <työkansio repon ulkopuolella>
 ```
 
-**Toistettavuus:** 19.11.2026 koko putki ajettiin repon versiolla uudelleen `IMG_0016.MOV`:lle. Kaikki tekstitulosteet ja `taulukko.md` olivat tavulleen samat. `paritus.json`:n SNR-arvoissa vaihteli seitsemäs merkitsevä numero (AAC-purku), mikä ei näy raportoiduissa luvuissa. Kuviohaun ja kuva-ajan mallin lisäämisen jälkeen (P1-valmistelu) putki ajettiin uudelleen molemmille videoille puhtaasta kloonista. `paritus.txt`:hen tuli kolme kuviohakuriviä, ja muut aiemmat tekstitulosteet pysyivät tavulleen samoina.
+**Toistettavuus:** 19.11.2026 koko putki ajettiin repon versiolla uudelleen `IMG_0016.MOV`:lle. Kaikki tekstitulosteet ja `taulukko.md` olivat tavulleen samat. `paritus.json`:n SNR-arvoissa vaihteli seitsemäs merkitsevä numero (AAC-purku), mikä ei näy raportoiduissa luvuissa. Kuviohaun ja kuva-ajan mallin lisäämisen jälkeen (P1-valmistelu, commit 8adf72c) `paritus.txt`:hen tuli kolme kuviohakuriviä, ja muut aiemmat tekstitulosteet pysyivät tavulleen samoina. Sen jälkeen putki ajettiin molemmille videoille puhtaasta kloonista (`git clone --branch test/kaksiraita-kelausanalyysi`). Kaikki tallennetut tekstitulosteet, `valahdykset.json` ja `valotus.json` olivat tavulleen samat. `paritus.json`:n liukuluvuissa (SNR, huiput, A) suhteellinen ero oli enintään 1,2 · 10⁻⁷ (AAC-purku). Synteettinen kontrolli meni läpi.
 
 ## Vaiheet
 
