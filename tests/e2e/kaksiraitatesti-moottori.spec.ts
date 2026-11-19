@@ -12,6 +12,8 @@ interface Report { meta: { engine: string }; measurements: Measurement[]; events
 const URL = '/kaksiraitatesti.html?lahde=synteettinen&siirto=40&moottori=uusi&mittausvali=2000';
 const playButton = (page: Page) => page.getByRole('button', { name: '▶ Soita' });
 const pauseButton = (page: Page) => page.getByRole('button', { name: '■ Tauko' });
+// K1: Tauko näkyy jo kesken aloituksen. Soiminen tarkistetaan painikkeen tilasta (sama kuin ennen K1:tä Tauko näkyvissä).
+const playingButton = (page: Page) => page.locator('.player button.play[data-tila="soi"]');
 const report = (page: Page): Promise<Report> =>
   page.evaluate(() => (window as unknown as { kaksiraitatesti: { report(): Report } }).kaksiraitatesti.report());
 const hookSeek = (page: Page, ...targets: number[]) => page.evaluate(list => {
@@ -64,7 +66,7 @@ test.describe('Kahden raidan testi: uusi moottori (korjausehdokas)', () => {
   test('tavallinen Tauko → Soita jatkaa pysäytyskohdasta eikä palaa vanhaan kelauskohtaan', async ({ page }) => {
     await page.goto(URL);
     await playButton(page).click();
-    await expect(pauseButton(page)).toBeVisible();
+    await expect(playingButton(page)).toBeVisible();
     await hookSeek(page, 20);
     await expect.poll(async () => startsAfter(await report(page), 0).length).toBe(2);
     await page.waitForTimeout(2500);
@@ -84,7 +86,7 @@ test.describe('Kahden raidan testi: uusi moottori (korjausehdokas)', () => {
   test('kelaus tauolla: seuraava Soita alkaa kelauskohdasta', async ({ page }) => {
     await page.goto(URL);
     await playButton(page).click();
-    await expect(pauseButton(page)).toBeVisible();
+    await expect(playingButton(page)).toBeVisible();
     await pauseButton(page).click();
     await expect(playButton(page)).toBeVisible();
     await hookSeek(page, 40);
@@ -97,7 +99,7 @@ test.describe('Kahden raidan testi: uusi moottori (korjausehdokas)', () => {
   test('peräkkäiset kelaukset ja kelaus kesken aiemman kelauksen: vain viimeisin toteutuu', async ({ page }) => {
     await page.goto(URL);
     await playButton(page).click();
-    await expect(pauseButton(page)).toBeVisible();
+    await expect(playingButton(page)).toBeVisible();
     const before = await now(page);
     await hookSeek(page, 10, 25, 40);
     await expect.poll(async () => startsAfter(await report(page), before).length).toBe(1);
@@ -124,7 +126,7 @@ test.describe('Kahden raidan testi: uusi moottori (korjausehdokas)', () => {
     // Kelaus valmistuu: seuraava painallus soittaa.
     await page.locator('audio').nth(1).evaluate(element => { Reflect.deleteProperty(element, 'seeking'); });
     await playButton(page).click();
-    await expect(pauseButton(page)).toBeVisible();
+    await expect(playingButton(page)).toBeVisible();
     await expect(page.getByRole('alert')).toHaveCount(0);
   });
 });

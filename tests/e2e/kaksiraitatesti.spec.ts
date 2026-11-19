@@ -18,6 +18,8 @@ interface Report {
 
 const playButton = (page: Page) => page.getByRole('button', { name: '▶ Soita' });
 const pauseButton = (page: Page) => page.getByRole('button', { name: '■ Tauko' });
+// K1: Tauko näkyy jo kesken aloituksen. Soiminen tarkistetaan painikkeen tilasta (sama kuin ennen K1:tä Tauko näkyvissä).
+const playingButton = (page: Page) => page.locator('.player button.play[data-tila="soi"]');
 
 async function report(page: Page): Promise<Report> {
   return page.evaluate(() => (window as unknown as { kaksiraitatesti: { report(): Report } }).kaksiraitatesti.report());
@@ -40,7 +42,7 @@ test.describe('Kahden raidan synkronointitesti', () => {
     await expect(page.locator('.mode')).toHaveAttribute('data-source', 'synteettinen');
     await expect(page.locator('.mode')).toHaveAttribute('data-sync', 'on');
     await playButton(page).click();
-    await expect(pauseButton(page)).toBeVisible();
+    await expect(playingButton(page)).toBeVisible();
     const start = await firstReliable(page, 'käynnistys');
     // Sisältö on kohdakkain, joten renderöity ero on sama kuin mediakellojen ero (Chromium renderöi
     // mediakellon kohdalla). Itse ero on soittimen käynnistysero, jonka tahdistin sallii (alle 120 ms).
@@ -98,7 +100,7 @@ test.describe('Kahden raidan synkronointitesti', () => {
     await page.goto('/kaksiraitatesti.html?lahde=mp3');
     await expect(page.locator('audio').first()).toHaveAttribute('src', /yksi-sointu-akustinen-tausta\.mp3$/);
     await playButton(page).click();
-    await expect(pauseButton(page)).toBeVisible();
+    await expect(playingButton(page)).toBeVisible();
     // Intro (0–14 s) on pelkkää kitaraa: taustan näyte on hiljainen, joten ensimmäinen luotettava
     // mittaus tulee vasta, kun tausta soi.
     const measured = await firstReliable(page, null, 45_000);

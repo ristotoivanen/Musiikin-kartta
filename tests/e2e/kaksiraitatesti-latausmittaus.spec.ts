@@ -33,7 +33,7 @@ test.describe('Kahden raidan testi: latausaikojen mittaus (H2:n verkkonopeus)', 
       await page.waitForTimeout(500);
       const pressed = await page.evaluate(() => performance.now());
       await page.getByRole('button', { name: '▶ Soita' }).click();
-      await expect(page.getByRole('button', { name: '■ Tauko' })).toBeVisible();
+      await expect(page.locator('.player button.play[data-tila="soi"]')).toBeVisible();
       const events = await page.evaluate(() => (window as unknown as { kaksiraitatesti: { report(): { events: Entry[] } } }).kaksiraitatesti.report().events) as Entry[];
       const loads = events.filter(item => item.event === 'lataus-valmis' && item.kind !== 'referenssi');
       const ready = events.find(item => item.event === 'soita-kaytossa')!;

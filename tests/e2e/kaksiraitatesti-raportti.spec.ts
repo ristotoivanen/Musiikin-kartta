@@ -8,6 +8,8 @@ import { analyzeReport, evaluateH3, type Report } from '../../harjoittelija/kaks
  */
 const playButton = (page: Page) => page.getByRole('button', { name: '▶ Soita' });
 const pauseButton = (page: Page) => page.getByRole('button', { name: '■ Tauko' });
+// K1: Tauko näkyy jo kesken aloituksen. Soiminen tarkistetaan painikkeen tilasta (sama kuin ennen K1:tä Tauko näkyvissä).
+const playingButton = (page: Page) => page.locator('.player button.play[data-tila="soi"]');
 const report = (page: Page): Promise<Report> =>
   page.evaluate(() => (window as unknown as { kaksiraitatesti: { report(): Report } }).kaksiraitatesti.report());
 const now = (page: Page) => page.evaluate(() => performance.now());
@@ -26,7 +28,7 @@ test.describe('Kahden raidan testi: raporttianalyysi', () => {
     await expect(page.locator('.files.refs')).toHaveAttribute('data-ready', 'kyllä', { timeout: 30_000 });
 
     await playButton(page).click();
-    await expect(pauseButton(page)).toBeVisible();
+    await expect(playingButton(page)).toBeVisible();
     await reliableAfter(page, 0);
     let at = await now(page);
     await page.getByRole('button', { name: 'Siirry kohtaan 1:00' }).click();

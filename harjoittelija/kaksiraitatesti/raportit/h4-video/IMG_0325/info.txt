@@ -1,0 +1,41 @@
+kesto 15.756666666666666 timescale 600
+meta mdta/com.apple.quicktime.location.accuracy.horizontal (sijaintitieto on tiedostossa, arvoa ei tulosteta)
+meta mdta/com.apple.quicktime.full-frame-rate-playback-intent 1
+meta mdta/com.apple.quicktime.location.ISO6709 (sijaintitieto on tiedostossa, arvoa ei tulosteta)
+meta mdta/com.apple.quicktime.make Apple
+meta mdta/com.apple.quicktime.model iPhone 16 Pro
+meta mdta/com.apple.quicktime.software 27.2.1
+meta mdta/com.apple.quicktime.creationdate 2026-11-19T15:36:07+0200
+raita 1 soun alku 0.0 kesto 15.755 timescale 48000 fps 46.875 minFrameDuration nan koko (0.0, 0.0)
+  edit source 0.044 15.755 target 0.0 15.755 empty false
+  formaatti aac 
+  ääni 48000.0 Hz, kanavia 2 framesPerPacket 1024
+  äänipaketteja 741 ensimmäinen pts 0.0 loppu 15.755 ["trimAlku {\n    epoch = 0;\n    flags = 1;\n    timescale = 48000;\n    value = 2112;\n}"]
+raita 2 soun alku 0.0 kesto 15.755 timescale 48000 fps 46.875 minFrameDuration nan koko (0.0, 0.0)
+  edit source 0.0 15.755 target 0.0 15.755 empty false
+  formaatti apac
+  ääni 48000.0 Hz, kanavia 4 framesPerPacket 1024
+  äänipaketteja 739 ensimmäinen pts 0.0 loppu 15.755 []
+raita 3 vide alku 0.0 kesto 15.756666666666666 timescale 600 fps 59.974613 minFrameDuration 0.015 koko (1080.0, 1920.0)
+  edit source 0.0 15.756666666666666 target 0.0 15.756666666666666 empty false
+  formaatti avc1
+  kuvia 945 ensimmäinen 0.0 viimeinen 15.74
+  kuvavälit [(key: "0.0167", value: 936), (key: "0.0183", value: 6), (key: "0.0150", value: 2)]
+raita 4 meta alku 0.0 kesto 15.756666666666666 timescale 600 fps 0.0634652 minFrameDuration 15.756666666666666 koko (0.0, 0.0)
+  edit source 0.0 15.756666666666666 target 0.0 15.756666666666666 empty false
+  formaatti mebx
+raita 5 meta alku 0.0 kesto 15.755 timescale 10000 fps 0.06347191 minFrameDuration 15.755 koko (0.0, 0.0)
+  edit source 0.0 15.755 target 0.0 15.755 empty false
+  formaatti mebx
+raita 6 meta alku 0.0 kesto 15.756666666666666 timescale 600 fps 0.0634652 minFrameDuration 15.756666666666666 koko (0.0, 0.0)
+  edit source 0.0 15.756666666666666 target 0.0 15.756666666666666 empty false
+  formaatti mebx
+raita 7 meta alku 0.0 kesto 15.756666666666666 timescale 600 fps 59.974613 minFrameDuration 0.015 koko (0.0, 0.0)
+  edit source 0.0 15.756666666666666 target 0.0 15.756666666666666 empty false
+  formaatti mebx
+raita 8 meta alku 0.0 kesto 15.755 timescale 10000 fps 59.980957 minFrameDuration 0.0151 koko (0.0, 0.0)
+  edit source 0.0 15.755 target 0.0 15.755 empty false
+  formaatti mebx
+raita 9 meta alku 0.0 kesto 15.756666666666666 timescale 600 fps 0.0634652 minFrameDuration 15.756666666666666 koko (0.0, 0.0)
+  edit source 0.0 15.756666666666666 target 0.0 15.756666666666666 empty false
+  formaatti mebx

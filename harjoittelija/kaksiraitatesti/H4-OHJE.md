@@ -1,5 +1,7 @@
 # H4: näyttö–ääni-säätökoe fyysisellä iPhonella
 
+> **Keskeytetty 19.11.2026.** Jatko- ja kelausmittauksia ei tehdä ennen kuin ääni–välähdyspari on yksiselitteinen. Ks. `H4-KATSELMOINTI-2026-11-19.md`. Ensimmäiset viisi käynnistyshavaintoa ovat raakadataa, ja niiden tulkinta on epävarma.
+
 Kesto noin 15–20 minuuttia. Kokeessa säädetään välähdys ja naksahdus samanaikaisiksi 15 kertaa:
 - 5 × käynnistys
 - 5 × tauko → jatko
