@@ -1,0 +1,170 @@
+/* Musapelit-, Kitaratreeni- ja Soittopakki-näkymät (tools/oppimiskartta/rakenna-osiot.py).
+ *
+ * Pohjana ovat assets/otelauta.css:n värit ja etusivun Oppimiskartan korttityyli.
+ * Musapelit: pelikokoelma. Kaikki pelattava sisältö on samanlaisina kortteina heti johdannon jälkeen.
+ *   Aiherajaus on ankkurilinkki: .game-topic:target näyttää aiheen pelit ja piilottaa kaikkien pelien
+ *   listan (.game-all). Toimii ilman JavaScriptiä.
+ * Kitaratreeni: aiheet natiiveina <details>-riveinä; avattu aihe näyttää harjoitukset tehtävälajeittain.
+ * Soittopakki: työkalut omina osioinaan.
+ */
+.mode-skip {
+  position: absolute; left: -999px; top: 8px; z-index: 10;
+  padding: 10px 14px; border-radius: 8px; background: var(--panel); color: var(--text);
+}
+.mode-skip:focus { left: 8px; }
+.mode-sr {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.mode-main { max-width: 52rem; }
+.games-main, .train-main { max-width: 60rem; }
+.mode-intro { margin-bottom: 1rem; }
+.mode-intro h1 { overflow-wrap: anywhere; hyphens: auto; }
+.mode-lead { margin: 0; max-width: 42rem; color: var(--muted); font-size: 1.0625rem; }
+.mode-note { margin: 1.25rem 0 0; max-width: 44rem; color: var(--muted); font-size: .875rem; }
+.mode-num { color: var(--lavender); font-weight: 750; font-variant-numeric: tabular-nums; }
+.mode-badge {
+  display: inline-block; margin-left: .375rem; padding: 0 .375rem; border: 1px solid #71638c;
+  border-radius: .375rem; color: var(--muted); font-size: .75rem; font-weight: 600; vertical-align: .125em;
+}
+.mode-desc { display: block; color: var(--muted); font-size: .9375rem; line-height: 1.45; }
+
+/* --- Pelikortti: yhtenäinen sovelluksille ja oppituntien kuuntelutehtäville --------------------- */
+.game-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+  gap: .75rem; margin: 0; padding: 0; list-style: none;
+}
+.game-grid > li { display: flex; }
+.game-card {
+  position: relative; display: flex; flex-direction: column; gap: .25rem; width: 100%;
+  padding: .875rem 2.5rem .875rem 1rem; border: 1px solid #71638c; border-radius: .875rem;
+  background: var(--panel); color: var(--text); text-decoration: none; line-height: 1.4;
+  overflow-wrap: anywhere; hyphens: auto;
+}
+.game-card:hover { border-color: var(--lavender); background: #2d2444; }
+.game-card-kind { color: var(--muted); font-size: .8125rem; font-weight: 600; }
+.game-card-title { font-size: 1.125rem; line-height: 1.3; overflow-wrap: anywhere; }
+.game-card-text { overflow-wrap: anywhere; }
+.game-card-skill { color: #d9d2ee; font-size: .875rem; }
+.game-card-topics { margin-top: auto; padding-top: .375rem; color: var(--muted); font-size: .8125rem; }
+.game-card-arrow { position: absolute; right: 1rem; top: 50%; translate: 0 -50%; color: var(--lavender); font-size: 1.375rem; }
+
+/* --- Musapelit: aiherajaus ja aiheen näkymä ----------------------------------------------------- */
+.game-filter { margin: 0 0 1.25rem; }
+.game-filter-label { margin: 0 0 .375rem; color: var(--muted); font-size: .8125rem; font-weight: 600; }
+.game-filter ul { display: flex; flex-wrap: wrap; gap: .375rem; margin: 0; padding: 0; list-style: none; }
+.game-filter a {
+  display: inline-flex; align-items: center; gap: .375rem; min-height: 44px; padding: .25rem .75rem;
+  border: 1px solid #453854; border-radius: 999px; color: var(--text); text-decoration: none;
+  font-size: .9375rem; line-height: 1.25;
+}
+.game-filter a:hover { border-color: var(--lavender); }
+/* Valittu rajaus erottuu reunalla, taustalla ja lihavoinnilla, ei pelkällä värillä (assets/osiot.js). */
+.game-filter a[aria-current] { border: 2px solid var(--lavender); background: var(--purple-dark); color: #fff; font-weight: 700; }
+.game-filter a[aria-current] .mode-num { color: #fff; }
+.chip-count {
+  display: inline-grid; place-items: center; min-width: 1.5rem; height: 1.5rem; padding: 0 .375rem;
+  border-radius: 999px; background: var(--bg); color: var(--muted); font-size: .8125rem; font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.game-all > h2, .game-topic > h2, .train-topics > h2 { margin: 0 0 .75rem; font-size: 1.25rem; line-height: 1.3; overflow-wrap: anywhere; }
+.game-topic { display: none; scroll-margin-top: .75rem; }
+.game-topic:target { display: block; }
+.game-topic:target ~ .game-all { display: none; }
+.game-topic-note { margin: 0 0 .875rem; color: var(--muted); }
+.game-topic-note a, .mode-helper a { display: inline-flex; align-items: center; min-height: 44px; }
+
+/* --- Kitaratreeni ------------------------------------------------------------------------------- */
+.train-hub {
+  position: relative; display: flex; flex-direction: column; gap: .25rem; margin: 0 0 1.5rem;
+  padding: .875rem 2.5rem .875rem 1rem; border: 1px solid var(--lavender); border-radius: .875rem;
+  background: var(--panel); color: var(--text); text-decoration: none; line-height: 1.4;
+  min-width: 0; overflow-wrap: anywhere; hyphens: auto;
+}
+.train-hub:hover { background: #2d2444; }
+.train-hub strong { font-size: 1.125rem; }
+.train-hub span:not(.game-card-arrow) { color: var(--muted); }
+.train-topics { display: grid; grid-template-columns: minmax(0, 1fr); gap: .5rem; }
+.train-topic { min-width: 0; border: 1px solid #453854; border-radius: .875rem; background: var(--panel); scroll-margin-top: .75rem; }
+.train-topic[open] { border-color: #71638c; background: transparent; }
+.train-topic > summary {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .625rem; min-height: 52px;
+  padding: .625rem 2.75rem .625rem 1rem; cursor: pointer; list-style: none; position: relative;
+  font-size: 1.0625rem; font-weight: 650; line-height: 1.3;
+}
+.train-topic > summary::-webkit-details-marker { display: none; }
+/* Avattu/suljettu tila näkyy merkistä ja reunasta; ruudunlukija saa tilan details-elementiltä. */
+.train-topic > summary::after {
+  content: "+"; position: absolute; right: 1rem; top: 50%; translate: 0 -50%;
+  color: var(--lavender); font-size: 1.5rem; font-weight: 400; line-height: 1;
+}
+.train-topic[open] > summary::after { content: "−"; }
+.train-topic > summary:hover .train-title { text-decoration: underline; text-underline-offset: .18em; }
+.train-title { min-width: 0; overflow-wrap: anywhere; hyphens: auto; }
+.train-body { overflow-wrap: anywhere; }
+.train-count { margin-left: auto; color: var(--muted); font-size: .875rem; font-weight: 600; }
+.train-body { padding: 0 1rem 1rem; }
+.train-about { margin: 0 0 .875rem; color: var(--muted); }
+.train-apps { margin-bottom: 1rem; }
+.train-kind { margin: 1rem 0 .375rem; font-size: 1rem; }
+.train-kind span { display: block; color: var(--muted); font-size: .875rem; font-weight: 400; }
+.train-list {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+  gap: 0 1.5rem; margin: 0; padding: 0; list-style: none;
+}
+.train-list li { padding: .5rem 0; border-top: 1px solid #2d2444; }
+.train-list a { display: inline-flex; align-items: center; min-height: 32px; font-weight: 650; }
+
+/* --- Yhteiset linkit ja Soittopakki ------------------------------------------------------------- */
+.mode-helper { margin: .875rem 0 0; font-size: .9375rem; }
+.mode-helper span { color: var(--muted); }
+.mode-switch {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0 .5rem;
+  margin: .875rem 0 0; padding-top: .5rem; border-top: 1px solid #2d2444; font-size: .9375rem;
+}
+.mode-switch > span:first-child { color: var(--muted); }
+.mode-switch a { display: inline-flex; align-items: center; min-height: 44px; }
+.mode-none { color: var(--muted); font-size: .8125rem; margin-left: .25rem; }
+
+.mode-tool {
+  margin: 0 0 1.25rem; padding: 1.125rem 1.25rem 1rem;
+  border: 1px solid #453854; border-radius: 1rem; scroll-margin-top: .75rem;
+}
+.mode-tool:target { border-color: var(--lavender); }
+.mode-tool h2 { margin: 0 0 .75rem; font-size: 1.25rem; line-height: 1.3; overflow-wrap: anywhere; }
+.mode-sub { margin: 1rem 0 .375rem; color: var(--muted); font-size: .8125rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.mode-list { margin: 0; padding: 0; list-style: none; }
+.mode-list li { padding: .5rem 0; border-top: 1px solid #2d2444; }
+.mode-list li:first-child { border-top: 0; }
+.mode-list a { display: inline-block; min-height: 24px; padding: .125rem 0; }
+.mode-tool > .mode-desc { margin: 0 0 .75rem; color: var(--text); max-width: 42rem; }
+.mode-action {
+  display: inline-flex; align-items: center; min-height: 44px; padding: .5rem 1rem;
+  border: 1px solid var(--lavender); border-radius: .625rem; background: var(--purple-dark);
+  color: #fff; font-weight: 700; text-decoration: none;
+}
+.mode-action:hover { background: var(--purple); }
+
+.mode-main a:focus-visible, .mode-skip:focus-visible, .train-topic > summary:focus-visible {
+  outline: 2px solid #75e5c6; outline-offset: 2px;
+}
+footer { max-width: 52rem; margin: 2rem auto 0; padding: 0 18px; color: var(--muted); font-size: .875rem; }
+
+@media (max-width: 600px) {
+  .mode-main { padding: 22px 12px 0; }
+  .mode-tool { padding: .875rem .875rem .75rem; }
+  .game-filter a { font-size: .875rem; padding: .25rem .625rem; }
+  .train-topic > summary { padding-left: .75rem; }
+  .train-body { padding: 0 .75rem .875rem; }
+}
+@media print {
+  .game-filter, .mode-switch, .mode-skip, .game-card-arrow, .train-topic > summary::after { display: none; }
+  .game-topic { display: none !important; }
+  .game-all { display: block !important; }
+  .game-card, .train-hub, .train-topic, .mode-tool { border-color: #999; background: none; color: #000; }
+  .game-card-kind, .game-card-skill, .game-card-topics, .mode-desc, .mode-lead, .train-about, .train-count { color: #000; }
+}
+@media (forced-colors: active) {
+  .game-card, .game-filter a, .train-hub, .train-topic, .mode-tool { border: 1px solid CanvasText; }
+  .game-filter a[aria-current] { border-width: 3px; }
+}

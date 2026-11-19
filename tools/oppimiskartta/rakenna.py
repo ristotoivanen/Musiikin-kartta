@@ -385,9 +385,20 @@ def topic_home(topic, lookup, exercise_descriptions, books):
             href = scoped_url(url.path, url.query, url.fragment, topic['path'], topic)
             links.append(link(href, tool['title']))
         parts.append(section('Harjoittelijat ja työkalut', listed(links)))
-    related = [link(rel(lookup[key][0], topic['path']), lookup[key][1]) for key in topic['related']]
+    related = [link(related_url(lookup[key][0], topic), lookup[key][1]) for key in topic['related']]
     parts.append(section('Tutki myös', listed(related)))
     return '\n'.join(parts)
+
+
+def related_url(target, topic):
+    """Tutki myös -linkki. Toisen aiheen sisältösivulle viedään lähtöaihe (?aihe=…), jotta sivun
+    aihepaluu palaa siihen aiheeseen, josta käyttäjä tuli (assets/oppimistapa.js). Ilman parametria
+    sivu toimii kuten ennen: paluu vie sivun omaan aiheeseen. Suoritustunniste ei muutu."""
+    url = rel(target, topic['path'])
+    folder = posixpath.dirname(target)
+    if folder != posixpath.dirname(topic['path']) and not target.endswith('/index.html'):
+        url += '?aihe=' + topic['anchor']
+    return url
 
 
 def sources(book, output):
@@ -472,8 +483,8 @@ def steps(topic, index, next_topic, *, bottom=False):
     else:
         url = rel('index.html', page.path) + '#' + topic['anchor']
         items.append(step_link(url, 'Oppimiskarttaan', ' class="study-step-map"'))
-    if bottom:
-        items.append(step_link(rel(topic['path'], page.path), topic['back_label'], ' class="study-step-back"'))
+    # Aiheeseen palataan sivun yläreunan paluulinkistä (study-up). Alareunassa ovat vain
+    # Edellinen/Seuraava-siirtymät, ei samaa paluupainiketta toiseen kertaan (#54, 18.11.2026).
     where, label = ('bottom', 'lopussa') if bottom else ('top', 'alussa')
     return (f'<nav class="study-steps study-steps--{where}" aria-label="Sisältönavigointi sivun {label}">\n'
             + indent('\n'.join(items), '  ') + '\n</nav>')
@@ -507,6 +518,9 @@ def render(topic, content, nav, page=None, *, path_items=()):
     scripts = [rel('assets/oppimiskartta.js', output), versioned_url('assets/edistyminen.js', output)]
     if page and 'data-korvatreeni=' in page.markup:
         scripts += [rel(path, output) for path in ('assets/harjoitustausta.js', 'assets/korvatreeni.js')]
+    # Musapeleistä ja Kitaratreenistä avattu sivu palaa samaan oppimistapaan (?tapa=…), ja aihesivulla
+    # näkyy saman aiheen vaihto. Muodostetaan komennolla tools/oppimiskartta/rakenna-osiot.py.
+    scripts.append(rel('assets/oppimistapa.js', output))
     scripts = '\n'.join(f'  <script src="{url}"></script>' for url in scripts)
     if interval_recall:
         url = versioned_url('assets/intervallimuisti.js', output)

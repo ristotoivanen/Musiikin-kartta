@@ -21,13 +21,14 @@ export default defineConfig({
     transformIndexHtml: {
       order: 'post',
       handler(html) {
-        const trainer = readFileSync(new URL('./kitaraharjoittelija.html', import.meta.url), 'utf8');
-        const header = trainer.match(/<header class="site-top">[\s\S]*?<\/header>/)?.[0];
-        if (!header) throw new Error('Kitaraharjoittelijan päävalikko puuttuu.');
+        // Ensikeikka on peli, joten päävalikko kopioidaan Musapelit-näkymästä (tools/oppimiskartta/rakenna-osiot.py).
+        const games = readFileSync(new URL('./musapelit.html', import.meta.url), 'utf8');
+        const header = games.match(/<header class="site-top">[\s\S]*?<\/header>/)?.[0];
+        if (!header) throw new Error('Musapelit-näkymän päävalikko puuttuu.');
 
         const navigation = header.replaceAll('href="', 'href="../../').replace('aria-current="page"', 'aria-current="true"');
         const sharedStyles = [siteStylesheet('otelauta'), siteStylesheet('paavalikko')];
-        return html.replace('</head>', `  ${sharedStyles.join('\n    ')}\n    <link rel="icon" type="image/svg+xml" href="../../assets/musiikin-kartta.svg">\n    <script defer src="../../assets/oppimiskartta.js"></script>\n  </head>`)
+        return html.replace('</head>', `  ${sharedStyles.join('\n    ')}\n    <link rel="icon" type="image/svg+xml" href="../../assets/musiikin-kartta.svg">\n    <script defer src="../../assets/oppimiskartta.js"></script>\n    <script defer src="../../assets/oppimistapa.js"></script>\n  </head>`)
           .replace('<body>', `<body>\n  ${navigation}`);
       },
     },

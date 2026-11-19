@@ -196,8 +196,10 @@ for (const [topicIndex, [anchor, slug, title, backName]] of topics.entries()) {
           await expect(nav.locator('.study-step-map'), path).toHaveAttribute('href', '../../index.html#aihe-' + anchor);
         }
       }
-      await expect(bottomSteps(page).locator('.study-step-back'), path).toHaveAccessibleName(backName);
-      await expect(bottomSteps(page).locator('.study-step-back'), path).toHaveAttribute('href', 'index.html');
+      // Aiheeseen palataan yläreunasta. Alareunassa on vain Edellinen/Seuraava (#54, 18.11.2026).
+      await expect(bottomSteps(page).locator('.study-step-back'), path).toHaveCount(0);
+      await expect(page.locator('.study-up .study-back'), path).toHaveAccessibleName(backName);
+      await expect(page.locator('.study-up .study-back'), path).toHaveAttribute('href', 'index.html');
       const media = await page.locator('audio source').evaluateAll(sources => sources.map(item => (item as HTMLSourceElement).src));
       media.forEach(src => audio.add(src));
       expect(await page.evaluate(() => document.documentElement.scrollWidth), path).toBeLessThanOrEqual(page.viewportSize()!.width);
@@ -208,7 +210,7 @@ for (const [topicIndex, [anchor, slug, title, backName]] of topics.entries()) {
       expect(response.headers()['content-type'], resource).toMatch(/^(audio|video)\//);
       await response.dispose();
     }
-    await bottomSteps(page).getByRole('link', { name: backName, exact: true }).click();
+    await page.locator('.study-up').getByRole('link', { name: backName, exact: true }).click();
     await expect(page).toHaveURL(topic);
     if (slug === 'kitara') {
       await page.getByRole('link', { name: 'Siirry Oppimiskarttaan', exact: true }).first().click();

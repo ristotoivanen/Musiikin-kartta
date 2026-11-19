@@ -81,7 +81,7 @@ test('Riffikaiun skriptin 404 näyttää palautumisohjeen ja jättää navigoinn
   await page.route(asset, route => route.fulfill({ status: 404, body: 'Testin puuttuva resurssi' }));
   await page.goto('/riffikaiku.html');
   await expect(page.getByRole('main')).toContainText('Riffikaiun lataus ei onnistunut. Lataa sivu uudelleen.');
-  await expect(page.getByRole('navigation', { name: 'Päävalikko' }).getByRole('link', { name: 'Oppimiskartta' })).toBeVisible();
+  await expect(page.getByRole('navigation', { name: 'Päävalikko' }).getByRole('link', { name: 'Opi & oivalla' })).toBeVisible();
   await page.unroute(asset);
   await page.reload();
   await expect(page.getByRole('heading', { level: 1, name: 'Riffikaiku (beta)' })).toBeVisible();

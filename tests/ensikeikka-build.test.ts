@@ -35,7 +35,7 @@ it('eristää Ensikeikan julkaisuhakemiston Kitaraharjoittelijasta ja Riffikaius
     expect.stringMatching(/^assets\/index-.+\.js$/),
     'index.html',
   ]));
-  expect(page?.type === 'asset' && page.source).toContain('href="../../kitaraharjoittelija.html" aria-current="true"');
+  expect(page?.type === 'asset' && page.source).toContain('href="../../musapelit.html" aria-current="true"');
   const modules = files.flatMap(file => file.type === 'chunk' ? Object.keys(file.modules) : []);
   expect(modules).toContain(resolve(root, 'harjoittelija/music.ts'));
   expect(modules).not.toContain(resolve(root, 'harjoittelija/main.tsx'));

@@ -1,18 +1,22 @@
 import { test, expect, type Page } from '@playwright/test';
 
 // Yhteinen päävalikko, Musiikin teoria -aloitusnäkymä ja edistymisen jatkuvuus.
-// Ylävalikon Oppimiskartta avaa aihejaottelun, vaikka kirjan vanha teoriaindeksi säilyy.
+// Neljä pääosiota: Opi & oivalla avaa Oppimiskartan aihejaottelun, vaikka kirjan vanha teoriaindeksi säilyy.
+// Sisältörekisteri: tools/oppimiskartta/sisaltorekisteri.json.
 const MAIN_PAGES = [
-  { path: '/index.html', active: null },
+  { path: '/index.html', active: 'teoria' },
   { path: '/book/index.html', active: 'teoria' },
   { path: '/book/osa-3.html', active: 'teoria' },
   { path: '/book/sanasto.html', active: 'teoria' },
-  { path: '/riffikaiku.html', active: 'kitara' },
-  { path: '/pelit/ensikeikka/', active: 'kitara' },
-  { path: '/otelautaharjoittelija.html', active: 'otelauta' },
+  { path: '/musapelit.html', active: 'pelit' },
+  { path: '/riffikaiku.html', active: 'pelit' },
+  { path: '/pelit/ensikeikka/', active: 'pelit' },
+  { path: '/kitaratreeni.html', active: 'kitara' },
   { path: '/kitaraharjoittelija.html', active: 'kitara' },
+  { path: '/soittopakki.html', active: 'pakki' },
+  { path: '/otelautaharjoittelija.html', active: 'pakki' },
 ] as const;
-const LABELS = { teoria: /^Oppimiskartta$/, otelauta: /^Otelautaopas$/, kitara: /^Kitaraharjoittelu$/ };
+const LABELS = { teoria: /^Opi & oivalla$/, pelit: /^Musapelit$/, kitara: /^Kitaratreeni$/, pakki: /^Soittopakki$/ };
 const mainNav = (page: Page) => page.getByRole('navigation', { name: 'Päävalikko' });
 const expandTopicList = (page: Page) => page.locator('#topic-toggle').click();
 const LUVUT = 'musiikin-kartta:luvut';
@@ -25,25 +29,28 @@ test.describe('Yhteinen päävalikko', () => {
       const nav = mainNav(page);
       await expect(nav).toBeVisible();
       const links = nav.getByRole('link');
-      await expect(links).toHaveCount(4);
+      await expect(links).toHaveCount(5);
       await expect(links.nth(0)).toHaveText('Musiikin kartta');
       await expect(links.nth(1)).toHaveText(LABELS.teoria);
-      await expect(links.nth(2)).toHaveText(LABELS.otelauta);
+      await expect(links.nth(2)).toHaveText(LABELS.pelit);
       await expect(links.nth(3)).toHaveText(LABELS.kitara);
+      await expect(links.nth(4)).toHaveText(LABELS.pakki);
       const current = nav.locator('[aria-current]');
       await expect(current).toHaveCount(1);
-      if (active === null) await expect(current).toHaveText('Musiikin kartta');
-      else await expect(current).toHaveText(LABELS[active]);
-      // Aktiivinen osio erottuu violetilla taustalla.
-      if (active !== null) expect(await current.evaluate(el => getComputedStyle(el).backgroundColor)).toBe('rgb(75, 47, 214)');
+      await expect(current).toHaveText(LABELS[active]);
+      await expect(current).toHaveAttribute('aria-current', path === '/index.html' ? 'page' : /^(page|true)$/);
+      await expect(links.nth(0)).not.toHaveAttribute('aria-current');
+      // Aktiivinen osio erottuu violetilla taustalla, myös etusivulla.
+      expect(await current.evaluate(el => getComputedStyle(el).backgroundColor)).toBe('rgb(75, 47, 214)');
     });
   }
 
   test('jokainen päävalikon linkki vie oikeaan pääosioon', async ({ page }) => {
     const targets = [
-      [LABELS.teoria, /\/index[.]html#oppimisaiheet$/, 'Oppimiskartta'],
-      [LABELS.otelauta, /\/otelautaharjoittelija\.html$/, 'Otelautaopas'],
-      [LABELS.kitara, /\/kitaraharjoittelija\.html$/, 'Kitaraharjoittelija'],
+      [LABELS.teoria, /\/index[.]html$/, 'Oppimiskartta'],
+      [LABELS.pelit, /\/musapelit\.html$/, 'Musapelit'],
+      [LABELS.kitara, /\/kitaratreeni\.html$/, 'Kitaratreeni'],
+      [LABELS.pakki, /\/soittopakki\.html$/, 'Soittopakki'],
     ] as const;
     for (const start of ['/index.html', '/book/osa-5.html', '/riffikaiku.html', '/pelit/ensikeikka/']) {
       for (const [name, url, heading] of targets) {
@@ -71,7 +78,7 @@ test.describe('Yhteinen päävalikko', () => {
     await page.keyboard.press('Tab');
     await expect(mainNav(page).getByRole('link', { name: LABELS.kitara })).toBeFocused();
     await page.keyboard.press('Enter');
-    await expect(page).toHaveURL(/kitaraharjoittelija\.html$/);
+    await expect(page).toHaveURL(/kitaratreeni\.html$/);
   });
 
   test('mobiilissa ei ole vaakavieritystä eivätkä valikon kohdat mene päällekkäin', async ({ page }) => {
@@ -103,15 +110,16 @@ test.describe('Etusivu', () => {
     }, [LUVUT, HARJOITTELU]);
     await page.goto('/index.html');
     const nav = mainNav(page);
-    await expect(nav.getByRole('link', { name: LABELS.teoria })).toHaveAttribute('href', 'index.html#oppimisaiheet');
-    await expect(nav.getByRole('link', { name: LABELS.otelauta })).toHaveAttribute('href', 'otelautaharjoittelija.html');
-    await expect(nav.getByRole('link', { name: LABELS.kitara })).toHaveAttribute('href', 'kitaraharjoittelija.html');
+    await expect(nav.getByRole('link', { name: LABELS.teoria })).toHaveAttribute('href', 'index.html');
+    await expect(nav.getByRole('link', { name: LABELS.pelit })).toHaveAttribute('href', 'musapelit.html');
+    await expect(nav.getByRole('link', { name: LABELS.kitara })).toHaveAttribute('href', 'kitaratreeni.html');
+    await expect(nav.getByRole('link', { name: LABELS.pakki })).toHaveAttribute('href', 'soittopakki.html');
     const continueBox = page.locator('#home-continue');
     await expect(continueBox.getByRole('link', { name: 'Jatka oppimista · Musiikki on kieli' }))
       .toHaveAttribute('href', 'oppi/korva/musiikki-on-kieli.html');
     await expect(continueBox.getByRole('link', { name: 'Jatka kitaraharjoittelua · viimeksi 7 vastattua kysymystä' })).toBeVisible();
     await nav.getByRole('link', { name: LABELS.teoria }).click();
-    await expect(page).toHaveURL(/index[.]html#oppimisaiheet$/);
+    await expect(page).toHaveURL(/index[.]html$/);
     await expect(page.getByRole('heading', { level: 1, name: 'Oppimiskartta' })).toBeVisible();
   });
 
@@ -158,8 +166,8 @@ test.describe('Oppimiskartan navigointi ja paluu', () => {
     await page.locator('#aihe-soinnut').click();
     await page.locator('#valinta-septimisoinnut').click();
     await expect(page).toHaveURL('/oppi/soinnut/septimisoinnut.html');
-    await mainNav(page).getByRole('link', { name: 'Oppimiskartta' }).click();
-    await expect(page).toHaveURL('/index.html#oppimisaiheet');
+    await mainNav(page).getByRole('link', { name: 'Opi & oivalla' }).click();
+    await expect(page).toHaveURL('/index.html');
     await expect(page.locator('a.topic-card')).toHaveCount(8);
   });
 
@@ -268,7 +276,8 @@ test.describe('Oppimiskartan navigointi ja paluu', () => {
       return media.play();
     });
     await expect.poll(() => audio.evaluate(player => (player as HTMLAudioElement).paused)).toBe(false);
-    await page.getByRole('navigation', { name: 'Sisältönavigointi sivun lopussa' })
+    // Aiheeseen palataan yläreunan paluulinkistä; alareunassa on vain Edellinen/Seuraava (#54, 18.11.2026).
+    await page.getByRole('navigation', { name: 'Paluunavigointi' })
       .getByRole('link', { name: 'Rytmiin', exact: true }).click();
     await expect(page).toHaveURL('/oppi/rytmi/index.html');
     await page.goBack();
@@ -486,13 +495,14 @@ test.describe('Vanhat osoitteet ja osioiden välinen jatkuvuus', () => {
   });
 
   for (const width of [320, 360, 390]) {
-    test(`Otelautaopas avautuu suoraan otelautaan ${width} px leveydellä`, async ({ page }) => {
+    test(`Otelautaopas avautuu Soittopakista suoraan otelautaan ${width} px leveydellä`, async ({ page }) => {
       await page.setViewportSize({ width, height: 740 });
       await page.goto('/index.html');
-      const guide = mainNav(page).getByRole('link', { name: LABELS.otelauta });
-      await guide.click();
+      await mainNav(page).getByRole('link', { name: LABELS.pakki }).click();
+      await expect(page).toHaveURL(/\/soittopakki\.html$/);
+      await page.getByRole('link', { name: 'Avaa Otelautaopas' }).click();
       await expect(page).toHaveURL(/\/otelautaharjoittelija\.html$/);
-      await expect(guide).toHaveAttribute('aria-current', 'page');
+      await expect(mainNav(page).getByRole('link', { name: LABELS.pakki })).toHaveAttribute('aria-current', 'true');
       await expect(page.getByRole('navigation', { name: 'Otelautaopas' })).toHaveCount(0);
       await expect(page.getByRole('heading', { name: 'Tutki otelautaa' })).toBeInViewport();
       await expect(page.locator('#board svg')).toBeVisible();
@@ -500,9 +510,11 @@ test.describe('Vanhat osoitteet ja osioiden välinen jatkuvuus', () => {
     });
   }
 
-  test('otelaudan harjoitukset löytyvät Kitaraharjoittelusta', async ({ page }) => {
+  test('otelaudan harjoitukset löytyvät Kitaratreenin kautta Kitaraharjoittelijasta', async ({ page }) => {
     await page.goto('/otelautaharjoittelija.html');
     await mainNav(page).getByRole('link', { name: LABELS.kitara }).click();
+    await page.getByRole('link', { name: /^Kitaraharjoittelija/ }).click();
+    await expect(page).toHaveURL(/kitaraharjoittelija\.html$/);
     await page.getByRole('button', { name: /^Sävelkorva ja otelauta/ }).click();
     await expect(page.getByRole('heading', { name: 'Sävelkorva ja otelauta' })).toBeVisible();
     await expect(page.getByRole('button', { name: /Sävelten etsintä/ })).toBeVisible();
@@ -532,7 +544,7 @@ test.describe('Vanhat osoitteet ja osioiden välinen jatkuvuus', () => {
     }, [LUVUT, HARJOITTELU, practice]);
     await page.goto('/kitaraharjoittelija.html');
     const before = await page.evaluate(key => localStorage.getItem(key), HARJOITTELU);
-    for (const name of [LABELS.teoria, LABELS.otelauta, LABELS.kitara]) {
+    for (const name of [LABELS.teoria, LABELS.pelit, LABELS.kitara, LABELS.pakki]) {
       await mainNav(page).getByRole('link', { name }).click();
       await page.waitForLoadState('load');
     }

@@ -81,7 +81,7 @@ describe('staattisen sivuston yhteensopivuus',()=>{
   it('oppaan osat säilyttävät luvut, vanhat kuuntelut ja pelkät harjoituslinkit',()=>{
     for(const part of Array.from({length: 11}, (_, index) => index + 1)){
       const html=read(`book/osa-${part}.html`);
-      expect(html).toContain('assets/edistyminen.js');expect(html).toContain('../kitaraharjoittelija.html');
+      expect(html).toContain('assets/edistyminen.js');expect(html).toContain('../kitaratreeni.html');
       expect(html).not.toContain('harjoittelija/app');expect(html).not.toContain('main.tsx');
     }
     expect(read('book/osa-7.html')).toContain('data-korvatreeni="aste"');
@@ -101,10 +101,12 @@ describe('staattisen sivuston yhteensopivuus',()=>{
     expect(html).toContain('<h1 id="oppimisaiheet">Oppimiskartta</h1>');
     expect(html).not.toContain('Nykyiset oppaat ja työkalut');
     expect(html).not.toContain('class="area"');
-    expect(html).toContain('href="index.html#oppimisaiheet">Oppimiskartta</a>');
+    // Päävalikko avaa etusivun yläreunaan (ei fragmenttia); Oppimiskartan otsikon ankkuri säilyy suoria linkkejä varten.
+    expect(html).toContain('<a href="index.html" aria-current="page">Opi &amp; oivalla</a>');
+    expect(html).toContain('<a class="brand" href="index.html">Musiikin <span>kartta</span></a>');
     expect(html).toContain('href="pdf/musiikin-kartta.pdf"');
     expect(html).toContain('href="book/sanasto.html"');
-    expect(html).toContain('id="harjoittelija"');
+    expect(html).toContain("location.replace('otelautaharjoittelija.html')");
     expect(html).toContain('followOldTrainerLink()');
     expect(html).toContain('id="home-continue"');
     expect(html).not.toContain('class="hero-actions"');
@@ -195,13 +197,16 @@ describe('staattisen sivuston yhteensopivuus',()=>{
   });
 
   it('jokaisella pääsivulla on sama päävalikko samassa järjestyksessä ja oikea aktiivinen osio',()=>{
+    // Neljä pääosiota ja niiden osoitteet: tools/oppimiskartta/sisaltorekisteri.json.
     const pages:[string,string|null,string][]=[
-      ['index.html',null,'page'],['book/index.html','teoria','true'],['otelautaharjoittelija.html','otelauta','page'],['kitaraharjoittelija.html','kitara','page'],
-      ['riffikaiku.html','kitara','true'],['pelit/ensikeikka/index.html','kitara','true'],
+      // Etusivulla aktiivinen on Opi & oivalla (aria-current="page"), ei brändilinkki.
+      ['index.html','teoria','page'],['book/index.html','teoria','true'],['otelautaharjoittelija.html','pakki','true'],['kitaraharjoittelija.html','kitara','true'],
+      ['riffikaiku.html','pelit','true'],['pelit/ensikeikka/index.html','pelit','true'],
+      ['musapelit.html','pelit','page'],['kitaratreeni.html','kitara','page'],['soittopakki.html','pakki','page'],
       ...readdirSync(new URL('../book/',import.meta.url)).filter(f=>f.endsWith('.html')&&f!=='index.html').map(f=>['book/'+f,'teoria','true'] as [string,string,string]),
       ...studyFiles.map(file=>[file,'teoria','true'] as [string,string,string]),
     ];
-    const targets={teoria:'index.html#oppimisaiheet',otelauta:'otelautaharjoittelija.html',kitara:'kitaraharjoittelija.html'};
+    const targets={teoria:'index.html',pelit:'musapelit.html',kitara:'kitaratreeni.html',pakki:'soittopakki.html'};
     for(const [file,active,kind] of pages){
       const html=read(file);
       const nav=html.match(/<nav class="main-nav" aria-label="Päävalikko">([\s\S]*?)<\/nav>/)?.[1];
@@ -211,14 +216,17 @@ describe('staattisen sivuston yhteensopivuus',()=>{
       const base=file.includes('/')?file.slice(0,file.lastIndexOf('/')+1):'';
       const links=[...nav!.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)].map(([,attrs,inner])=>({
         attrs, href:new URL(attrs.match(/href="([^"]+)"/)![1],'https://x/'+base).href.slice('https://x/'.length),
-        text:inner.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim(),
+        text:inner.replace(/<[^>]+>/g,' ').replace(/&amp;/g,'&').replace(/\s+/g,' ').trim(),
       }));
-      expect(links.map(l=>l.href),file).toEqual(['index.html',targets.teoria,targets.otelauta,targets.kitara]);
-      expect(links.map(l=>l.text),file).toEqual(['Musiikin kartta','Oppimiskartta','Otelautaopas','Kitaraharjoittelu']);
-      expect(nav,file).toContain('oppimisaiheet');
+      expect(links.map(l=>l.href),file).toEqual(['index.html',targets.teoria,targets.pelit,targets.kitara,targets.pakki]);
+      expect(links.map(l=>l.text),file).toEqual(['Musiikin kartta','Opi & oivalla','Musapelit','Kitaratreeni','Soittopakki']);
+      // Päävalikon linkeissä ei ole fragmenttia: kohdesivu avautuu yläreunaan ja päävalikko näkyy.
+      expect(nav,file).not.toContain('#');
       const current=links.filter(l=>l.attrs.includes('aria-current'));
       expect(current,file).toHaveLength(1);
-      expect(current[0].href,file).toBe(active?targets[active as keyof typeof targets]:'index.html');
+      expect(current[0].href,file).toBe(targets[active as keyof typeof targets]);
+      // Brändilinkki on tavallinen etusivulinkki ilman aktiivista tilaa.
+      expect(links[0].attrs,file).not.toContain('aria-current');
       expect(current[0].attrs,file).toContain(`aria-current="${kind}"`);
     }
   });
