@@ -290,8 +290,19 @@ kyseiseen aiheeseen.
   `details` ovat vakiintuneita, mutta niitä ei ole kokeiltu laitteella.
 - Musapelien rajausrivi vie puhelimessa kolme riviä (noin 280 px). Ensimmäinen peli on silti ensimmäisellä näytöllä.
 - Tulostus avaa aiheet `beforeprint`-tapahtumalla. Ilman JavaScriptiä suljetut aiheet eivät tulostu.
-- Koko e2e-sarjan tulos on luovutusraportissa. Tunnetut betan omat epäonnistumiset on verrattu puhtaaseen betaan
-  aiemmilla kierroksilla.
+### F8. Testitulokset (19.11.2026, Linux, Chromium 1243)
+| Ajo | Tulos |
+| --- | --- |
+| `npm run check` (lint, Vitest, typecheck, build) | läpi; 38 tiedostoa, 610/610 yksikkötestiä |
+| `rakenna.py --tarkista`, `rakenna-osiot.py --tarkista`, `versioi-tyylit.mjs --tarkista` | läpi |
+| `tarkista-linkit.py` | 104 sivua, 2 629 viittausta, 0 ongelmaa |
+| Kohdennetut `osiot.spec.ts` ja `navigation.spec.ts` | 161 läpi; ohitukset vain testien omista ehdoista (näppäimistötestit puhelinprofiilissa) |
+| Koko e2e (764) | 723 läpi, 39 ohitettu, 2 epäonnistui |
+
+Kumpikaan epäonnistuminen ei ole tämän uudistuksen regressio. Vertailu tehtiin puhtaaseen betaan `a6a3a8c`:
+- `intervallimuisti.spec.ts:368` (phone, pyyhkäisy) epäonnistui sekä betalla että PR-haaralla.
+- `responsive.spec.ts` *pehmeä vieritys* (desktop, 2 testiä × 10 toistoa) epäonnistui betalla 9/20 ja PR-haaralla 10/20.
+  Testi on epävakaa molemmissa.
 
 ## Muuttuneet ja säilyneet osoitteet
 
