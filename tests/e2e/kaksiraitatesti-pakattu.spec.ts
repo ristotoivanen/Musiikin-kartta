@@ -12,6 +12,8 @@ interface Report { meta: { length: string }; measurements: Measurement[]; events
 
 const playButton = (page: Page) => page.getByRole('button', { name: '▶ Soita' });
 const pauseButton = (page: Page) => page.getByRole('button', { name: '■ Tauko' });
+// K1: Tauko näkyy jo kesken aloituksen. Soiminen tarkistetaan painikkeen tilasta (sama kuin ennen K1:tä Tauko näkyvissä).
+const playingButton = (page: Page) => page.locator('.player button.play[data-tila="soi"]');
 const report = (page: Page): Promise<Report> =>
   page.evaluate(() => (window as unknown as { kaksiraitatesti: { report(): Report } }).kaksiraitatesti.report());
 const hookSeek = (page: Page, seconds: number) =>
@@ -64,7 +66,7 @@ test.describe('Kahden raidan testi: pakatut toistotiedostot', () => {
 
       const checks: { phase: string; measurement: Measurement }[] = [];
       await playButton(page).click();
-      await expect(pauseButton(page)).toBeVisible();
+      await expect(playingButton(page)).toBeVisible();
       // Intro (0–14 s) on pelkkää kitaraa: aloitusjakson luotettava mittaus vaatii taustan ääntä.
       checks.push({ phase: 'aloitus', measurement: await reliableAfter(page, 0) });
       let at = await now(page);
@@ -100,7 +102,7 @@ test.describe('Kahden raidan testi: pakatut toistotiedostot', () => {
     await expect(page.locator('.mode')).toContainText('AAC 192 kbit/s (koko kappale, muistista)');
     await expect(page.locator('.files').first()).toHaveAttribute('data-ready', 'kyllä', { timeout: 20_000 });
     await playButton(page).click();
-    await expect(pauseButton(page)).toBeVisible();
+    await expect(playingButton(page)).toBeVisible();
     expect(await page.locator('audio').first().evaluate(element => (element as HTMLAudioElement).duration)).toBeGreaterThan(233);
     const before = requests.length;
     await hookSeek(page, 220);

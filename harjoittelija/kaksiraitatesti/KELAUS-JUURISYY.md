@@ -1,6 +1,6 @@
 # Kelauksen aikakatkaisu ja puuttuva loadstart: juurisyyanalyysi (MK-20261119-03)
 
-**Tila:** analyysi ja korjausehdotus. Moottoria ei ole muutettu, ja korjaus odottaa omistajan hyväksyntää.
+**Tila:** korjaus K1–K3 toteutettu testisivulle (omistajan hyväksyntä 19.11.2026), alkuperäinen simulaattoriraportti tarkistettu (luku 7). Alkuperäisen aikakatkaisun juurisyy ei ole vahvistettu, eikä K1–K3 korjaa sitä.
 - Issue #9 pysyy NO-GO-tilassa.
 - Pohja: PR #122 @ `4a1f665` (`test/kaksiraita-nayttoaani`). Koodiviittaukset tiedostoon `KaksiraitaTesti.tsx` samassa versiossa.
 
@@ -124,3 +124,58 @@ Kun omistaja toimittaa simulaattoriajon JSON-raportit:
    - `control`, `tuore-aloitus`, `pause`, `emptied`, `loadstart`, `seeked`, `kelattu`, `toisto-alkoi` ja `kelaus-aikakatkaisu`
    - järjestys ja `request`-tunnisteet.
 4. **Tulos:** H1–H6 luokitellaan todetuiksi tai kumotuiksi, ja korjausehdotus tarkistetaan vastaamaan todettua syytä.
+
+## 7. Alkuperäisen simulaattoriraportin tarkistus (19.11.2026, Mac-istunto)
+
+### Aineisto
+
+| Tiedosto | Sisältö | SHA-256 (alku) |
+| --- | --- | --- |
+| `raportit/simulaattori-2026-11-19-1.json` | Ensimmäinen kopio heti kolmoiskelauksen jälkeen | `43c476e1…` |
+| `raportit/simulaattori-2026-11-19-2.json` | Myöhempi kopio samalta sivulataukselta: sama kolmoiskelaus ja neljä myöhempää monikelaussarjaa | `a16e4ea4…` |
+
+- Tallennettu **muuttamattomina** (tavu tavulta sama kuin Macin alkuperäinen).
+- **Vapaatekstikentät tarkistettu:** kaikki `note`-kentät ovat tyhjiä (11 + 12 säätökoetta ja tallennustapahtumat). Muut merkkijonot ovat testisivun omia arvoja: user agent (`iPhone OS 18_7`, Safari 27.2), esikatselun osoite, satunnaiset `blob:`-tunnisteet ja `pageLoadId`:t. Yksilöiviä tietoja ei ole, joten mitään ei korvattu.
+- Ajo: H4-sivu (`?koe=nayttoaani`, PR #122, bundle `cc67a916fe48`), iPhone 16 Pro -simulaattori, iOS 27.2. Kelaukset tehtiin **painikkeella** *Siirry kohtaan 2:30* (simulaattorin napautukset), ei Web Inspectorista.
+
+### Tapahtumajärjestys (raportti 1)
+
+| ms | Tapahtuma | Huomio |
+| --- | --- | --- |
+| 29 537 | `control kelaus` → `tuore-aloitus` request 4 | toisto soi (näyte 29 338: `pausedT: false`) |
+| 29 558–29 619 | `emptied`, `loadstart`, `loadedmetadata`, `seeking` (molemmat raidat) | |
+| 29 632 | `control kelaus` → `tuore-aloitus` request 5 | |
+| 29 699–29 701 | `seeked`, `canplay`; `kelattu valmis` requesteille 4 ja 5 | |
+| 29 707 | `toisto-alkoi` request 5 | molemmat raidat soivat |
+| 29 717–29 718 | `control kelaus` → `tuore-aloitus` request 6, `seek-write` tausta ja kitara | `readyState 0` (load() kutsuttu) |
+| **29 718 → 40 381** | **ei yhtään tapahtumaa eikä näytettä** | 10,66 s |
+| 40 381 | `emptied` (molemmat), näyte (`readyState 0`) | jonossa ollut load()-tapahtuma |
+| 40 382 | `kelattu aikakatkaisu` + `kelaus-aikakatkaisu` request 6 | 5 s:n ajastin oli myöhässä |
+| 40 383–40 468 | `loadstart`, `loadedmetadata`, `seeked` 150 s, `canplay` | raidat olivat valmiit 86 ms myöhemmin |
+
+### Hypoteesit H1–H6
+
+| | Tulos | Peruste |
+| --- | --- | --- |
+| H1 (`pause` kesken aloituksen) | **kumottu tässä tapauksessa** | Ei `pause`-tapahtumaa requestien 4–6 välillä. Kolmas kelaus tuotti `tuore-aloitus`n. |
+| H2 (`playing` epätosi) | **kumottu** | Request 5 ehti soida (`toisto-alkoi` 29 707), ja kolmas kelaus valitsi uuden aloituksen. |
+| H3 (`load()`-kutsut samassa tehtävässä) | **kumottu** | Kelaukset 29 537, 29 632 ja 29 717 ms: eri tehtävät. |
+| H4 (`waitPositioned` ei täyty) | **osittain** | Nykyisen pyynnön (6) odotus päättyi aikakatkaisuun, mutta ei WebKitin kelaustapahtumien järjestyksen takia: tapahtumia ei tullut lainkaan, ja kun ne tulivat, raidat olivat valmiit 86 ms:ssa. |
+| H5 (ohitetun aloituksen merkintä) | **kumottu** | Request 6 oli viimeisin, ja `kelaus-aikakatkaisu` kirjattiin. |
+| H6 (ohjelmallinen kelaus ilman elettä) | **kumottu** | Kelaukset tehtiin painikkeella. |
+
+### Uusi hypoteesi H7: sivun pääsäie jumittui noin 10,7 s:ksi (todennäköisin, ei vahvistettu)
+
+- Testisivun 500 ms:n näytteenotto (`setInterval`) ei tuottanut yhtään näytettä välillä 29 338–40 381 ms. Myöskään mitään mediatapahtumaa ei kirjattu. JavaScript ei siis ajanut mitään 10,66 sekuntiin.
+- `AudioContext.currentTime` eteni samaan aikaan 22,03 → 33,07 s (11,04 s), eli äänisäie toimi. `document.hidden` oli `false`, eikä `visibilitychange`-tapahtumaa tullut.
+- Jumi alkoi heti request 6:n `seek-write`-kirjausten jälkeen, 11 ms siitä, kun request 5:n `play()` oli täyttynyt. Lokista ei voi päätellä, jäikö kitaran `currentTime = 150` -sijoitus vai WebKitin tehtävä ennen `emptied`-tapahtumaa (mediasoittimen purku tai luonti) jumiin.
+- Jumin jälkeen 5 s:n ajastin oli jo erääntynyt, joten se laukesi ennen `loadstart`ia. Kirjattu **10,7 s:n aikakatkaisu on jumin pituus, ei viiden sekunnin raja.**
+- Saman simulaattoriajon seitsemässä muussa monikelaussarjassa jumia ei ollut (raportti 2: neljä sarjaa, H4-ajon lopullinen raportti: kolme; pisin näyteväli 505–543 ms, kaikki päätyivät kohteeseen). Raportin 2 sarjassa 157 185 ms kolmas kelaus osui 44 ms toiston alkamisen jälkeen ja onnistui (128 ms).
+- **K1–K3 ei korjaa H7:ää.** Viat V1 ja V2 eivät olleet mukana tässä tapauksessa. K2 kuitenkin estää ohitettujen aloitusten harhaanjohtavat aikakatkaisumerkinnät, joten tulevissa raporteissa aikakatkaisu viittaa aina nykyiseen aloitukseen.
+- **Mahdollinen lievennys (ei toteutettu, vaatii hyväksynnän):** kun `waitPositioned`in ajastin laukeaa selvästi myöhässä (pääsäie on ollut jumissa), odotusta jatketaan lyhyesti eikä aikakatkaisua kirjata heti. Tämä ei muuta 5 s:n rajaa normaalitilanteessa. Rajaa ei muuteta ilman päätöstä (luku 5).
+- Onko jumi simulaattorin ominaisuus (ääni ja media kulkevat Macin prosessien kautta) vai esiintyykö se myös iPhonella, on selvitettävä laitteella.
+
+### Uusi mittari
+
+`&koe=kelaussarja` mittaa jokaisesta sarjasta pääsäikeen pisimmän jumin 20 ms:n ajastimella (`pisinJumiMs`). Analyysityökalu laskee käsin tehdyille sarjoille saman 500 ms:n näytteiden väleistä. Tällä H7 erottuu suoraan raportista.
+

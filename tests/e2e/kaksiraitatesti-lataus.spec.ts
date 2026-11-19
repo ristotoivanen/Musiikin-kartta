@@ -15,6 +15,8 @@ const WAVS = AUDIO + '*-0-120s.wav';
 const KITARA_MP3 = AUDIO + 'yksi-sointu-akustinen-kitara.mp3';
 const playButton = (page: Page) => page.getByRole('button', { name: '▶ Soita' });
 const pauseButton = (page: Page) => page.getByRole('button', { name: '■ Tauko' });
+// K1: Tauko näkyy jo kesken aloituksen. Soiminen tarkistetaan painikkeen tilasta (sama kuin ennen K1:tä Tauko näkyvissä).
+const playingButton = (page: Page) => page.locator('.player button.play[data-tila="soi"]');
 const fileState = (page: Page, track: string) => page.locator(`.files [data-track="${track}"]`);
 const report = (page: Page): Promise<Report> =>
   page.evaluate(() => (window as unknown as { kaksiraitatesti: { report(): Report } }).kaksiraitatesti.report());
@@ -58,7 +60,7 @@ test.describe('Kahden raidan testi: lataus ja latausvirheet', () => {
     ]);
 
     await playButton(page).click();
-    await expect(pauseButton(page)).toBeVisible();
+    await expect(playingButton(page)).toBeVisible();
     const seekAt = await now(page);
     await hookSeek(page, 30);
     const afterSeek = await reliableAfter(page, seekAt + 1500);
@@ -84,7 +86,7 @@ test.describe('Kahden raidan testi: lataus ja latausvirheet', () => {
       ['kitara', 1, 'HTTP 503', true], ['kitara', 2, 'HTTP 503', true],
     ]);
     await playButton(page).click();
-    await expect(pauseButton(page)).toBeVisible();
+    await expect(playingButton(page)).toBeVisible();
   });
 
   test('pysyvä 503 yhdellä raidalla: virhe näkyy, toistoa ei aloiteta, Yritä uudelleen palauttaa', async ({ page }) => {
@@ -102,7 +104,7 @@ test.describe('Kahden raidan testi: lataus ja latausvirheet', () => {
     await expect(fileState(page, 'kitara')).toHaveAttribute('data-state', 'valmis', { timeout: 20_000 });
     await expect(alert).toHaveCount(0);
     await playButton(page).click();
-    await expect(pauseButton(page)).toBeVisible();
+    await expect(playingButton(page)).toBeVisible();
   });
 
   test('viivästynyt vastaus: Soita odottaa latausta näkyvästi, pysähtynyt yritys uusitaan aikarajan jälkeen', async ({ page }) => {
@@ -121,7 +123,7 @@ test.describe('Kahden raidan testi: lataus ja latausvirheet', () => {
     expect(failures.map(item => [item.track, item.reason, item.willRetry])).toEqual([['kitara', 'ei vastausta 2 s', true]]);
     await expect(playButton(page)).toBeEnabled();
     await playButton(page).click();
-    await expect(pauseButton(page)).toBeVisible();
+    await expect(playingButton(page)).toBeVisible();
   });
 
   for (const engine of ['uusi', 'nykyinen'] as const) {
@@ -143,7 +145,7 @@ test.describe('Kahden raidan testi: lataus ja latausvirheet', () => {
 
       await page.unroute(KITARA_MP3);
       await playButton(page).click();
-      await expect(pauseButton(page)).toBeVisible({ timeout: 10_000 });
+      await expect(playingButton(page)).toBeVisible({ timeout: 10_000 });
       await expect(alert).toHaveCount(0);
     });
   }
@@ -155,7 +157,7 @@ test.describe('Kahden raidan testi: lataus ja latausvirheet', () => {
     const alert = page.getByRole('alert').filter({ hasText: 'Mittausreferenssin lataus epäonnistui' });
     await expect(alert).toContainText('Toisto toimii, mutta mittaukset eivät.', { timeout: 20_000 });
     await playButton(page).click();
-    await expect(pauseButton(page)).toBeVisible();
+    await expect(playingButton(page)).toBeVisible();
     // Mittaukset jatkuvat ja kirjaavat syyn, mutta eivät käynnistä uusia latauksia.
     await expect.poll(async () => (await report(page)).measurements
       .filter(item => item.tracks.some(track => track.error?.includes('ei latautunut'))).length, { timeout: 15_000 }).toBeGreaterThanOrEqual(3);
