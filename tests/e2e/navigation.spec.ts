@@ -117,8 +117,9 @@ test.describe('Etusivu', () => {
 
   test('aloitussuositus edeltää aihekortteja ja oppaan linkit ovat listan jälkeen', async ({ page }) => {
     await page.goto('/index.html');
-    const recommendation = page.getByRole('link', { name: 'Kuuntele pulssi' });
-    await expect(recommendation).toHaveAttribute('href', 'oppi/rytmi/kuuntele-pulssi.html');
+    const recommendation = page.getByRole('link', { name: 'Ensimmäiset neljä iskua' });
+    await expect(recommendation).toHaveAttribute('href', 'oppi/rytmi/ensimmaiset-nelja-iskua.html');
+    await expect(page.locator('.start-here')).toHaveText('Suositeltu aloitus: Ensimmäiset neljä iskua');
     expect(await recommendation.evaluate(link => Boolean(link.compareDocumentPosition(document.querySelector('.topic-card')!)
       & Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
 
@@ -258,8 +259,8 @@ test.describe('Oppimiskartan navigointi ja paluu', () => {
   });
 
   test('pulssiesimerkin äänentoisto loppuu, kun palataan Rytmiin', async ({ page }) => {
-    await page.goto('/index.html');
-    await page.getByRole('link', { name: 'Kuuntele pulssi' }).click();
+    await page.goto('/oppi/rytmi/index.html');
+    await page.getByRole('link', { name: /Harjoitus · Löydä pulssi ja ykkönen/ }).click();
     await expect(page).toHaveURL('/oppi/rytmi/kuuntele-pulssi.html');
     const audio = page.locator('#pulssi-aanite audio');
     await audio.evaluate(player => {
@@ -279,7 +280,7 @@ test.describe('Oppimiskartan navigointi ja paluu', () => {
     test.skip(isMobile, 'Näppäimistön fokusrengas tarkistetaan työpöytäkoossa.');
     await page.goto('/index.html');
     await expandTopicList(page);
-    await page.getByRole('link', { name: 'Kuuntele pulssi' }).focus();
+    await page.getByRole('link', { name: 'Ensimmäiset neljä iskua' }).focus();
     for (const card of await page.locator('a.topic-card').all()) {
       await page.keyboard.press('Tab');
       await expect(card).toBeFocused();
@@ -295,7 +296,7 @@ test.describe('Oppimiskartan navigointi ja paluu', () => {
     test('aihekortit ovat yhdessä sarakkeessa ja teksti mahtuu kokoon ' + width + ' × ' + height, async ({ page }) => {
       await page.setViewportSize({ width, height });
       await page.goto('/index.html');
-      const start = page.getByRole('link', { name: 'Kuuntele pulssi' });
+      const start = page.getByRole('link', { name: 'Ensimmäiset neljä iskua' });
       if (height > width) await expect(start).toBeInViewport();
       await expandTopicList(page);
       const cards = page.locator('a.topic-card:visible');

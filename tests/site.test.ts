@@ -136,6 +136,7 @@ describe('staattisen sivuston yhteensopivuus',()=>{
   it('aihekortit ja sisältösivut käyttävät samoja yksilöllisiä suoritustunnisteita', () => {
     const byKind = { luku: 0, harjoitus: 0, oppitunti: 0 };
     const allIds = new Set<string>();
+    const introIds: string[] = [];
     const map = read('index.html');
     for (const topic of topics) {
       const items = studyFiles.filter(file => file.startsWith('oppi/' + topic + '/') && !file.endsWith('/index.html'));
@@ -152,9 +153,15 @@ describe('staattisen sivuston yhteensopivuus',()=>{
         else expect(main, file).not.toContain('data-theory-chapter=');
         expect(allIds.has(id), file).toBe(false);
         allIds.add(id);
+        expect(html.match(/class="done-toggle"/g), file).toHaveLength(1);
+        if (/\sdata-study-intro[\s>]/.test(main!)) {
+          // Numeroimaton johdanto: oma merkintä aihesivulla, ei aiheen tai etusivun laskurissa.
+          expect(read('oppi/' + topic + '/index.html'), file).toContain('data-study-intro-status="' + id + '"');
+          introIds.push(id);
+          continue;
+        }
         topicIds.add(id);
         byKind[kind]++;
-        expect(html.match(/class="done-toggle"/g), file).toHaveLength(1);
       }
       const topicPage = read('oppi/' + topic + '/index.html');
       const cardIds = [...topicPage.matchAll(/data-study-status="([^"]+)"/g)].map(([, id]) => id);
@@ -169,6 +176,7 @@ describe('staattisen sivuston yhteensopivuus',()=>{
       expect(topicPage, topic).not.toContain('class="done-toggle"');
     }
     expect(byKind).toEqual({ luku: 28, harjoitus: 41, oppitunti: 4 });
+    expect(introIds).toEqual(['harjoitus:ensimmaiset-nelja-iskua']);
   });
 
   it('kaikki 70 vanhaa sisältöosoitetta säilyvät ja uudet oppitunnit sijoittuvat vain Kitaran perusteisiin', () => {

@@ -246,19 +246,25 @@
 
     const total = main.querySelector('[data-study-total]');
     const rows = [...main.querySelectorAll('[data-study-status]')];
-    if (!rows.length) return;
+    // Numeroimaton johdantoharjoitus näyttää oman merkintänsä, mutta ei kuulu aiheen laskuriin.
+    const intros = [...main.querySelectorAll('[data-study-intro-status]')];
+    if (!rows.length && !intros.length) return;
 
+    const show = (row, marked) => {
+      row.textContent = marked ? '✓ Tehty' : 'Tekemättä';
+      row.classList.toggle('is-done', marked);
+      row.hidden = false;
+    };
     const refresh = () => {
       const done = load();
       let count = 0;
       for (const row of rows) {
         const marked = done.has(row.dataset.studyStatus);
         if (marked) count++;
-        row.textContent = marked ? '✓ Tehty' : 'Tekemättä';
-        row.classList.toggle('is-done', marked);
-        row.hidden = false;
+        show(row, marked);
       }
-      showTopicProgress(total, count, rows.length);
+      for (const row of intros) show(row, done.has(row.dataset.studyIntroStatus));
+      if (rows.length) showTopicProgress(total, count, rows.length);
     };
 
     refresh();

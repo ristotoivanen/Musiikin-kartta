@@ -135,6 +135,31 @@
 .study-description, .study-status { color: var(--muted); font-size: .9rem; }
 .study-choice-details > span { line-height: 1.45; }
 .study-start { color: #9fe4c3; font-size: .85rem; font-weight: 700; }
+/* Numeroimaton johdantoharjoitus: sama kortti ilman järjestysnumeroa. */
+.study-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  column-gap: clamp(6px, 1.8vw, .65rem);
+  row-gap: .16rem;
+  min-height: 44px;
+  padding: .6rem clamp(9px, 2.5vw, .8rem);
+  border: 1px solid #71638c;
+  border-radius: .65rem;
+  background: var(--panel);
+  text-decoration: none;
+  scroll-margin-top: .75rem;
+}
+.study-intro:hover { border-color: var(--accent); }
+.study-intro:focus-visible { outline-offset: 2px; }
+.study-intro .study-title { grid-area: 1 / 1; }
+.study-intro .study-choice-details { grid-area: 2 / 1; }
+.study-intro .study-arrow { grid-area: 1 / 2; }
+.study-placeholder {
+  padding: .6rem .8rem;
+  border-inline-start: .22rem solid var(--gold);
+  border-radius: .35rem;
+  background: var(--panel);
+}
 .study-status.is-done { color: #9fe4c3; }
 @supports (grid-template-rows: subgrid) {
   /* Kaikkien ryhmien otsikko- ja kuvausrivit jakavat joustavan mitoituksen. */
