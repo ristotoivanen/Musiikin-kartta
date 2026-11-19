@@ -13,7 +13,8 @@ Tässä lokissa erotetaan kolme asiaa. Merkinnät myöhemmissä kohdissa viittaa
 | **Katselmoinnissa alustavasti hyväksytty** (ei omistajan lopullinen hyväksyntä) | Katselmointi 1: neljän pääosion perusrakenne sekä Riffikaiun sijoittelu (peli Musapeleissä, harjoitus Kitaratreenissä). |
 | **Katselmoinnin suositus omistajalle** (toteutettu suosituksen mukaisesti, odottaa omistajan vahvistusta) | Katselmointi 2: (1) alareunan päällekkäisen aihepaluun poisto; (2) ei kiinteää paluupainiketta pitkille sivuille ennen oikean puhelimen testiä, tarvittaessa kevyt *Takaisin alkuun* -linkki; (3) luokittelu *Soita* / *Korvalla kitaralle* alustavasti; (4) *Mikä sointu tulee?* myös aiheeseen Soinnut ja harmonia samalla sisällöllä ja suoritustunnisteella. |
 | **Katselmoinnin korjausvaatimus** (toteutettu) | Katselmointi 1: oppimistavan säilyminen, rekisterin joustavuus, aihesivujen vaihto, alareunan paluu, riippuvuudet, pedagoginen tarkistus. Katselmointi 2: `?tapa=` vain saman oppimistavan kohdesivuille. Katselmointi 3: lisäaihelinkin paluukonteksti Opi & oivalla -osiossa, sovelluksen tilan huomioiva oppimistavan kelpoisuus ja tämän lokin täsmennys. |
-| **Toteuttajan oma ratkaisu** | Tekniset ja käytettävyysratkaisut, joihin toimeksianto valtuutti (esim. 2 × 2 -valikko, `?tapa=`-parametri, rekisterin rakenne). Perustelut alla. |
+| **Omistajan toimeksianto 19.11.2026** | Musapelien ja Kitaratreenin käytettävyysuudistus PR #119:ään. Omistaja valtuutti vertailemaan vaihtoehdot ja valitsemaan toteutuksen itsenäisesti rajojen sisällä. Valtuutus ei ole valitun ratkaisun hyväksyntä. |
+| **Toteuttajan oma ratkaisu** | Tekniset ja käytettävyysratkaisut, joihin toimeksianto valtuutti, esimerkiksi 2 × 2 -valikko, `?tapa=`-parametri, rekisterin rakenne sekä kohdan F (19.11.) vaihtoehtovalinta. Perustelut alla. **Ei omistajan hyväksyntää.** |
 
 ## A. Tarkistettu lähtötilanne (18.11.2026)
 
@@ -178,6 +179,119 @@ Musapeleissä ja harjoitus Kitaratreenissä. Testit: `tests/osiot.test.ts` (hyv�
   työkaluna. Erillistä äänisessiota ei avata, joten päällekkäisiä mikrofoni- tai äänisessioita ei synny.
 - **Metronomi** kirjataan rekisteriin saatavuudella `suunniteltu` (#84), mutta sitä ei näytetä.
 - Upotettava metronomi tai itsenäinen viritin edellyttää äänimoottorin yhteistä hallintaa (#84). Ei toteutettu.
+
+## F. Musapelien ja Kitaratreenin käytettävyysuudistus (19.11.2026)
+
+Lähtö: PR #119 @ `f232cda`. Beta yhdistettiin työhaaraan (`a6a3a8c`, vain dokumentaatio: `CLAUDE.md`, `AGENTS.md`,
+[suunnittelu- ja PR-katselmointiohje](../suunnittelu/suunnittelu-ja-pr-katselmointi.md)). #109–#111 eivät muuttuneet
+(`99eaf2f`, `eed5e7e`, `794d106`), eikä niihin kosketa.
+
+### F1. Lähtötilanteen ongelma
+Omistaja arvioi puhelimella ja kuvakaappauksista, että Musapelit ja Kitaratreeni olivat sekavia. Ongelma oli
+informaatioarkkitehtuurissa: molemmissa oli ensin kahdeksan aiheen pikavalinta ja sitten samat kahdeksan aihetta
+pitkänä luettelona.
+
+| Mittari (paikallinen Chromium, `f232cda` → uusi) | Ennen | Jälkeen |
+| --- | --- | --- |
+| Musapelit 390 × 844: ensimmäisen pelin yläreuna | y = 1 073 px (ei ensimmäisellä näytöllä) | y = 537 px (ensimmäisellä näytöllä) |
+| Musapelit sivun pituus 390 / 320 px | 3,6 / 5,1 näyttöä | 2,5 / 3,3 näyttöä |
+| Musapelit työpöytä 1280 × 900 | 2,7 näyttöä, ensimmäinen peli y = 822 | 1,3 näyttöä, ensimmäinen peli y = 393 |
+| Tyhjiä aiheosioita ennen ensimmäistä peliä | 3 (Kitaran perusteet, Rytmi, Sävelnimet) | 0 |
+| Kitaratreeni 390 / 320 px, sivun pituus (aiheet kiinni) | 7,2 / 9,9 näyttöä | 1,4 / 2,0 näyttöä |
+| Kitaratreeni työpöytä | 5,5 näyttöä | 1,1 näyttöä |
+
+Ennen- ja jälkeen-kuvat liitettiin luovutukseen. Mittarit kertovat informaation määrästä, eivät oppimisesta.
+
+### F2. Arvioidut vaihtoehdot
+
+- **A, tehtäväkeskeinen:** Musapeleissä pelit heti ja tiivis aiherajaus. Kitaratreenissä tiivis aiheen valinta, josta
+  aiheen harjoitukset avautuvat.
+- **B, aihekeskeinen ja tiivistetty:** Musapeleissä pelit aiheittain, ja tyhjät aiheet ovat tiiviinä. Kitaratreenissä
+  kahdeksan aihekorttia, joista harjoitukset avautuvat.
+
+| Kriteeri | A | B |
+| --- | --- | --- |
+| 1 Pelin löytäminen | + Pelit ensimmäisellä näytöllä, kukin kerran | − Pelit aiheotsikoiden alla; 3 tyhjää aihetta ennen ensimmäistä peliä numerojärjestyksessä |
+| 2 Harjoituksen löytäminen | + Aihe → harjoitukset lajeittain | + Sama |
+| 3 Ensimmäinen näkymä | + Otsikko, yksi virke ja toiminto | ± Aiheotsikoita enemmän kuin sisältöä |
+| 4 Visuaalinen kuormitus | + 7 korttia ja 5 rajausta | − Monikkoaiheinen peli kahdesti tai erillinen viittaus |
+| 5 Mobiili | + Ensimmäinen peli y = 537 px | ± Pidempi |
+| 6 Näppäimistö ja saavutettavuus | + Linkit ja natiivi `details` | + Sama |
+| 7 Ilman JS:ää | + Rajaus CSS:n `:target`-valitsimella, `details` natiivi | + Ryhmittely staattisena |
+| 8 Kahdeksan aiheen rakenne | + Säilyy aihetunnisteissa, rajauksessa, korteissa ja Kitaratreenissä | + Näkyvin |
+| 9 Vanhat linkit | + `#aihe-*` avaa aiheen näkymän | + Ankkurit osioihin |
+| 10 Monimutkaisuus | ± `:target` ja `~`, pieni skripti | + Yksinkertaisin |
+| 11 Ylläpito ja rekisteri | + Kaikki kortit rekisteristä, sama korttifunktio | + Sama |
+| 12 Uudet pelit ja harjoitukset | + Uusi kortti ja rajausmäärä syntyvät rekisteristä | + Sama |
+
+**Valinta (toteuttajan ratkaisu):**
+- **Musapelit = A.** Pelit ovat heti näkyvissä, ja aiherajaus toimii `:target`-valitsimella. Tyhjän aiheen selitys
+  näkyy vain, kun aiheeseen tullaan linkillä. Ratkaiseva peruste oli pelin aloittaminen ilman tyhjiä välivaiheita
+  (kriteerit 1, 3 ja 4).
+- **Kitaratreeni = A ja B yhdistettynä.** Kahdeksan aihetta on natiiveina `details`/`summary`-riveinä, kuten B-mallin
+  aihekorteissa, mutta kiinni oletuksena ja tiiviinä, kuten A-mallissa. Harjoitukset on ryhmitelty tehtävälajeittain
+  *Soita* / *Korvalla kitaralle*. Kitaraharjoittelija on näkyvä kortti sivun alussa.
+- **Hylätyt:**
+  - Erillinen aiheen valintasivu, koska se lisäisi navigointitason.
+  - JavaScript-välilehdet, koska ne eivät toimi ilman JavaScriptiä ja vaativat oman fokuksenhallinnan.
+  - Yksinoikeudellinen haitari (vain yksi aihe auki kerrallaan), koska toimeksianto salli usean aiheen auki pitämisen.
+
+### F3. Toteutetut muutokset
+- `tools/oppimiskartta/rakenna-osiot.py`:
+  - `mode_items()` yhdistää sovellukset ja oppisivut samaan muotoon.
+  - `game_card()` on sama kortti kaikelle pelattavalle sisällölle. Kortissa on laji, nimi, beta-merkintä, kuvaus,
+    *Harjoittaa: …* ja aiheet.
+  - `games_page()` ja `training_page()` muodostavat näkymät. Ne korvaavat vanhan `mode_page()`-funktion.
+- `assets/osiot.css`: pelikortit, aiherajaus, `:target`-näkymä, Kitaratreenin aiherivit, tulostus ja pakotetut värit.
+  Vanhat pikavalinnan ja aiheosioiden tyylit poistettiin.
+- `assets/osiot.js` (uusi, noin 40 riviä, ei tallennuksia):
+  - Merkitsee aktiivisen aiherajauksen (`aria-current`).
+  - Avaa `#aihe-*`-aiheen Kitaratreenissä.
+  - Avaa kaikki aiheet tulostettaessa (`beforeprint`) ja palauttaa tilan tulostuksen jälkeen (`afterprint`).
+- Yksi viestintätarkennus: *Sama aihe* -rivin tyhjä tila luetaan rekisteristä (*ei peliä* / *ei harjoitusta*).
+  Aiemmin rivillä luki *ei sisältöä*.
+
+### F4. Sisältörekisteri
+Uudet kentät ovat pelkkää esitystietoa. Uusia tunnisteita, osoitteita tai suoritusmerkintöjä ei tullut.
+- `tavat.pelit` ja `tavat.kitara`: otsikko ja johdanto. Kitaratreeniin lisäksi `keskus` (Kitaraharjoittelija) ja
+  kuittausteksti.
+- Musapelien kolmella oppisivulla `taito`. Validointi vaatii sen.
+
+Kortit, rajausten määrät ja Kitaratreenin harjoitukset muodostetaan rekisteristä, joten uusi peli tai harjoitus ei
+vaadi HTML-muutosta.
+
+### F5. Navigoinnin yhteensopivuus
+Seuraavat toimivat ennallaan, ja ne on katettu testeillä:
+- kaikki kahdeksan `#aihe-*`-ankkuria molemmissa näkymissä
+- `?tapa=`, `?aihe=` ja sovellusten tilat (`tila`, `polku`, `harjoitus`)
+- paluu `musapelit.html#aihe-korva` ja `kitaratreeni.html#aihe-rytmi`
+- selaimen paluu
+- *Mikä sointu tulee?* samalla osoitteella ja suoritustunnisteella kahdessa aiheessa.
+
+Kaikkien pelien listassa kortin osoite ohjaa paluun sisällön omaan aiheeseen. Aiheen näkymässä paluu ohjautuu
+kyseiseen aiheeseen.
+
+### F6. Saavutettavuus ja käytettävyys (suunnitteluohjeen §5)
+| ID | Tila | Näyttö |
+| --- | --- | --- |
+| UX-1 | todennettu (automaattinen, Chromium) | Polut A–E ja I, suora URL, selaimen paluu, `?tapa=`/`?aihe=` (`tests/e2e/osiot.spec.ts`) |
+| UX-2 | todennettu | Ilman JavaScriptiä polku F; tulostus polku H (`beforeprint` simuloitu) |
+| A11Y-1 | todennettu (automaattinen) | Polku G: Enter avaa aiheen, Space avaa ja sulkee, suljetun aiheen linkit eivät ole sarkainjärjestyksessä, rajaus ja pelin avaus |
+| A11Y-2 | todennettu | Fokusrengas `solid` aiherivillä ja rajauksessa |
+| A11Y-3 | osittain | Semanttiset `nav`, `section`, `h2`/`h3`, `details`/`summary`, `aria-current`, `mode-sr`-määrät. **Ruudunlukijaa ei testattu.** |
+| A11Y-4 | arvioitu laskennallisesti | Muted `#a89fc4` taustoilla `#16121f`/`#221b31` noin 7:1 / 6,6:1, valittu rajaus valkoinen `#4b2fd6`:lla ja lisäksi 2 px reuna ja lihavointi. Ei mitattu työkalulla. |
+| A11Y-5 | todennettu | 320/360/390/430/768 px ei vaakavieritystä; 200 % tekstikoko 320 px:ssä (virhe löytyi ja korjattiin: Kitaraharjoittelija-kortin pitkä sana) |
+| A11Y-6 | todennettu | Rajaukset ja `summary` ≥ 44 px, kortit koko alueeltaan linkkejä, harjoituslinkit ≥ 32 px (AA 24 px täyttyy) |
+| A11Y-7 | ei testattu | Vaaka-asento puhelimella |
+| PED-3 | säilytetty | Kitaratreenin kuittausteksti; Musapelien kortit kertovat harjoiteltavan taidon eivätkä väitä osaamista |
+
+### F7. Avoimet puutteet ja riskit
+- **Ei testattu fyysisellä laitteella:** iPhone/Safari, Android, VoiceOver ja vaaka-asento. Safarin `:target` ja
+  `details` ovat vakiintuneita, mutta niitä ei ole kokeiltu laitteella.
+- Musapelien rajausrivi vie puhelimessa kolme riviä (noin 280 px). Ensimmäinen peli on silti ensimmäisellä näytöllä.
+- Tulostus avaa aiheet `beforeprint`-tapahtumalla. Ilman JavaScriptiä suljetut aiheet eivät tulostu.
+- Koko e2e-sarjan tulos on luovutusraportissa. Tunnetut betan omat epäonnistumiset on verrattu puhtaaseen betaan
+  aiemmilla kierroksilla.
 
 ## Muuttuneet ja säilyneet osoitteet
 
