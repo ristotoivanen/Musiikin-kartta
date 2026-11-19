@@ -51,7 +51,8 @@
 
   // Työkalujen ja vanhojen teoriakirjalinkkien asiayhteys säilyy nykyisissä URL-parametreissa.
   const topic = new URLSearchParams(location.search).get('aihe');
-  const map = document.querySelector('.main-nav a[href$="#oppimisaiheet"]');
+  // Päävalikon brändilinkki osoittaa aina sivuston juureen; siitä ratkaistaan aihesivun suhteellinen osoite.
+  const map = document.querySelector('.main-nav a.brand');
   if (!map || !Object.hasOwn(topicPaths, topic) || document.querySelector('.study-page')) return;
   const link = document.createElement('a');
   link.href = new URL(topicPaths[topic], map.href).href;

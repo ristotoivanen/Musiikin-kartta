@@ -304,6 +304,31 @@ Kumpikaan epäonnistuminen ei ole tämän uudistuksen regressio. Vertailu tehtii
 - `responsive.spec.ts` *pehmeä vieritys* (desktop, 2 testiä × 10 toistoa) epäonnistui betalla 9/20 ja PR-haaralla 10/20.
   Testi on epävakaa molemmissa.
 
+## G. Opi & oivalla -päävalikkolinkin vieritys (omistajan korjauspyyntö 19.11.2026)
+
+- **Syy:** sisältörekisterin osoite oli `index.html#oppimisaiheet`. Selain vieritti Oppimiskartta-otsikkoon, ja
+  päävalikko jäi näkymän yläpuolelle.
+- **Korjaus:**
+  - Rekisterin osoite on nyt `index.html`. Päävalikot generoitiin uudelleen, ja muutos koski 103 sivua: juuri,
+    `book/`, generoidut `oppi/`-sivut ja Ensikeikan käännös.
+  - Ratkaisussa ei käytetä JavaScript-vieritystä eikä kiinteää valikkoa.
+- **Riippuvuus korjattu:** `assets/oppimiskartta.js` etsi päävalikosta `#oppimisaiheet`-linkin muodostaakseen
+  työkalusivujen *Takaisin aiheeseen* -osoitteen. Valitsin on nyt `.main-nav a.brand`. Myös brändilinkki osoittaa
+  aina sivuston juureen.
+  - #110 ja #111 muuttavat tiedostoa vain sen alussa (rivit 2–17), joten yhden rivin muutos riville 54 ei aiheuta
+    ristiriitaa.
+- **Säilyy:**
+  - `id="oppimisaiheet"` ja kaikki `#aihe-*`-ankkurit
+  - tarkoitukselliset suorat kohdelinkit, esimerkiksi Kitaran perusteiden *Siirry Oppimiskarttaan* →
+    `index.html#oppimisaiheet`
+  - selaimen Takaisin-toiminnon vierityksen palautus.
+- **Testit:** `tests/e2e/osiot.spec.ts` kattaa seuraavat:
+  - Opi & oivalla Musapeleistä, Kitaratreenistä, Soittopakista, oppitunnilta ja teoriaoppaasta: avautuu y = 0, ja
+    päävalikko näkyy kokonaan.
+  - Takaisin palauttaa lähtösivun vierityskohdan y = 1500.
+  - Suorat kohdelinkit ja työkalun *Takaisin aiheeseen* toimivat.
+  - `tests/site.test.ts` tarkistaa, ettei päävalikon linkeissä ole fragmenttia.
+
 ## Muuttuneet ja säilyneet osoitteet
 
 - Uudet: `musapelit.html`, `kitaratreeni.html`, `soittopakki.html`.

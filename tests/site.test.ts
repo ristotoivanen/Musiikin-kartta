@@ -101,7 +101,8 @@ describe('staattisen sivuston yhteensopivuus',()=>{
     expect(html).toContain('<h1 id="oppimisaiheet">Oppimiskartta</h1>');
     expect(html).not.toContain('Nykyiset oppaat ja työkalut');
     expect(html).not.toContain('class="area"');
-    expect(html).toContain('href="index.html#oppimisaiheet">Opi &amp; oivalla</a>');
+    // Päävalikko avaa etusivun yläreunaan (ei fragmenttia); Oppimiskartan otsikon ankkuri säilyy suoria linkkejä varten.
+    expect(html).toContain('href="index.html">Opi &amp; oivalla</a>');
     expect(html).toContain('href="pdf/musiikin-kartta.pdf"');
     expect(html).toContain('href="book/sanasto.html"');
     expect(html).toContain("location.replace('otelautaharjoittelija.html')");
@@ -203,7 +204,7 @@ describe('staattisen sivuston yhteensopivuus',()=>{
       ...readdirSync(new URL('../book/',import.meta.url)).filter(f=>f.endsWith('.html')&&f!=='index.html').map(f=>['book/'+f,'teoria','true'] as [string,string,string]),
       ...studyFiles.map(file=>[file,'teoria','true'] as [string,string,string]),
     ];
-    const targets={teoria:'index.html#oppimisaiheet',pelit:'musapelit.html',kitara:'kitaratreeni.html',pakki:'soittopakki.html'};
+    const targets={teoria:'index.html',pelit:'musapelit.html',kitara:'kitaratreeni.html',pakki:'soittopakki.html'};
     for(const [file,active,kind] of pages){
       const html=read(file);
       const nav=html.match(/<nav class="main-nav" aria-label="Päävalikko">([\s\S]*?)<\/nav>/)?.[1];
@@ -217,7 +218,8 @@ describe('staattisen sivuston yhteensopivuus',()=>{
       }));
       expect(links.map(l=>l.href),file).toEqual(['index.html',targets.teoria,targets.pelit,targets.kitara,targets.pakki]);
       expect(links.map(l=>l.text),file).toEqual(['Musiikin kartta','Opi & oivalla','Musapelit','Kitaratreeni','Soittopakki']);
-      expect(nav,file).toContain('oppimisaiheet');
+      // Päävalikon linkeissä ei ole fragmenttia: kohdesivu avautuu yläreunaan ja päävalikko näkyy.
+      expect(nav,file).not.toContain('#');
       const current=links.filter(l=>l.attrs.includes('aria-current'));
       expect(current,file).toHaveLength(1);
       expect(current[0].href,file).toBe(active?targets[active as keyof typeof targets]:'index.html');

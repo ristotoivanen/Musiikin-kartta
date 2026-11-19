@@ -46,7 +46,7 @@ describe('pääosiot ja sisältörekisteri', () => {
 
   it('päävalikon nimet ovat täsmälleen sovitut', () => {
     expect(registry.osiot.map(s => s.nimi)).toEqual(['Opi & oivalla', 'Musapelit', 'Kitaratreeni', 'Soittopakki']);
-    expect(registry.osiot[0].osoite).toBe('index.html#oppimisaiheet');
+    expect(registry.osiot[0].osoite).toBe('index.html');
   });
 
   it('Musapelit ja Kitaratreeni käyttävät samoja kahdeksaa aihetta ja tunnisteita kuin Oppimiskartta', () => {

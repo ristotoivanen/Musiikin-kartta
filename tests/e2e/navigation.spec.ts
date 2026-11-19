@@ -46,7 +46,7 @@ test.describe('Yhteinen päävalikko', () => {
 
   test('jokainen päävalikon linkki vie oikeaan pääosioon', async ({ page }) => {
     const targets = [
-      [LABELS.teoria, /\/index[.]html#oppimisaiheet$/, 'Oppimiskartta'],
+      [LABELS.teoria, /\/index[.]html$/, 'Oppimiskartta'],
       [LABELS.pelit, /\/musapelit\.html$/, 'Musapelit'],
       [LABELS.kitara, /\/kitaratreeni\.html$/, 'Kitaratreeni'],
       [LABELS.pakki, /\/soittopakki\.html$/, 'Soittopakki'],
@@ -109,7 +109,7 @@ test.describe('Etusivu', () => {
     }, [LUVUT, HARJOITTELU]);
     await page.goto('/index.html');
     const nav = mainNav(page);
-    await expect(nav.getByRole('link', { name: LABELS.teoria })).toHaveAttribute('href', 'index.html#oppimisaiheet');
+    await expect(nav.getByRole('link', { name: LABELS.teoria })).toHaveAttribute('href', 'index.html');
     await expect(nav.getByRole('link', { name: LABELS.pelit })).toHaveAttribute('href', 'musapelit.html');
     await expect(nav.getByRole('link', { name: LABELS.kitara })).toHaveAttribute('href', 'kitaratreeni.html');
     await expect(nav.getByRole('link', { name: LABELS.pakki })).toHaveAttribute('href', 'soittopakki.html');
@@ -118,7 +118,7 @@ test.describe('Etusivu', () => {
       .toHaveAttribute('href', 'oppi/korva/musiikki-on-kieli.html');
     await expect(continueBox.getByRole('link', { name: 'Jatka kitaraharjoittelua · viimeksi 7 vastattua kysymystä' })).toBeVisible();
     await nav.getByRole('link', { name: LABELS.teoria }).click();
-    await expect(page).toHaveURL(/index[.]html#oppimisaiheet$/);
+    await expect(page).toHaveURL(/index[.]html$/);
     await expect(page.getByRole('heading', { level: 1, name: 'Oppimiskartta' })).toBeVisible();
   });
 
@@ -166,7 +166,7 @@ test.describe('Oppimiskartan navigointi ja paluu', () => {
     await page.locator('#valinta-septimisoinnut').click();
     await expect(page).toHaveURL('/oppi/soinnut/septimisoinnut.html');
     await mainNav(page).getByRole('link', { name: 'Opi & oivalla' }).click();
-    await expect(page).toHaveURL('/index.html#oppimisaiheet');
+    await expect(page).toHaveURL('/index.html');
     await expect(page.locator('a.topic-card')).toHaveCount(8);
   });
 

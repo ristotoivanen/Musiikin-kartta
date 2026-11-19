@@ -10,7 +10,7 @@ test.describe('Kolme oppimistapaa ja Soittopakki', () => {
   test('aloittelija löytää intervallit teoriasta, aloittaa ja palaa aihekarttaan', async ({ page }) => {
     await page.goto('/index.html');
     await mainNav(page).getByRole('link', { name: 'Opi & oivalla' }).click();
-    await expect(page).toHaveURL(/index\.html#oppimisaiheet$/);
+    await expect(page).toHaveURL(/index\.html$/);
     await page.goto('/oppi/savelnimet/index.html');
     await page.getByRole('link', { name: /Sävelet ja intervallit/ }).first().click();
     await expect(page).toHaveURL(/oppi\/savelnimet\/savelet-ja-intervallit\.html$/);
@@ -300,6 +300,51 @@ test.describe('Kolme oppimistapaa ja Soittopakki', () => {
     }
     await page.goto('/#harjoittelija');
     await expect(page).toHaveURL(/otelautaharjoittelija\.html$/);
+  });
+});
+
+test.describe('Opi & oivalla -päävalikkolinkki', () => {
+  // Linkki avaa etusivun yläreunaan ilman fragmenttia, jolloin päävalikko on näkyvissä. Ei pakotettua vieritystä.
+  const startPages = [
+    ['/musapelit.html', 'Musapelit'],
+    ['/kitaratreeni.html#aihe-asteikot', 'Kitaratreeni'],
+    ['/soittopakki.html', 'Soittopakki'],
+    ['/oppi/soinnut/septimisoinnut.html', 'oppitunti'],
+    ['/book/osa-2.html', 'teoriaopas'],
+  ] as const;
+  for (const [path, name] of startPages) {
+    test(`${name}: Opi & oivalla avaa etusivun yläreunaan ja päävalikko näkyy`, async ({ page }) => {
+      await page.goto(path);
+      // Käyttäjä on vierittänyt sivua; linkki napautetaan siirtämättä vierityskohtaa.
+      await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+      await mainNav(page).getByRole('link', { name: 'Opi & oivalla' }).evaluate(link => (link as HTMLAnchorElement).click());
+      await expect(page).toHaveURL(/\/index\.html$/);
+      await expect(page.getByRole('heading', { level: 1, name: 'Oppimiskartta' })).toBeVisible();
+      expect(await page.evaluate(() => window.scrollY)).toBe(0);
+      await expect(mainNav(page)).toBeInViewport({ ratio: 1 });
+    });
+  }
+
+  test('selaimen Takaisin palauttaa lähtösivun vierityskohdan', async ({ page }) => {
+    await page.goto('/oppi/soinnut/septimisoinnut.html');
+    await page.evaluate(() => window.scrollTo(0, 1500));
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(1500);
+    await mainNav(page).getByRole('link', { name: 'Opi & oivalla' }).evaluate(link => (link as HTMLAnchorElement).click());
+    await expect(page).toHaveURL(/\/index\.html$/);
+    await page.goBack();
+    await expect(page).toHaveURL(/septimisoinnut\.html$/);
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(1500);
+  });
+
+  test('tarkoitukselliset suorat kohdelinkit toimivat edelleen', async ({ page }) => {
+    await page.goto('/index.html#oppimisaiheet');
+    await expect(page.locator('#oppimisaiheet')).toBeInViewport();
+    expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+    await page.goto('/index.html#aihe-kappaleet');
+    await expect(page.locator('#aihe-kappaleet')).toBeInViewport();
+    // Työkalujen Takaisin aiheeseen -linkki ratkaistaan edelleen päävalikosta (brändilinkki).
+    await page.goto('/otelautaharjoittelija.html?aihe=aihe-soinnut#soinnut');
+    await expect(page.getByRole('link', { name: 'Takaisin aiheeseen' })).toHaveAttribute('href', /\/oppi\/soinnut\/index\.html$/);
   });
 });
 
