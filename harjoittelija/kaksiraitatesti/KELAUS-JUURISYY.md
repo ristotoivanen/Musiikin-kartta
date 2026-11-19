@@ -1,6 +1,6 @@
 # Kelauksen aikakatkaisu ja puuttuva loadstart: juurisyyanalyysi (MK-20261119-03)
 
-**Tila:** korjaus K1–K3 toteutettu testisivulle (omistajan hyväksyntä 19.11.2026), alkuperäinen simulaattoriraportti tarkistettu (luku 7). Alkuperäisen aikakatkaisun juurisyy ei ole vahvistettu, eikä K1–K3 korjaa sitä.
+**Tila:** korjaus K1–K3 toteutettu testisivulle (omistajan hyväksyntä 19.11.2026). Alkuperäinen simulaattoriraportti tarkistettu (luku 7) ja simulaattorissa ajettu 48 + 7 kelaussarjaa korjauksen jälkeen (luku 8). Aikakatkaisu toistuu simulaattorissa (H7, pääsäikeen jumi); juurisyytä WebKitissä ei ole vahvistettu, eikä K1–K3 korjaa sitä.
 - Issue #9 pysyy NO-GO-tilassa.
 - Pohja: PR #122 @ `4a1f665` (`test/kaksiraita-nayttoaani`). Koodiviittaukset tiedostoon `KaksiraitaTesti.tsx` samassa versiossa.
 
@@ -178,4 +178,42 @@ Kun omistaja toimittaa simulaattoriajon JSON-raportit:
 ### Uusi mittari
 
 `&koe=kelaussarja` mittaa jokaisesta sarjasta pääsäikeen pisimmän jumin 20 ms:n ajastimella (`pisinJumiMs`). Analyysityökalu laskee käsin tehdyille sarjoille saman 500 ms:n näytteiden väleistä. Tällä H7 erottuu suoraan raportista.
+
+## 8. Simulaattoriajo K1–K3:n jälkeen (19.11.2026)
+
+**Ympäristö:** iPhone 16 Pro -simulaattori, iOS 27.2, Mobile Safari 27.2. Sivu `kaksiraitatesti.html?lahde=synteettinen&koe=kelaussarja` Macin paikalliselta palvelimelta (`127.0.0.1`, käännös `7fdb5dd65cc9` = commit `877c7fd`). Synteettinen 60 s:n aineisto muistista. Ei ääni- tai kuulohavaintoja.
+
+**Raakaloki:** `raportit/simulaattori-2026-11-19-3.json` (yksi sivulataus, 3 932 tapahtumaa; tapahtumaloki on rajattu 4 000:een, joten pidemmät ajot kannattaa jakaa sivulatauksiin). Vapaatekstikenttiä ei ole.
+
+### Tulokset
+
+| Ajo | Sarjoja | ok | Aikakatkaisu | Pisin jumi |
+| --- | --- | --- | --- | --- |
+| Ajuri, kierros 1 | 24 (12 soitosta, 12 aloituksesta) | 24 | 0 | 10 610 ms (sarja 23, toisto päätyi silti kohteeseen) |
+| Ajuri, kierros 2 | 24 (12 + 12) | 23 | 1 (sarja 22, aloituksesta) | 10 666 ms |
+| Käsin, painikkeet (H6) | 7 tunnistettua (5 soitosta, 2 aloituksesta) | 5 | 2 (molemmat aloituksesta) | 10 825 ja 10 862 ms (näyteväli) |
+
+- **V1 ja V2 eivät toistuneet:** kesken aloituksen tehty kelaus käynnisti uuden aloituksen joka kerta (`paatos: uusi-aloitus`, `kesken` ≠ null), ja 46 ohitettua aloitusta kirjasi `aloitus-ohitettu` eikä yhtään ohitetun aloituksen `kelattu: aikakatkaisu` -merkintää.
+- **H1 ei näkynyt:** WebKit ei lähettänyt `pause`-tapahtumaa kesken aloituksen. Kaikki 27 `pause-paatos`-tapahtumaa johtuivat Tauko-painalluksista (`kesken: false`).
+- **Kaikki kolme aikakatkaisua ja yksi lisäjumi ovat H7:n mukaisia:** viimeisen `seek-write`n jälkeen ei tapahtumia eikä näytteitä 10,5–10,9 s, sitten `emptied`, erääntynyt 5 s:n ajastin (`kelaus-aikakatkaisu`) ja raidat valmiina 50–70 ms:ssa. Koko sivu on jumin ajan reagoimaton.
+
+### H7:n laukaisuehto (havainto, ei vahvistettu juurisyy)
+
+Kaikki neljä jumia (ja alkuperäinen raportti 1) syntyivät, kun uusi aloitus kutsui `pause()` + `load()` elementille, jonka `play()` oli täyttynyt **3–32 ms** aiemmin:
+
+| `toisto-alkoi` → uusi `load()` soivaan elementtiin | Kertoja | Jumi > 1 s |
+| --- | --- | --- |
+| ≤ 40 ms | 17 | 4 (3, 5, 9 ja 32 ms) |
+| > 40 ms | 61 | 0 |
+| Alkuperäinen raportti 1 | 1 (10 ms) | 1 |
+
+- Jumin kesto on joka kerta lähes sama (10,5–10,9 s), mikä viittaa kiinteään aikarajaan WebKitin sisällä eikä kuormaan. Tämä on päättely, ei todennettu.
+- Chromiumissa jumia ei havaittu (T8: 24/24, pisin jumi 28 ms). Ajoitusikkunaa ei ole kohdistetusti testattu Chromiumissa.
+- Simulaattorissa media ja ääni kulkevat Macin prosessien kautta, joten **ilmiö on todennettava iPhonella** ennen kuin siitä tehdään päätöksiä tuotantosoittimelle.
+
+### Lievennysvaihtoehdot (ei toteutettu, vaativat omistajan päätöksen)
+
+- **K4a, aloituksen viive vain kilpaikkunassa:** jos uusi aloitus kohdistuu elementtiin, jonka toisto alkoi alle 50 ms sitten, `pause()` + `load()` siirretään 50 ms:n päähän toiston alusta. Muuttaa ajoitusta vain tässä ikkunassa. Ei poista jumia, jos syy on muu.
+- **K4b, erääntyneen ajastimen armonaika:** jos `waitPositioned`in ajastin laukeaa yli 1 s myöhässä, odotetaan vielä hetki ennen aikakatkaisua. Estää virheellisen aikakatkaisun jumin jälkeen (raidat olivat valmiit 50–70 ms:ssa), mutta ei poista 10 s:n jäätymistä.
+- Kumpaakaan ei toteutettu: luku 5 kieltää ajoituksen ja aikarajan muutokset ilman päätöstä.
 
