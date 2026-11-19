@@ -120,6 +120,14 @@ def validate(config, registry):
         if section['id'] != 'opi' and not (ROOT / page_path(section['osoite'])).exists() and \
                 page_path(section['osoite']) not in OUTPUTS:
             errors.append(f'osio {section["id"]}: osoite {section["osoite"]} puuttuu')
+    for mode in MODES:
+        texts = registry['tavat'].get(mode, {})
+        for field in ('otsikko', 'johdanto', 'merkinta', 'tyhja'):
+            if not texts.get(field):
+                errors.append(f'tavat.{mode}: {field} puuttuu')
+    hub = registry['tavat'].get('kitara', {}).get('keskus', {})
+    if not hub.get('nimi') or not (ROOT / page_path(hub.get('osoite', ''))).exists():
+        errors.append('tavat.kitara.keskus: nimi tai olemassa oleva osoite puuttuu')
     for prefix, section in registry['sivujen_osiot'].items():
         if section not in SECTION_IDS:
             errors.append(f'sivujen_osiot: {prefix} viittaa tuntemattomaan osioon {section}')
@@ -195,6 +203,9 @@ def validate(config, registry):
             errors.append(str(error))
             continue
         page['tavat'], page['tehtava'] = entry.get('tavat', []), entry.get('tehtava', [])
+        page['taito'] = entry.get('taito')
+        if 'pelit' in page['tavat'] and not page['taito']:
+            errors.append(f'{path}: Musapelien kortti tarvitsee harjoiteltavan taidon (taito)')
         page['aiheet'] = [page['aihe']] + [t for t in entry.get('lisaaiheet', []) if t != page['aihe']]
         if not page['tavat'] or any(mode not in MODES for mode in page['tavat']):
             errors.append(f'{path}: tuntematon tai puuttuva oppimistapa {page["tavat"]}')
@@ -321,25 +332,6 @@ def badge(app):
     return ' <span class="mode-badge">beta</span>' if app['saatavuus'] == 'beta' else ''
 
 
-def app_item(app, topic, mode):
-    href = with_params(app['osoite'], aihe=topic['anchor'], tapa=mode) if app['aiheparametri'] else app['osoite']
-    tool = TOOL_LABELS[app['valine']]
-    return (f'      <li><a class="mode-card" href="{esc(href)}">'
-            f'<strong class="mode-card-title">{esc(app["nimi"])}{badge(app)}</strong>'
-            f'<span class="mode-card-text">{esc(app["kuvaus"])}</span>'
-            f'<span class="mode-card-meta">Harjoittaa: {esc(app["taito"].lower())} · {esc(tool)}</span>'
-            f'<span class="mode-card-arrow" aria-hidden="true">→</span></a></li>')
-
-
-def study_item(page, mode, registry, topic):
-    kind = next(k for k in page['tehtava'] if k in registry['tavat'][mode]['tehtavat'])
-    # Lisäaiheesta avattaessa aihe kulkee mukana, jotta paluu osuu samaan aiheeseen. Oma aihe päätellään kansiosta.
-    aihe = topic['anchor'] if topic['slug'] != page['aihe'] else None
-    return (f'      <li><a href="{esc(with_params(page["osoite"], aihe=aihe, tapa=mode))}"><span class="mode-kind">'
-            f'{esc(registry["tehtavat"][kind]["nimi"])}</span> <strong>{esc(page["nimi"])}</strong></a>'
-            f'<span class="mode-desc">{esc(page["kuvaus"])}</span></li>')
-
-
 def switch(topic, current, counts):
     links = [f'<a href="oppi/{topic["slug"]}/index.html">Opi &amp; oivalla</a>']
     for mode, name, page in (('pelit', 'Musapelit', 'musapelit.html'), ('kitara', 'Kitaratreeni', 'kitaratreeni.html')):
@@ -350,70 +342,151 @@ def switch(topic, current, counts):
     return (f'    <p class="mode-switch"><span>Sama aihe:</span> ' + ' · '.join(links) + '</p>')
 
 
-def topic_jump(topics, mode, counts):
+def plural(count, one, many):
+    return f'{count} {one if count == 1 else many}'
+
+
+def mode_items(mode, topics, apps, study, registry):
+    """Oppimistavan sisällöt yhtenäisinä kohteina: sovellukset ja Oppimiskartan sivut samassa muodossa.
+    Järjestys: pienin aihenumero, sovellukset ennen oppisivuja, rekisterin järjestys."""
+    order = {t['slug']: n for n, t in enumerate(topics)}
     items = []
+    for app in apps.values():
+        if mode in app['tavat'] and app['saatavuus'] != 'suunniteltu':
+            items.append({'nimi': app['nimi'], 'kuvaus': app['kuvaus'], 'taito': app['taito'], 'aiheet': app['aiheet'],
+                          'oma': app['aiheet'][0], 'beta': app['saatavuus'] == 'beta', 'sovellus': app,
+                          'laji': TOOL_LABELS[app['valine']], 'tehtava': None})
+    for page in study.values():
+        if mode in page['tavat']:
+            kind = next(k for k in page['tehtava'] if k in registry['tavat'][mode]['tehtavat'])
+            items.append({'nimi': page['nimi'], 'kuvaus': page['kuvaus'], 'taito': page.get('taito'),
+                          'aiheet': page['aiheet'], 'oma': page['aihe'], 'beta': False, 'sivu': page,
+                          'laji': registry['tehtavat'][kind]['nimi'], 'tehtava': kind})
+    for item in items:
+        item['aiheet'] = sorted(item['aiheet'], key=order.get)
+    return sorted(items, key=lambda item: (order[item['aiheet'][0]], 'sivu' in item))
+
+
+def item_href(item, topic_slug, anchors, mode):
+    """Kohteen osoite: aihe ja oppimistapa kulkevat mukana, jotta paluu osuu samaan aiheeseen."""
+    if 'sovellus' in item:
+        app = item['sovellus']
+        return with_params(app['osoite'], aihe=anchors[topic_slug], tapa=mode) if app['aiheparametri'] else app['osoite']
+    aihe = anchors[topic_slug] if topic_slug != item['oma'] else None
+    return with_params(item['sivu']['osoite'], aihe=aihe, tapa=mode)
+
+
+def game_card(item, topic_slug, topics, mode, show_topics=True):
+    numbers = {t['slug']: (n, t['title']) for n, t in enumerate(topics, 1)}
+    anchors = {t['slug']: t['anchor'] for t in topics}
+    where = ' · '.join(f'{numbers[s][0]:02d} {numbers[s][1]}' for s in item['aiheet'])
+    beta = ' <span class="mode-badge">beta</span>' if item['beta'] else ''
+    return (f'      <li><a class="game-card" href="{esc(item_href(item, topic_slug, anchors, mode))}">'
+            f'<span class="game-card-kind">{esc(item["laji"])}</span>'
+            f'<strong class="game-card-title">{esc(item["nimi"])}{beta}</strong>'
+            f'<span class="game-card-text">{esc(item["kuvaus"])}</span>'
+            f'<span class="game-card-skill">Harjoittaa: {esc(item["taito"][0].lower() + item["taito"][1:])}</span>'
+            + (f'<span class="game-card-topics">{esc(where)}</span>' if show_topics else '') +
+            f'<span class="game-card-arrow" aria-hidden="true">→</span></a></li>')
+
+
+def page_head(mode, registry, scripts=('assets/osiot.js',)):
+    section = {s['id']: s for s in registry['osiot']}[mode]
+    title = registry['tavat'][mode]['otsikko']
+    html = head(title, section['kuvaus']).replace('{nav}', main_nav(page_path(section['osoite']), registry, '  '))
+    extra = ''.join(f'<script defer src="{src}"></script>\n' for src in scripts)
+    return html.replace('</head>', extra + '</head>', 1)
+
+
+def games_page(topics, apps, study, registry, counts):
+    """Musapelit: pelikokoelma. Kaikki pelattavat sisällöt heti näkyvissä kerran, aiherajaus ilman tyhjiä osioita.
+    Aiherajaus on CSS:n :target-valitsimella toimiva ankkurilinkki (#aihe-…), joten se toimii ilman JavaScriptiä."""
+    mode = 'pelit'
+    texts = registry['tavat'][mode]
+    items = mode_items(mode, topics, apps, study, registry)
+    out = [page_head(mode, registry), '<main class="mode-main games-main" id="sisalto">\n']
+    out.append(f'  <div class="mode-intro">\n  <h1>{esc(texts["otsikko"])}</h1>\n  <p class="mode-lead">{esc(texts["johdanto"])}</p>\n  </div>\n')
+    chips = [f'    <li><a href="#pelit">{esc(texts["kaikki"])}<span class="chip-count">{len(items)}<span class="mode-sr"> {"peli" if len(items) == 1 else "peliä"}</span></span></a></li>']
     for number, topic in enumerate(topics, 1):
         count = counts[mode].get(topic['slug'], 0)
-        state = '' if count else ' class="is-empty"'
-        amount = (f'{count} <span class="mode-sr">{"sisältö" if count == 1 else "sisältöä"}</span>' if count
-                  else '– <span class="mode-sr">ei sisältöä</span>')
-        items.append(f'    <li{state}><a href="#{topic["anchor"]}"><span class="mode-num" aria-hidden="true">{number:02d}</span> '
-                     f'{esc(topic["title"])}<span class="mode-count">{amount}</span></a></li>')
-    return ('  <nav class="mode-jump" aria-label="Aiheet">\n  <ol>\n' + '\n'.join(items) + '\n  </ol>\n  </nav>\n')
-
-
-def mode_page(mode, topics, apps, study, registry, counts):
-    section = {s['id']: s for s in registry['osiot']}[mode]
-    texts = {
-        'pelit': ('Musapelit',
-                  'Kuuntele, tunnista ja pelaa. Jokainen peli kertoo, mitä taitoa se harjoittaa. '
-                  'Saman aiheen soittoharjoitukset oikealla kitaralla ovat Kitaratreenissä.'),
-        'kitara': ('Kitaratreeni',
-                   'Ota kitara käteen ja aloita mistä tahansa aiheesta. Aiheet ovat samat kuin Oppimiskartassa, '
-                   'eikä teoriaa tarvitse lukea ensin.'),
-    }
-    title, lead = texts[mode]
-    out = [head(title, section['kuvaus']).replace('{nav}', main_nav(page_path(section['osoite']), registry, '  '))]
-    out.append('<main class="mode-main" id="sisalto">\n')
-    out.append(f'  <div class="mode-intro">\n  <h1>{title}</h1>\n  <p class="mode-lead">{lead}</p>\n  </div>\n')
-    if mode == 'kitara':
-        out.append('  <p class="mode-helper mode-all"><span>Kaikki harjoituspolut yhdessä paikassa:</span> '
-                   '<a href="kitaraharjoittelija.html">Kitaraharjoittelija</a></p>\n')
-        out.append('  <p class="mode-note">Harjoitussivun <em>Merkitse tehdyksi</em> on oma kuittauksesi. '
-                   'Se ei tarkoita, että soittotaito olisi todettu hallituksi.</p>\n')
-    out.append(topic_jump(topics, mode, counts))
+        if count:
+            chips.append(f'    <li><a href="#{topic["anchor"]}"><span class="mode-num">{number:02d}</span> {esc(topic["title"])}'
+                         f'<span class="chip-count">{count}<span class="mode-sr"> {"peli" if count == 1 else "peliä"}</span></span></a></li>')
+    out.append('  <nav class="game-filter" aria-label="Rajaa pelit aiheen mukaan">\n  <p class="game-filter-label">Rajaa aiheen mukaan</p>\n'
+               '  <ul>\n' + '\n'.join(chips) + '\n  </ul>\n  </nav>\n')
+    # Aiheiden rajatut näkymät ovat ennen kaikkien pelien listaa, jotta :target ~ .game-all piilottaa sen.
     for number, topic in enumerate(topics, 1):
         slug = topic['slug']
-        topic_apps = [a for a in apps.values() if mode in a['tavat'] and slug in a['aiheet'] and a['saatavuus'] != 'suunniteltu']
-        pages = [p for p in study.values() if mode in p['tavat'] and slug in p['aiheet']]
-        out.append(f'  <section class="mode-topic{"" if topic_apps or pages else " is-empty"}" id="{topic["anchor"]}" '
-                   f'aria-labelledby="{topic["anchor"]}-otsikko">\n')
+        own = [item for item in items if slug in item['aiheet']]
+        out.append(f'  <section class="game-topic" id="{topic["anchor"]}" aria-labelledby="{topic["anchor"]}-otsikko">\n')
         out.append(f'    <h2 id="{topic["anchor"]}-otsikko"><span class="mode-num">{number:02d}</span> {esc(topic["title"])}</h2>\n')
-        if not topic_apps and not pages:
-            other = 'kitara' if mode == 'pelit' else 'pelit'
-            alt = ('Kitaratreenistä' if other == 'kitara' else 'Musapeleistä')
-            text = registry['tavat'][mode]['merkinta']
-            extra = (f' Saman aiheen harjoituksia löydät <a href="{"kitaratreeni" if other == "kitara" else "musapelit"}.html#{topic["anchor"]}">'
-                     f'{alt}</a>.' if counts[other].get(slug) else '')
-            out.append(f'    <p class="mode-empty">{text} Jatka aiheen oppitunneista: '
-                       f'<a href="oppi/{slug}/index.html">Opi &amp; oivalla</a>.{extra}</p>\n')
+        if own:
+            out.append(f'    <p class="game-topic-note">{plural(len(own), "peli", "peliä")} tässä aiheessa. '
+                       f'<a href="#pelit">Näytä kaikki pelit</a></p>\n')
+            out.append('    <ul class="game-grid" role="list">\n' + '\n'.join(game_card(i, slug, topics, mode) for i in own) + '\n    </ul>\n')
         else:
-            if topic_apps:
-                out.append('    <ul class="mode-cards" role="list">\n' + '\n'.join(app_item(a, topic, mode) for a in topic_apps) + '\n    </ul>\n')
-            if pages:
-                heading = 'Kuuntelutehtävät oppitunneilta' if mode == 'pelit' else 'Soita oppitunnin harjoitus'
-                out.append(f'    <h3 class="mode-sub">{heading}</h3>\n')
-                out.append('    <ul class="mode-list" role="list">\n' + '\n'.join(study_item(p, mode, registry, topic) for p in pages) + '\n    </ul>\n')
-            if mode == 'kitara':
-                for helper in registry.get('apuvalineet', {}).get(slug, []):
-                    app_id, _, view_id = helper['nakyma'].partition('/')
-                    tool = apps[app_id]
-                    view = next(v for v in tool['nakymat'] if v['id'] == view_id)
-                    href = with_params(view['osoite'], aihe=topic['anchor'], tapa=mode) if helper.get('aiheparametri') else view['osoite']
-                    out.append(f'    <p class="mode-helper"><span>Soittopakista:</span> <a href="{esc(href)}">'
-                               f'{esc(tool["nimi"])} · {esc(view["nimi"])}</a></p>\n')
-            out.append(switch(topic, mode, counts) + '\n')
+            other = counts['kitara'].get(slug, 0)
+            guitar = (f' Kitaratreenissä on tästä aiheesta {plural(other, "harjoitus", "harjoitusta")}.' if other else '')
+            out.append(f'    <p class="game-topic-note">{esc(texts["merkinta"])}{guitar} <a href="#pelit">Näytä kaikki pelit</a></p>\n')
+        out.append(switch(topic, mode, counts) + '\n')
         out.append('  </section>\n')
+    out.append(f'  <section class="game-all" id="pelit" aria-labelledby="pelit-otsikko">\n    <h2 id="pelit-otsikko">{esc(texts["kaikki"])}</h2>\n')
+    out.append('    <ul class="game-grid" role="list">\n' + '\n'.join(game_card(i, i['aiheet'][0], topics, mode) for i in items) + '\n    </ul>\n  </section>\n')
+    out.append('</main>\n\n')
+    out.append(FOOT)
+    return ''.join(out)
+
+
+def training_page(topics, apps, study, registry, counts):
+    """Kitaratreeni: aiheen valinta natiiveilla details/summary-riveillä. Aiheen harjoitukset ryhmitellään
+    tehtävälajin mukaan (Soita / Korvalla kitaralle). #aihe-… avaa aiheen (assets/osiot.js)."""
+    mode = 'kitara'
+    texts = registry['tavat'][mode]
+    hub = texts['keskus']
+    items = mode_items(mode, topics, apps, study, registry)
+    anchors = {t['slug']: t['anchor'] for t in topics}
+    out = [page_head(mode, registry), '<main class="mode-main train-main" id="sisalto">\n']
+    out.append(f'  <div class="mode-intro">\n  <h1>{esc(texts["otsikko"])}</h1>\n  <p class="mode-lead">{esc(texts["johdanto"])}</p>\n  </div>\n')
+    out.append(f'  <a class="train-hub" href="{esc(hub["osoite"])}"><strong>{esc(hub["nimi"])}</strong>'
+               f'<span>{esc(hub["kuvaus"])}</span><span class="game-card-arrow" aria-hidden="true">→</span></a>\n')
+    out.append('  <section class="train-topics" aria-labelledby="aiheet-otsikko">\n    <h2 id="aiheet-otsikko">Valitse aihe</h2>\n')
+    for number, topic in enumerate(topics, 1):
+        slug = topic['slug']
+        own = [item for item in items if slug in item['aiheet']]
+        count = len(own)
+        label = plural(count, 'harjoitus', 'harjoitusta') if count else texts['tyhja']
+        out.append(f'    <details class="train-topic" id="{topic["anchor"]}">\n'
+                   f'      <summary><span class="mode-num">{number:02d}</span> <span class="train-title">{esc(topic["title"])}</span>'
+                   f'<span class="train-count">{label}</span></summary>\n      <div class="train-body">\n')
+        out.append(f'      <p class="train-about">{esc(topic["summary"])}</p>\n')
+        own_apps = [item for item in own if 'sovellus' in item]
+        if own_apps:
+            out.append('      <ul class="game-grid train-apps" role="list">\n'
+                       + '\n'.join(game_card(item, slug, topics, mode, show_topics=False) for item in own_apps) + '\n      </ul>\n')
+        for kind in texts['tehtavat']:
+            pages = [item for item in own if item.get('tehtava') == kind]
+            if not pages:
+                continue
+            info = registry['tehtavat'][kind]
+            out.append(f'      <h3 class="train-kind">{esc(info["nimi"])} <span>{esc(info["kuvaus"])}</span></h3>\n')
+            out.append('      <ul class="train-list" role="list">\n')
+            for item in pages:
+                out.append(f'        <li><a href="{esc(item_href(item, slug, anchors, mode))}">{esc(item["nimi"])}</a>'
+                           f'<span class="mode-desc">{esc(item["kuvaus"])}</span></li>\n')
+            out.append('      </ul>\n')
+        if not own:
+            out.append(f'      <p class="game-topic-note">{esc(texts["merkinta"])}</p>\n')
+        for helper in registry.get('apuvalineet', {}).get(slug, []):
+            app_id, _, view_id = helper['nakyma'].partition('/')
+            tool = apps[app_id]
+            view = next(v for v in tool['nakymat'] if v['id'] == view_id)
+            href = with_params(view['osoite'], aihe=topic['anchor'], tapa=mode) if helper.get('aiheparametri') else view['osoite']
+            out.append(f'      <p class="mode-helper"><span>Soittopakista:</span> <a href="{esc(href)}">'
+                       f'{esc(tool["nimi"])} · {esc(view["nimi"])}</a></p>\n')
+        out.append('  ' + switch(topic, mode, counts) + '\n')
+        out.append('      </div>\n    </details>\n')
+    out.append('  </section>\n')
+    out.append(f'  <p class="mode-note">{esc(texts["kuittaus"])}</p>\n')
     out.append('</main>\n\n')
     out.append(FOOT)
     return ''.join(out)
@@ -473,8 +546,8 @@ def build(registry_file=REGISTRY_FILE):
                 for topic in page['aiheet']:
                     counts[mode][topic] = counts[mode].get(topic, 0) + 1
     files = {
-        'musapelit.html': mode_page('pelit', topics, apps, study, registry, counts),
-        'kitaratreeni.html': mode_page('kitara', topics, apps, study, registry, counts),
+        'musapelit.html': games_page(topics, apps, study, registry, counts),
+        'kitaratreeni.html': training_page(topics, apps, study, registry, counts),
         'soittopakki.html': toolkit_page(topics, apps, registry),
     }
     for path in nav_pages(registry):

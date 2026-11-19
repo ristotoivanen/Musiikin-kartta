@@ -8,8 +8,9 @@
 <meta name="description" content="Kuuntele, tunnista ja pelaa. Pelit harjoittavat korvaa ja otelautatuntemusta.">
 <link rel="stylesheet" href="assets/otelauta.css?v=36a704ebe6">
 <link rel="stylesheet" href="assets/paavalikko.css?v=4e5c7fbf95">
-<link rel="stylesheet" href="assets/osiot.css?v=9d6cf192d5">
+<link rel="stylesheet" href="assets/osiot.css?v=d431913c9e">
 <script defer src="assets/oppimiskartta.js"></script>
+<script defer src="assets/osiot.js"></script>
 </head>
 <body>
 <a class="mode-skip" href="#sisalto">Siirry sisältöön</a>
@@ -24,77 +25,88 @@
     </ul>
   </nav>
 </header>
-<main class="mode-main" id="sisalto">
+<main class="mode-main games-main" id="sisalto">
   <div class="mode-intro">
   <h1>Musapelit</h1>
-  <p class="mode-lead">Kuuntele, tunnista ja pelaa. Jokainen peli kertoo, mitä taitoa se harjoittaa. Saman aiheen soittoharjoitukset oikealla kitaralla ovat Kitaratreenissä.</p>
+  <p class="mode-lead">Kuuntele, tunnista ja pelaa. Valitse peli ja aloita heti – jokainen kortti kertoo, mitä taitoa se harjoittaa.</p>
   </div>
-  <nav class="mode-jump" aria-label="Aiheet">
-  <ol>
-    <li class="is-empty"><a href="#aihe-kitara"><span class="mode-num" aria-hidden="true">01</span> Kitaran perusteet<span class="mode-count">– <span class="mode-sr">ei sisältöä</span></span></a></li>
-    <li class="is-empty"><a href="#aihe-rytmi"><span class="mode-num" aria-hidden="true">02</span> Rytmi<span class="mode-count">– <span class="mode-sr">ei sisältöä</span></span></a></li>
-    <li class="is-empty"><a href="#aihe-nuotit"><span class="mode-num" aria-hidden="true">03</span> Sävelnimet ja sointumerkinnät<span class="mode-count">– <span class="mode-sr">ei sisältöä</span></span></a></li>
-    <li><a href="#aihe-korva"><span class="mode-num" aria-hidden="true">04</span> Sävelkorva ja melodia<span class="mode-count">4 <span class="mode-sr">sisältöä</span></span></a></li>
-    <li><a href="#aihe-otelauta"><span class="mode-num" aria-hidden="true">05</span> Otelauta<span class="mode-count">1 <span class="mode-sr">sisältö</span></span></a></li>
-    <li><a href="#aihe-soinnut"><span class="mode-num" aria-hidden="true">06</span> Soinnut ja harmonia<span class="mode-count">2 <span class="mode-sr">sisältöä</span></span></a></li>
-    <li class="is-empty"><a href="#aihe-asteikot"><span class="mode-num" aria-hidden="true">07</span> Asteikot ja moodit<span class="mode-count">– <span class="mode-sr">ei sisältöä</span></span></a></li>
-    <li><a href="#aihe-kappaleet"><span class="mode-num" aria-hidden="true">08</span> Kappaleet ja oma musiikki<span class="mode-count">1 <span class="mode-sr">sisältö</span></span></a></li>
-  </ol>
+  <nav class="game-filter" aria-label="Rajaa pelit aiheen mukaan">
+  <p class="game-filter-label">Rajaa aiheen mukaan</p>
+  <ul>
+    <li><a href="#pelit">Kaikki pelit<span class="chip-count">7<span class="mode-sr"> peliä</span></span></a></li>
+    <li><a href="#aihe-korva"><span class="mode-num">04</span> Sävelkorva ja melodia<span class="chip-count">4<span class="mode-sr"> peliä</span></span></a></li>
+    <li><a href="#aihe-otelauta"><span class="mode-num">05</span> Otelauta<span class="chip-count">1<span class="mode-sr"> peli</span></span></a></li>
+    <li><a href="#aihe-soinnut"><span class="mode-num">06</span> Soinnut ja harmonia<span class="chip-count">2<span class="mode-sr"> peliä</span></span></a></li>
+    <li><a href="#aihe-kappaleet"><span class="mode-num">08</span> Kappaleet ja oma musiikki<span class="chip-count">1<span class="mode-sr"> peli</span></span></a></li>
+  </ul>
   </nav>
-  <section class="mode-topic is-empty" id="aihe-kitara" aria-labelledby="aihe-kitara-otsikko">
+  <section class="game-topic" id="aihe-kitara" aria-labelledby="aihe-kitara-otsikko">
     <h2 id="aihe-kitara-otsikko"><span class="mode-num">01</span> Kitaran perusteet</h2>
-    <p class="mode-empty">Ei peliä tässä aiheessa. Jatka aiheen oppitunneista: <a href="oppi/kitara/index.html">Opi &amp; oivalla</a>. Saman aiheen harjoituksia löydät <a href="kitaratreeni.html#aihe-kitara">Kitaratreenistä</a>.</p>
+    <p class="game-topic-note">Ei peliä tässä aiheessa. Kitaratreenissä on tästä aiheesta 3 harjoitusta. <a href="#pelit">Näytä kaikki pelit</a></p>
+    <p class="mode-switch"><span>Sama aihe:</span> <a href="oppi/kitara/index.html">Opi &amp; oivalla</a> · <a href="kitaratreeni.html#aihe-kitara">Kitaratreeni</a></p>
   </section>
-  <section class="mode-topic is-empty" id="aihe-rytmi" aria-labelledby="aihe-rytmi-otsikko">
+  <section class="game-topic" id="aihe-rytmi" aria-labelledby="aihe-rytmi-otsikko">
     <h2 id="aihe-rytmi-otsikko"><span class="mode-num">02</span> Rytmi</h2>
-    <p class="mode-empty">Ei peliä tässä aiheessa. Jatka aiheen oppitunneista: <a href="oppi/rytmi/index.html">Opi &amp; oivalla</a>. Saman aiheen harjoituksia löydät <a href="kitaratreeni.html#aihe-rytmi">Kitaratreenistä</a>.</p>
+    <p class="game-topic-note">Ei peliä tässä aiheessa. Kitaratreenissä on tästä aiheesta 2 harjoitusta. <a href="#pelit">Näytä kaikki pelit</a></p>
+    <p class="mode-switch"><span>Sama aihe:</span> <a href="oppi/rytmi/index.html">Opi &amp; oivalla</a> · <a href="kitaratreeni.html#aihe-rytmi">Kitaratreeni</a></p>
   </section>
-  <section class="mode-topic is-empty" id="aihe-nuotit" aria-labelledby="aihe-nuotit-otsikko">
+  <section class="game-topic" id="aihe-nuotit" aria-labelledby="aihe-nuotit-otsikko">
     <h2 id="aihe-nuotit-otsikko"><span class="mode-num">03</span> Sävelnimet ja sointumerkinnät</h2>
-    <p class="mode-empty">Ei peliä tässä aiheessa. Jatka aiheen oppitunneista: <a href="oppi/savelnimet/index.html">Opi &amp; oivalla</a>. Saman aiheen harjoituksia löydät <a href="kitaratreeni.html#aihe-nuotit">Kitaratreenistä</a>.</p>
+    <p class="game-topic-note">Ei peliä tässä aiheessa. Kitaratreenissä on tästä aiheesta 1 harjoitus. <a href="#pelit">Näytä kaikki pelit</a></p>
+    <p class="mode-switch"><span>Sama aihe:</span> <a href="oppi/savelnimet/index.html">Opi &amp; oivalla</a> · <a href="kitaratreeni.html#aihe-nuotit">Kitaratreeni</a></p>
   </section>
-  <section class="mode-topic" id="aihe-korva" aria-labelledby="aihe-korva-otsikko">
+  <section class="game-topic" id="aihe-korva" aria-labelledby="aihe-korva-otsikko">
     <h2 id="aihe-korva-otsikko"><span class="mode-num">04</span> Sävelkorva ja melodia</h2>
-    <ul class="mode-cards" role="list">
-      <li><a class="mode-card" href="pelit/ensikeikka/index.html?aihe=aihe-korva&amp;tapa=pelit"><strong class="mode-card-title">Ensikeikka <span class="mode-badge">beta</span></strong><span class="mode-card-text">Kuuntele kappale ja valitse melodialle lopetus, joka palaa kotiin.</span><span class="mode-card-meta">Harjoittaa: kotisävelen ja fraasin lopetuksen kuuleminen · Kuuntelu</span><span class="mode-card-arrow" aria-hidden="true">→</span></a></li>
-      <li><a class="mode-card" href="riffikaiku.html?tila=peli&amp;aihe=aihe-korva&amp;tapa=pelit"><strong class="mode-card-title">Riffikaiku-peli <span class="mode-badge">beta</span></strong><span class="mode-card-text">Kuuntele lyhyt riffi ja toista se virtuaalikitaralla.</span><span class="mode-card-meta">Harjoittaa: melodian muistaminen ja löytäminen otelaudalta kuulonvaraisesti · Virtuaalikitara</span><span class="mode-card-arrow" aria-hidden="true">→</span></a></li>
-    </ul>
-    <h3 class="mode-sub">Kuuntelutehtävät oppitunneilta</h3>
-    <ul class="mode-list" role="list">
-      <li><a href="oppi/korva/mika-aste-soi.html?tapa=pelit"><span class="mode-kind">Kuuntelutehtävä</span> <strong>Mikä aste soi?</strong></a><span class="mode-desc">Kuuntele sävel ja tunnista sen aste kotisävelestä.</span></li>
-      <li><a href="oppi/korva/tunnista-sointutyyppi.html?tapa=pelit"><span class="mode-kind">Kuuntelutehtävä</span> <strong>Tunnista sointutyyppi</strong></a><span class="mode-desc">Erota duuri ja molli korvalla eri perussäveliltä.</span></li>
+    <p class="game-topic-note">4 peliä tässä aiheessa. <a href="#pelit">Näytä kaikki pelit</a></p>
+    <ul class="game-grid" role="list">
+      <li><a class="game-card" href="pelit/ensikeikka/index.html?aihe=aihe-korva&amp;tapa=pelit"><span class="game-card-kind">Kuuntelu</span><strong class="game-card-title">Ensikeikka <span class="mode-badge">beta</span></strong><span class="game-card-text">Kuuntele kappale ja valitse melodialle lopetus, joka palaa kotiin.</span><span class="game-card-skill">Harjoittaa: kotisävelen ja fraasin lopetuksen kuuleminen</span><span class="game-card-topics">04 Sävelkorva ja melodia</span><span class="game-card-arrow" aria-hidden="true">→</span></a></li>
+      <li><a class="game-card" href="riffikaiku.html?tila=peli&amp;aihe=aihe-korva&amp;tapa=pelit"><span class="game-card-kind">Virtuaalikitara</span><strong class="game-card-title">Riffikaiku-peli <span class="mode-badge">beta</span></strong><span class="game-card-text">Kuuntele lyhyt riffi ja toista se virtuaalikitaralla.</span><span class="game-card-skill">Harjoittaa: melodian muistaminen ja löytäminen otelaudalta kuulonvaraisesti</span><span class="game-card-topics">04 Sävelkorva ja melodia</span><span class="game-card-arrow" aria-hidden="true">→</span></a></li>
+      <li><a class="game-card" href="oppi/korva/mika-aste-soi.html?tapa=pelit"><span class="game-card-kind">Kuuntelutehtävä</span><strong class="game-card-title">Mikä aste soi?</strong><span class="game-card-text">Kuuntele sävel ja tunnista sen aste kotisävelestä.</span><span class="game-card-skill">Harjoittaa: asteen kuuleminen suhteessa kotisäveleen</span><span class="game-card-topics">04 Sävelkorva ja melodia</span><span class="game-card-arrow" aria-hidden="true">→</span></a></li>
+      <li><a class="game-card" href="oppi/korva/tunnista-sointutyyppi.html?tapa=pelit"><span class="game-card-kind">Kuuntelutehtävä</span><strong class="game-card-title">Tunnista sointutyyppi</strong><span class="game-card-text">Erota duuri ja molli korvalla eri perussäveliltä.</span><span class="game-card-skill">Harjoittaa: duuri- ja mollisoinnun erottaminen korvalla</span><span class="game-card-topics">04 Sävelkorva ja melodia</span><span class="game-card-arrow" aria-hidden="true">→</span></a></li>
     </ul>
     <p class="mode-switch"><span>Sama aihe:</span> <a href="oppi/korva/index.html">Opi &amp; oivalla</a> · <a href="kitaratreeni.html#aihe-korva">Kitaratreeni</a></p>
   </section>
-  <section class="mode-topic" id="aihe-otelauta" aria-labelledby="aihe-otelauta-otsikko">
+  <section class="game-topic" id="aihe-otelauta" aria-labelledby="aihe-otelauta-otsikko">
     <h2 id="aihe-otelauta-otsikko"><span class="mode-num">05</span> Otelauta</h2>
-    <ul class="mode-cards" role="list">
-      <li><a class="mode-card" href="kitaraharjoittelija.html?polku=otelauta&amp;harjoitus=savelten-etsinta&amp;aihe=aihe-otelauta&amp;tapa=pelit"><strong class="mode-card-title">Sävelten etsintä</strong><span class="mode-card-text">Napauta virtuaaliselta otelaudalta pyydetyn sävelen kaikki paikat nauhoilta 0–5.</span><span class="mode-card-meta">Harjoittaa: sävelten sijainnit otelaudalla · Otelautakuva, ei ääntä</span><span class="mode-card-arrow" aria-hidden="true">→</span></a></li>
+    <p class="game-topic-note">1 peli tässä aiheessa. <a href="#pelit">Näytä kaikki pelit</a></p>
+    <ul class="game-grid" role="list">
+      <li><a class="game-card" href="kitaraharjoittelija.html?polku=otelauta&amp;harjoitus=savelten-etsinta&amp;aihe=aihe-otelauta&amp;tapa=pelit"><span class="game-card-kind">Otelautakuva, ei ääntä</span><strong class="game-card-title">Sävelten etsintä</strong><span class="game-card-text">Napauta virtuaaliselta otelaudalta pyydetyn sävelen kaikki paikat nauhoilta 0–5.</span><span class="game-card-skill">Harjoittaa: sävelten sijainnit otelaudalla</span><span class="game-card-topics">05 Otelauta</span><span class="game-card-arrow" aria-hidden="true">→</span></a></li>
     </ul>
     <p class="mode-switch"><span>Sama aihe:</span> <a href="oppi/otelauta/index.html">Opi &amp; oivalla</a> · <a href="kitaratreeni.html#aihe-otelauta">Kitaratreeni</a></p>
   </section>
-  <section class="mode-topic" id="aihe-soinnut" aria-labelledby="aihe-soinnut-otsikko">
+  <section class="game-topic" id="aihe-soinnut" aria-labelledby="aihe-soinnut-otsikko">
     <h2 id="aihe-soinnut-otsikko"><span class="mode-num">06</span> Soinnut ja harmonia</h2>
-    <ul class="mode-cards" role="list">
-      <li><a class="mode-card" href="kitaraharjoittelija.html?polku=soinnut&amp;aihe=aihe-soinnut&amp;tapa=pelit"><strong class="mode-card-title">Tunnista avoin sointu</strong><span class="mode-card-text">Katso sointuotetta otelaudan kuvasta ja valitse, mikä avoin sointu se on.</span><span class="mode-card-meta">Harjoittaa: tavallisten avoimien sointuotteiden tunnistaminen · Otelautakuva, ei ääntä</span><span class="mode-card-arrow" aria-hidden="true">→</span></a></li>
-    </ul>
-    <h3 class="mode-sub">Kuuntelutehtävät oppitunneilta</h3>
-    <ul class="mode-list" role="list">
-      <li><a href="oppi/kappaleet/mika-sointu-tulee.html?aihe=aihe-soinnut&amp;tapa=pelit"><span class="mode-kind">Kuuntelutehtävä</span> <strong>Mikä sointu tulee?</strong></a><span class="mode-desc">Kuuntele bassoa ja tunnista liike pois kotisoinnusta.</span></li>
+    <p class="game-topic-note">2 peliä tässä aiheessa. <a href="#pelit">Näytä kaikki pelit</a></p>
+    <ul class="game-grid" role="list">
+      <li><a class="game-card" href="kitaraharjoittelija.html?polku=soinnut&amp;aihe=aihe-soinnut&amp;tapa=pelit"><span class="game-card-kind">Otelautakuva, ei ääntä</span><strong class="game-card-title">Tunnista avoin sointu</strong><span class="game-card-text">Katso sointuotetta otelaudan kuvasta ja valitse, mikä avoin sointu se on.</span><span class="game-card-skill">Harjoittaa: tavallisten avoimien sointuotteiden tunnistaminen</span><span class="game-card-topics">06 Soinnut ja harmonia</span><span class="game-card-arrow" aria-hidden="true">→</span></a></li>
+      <li><a class="game-card" href="oppi/kappaleet/mika-sointu-tulee.html?aihe=aihe-soinnut&amp;tapa=pelit"><span class="game-card-kind">Kuuntelutehtävä</span><strong class="game-card-title">Mikä sointu tulee?</strong><span class="game-card-text">Kuuntele bassoa ja tunnista liike pois kotisoinnusta.</span><span class="game-card-skill">Harjoittaa: sointujen liikkeen kuuleminen basson avulla</span><span class="game-card-topics">06 Soinnut ja harmonia · 08 Kappaleet ja oma musiikki</span><span class="game-card-arrow" aria-hidden="true">→</span></a></li>
     </ul>
     <p class="mode-switch"><span>Sama aihe:</span> <a href="oppi/soinnut/index.html">Opi &amp; oivalla</a> · <a href="kitaratreeni.html#aihe-soinnut">Kitaratreeni</a></p>
   </section>
-  <section class="mode-topic is-empty" id="aihe-asteikot" aria-labelledby="aihe-asteikot-otsikko">
+  <section class="game-topic" id="aihe-asteikot" aria-labelledby="aihe-asteikot-otsikko">
     <h2 id="aihe-asteikot-otsikko"><span class="mode-num">07</span> Asteikot ja moodit</h2>
-    <p class="mode-empty">Ei peliä tässä aiheessa. Jatka aiheen oppitunneista: <a href="oppi/asteikot/index.html">Opi &amp; oivalla</a>. Saman aiheen harjoituksia löydät <a href="kitaratreeni.html#aihe-asteikot">Kitaratreenistä</a>.</p>
+    <p class="game-topic-note">Ei peliä tässä aiheessa. Kitaratreenissä on tästä aiheesta 5 harjoitusta. <a href="#pelit">Näytä kaikki pelit</a></p>
+    <p class="mode-switch"><span>Sama aihe:</span> <a href="oppi/asteikot/index.html">Opi &amp; oivalla</a> · <a href="kitaratreeni.html#aihe-asteikot">Kitaratreeni</a></p>
   </section>
-  <section class="mode-topic" id="aihe-kappaleet" aria-labelledby="aihe-kappaleet-otsikko">
+  <section class="game-topic" id="aihe-kappaleet" aria-labelledby="aihe-kappaleet-otsikko">
     <h2 id="aihe-kappaleet-otsikko"><span class="mode-num">08</span> Kappaleet ja oma musiikki</h2>
-    <h3 class="mode-sub">Kuuntelutehtävät oppitunneilta</h3>
-    <ul class="mode-list" role="list">
-      <li><a href="oppi/kappaleet/mika-sointu-tulee.html?tapa=pelit"><span class="mode-kind">Kuuntelutehtävä</span> <strong>Mikä sointu tulee?</strong></a><span class="mode-desc">Kuuntele bassoa ja tunnista liike pois kotisoinnusta.</span></li>
+    <p class="game-topic-note">1 peli tässä aiheessa. <a href="#pelit">Näytä kaikki pelit</a></p>
+    <ul class="game-grid" role="list">
+      <li><a class="game-card" href="oppi/kappaleet/mika-sointu-tulee.html?tapa=pelit"><span class="game-card-kind">Kuuntelutehtävä</span><strong class="game-card-title">Mikä sointu tulee?</strong><span class="game-card-text">Kuuntele bassoa ja tunnista liike pois kotisoinnusta.</span><span class="game-card-skill">Harjoittaa: sointujen liikkeen kuuleminen basson avulla</span><span class="game-card-topics">06 Soinnut ja harmonia · 08 Kappaleet ja oma musiikki</span><span class="game-card-arrow" aria-hidden="true">→</span></a></li>
     </ul>
     <p class="mode-switch"><span>Sama aihe:</span> <a href="oppi/kappaleet/index.html">Opi &amp; oivalla</a> · <a href="kitaratreeni.html#aihe-kappaleet">Kitaratreeni</a></p>
+  </section>
+  <section class="game-all" id="pelit" aria-labelledby="pelit-otsikko">
+    <h2 id="pelit-otsikko">Kaikki pelit</h2>
+    <ul class="game-grid" role="list">
+      <li><a class="game-card" href="pelit/ensikeikka/index.html?aihe=aihe-korva&amp;tapa=pelit"><span class="game-card-kind">Kuuntelu</span><strong class="game-card-title">Ensikeikka <span class="mode-badge">beta</span></strong><span class="game-card-text">Kuuntele kappale ja valitse melodialle lopetus, joka palaa kotiin.</span><span class="game-card-skill">Harjoittaa: kotisävelen ja fraasin lopetuksen kuuleminen</span><span class="game-card-topics">04 Sävelkorva ja melodia</span><span class="game-card-arrow" aria-hidden="true">→</span></a></li>
+      <li><a class="game-card" href="riffikaiku.html?tila=peli&amp;aihe=aihe-korva&amp;tapa=pelit"><span class="game-card-kind">Virtuaalikitara</span><strong class="game-card-title">Riffikaiku-peli <span class="mode-badge">beta</span></strong><span class="game-card-text">Kuuntele lyhyt riffi ja toista se virtuaalikitaralla.</span><span class="game-card-skill">Harjoittaa: melodian muistaminen ja löytäminen otelaudalta kuulonvaraisesti</span><span class="game-card-topics">04 Sävelkorva ja melodia</span><span class="game-card-arrow" aria-hidden="true">→</span></a></li>
+      <li><a class="game-card" href="oppi/korva/mika-aste-soi.html?tapa=pelit"><span class="game-card-kind">Kuuntelutehtävä</span><strong class="game-card-title">Mikä aste soi?</strong><span class="game-card-text">Kuuntele sävel ja tunnista sen aste kotisävelestä.</span><span class="game-card-skill">Harjoittaa: asteen kuuleminen suhteessa kotisäveleen</span><span class="game-card-topics">04 Sävelkorva ja melodia</span><span class="game-card-arrow" aria-hidden="true">→</span></a></li>
+      <li><a class="game-card" href="oppi/korva/tunnista-sointutyyppi.html?tapa=pelit"><span class="game-card-kind">Kuuntelutehtävä</span><strong class="game-card-title">Tunnista sointutyyppi</strong><span class="game-card-text">Erota duuri ja molli korvalla eri perussäveliltä.</span><span class="game-card-skill">Harjoittaa: duuri- ja mollisoinnun erottaminen korvalla</span><span class="game-card-topics">04 Sävelkorva ja melodia</span><span class="game-card-arrow" aria-hidden="true">→</span></a></li>
+      <li><a class="game-card" href="kitaraharjoittelija.html?polku=otelauta&amp;harjoitus=savelten-etsinta&amp;aihe=aihe-otelauta&amp;tapa=pelit"><span class="game-card-kind">Otelautakuva, ei ääntä</span><strong class="game-card-title">Sävelten etsintä</strong><span class="game-card-text">Napauta virtuaaliselta otelaudalta pyydetyn sävelen kaikki paikat nauhoilta 0–5.</span><span class="game-card-skill">Harjoittaa: sävelten sijainnit otelaudalla</span><span class="game-card-topics">05 Otelauta</span><span class="game-card-arrow" aria-hidden="true">→</span></a></li>
+      <li><a class="game-card" href="kitaraharjoittelija.html?polku=soinnut&amp;aihe=aihe-soinnut&amp;tapa=pelit"><span class="game-card-kind">Otelautakuva, ei ääntä</span><strong class="game-card-title">Tunnista avoin sointu</strong><span class="game-card-text">Katso sointuotetta otelaudan kuvasta ja valitse, mikä avoin sointu se on.</span><span class="game-card-skill">Harjoittaa: tavallisten avoimien sointuotteiden tunnistaminen</span><span class="game-card-topics">06 Soinnut ja harmonia</span><span class="game-card-arrow" aria-hidden="true">→</span></a></li>
+      <li><a class="game-card" href="oppi/kappaleet/mika-sointu-tulee.html?aihe=aihe-soinnut&amp;tapa=pelit"><span class="game-card-kind">Kuuntelutehtävä</span><strong class="game-card-title">Mikä sointu tulee?</strong><span class="game-card-text">Kuuntele bassoa ja tunnista liike pois kotisoinnusta.</span><span class="game-card-skill">Harjoittaa: sointujen liikkeen kuuleminen basson avulla</span><span class="game-card-topics">06 Soinnut ja harmonia · 08 Kappaleet ja oma musiikki</span><span class="game-card-arrow" aria-hidden="true">→</span></a></li>
+    </ul>
   </section>
 </main>
 

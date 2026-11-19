@@ -6,7 +6,8 @@
     "Jos sama tiedosto sisältää eri oppimistapoja (esim. riffikaiku.html?tila=peli ja ?tila=harjoitus), 'tunnistus' nimeää osoitteen parametrit, jotka erottavat sisällön. Oppimistapa (?tapa=) on voimassa vain, kun nämä parametrit täsmäävät.",
     "Oppimiskartan sivuista (oppisivut) kirjataan osoite, oppimistavat ja tehtävän laji. Otsikko, aihe ja suoritustunniste luetaan muodostetusta sivusta. Valinnainen 'lisaaiheet' liittää sivun myös muihin aiheisiin.",
     "Sovellukset (pelit, harjoittelijat, työkalut) kuvataan tässä kokonaan. Saatavuus 'suunniteltu' kirjataan, mutta sitä ei näytetä käyttäjälle.",
-    "Muodosta ja tarkista: python3 tools/oppimiskartta/rakenna-osiot.py [--tarkista]"
+    "Muodosta ja tarkista: python3 tools/oppimiskartta/rakenna-osiot.py [--tarkista]",
+    "Musapelien oppisivuilla 'taito' kertoo pelikortissa harjoiteltavan taidon. Oppimistapojen otsikot ja johdannot ovat kohdassa 'tavat'."
   ],
   "osiot": [
     {
@@ -57,7 +58,10 @@
       ],
       "tehtavat": [
         "kuuntelutehtava"
-      ]
+      ],
+      "otsikko": "Musapelit",
+      "johdanto": "Kuuntele, tunnista ja pelaa. Valitse peli ja aloita heti – jokainen kortti kertoo, mitä taitoa se harjoittaa.",
+      "kaikki": "Kaikki pelit"
     },
     "kitara": {
       "merkinta": "Ei soittoharjoitusta tässä aiheessa.",
@@ -68,7 +72,15 @@
       "tehtavat": [
         "soita",
         "korvalla"
-      ]
+      ],
+      "otsikko": "Kitaratreeni",
+      "johdanto": "Ota kitara käteen. Valitse harjoiteltava aihe, avaa sen harjoitukset ja aloita mistä tahansa – teoriaa ei tarvitse lukea ensin.",
+      "keskus": {
+        "nimi": "Kitaraharjoittelija",
+        "osoite": "kitaraharjoittelija.html",
+        "kuvaus": "Ohjatut harjoituspolut: asteikot ja moodit, kappaleet soiton mukana sekä otelaudan ja sointujen tunnistus."
+      },
+      "kuittaus": "Harjoitussivun Merkitse tehdyksi on oma kuittauksesi. Se ei tarkoita, että soittotaito olisi todettu hallituksi."
     }
   },
   "tehtavat": {
@@ -319,7 +331,8 @@
       ],
       "tehtava": [
         "kuuntelutehtava"
-      ]
+      ],
+      "taito": "Asteen kuuleminen suhteessa kotisäveleen"
     },
     {
       "sivu": "oppi/korva/tunnista-sointutyyppi.html",
@@ -328,7 +341,8 @@
       ],
       "tehtava": [
         "kuuntelutehtava"
-      ]
+      ],
+      "taito": "Duuri- ja mollisoinnun erottaminen korvalla"
     },
     {
       "sivu": "oppi/kappaleet/mika-sointu-tulee.html",
@@ -340,7 +354,8 @@
       ],
       "lisaaiheet": [
         "soinnut"
-      ]
+      ],
+      "taito": "Sointujen liikkeen kuuleminen basson avulla"
     },
     {
       "sivu": "oppi/kitara/vaihto-ja-sointukartta.html",
