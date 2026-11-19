@@ -329,6 +329,30 @@ Kumpikaan epäonnistuminen ei ole tämän uudistuksen regressio. Vertailu tehtii
   - Suorat kohdelinkit ja työkalun *Takaisin aiheeseen* toimivat.
   - `tests/site.test.ts` tarkistaa, ettei päävalikon linkeissä ole fragmenttia.
 
+## H. Etusivun aktiivinen pääosio ja omistajan puhelintarkistukset (19.11.2026)
+
+**Korjaus (omistajan pyyntö):**
+- Etusivulla `aria-current="page"` on nyt *Opi & oivalla* -linkissä, kuten Musapeleissä, Kitaratreenissä ja
+  Soittopakissa omilla sivuillaan.
+- Brändilinkki *Musiikin kartta* on tavallinen etusivulinkki ilman aktiivista tilaa.
+- Muutos on generaattorissa (`rakenna-osiot.py`, `main_nav()`). Ainoa muuttunut generoitu tiedosto on
+  `index.html`, ja muiden sivujen päävalikot ovat tavulleen ennallaan.
+- `index.html`-osoite ilman fragmenttia säilyy.
+
+**Testit:**
+- `tests/site.test.ts` tarkistaa jokaisen pääsivun yhden aktiivisen osion, myös etusivun, ja brändilinkin ilman
+  aktiivista tilaa.
+- `tests/e2e/navigation.spec.ts` tarkistaa aktiivisen osion ja sen violetin taustan kaikilla pääsivuilla.
+
+**Omistajan puhelintarkistukset (omistajan ilmoitus 19.11.2026):**
+- Omistaja teki fyysisellä puhelimella **neljä onnistunutta navigointi- ja paluutarkistusta** PR #119:n
+  esikatselussa.
+- Toimeksiannossa ei ilmoitettu laitetta, käyttöjärjestelmää, selainta, testattua SHA:ta tai esikatselun osoitetta
+  eikä yksittäisiä polkuja. Ne kirjataan tähän **ilmoittamattomina**, eikä niitä ole päätelty.
+- Tarkistukset kattavat ilmoituksen mukaan navigoinnin ja paluun. Ne **eivät** todenna seuraavia: ruudunlukija
+  (VoiceOver/TalkBack), suuri tekstikoko puhelimessa, vaaka-asento, Android-laite, äänentoisto tai mikrofoni,
+  käyttäjäkoe muilla käyttäjillä eikä tämän H-korjauksen jälkeinen versio. Ne ovat edelleen **ei testattu**.
+
 ## Muuttuneet ja säilyneet osoitteet
 
 - Uudet: `musapelit.html`, `kitaratreeni.html`, `soittopakki.html`.

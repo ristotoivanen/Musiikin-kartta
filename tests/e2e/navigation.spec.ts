@@ -4,7 +4,7 @@ import { test, expect, type Page } from '@playwright/test';
 // Neljä pääosiota: Opi & oivalla avaa Oppimiskartan aihejaottelun, vaikka kirjan vanha teoriaindeksi säilyy.
 // Sisältörekisteri: tools/oppimiskartta/sisaltorekisteri.json.
 const MAIN_PAGES = [
-  { path: '/index.html', active: null },
+  { path: '/index.html', active: 'teoria' },
   { path: '/book/index.html', active: 'teoria' },
   { path: '/book/osa-3.html', active: 'teoria' },
   { path: '/book/sanasto.html', active: 'teoria' },
@@ -37,10 +37,11 @@ test.describe('Yhteinen päävalikko', () => {
       await expect(links.nth(4)).toHaveText(LABELS.pakki);
       const current = nav.locator('[aria-current]');
       await expect(current).toHaveCount(1);
-      if (active === null) await expect(current).toHaveText('Musiikin kartta');
-      else await expect(current).toHaveText(LABELS[active]);
-      // Aktiivinen osio erottuu violetilla taustalla.
-      if (active !== null) expect(await current.evaluate(el => getComputedStyle(el).backgroundColor)).toBe('rgb(75, 47, 214)');
+      await expect(current).toHaveText(LABELS[active]);
+      await expect(current).toHaveAttribute('aria-current', path === '/index.html' ? 'page' : /^(page|true)$/);
+      await expect(links.nth(0)).not.toHaveAttribute('aria-current');
+      // Aktiivinen osio erottuu violetilla taustalla, myös etusivulla.
+      expect(await current.evaluate(el => getComputedStyle(el).backgroundColor)).toBe('rgb(75, 47, 214)');
     });
   }
 

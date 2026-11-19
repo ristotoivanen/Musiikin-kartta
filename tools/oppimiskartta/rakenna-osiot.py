@@ -265,16 +265,16 @@ def section_of(path, registry):
 
 
 def main_nav(path, registry, indent=''):
-    """Päävalikon merkintä sivulle. Etusivulla aktiivinen on brändilinkki, muualla oma osio."""
+    """Päävalikon merkintä sivulle. Aktiivinen on aina sivun oma pääosio, myös etusivulla (Opi & oivalla,
+    aria-current="page"). Brändilinkki on tavallinen etusivulinkki ilman aktiivista tilaa."""
     up = '../' * path.count('/')
     current = section_of(path, registry)
-    brand = ' aria-current="page"' if path == 'index.html' else ''
     lines = [f'<nav class="main-nav" aria-label="Päävalikko">',
-             f'  <a class="brand" href="{up}index.html"{brand}>Musiikin <span>kartta</span></a>',
+             f'  <a class="brand" href="{up}index.html">Musiikin <span>kartta</span></a>',
              '  <ul>']
     for section in registry['osiot']:
         attr = ''
-        if path != 'index.html' and section['id'] == current:
+        if section['id'] == current:
             attr = ' aria-current="page"' if page_path(section['osoite']) == path else ' aria-current="true"'
         lines.append(f'    <li><a href="{up}{section["osoite"]}"{attr}>{esc(section["nimi"])}</a></li>')
     lines += ['  </ul>', '</nav>']

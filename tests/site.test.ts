@@ -102,7 +102,8 @@ describe('staattisen sivuston yhteensopivuus',()=>{
     expect(html).not.toContain('Nykyiset oppaat ja työkalut');
     expect(html).not.toContain('class="area"');
     // Päävalikko avaa etusivun yläreunaan (ei fragmenttia); Oppimiskartan otsikon ankkuri säilyy suoria linkkejä varten.
-    expect(html).toContain('href="index.html">Opi &amp; oivalla</a>');
+    expect(html).toContain('<a href="index.html" aria-current="page">Opi &amp; oivalla</a>');
+    expect(html).toContain('<a class="brand" href="index.html">Musiikin <span>kartta</span></a>');
     expect(html).toContain('href="pdf/musiikin-kartta.pdf"');
     expect(html).toContain('href="book/sanasto.html"');
     expect(html).toContain("location.replace('otelautaharjoittelija.html')");
@@ -198,7 +199,8 @@ describe('staattisen sivuston yhteensopivuus',()=>{
   it('jokaisella pääsivulla on sama päävalikko samassa järjestyksessä ja oikea aktiivinen osio',()=>{
     // Neljä pääosiota ja niiden osoitteet: tools/oppimiskartta/sisaltorekisteri.json.
     const pages:[string,string|null,string][]=[
-      ['index.html',null,'page'],['book/index.html','teoria','true'],['otelautaharjoittelija.html','pakki','true'],['kitaraharjoittelija.html','kitara','true'],
+      // Etusivulla aktiivinen on Opi & oivalla (aria-current="page"), ei brändilinkki.
+      ['index.html','teoria','page'],['book/index.html','teoria','true'],['otelautaharjoittelija.html','pakki','true'],['kitaraharjoittelija.html','kitara','true'],
       ['riffikaiku.html','pelit','true'],['pelit/ensikeikka/index.html','pelit','true'],
       ['musapelit.html','pelit','page'],['kitaratreeni.html','kitara','page'],['soittopakki.html','pakki','page'],
       ...readdirSync(new URL('../book/',import.meta.url)).filter(f=>f.endsWith('.html')&&f!=='index.html').map(f=>['book/'+f,'teoria','true'] as [string,string,string]),
@@ -222,7 +224,9 @@ describe('staattisen sivuston yhteensopivuus',()=>{
       expect(nav,file).not.toContain('#');
       const current=links.filter(l=>l.attrs.includes('aria-current'));
       expect(current,file).toHaveLength(1);
-      expect(current[0].href,file).toBe(active?targets[active as keyof typeof targets]:'index.html');
+      expect(current[0].href,file).toBe(targets[active as keyof typeof targets]);
+      // Brändilinkki on tavallinen etusivulinkki ilman aktiivista tilaa.
+      expect(links[0].attrs,file).not.toContain('aria-current');
       expect(current[0].attrs,file).toContain(`aria-current="${kind}"`);
     }
   });
