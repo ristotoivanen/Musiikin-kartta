@@ -332,12 +332,12 @@ def badge(app):
     return ' <span class="mode-badge">beta</span>' if app['saatavuus'] == 'beta' else ''
 
 
-def switch(topic, current, counts):
+def switch(topic, current, counts, registry):
     links = [f'<a href="oppi/{topic["slug"]}/index.html">Opi &amp; oivalla</a>']
     for mode, name, page in (('pelit', 'Musapelit', 'musapelit.html'), ('kitara', 'Kitaratreeni', 'kitaratreeni.html')):
         if mode == current:
             continue
-        label = name if counts[mode].get(topic['slug']) else f'{name} <span class="mode-none">(ei sisältöä)</span>'
+        label = name if counts[mode].get(topic['slug']) else f'{name} <span class="mode-none">({registry["tavat"][mode]["tyhja"]})</span>'
         links.append(f'<a href="{page}#{topic["anchor"]}">{label}</a>')
     return (f'    <p class="mode-switch"><span>Sama aihe:</span> ' + ' · '.join(links) + '</p>')
 
@@ -428,7 +428,7 @@ def games_page(topics, apps, study, registry, counts):
             other = counts['kitara'].get(slug, 0)
             guitar = (f' Kitaratreenissä on tästä aiheesta {plural(other, "harjoitus", "harjoitusta")}.' if other else '')
             out.append(f'    <p class="game-topic-note">{esc(texts["merkinta"])}{guitar} <a href="#pelit">Näytä kaikki pelit</a></p>\n')
-        out.append(switch(topic, mode, counts) + '\n')
+        out.append(switch(topic, mode, counts, registry) + '\n')
         out.append('  </section>\n')
     out.append(f'  <section class="game-all" id="pelit" aria-labelledby="pelit-otsikko">\n    <h2 id="pelit-otsikko">{esc(texts["kaikki"])}</h2>\n')
     out.append('    <ul class="game-grid" role="list">\n' + '\n'.join(game_card(i, i['aiheet'][0], topics, mode) for i in items) + '\n    </ul>\n  </section>\n')
@@ -483,7 +483,7 @@ def training_page(topics, apps, study, registry, counts):
             href = with_params(view['osoite'], aihe=topic['anchor'], tapa=mode) if helper.get('aiheparametri') else view['osoite']
             out.append(f'      <p class="mode-helper"><span>Soittopakista:</span> <a href="{esc(href)}">'
                        f'{esc(tool["nimi"])} · {esc(view["nimi"])}</a></p>\n')
-        out.append('  ' + switch(topic, mode, counts) + '\n')
+        out.append('  ' + switch(topic, mode, counts, registry) + '\n')
         out.append('      </div>\n    </details>\n')
     out.append('  </section>\n')
     out.append(f'  <p class="mode-note">{esc(texts["kuittaus"])}</p>\n')
