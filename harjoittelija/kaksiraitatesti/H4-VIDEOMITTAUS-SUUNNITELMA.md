@@ -102,6 +102,8 @@ Omistajan tarkistuksen mukaan alkuperäisessä H4-raportissa **kolmella viidest�
 
 Vaiheet P0–P2 eivät vaadi koodimuutoksia eivätkä hankintoja. P3 vaatii hyväksynnän.
 
+**Tilanne 19.11.:** ensimmäinen tallenne (`IMG_0325.MOV`, iPhone 16 Pro kuvasi iPadia, tavallinen 60 fps:n video) on analysoitu: ääniraita oli mukana, välähdykset ja piippaukset paritettiin aikataulun kautta yksiselitteisesti. Kalibrointia (P1) ei vielä ole. Ks. [`H4-VIDEO-PILOTTI-2026-11-19.md`](H4-VIDEO-PILOTTI-2026-11-19.md).
+
 | Vaihe | Mitä | Läpäisyehto (vaiheen jatkamiselle, ei H4:n hyväksymiselle) |
 | --- | --- | --- |
 | **P0** Laitetarkistus | Kuvaavan puhelimen malli. 10 s hidastusvideo käsien taputuksesta → siirto Macille alkuperäisenä → AVFoundation-tarkistus: raidat, kuvanopeus, aikaleimojen välit, ääniraidan näytetaajuus ja kesto. Sama tavallisella 60 fps:n videolla. | Ääniraita on olemassa ja reaaliaikainen. Muuten B käytetään tavallisella videolla tai siirrytään A:han. |
