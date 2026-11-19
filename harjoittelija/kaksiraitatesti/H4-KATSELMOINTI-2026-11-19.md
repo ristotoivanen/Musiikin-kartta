@@ -15,9 +15,10 @@
 | 5 | käynnistys | +50 |
 
 - **Lähde:** omistajan ilmoittamat arvot. Testisivun JSON-raporttia (`nayttoaani.trials`) ei ole vielä toimitettu.
+- **Päivitys 19.11.2026:** omistajan tarkistuksen mukaan kolmella viidestä on `sameOperation=true` (saman toistojakson toistosäätö). Riippumattomia käynnistysoperaatioita on vain **kaksi**. Alla olevat tilastot on laskettu ikään kuin havaintoja olisi viisi riippumatonta, joten niitä **ei pidä käyttää**. Ne on säilytetty vain kirjauksen jäljitettävyyden vuoksi. Ks. `H4-VIDEOMITTAUS-SUUNNITELMA.md` luku 0.
 - **Puuttuvat tiedot:** `sameOperation`-merkinnät, `pageLoadId`, `flashes`, `adjustMs`, `sliderStartMs`, `confidence`, M − R ja käännöksen tunniste. Niitä ei voi tarkistaa ennen raporttia.
 - **Tallennus:** raportti tallennetaan muuttamattomana nimellä `raportit/iphone-h4-2026-11-19.json`, kun se toimitetaan.
-- **Tilastot (vain kuvailevia):** keskiarvo −34 ms, SD 120 ms, 95 %:n luottamusväli ±149 ms, mediaani +50 ms.
+- **Tilastot (virheellinen oletus viidestä riippumattomasta havainnosta, ei käytetä):** keskiarvo −34 ms, SD 120 ms, 95 %:n luottamusväli ±149 ms, mediaani +50 ms.
 - **Jakauma on kaksihuippuinen:** {−180, −150} ja {+50, +50, +60}. Ryhmien ero on noin 220 ms.
 - **Tulkinta epävarma.** Arvoja ei käytetä H4:n tuloksena eikä vertailukohtana jatkolle ja kelaukselle (luvut 3 ja 4).
 
@@ -102,7 +103,7 @@ Vaihtoehto E, iPhonen oma mikrofoni samalla sivulla, ei ole suositeltava: mikrof
 | --- | --- |
 | Bluetooth pois, iPhonen kaiutin, ulostulo *iPhonen kaiutin* | Ei tiedossa ilman raporttia (`output`). |
 | Virransäästötila kirjattu | Ei tiedossa. |
-| Käynnistys: sivu ladataan uudelleen ennen jokaista | Viisi uutta operaatiota edellyttää viittä sivulatausta. Näkyy raportista `pageLoadId`:stä ja `sameOperation`-kentästä. |
+| Käynnistys: sivu ladataan uudelleen ennen jokaista | Ei toteutunut: omistajan tarkistuksen mukaan 3/5 on `sameOperation=true`, joten uusia käynnistyksiä oli kaksi. |
 | Protokollan järjestys vuorottelee (käynnistys → jatko → kelaus) | Viisi käynnistystä peräkkäin poikkeaa järjestyksestä, jos ne tehtiin ennen ensimmäistä jatkoa. Sivu kirjaa tallennuksen todellisena tilanteena, joten tämä ei vääristä luokittelua, mutta väsymys ja oppiminen painottuvat. |
 | Säätö enintään noin 30 s, varmuus valittu | Näkyy raportista (`adjustMs`, `confidence`). |
 | Ääripäiden kokeilu ensin | Ohje itse altistaa väärälle parille (luku 3, kohta 4). |
