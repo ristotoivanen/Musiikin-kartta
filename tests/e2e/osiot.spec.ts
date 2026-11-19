@@ -21,16 +21,45 @@ test.describe('Kolme oppimistapaa ja Soittopakki', () => {
     await expect(page).toHaveURL(/index\.html#aihe-nuotit$/);
   });
 
-  test('pelaaja löytää pelin, näkee harjoitettavan taidon ja palaa samaan aiheeseen Musapeleissä', async ({ page }) => {
+  test('A: pelaaja löytää Ensikeikan heti, näkee harjoitettavan taidon ja palaa samaan aiheeseen Musapeleissä', async ({ page }) => {
     await page.goto('/musapelit.html');
-    const topic = page.locator('#aihe-korva');
-    const card = topic.getByRole('link', { name: /Ensikeikka/ });
+    // Pelit näkyvät heti: ei tyhjiä aiheosioita ennen niitä.
+    await expect(page.locator('.game-topic:visible')).toHaveCount(0);
+    const card = page.locator('#pelit').getByRole('link', { name: /Ensikeikka/ });
+    await expect(card).toBeInViewport();
     await expect(card).toContainText('Harjoittaa: kotisävelen ja fraasin lopetuksen kuuleminen');
     await expect(card).toHaveAttribute('href', 'pelit/ensikeikka/index.html?aihe=aihe-korva&tapa=pelit');
     await card.click();
     await expect(mainNav(page).getByRole('link', { name: 'Musapelit' })).toHaveAttribute('aria-current', 'true');
     await page.getByRole('link', { name: 'Takaisin: Musapelit: Sävelkorva ja melodia' }).click();
     await expect(page).toHaveURL(/musapelit\.html#aihe-korva$/);
+    // Paluu näyttää aiheen pelit ja aktiivisen rajauksen; kaikkien pelien lista on piilossa.
+    await expect(page.locator('#aihe-korva')).toBeVisible();
+    await expect(page.locator('#aihe-korva').getByRole('link', { name: /Ensikeikka/ })).toBeVisible();
+    await expect(page.locator('#pelit')).toBeHidden();
+    await expect(page.getByRole('navigation', { name: 'Rajaa pelit aiheen mukaan' }).locator('[aria-current]')).toContainText('Sävelkorva ja melodia');
+  });
+
+  test('B: pelaaja rajaa Soinnut-aiheeseen ja löytää Tunnista avoin sointu ja Mikä sointu tulee?', async ({ page }) => {
+    await page.goto('/musapelit.html');
+    const filter = page.getByRole('navigation', { name: 'Rajaa pelit aiheen mukaan' });
+    await expect(filter.getByRole('link', { name: /Kaikki pelit/ })).toHaveAttribute('aria-current', 'true');
+    await filter.getByRole('link', { name: /Soinnut ja harmonia/ }).click();
+    await expect(page).toHaveURL(/#aihe-soinnut$/);
+    const topic = page.locator('#aihe-soinnut');
+    await expect(topic.locator('.game-card')).toHaveCount(2);
+    await expect(topic.getByRole('link', { name: /Tunnista avoin sointu/ })).toBeVisible();
+    const chord = topic.getByRole('link', { name: /Mikä sointu tulee\?/ });
+    await expect(chord).toContainText('06 Soinnut ja harmonia · 08 Kappaleet ja oma musiikki');
+    await chord.click();
+    // Sama sivu ja suoritustunniste kuin Kappaleet-aiheessa.
+    await expect(page.locator('main')).toHaveAttribute('data-study-item', 'harjoitus:mika-sointu-tulee');
+    await expect(page.locator('.study-up .study-back')).toHaveText('← Musapelit: Soinnut ja harmonia');
+    // Selaimen paluu palauttaa saman rajauksen.
+    await page.goBack();
+    await expect(page.locator('#aihe-soinnut')).toBeVisible();
+    await filter.getByRole('link', { name: /Kaikki pelit/ }).click();
+    await expect(page.locator('#pelit .game-card')).toHaveCount(7);
   });
 
   test('Musapeleistä avattu kuuntelutehtävä palaa Musapeleihin', async ({ page }) => {
@@ -170,9 +199,39 @@ test.describe('Kolme oppimistapaa ja Soittopakki', () => {
     await expect(page.locator('.study-up .study-back')).toBeFocused();
   });
 
-  test('kitaristi löytää soittoharjoituksen ja avaa aiheeseen rajatun otelautatyökalun', async ({ page }) => {
+  test('C: kitaristi valitsee Rytmin, avaa Alas–ylös yhdellä soinnulla ja palaa Kitaratreenin Rytmiin', async ({ page }) => {
     await page.goto('/kitaratreeni.html');
+    // Harjoitukset eivät kuormita aloitusnäkymää: kaikki aiheet ovat kiinni.
+    await expect(page.locator('details.train-topic[open]')).toHaveCount(0);
+    await page.locator('#aihe-rytmi > summary').click();
+    const rhythm = page.locator('#aihe-rytmi');
+    await expect(rhythm).toHaveAttribute('open', '');
+    await expect(rhythm.getByRole('heading', { name: /^Soita/ })).toBeVisible();
+    await rhythm.getByRole('link', { name: 'Alas–ylös yhdellä soinnulla' }).click();
+    await expect(page).toHaveURL(/oppi\/rytmi\/alas-ylos-yhdella-soinnulla\.html\?tapa=kitara$/);
+    await page.locator('.study-up .study-back').click();
+    await expect(page).toHaveURL(/kitaratreeni\.html#aihe-rytmi$/);
+    await expect(page.locator('#aihe-rytmi')).toHaveAttribute('open', '');
+    await expect(page.locator('#aihe-rytmi').getByRole('link', { name: 'Alas–ylös yhdellä soinnulla' })).toBeInViewport();
+  });
+
+  test('D: kitaristi löytää asteikkoharjoitukset, avaa rajatun Otelautaoppaan ja palaa oikeaan aiheeseen', async ({ page }) => {
+    await page.goto('/kitaratreeni.html');
+    await page.locator('#aihe-asteikot > summary').click();
+    const scales = page.locator('#aihe-asteikot');
+    await expect(scales.getByRole('link', { name: /Pentatoniset asteikot ja moodit/ })).toBeVisible();
+    await expect(scales.locator('.train-list a')).toHaveCount(4);
+    await scales.getByRole('link', { name: 'Otelautaopas · Asteikot ja moodit' }).click();
+    await expect(page.locator('#scale-select')).toHaveValue('mp');
+    await page.getByRole('link', { name: 'Takaisin: Kitaratreeni: Asteikot ja moodit' }).click();
+    await expect(page).toHaveURL(/kitaratreeni\.html#aihe-asteikot$/);
+    await expect(page.locator('#aihe-asteikot')).toHaveAttribute('open', '');
+  });
+
+  test('kitaristi löytää soittoharjoituksen ja avaa aiheeseen rajatun otelautatyökalun', async ({ page }) => {
+    await page.goto('/kitaratreeni.html#aihe-otelauta');
     const topic = page.locator('#aihe-otelauta');
+    await expect(topic).toHaveAttribute('open', '');
     await expect(topic.getByRole('link', { name: /Etsi sama sävel kaikilta kieliltä/ })).toHaveAttribute('href', 'oppi/otelauta/etsi-sama-savel.html?tapa=kitara');
     const helper = topic.getByRole('link', { name: 'Otelautaopas · Oktaavit' });
     await expect(helper).toHaveAttribute('href', 'otelautaharjoittelija.html?toonikka=A&aihe=aihe-otelauta&tapa=kitara#oktaavit');
@@ -194,9 +253,14 @@ test.describe('Kolme oppimistapaa ja Soittopakki', () => {
   test('aihe ilman peliä ohjaa olemassa olevaan sisältöön eikä näytä tulossa-kortteja', async ({ page }) => {
     await page.goto('/musapelit.html#aihe-rytmi');
     const rytmi = page.locator('#aihe-rytmi');
-    await expect(rytmi).toContainText('Ei peliä tässä aiheessa.');
-    await expect(rytmi.getByRole('link', { name: 'Kitaratreenistä' })).toHaveAttribute('href', 'kitaratreeni.html#aihe-rytmi');
+    await expect(rytmi).toBeVisible();
+    await expect(rytmi).toContainText('Ei peliä tässä aiheessa. Kitaratreenissä on tästä aiheesta 2 harjoitusta.');
+    await expect(rytmi.getByRole('link', { name: 'Kitaratreeni' })).toHaveAttribute('href', 'kitaratreeni.html#aihe-rytmi');
+    await expect(rytmi.getByRole('link', { name: 'Näytä kaikki pelit' })).toHaveAttribute('href', '#pelit');
     await expect(page.getByText(/tulossa/i)).toHaveCount(0);
+    // Tyhjää aihetta ei tarjota oletusnäkymän rajauksissa.
+    await page.goto('/musapelit.html');
+    await expect(page.getByRole('navigation', { name: 'Rajaa pelit aiheen mukaan' }).getByRole('link', { name: /Rytmi/ })).toHaveCount(0);
   });
 
   test('Soittopakki näyttää vain käytettävissä olevat työkalut', async ({ page }) => {
@@ -260,27 +324,69 @@ test.describe('Pääosiot puhelimessa, näppäimistöllä, ilman JavaScriptiä j
     });
   }
 
-  test('näppäimistöllä pääsee sisältöön ja aiheen pikavalinta siirtää fokuksen aiheeseen', async ({ page, isMobile }) => {
+  test('G: Kitaratreeni näppäimistöllä: aiheen avaus, harjoituksen valinta, suljetut aiheet eivät ole sarkainjärjestyksessä', async ({ page, isMobile }) => {
     test.skip(isMobile, 'Sarkainnäppäin testataan työpöytäkoossa.');
     await page.goto('/kitaratreeni.html');
     await page.keyboard.press('Tab');
     await expect(page.getByRole('link', { name: 'Siirry sisältöön' })).toBeFocused();
     for (let i = 0; i < 5; i++) await page.keyboard.press('Tab');
     await expect(mainNav(page).getByRole('link', { name: 'Soittopakki' })).toBeFocused();
-    const jump = page.getByRole('navigation', { name: 'Aiheet' }).getByRole('link', { name: /Asteikot ja moodit/ });
-    await jump.focus();
-    expect(await jump.evaluate(el => getComputedStyle(el).outlineStyle)).toBe('solid');
-    await page.keyboard.press('Enter');
-    await expect(page).toHaveURL(/#aihe-asteikot$/);
     await page.keyboard.press('Tab');
-    await expect(page.locator('#aihe-asteikot a').first()).toBeFocused();
+    await expect(page.getByRole('link', { name: /^Kitaraharjoittelija/ })).toBeFocused();
+    await page.keyboard.press('Tab');
+    await page.keyboard.press('Tab');
+    const summary = page.locator('#aihe-rytmi > summary');
+    await expect(summary).toBeFocused();
+    expect(await summary.evaluate(el => getComputedStyle(el).outlineStyle)).toBe('solid');
+    // Suljetun aiheen linkit ohitetaan: seuraava sarkain menee seuraavaan aiheeseen.
+    await page.keyboard.press('Tab');
+    await expect(page.locator('#aihe-nuotit > summary')).toBeFocused();
+    await page.keyboard.press('Shift+Tab');
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#aihe-rytmi')).toHaveAttribute('open', '');
+    await page.keyboard.press('Tab');
+    await expect(page.locator('#aihe-rytmi').getByRole('link', { name: 'Alas–ylös yhdellä soinnulla' })).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/alas-ylos-yhdella-soinnulla\.html\?tapa=kitara$/);
+    // Välilyönti sulkee aiheen.
+    await page.goBack();
+    await page.locator('#aihe-asteikot > summary').focus();
+    await page.keyboard.press('Space');
+    await expect(page.locator('#aihe-asteikot')).toHaveAttribute('open', '');
+    await page.keyboard.press('Space');
+    await expect(page.locator('#aihe-asteikot')).not.toHaveAttribute('open', '');
+  });
+
+  test('G: Musapelien aiherajaus ja pelin avaus näppäimistöllä', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Sarkainnäppäin testataan työpöytäkoossa.');
+    await page.goto('/musapelit.html');
+    const chip = page.getByRole('navigation', { name: 'Rajaa pelit aiheen mukaan' }).getByRole('link', { name: /Otelauta/ });
+    await chip.focus();
+    expect(await chip.evaluate(el => getComputedStyle(el).outlineStyle)).toBe('solid');
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/#aihe-otelauta$/);
+    await expect(chip).toHaveAttribute('aria-current', 'true');
+    // Fragmentti siirtää sarkainjärjestyksen aiheeseen: ensimmäinen kohde on aiheen linkki.
+    await page.keyboard.press('Tab');
+    await expect(page.locator('#aihe-otelauta').getByRole('link').first()).toBeFocused();
   });
 
   test.describe('ilman JavaScriptiä', () => {
     test.use({ javaScriptEnabled: false });
-    test('näkymät ja suorat linkit toimivat', async ({ page }) => {
+    test('F: pelit, aiherajaus ja harjoitukset toimivat ilman JavaScriptiä', async ({ page }) => {
+      await page.goto('/musapelit.html');
+      await expect(page.locator('#pelit .game-card')).toHaveCount(7);
+      await expect(page.locator('#pelit .game-card').first()).toBeVisible();
+      // Aiherajaus on CSS:n :target, ei JavaScript.
+      await page.goto('/musapelit.html#aihe-soinnut');
+      await expect(page.locator('#aihe-soinnut').getByRole('link', { name: /Tunnista avoin sointu/ })).toBeVisible();
+      await expect(page.locator('#pelit')).toBeHidden();
+      await page.locator('#aihe-soinnut').getByRole('link', { name: /Tunnista avoin sointu/ }).click();
+      await expect(page).toHaveURL(/kitaraharjoittelija\.html\?polku=soinnut&aihe=aihe-soinnut&tapa=pelit$/);
       await page.goto('/kitaratreeni.html');
-      await expect(page.locator('section.mode-topic')).toHaveCount(8);
+      await expect(page.locator('details.train-topic')).toHaveCount(8);
+      // Natiivi details avautuu ilman JavaScriptiä.
+      await page.locator('#aihe-rytmi > summary').click();
       await page.locator('#aihe-rytmi').getByRole('link', { name: /Alas–ylös yhdellä soinnulla/ }).click();
       await expect(page).toHaveURL(/oppi\/rytmi\/alas-ylos-yhdella-soinnulla\.html\?tapa=kitara$/);
       // Ilman JavaScriptiä paluu toimii kuten ennen: Oppimiskartan aiheeseen.
@@ -297,12 +403,59 @@ test.describe('Pääosiot puhelimessa, näppäimistöllä, ilman JavaScriptiä j
     });
   });
 
-  test('tulostettaessa aiheiden sisältö säilyy ja navigointi piiloutuu', async ({ page }) => {
+  test('H: tulostettaessa harjoitukset ja pelit säilyvät ja navigointi piiloutuu', async ({ page }) => {
     await page.goto('/kitaratreeni.html');
+    // Selain lähettää beforeprint-tapahtuman ennen tulostusta; emulateMedia ei lähetä sitä itse.
+    await page.evaluate(() => window.dispatchEvent(new Event('beforeprint')));
     await page.emulateMedia({ media: 'print' });
     await expect(page.locator('.site-top')).toBeHidden();
-    await expect(page.getByRole('navigation', { name: 'Aiheet' })).toBeHidden();
+    await expect(page.locator('details.train-topic[open]')).toHaveCount(8);
     await expect(page.locator('#aihe-kappaleet').getByRole('link', { name: /Kappaleharjoittelija/ })).toBeVisible();
-    await expect(page.locator('#aihe-soinnut .mode-list li')).toHaveCount(9);
+    await expect(page.locator('#aihe-soinnut .train-list li')).toHaveCount(9);
+    await page.evaluate(() => window.dispatchEvent(new Event('afterprint')));
+    await expect(page.locator('details.train-topic[open]')).toHaveCount(0);
+    await page.goto('/musapelit.html#aihe-otelauta');
+    await page.emulateMedia({ media: 'print' });
+    await expect(page.locator('.game-filter')).toBeHidden();
+    await expect(page.locator('#pelit .game-card')).toHaveCount(7);
+    await expect(page.locator('#pelit')).toBeVisible();
   });
+
+  test('E: suorat aihelinkit avaavat oikean sisällön', async ({ page }) => {
+    await page.goto('/musapelit.html#aihe-soinnut');
+    await expect(page.locator('#aihe-soinnut')).toBeInViewport();
+    await expect(page.locator('#aihe-soinnut').getByRole('heading', { name: /Soinnut ja harmonia/ })).toBeVisible();
+    await page.goto('/kitaratreeni.html#aihe-asteikot');
+    await expect(page.locator('#aihe-asteikot')).toHaveAttribute('open', '');
+    await expect(page.locator('#aihe-asteikot > summary')).toBeInViewport();
+    await expect(page.locator('details.train-topic[open]')).toHaveCount(1);
+    // Kaikki kahdeksan aiheankkuria säilyvät molemmissa näkymissä.
+    for (const anchor of ['aihe-kitara', 'aihe-rytmi', 'aihe-nuotit', 'aihe-korva', 'aihe-otelauta', 'aihe-soinnut', 'aihe-asteikot', 'aihe-kappaleet']) {
+      await page.goto('/musapelit.html#' + anchor);
+      await expect(page.locator('#' + anchor), anchor).toBeVisible();
+      await page.goto('/kitaratreeni.html#' + anchor);
+      await expect(page.locator('#' + anchor), anchor).toHaveAttribute('open', '');
+    }
+  });
+
+  test('200 % tekstikoko 320 px:ssä ei aiheuta vaakavieritystä Musapeleissä eikä Kitaratreenissä', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 800 });
+    for (const path of ['/musapelit.html', '/musapelit.html#aihe-korva', '/kitaratreeni.html', '/kitaratreeni.html#aihe-kappaleet']) {
+      await page.goto(path);
+      await page.addStyleTag({ content: 'html { font-size: 200% !important; } body { font-size: 200%; }' });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth), path).toBeLessThanOrEqual(320);
+    }
+  });
+
+  for (const width of [430, 768]) {
+    test(`Musapelit ja Kitaratreeni mahtuvat ${width} px leveyteen ja ensimmäinen peli näkyy heti`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 844 });
+      for (const path of ['/musapelit.html', '/kitaratreeni.html', '/kitaratreeni.html#aihe-soinnut']) {
+        await page.goto(path);
+        expect(await page.evaluate(() => document.documentElement.scrollWidth), path).toBeLessThanOrEqual(width);
+      }
+      await page.goto('/musapelit.html');
+      await expect(page.locator('#pelit .game-card').first()).toBeInViewport();
+    });
+  }
 });

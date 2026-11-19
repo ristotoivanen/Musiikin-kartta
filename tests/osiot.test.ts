@@ -27,7 +27,13 @@ function validateCopy(change: (copy: Registry) => void): string | null {
   }
 }
 const topics = (JSON.parse(read('tools/oppimiskartta/aiheet.json')) as { topics: { slug: string; anchor: string; title: string }[] }).topics;
-const sectionIds = (html: string) => [...html.matchAll(/<section class="mode-topic[^"]*" id="([^"]+)"/g)].map(m => m[1]);
+const sectionIds = (html: string) => [...html.matchAll(/<(?:section class="game-topic"|details class="train-topic") id="([^"]+)"/g)].map(m => m[1]);
+/** Näkymän osa: Musapelien kaikkien pelien lista, aiheen rajattu näkymä tai Kitaratreenin aihe. */
+const block = (html: string, id: string) => html.split(`id="${id}"`)[1].split(/<\/section>|<\/details>/)[0];
+const cards = (html: string) => [...html.matchAll(/<a class="game-card" href="([^"]+)">[\s\S]*?<strong class="game-card-title">([^<]+)/g)]
+  .map(([, href, title]) => ({ href: href.replace(/&amp;/g, '&'), title: title.trim() }));
+const trainLinks = (html: string) => [...html.matchAll(/<li><a href="([^"]+)">([^<]+)<\/a><span class="mode-desc">/g)]
+  .map(([, href, title]) => ({ href: href.replace(/&amp;/g, '&'), title }));
 const sourceFiles = (dir: string): string[] => readdirSync(new URL('../' + dir, import.meta.url), { withFileTypes: true })
   .flatMap(entry => entry.isDirectory() ? sourceFiles(dir + '/' + entry.name) : [dir + '/' + entry.name])
   .filter(file => /\.(tsx?|js)$/.test(file) && !file.includes('/vendor/'));
@@ -50,11 +56,57 @@ describe('pääosiot ja sisältörekisteri', () => {
       const html = read(page);
       expect(sectionIds(html), page).toEqual(home);
       topics.forEach((topic, index) => {
-        expect(html, page).toContain(`<span class="mode-num">${String(index + 1).padStart(2, '0')}</span> ${topic.title}</h2>`);
+        expect(html, page).toMatch(new RegExp(`<span class="mode-num">${String(index + 1).padStart(2, '0')}</span> (<span class="train-title">)?${topic.title}`));
         // Jokaisesta aiheesta pääsee saman aiheen teoriaan ja toiseen oppimistapaan.
-        expect(html, page).toContain(`href="oppi/${topic.slug}/index.html"`);
+        expect(block(html, topic.anchor), page).toContain(`href="oppi/${topic.slug}/index.html"`);
       });
     }
+  });
+
+  it('Musapelit näyttää jokaisen pelattavan sisällön kerran heti, ja aiheiden näkymät vastaavat rekisteriä', () => {
+    const html = read('musapelit.html');
+    const all = cards(block(html, 'pelit'));
+    const games = [
+      ...registry.sovellukset.filter(app => app.tavat.includes('pelit') && app.saatavuus !== 'suunniteltu').map(app => app.nimi),
+      ...registry.oppisivut.filter(entry => entry.tavat.includes('pelit'))
+        .map(entry => read(entry.sivu).match(/<h1[^>]*>([^<]+)</)![1].trim()),
+    ];
+    expect(all.map(card => card.title).sort()).toEqual([...games].sort());
+    expect(new Set(all.map(card => card.title)).size).toBe(all.length);
+    for (const name of ['Ensikeikka', 'Riffikaiku-peli', 'Sävelten etsintä', 'Tunnista avoin sointu', 'Mikä aste soi?', 'Tunnista sointutyyppi', 'Mikä sointu tulee?']) {
+      expect(all.map(card => card.title), name).toContain(name);
+    }
+    // Kaikkien pelien lista on viimeisenä, jotta aiheen :target piilottaa sen; aiheet ennen sitä tunnisteineen.
+    expect(html.indexOf('id="pelit"')).toBeGreaterThan(html.lastIndexOf('class="game-topic"'));
+    // Rajaus näyttää vain aiheet, joissa on pelejä, ja määrät vastaavat aiheen näkymää.
+    const chips = [...html.matchAll(/<li><a href="#(aihe-[a-z]+)">[\s\S]*?<span class="chip-count">(\d+)/g)];
+    for (const [, id, count] of chips) expect(cards(block(html, id)), id).toHaveLength(Number(count));
+    expect(chips.map(([, id]) => id)).toEqual(topics.map(t => t.anchor).filter(id => cards(block(html, id)).length));
+    // Sama sisältö kahdessa aiheessa: sama osoite ja suoritustunniste, lähtöaihe kulkee mukana.
+    expect(cards(block(html, 'aihe-soinnut')).find(card => card.title === 'Mikä sointu tulee?')!.href)
+      .toBe('oppi/kappaleet/mika-sointu-tulee.html?aihe=aihe-soinnut&tapa=pelit');
+    expect(cards(block(html, 'aihe-kappaleet')).find(card => card.title === 'Mikä sointu tulee?')!.href)
+      .toBe('oppi/kappaleet/mika-sointu-tulee.html?tapa=pelit');
+  });
+
+  it('Kitaratreeni näyttää aiheet suljettuina ja jokaisen harjoituksen omassa aiheessaan tehtävälajin alla', () => {
+    const html = read('kitaratreeni.html');
+    expect(html).not.toMatch(/<details class="train-topic"[^>]* open/);
+    expect(html).toContain('<a class="train-hub" href="kitaraharjoittelija.html">');
+    const entries = registry.oppisivut.filter(entry => entry.tavat.includes('kitara'));
+    const found = topics.flatMap(topic => trainLinks(block(html, topic.anchor)));
+    expect(found.map(link => link.href.split('?')[0]).sort()).toEqual(entries.map(entry => entry.sivu).sort());
+    for (const entry of entries) {
+      const slug = entry.sivu.split('/')[1];
+      const part = block(html, topics.find(t => t.slug === slug)!.anchor);
+      const kind = entry.tehtava.includes('korvalla') ? 'Korvalla kitaralle' : 'Soita';
+      const section = part.split(`<h3 class="train-kind">${kind}`)[1]?.split('<h3')[0] ?? '';
+      expect(section, entry.sivu).toContain(`href="${entry.sivu}?tapa=kitara"`);
+      // Suoritustunniste on sivun oma; Kitaratreeni ei luo uutta.
+      expect(read(entry.sivu), entry.sivu).toMatch(/data-study-item="[a-z0-9:-]+"/);
+    }
+    // Soittopakin aiheeseen rajatut näkymät säilyvät aiheen sisällä.
+    expect(block(html, 'aihe-asteikot')).toContain('otelautaharjoittelija.html?toonikka=A&amp;asteikko=mp&amp;aihe=aihe-asteikot&amp;tapa=kitara');
   });
 
   it('suunniteltuja työkaluja ei näytetä valmiina eikä sivuilla ole tulossa-kortteja', () => {
@@ -75,9 +127,9 @@ describe('pääosiot ja sisältörekisteri', () => {
         if (mode === 'pakki') { expect(html, app.id).toContain(`>${app.nimi}`); continue; }
         for (const slug of app.aiheet) {
           const anchor = topics.find(t => t.slug === slug)!.anchor;
-          const block = html.split(`id="${anchor}"`)[1].split('</section>')[0];
-          expect(block, app.id).toContain(`<strong class="mode-card-title">${app.nimi}`);
-          expect(block, app.id).toContain(`aihe=${anchor}`);
+          const part = block(html, anchor);
+          expect(part, app.id).toContain(`<strong class="game-card-title">${app.nimi}`);
+          expect(part, app.id).toContain(`aihe=${anchor}`);
         }
       }
     }
@@ -186,8 +238,10 @@ describe('pääosiot ja sisältörekisteri', () => {
     for (const page of ['musapelit.html', 'kitaratreeni.html', 'soittopakki.html']) {
       const html = read(page);
       expect(html, page).not.toContain('localStorage');
-      expect([...html.matchAll(/<script\b[^>]*>/g)].map(m => m[0]), page).toEqual(['<script defer src="assets/oppimiskartta.js">']);
+      const scripts = page === 'soittopakki.html' ? ['assets/oppimiskartta.js'] : ['assets/oppimiskartta.js', 'assets/osiot.js'];
+      expect([...html.matchAll(/<script\b[^>]*>/g)].map(m => m[0]), page).toEqual(scripts.map(src => `<script defer src="${src}">`));
     }
+    expect(read('assets/osiot.js')).not.toMatch(/localStorage|sessionStorage/);
     // Oppimistavan säilyttävä skripti ei käytä tallennuksia.
     expect(read('assets/oppimistapa.js')).not.toMatch(/localStorage|sessionStorage/);
     for (const page of ['riffikaiku.html', 'kitaraharjoittelija.html', 'otelautaharjoittelija.html', 'pelit/ensikeikka/index.html']) {
