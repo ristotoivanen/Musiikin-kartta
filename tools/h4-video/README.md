@@ -22,6 +22,8 @@ sh tools/h4-video/aja.sh <video.MOV> <ulostulokansio> <säädin ms> [ääniraida
 
 Repoon tallennetaan vain johdetut tekstitulosteet ja pienet JSON-tiedostot hakemistoon `harjoittelija/kaksiraitatesti/raportit/h4-video/<tallenne>/`: `sha256.txt`, `info.txt`, `valahdykset.*`, `paritus.*`, `lisatarkistus.txt`, `raitaero*.txt` ja `taulukko.md`.
 
+**Toistettavuus:** 19.11.2026 koko putki ajettiin repon versiolla uudelleen `IMG_0016.MOV`:lle. Kaikki tekstitulosteet ja `taulukko.md` olivat tavulleen samat. `paritus.json`:n SNR-arvoissa vaihteli seitsemäs merkitsevä numero (AAC-purku), mikä ei näy raportoiduissa luvuissa.
+
 ## Vaiheet
 
 | Tiedosto | Tehtävä |
