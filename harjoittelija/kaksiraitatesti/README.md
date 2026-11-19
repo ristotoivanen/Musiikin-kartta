@@ -583,6 +583,8 @@ Toteutettu suunnitelman (`NAYTTO-AANI-MITTAUSSUUNNITELMA.md`) menetelmä M1. Lai
 - Tila: `?koe=nayttoaani`.
 - Toistomoottori, tuotantosoitin ja M − R -mittarin laskenta ovat ennallaan.
 
+> **Simulaattoriajo 18.–19.11.2026:** Macin iOS-simulaattorissa tallennetut 15 säätöarvoa ovat **vain käyttöliittymän testidataa**. Ne eivät ole havaintoja äänen ja kuvan ajoituksesta, koska simulaattorin ääni kulkee Macin äänilaitteeseen. Ajossa havaittu kolmoiskelauksen ongelma on analysoitu tiedostossa `KELAUS-JUURISYY.md`.
+
 ### Koeasetelma
 
 - **Aineisto:** synteettinen 240 s, 24 kHz, muistista. Molemmissa raidoissa on samoissa kohdissa 30 ms:n merkkiääni (300 Hz ja 1,5 kHz), 0,35–0,75 s:n välein. Raidoissa on ääntä alusta asti, joten M − R on mitattavissa myös käynnistyksessä.
@@ -704,6 +706,7 @@ Erot, jotka on kirjattu tähän tarkoituksella:
   - raporttianalyysin jaksotus: kilpatilanne, peräkkäinen kelaus, tauko kesken aloituksen, raportti v1 ilman tunnisteita, nykyinen moottori
   - H3-kriteerit, hylkäävät tapaukset ja raitakohtainen M − R
   - ulostulon viivearvio ja `outputSnapshot`.
+- `tests/e2e/kaksiraitatesti-kelauskilpa.spec.ts`: kelauksen kilpatilanteiden toistotestit T1–T3 (`KELAUS-JUURISYY.md`). Merkitty `test.fail()`, koska ne todentavat nykyisen moottorin tunnetut viat V1 ja V2. Merkintä poistetaan, kun korjaus hyväksytään ja tehdään.
 - `tests/e2e/kaksiraitatesti-raportti.spec.ts`: oikean testisivun raportti v2 analysoidaan H3:n järjestyksessä, mukaan lukien varma kilpatilanne. Ajetaan sarjassa (WAV-referenssit).
 - Mittaustestit ovat kuormaherkkiä: raskaassa rinnakkaisajossa mittaus voi valmistua vasta testin
   aikarajan jälkeen. Tämä näkyi jo pohjahaarassa ja commitilla 95622ef (53/54 samassa ajossa).
