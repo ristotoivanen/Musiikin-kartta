@@ -26,6 +26,32 @@ const status = (gig: Gig, completed: readonly number[]) => gigStatus(area.gigs, 
 const songHash = (song: number, mode: SongMode) => `#${mode === 'practice' ? 'harjoitus' : 'kappale'}-${song}`;
 const gigHash = (gig: number) => `#keikka-${gig}`;
 
+/** Ensikeikka on Musapelien peli: oma paluu vie Musapeleihin. */
+const GAMES_PAGE = '../../musapelit.html';
+
+/**
+ * Näytetäänkö Ensikeikan oma paluulinkki. Kun osoitteessa on ?aihe=…, sivuston yhteiset skriptit
+ * (assets/oppimiskartta.js ja assets/oppimistapa.js) lisäävät yläpalkkiin aiheeseen palaavan linkin, esimerkiksi
+ * ?aihe=aihe-korva&tapa=pelit → "Takaisin: Musapelit: Sävelkorva ja melodia". Silloin omaa linkkiä ei näytetä,
+ * ettei sivulla ole kahta samantarkoituksista paluulinkkiä. Yhteiset skriptit ajetaan ennen load-tapahtumaa;
+ * jos niiden linkkiä ei synny (tuntematon aihe), oma linkki näytetään.
+ */
+function useOwnReturnLink(): boolean {
+  const [sharedExpected] = useState(() => new URLSearchParams(window.location.search).has('aihe'));
+  const [show, setShow] = useState(!sharedExpected);
+  useEffect(() => {
+    if (!sharedExpected) return;
+    const decide = () => setShow(!document.querySelector('.site-top .map-return'));
+    if (document.readyState === 'complete') {
+      decide();
+      return;
+    }
+    window.addEventListener('load', decide, { once: true });
+    return () => window.removeEventListener('load', decide);
+  }, [sharedExpected]);
+  return show;
+}
+
 function resolve(hash: string, completed: readonly number[]): { view: View; redirect?: string } {
   if (hash === '#keikkalista' || hash === '#keikkakartta') return { view: { kind: 'area' } };
   if (hash === '#settilista') return { view: { kind: 'area', gig: 1 } };
@@ -52,6 +78,7 @@ function focusView(view: View) {
 }
 
 function Ensikeikka() {
+  const ownReturn = useOwnReturnLink();
   const [completed, setCompleted] = useState(() => completedFrom(storedSongs(readProgress())));
   const latest = useRef(completed);
   latest.current = completed;
@@ -177,11 +204,11 @@ function Ensikeikka() {
     const finished = areaComplete(area.gigs, completed);
     return (
       <main className="concert">
-        <nav className="start-navigation" aria-label="Palaa">
-          <a className="game-link" href="../../kitaraharjoittelija.html?polku=otelauta">
-            <span aria-hidden="true">←</span> Takaisin harjoitusvalikkoon
+        {ownReturn && <nav className="start-navigation" aria-label="Palaa">
+          <a className="game-link" href={GAMES_PAGE}>
+            <span aria-hidden="true">←</span> Takaisin Musapeleihin
           </a>
-        </nav>
+        </nav>}
         <header className="intro">
           <h1 id="ensikeikka" tabIndex={-1}>Ensikeikka (beta)</h1>
           <p>Kuuntele, miten melodia ja soinnut toimivat yhdessä, ja löydä kappaleiden kotisävelet.</p>

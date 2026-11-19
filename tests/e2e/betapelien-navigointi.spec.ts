@@ -5,24 +5,24 @@ const ensikeikkaPath = '/pelit/ensikeikka/';
 const theoryPath = '/book/osa-2.html#ensikeikan-teoria';
 const progressKey = 'musiikin-kartta:ensikeikka';
 const theoryHeading = 'Ensikeikan teoria: Miten kuulet kotisävelen?';
+// Ensikeikka on Musapelien peli: sen oma paluu vie Musapeleihin. Riffikaiun paluu harjoitusvalikkoon on ennallaan.
 const games = [
-  { title: 'Riffikaiku (beta)', path: '/riffikaiku.html' },
-  { title: 'Ensikeikka (beta)', path: ensikeikkaPath },
+  { title: 'Riffikaiku (beta)', path: '/riffikaiku.html', back: 'Takaisin harjoitusvalikkoon', target: trainerPath },
+  { title: 'Ensikeikka (beta)', path: ensikeikkaPath, back: 'Takaisin Musapeleihin', target: '/musapelit.html' },
 ];
 
-test('Molemmista peleistä pääsee harjoitusvalikkoon', async ({ page }) => {
-  await page.goto('/kitaraharjoittelija.html');
-  await page.getByRole('button', { name: /Sävelkorva ja otelauta/ }).click();
-
-  for (const { title, path } of games) {
+test('Harjoitusvalikosta avatusta Riffikaiusta palataan harjoitusvalikkoon ja Ensikeikasta Musapeleihin', async ({ page }) => {
+  for (const { title, path, back, target } of games) {
+    await page.goto('/kitaraharjoittelija.html');
+    await page.getByRole('button', { name: /Sävelkorva ja otelauta/ }).click();
     const menu = page.getByRole('region', { name: 'Sävelkorva ja otelauta' });
     await menu.getByRole('link').filter({ hasText: title }).click();
     await expect(page).toHaveURL(path);
     await expect(page.getByRole('heading', { level: 1, name: title })).toBeVisible();
-    await page.getByRole('link', { name: 'Takaisin harjoitusvalikkoon' }).click();
-    await expect(page).toHaveURL(trainerPath);
-    await expect(menu.getByRole('button', { name: /Sävelten etsintä/ })).toBeVisible();
+    await page.getByRole('link', { name: back }).click();
+    await expect(page).toHaveURL(target);
   }
+  await expect(page.getByRole('heading', { level: 1, name: 'Musapelit' })).toBeVisible();
 });
 
 test('Ensikeikan teoria ja palaaminen säilyttävät etenemisen', async ({ page }) => {
@@ -62,7 +62,7 @@ test('Ensikeikan teoria ja palaaminen säilyttävät etenemisen', async ({ page 
 test('Ensikeikan aloitusta ja paluulinkkiä voi käyttää näppäimistöllä', async ({ page, isMobile }) => {
   test.skip(isMobile, 'Sarkainnäppäin testataan työpöydällä.');
   await page.goto(ensikeikkaPath);
-  const back = page.getByRole('link', { name: 'Takaisin harjoitusvalikkoon' });
+  const back = page.getByRole('link', { name: 'Takaisin Musapeleihin' });
   const start = page.getByRole('button', { name: 'Kotikulmien keikat' });
   await start.focus();
   await page.keyboard.press('Enter');
@@ -75,7 +75,7 @@ test('Ensikeikan aloitusta ja paluulinkkiä voi käyttää näppäimistöllä', 
   await back.focus();
   expect(await back.evaluate(el => getComputedStyle(el).outlineStyle)).toBe('solid');
   await page.keyboard.press('Enter');
-  await expect(page).toHaveURL(trainerPath);
+  await expect(page).toHaveURL('/musapelit.html');
 });
 
 for (const width of [320, 360, 390, 768, 1280, 1440]) {
@@ -83,7 +83,7 @@ for (const width of [320, 360, 390, 768, 1280, 1440]) {
     test.skip(isMobile !== (width <= 768), 'Pienet leveydet kosketusnäkymässä ja suuret työpöydällä.');
     await page.setViewportSize({ width, height: 800 });
     await page.goto(ensikeikkaPath);
-    await expect(page.getByRole('link', { name: 'Takaisin harjoitusvalikkoon' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Takaisin Musapeleihin' })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
 
     await page.getByRole('button', { name: 'Kotikulmien keikat' }).click();
