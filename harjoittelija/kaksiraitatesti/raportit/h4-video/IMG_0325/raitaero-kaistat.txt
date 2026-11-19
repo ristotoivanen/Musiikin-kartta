@@ -1,0 +1,8 @@
+2. Kaistakohtainen ristikorrelaatio (sama suodin tallenteelle ja vertailuraidalle), mediaani 1 s:n paloista
+   kaista | tausta A ms (huippu) | kitara A ms (huippu) | kitara − tausta ms
+   laajakaista | -927.85 (0.16) | -895.24 (0.17) | 32.34 [30.6…33.7]
+   200–600 Hz | -919.50 (0.56) | -889.46 (0.22) | 29.93 [25.2…31.9]
+   600–1200 Hz | -926.15 (0.29) | -894.19 (0.48) | 31.95 [31.9…32.0]
+   1–2 kHz | -926.88 (0.29) | -894.74 (0.59) | 31.99 [32.0…32.7]
+   2–4 kHz | -927.91 (0.38) | -895.62 (0.35) | 32.29 [32.3…32.3]
+   4–8 kHz | -927.92 (0.31) | -895.96 (0.23) | 31.96 [31.9…32.0]

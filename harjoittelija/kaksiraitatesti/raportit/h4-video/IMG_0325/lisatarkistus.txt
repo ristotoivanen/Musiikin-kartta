@@ -1,0 +1,47 @@
+300 Hz: lähimmän naapurin paritus poikkeaisi aikataulusta 2/29 välähdyksellä; pienin ero edellisen ja seuraavan piippauksen etäisyydessä 2.4 ms
+   siirto -2: n 26, mediaani 1282.1 ms, keskihajonta 156.7 ms, vaihteluväli 962…1552
+   siirto -1: n 27, mediaani 738.7 ms, keskihajonta 96.5 ms, vaihteluväli 529…885
+   siirto +0: n 28, mediaani 173.8 ms, keskihajonta 5.4 ms, vaihteluväli 163…183
+   siirto +1: n 29, mediaani -390.6 ms, keskihajonta 97.4 ms, vaihteluväli -552…-176
+   siirto +2: n 28, mediaani -904.4 ms, keskihajonta 154.1 ms, vaihteluväli -1205…-603
+1500 Hz: lähimmän naapurin paritus poikkeaisi aikataulusta 1/29 välähdyksellä; pienin ero edellisen ja seuraavan piippauksen etäisyydessä 44.4 ms
+   siirto -2: n 26, mediaani 1258.4 ms, keskihajonta 156.6 ms, vaihteluväli 939…1528
+   siirto -1: n 27, mediaani 714.9 ms, keskihajonta 96.4 ms, vaihteluväli 505…862
+   siirto +0: n 28, mediaani 149.9 ms, keskihajonta 5.4 ms, vaihteluväli 139…160
+   siirto +1: n 29, mediaani -413.5 ms, keskihajonta 97.2 ms, vaihteluväli -576…-200
+   siirto +2: n 28, mediaani -928.3 ms, keskihajonta 154.0 ms, vaihteluväli -1229…-626
+
+indeksi  sisältö s  välähdys s  ääni300 s  ääni1500 s  V−A300 ms  V−A1500 ms  välähdyksen kuvia
+2  1.3731  0.6290  0.4538  0.4787  175.1  150.3  6 (1. kuva osittainen)
+3  1.8855  1.1444  0.9669  0.9913  177.5  153.1  6 (1. kuva osittainen)
+4  2.5320  1.7769  1.6140  1.6378  162.9  139.1  6 (1. kuva osittainen)
+5  3.0960  2.3446  2.1781  2.2017  166.5  142.9  6 (1. kuva osittainen)
+6  3.6930  2.9442  2.7753  2.7981  169.0  146.1  6
+7  4.2413  3.4939  3.3237  3.3473  170.2  146.6  6
+8  4.6498  3.9103  3.7313  3.7549  179.0  155.4  6
+9  5.0394  4.2935  4.1212  4.1450  172.2  148.5  6
+10  5.6063  4.8599  4.6884  4.7122  171.5  147.7  6
+11  6.2080  5.4599  5.2903  5.3137  169.6  146.1  6
+12  6.6304  5.8766  5.7126  5.7368  164.1  139.8  6
+13  7.2775  6.5282  6.3598  6.3832  168.5  145.1  6
+14  7.9979  7.2449  7.0801  7.1037  164.9  141.2  6
+15  8.6512  7.9117  7.7337  7.7575  178.0  154.2  6
+16  9.0719  8.3284  8.1538  8.1783  174.5  150.1  6
+17  9.5675  8.8284  8.6499  8.6732  178.5  155.1  5
+18  9.9221  9.1784  9.0044  9.0279  174.0  150.5  5
+19  10.3492  9.6118  9.4310  9.4546  180.8  157.2  5
+20  10.9412  10.1967  10.0237  10.0473  172.9  149.4  5
+21  11.5045  10.7634  10.5873  10.6102  176.0  153.2  5
+22  12.1119  11.3633  11.1947  11.2178  168.7  145.6  5
+23  12.7373  11.9966  11.8194  11.8429  177.2  153.7  5
+24  13.2611  12.5134  12.3434  12.3670  169.9  146.4  5
+25  13.7709  13.0300  12.8532  12.8766  176.8  153.4  5
+26  14.1895  13.4467  13.2717  13.2957  175.1  151.0  5
+27  14.8166  14.0816  13.8990  13.9235  182.6  158.1  5
+28  15.4492  14.7149  14.5318  14.5548  183.2  160.2  5
+29  16.0590  15.3149  15.1413  15.1651  173.5  149.8  5
+300: ka 173.3 sd 5.4 | 1500: ka 149.6 sd 5.4
+300 mediaanin bootstrap 95 % 170.1 … 176.4
+1500 mediaanin bootstrap 95 % 146.5 … 153.1
+välähdys − aikataulu jäännös ms -2.2 0.0 3.1 -11.0 -7.3 -4.6 -3.3 4.7 -1.8 -2.2 -3.9 -9.6 -5.1 -8.8 4.6 0.6 5.0 0.5 6.7 -0.4 3.0 -4.4 3.5 -3.6 3.2 1.3 9.1 9.8 0.0
+välähdyksen kesto (kuvia @60 fps) 66666666666666665555555555555

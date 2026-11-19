@@ -102,7 +102,7 @@ Omistajan tarkistuksen mukaan alkuperäisessä H4-raportissa **kolmella viidest�
 
 Vaiheet P0–P2 eivät vaadi koodimuutoksia eivätkä hankintoja. P3 vaatii hyväksynnän.
 
-**Tilanne 19.11.:** ensimmäinen tallenne (`IMG_0325.MOV`, iPhone 16 Pro kuvasi iPadia, tavallinen 60 fps:n video) on analysoitu: ääniraita oli mukana, välähdykset ja piippaukset paritettiin aikataulun kautta yksiselitteisesti. Kalibrointia (P1) ei vielä ole. Ks. [`H4-VIDEO-PILOTTI-2026-11-19.md`](H4-VIDEO-PILOTTI-2026-11-19.md).
+**Tilanne 19.11.:** kaksi tallennetta analysoitu, kummassakin tavallinen video ja ääniraita mukana, ja paritus aikataulun kautta onnistui yksiselitteisesti. iPhone: [`H4-VIDEO-IPHONE-2026-11-19.md`](H4-VIDEO-IPHONE-2026-11-19.md) (`IMG_0016.MOV`, kuvaajana iPad, 30 fps). Erillinen iPad-pilotti: [`H4-VIDEO-PILOTTI-IPAD-2026-11-19.md`](H4-VIDEO-PILOTTI-IPAD-2026-11-19.md). Kameran kalibrointia (P1) ei vielä ole. Työkalut: [`tools/h4-video/`](../../tools/h4-video/README.md).
 
 | Vaihe | Mitä | Läpäisyehto (vaiheen jatkamiselle, ei H4:n hyväksymiselle) |
 | --- | --- | --- |

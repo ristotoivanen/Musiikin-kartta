@@ -1,0 +1,28 @@
+kesto 20.44333333333333 timescale 600
+meta mdta/com.apple.quicktime.full-frame-rate-playback-intent 1
+meta mdta/com.apple.quicktime.make Apple
+meta mdta/com.apple.quicktime.model iPad (8th generation)
+meta mdta/com.apple.quicktime.software 26.7.2
+meta mdta/com.apple.quicktime.creationdate 2026-11-19T15:49:05+0200
+raita 1 vide alku 0.0 kesto 20.44333333333333 timescale 600 fps 29.985325 minFrameDuration 0.03333333333333333 koko (1920.0, 1080.0)
+  edit source 0.0 20.44333333333333 target 0.0 20.44333333333333 empty false
+  formaatti hvc1
+  kuvia 613 ensimmäinen 0.0 viimeinen 20.41
+  kuvavälit [(key: "0.0333", value: 606), (key: "0.0350", value: 6)]
+raita 2 soun alku 0.0 kesto 20.441666666666666 timescale 48000 fps 46.875 minFrameDuration nan koko (0.0, 0.0)
+  edit source 0.044 20.441666666666666 target 0.0 20.441666666666666 empty false
+  formaatti aac 
+  ääni 48000.0 Hz, kanavia 1 framesPerPacket 1024
+  äänipaketteja 961 ensimmäinen pts 0.0 loppu 20.441666666666666 ["trimAlku {\n    epoch = 0;\n    flags = 1;\n    timescale = 48000;\n    value = 2112;\n}"]
+raita 3 meta alku 0.0 kesto 20.44333333333333 timescale 600 fps 0.048915703 minFrameDuration 20.44333333333333 koko (0.0, 0.0)
+  edit source 0.0 20.44333333333333 target 0.0 20.44333333333333 empty false
+  formaatti mebx
+raita 4 meta alku 0.0 kesto 20.44333333333333 timescale 600 fps 0.048915703 minFrameDuration 20.44333333333333 koko (0.0, 0.0)
+  edit source 0.0 20.44333333333333 target 0.0 20.44333333333333 empty false
+  formaatti mebx
+raita 5 meta alku 0.0 kesto 20.44333333333333 timescale 600 fps 29.985325 minFrameDuration 0.03333333333333333 koko (0.0, 0.0)
+  edit source 0.0 20.44333333333333 target 0.0 20.44333333333333 empty false
+  formaatti mebx
+raita 6 meta alku 0.0 kesto 20.44333333333333 timescale 600 fps 0.048915703 minFrameDuration 20.44333333333333 koko (0.0, 0.0)
+  edit source 0.0 20.44333333333333 target 0.0 20.44333333333333 empty false
+  formaatti mebx

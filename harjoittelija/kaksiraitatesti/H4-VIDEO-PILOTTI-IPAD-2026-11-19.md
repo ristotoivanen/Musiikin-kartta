@@ -1,4 +1,6 @@
-# H4-videomittauksen pilotti P0, tallenne IMG_0325.MOV (19.11.2026)
+# H4-videomittauksen pilotti, iPad: tallenne IMG_0325.MOV (19.11.2026)
+
+> **Erillinen iPad-pilotti, ei iPhonen mittaustulos.** Testattava laite on iPad ja kuvaava laite iPhone 16 Pro. iPhonen mittaus on tallenteessa `IMG_0016.MOV`: [`H4-VIDEO-IPHONE-2026-11-19.md`](H4-VIDEO-IPHONE-2026-11-19.md). Lukua 6 (raitaero) on korjattu 19.11. kaistakohtaisen tarkistuksen perusteella.
 
 **Asema: pilotti.** Tulokset ovat raakoja ääni–kuvaeroja tästä yhdestä tallenteesta. Ne **eivät ole kalibroitu laitteen viive**, koska kameran oma ääni–kuvaero on mittaamatta (ei taputuskalibrointia). PR #126 pysyy Draftina ja issue #9 NO-GO-tilassa. Koodia, koetilaa tai toistomoottoria ei muutettu.
 
@@ -121,7 +123,7 @@ V − A on välähdyksen alku miinus merkkiäänen alku tallenteen aikajanalla. 
 | Välähdys − kitararaita (ristikorrelaatio) | ≈ +151 ms | – | 150…152 (palat) | – |
 
 - Bootstrap-väli kuvaa vain tapahtumien välistä hajontaa tämän yhden käynnistyksen sisällä. Se ei kuvaa toistettavuutta käynnistysten välillä eikä kalibrointivirhettä.
-- Välähdys seuraa taustaraidan `currentTime`a. Siksi ensisijainen vertailukohta on **taustaraita**, jonka arvo riippuu menetelmästä: +174 ms (300 Hz:n suodin) tai +184 ms (laajakaistainen korrelaatio). Ero johtunee iPadin kaiuttimen heikosta 300 Hz:n toistosta ja sen vaihesiirrosta. Tätä ei ole todennettu, joten menetelmäepävarmuus on noin 10 ms.
+- Välähdys seuraa taustaraidan `currentTime`a. Siksi ensisijainen vertailukohta on **taustaraita**, jonka arvo riippuu menetelmästä: +174 ms (300 Hz:n suodin) tai +183 ms (laajakaistainen korrelaatio, aikariippuvuus sovitettu). Kaistatarkistuksen mukaan 300 Hz:n alakaistalla on noin 8 ms:n lisäviive koko äänitiessä (luku 6), joten ensisijainen arvo on **+183 ms**. Raakaero säätimellä −40 ms tarkoittaa K = +223 ms ja d\* = −223 ms (merkit: iPhone-raportin luku 6).
 - Välähdysten hajonta (MAD 3,6 ms, suurin 11 ms) on suurempi kuin äänen (0,17 ms). Hajonta tulee siis kuvan puolelta: rAF-ajoitus, iPadin 60 Hz:n näyttö ja kameran 60 fps.
 - Tallenteen ja sisällön kellojen ajautuma oli noin 0,06 ms/s (≈ 56 ppm). 15 s:n aikana se on alle 1 ms.
 
@@ -134,9 +136,14 @@ V − A on välähdyksen alku miinus merkkiäänen alku tallenteen aikajanalla. 
 
 Tulos ei myöskään ole vertailukelpoinen viiteen aiempaan säädinhavaintoon. Ne tehtiin iPhonella, ja tässä testattava laite on iPad.
 
-## 6. Sivuhavainto: raidat eivät olleet kohdakkain
+## 6. Sivuhavainto: raidat eivät olleet kohdakkain (korjattu 19.11.)
 
-Kitararaidan piippaukset tulivat tallenteessa **23,5 ms** (sovitettu suodin) tai **32–34 ms** (ristikorrelaatio) taustaraidan jälkeen. Ero pysyi samana koko 15 s:n ajan. H4-aineistossa raitojen siirto on 0, joten iPad soitti raitoja tässä käynnistyksessä tämän verran erillään. Sivun tahdistimen tilaa ei voi lukea videosta. Havaintoa ei tulkita ennen kuin saman ajon sivuraportti (`mediaMinusRenderedMs` raidoittain) on rinnalla. Se liittyy kahden raidan synkronointiin (issue #9), ei H4:ään.
+Ensimmäisessä analyysissä kitararaidan piippaukset tulivat taustaraidan jälkeen 23,5 ms (sovitettu suodin) tai 32–34 ms (ristikorrelaatio). Ero on nyt selvitetty, ks. [`H4-VIDEO-IPHONE-2026-11-19.md`](H4-VIDEO-IPHONE-2026-11-19.md) luku 5:
+
+- **Todellinen raitaero on noin 32,0 ms.** Kaistakohtainen ristikorrelaatio antaa saman eron kaikilla kaistoilla 600 Hz – 8 kHz (31,95–32,29 ms). Taajuusriippuva kaiutin- tai mikrofoniviive ei voi tuottaa samaa eroa jokaiselle kaistalle.
+- **23,5 ms oli menetelmän ja äänitien yhteisvaikutus.** Taustaraidan 300 Hz:n merkkiääni näkyy alakaistalla (200–600 Hz) noin 8 ms myöhempänä kuin muilla kaistoilla. 300 Hz:n sovitettu suodin perii tämän viiveen.
+- Synteettinen aineisto on kohdakkain (siirto 0), ja menetelmät toimivat simulaatiossa ilman yli 2,2 ms:n harhaa. Ero ei siis tule signaalista eikä tunnistusmenetelmästä.
+- Mittaus ei kerro, johtuuko ero elementtien eri aloituskohdasta vai eri ulostuloviiveestä. Se liittyy kahden raidan synkronointiin (issue #9), ei H4:ään.
 
 ## 7. Johtopäätös ja pienin tarvittava muutos
 
@@ -153,12 +160,4 @@ Kitararaidan piippaukset tulivat tallenteessa **23,5 ms** (sovitettu suodin) tai
 
 ## Analyysin toisto
 
-Analyysi tehtiin Macin omilla työkaluilla (AVFoundation Swiftillä ja Node) ilman asennuksia. Skriptit ovat istunnon väliaikaiskansiossa, eikä niitä ole lisätty repoon, koska analyysityökalun lisääminen (P3) odottaa hyväksyntää.
-
-- `info.swift`: raidat, muokkauslistat, kuvien aikaleimat
-- `frames.swift`: luminanssiruudukko kuvittain
-- `aani.swift`: PCM-purku
-- `valahdys.mjs`: välähdysten tunnistus
-- `sisalto.mts`: H4-aineisto ja aikataulu `synteettinen.ts`:stä
-- `paritus.mjs`: sovitettu suodin, aikataulukohdistus, ristikorrelaatio
-- `lisatarkistus.mjs`: vaihtoehtoiset kohdistukset, lähin naapuri, bootstrap
+Skriptit ovat hakemistossa [`tools/h4-video/`](../../tools/h4-video/README.md), ja niiden johdetut tulosteet hakemistossa [`raportit/h4-video/IMG_0325/`](raportit/h4-video/IMG_0325/). Ajo `sh tools/h4-video/aja.sh IMG_0325.MOV <kansio> -40` toistaa tämän raportin luvut (tarkistettu 19.11.: samat parit ja mediaanit).
