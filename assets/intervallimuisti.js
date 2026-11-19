@@ -23,7 +23,7 @@ export const cardExplanations = {
   0: 'Kaksi säveltä samalla korkeudella. Kitaralla soitat saman nauhan uudelleen. Priimi on lähtökohta, josta muut välit lasketaan.',
   3: 'Mollisoinnun terssi. Luvun alun C–E♭ on pieni terssi.',
   4: 'Duurisoinnun terssi. Se on puolisävelaskeleen leveämpi kuin pieni terssi. Luvun alun C–E on suuri terssi.',
-  7: 'Duuri- ja mollisoinnun ylin sävel perussävelestä laskettuna. Suuri ja pieni terssi muodostavat yhdessä kvintin.',
+  7: 'C-duurissa ja C-mollissa C:stä ylempään G:hen on seitsemän puolisävelaskelta eli puhdas kvintti. G voi myös olla soinnun alin sävel. Suuri ja pieni terssi muodostavat yhdessä kvintin.',
   12: 'Sama sävelnimi ylempänä. A-kielellä ylempi A soi 12. nauhalla.',
   1: 'Puolisävelaskel eli viereinen nauha. A–B♭ on pieni sekunti. A–A♯ on yhtä kaukana, mutta sen nimi on ylinouseva priimi, koska sävelkirjain pysyy samana.',
   2: 'Kokosävelaskel eli kahden nauhan siirto. Kaksi suurta sekuntia peräkkäin muodostavat suuren terssin.',
@@ -60,8 +60,8 @@ export const hints = {
   },
   7: {
     viitteet: [12],
-    etaisyys: 'Kvintti on duuri- ja mollisoinnun perussävelen ja ylimmän sävelen väli. Voimasoinnussa soivat perussävel, kvintti ja usein myös oktaavi.',
-    nimi: 'Tämä on duuri- ja mollisoinnun perussävelen ja ylimmän sävelen väli, kuten luvun alun C–G. Voimasoinnussa se soi perussävelen ja oktaavin välissä.',
+    etaisyys: 'Kvintti ulottuu C-duuri- ja C-mollisoinnuissa perussävelestä C ylempään G:hen. Voimasoinnussa soivat perussävel, kvintti ja usein myös oktaavi.',
+    nimi: 'Luvun alun C–G on sama väli C-duurissa ja C-mollissa, kun lasket C:stä ylöspäin. Voimasoinnussa tämä väli on oktaavia kapeampi.',
   },
   12: {
     viitteet: [0],
