@@ -6,13 +6,13 @@
 // Tulostaa jokaisesta raportista jaksot (käynnistys, kelaus, jatko, kaksoiskelaus), mittaukset
 // jaksoittain ja H3-kriteerien A–D tilan. H4-säätökokeen raportista (&koe=nayttoaani) myös säätöjen
 // yhteenvedon tilanteittain. Kelaussarjoista (&koe=kelaussarja ja käsin tehdyt nopeat kelaukset) tulosjakauman
-// ja pääsäikeen pisimmän jumin. --json tulostaa saman koneluettavana.
+// ja pääsäikeen pisimmän jumin sekä yli 2 s:n näytekatkokset. --json tulostaa saman koneluettavana.
 // Ei muuta raportteja eikä tee verkkopyyntöjä.
 import { readFileSync } from 'node:fs';
 import { basename } from 'node:path';
 import { analyzeReport, evaluateH3, formatAnalysis, parseReport } from '../harjoittelija/kaksiraitatesti/raporttianalyysi.ts';
 import { formatAvSummary, parseTrials, summarizeTrials } from '../harjoittelija/kaksiraitatesti/nayttoaani.ts';
-import { formatBursts, formatManualBursts, manualBursts, summarizeBursts, type LogEntryLike } from '../harjoittelija/kaksiraitatesti/kelaussarja.ts';
+import { formatBursts, formatManualBursts, formatSampleGaps, manualBursts, sampleGaps, summarizeBursts, type LogEntryLike } from '../harjoittelija/kaksiraitatesti/kelaussarja.ts';
 
 const args = process.argv.slice(2);
 const json = args.includes('--json');
@@ -34,9 +34,9 @@ for (const file of files) {
     const log = report as unknown as { events: LogEntryLike[]; samples?: LogEntryLike[] };
     const samples = log.samples ?? [];
     const bursts = { ajuri: summarizeBursts(log.events), kasin: manualBursts(log.events, samples) };
-    if (json) results.push({ file, analysis, criteria, nayttoaani: av, kelaussarjat: bursts });
+    if (json) results.push({ file, analysis, criteria, nayttoaani: av, kelaussarjat: bursts, katkokset: sampleGaps(samples, log.events) });
     else {
-      const extra = [formatBursts(log.events), formatManualBursts(log.events, samples)].filter(Boolean).join('\n');
+      const extra = [formatBursts(log.events), formatManualBursts(log.events, samples), formatSampleGaps(samples, log.events)].filter(Boolean).join('\n');
       console.log(formatAnalysis(basename(file), analysis, criteria) + (av ? '\n' + formatAvSummary(av) : '') + (extra ? '\n' + extra : ''));
     }
   } catch (cause) {

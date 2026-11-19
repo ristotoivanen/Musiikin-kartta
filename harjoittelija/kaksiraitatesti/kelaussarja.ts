@@ -160,3 +160,37 @@ export function formatManualBursts(events: LogEntryLike[], samples: LogEntryLike
   }
   return lines.join('\n') + '\n';
 }
+
+export interface SampleGap { alkuMs: number; loppuMs: number; kestoMs: number; piilossa: boolean; sarja: number | null }
+
+/**
+ * Tapahtumakatkokset: 0,5 s:n näytteiden välit, jotka ylittävät rajan. Näytteenotto käy myös tauolla, joten pitkä väli
+ * tarkoittaa, ettei sivun JavaScript ajanut mitään (H7) tai että sivu oli piilossa (näytön lukitus, sovelluksen vaihto).
+ * piilossa = välillä kirjattiin visibilitychange tai näyte hidden: true. sarja = ajurin sarja, joka oli käynnissä katkon aikana.
+ */
+export function sampleGaps(samples: LogEntryLike[], events: LogEntryLike[], minMs = 2000): SampleGap[] {
+  const gaps: SampleGap[] = [];
+  for (let index = 1; index < samples.length; index++) {
+    const from = samples[index - 1].ms, to = samples[index].ms;
+    if (to - from <= minMs) continue;
+    const piilossa = Boolean(samples[index - 1].hidden || samples[index].hidden)
+      || events.some(item => item.event === 'visibilitychange' && item.ms >= from && item.ms <= to);
+    // Sarja, joka oli käynnissä katkon aikana (alkoi ennen katkon loppua eikä päättynyt ennen sen alkua).
+    const started = events.filter(item => item.event === 'kelaussarja-alku' && item.ms <= to).at(-1);
+    const ended = started && events.some(item => item.event === 'kelaussarja-tulos' && item.ms > started.ms && item.ms < from);
+    gaps.push({ alkuMs: from, loppuMs: to, kestoMs: to - from, piilossa, sarja: started && !ended ? Number(started.sarja) : null });
+  }
+  return gaps;
+}
+
+export function formatSampleGaps(samples: LogEntryLike[], events: LogEntryLike[]): string {
+  const gaps = sampleGaps(samples, events);
+  const lines = ['### Tapahtumakatkokset (näyteväli yli 2 s)', ''];
+  if (!samples.length) return lines.concat('Raportissa ei ole näytteitä.').join('\n') + '\n';
+  if (!gaps.length) return lines.concat(`Ei katkoksia (${samples.length} näytettä).`).join('\n') + '\n';
+  lines.push('| Alku (ms) | Loppu (ms) | Kesto | Sivu piilossa | Ajurin sarja |', '| --- | --- | --- | --- | --- |');
+  for (const gap of gaps) lines.push(`| ${gap.alkuMs} | ${gap.loppuMs} | ${gap.kestoMs} ms | ${gap.piilossa ? 'kyllä' : 'ei'} | ${gap.sarja ?? '–'} |`);
+  const long = gaps.filter(gap => gap.kestoMs > 10_000 && !gap.piilossa).length;
+  lines.push('', `Yli 10 s:n katkoksia sivun ollessa näkyvissä: ${long}.`);
+  return lines.join('\n') + '\n';
+}

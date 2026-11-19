@@ -41,6 +41,7 @@ Tavoite on erottaa toisistaan neljä tekijää:
   (`kelaussarja.ts`). Kukin sarja kirjaa `kelaussarja-tulos`-tapahtuman (ok, väärä kohta, aikakatkaisu tai ei toistoa)
   ja pääsäikeen pisimmän jumin (`pisinJumiMs`). Kelaukset ovat ohjelmallisia, joten osa sarjoista tehdään myös käsin
   painikkeilla; analyysityökalu tunnistaa käsin tehdyt sarjat tapahtumista.
+  Fyysisen iPhonen ohje: `KELAUSSARJA-OHJE.md`. Analyysityökalu listaa myös yli 2 s:n näytekatkokset (jumi tai piilossa olo).
 - **Aja vakiokoe** -painike tekee saman järjestyksen joka tilassa: Soita, 25 s, kelaus (1:00,
   synteettisessä 0:30), 15 s, Tauko 3 s, Soita, 15 s, Tauko. Ensimmäinen Soita on painallus, muut
   vaiheet ohjelmallisia. Painiketta käytetään simulaattorikokeissa, ei fyysisen iPhonen testeissä.

@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { BURST_GAPS, burstPlan, classifyBurst, manualBursts, summarizeBursts, type LogEntryLike } from '../harjoittelija/kaksiraitatesti/kelaussarja';
+import { BURST_GAPS, burstPlan, classifyBurst, manualBursts, sampleGaps, summarizeBursts, type LogEntryLike } from '../harjoittelija/kaksiraitatesti/kelaussarja';
 
 describe('kelaussarja-ajurin suunnitelma', () => {
   const plan = burstPlan();
@@ -74,5 +74,25 @@ describe('alkuperäinen simulaattoriraportti (19.11.2026, kolmoiskelaus)', () =>
     const notes = report.events.filter(item => 'note' in item).map(item => item.note);
     const trials = (JSON.parse(readFileSync('harjoittelija/kaksiraitatesti/raportit/simulaattori-2026-11-19-1.json', 'utf8')) as { nayttoaani: { trials: { note: string }[] } }).nayttoaani.trials;
     expect([...notes, ...trials.map(item => item.note)].every(note => note === '')).toBe(true);
+  });
+});
+
+describe('tapahtumakatkokset raporteista', () => {
+  const read = (n: number) => JSON.parse(readFileSync(`harjoittelija/kaksiraitatesti/raportit/simulaattori-2026-11-19-${n}.json`, 'utf8')) as { events: LogEntryLike[]; samples: LogEntryLike[] };
+  it('alkuperäisessä raportissa on yksi ~11 s:n katko sivun ollessa näkyvissä', () => {
+    const report = read(1);
+    expect(sampleGaps(report.samples, report.events).map(gap => [gap.alkuMs, gap.kestoMs, gap.piilossa])).toEqual([[29338, 11043, false]]);
+  });
+  it('K1–K3:n jälkeisessä simulaattoriajossa neljä yli 10 s:n katkosta, joista kaksi ajurin sarjoissa', () => {
+    const report = read(3);
+    const long = sampleGaps(report.samples, report.events).filter(gap => gap.kestoMs > 10_000);
+    expect(long).toHaveLength(4);
+    expect(long.every(gap => !gap.piilossa)).toBe(true);
+    expect(long.map(gap => gap.sarja)).toEqual([23, null, null, 22]);
+  });
+  it('piilossa olo erotetaan jumista', () => {
+    const samples = [{ ms: 0, event: 'sample', hidden: false }, { ms: 30_000, event: 'sample', hidden: false }];
+    expect(sampleGaps(samples, [{ ms: 100, event: 'visibilitychange', hidden: true }])[0].piilossa).toBe(true);
+    expect(sampleGaps(samples, [])[0].piilossa).toBe(false);
   });
 });
