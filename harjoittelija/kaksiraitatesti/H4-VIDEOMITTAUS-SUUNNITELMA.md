@@ -1,7 +1,9 @@
 # H4, vaihtoehto B: ulkoinen videomittaus (suunnitelma, 19.11.2026)
 
-**Tila:** suunnitelma.
-- Omistaja valitsi B:n alustavasti. Koodimuutoksia ja laitehankintoja ei ole hyväksytty, eikä mitään ole toteutettu.
+**Tila:** mittausmenetelmän kehitysvaihe.
+- Omistaja hyväksyi vaiheet P0–P2 rajauksin 19.11.2026 (luku 5).
+- P3 (koetila ja analyysityökalu), koodimuutokset ja laitehankinnat eivät ole hyväksyttyjä.
+- P0–P2:n ohje ja pöytäkirja ovat tiedostossa `H4-VIDEO-P0-P2-OHJE.md`. Vaiheita ei ole vielä suoritettu.
 - PR #126 on Draft-tilassa ja issue #9 NO-GO-tilassa.
 - Pohjana ovat `H4-KATSELMOINTI-2026-11-19.md` ja mittaussuunnitelman M2 (`NAYTTO-AANI-MITTAUSSUUNNITELMA.md`).
 
@@ -25,8 +27,8 @@ Omistajan tarkistuksen mukaan alkuperäisessä H4-raportissa **kolmella viidest�
   - Tunnetuissa tapauksissa ero on vaihdellut huomattavasti samassa järjestelyssä ([OBS-foorumi](https://obsproject.com/forum/threads/audio-loses-sync-within-one-second.122309/)).
   - Pitkissä tallenteissa voi olla lisäksi ajautumaa ([arXiv 2107.00987](https://arxiv.org/abs/2107.00987v1)).
   - Siksi kamera kalibroidaan **jokaisen tallenteen alussa ja lopussa** (luku 1.3). Yhteen kertaan kalibroituun arvoon ei luoteta.
-- Äänen kulkuaika ei ole merkittävä: 30 cm on noin 0,9 ms. Kaiutin ja kalibrointi-isku pidetään silti samalla etäisyydellä mikrofonista.
-- **Linjaus:** mittaussuunnitelman linjaus "mikrofonia ei tallenneta" koskee sovellusta. Tässä kameran mikrofoni tallentaa testisivun piippauksia testaajan omalla laitteella. Tallenteet säilytetään vain mittausaineistona (ei puhetta, rauhallinen tila), ja niiden pitäminen tai poistaminen sovitaan erikseen. **Omistajan vahvistettava.**
+- **Äänen kulkuaika** on pieni (30 cm ≈ 0,9 ms), mutta se mitataan ja korjataan eikä sitä jätetä huomiotta. Etäisyydet kaiuttimeen ja iskukohtaan sekä lämpötila kirjataan, ja korjaus on (s_k − s_i) / v. Ks. `H4-VIDEO-P0-P2-OHJE.md` luku 2.1.
+- **Mikrofonilinjaus:** omistaja päätti 19.11.2026, että ulkoisen kameran mikrofonilla saa tallentaa testisivun piippaukset ja kalibrointiäänet. Alkuperäisen vaatimuksen tarkoitus ja soveltuminen on käsitelty luvussa 5.1. Vaatimusta ei ole muutettu sovelluksen osalta.
 
 ### 1.2 Säilyykö ääni 240 fps:n hidastusvideossa?
 
@@ -53,7 +55,10 @@ Omistajan tarkistuksen mukaan alkuperäisessä H4-raportissa **kolmella viidest�
   - Ajautuma = loppu − alku.
   - Iskujen keskinäinen hajonta kertoo kalibroinnin epävarmuuden.
 - **Korjattu tulos** jokaiselle tapahtumalle: Δᵢ = (piippauksen alku − välähdyksen alku) − c.
-- **Tärkein havainto: muutos ei tarvitse kalibrointia.** H4:n päätuloksena on *muutos* käynnistyksestä jatkoon ja kelaukseen. Kun kaikki kolme tilannetta kuvataan **samassa tallenteessa**, c kumoutuu erotuksessa. Kalibrointia tarvitaan vain absoluuttiseen ääni–kuva-eroon ja ajautuman tarkistukseen.
+- **Muutos ja kalibrointi** (korjattu 19.11.2026 omistajan tarkennuksen mukaan):
+  - H4:n päätuloksena on *muutos* käynnistyksestä jatkoon ja kelaukseen. Kun kaikki kolme tilannetta kuvataan samassa tallenteessa, c:n **arvo** kumoutuu erotuksessa **vain, jos c pysyy samana** koko tallenteen ajan.
+  - Tätä ei oleteta. c:n vakaus tallenteen sisällä ja tallenteiden välillä tutkitaan P1:ssä (`H4-VIDEO-P0-P2-OHJE.md` luvut 2.2–2.3).
+  - c:n muutos tallenteen aikana on aina osa muutoksen epävarmuutta.
 - **Rullaava suljin:** kuvan rivit valottuvat eri aikaan, 240 fps:llä yhden kuvan sisällä joitakin millisekunteja. Isku ja välähdysalue kuvataan samalla korkeudella kuvassa, tai rivin vaikutus arvioidaan pilotissa.
 - **Näytön virkistys:** välähdyksen näkyminen riippuu siitä, millä ruudun rivillä välähdysalue on, ja ruudun virkistystaajuudesta (ProMotion, virransäästötila). Mitattava rivi pidetään samana kaikissa tallenteissa ja kirjataan. Tämä viive on osa sitä, mitä mitataan, eikä sitä vähennetä.
 
@@ -73,18 +78,23 @@ Omistajan tarkistuksen mukaan alkuperäisessä H4-raportissa **kolmella viidest�
 | Kirjaus raporttiin | Jokaisen tapahtuman suunniteltu kohta, välähdyksen piirtohetki (`performance.now`), `currentTime` piirtohetkellä ja jakso (käynnistys, jatko tai kelaus) | Videon tapahtumat yhdistetään sivun tapahtumiin numerolla. |
 
 **Ilman koodimuutosta (pilotti P2):** nykyisen H4-sivun säätö asetetaan arvoon 0 (painikkeilla ±10 ja ±50).
-- Sivun 441 piippauksen välit ovat epäsäännölliset (351–750 ms) ja tunnetut (`beepStarts`), joten kuviontunnistus toimii myös siinä.
+- Sivun 441 piippauksen välit ovat epäsäännölliset (351–750 ms) ja tunnetut (`beepStarts`). Kuviontunnistus on mahdollinen, mutta se ei ole itsestään yksiselitteinen:
+  - Kun aikataulua siirretään noin ±530 ms, jopa 39 % tapahtumista osuu ±20 ms:n päähän toisesta piippauksesta. Tämä on juuri epäillyn ilmiön suuruusluokka.
+  - Pari varmistetaan siksi ennen analyysia indeksin tunnistuksella, ankkurilla ja parien johdonmukaisuudella (`H4-VIDEO-P0-P2-OHJE.md` luku 4).
 - Piippaukset ovat kuitenkin pehmeäalkuisia (30 ms:n ikkunoitu) ja tiheitä, ja välähdys on 60 ms.
 - Pilotti kertoo, riittääkö nykyinen sivu ja tarvitaanko harva tila lainkaan.
 
 ### 1.5 Epävarmuuden raportointi ilman ennenaikaisia lupauksia
 
 - **Tarkkuutta ei ilmoiteta etukäteen.** "Noin 4 ms:n kuvaresoluutio" on vain kuvavälin raja. Todellinen epävarmuus määritetään pilotista. Siihen asti tulokset ovat "pilotti, epävarmuus määrittämättä".
+- **Absoluuttinen ero ja tilanteiden välinen muutos raportoidaan erikseen** (lisätty 19.11.2026), koska niiden epävarmuuslähteet ovat eri. Absoluuttinen ero tarvitsee c:n arvon. Muutokseen vaikuttaa vain c:n muutos tallenteen aikana. Erottelu on kuvattu tiedostossa `H4-VIDEO-P0-P2-OHJE.md`, luku 5.
 - **Raportoidaan jokaiselle tallenteelle ja tilanteelle:**
   - tapahtumien määrä n ja jokaisen tapahtuman Δᵢ (raakadata)
   - mediaani, kvartiiliväli, pienin ja suurin arvo
   - mediaanin 95 %:n bootstrap-luottamusväli
-  - muutos käynnistyksestä (saman tallenteen sisällä) ja sen bootstrap-luottamusväli.
+  - muutos käynnistyksestä (saman tallenteen sisällä) omana taulukkonaan ja sen bootstrap-luottamusväli
+  - luottamusväli vain jaksoille, joiden ääni–välähdyspari on varmistettu.
+- **Osatekijää ei esitetä kokonaisepävarmuutena:** kuvaväli, äänen tai äänikortin näyteväli ja kalibrointi-iskujen hajonta ovat osatekijöitä.
 - **Virhebudjetti mitattuna, ei oletettuna:**
 
   | Lähde | Miten arvioidaan |
@@ -104,9 +114,9 @@ Vaiheet P0–P2 eivät vaadi koodimuutoksia eivätkä hankintoja. P3 vaatii hyv�
 
 | Vaihe | Mitä | Läpäisyehto (vaiheen jatkamiselle, ei H4:n hyväksymiselle) |
 | --- | --- | --- |
-| **P0** Laitetarkistus | Kuvaavan puhelimen malli. 10 s hidastusvideo käsien taputuksesta → siirto Macille alkuperäisenä → AVFoundation-tarkistus: raidat, kuvanopeus, aikaleimojen välit, ääniraidan näytetaajuus ja kesto. Sama tavallisella 60 fps:n videolla. | Ääniraita on olemassa ja reaaliaikainen. Muuten B käytetään tavallisella videolla tai siirrytään A:han. |
-| **P1** Kameran kalibrointi | Telineeseen tai kirjapinoon, noin 20–30 cm. iPhonen näyttö ja alareunan kaiutin samassa kuvassa. Iskusarjat 5 + 5, väliin 2 min tyhjää. Valaistus päivänvalo tai tasavirtavalo: 50 Hz:n verkkovalo välkkyy 240 fps:n kuvassa. | Iskujen hajonta ja ajautuma tiedossa. Jos hajonta on suuri, B:n absoluuttinen tulos ei ole käyttökelpoinen, mutta muutos voi silti olla. |
-| **P2** Pilotti nykyisellä sivulla | PR #126:n kiinteä käännös `7fdb5dd65cc9`, `?koe=nayttoaani`, säätö 0. Yhdessä tallenteessa: iskut → käynnistys 15 s → Tauko 2 s → jatko 15 s → kelaus 15 s → iskut. iPhonella kirkkaus täysi, virransäästötila pois, Älä häiritse päälle ja äänenvoimakkuus korkea. | Välähdys ja piippaus erottuvat tallenteesta, ja kuviontunnistus löytää yksiselitteisen eron. Arvio epävarmuudesta saadaan. |
+| **P0** Laitetarkistus | Kuvaavan puhelimen malli. Noin 30 s:n koetallenne (iskut, H4-sivu 15 s, iskut) hidastustilassa ja tavallisessa 60 fps:n tilassa → siirto Macille alkuperäisenä → tarkistus: raidat, alkuajat ja muokkauslistat, kuvien aikaleimat, ääniraidan näytetaajuus ja kesto. **Äänen ja kuvan aikamittakaava** tarkistetaan testisivun tunnetuista piippaus- ja välähdysväleistä. Tarkennettu 19.11.2026, ks. ohjeen luku 1. | Ääniraita on olemassa, ja ääni ja kuva kulkevat reaaliajassa samalla aikajanalla. Muuten B käytetään tavallisella videolla, tai työ pysäytetään omistajan päätökseen. |
+| **P1** Kameran kalibrointi | Telineeseen tai kirjapinoon, noin 20–30 cm. iPhonen näyttö ja alareunan kaiutin samassa kuvassa. Geometria, etäisyydet ja lämpötila kirjataan. Kalibrointiajot (tarkennettu 19.11.2026):<br>– **P1-a** 5 min, 6 iskusarjaa: vakaus ja ajautuma tallenteen sisällä<br>– **P1-b** 3 erillistä tallennetta: vaihtelu tallenteiden välillä.<br>Valaistus päivänvalo tai tasavirtavalo: 50 Hz:n verkkovalo välkkyy 240 fps:n kuvassa. | c:n hajonta, ajautuma ja tallenteiden välinen vaihtelu ovat tiedossa. Jos c ei ole vakaa, sitä ei oleteta kumoutuvaksi. Jos hajonta on suuri, B:n absoluuttinen tulos ei ole käyttökelpoinen, ja muutoksen käyttökelpoisuus riippuu c:n vaihtelusta tallenteen aikana. |
+| **P2** Pilotti nykyisellä sivulla | PR #126:n kiinteä käännös `7fdb5dd65cc9`, `?koe=nayttoaani`, säätö 0. Yhdessä tallenteessa: iskut → käynnistys 15 s → Tauko 2 s → jatko 15 s → kelaus 15 s → iskut. iPhonella kirkkaus täysi, virransäästötila pois, Älä häiritse päälle ja äänenvoimakkuus korkea. | Välähdys ja piippaus erottuvat tallenteesta. **Ennen analyysia** jokaisen jakson ääni–välähdyspari on varmistettu (ohjeen luku 4, V1–V5), ettei vertailu kohdistu viereisiin tapahtumiin. Arvio epävarmuudesta saadaan. |
 | **P3** Harva tila ja analyysityökalu | Vain hyväksynnällä: `&koe=video` (luku 1.4) ja analyysityökalu. Työkalu tekee AVFoundationilla tapahtumalistan videosta (välähdysalueen kirkkaus kuvittain, ääniraidan alkuhetket) ja Pythonilla parituksen, kalibroinnin ja tilastot. | Työkalun yksikkötestit synteettisellä videolla, jossa ero tunnetaan (positiivinen kontrolli). |
 | **P4** Mittaus | 3 tallennetta, kahdella asettelulla. Jokaisessa 5 × käynnistys (sivu ladataan uudelleen), 5 × jatko ja 5 × kelaus, iskut alussa ja lopussa. | Tulokset luvun 1.5 mukaisesti. Ei hyväksyntää ilman omistajan päätöstä. |
 
@@ -117,8 +127,8 @@ Vaiheet P0–P2 eivät vaadi koodimuutoksia eivätkä hankintoja. P3 vaatii hyv�
 | | **B: video** | **A: valokenno ja mikrofoni** |
 | --- | --- | --- |
 | Tarvikkeet | Toinen puhelin ja teline. Ei hankintoja, jos puhelin on käytettävissä. | Valokenno (noin 5–20 €), johto, mikrofoni. Äänikortti (Scarlett Solo) on jo olemassa. |
-| Yhteinen kello | Kameran kuva ja ääni. Ero c tuntematon ja kalibroitava, voi ajautua. | Molemmat kanavat samassa A/D-muuntimessa. Kanavien välinen ero on käytännössä nolla, ja sen voi tarkistaa yhdellä signaalilla. |
-| Ajallinen erottelu | Kuvaväli 4,2 ms (240 fps) tai 16,7 ms (60 fps), lisäksi rullaava suljin | Näyte 0,02 ms (48 kHz). Valokennon vasteaika on pieni (tarkistettava). |
+| Yhteinen kello | Kameran kuva ja ääni. Ero c tuntematon ja kalibroitava, voi ajautua. | Molemmat kanavat samassa A/D-muuntimessa. Kanavien välisen eron oletetaan olevan pieni, mutta se on tarkistettava yhdellä signaalilla ennen käyttöä. |
+| Ajallinen erottelu (vain resoluutio, ei kokonaisepävarmuus) | Kuvaväli 4,2 ms (240 fps) tai 16,7 ms (60 fps), lisäksi rullaava suljin | Näyteväli 0,02 ms (48 kHz). Kokonaisepävarmuuteen vaikuttavat myös alkuhetken tunnistus, valokennon vasteaika, mikrofonin ja valokennon asettelu ja äänen kulkuaika. Ne on mitattava, eikä näyteväliä esitetä mittauksen tarkkuutena. |
 | Epävarmuuden päälähde | Kalibrointi (c ja ajautuma), alkuhetken tunnistus kuvasta | Valokennon kytkentä ja taso, mikrofonin asettelu |
 | Muutoksen mittaus (jatko ja kelaus vs. käynnistys) | Hyvä: c kumoutuu saman tallenteen sisällä | Hyvä |
 | Absoluuttinen ääni–kuva-ero | Kalibroinnin varassa | Suoraan |
@@ -132,7 +142,62 @@ Vaiheet P0–P2 eivät vaadi koodimuutoksia eivätkä hankintoja. P3 vaatii hyv�
 
 ## 4. Päätettävää omistajalle
 
-1. Tallenteiden ääni ja mikrofonilinjaus (luku 1.1): saako testisivun piippaukset tallentaa kameran mikrofonilla mittausaineistoksi?
-2. Saako P0–P2 tehdä nykyisellä sivulla, ilman koodimuutoksia?
-3. P2:n jälkeen: tarvitaanko harva tila `&koe=video` ja analyysityökalu (P3), vai riittääkö nykyinen sivu?
-4. Vaihtoehto A:n hankinta, jos P1:n kalibrointi osoittautuu liian epävarmaksi.
+1. ~~Tallenteiden ääni ja mikrofonilinjaus.~~ **Päätetty 19.11.2026:** saa tallentaa (luku 5). Tallenteiden säilytys ja poisto on vielä auki.
+2. ~~Saako P0–P2 tehdä nykyisellä sivulla, ilman koodimuutoksia?~~ **Päätetty 19.11.2026:** kyllä, säätö 0 (luku 5).
+3. P2:n jälkeen: tarvitaanko harva tila `&koe=video` ja analyysityökalu (P3), vai riittääkö nykyinen sivu? **Avoin.** Päätetään P0–P2:n tulosten perusteella.
+4. Vaihtoehto A:n hankinta, jos P1:n kalibrointi osoittautuu liian epävarmaksi. **Ei hankita nyt** (päätös 19.11.2026).
+
+## 5. Omistajan päätökset ja tekniset tarkennukset 19.11.2026
+
+### Omistajan päätökset
+
+| # | Päätös |
+| --- | --- |
+| 1 | Ulkoisen kameran mikrofonilla saa tallentaa testisivun piippaukset ja kalibrointiäänet. Tallenteessa ei tarvitse olla puhetta eikä muuta yksityistä ääntä. M2:n alkuperäisen vaatimuksen tarkoitus ja soveltuminen tarkistetaan, eikä vaatimusta muuteta hiljaisesti (luku 5.1). |
+| 2 | **P0:** lyhyt koetallenne. Varmistetaan, että alkuperäisestä videotiedostosta voidaan analysoida ääni ja kuva oikealla yhteisellä aikajanalla. |
+| 3 | **P1:** kameran alku- ja loppukalibrointi. Huomioidaan äänen kulkuaika, kuvausgeometria ja tallennuksen mahdollinen ajautuma. |
+| 4 | **P2:** nykyinen H4-sivu hyväksytään pilottiin. Säätö asetetaan nollaan, ja käynnistys, jatko ja kelaus kuvataan samaan tallenteeseen. |
+| 5 | P3:n uutta koetilaa ja analyysityökalua ei vielä toteuteta. Päätös tehdään P0–P2:n tulosten jälkeen. |
+| 6 | Valokennoa tai muuta mittalaitteistoa ei hankita vielä. |
+
+**Rajaukset:**
+- H4 pysyy mittausmenetelmän kehitysvaiheessa.
+- PR #126 pysyy Draft-tilassa ja issue #9 NO-GO-tilassa.
+- Toistomoottoria ei muuteta, eikä mergeä tai tuotantojulkaisua tehdä.
+
+### Omistajan tekniset tarkennukset ja niiden kirjaus
+
+| Tarkennus | Missä huomioitu |
+| --- | --- |
+| Ei oleteta, että 240 fps:n hidastusvideossa on analyysikelpoinen reaaliaikainen ääni ennen P0-varmennusta. | Luku 1.2 (ennallaan: ei tiedossa) ja ohjeen luku 1: P0-c ja P0-d tarkistavat aikamittakaavan tunnetuista väleistä. |
+| Ei oleteta kameran ääni–kuva-eron kumoutuvan, ennen kuin sen vakaus on tutkittu. | Luku 1.3 korjattu. Ohjeen luvut 2.2–2.3: P1-a (vakaus) ja P1-b (vaihtelu tallenteiden välillä). |
+| Äänikortin näyteväliä ei esitetä mittauksen kokonaisepävarmuutena. | Luku 3, rivi *Ajallinen erottelu*, ja luku 1.5 |
+| Absoluuttiset erot ja tilanteiden väliset muutokset raportoidaan erikseen. | Luku 1.5 ja ohjeen luku 5 |
+| Ennen P2:n analyysia varmistetaan, että verrataan samaa ääni–välähdysparia eikä viereisiä tapahtumia. | Luku 1.4, luku 2 (P2) ja ohjeen luku 4 (V1–V5) |
+
+**Huom.:** `H4-KATSELMOINTI-2026-11-19.md`:n luvun 5 taulukon B-rivin tarkkuusarviot (noin ±4 ms kuvaa kohden ja noin ±10 ms kalibrointi) ovat ennakkoarvioita, eivät mitattuja. Tämä suunnitelma ja ohje korvaavat ne. Katselmointi säilyy ennallaan historiallisena.
+
+### 5.1 Mikrofonivaatimuksen tarkoitus ja soveltuminen ulkoiseen mittaukseen
+
+**Lähteet:**
+- **Issue #9** (12.11.2026, tutkintatehtävän kohta 2): ”Kerää vain tekninen diagnostiikka, älä tallenna mikrofonia.” Kohta koskee testisivun instrumentointia tutkittavalla iPhonella.
+- **`NAYTTO-AANI-MITTAUSSUUNNITELMA.md`**, *Ei käytetä*: ”Mikrofonitallenne: projektin linjaus on, ettei mikrofonia tallenneta.”
+- **`H4-KATSELMOINTI-2026-11-19.md`** luku 5, vaihtoehto E: iPhonen oman mikrofonin avaaminen muuttaa iOS:n äänisession ja reitityksen, jolloin mitattava viive muuttuu.
+
+**Tarkoitus.** Lähteet eivät kirjaa sitä sanatarkasti, joten seuraava on päättelyä:
+1. **Yksityisyys:** sivusto tai testisivu ei tallenna käyttäjän ääntä.
+2. **Mittauksen pätevyys:** jos tutkittavan iPhonen mikrofoni avataan, iOS siirtyy eri äänisession tilaan, ja mitattaisiin muuta kuin tuotannon toistoa.
+3. **Diagnostiikan rajaus:** testisivun raportti sisältää vain teknisiä tietoja.
+
+**Soveltuminen ulkoiseen mittaukseen:**
+
+| Tarkoitus | Ulkoinen kamera | Johtopäätös |
+| --- | --- | --- |
+| 1 Yksityisyys | Tallenne on ääntä, mutta omistajan omalla laitteella, ja sisältönä on testiääniä. | Koskee osittain. Omistajan päätös 1 sallii tallenteen ehdoin: ei puhetta, ei repoon eikä ulkoisiin palveluihin, ja säilytyksestä päätetään erikseen. |
+| 2 Mittauksen pätevyys | Tutkittavan iPhonen mikrofoni pysyy suljettuna. Testisivu ei pyydä mikrofonia (`getUserMedia` puuttuu sekä lähteestä että käännöksestä, tarkistettu 19.11.2026), eikä iPhonen näytön tallennusta käytetä. | Ei riko. Ulkoinen tallenne on juuri keino välttää tutkittavan laitteen mikrofoni. |
+| 3 Diagnostiikan rajaus | Videotallenne ei ole testisivun diagnostiikkaa. Sivun raportti pysyy teknisenä. | Ei koske. |
+
+**Kirjaus:**
+- Vaatimus pysyy voimassa sovelluksen ja testisivun osalta. Sovellus ja testisivu eivät tallenna mikrofonia.
+- Ulkoinen kameratallenne on omistajan 19.11.2026 hyväksymä, rajattu tarkennus, joka on kirjattu myös mittaussuunnitelmaan (`NAYTTO-AANI-MITTAUSSUUNNITELMA.md`).
+- **Huomio:** mittaussuunnitelman M2 (hidastusvideo ja taputuskalibrointi) on aina edellyttänyt kameran äänen tallennusta. Se oli ristiriidassa kohdan *Ei käytetä* kanssa. Ristiriita on nyt purettu tällä tarkennuksella.

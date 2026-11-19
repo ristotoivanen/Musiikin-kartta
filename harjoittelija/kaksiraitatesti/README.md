@@ -586,6 +586,11 @@ Toistoon, kelaukseen, tahdistukseen ja mittarin laskentaan ei tehty muutoksia. L
 ## H4: näyttö–ääni-säätökoe (MK-20261119-02)
 
 Toteutettu suunnitelman (`NAYTTO-AANI-MITTAUSSUUNNITELMA.md`) menetelmä M1. Laiteohje on tiedostossa `H4-OHJE.md`.
+
+> **19.11.2026:** säätökoe on keskeytetty (`H4-KATSELMOINTI-2026-11-19.md`).
+> - Ulkoisen videomittauksen suunnitelma on tiedostossa `H4-VIDEOMITTAUS-SUUNNITELMA.md`. Omistaja hyväksyi sen vaiheet P0–P2 rajauksin.
+> - Ohje ja pöytäkirja ovat tiedostossa `H4-VIDEO-P0-P2-OHJE.md`.
+> - H4 on mittausmenetelmän kehitysvaiheessa, ja P3:a ei ole hyväksytty.
 - Tila: `?koe=nayttoaani`.
 - Toistomoottori, tuotantosoitin ja M − R -mittarin laskenta ovat ennallaan.
 
