@@ -132,19 +132,20 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
 .mic-live .meter { flex: 2 1 160px; }
 .privacy { border-top: 1px solid var(--line); padding-top: 12px; }
 
-@media (prefers-color-scheme: light) {
-  :root { color-scheme: light; --bg: #faf8ff; --panel: #f0ebfa; --text: #241b38; --muted: #605574; --lavender: #5533c3; --box: #1c7f66; --line: #b9aed0; --wrong: #a35a00; --good: #1c7f66; --gold: #a35a00; }
-  .primary { color: white; }
-  button:hover { background: #e4dcf3; }
-  .primary:hover { background: #38209f; }
-  .practice-board .target .dot, .answer-choices button.right { background: #83ddc3; color: #16121f; border-color: #1c7f66; }
-  .practice-board td { color: #efeaff; }
-  .practice-board.mastery td { color: var(--muted); }
-  .practice-board.mastery td.few { color: var(--text); }
-  .meter, .cents { background-color: #fff; }
-  .meter.over .meter-fill { background: #1c7f66; }
-  .mic-accepted { color: #1c7f66; }
-}
+/* Vaalea paletti odottaa koko sivuston hallittua teemanvalintaa (#124). Sitä ei oteta käyttöön laitteen
+ * järjestelmäteemasta, jotta Kitaraharjoittelija, Riffikaiku ja Ensikeikka ovat aina samaa tummaa perusilmettä.
+ * Käyttöönotto myöhemmin: <html data-theme="light">. */
+:root[data-theme="light"] { color-scheme: light; --bg: #faf8ff; --panel: #f0ebfa; --text: #241b38; --muted: #605574; --lavender: #5533c3; --box: #1c7f66; --line: #b9aed0; --wrong: #a35a00; --good: #1c7f66; --gold: #a35a00; }
+:root[data-theme="light"] .primary { color: white; }
+:root[data-theme="light"] button:hover { background: #e4dcf3; }
+:root[data-theme="light"] .primary:hover { background: #38209f; }
+:root[data-theme="light"] .practice-board .target .dot, :root[data-theme="light"] .answer-choices button.right { background: #83ddc3; color: #16121f; border-color: #1c7f66; }
+:root[data-theme="light"] .practice-board td { color: #efeaff; }
+:root[data-theme="light"] .practice-board.mastery td { color: var(--muted); }
+:root[data-theme="light"] .practice-board.mastery td.few { color: var(--text); }
+:root[data-theme="light"] .meter, :root[data-theme="light"] .cents { background-color: #fff; }
+:root[data-theme="light"] .meter.over .meter-fill { background: #1c7f66; }
+:root[data-theme="light"] .mic-accepted { color: #1c7f66; }
 @media (max-width: 600px) {
   .settings, .session-panel, .progress-panel, .mic-panel { padding: 12px; }
   .practice-main { padding: 22px 12px 0; }
