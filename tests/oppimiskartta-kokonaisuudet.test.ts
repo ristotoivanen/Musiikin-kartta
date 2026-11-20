@@ -78,5 +78,8 @@ it('Ydinopinnot on ensimmäinen ja kokeilut eivät sekoitu G-pilotin tai aiempie
     expect(main(html)).not.toContain('data-topic-items=');
     expect(html).toContain('aria-pressed="false" disabled>Merkitse kokeilluksi');
     expect(html).toContain('href="index.html#ydinopinnot"');
+    expect(topic).toContain(`<details class="study-inline" name="ydinopinnot-harjoitukset" data-study-item="${attempts[index]}"`);
+    expect(topic).toContain(`<summary class="study-choice study-choice--unit" id="valinta-${slug}">`);
+    expect(topic).toContain(`href="${slug}.html" data-return-topic="valinta-${slug}">Avaa omalla sivullaan</a>`);
   }
 });

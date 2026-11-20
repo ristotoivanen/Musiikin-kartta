@@ -180,7 +180,7 @@
     setupCompletion(entries, refresh);
   }
 
-  // Ydinopintojen oma kuittaus on sanamuodoltaan "kokeiltu" (main[data-study-mark]).
+  // Ydinopintojen oma kuittaus on sanamuodoltaan "kokeiltu" (data-study-mark).
   // Merkintä tallentuu samaan joukkoon omalla tunnisteellaan; se ei muuta vanhojen merkintöjen
   // merkitystä eikä ole osaamistesti.
   function setupCompletion(entries, afterRefresh) {
@@ -252,10 +252,18 @@
 
     const total = main.querySelector('[data-study-total]');
     const rows = [...main.querySelectorAll('[data-study-status]')];
-    if (!rows.length) return;
+    const attempts = [...main.querySelectorAll('[data-unit-attempts]')].map(counter => ({
+      counter,
+      rows: [...counter.closest('details').querySelectorAll('[data-study-attempt-status]')],
+    }));
+    const exercises = [...main.querySelectorAll('details[data-study-item]')].map(exercise => ({
+      id: exercise.dataset.studyItem,
+      kind: exercise.dataset.studyKind,
+      button: exercise.querySelector('.done-toggle'),
+    }));
+    if (!rows.length && !attempts.length) return;
 
-    const refresh = () => {
-      const done = load();
+    function refresh(done = load()) {
       let count = 0;
       for (const row of rows) {
         const marked = done.has(row.dataset.studyStatus);
@@ -264,11 +272,28 @@
         row.classList.toggle('is-done', marked);
         row.hidden = false;
       }
-      showTopicProgress(total, count, rows.length);
-    };
+      if (rows.length) showTopicProgress(total, count, rows.length);
 
-    refresh();
-    onReadingChange(refresh);
+      for (const unit of attempts) {
+        let tried = 0;
+        for (const row of unit.rows) {
+          const marked = done.has(row.dataset.studyAttemptStatus);
+          if (marked) tried++;
+          row.textContent = marked ? '✓ Kokeiltu' : 'Kokeilematta';
+          row.classList.toggle('is-done', marked);
+          row.hidden = false;
+        }
+        unit.counter.textContent = `${tried}/${unit.rows.length} kokeiltu`;
+        unit.counter.classList.toggle('is-done', tried === unit.rows.length);
+        unit.counter.hidden = false;
+      }
+    }
+
+    if (exercises.length) setupCompletion(exercises, refresh);
+    else {
+      refresh();
+      onReadingChange(refresh);
+    }
   }
 
   function readTopicView(fallback = { expanded: false, shown: [], openedBy: [] }) {

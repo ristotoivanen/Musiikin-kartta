@@ -458,7 +458,7 @@ test.describe('aiempien sisältöjen tilateksti (progress_text)', () => {
     await expect(earlier(page).locator('summary [data-study-total]')).toHaveText('✓ Aiemmat sisällöt tehty');
     await expect(earlier(page).locator('summary')).toHaveAccessibleName(/^Aiemmat oppitunnit ja harjoitukset.*✓ Aiemmat sisällöt tehty$/);
     await expect(page.locator('#ydinopinnot').locator('summary [data-unit-progress]')).toHaveText('0/3 kokeiltu');
-    await expect(page.locator('#ydinopinnot').locator('summary')).toHaveAccessibleName(/0\/3 kokeiltu$/);
+    await expect(page.locator('#ydinopinnot > summary')).toHaveAccessibleName(/0\/3 kokeiltu$/);
     await expect(page.locator('#ydinopinnot').locator('[data-study-attempt-status]')).toHaveText(['Kokeilematta', 'Kokeilematta', 'Kokeilematta']);
     await expect(page.getByText(notWhole)).toHaveCount(0);
 
@@ -500,7 +500,7 @@ test.describe('Ydinopinnot v0.5', () => {
   test('kolme korttia, suorat reitit, navigointi ja itsenäinen kokeiltu-merkintä', async ({ page }) => {
     await page.goto(topicPath);
     const unit = page.locator('#ydinopinnot');
-    const summary = unit.locator('summary');
+    const summary = unit.locator(':scope > summary');
     await expect(unit).not.toHaveAttribute('open', '');
     await expect(unit.locator('.study-choice').first()).toBeHidden();
     await summary.click();
@@ -516,30 +516,91 @@ test.describe('Ydinopinnot v0.5', () => {
     await page.goto(topicPath + '#ydinopinnot');
     await expect(unit).toHaveAttribute('open', '');
     for (const [index, [slug, title]] of ydinPages.entries()) {
-      await expect(unit.getByRole('link', { name: new RegExp(title) })).toHaveAttribute('href', slug + '.html');
-      await page.goto(ydinPath(index));
+      const exercise = unit.locator(`details[data-study-item="harjoitus:${slug}"]`);
+      const header = exercise.locator(':scope > summary');
+      await expect(header).toContainText(title);
+      await header.click();
+      const link = exercise.getByRole('link', { name: 'Avaa omalla sivullaan' });
+      await expect(link).toHaveAttribute('href', slug + '.html');
+      await link.click();
+      await expect(page).toHaveURL(ydinPath(index));
       await expect(page.locator('main')).toHaveAttribute('data-study-item', 'harjoitus:' + slug);
       await expect(page.getByRole('heading', { level: 1, name: title })).toBeVisible();
       await expect(page.locator('[data-study-unit]')).toHaveText(`Harjoitus 0${index + 1} / 03 Ydinopinnot`);
       await page.locator('.study-up a').click();
       await expect(page).toHaveURL(topicPath + '#ydinopinnot');
     }
-    await unit.getByRole('link', { name: /Kuule ja kokoa sointu/ }).click();
+
+    const first = unit.locator('details.study-inline').first();
+    const firstHeader = first.locator(':scope > summary');
+    await firstHeader.click();
+    await first.getByRole('link', { name: 'Avaa omalla sivullaan' }).click();
     await page.getByRole('button', { name: 'Merkitse kokeilluksi' }).click();
     await expect(page.getByRole('button', { name: '✓ Kokeiltu' })).toHaveAttribute('aria-pressed', 'true');
     await page.goBack();
     await expect(unit.locator('[data-unit-progress]')).toHaveText('1/3 kokeiltu');
-    await expect(page.locator('#valinta-kuule-ja-kokoa-sointu')).toBeFocused();
+    await expect(firstHeader).toBeFocused();
+    await expect(first).toHaveAttribute('open', '');
     await expect(earlier(page).locator('[data-study-total]')).toHaveText('1/18 aiemmista sisällöistä tehty');
-    await page.locator('#valinta-kuule-ja-kokoa-sointu').click();
-    await page.getByRole('button', { name: '✓ Kokeiltu' }).click();
+    await first.getByRole('button', { name: '✓ Kokeiltu' }).click();
+    await expect(firstHeader.locator('[data-study-attempt-status]')).toHaveText('Kokeilematta');
+    await expect(unit.locator('[data-unit-progress]')).toHaveText('0/3 kokeiltu');
     expect(JSON.parse(await storage(page) ?? '[]')).toEqual(['oppitunti:kuule-mika-on-sointu', 'harmoninen-kentta']);
+    await first.getByRole('link', { name: 'Avaa omalla sivullaan' }).click();
     for (const index of [1, 2]) {
       await page.locator('.study-steps--bottom [rel="next"]').click();
       await expect(page).toHaveURL(ydinPath(index));
     }
     await page.locator('.study-steps--bottom').getByRole('link', { name: /Palaa alkuun/ }).click();
     await expect(page).toHaveURL(ydinPath(0));
+  });
+
+  test('kolme harjoitusta toimivat laatikon sisällä ja sulkeminen pysäyttää äänen', async ({ page, isMobile }) => {
+    await recordAudio(page);
+    await page.goto(topicPath);
+    const unit = page.locator('#ydinopinnot');
+    const cards = unit.locator('.study-inline');
+    const header = (index: number) => cards.nth(index).locator(':scope > summary');
+    await unit.locator(':scope > summary').click();
+    if (isMobile) await header(0).click();
+    else {
+      await header(0).focus();
+      await page.keyboard.press('Enter');
+    }
+    await expect(cards.nth(0)).toHaveAttribute('open', '');
+    await expect(page).toHaveURL(topicPath);
+    await cards.nth(0).getByRole('button', { name: 'Sävelet yksitellen' }).click();
+    await expect(cards.nth(0).locator('[data-playing]')).toHaveCount(1);
+    await header(1).click();
+    await expect(cards.nth(0)).not.toHaveAttribute('open', '');
+    await expect(cards.nth(0).locator('[data-playing]')).toHaveCount(0);
+    expect(await page.evaluate(() => window.__audioLog.some(entry => entry.type === 'stop' && entry.when <= entry.at + 0.026))).toBe(true);
+
+    await cards.nth(1).getByRole('button', { name: 'Arvaa' }).click();
+    await cards.nth(1).getByRole('button', { name: 'Kuuntele sointu 1' }).click();
+    await expect(cards.nth(1).locator('[data-playing]')).toHaveCount(1);
+    await cards.nth(1).getByRole('group', { name: 'Vastaa' }).getByRole('button', { name: 'Sointu 1' }).click();
+    await expect(cards.nth(1).locator('[data-arvauspalaute]')).toContainText('Sointu 1 oli');
+    await expect(cards.nth(1).locator('[data-arvaus-kaaviot] svg')).toHaveCount(2);
+    await cards.nth(1).getByRole('button', { name: 'Merkitse kokeilluksi' }).click();
+    await expect(unit.locator('[data-unit-progress]')).toHaveText('1/3 kokeiltu');
+    await expect(header(1).locator('[data-study-attempt-status]')).toHaveText('✓ Kokeiltu');
+    await expect(earlier(page).locator('[data-study-total]')).toHaveText('0/18 aiemmista sisällöistä tehty');
+
+    await header(2).click();
+    await expect(cards.nth(1)).not.toHaveAttribute('open', '');
+    await cards.nth(2).getByRole('button', { name: 'Lopetus D' }).click();
+    await cards.nth(2).getByRole('button', { name: /Kuuntele$/ }).click();
+    await expect(cards.nth(2).locator('[aria-current="step"]')).toBeVisible();
+    await unit.locator(':scope > summary').click();
+    await expect(cards.nth(2).locator('[data-playing]')).toHaveCount(0);
+    await expect(cards.nth(2).getByRole('button', { name: /Pysäytä/ })).toHaveCount(0);
+    await expect(page).toHaveURL(topicPath);
+
+    await page.goto(topicPath + '#valinta-mihin-kappale-haluaa-palata');
+    await expect(unit).toHaveAttribute('open', '');
+    await expect(cards.nth(2)).toHaveAttribute('open', '');
+    await expect(unit.locator('[data-unit-progress]')).toHaveText('1/3 kokeiltu');
   });
 
   test('asteikon mikä tahansa kolmen sävelen valinta soi ja G–B–D käyttää samaa rekisteriä molemmissa esimerkeissä', async ({ page }) => {
@@ -707,14 +768,16 @@ test.describe('Ydinopinnot v0.5', () => {
   for (const width of [320, 375, 390, 768, 1200]) {
     test(`v0.5 sopii ${width} px:iin myös 200 % tekstillä ja yksi ⓘ ei siirrä kuuntelupainiketta`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
-      for (const url of [topicPath + '#ydinopinnot', ...ydinPages.map((_, index) => ydinPath(index))]) {
+      const inline = ydinPages.map(([slug]) => topicPath + '#valinta-' + slug);
+      for (const url of [topicPath + '#ydinopinnot', ...inline, ...ydinPages.map((_, index) => ydinPath(index))]) {
         await page.goto(url);
         for (const size of ['100%', '200%']) {
           await page.evaluate(value => { document.documentElement.style.fontSize = value; }, size);
           const testCase = `${url}, ${width}px, ${size}`;
-          const tip = page.locator('details.study-knoppi');
+          const active = page.locator('.sointuharjoitus:visible');
+          const tip = active.locator('details.study-knoppi');
           if (await tip.count()) {
-            const button = page.locator('[data-sointu-ohjaimet] button').first();
+            const button = active.locator('[data-sointu-ohjaimet] button').first();
             const summary = tip.locator('summary');
             await summary.scrollIntoViewIfNeeded();
             const before = await button.evaluate(element => element.getBoundingClientRect().top + window.scrollY);

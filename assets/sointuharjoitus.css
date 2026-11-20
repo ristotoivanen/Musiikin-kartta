@@ -102,3 +102,22 @@
     grid-template-columns: repeat(auto-fit, minmax(min(100%, max(44px, 2.6rem)), 1fr));
   }
 }
+
+/* Aihesivun harjoituskortti käyttää samaa korttipohjaa ja natiivia avautumista kuin kokonaisuus. */
+.study-units .study-inline-choices { grid-template-rows: none; grid-auto-rows: auto; }
+.study-inline-choices > li { display: block; grid-row: auto; min-width: 0; }
+.study-inline { min-width: 0; border: 1px solid #71638c; border-radius: .65rem; }
+.study-inline > summary { grid-template-rows: auto 1fr; border: 0; list-style: none; cursor: pointer; }
+.study-inline > summary::-webkit-details-marker { display: none; }
+.study-inline > summary:hover .study-title { text-decoration: underline; text-underline-offset: .18em; }
+.study-inline > summary:focus-visible { outline: 2px solid #75e5c6; }
+.study-inline .study-arrow::before { color: var(--accent); content: "+"; content: "+" / ""; }
+.study-inline[open] .study-arrow::before { content: "−"; content: "−" / ""; }
+.study-inline[open] > summary {
+  border-bottom: 1px solid #71638c;
+  border-end-start-radius: 0;
+  border-end-end-radius: 0;
+}
+.study-inline-body { padding: 0 clamp(.45rem, 2vw, .875rem) .875rem; min-width: 0; }
+.study-inline-body .done-row, .study-inline-link { margin-block: .75rem 0; }
+.study-inline-link a { display: inline-flex; align-items: center; min-height: 44px; }

@@ -36,7 +36,7 @@
   // näytti korttien tilat (PR #111:n data-study-intro-status-tuki), tämä tiedosto ei kirjoita niitä
   // uudelleen vaan päivittää vain kokonaisuuden laskurin. Ilman sitä tuki on tässä tiedostossa.
   const READING_KEY = 'musiikin-kartta:luvut';
-  const progressUnits = [...units].filter(unit => unit.querySelector('[data-unit-progress]'));
+  const progressUnits = [...units].filter(unit => unit.querySelector('[data-unit-progress]:not([data-unit-attempts])'));
   const engineRows = new Set(document.querySelectorAll('[data-study-intro-status]:not([hidden])'));
   function marks() {
     try {
@@ -50,21 +50,17 @@
     const done = marks();
     for (const unit of progressUnits) {
       const total = unit.querySelector('[data-unit-progress]');
-      const attempts = total.hasAttribute('data-unit-attempts');
-      const attr = attempts ? 'data-study-attempt-status' : 'data-study-intro-status';
-      const rows = [...unit.querySelectorAll(`[${attr}]`)];
+      const rows = [...unit.querySelectorAll('[data-study-intro-status]')];
       let count = 0;
       for (const row of rows) {
-        const marked = done.has(row.getAttribute(attr));
+        const marked = done.has(row.dataset.studyIntroStatus);
         if (marked) count++;
         if (engineRows.has(row)) continue;
-        row.textContent = attempts
-          ? (marked ? '✓ Kokeiltu' : 'Kokeilematta')
-          : (marked ? '✓ Tehty' : 'Tekemättä');
+        row.textContent = marked ? '✓ Tehty' : 'Tekemättä';
         row.classList.toggle('is-done', marked);
         row.hidden = false;
       }
-      total.textContent = `${count}/${rows.length} ${attempts ? 'kokeiltu' : 'sisältöä tehty'}`;
+      total.textContent = `${count}/${rows.length} sisältöä tehty`;
       total.classList.toggle('is-done', rows.length > 0 && count === rows.length);
       total.hidden = false;
     }

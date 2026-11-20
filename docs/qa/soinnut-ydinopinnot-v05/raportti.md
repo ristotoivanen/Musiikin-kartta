@@ -9,7 +9,9 @@ Aloitteleva oppija voi kuunnella säveliä erikseen ja yhdessä, vertailla E-duu
 sekä kuunnella kolmea erilaista lopetusta. Kokeiltu-merkintä tallentuu vain käyttäjän omasta
 painalluksesta ja sen voi perua. Kuuntelu, palaute ja merkintä eivät mittaa soittotaitoa.
 Ydinopinnot on aihesivulla oletuksena suljettu. Osion suora linkki ja harjoituksesta
-aihesivulle palaaminen avaavat sen.
+aihesivulle palaaminen avaavat sen. Harjoitukset 01–03 avautuvat omista otsikoistaan
+samassa laatikossa, yksi kerrallaan. Niitä voi käyttää aihesivulla tai avata erillisenä
+sivuna kortin lopun linkistä. Sulkeminen ja toiseen korttiin siirtyminen pysäyttävät äänen.
 
 Katselmointihaara `codex/soinnut-ydinopinnot-v05` perustuu [Draft-PR #133:n](https://github.com/ristotoivanen/Musiikin-kartta/pull/133)
 tarkistettuun päätasoon `25712ed4655bbf54824ce6d9086f76f4ce55c1f3`.
@@ -32,6 +34,7 @@ Käytössä ovat sivuston päävalikko ja aiheen paluulinkki, `study-unit`-avatt
 | Sivu | Työpöytä 1200 px | Puhelinemulaatio 390 px |
 | --- | --- | --- |
 | Soinnut ja harmonia | [PNG](kuvat/tyopoyta-aihesivu.png) | [PNG](kuvat/puhelin-aihesivu.png) |
+| Harjoitus avattuna aihesivulla | [PNG](kuvat/tyopoyta-avattu-harjoitus.png) | [PNG](kuvat/puhelin-avattu-harjoitus.png) |
 | Kuule ja kokoa sointu | [PNG](kuvat/tyopoyta-kuule-ja-kokoa.png) | [PNG](kuvat/puhelin-kuule-ja-kokoa.png) |
 | Yksi sävel muuttaa sointua | [PNG](kuvat/tyopoyta-duuri-ja-molli.png) | [PNG](kuvat/puhelin-duuri-ja-molli.png) |
 | Mihin kappale haluaa palata? | [PNG](kuvat/tyopoyta-sointukierto.png) | [PNG](kuvat/puhelin-sointukierto.png) |
@@ -72,6 +75,13 @@ kohdennetut yksikkötestit (`tests/oppimiskartta-kokonaisuudet.test.ts`, `tests/
 ja `tests/e2e/aihesivut.spec.ts`, 4 työntekijää) antoi 141 läpäistyä ja yhden puhelinprojektissa
 ohitetun näppäimistötestin. Selainajo tarkisti oletustilan, avaamisen ja sulkemisen, suoran linkin
 sekä paluun harjoituksesta.
+
+Avattavien harjoituskorttien muutoksessa `npm run check` läpäisi lintin, 626 yksikkötestiä,
+tyyppitarkistuksen ja buildin. Generaattoritarkistus ja linkkitarkistus läpäistiin
+(110 sivua, 2 789 viitettä). Kohdennettu Playwright-ajo tarkistaa käytön samassa laatikossa,
+äänen pysäytyksen kortin tai kokonaisuuden sulkeutuessa, merkinnän ja suoran osoitteen
+yhteentoiminnan sekä 320/375/390/768/1200 pikselin näkymät 200 prosentin tekstillä myös
+avatuissa korteissa. Uusimman selaintestin ja HTTPS-kokeen tulos on PR-kuvauksessa.
 
 ### Ääninäytteet
 
@@ -117,20 +127,21 @@ Kaikki alla mainitut fyysiset ja käyttäjäkokeet ovat **testaamatta** tässä 
   tarvitaanko myöhemmin pilotille näkyvä paikka syventävässä opintopolussa. Aiemmat syventävät
   aiheet ovat edelleen ryhmiteltyinä Aiemmat-osiossa. Mahdolliset uudet tai erikseen avattavat
   syventävät kokonaisuudet kuuluvat suunnittelukeskusteluun.
-- **Sivumalli.** Liitteen välilehtimäinen prototyyppi on sovitettu sivuston omiin
-  harjoitussivuihin, joten sivulta toiselle siirryttäessä väliaikainen kuuntelu- ja valintatila
-  palautuu alkuasetuksiin. Kokeiltu-merkintä säilyy. Ensiharjoitukseen palaaminen käyttää
-  prototyypin Palaa alkuun -toimintoa.
+- **Sivumalli.** Aihesivulla harjoituskortit säilyttävät valinnat ja arvaustilan, kun
+  niiden välillä siirrytään. Kuuntelu pysähtyy. Samat harjoitukset toimivat myös suorissa
+  harjoitusosoitteissa. Kokeiltu-merkintä näkyy kummassakin näkymässä.
 
 ### Riippuvuudet ja integraatio
 
 - [PR #111](https://github.com/ristotoivanen/Musiikin-kartta/pull/111), `794d106a9824068fac80064244a8c850f12da5e4`,
   lisää Rytmin numeroimattoman johdannon, omat korttimerkinnät ja aloituslinkin. Aiemmat
-  päällekkäisyydet painottuvat generoituun HTML:ään. Yhdistelykoe tehtiin Git-viitteiden ulkopuolella.
-  Lähteet yhdistyivät automaattisesti. Etusivulla säilytettiin #111:n generoitu aloitus ja poistettiin
+  päällekkäisyydet painottuvat generoituun HTML:ään. Ensimmäinen yhdistelykoe tehtiin
+  ennen avattavia kortteja Git-viitteiden ulkopuolella, ja silloin lähteet yhdistyivät automaattisesti. Etusivulla säilytettiin #111:n generoitu aloitus ja poistettiin
   sen perään jäänyt käsin kirjoitettu lause, sitten generoitiin sivut uudestaan. 11 yksikkötestiä
   ja neljä työpöytä-/puhelinmerkintätestiä läpäistiin. Linkkitarkistuksessa 111 sivua ja
-  2 792 viitettä ilman virheitä.
+  2 792 viitettä ilman virheitä. Avattavien korttien muutoksen jälkeen
+  `assets/edistyminen.js`:n `setupStudyTopic` tuottaa #111:n kanssa kaksi yhdistelykonfliktikohtaa.
+  Johdannon ja korttimerkintöjen päivitykset pitää sovittaa yhteen ennen integraatiota.
 - [Rytmi #134](https://github.com/ristotoivanen/Musiikin-kartta/pull/134),
   `a962bf6`, kehittää omaa Ydinopinnot-kokonaisuutta. Rinnakkaiset muutokset osuvat generaattoriin,
   avattavien kokonaisuuksien tyyleihin ja etenemisskriptiin. Harjoitussivun kokeiltu-merkintä

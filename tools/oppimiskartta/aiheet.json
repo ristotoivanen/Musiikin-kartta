@@ -96,7 +96,7 @@
         "intro": "Kaikki aiemmat oppitunnit ja harjoitukset löytyvät täältä entisillä osoitteillaan. Aiemmat suoritusmerkintäsi säilyvät."
       },
       "groups": [
-        {"id": "ydinopinnot", "title": "Ydinopinnot", "attempts": true,
+        {"id": "ydinopinnot", "title": "Ydinopinnot", "attempts": true, "inline": true,
          "goal": "Etene haluamassasi järjestyksessä.",
          "lessons": [
           {"standalone": "kuule-ja-kokoa-sointu", "title": "Kuule ja kokoa sointu", "goal": "Sävelet ja yhteissointi"},

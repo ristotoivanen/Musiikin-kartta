@@ -2,11 +2,9 @@
 // sekä G-pilottia että v0.5:tä. Sävel- ja aikatapahtumat pysyvät erillään näytepankista.
 (() => {
   'use strict';
-  const section = document.querySelector('[data-sointuharjoitus]');
-  if (!section) return;
+  const sections = document.querySelectorAll('[data-sointuharjoitus]');
+  if (!sections.length) return;
   const base = new URL('audio/soinnut/', document.currentScript.src);
-  const status = section.querySelector('[data-sointu-tila]');
-  const kind = section.dataset.sointuharjoitus;
 
   // Nimi ilmaisee äänitetyn kielen ja sävelen. Esimerkeissä ei transponoida näytteitä.
   const OPEN_G = ['LowE:G2', 'A:B2', 'D:D3', 'G:G3', 'B:B3', 'HighE:G4'];
@@ -54,7 +52,7 @@
   let audio;
   let session;
 
-  function showStatus(message, error = false) {
+  function showStatus(status, message, error = false) {
     status.textContent = message;
     status.classList.toggle('is-error', error);
   }
@@ -83,7 +81,7 @@
     delete last.trigger.dataset.playing;
     last.onPosition?.(-1);
     last.onStop?.();
-    if (message) showStatus(message);
+    if (message) showStatus(last.status, message);
   }
 
   function context() {
@@ -151,15 +149,15 @@
     source.stop(end);
   }
 
-  async function play(trigger, plan, { label = 'Kuuntelu käynnissä.', onPosition, onStop } = {}) {
+  async function play(trigger, status, plan, { label = 'Kuuntelu käynnissä.', onPosition, onStop } = {}) {
     stop();
-    const own = { trigger, onPosition, onStop, abort: new AbortController(), sources: new Set() };
+    const own = { trigger, status, onPosition, onStop, abort: new AbortController(), sources: new Set() };
     session = own;
-    showStatus('Ladataan kitaran ääninäytteitä…');
+    showStatus(status, 'Ladataan kitaran ääninäytteitä…');
     own.timeout = setTimeout(() => {
       if (session !== own) return;
       stop();
-      showStatus('Äänen käynnistys kesti liian kauan. Kokeile uudelleen.', true);
+      showStatus(status, 'Äänen käynnistys kesti liian kauan. Kokeile uudelleen.', true);
     }, 12000);
 
     let ctx;
@@ -171,7 +169,7 @@
     } catch {
       if (session === own) {
         stop();
-        showStatus('Ääntä ei saatu käynnistettyä. Kokeile uudelleen.', true);
+        showStatus(status, 'Ääntä ei saatu käynnistettyä. Kokeile uudelleen.', true);
       }
       return;
     }
@@ -180,7 +178,7 @@
       const pitches = [...new Set(plan.map(event => event.pitch))];
       const loaded = await Promise.all(pitches.map(pitch => sample(ctx, pitch, own.abort.signal)));
       if (session !== own) return;
-      if (ctx.state !== 'running') {
+      if (ctx.state !== 'running' || trigger.closest('details:not([open])')) {
         stop('Kuuntelu keskeytyi. Voit kuunnella uudelleen.');
         return;
       }
@@ -192,7 +190,7 @@
       const end = Math.max(...plan.map(event => event.at + event.duration + 0.02));
       for (const event of plan) schedule(own, loadedByPitch.get(event.pitch), event);
       trigger.dataset.playing = '';
-      showStatus(label);
+      showStatus(status, label);
       function followClock() {
         if (session !== own) return;
         const elapsed = ctx.currentTime - own.start;
@@ -207,7 +205,7 @@
     } catch {
       if (session === own) {
         stop();
-        showStatus('Ääniä ei voitu ladata. Kokeile uudelleen.', true);
+        showStatus(status, 'Ääniä ei voitu ladata. Kokeile uudelleen.', true);
       }
     }
   }
@@ -217,6 +215,11 @@
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) silence();
   });
+  document.addEventListener('toggle', event => {
+    const details = event.target;
+    if (session && details instanceof HTMLDetailsElement && !details.open && details.contains(session.trigger)) silence();
+  }, true);
+
   function setupChordBuilder(section, status) {
     const order = ['G', 'A', 'B', 'C', 'D', 'E', 'F#'];
     const buttons = [...section.querySelectorAll('[data-savel]')];
@@ -269,7 +272,7 @@
   }
 
 
-  function setupTriad() {
+  function setupTriad(section, playExample, stopExample) {
     const selected = new Set();
     const buttons = [...section.querySelectorAll('[data-savel]')];
     const selection = section.querySelector('[data-ydin-play="valinta"]');
@@ -286,7 +289,7 @@
           hint.textContent = 'Valitse enintään kolme säveltä. Poista ensin jokin nykyisistä.';
           return;
         }
-        if (session?.trigger === selection) stop(ready.kokoa);
+        if (session?.trigger === selection) stopExample(ready.kokoa);
         button.setAttribute('aria-pressed', String(selected.has(note)));
         const ordered = Object.keys(SCALE).filter(item => selected.has(item));
         count.textContent = `${ordered.length}/3`;
@@ -297,15 +300,15 @@
           : 'Kuuntele tämän yhdistelmän sointi ja vertaa sitä muihin valintoihin.';
       });
     }
-    section.querySelector('[data-ydin-play="yksitellen"]').addEventListener('click', event => play(event.currentTarget, plans.yksitellen));
-    section.querySelector('[data-ydin-play="yhdessa"]').addEventListener('click', event => play(event.currentTarget, plans.ydinYhdessa));
+    section.querySelector('[data-ydin-play="yksitellen"]').addEventListener('click', event => playExample(event.currentTarget, plans.yksitellen));
+    section.querySelector('[data-ydin-play="yhdessa"]').addEventListener('click', event => playExample(event.currentTarget, plans.ydinYhdessa));
     selection.addEventListener('click', () => {
       const pitches = Object.keys(SCALE).filter(note => selected.has(note)).map(note => SCALE[note]);
-      play(selection, notes(pitches, 1.75, 0.33));
+      playExample(selection, notes(pitches, 1.75, 0.33));
     });
   }
 
-  function setupGuess() {
+  function setupGuess(section, playExample, stopExample, showExerciseStatus) {
     const normal = section.querySelector('[data-suora-kuuntelu]');
     const listening = section.querySelector('[data-arvaus-kuuntelu]');
     const question = section.querySelector('[data-arvaus-kysymys]');
@@ -325,13 +328,13 @@
     let answered = false;
 
     for (const button of normal.querySelectorAll('button')) {
-      button.addEventListener('click', () => play(button, plans[button.dataset.ydinPlay]));
+      button.addEventListener('click', () => playExample(button, plans[button.dataset.ydinPlay]));
     }
     for (const button of listening.querySelectorAll('button')) {
-      button.addEventListener('click', () => play(button, plans[pair[Number(button.dataset.arvaaKuuntele)]]));
+      button.addEventListener('click', () => playExample(button, plans[pair[Number(button.dataset.arvaaKuuntele)]]));
     }
     next.addEventListener('click', () => {
-      stop();
+      stopExample();
       pair = Math.random() < 0.5 ? ['E', 'Em'] : ['Em', 'E'];
       target = Math.random() < 0.5 ? 'Em' : 'E';
       answered = false;
@@ -342,14 +345,14 @@
       feedback.classList.remove('is-error');
       choices.forEach(button => button.removeAttribute('aria-disabled'));
       next.textContent = 'Uusi arvaus';
-      showStatus('Kuuntele sointu 1 ja sointu 2 ennen vastaamista.');
+      showExerciseStatus('Kuuntele sointu 1 ja sointu 2 ennen vastaamista.');
       heading.focus();
     });
     for (const button of choices) {
       button.addEventListener('click', () => {
         if (answered) return;
         answered = true;
-        stop();
+        stopExample();
         const correct = pair[Number(button.dataset.vastaus)] === target;
         choices.forEach(choice => choice.setAttribute('aria-disabled', 'true'));
         feedback.classList.toggle('is-error', !correct);
@@ -360,12 +363,12 @@
           diagrams.append(figure);
         });
         diagrams.hidden = tip.hidden = false;
-        showStatus('');
+        showExerciseStatus('');
       });
     }
   }
 
-  function setupProgression() {
+  function setupProgression(section, playExample, stopExample) {
     const playButton = section.querySelector('[data-kierto]');
     const endings = [...section.querySelectorAll('[data-lopetus]')];
     const nameButton = section.querySelector('[data-nayta-nimet]');
@@ -389,7 +392,7 @@
 
     for (const button of endings) {
       button.addEventListener('click', () => {
-        stop('Pysäytetty.');
+        stopExample('Pysäytetty.');
         sequence[3] = button.dataset.lopetus;
         endings.forEach(ending => ending.setAttribute('aria-pressed', String(ending === button)));
         draw(-1);
@@ -403,12 +406,12 @@
     });
     playButton.addEventListener('click', () => {
       if (session?.trigger === playButton) {
-        stop('Pysäytetty.');
+        stopExample('Pysäytetty.');
         return;
       }
       const plan = sequence.flatMap((chord, index) => notes(HARMONY[chord], 2.15, 0.23, 0.022, index * BAR));
       playLabel(true);
-      play(playButton, plan, {
+      playExample(playButton, plan, {
         onPosition: elapsed => {
           const index = Math.floor(elapsed / BAR);
           if (index !== active) draw(index);
@@ -418,13 +421,23 @@
     });
   }
 
-  for (const controls of section.querySelectorAll('[data-sointu-ohjaimet]')) controls.hidden = false;
-  showStatus(ready[kind]);
-  for (const button of section.querySelectorAll('[data-soita]')) {
-    button.addEventListener('click', () => play(button, plans[button.dataset.soita], { label: playingLabels[button.dataset.soita] }));
+  for (const section of sections) {
+    const kind = section.dataset.sointuharjoitus;
+    const status = section.querySelector('[data-sointu-tila]');
+    const playExample = (trigger, plan, options) => play(trigger, status, plan, options);
+    const stopExample = message => {
+      if (session?.status === status) stop(message);
+    };
+    const showExerciseStatus = message => showStatus(status, message);
+
+    for (const controls of section.querySelectorAll('[data-sointu-ohjaimet]')) controls.hidden = false;
+    showExerciseStatus(ready[kind]);
+    for (const button of section.querySelectorAll('[data-soita]')) {
+      button.addEventListener('click', () => playExample(button, plans[button.dataset.soita], { label: playingLabels[button.dataset.soita] }));
+    }
+    if (kind === 'rakenna') setupChordBuilder(section, status);
+    if (kind === 'kokoa') setupTriad(section, playExample, stopExample);
+    if (kind === 'arvaa') setupGuess(section, playExample, stopExample, showExerciseStatus);
+    if (kind === 'paluu') setupProgression(section, playExample, stopExample);
   }
-  if (kind === 'rakenna') setupChordBuilder(section, status);
-  if (kind === 'kokoa') setupTriad();
-  if (kind === 'arvaa') setupGuess();
-  if (kind === 'paluu') setupProgression();
 })();
