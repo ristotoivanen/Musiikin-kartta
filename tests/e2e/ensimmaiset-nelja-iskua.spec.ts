@@ -57,12 +57,15 @@ const stopButton = (page: Page) => page.getByRole('button', { name: '■ Pysäyt
 const message = (page: Page) => page.locator('#message');
 // Naksujen sävelkorkeus asetetaan setValueAtTime-kutsulla: 960 Hz tahdin ykkönen, 760 Hz muut.
 const pitches = (all: Event[]) => all.filter(e => e.kind === 'set' && (e.value === 960 || e.value === 760)).map(e => e.value);
+// Harjoitusvalinnat näkyvät oppijalle selkokielisinä; M0–M3 ovat vain sisäisiä tunnuksia (data-mode).
+const modeNames = { M0: 'Kuuntele esimerkki', M1: 'Harjoittele itse', M2: 'Kuuntele musiikissa', M3: 'Soita musiikin mukana' } as const;
+const modeButton = (page: Page, mode: keyof typeof modeNames) => page.getByRole('button', { name: modeNames[mode], exact: true });
 const near = (a: number, b: number, eps = 1e-6) => Math.abs(a - b) < eps;
 
 test('M0 soittaa E2-näytteen neljästi kahdesti, vaimentaa 150 ms:ssa ja päättyy itsestään', async ({ page }) => {
   test.setTimeout(60_000);
   const { external, audio } = await open(page);
-  await expect(page.getByRole('heading', { level: 2, name: 'M0 · Kuuntele malli' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 2, name: 'Kuuntele esimerkki' })).toBeVisible();
   // Opasteen tilat kirjataan jokaisesta muutoksesta, koska yksittäinen isku kestää vain 0,83 s.
   await page.evaluate(() => {
     const w = window as unknown as { __phases: string[] };
@@ -74,7 +77,7 @@ test('M0 soittaa E2-näytteen neljästi kahdesti, vaimentaa 150 ms:ssa ja päät
     }).observe(document.getElementById('beats')!.parentElement!, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['class'] });
   });
   await start(page).click();
-  await expect(message(page)).toHaveText('Kuunnellaan mallia.');
+  await expect(message(page)).toHaveText('Esimerkki soi: kuuntele.');
   await expect(message(page)).not.toHaveClass(/virhe/);
   expect(audio).toEqual([audioDir + 'e2-freepats-fsbs-clean-bridge-alku-2s.wav 200']);
 
@@ -96,8 +99,9 @@ test('M0 soittaa E2-näytteen neljästi kahdesti, vaimentaa 150 ms:ssa ja päät
 
   await expect(message(page)).toHaveText('Harjoitus päättyi.', { timeout: 20_000 });
   const cell = (i: number, rest: boolean) => '[' + [0, 1, 2, 3].map(k => (k === i ? (rest ? 'R' : 'A') : '-')).join('') + ']';
-  const round = [0, 1, 2, 3].map(i => 'Soita E · ' + (i + 1) + '/4 ' + cell(i, false))
-    .concat(['VAIMENNA NYT · 1/4 ' + cell(0, true)], [1, 2, 3].map(i => 'Odota · ' + (i + 1) + '/4 ' + cell(i, true)));
+  // Neljäs isku on yhä soittoisku ("Soita"), jossa on lisäksi vihje "anna soida"; vaimennus vasta seuraavan tahdin ykkösellä.
+  const round = [0, 1, 2].map(i => 'Soita · ' + (i + 1) + '/4 ' + cell(i, false))
+    .concat(['Soita · anna soida · 4/4 ' + cell(3, false), 'Vaimenna nyt · 1/4 ' + cell(0, true)], [1, 2, 3].map(i => 'Odota · ' + (i + 1) + '/4 ' + cell(i, true)));
   // Käynnistys nollaa ensin opasteen (stop), sitten sisäänlasku, kaksi kierrosta ja nollaus lopussa.
   const expected = ['Lähtölasku [----]'].concat([0, 1, 2, 3].map(i => 'Lähtölasku · ' + (i + 1) + '/4 ' + cell(i, false))).concat(round, round, ['Lähtölasku [----]']);
   expect(await page.evaluate(() => (window as unknown as { __phases: string[] }).__phases)).toEqual(expected);
@@ -107,9 +111,9 @@ test('M0 soittaa E2-näytteen neljästi kahdesti, vaimentaa 150 ms:ssa ja päät
 
 test('M1 soittaa pulssin ilman näytteitä, ja pysäytys sekä uudelleenkäynnistys toimivat', async ({ page }) => {
   const { external, audio } = await open(page);
-  await page.getByRole('button', { name: /M1/ }).click();
+  await modeButton(page, 'M1').click();
   await start(page).click();
-  await expect(message(page)).toContainText('Metronomi käy');
+  await expect(message(page)).toContainText('Pulssi käy: soita itse');
   await expect.poll(async () => (await events(page)).filter(e => e.kind === 'osc').length, { timeout: 5000 }).toBeGreaterThanOrEqual(5);
   expect((await events(page)).some(e => e.kind === 'buffer')).toBe(false);
   expect(audio).toEqual([]);
@@ -124,7 +128,7 @@ test('M1 soittaa pulssin ilman näytteitä, ja pysäytys sekä uudelleenkäynnis
   expect(await events(page)).toEqual([]);
 
   await start(page).click();
-  await expect(message(page)).toContainText('Metronomi käy');
+  await expect(message(page)).toContainText('Pulssi käy: soita itse');
   await expect.poll(async () => (await events(page)).filter(e => e.kind === 'osc').length, { timeout: 5000 }).toBeGreaterThanOrEqual(1);
   const again = await events(page);
   expect(again.filter(e => e.kind === 'osc')[0].when).toBeGreaterThan(stoppedAt);
@@ -136,22 +140,22 @@ test('M1 soittaa pulssin ilman näytteitä, ja pysäytys sekä uudelleenkäynnis
 
 test('M2 toistaa mallibassotaustan kerran ja M3 bassottoman taustan silmukkana', async ({ page }) => {
   const { external, audio } = await open(page);
-  await page.getByRole('button', { name: /M2/ }).click();
+  await modeButton(page, 'M2').click();
   await start(page).click();
-  await expect(message(page)).toHaveText('M2-tausta soi: kuuntele mallibassoa.');
+  await expect(message(page)).toHaveText('Musiikki soi: kuuntele mallibassoa.');
   let buffers = (await events(page)).filter(e => e.kind === 'buffer');
   expect(buffers).toHaveLength(1);
   expect(buffers[0].loop).toBe(false);
   expect(buffers[0].dur).toBeCloseTo(30.4, 3);
   expect(audio).toEqual([audioDir + 'em-komppi-a-m2-mallibasso.wav 200']);
-  await expect(page.locator('#phase')).toHaveText(/Lähtölasku · [1-4]\/4|Soita E/, { timeout: 4000 });
+  await expect(page.locator('#phase')).toHaveText(/Lähtölasku · [1-4]\/4|Soita/, { timeout: 4000 });
 
-  await page.getByRole('button', { name: /M3/ }).click();
-  await expect(message(page)).toHaveText('M2-tausta soi: kuuntele mallibassoa.');
+  await modeButton(page, 'M3').click();
+  await expect(message(page)).toHaveText('Musiikki soi: kuuntele mallibassoa.');
   await expect(page.locator('#phase')).toHaveText('Lähtölasku');
   await clearEvents(page);
   await start(page).click();
-  await expect(message(page)).toHaveText('M3-tausta soi: soita mukana. Pysäytä, kun haluat.');
+  await expect(message(page)).toHaveText('Musiikki soi: soita mukana. Pysäytä, kun haluat.');
   buffers = (await events(page)).filter(e => e.kind === 'buffer');
   expect(buffers).toHaveLength(1);
   expect(buffers[0].loop).toBe(true);
@@ -176,23 +180,23 @@ test('epäonnistunut äänen lataus näyttää virheen ja uusi yritys toimii', a
 
   await page.unroute('**/e2-freepats-fsbs-clean-bridge-alku-2s.wav');
   await page.route('**/em-komppi-a-m3-ilman-mallibassoa.wav', route => route.fulfill({ status: 200, contentType: 'audio/wav', body: 'ei ääntä' }));
-  await page.getByRole('button', { name: /M3/ }).click();
+  await modeButton(page, 'M3').click();
   await start(page).click();
-  await expect(message(page)).toContainText('M3-tausta ei purkautunut ääneksi');
+  await expect(message(page)).toContainText('Säestys ei purkautunut ääneksi');
   await expect(message(page)).toHaveClass(/virhe/);
 
-  await page.getByRole('button', { name: /M0/ }).click();
+  await modeButton(page, 'M0').click();
   await start(page).click();
-  await expect(message(page)).toHaveText('Kuunnellaan mallia.');
+  await expect(message(page)).toHaveText('Esimerkki soi: kuuntele.');
   await expect(message(page)).not.toHaveClass(/virhe/);
   await stopButton(page).click();
 });
 
 test('sivun siirtyminen taustalle pysäyttää toiston eikä käynnistä sitä itsestään', async ({ page }) => {
   await open(page);
-  await page.getByRole('button', { name: /M1/ }).click();
+  await modeButton(page, 'M1').click();
   await start(page).click();
-  await expect(message(page)).toContainText('Metronomi käy');
+  await expect(message(page)).toContainText('Pulssi käy: soita itse');
   await page.evaluate(() => {
     Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
     document.dispatchEvent(new Event('visibilitychange'));
@@ -237,7 +241,7 @@ test('M3:n silmukka jatkuu iskuruudukossa saumakohdan yli (OfflineAudioContext)'
 test('rytmiopaste vaihtuu äänikellon iskuissa M3:n silmukan yli', async ({ page }) => {
   test.setTimeout(75_000);
   await open(page);
-  await page.getByRole('button', { name: /M3/ }).click();
+  await modeButton(page, 'M3').click();
   await page.evaluate(() => {
     const w = window as unknown as { __beats: { i: number; t: number }[]; __ac: AudioContext };
     w.__beats = [];
@@ -249,7 +253,7 @@ test('rytmiopaste vaihtuu äänikellon iskuissa M3:n silmukan yli', async ({ pag
     }).observe(document.getElementById('beats')!, { subtree: true, attributes: true, attributeFilter: ['class'] });
   });
   await start(page).click();
-  await expect(message(page)).toContainText('M3-tausta soi');
+  await expect(message(page)).toContainText('Musiikki soi: soita mukana');
   const base = (await events(page)).find(e => e.kind === 'buffer')!.when;
   // Sauma on iskussa 36 (30,0 s); seurataan iskuun 41 asti.
   const recorded = () => page.evaluate(() => (window as unknown as { __beats: { i: number; t: number }[] }).__beats);
@@ -274,7 +278,7 @@ for (const size of [{ width: 375, height: 667 }, { width: 320, height: 568 }]) {
     await page.setViewportSize(size);
     await open(page);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(size.width);
-    // Aikajana näytetään kahtena tahtirivinä: Soita E ×4 ja Vaimenna! + Odota ×3.
+    // Aikajana näytetään kahtena tahtirivinä: Soita ×4 ja Vaimenna + Odota ×3.
     const tiles = page.locator('#timeline .tile');
     const [first, fifth] = [await tiles.nth(0).boundingBox(), await tiles.nth(4).boundingBox()];
     expect(fifth!.y).toBeGreaterThan(first!.y + first!.height - 1);
@@ -282,10 +286,22 @@ for (const size of [{ width: 375, height: 667 }, { width: 320, height: 568 }]) {
       const fits = await tiles.nth(i).evaluate(el => [...el.children].every(c => c.scrollWidth <= c.clientWidth + 1));
       expect(fits, 'ruutu ' + i).toBe(true);
     }
-    await page.getByRole('button', { name: /M1/ }).click();
+    // Harjoitusvalinnat, Käynnistä/Pysäytä ja vaimennusavun otsikko ovat helposti painettavia.
+    for (const target of [...await page.locator('.modes button').all(), start(page), stopButton(page)]) {
+      expect((await target.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    }
+    expect((await page.locator('details.apu summary').boundingBox())!.height).toBeGreaterThanOrEqual(32);
+    // Toisen tahdin ykkönen erottuu muista ruuduista.
+    const border = (i: number) => tiles.nth(i).evaluate(el => getComputedStyle(el).borderColor);
+    expect(await border(4)).not.toBe(await border(5));
+    await modeButton(page, 'M1').click();
     await start(page).click();
-    await expect(message(page)).toContainText('Metronomi käy');
-    await expect(page.locator('#phase')).toContainText(/Lähtölasku · [1-4]\/4|Soita E/);
+    await expect(message(page)).toContainText('Pulssi käy: soita itse');
+    await expect(page.locator('#phase')).toContainText(/Lähtölasku · [1-4]\/4|Soita/);
+    // Pisin opasteteksti mahtuu riville ilman ylivuotoa.
+    await expect(page.locator('#phase')).toHaveText('Soita · anna soida · 4/4', { timeout: 10_000 });
+    expect(await page.locator('#phase').evaluate(el => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(size.width);
     await expect.poll(async () => {
       const boxes = await Promise.all([stopButton(page), page.locator('#phase'), page.locator('#timeline')].map(l => l.boundingBox()));
       return boxes.every(b => b && b.y >= 0 && b.y + b.height <= size.height);
@@ -296,9 +312,9 @@ for (const size of [{ width: 375, height: 667 }, { width: 320, height: 568 }]) {
 
 test('iOS:n interrupted-tila pysäyttää toiston neutraalilla viestillä, ja uusi käynnistys toimii', async ({ page }) => {
   await open(page);
-  await page.getByRole('button', { name: /M3/ }).click();
+  await modeButton(page, 'M3').click();
   await start(page).click();
-  await expect(message(page)).toContainText('M3-tausta soi');
+  await expect(message(page)).toContainText('Musiikki soi: soita mukana');
   // Safari ilmoittaa sovelluksen vaihdossa ja puhelussa tilan "interrupted" (Chromium ei tue tilaa, joten se simuloidaan).
   await page.evaluate(() => {
     const ac = (window as unknown as { __ac: AudioContext }).__ac;
@@ -310,7 +326,7 @@ test('iOS:n interrupted-tila pysäyttää toiston neutraalilla viestillä, ja uu
   await expect(page.locator('#phase')).toHaveText('Lähtölasku');
   await page.evaluate(() => { delete (window as unknown as { __ac: { state?: string } }).__ac.state; });
   await start(page).click();
-  await expect(message(page)).toContainText('M3-tausta soi');
+  await expect(message(page)).toContainText('Musiikki soi: soita mukana');
   await stopButton(page).click();
 });
 
@@ -333,9 +349,9 @@ test('iOS:n äänisessio asetetaan playback-tilaan ennen äänen käynnistystä,
   await open(page);
   const log = () => page.evaluate(() => (window as unknown as { __session: string[] }).__session);
   expect(await log()).toEqual([]);
-  await page.getByRole('button', { name: /M1/ }).click();
+  await modeButton(page, 'M1').click();
   await start(page).click();
-  await expect(message(page)).toContainText('Metronomi käy');
+  await expect(message(page)).toContainText('Pulssi käy: soita itse');
   const first = await log();
   expect(first[0]).toBe('type=playback');
   expect(first.indexOf('type=playback')).toBeLessThan(first.indexOf('new AudioContext'));
@@ -348,7 +364,7 @@ test('iOS:n äänisessio asetetaan playback-tilaan ennen äänen käynnistystä,
   expect(await events(page)).toEqual([]);
   // Uudelleenkäynnistys ei aseta tyyppiä turhaan uudelleen eikä luo uutta AudioContextia.
   await start(page).click();
-  await expect(message(page)).toContainText('Metronomi käy');
+  await expect(message(page)).toContainText('Pulssi käy: soita itse');
   expect((await log()).filter(e => e === 'type=playback' || e === 'new AudioContext')).toEqual(['type=playback', 'new AudioContext']);
 
   // Taustalle siirtyminen pysäyttää toiston myös playback-sessiossa, eikä paluu käynnistä sitä.
@@ -370,9 +386,69 @@ test('iOS:n äänisessio asetetaan playback-tilaan ennen äänen käynnistystä,
 test('ilman audioSession-tukea sivu toimii ja kertoo tilan tarkistuspaneelissa', async ({ page }) => {
   await open(page);
   expect(await page.evaluate(() => 'audioSession' in navigator)).toBe(false);
-  await page.getByRole('button', { name: /M1/ }).click();
+  await modeButton(page, 'M1').click();
   await start(page).click();
-  await expect(message(page)).toContainText('Metronomi käy');
+  await expect(message(page)).toContainText('Pulssi käy: soita itse');
   await expect(page.locator('#reviewInfo')).toContainText('äänisessio ei tuettu', { timeout: 6000 });
   await stopButton(page).click();
+});
+
+test('aloitusohje, harjoitusnimet ja tehtävänannot ovat selkokielisiä, ja vaimennusapu on oletuksena suljettu', async ({ page }) => {
+  await open(page);
+  await expect(page.locator('#ohje')).toHaveText('Soita paksua vapaata E-kieltä neljä kertaa tasaisessa rytmissä. Anna neljännen äänen soida seuraavan tahdin ykköseen asti. Vaimenna silloin ja jatka laskemista hiljaa.');
+  const group = page.getByRole('group', { name: 'Valitse harjoitus' });
+  expect(await group.getByRole('button').allInnerTexts()).toEqual(Object.values(modeNames));
+  await expect(group).not.toContainText(/\bM[0-3]\b/);
+  expect(await group.getByRole('button').evaluateAll(buttons => buttons.map(b => (b as HTMLElement).dataset.mode))).toEqual(['M0', 'M1', 'M2', 'M3']);
+  const tasks = {
+    M0: /Kuuntele ensin/, M1: /Soita itse pulssin mukana/, M2: /Kuuntele, miten mallibasso.*Tässä ei tarvitse soittaa/, M3: /Soita itse musiikin mukana\. Mallibassoa ei ole/,
+  } as const;
+  for (const mode of ['M0', 'M1', 'M2', 'M3'] as const) {
+    await modeButton(page, mode).click();
+    await expect(modeButton(page, mode)).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.getByRole('heading', { level: 2 })).toHaveText(modeNames[mode]);
+    await expect(page.locator('#description')).toHaveText(tasks[mode]);
+    // 150 ms koskee vain esimerkin vaimennusta, ei oppijan aikarajaa.
+    await expect(page.locator('#modehint')).toBeVisible({ visible: mode === 'M0' });
+  }
+  await expect(page.locator('#modehint')).toHaveText('Esimerkissä vaimennus kestää 150 ms. Se ei ole sinulle asetettu aikaraja.');
+  const help = page.locator('details.apu');
+  await expect(help).not.toHaveAttribute('open', '');
+  await expect(help.getByText(/Kosketa soivaa E-kieltä/)).toBeHidden();
+  await help.getByText('Tarvitsetko apua vaimentamiseen?').click();
+  await expect(help.getByText('Kosketa soivaa E-kieltä kevyesti vasemman käden sormella painamatta sitä otelautaan. Voit käyttää myös oikeaa kättä. Tärkeintä on vaimentaa vasta seuraavan tahdin ykkösellä.')).toBeVisible();
+});
+
+test('rytmiopaste: neljäs isku on Soita + Anna soida, Vaimenna nyt seuraavan tahdin ykkösellä', async ({ page }) => {
+  await open(page);
+  const labels = await page.locator('#timeline .tile small:not(.letring)').allInnerTexts();
+  expect(labels).toEqual(['Soita', 'Soita', 'Soita', 'Soita', 'Vaimenna', 'Odota', 'Odota', 'Odota']);
+  await expect(page.locator('#timeline .tile.mute')).toHaveCount(1);
+  await expect(page.locator('#timeline .tile').nth(4)).toHaveClass(/mute/);
+  await expect(page.locator('.letring')).toHaveCount(1);
+  await expect(page.locator('#timeline .tile').nth(3).locator('.letring')).toBeHidden();
+  await page.evaluate(() => {
+    const w = window as unknown as { __cues: string[] };
+    w.__cues = [];
+    const phase = document.getElementById('phase')!;
+    new MutationObserver(() => {
+      const tiles = [...document.querySelectorAll('#timeline .tile')];
+      const current = tiles.findIndex(t => t.classList.contains('current'));
+      const ring = getComputedStyle(document.querySelector('.letring')!).visibility === 'visible';
+      const state = phase.textContent + ' | ruutu ' + current + (ring ? ' | anna soida' : '') + (phase.classList.contains('mutenow') ? ' | korostus' : '');
+      if (w.__cues[w.__cues.length - 1] !== state) w.__cues.push(state);
+    }).observe(phase.parentElement!, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['class'] });
+  });
+  await modeButton(page, 'M1').click();
+  await start(page).click();
+  await expect.poll(async () => (await page.evaluate(() => (window as unknown as { __cues: string[] }).__cues)).length, { timeout: 15_000 }).toBeGreaterThanOrEqual(14);
+  await stopButton(page).click();
+  const cues = await page.evaluate(() => (window as unknown as { __cues: string[] }).__cues);
+  const from = cues.indexOf('Soita · 1/4 | ruutu 0');
+  expect(cues.slice(from, from + 8)).toEqual([
+    'Soita · 1/4 | ruutu 0', 'Soita · 2/4 | ruutu 1', 'Soita · 3/4 | ruutu 2', 'Soita · anna soida · 4/4 | ruutu 3 | anna soida',
+    'Vaimenna nyt · 1/4 | ruutu 4 | korostus', 'Odota · 2/4 | ruutu 5', 'Odota · 3/4 | ruutu 6', 'Odota · 4/4 | ruutu 7',
+  ]);
+  await expect(page.locator('#phase')).toHaveText('Lähtölasku');
+  await expect(page.locator('#phase')).not.toHaveClass(/mutenow/);
 });
