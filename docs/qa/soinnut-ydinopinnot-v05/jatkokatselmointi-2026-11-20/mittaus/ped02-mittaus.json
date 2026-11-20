@@ -1,0 +1,112 @@
+{
+  "sampleInfo": {
+    "G": 14.35,
+    "B": 7.975,
+    "D": 8.402
+  },
+  "frame": 0.01,
+  "variants": {
+    "nykyinen": {
+      "interval": 0.52,
+      "duration": 1.2,
+      "gain": 0.48,
+      "aloitukset_s": [
+        0,
+        0.52,
+        1.04
+      ],
+      "kesto_koodissa_s": 1.2,
+      "kokonaiskesto_s": 2.24,
+      "kuuluvat_alueet": [
+        {
+          "name": "G",
+          "alkaa": 0.01,
+          "loppuu": 1
+        },
+        {
+          "name": "B",
+          "alkaa": 0.55,
+          "loppuu": 1.52
+        },
+        {
+          "name": "D",
+          "alkaa": 1.05,
+          "loppuu": 2.06
+        }
+      ],
+      "paallekkain_GB_s": 0.45,
+      "paallekkain_BD_s": 0.47,
+      "kaikki_kolme_s": 0,
+      "paallekkain_koodissa_s": 0.68,
+      "tasainen_paallekkain_ennen_haivytysta_s": 0.46
+    },
+    "vaihtoehtoA_erillaan": {
+      "interval": 0.7,
+      "duration": 0.62,
+      "gain": 0.48,
+      "aloitukset_s": [
+        0,
+        0.7,
+        1.4
+      ],
+      "kesto_koodissa_s": 0.62,
+      "kokonaiskesto_s": 2.02,
+      "kuuluvat_alueet": [
+        {
+          "name": "G",
+          "alkaa": 0.01,
+          "loppuu": 0.44
+        },
+        {
+          "name": "B",
+          "alkaa": 0.73,
+          "loppuu": 1.14
+        },
+        {
+          "name": "D",
+          "alkaa": 1.41,
+          "loppuu": 1.85
+        }
+      ],
+      "paallekkain_GB_s": 0,
+      "paallekkain_BD_s": 0,
+      "kaikki_kolme_s": 0,
+      "paallekkain_koodissa_s": 0,
+      "tasainen_paallekkain_ennen_haivytysta_s": 0
+    },
+    "vaihtoehtoB_pilotin_tahti": {
+      "interval": 1.18,
+      "duration": 1.05,
+      "gain": 0.48,
+      "aloitukset_s": [
+        0,
+        1.18,
+        2.36
+      ],
+      "kesto_koodissa_s": 1.05,
+      "kokonaiskesto_s": 3.41,
+      "kuuluvat_alueet": [
+        {
+          "name": "G",
+          "alkaa": 0.01,
+          "loppuu": 0.85
+        },
+        {
+          "name": "B",
+          "alkaa": 1.21,
+          "loppuu": 2.04
+        },
+        {
+          "name": "D",
+          "alkaa": 2.37,
+          "loppuu": 3.23
+        }
+      ],
+      "paallekkain_GB_s": 0,
+      "paallekkain_BD_s": 0,
+      "kaikki_kolme_s": 0,
+      "paallekkain_koodissa_s": 0,
+      "tasainen_paallekkain_ennen_haivytysta_s": 0
+    }
+  }
+}

@@ -776,7 +776,7 @@ test.describe('Ydinopinnot v0.5', () => {
   });
 
   for (const width of [320, 375, 390, 768, 1200]) {
-    test(`v0.5 sopii ${width} px:iin myös 200 % tekstillä ja yksi ⓘ ei siirrä kuuntelupainiketta`, async ({ page }) => {
+    test(`v0.5 sopii ${width} px:iin myös 200 % tekstillä ja avattu ⓘ ei siirrä päätoimintoja`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       const inline = ydinPages.map(([slug]) => topicPath + '#valinta-' + slug);
       for (const url of [topicPath + '#ydinopinnot', ...inline, ...ydinPages.map((_, index) => ydinPath(index))]) {
@@ -787,17 +787,24 @@ test.describe('Ydinopinnot v0.5', () => {
           const active = page.locator('.sointuharjoitus:visible');
           const tip = active.locator('details.study-knoppi');
           if (await tip.count()) {
-            const button = active.locator('[data-sointu-ohjaimet] button').first();
             const summary = tip.locator('summary');
+            // Kaikki harjoituksen näkyvät päätoiminnot ja tilarivi, ei ⓘ:n omaa sisältöä.
+            const mainControls = () => active.evaluate(section => [...section.querySelectorAll('button, [data-sointu-tila]')]
+              .filter(element => !element.closest('details.study-knoppi') && (element as HTMLElement).offsetParent)
+              .map(element => {
+                const box = element.getBoundingClientRect();
+                return `${element.textContent?.trim()} ${Math.round(box.left)} ${Math.round(box.top + window.scrollY)}`;
+              }));
             await summary.scrollIntoViewIfNeeded();
-            const before = await button.evaluate(element => element.getBoundingClientRect().top + window.scrollY);
             await expect(summary).toHaveCSS('width', '44px');
             await expect(summary).toHaveCSS('height', '44px');
             if (await tip.evaluate(element => (element as HTMLDetailsElement).open)) await summary.click();
+            await expect(tip).not.toHaveAttribute('open', '');
+            const before = await mainControls();
+            expect(before.length, testCase).toBeGreaterThan(1);
             await summary.click();
             await expect(tip).toHaveAttribute('open', '');
-            const after = await button.evaluate(element => element.getBoundingClientRect().top + window.scrollY);
-            expect(Math.abs(after - before), testCase).toBeLessThan(1);
+            expect(await mainControls(), testCase).toEqual(before);
           }
           expect(await noHorizontalScroll(page), testCase).toBe(true);
         }
