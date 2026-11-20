@@ -7,8 +7,8 @@ import { describe, it, expect } from 'vitest';
 // linkitetty sivuston navigaatioon.
 const url = (file: string) => new URL('../' + file, import.meta.url);
 const read = (file: string) => readFileSync(url(file), 'utf8');
-const page = read('neljaiskua-testi.html');
-const dir = 'assets/audio/neljaiskua-testi/';
+const page = read('testit/ensimmaiset-nelja-iskua.html');
+const dir = 'assets/audio/ensimmaiset-nelja-iskua/';
 const readme = read(dir + 'README.md');
 const files = {
   e2: 'e2-freepats-fsbs-clean-bridge-alku-2s.wav',
@@ -37,7 +37,7 @@ describe('Ensimmäiset neljä iskua -testisivu', () => {
     expect(page).not.toMatch(/B64_|atob\(/);
     expect(page).not.toMatch(/fetch\([^)]*https?:/);
     expect(page).not.toMatch(/<script[^>]+src=/);
-    expect(page).toContain("AUDIO_DIR='" + dir + "'");
+    expect(page).toContain("AUDIO_DIR='../" + dir + "'");
     for (const file of Object.values(files)) {
       expect(page).toContain(file);
       expect(existsSync(url(dir + file))).toBe(true);
@@ -60,8 +60,9 @@ describe('Ensimmäiset neljä iskua -testisivu', () => {
     const html = (folder: string) => readdirSync(url(folder)).filter(f => f.endsWith('.html')).map(f => folder + f);
     const oppi = readdirSync(url('oppi/'), { withFileTypes: true }).filter(d => d.isDirectory()).flatMap(d => html('oppi/' + d.name + '/'));
     const others = [...html(''), ...html('book/'), ...oppi, 'pelit/ensikeikka/index.html', 'assets/edistyminen.js']
-      .filter(file => file !== 'neljaiskua-testi.html');
-    for (const file of others) expect(read(file), file).not.toContain('neljaiskua');
+    for (const file of others) expect(read(file), file).not.toMatch(/ensimmaiset-nelja-iskua|testit\//);
+    // Testihakemistossa on vain tämä sivu, eikä sitä linkitetä mistään.
+    expect(readdirSync(url('testit/'))).toEqual(['ensimmaiset-nelja-iskua.html']);
   });
 
   it('äänitiedostot vastaavat README:n tiivisteitä ja muotoja', () => {

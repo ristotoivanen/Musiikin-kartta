@@ -1,6 +1,6 @@
 # Ensimmäiset neljä iskua – testisivun äänet (MK-20261117-01)
 
-Vain itsenäistä `neljaiskua-testi.html`-testisivua varten. Oppimiskartta, harjoittelijat ja
+Vain itsenäistä `testit/ensimmaiset-nelja-iskua.html`-testisivua varten. Oppimiskartta, harjoittelijat ja
 yhteinen äänimoottori eivät käytä näitä tiedostoja. Sivu lataa ne saman sivuston staattisina
 tiedostoina; ulkoisia ajonaikaisia äänilähteitä ei ole.
 

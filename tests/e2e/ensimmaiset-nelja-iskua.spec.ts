@@ -3,8 +3,8 @@ import { expect, test, type Page } from '@playwright/test';
 // MK-20261117-01: Ensimmäiset neljä iskua M0–M3 -testisivu. Testit ajetaan mykistettynä
 // (playwright.config.ts), joten ne todentavat ajastetut äänitapahtumat ja ladatut tiedostot,
 // eivät kuultavaa ääntä tai fyysisen puhelimen toistoa.
-const path = '/neljaiskua-testi.html';
-const audioDir = '/assets/audio/neljaiskua-testi/';
+const path = '/testit/ensimmaiset-nelja-iskua.html';
+const audioDir = '/assets/audio/ensimmaiset-nelja-iskua/';
 const beat = 60 / 72;
 
 type Event = { kind: 'buffer' | 'osc' | 'ramp' | 'set' | 'stop'; when: number; value?: number; dur?: number; rate?: number; channels?: number; loop?: boolean; loopStart?: number; loopEnd?: number };
@@ -268,3 +268,28 @@ test('rytmiopaste vaihtuu äänikellon iskuissa M3:n silmukan yli', async ({ pag
   for (const lag of lags) { expect(lag).toBeGreaterThanOrEqual(-0.002); expect(lag).toBeLessThan(0.12); }
   test.info().annotations.push({ type: 'kuvan viive (ms)', description: `min ${Math.round(Math.min(...lags) * 1000)}, max ${Math.round(Math.max(...lags) * 1000)}, n=${lags.length}` });
 });
+
+for (const size of [{ width: 375, height: 667 }, { width: 320, height: 568 }]) {
+  test(`puhelinnäkymä ${size.width}×${size.height}: ei vaakavieritystä, ja käynnistys tuo säätimet ja opasteen näkyviin`, async ({ page }) => {
+    await page.setViewportSize(size);
+    await open(page);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(size.width);
+    // Aikajana näytetään kahtena tahtirivinä: Soita E ×4 ja Vaimenna! + Odota ×3.
+    const tiles = page.locator('#timeline .tile');
+    const [first, fifth] = [await tiles.nth(0).boundingBox(), await tiles.nth(4).boundingBox()];
+    expect(fifth!.y).toBeGreaterThan(first!.y + first!.height - 1);
+    for (let i = 0; i < 8; i++) {
+      const fits = await tiles.nth(i).evaluate(el => [...el.children].every(c => c.scrollWidth <= c.clientWidth + 1));
+      expect(fits, 'ruutu ' + i).toBe(true);
+    }
+    await page.getByRole('button', { name: /M1/ }).click();
+    await start(page).click();
+    await expect(message(page)).toContainText('Metronomi käy');
+    await expect(page.locator('#phase')).toContainText(/Lähtölasku · [1-4]\/4|Soita E/);
+    await expect.poll(async () => {
+      const boxes = await Promise.all([stopButton(page), page.locator('#phase'), page.locator('#timeline')].map(l => l.boundingBox()));
+      return boxes.every(b => b && b.y >= 0 && b.y + b.height <= size.height);
+    }, { timeout: 3000 }).toBe(true);
+    await stopButton(page).click();
+  });
+}
