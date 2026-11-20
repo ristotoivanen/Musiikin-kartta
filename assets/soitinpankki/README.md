@@ -92,3 +92,24 @@ selvitys on vielä erikseen avoin #130:ssä.
   Steel-pankin lisäsävelet, dynaamiset lyönnit ja mikrofonia käyttävä harjoitus.
 
 Älä yhdistä betaan ennen erillistä arkkitehtuuri-, ääni-, lisenssi- ja laitehyväksyntää.
+
+## Paikallinen tarkistus
+
+Kloonaa tai päivitä tämän Draft-PR:n haara ja aja projektin riippuvuuksilla:
+
+```sh
+npx vitest run tests/soitinpankki-kirjasto.test.ts
+npm run lint
+npm run typecheck
+npm run build
+python3 -m http.server 8132 --bind 127.0.0.1
+```
+
+Avaa sen jälkeen `http://127.0.0.1:8132/testit/soitinpankki-kirjasto/`.
+Kokeile M2:ssa suhteellista mallikitaran voimakkuutta välillä 0,5–2,5 ×.
+Esikatselun säätö ei muuta M3:n hyväksyttyä WAV:ia tai PR #130:tä.
+
+**Tässä ympäristössä koko projektin npm-/Playwright-sarjaa ei voitu ajaa**,
+ja GitHubissa ei näkynyt tälle PR:lle automaattisia workflow-ajoja.
+Siksi yllä olevat paikalliset tarkistukset sekä fyysiset mobiilikokeet
+jäävät erillisiksi hyväksymisporteiksi ennen beta-siirtoa.
