@@ -117,7 +117,11 @@ class Page:
     def study_kind(self):
         if self.chapter:
             return 'luku'
-        return 'harjoitus' if self.parent else 'oppitunti'
+        return 'harjoitus' if self.parent or self.attempts else 'oppitunti'
+
+    @property
+    def attempts(self):
+        return getattr(self, 'unit', {}).get('attempts', False)
 
     @property
     def study_id(self):
@@ -431,11 +435,11 @@ def unit(anchor, title, size, body, *, number=None, opened=False, kind='', progr
 
 
 def unit_choice(page, index):
-    """Oman kokonaisuuden kortti. Tila on data-study-intro-status-merkinnässä (sama kuin PR #111:n
-    numeroimattomassa johdannossa: näkyy, mutta ei kuulu aiheen laskuriin), ei data-study-status-
-    merkinnässä, joten aiheen laskuri (assets/edistyminen.js) laskee edelleen vain aiemmat sisällöt."""
+    """Oman kokonaisuuden tilarivi ei kuulu aiheen data-study-status-laskuriin.
+    Pilotin merkintä käyttää #111:n johdantoriviä; Ydinopinnot näyttävät kokeiltu-merkinnän."""
     slug = Path(page.path).stem
-    status = f'<span data-study-intro-status="{page.study_id}" class="study-status" hidden></span>'
+    status_attr = 'data-study-attempt-status' if page.attempts else 'data-study-intro-status'
+    status = f'<span {status_attr}="{page.study_id}" class="study-status" hidden></span>'
     return (f'<a class="study-choice study-choice--unit" id="valinta-{slug}" href="{posixpath.basename(page.path)}">'
             f'<span class="study-number" aria-hidden="true">{index:02}</span>'
             f'<strong class="study-title">{escape(page.title)}</strong>'
@@ -480,9 +484,11 @@ def units_home(topic, lookup, exercise_descriptions):
             body.append('<p class="study-start">Aloita tästä</p>')
         body.append(unit_choices(links))
         # Kokonaisuuden oma laskuri (assets/kokonaisuudet.js) lukee vain tämän kokonaisuuden korttien tilat.
-        progress = '<span class="study-status study-unit-progress" data-unit-progress hidden></span>'
+        attempts = ' data-unit-attempts' if group.get('attempts') else ''
+        progress = f'<span class="study-status study-unit-progress" data-unit-progress{attempts} hidden></span>'
+        kind = ' study-unit--archived' if group.get('archived') else ''
         units.append(unit(group['id'], group['title'], len(links), '\n'.join(body),
-                          number=group['number'], opened=group.get('open', False), progress=progress))
+                          number=group.get('number'), opened=group.get('open', False), kind=kind, progress=progress))
     if legacy:
         info = topic['legacy']
         sections = [f'<p class="study-unit-goal">{escape(info["intro"])}</p>']
@@ -501,11 +507,13 @@ def units_home(topic, lookup, exercise_descriptions):
 
 
 def unit_page_content(page, group, index, topic, targets):
-    """Oman kokonaisuuden oppitunti: numerointi ja Edellinen/Seuraava kokonaisuuden sisällä. Viimeisestä
-    oppitunnista palataan aihesivulle, ei siirrytä aiempiin sisältöihin."""
+    """Oman kokonaisuuden sisällöt numeroidaan ja linkitetään sen sisällä. Ydinopinnoista voi
+    palata alkuun; pilotin viimeinen sivu palaa pilotin ankkuriin."""
     sequence = group['pages']
-    meta = (f'<p class="study-meta" data-study-unit="{group["id"]}">Oppitunti {index + 1:02} / {len(sequence):02} '
-            f'<span>{group["number"]:02} · {escape(group["title"])}</span></p>')
+    number = f'{group["number"]:02} · ' if 'number' in group else ''
+    meta = (f'<p class="study-meta" data-study-unit="{group["id"]}">{page.study_kind.capitalize()} '
+            f'{index + 1:02} / {len(sequence):02} <span>{number}{escape(group["title"])}</span></p>')
+    mark = 'Merkitse kokeilluksi' if page.attempts else f'Merkitse {page.study_kind} tehdyksi'
 
     def nav(bottom):
         items = []
@@ -515,6 +523,9 @@ def unit_page_content(page, group, index, topic, targets):
         if index + 1 < len(sequence):
             following = sequence[index + 1]
             items.append(step_link(rel(following.path, page.path), f'Seuraava: {following.title}', ' rel="next"', forward=True))
+        elif page.attempts:
+            url = rel(sequence[0].path, page.path)
+            items.append(step_link(url, 'Palaa alkuun', '', forward=True))
         else:
             url = rel(topic['path'], page.path) + '#' + group['id']
             items.append(step_link(url, f'Palaa aihesivulle: {topic["title"]}', ' class="study-step-map"'))
@@ -525,8 +536,8 @@ def unit_page_content(page, group, index, topic, targets):
     return '\n'.join([
         meta, f'<h1>{escape(page.title)}</h1>', f'<p class="lead">{escape(page.goal)}</p>', nav(False),
         rebase(page.markup, page.source, page.path, targets, topic),
-        '<p class="done-row"><button type="button" class="done-toggle" aria-pressed="false" disabled>'
-        f'Merkitse {page.study_kind} tehdyksi</button></p>', nav(True)])
+        f'<p class="done-row"><button type="button" class="done-toggle" aria-pressed="false" disabled>'
+        f'{mark}</button></p>', nav(True)])
 
 
 def related_url(target, topic):
@@ -648,6 +659,8 @@ def render(topic, content, nav, page=None, *, path_items=()):
         stylesheets.append('assets/sointuharjoitus.css')
     styles = '\n'.join(stylesheet(path, output) for path in stylesheets)
     back_href = rel(topic['path'], output) if page else rel('index.html', output) + '#' + topic['anchor']
+    if page and page.attempts:
+        back_href += '#' + page.unit['id']
     back_label = topic['back_label'] if page else 'Oppimiskarttaan'
     if not page and not recap:
         content += '\n<p class="study-reference">' + link(rel('book/index.html', output), 'Teoriaoppaan kaikki osat') + '</p>'
@@ -655,6 +668,8 @@ def render(topic, content, nav, page=None, *, path_items=()):
         progress = f' data-study-item="{page.study_id}" data-study-kind="{page.study_kind}"'
         if page.chapter:
             progress += f' data-theory-chapter="{page.chapter}"'
+        if page.attempts:
+            progress += ' data-study-mark="kokeiltu"'
         if page is topic['pages'][-1] and not topic.get('recap'):
             progress += f' data-topic-items="{escape(study_ids(topic["pages"]))}"'
         if path_items:

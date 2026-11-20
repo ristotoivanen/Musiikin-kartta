@@ -59,9 +59,24 @@ describe('Soinnut ja harmonia: oma oppimiskokonaisuus', () => {
     // Laskuri on Aiemmat oppitunnit ja harjoitukset -osion otsikkorivillä, ei koko aiheen yläpuolella.
     expect(topic.match(/data-study-total/g)).toHaveLength(1);
     expect(topic).toMatch(/<details class="study-unit study-unit--legacy" id="aiemmat">\n\s+<summary>[^\n]*data-study-total[^>]*hidden><\/span><\/summary>/);
-    expect([...topic.matchAll(/class="study-choice study-choice--unit" id="valinta-([^"]+)"/g)].map(([, slug]) => slug)).toEqual(unitPages);
+    expect([...topic.matchAll(/data-study-intro-status="oppitunti:([^"]+)"/g)].map(([, slug]) => slug)).toEqual(unitPages);
     // Uusien korttien tila käyttää PR #111:n johdannon merkintää: näkyy, mutta ei kuulu aiheen laskuriin.
     expect([...topic.matchAll(/data-study-intro-status="([^"]+)"/g)].map(([, id]) => id)).toEqual(unitIds);
-    expect(topic).toMatch(/<details class="study-unit" id="miten-sointu-muodostuu" open>\n\s+<summary>[^\n]*data-unit-progress hidden><\/span><\/summary>/);
+    expect(topic).toMatch(/<details class="study-unit study-unit--archived" id="miten-sointu-muodostuu">\n\s+<summary>[^\n]*data-unit-progress hidden><\/span><\/summary>/);
   });
+});
+
+it('Ydinopinnot on ensimmäinen ja kokeilut eivät sekoitu G-pilotin tai aiempien tunnisteisiin', () => {
+  const topic = read('oppi/soinnut/index.html');
+  const slugs = ['kuule-ja-kokoa-sointu', 'yksi-savel-muuttaa-sointua', 'mihin-kappale-haluaa-palata'];
+  const attempts = slugs.map(slug => 'harjoitus:' + slug);
+  expect(topic).toMatch(/<div class="study-units">\s+<details class="study-unit" id="ydinopinnot" open>/);
+  expect([...topic.matchAll(/data-study-attempt-status="([^"]+)"/g)].map(([, id]) => id)).toEqual(attempts);
+  for (const [index, slug] of slugs.entries()) {
+    const html = read('oppi/soinnut/' + slug + '.html');
+    expect(main(html)).toContain(`data-study-item="${attempts[index]}" data-study-kind="harjoitus" data-study-mark="kokeiltu"`);
+    expect(main(html)).not.toContain('data-topic-items=');
+    expect(html).toContain('aria-pressed="false" disabled>Merkitse kokeilluksi');
+    expect(html).toContain('href="index.html#ydinopinnot"');
+  }
 });

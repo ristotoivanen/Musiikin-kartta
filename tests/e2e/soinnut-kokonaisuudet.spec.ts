@@ -25,6 +25,7 @@ const legacy = [
 ] as const;
 
 const core = (page: Page) => page.locator('details#miten-sointu-muodostuu');
+const pilotPath = topicPath + '#miten-sointu-muodostuu';
 const earlier = (page: Page) => page.locator('details#aiemmat');
 const storage = (page: Page) => page.evaluate(key => localStorage.getItem(key), readingKey);
 const noHorizontalScroll = (page: Page) =>
@@ -34,8 +35,10 @@ test.describe('aihesivu', () => {
   test('uusi kokonaisuus on auki, aiemmat 18 sisältöä yhden suljetun osion alla', async ({ page }) => {
     await page.goto(topicPath);
     await expect(page.getByRole('heading', { level: 1, name: 'Soinnut ja harmonia' })).toBeVisible();
+    await expect(core(page)).toBeHidden();
+    await page.goto(pilotPath);
     const units = page.locator('details.study-unit');
-    await expect(units).toHaveCount(2);
+    await expect(units).toHaveCount(3);
     await expect(core(page)).toHaveAttribute('open', '');
     await expect(core(page).locator('summary')).toHaveText(/^01 Miten sointu muodostuu\?3 sisältöä/);
     await expect(core(page).locator('.study-choice')).toHaveCount(3);
@@ -60,7 +63,7 @@ test.describe('aihesivu', () => {
     // Uusi kokonaisuus tulee ennen aiempia, työkalut ja Tutki myös säilyvät.
     const order = await page.locator('details.study-unit, section.study-group > h2').evaluateAll(all =>
       all.map(node => node.id || node.textContent));
-    expect(order.slice(0, 2)).toEqual(['miten-sointu-muodostuu', 'aiemmat']);
+    expect(order.slice(0, 3)).toEqual(['ydinopinnot', 'miten-sointu-muodostuu', 'aiemmat']);
     await expect(page.getByRole('link', { name: 'Harjoittele sointuja ja sointusäveliä' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Mikä sointu tulee?' })).toBeVisible();
   });
@@ -220,7 +223,7 @@ test.describe('ilman JavaScriptiä', () => {
 
   test('kaikki sisältölinkit löytyvät ja osiot aukeavat', async ({ page }) => {
     await page.goto(topicPath);
-    await expect(page.locator('.study-choice')).toHaveCount(21);
+    await expect(page.locator('.study-choice')).toHaveCount(24);
     await earlier(page).locator('summary').click();
     await expect(earlier(page).getByRole('link', { name: /Septimisoinnut/ }).first()).toBeVisible();
   });
@@ -314,6 +317,10 @@ async function recordAudio(page: Page) {
 }
 
 const starts = (page: Page) => page.evaluate(() => window.__audioLog.filter(entry => entry.type === 'start'));
+const sizeOf = (button: import('@playwright/test').Locator) => button.evaluate(element => {
+  const { width, height } = element.getBoundingClientRect();
+  return { width, height };
+});
 const close = (actual: number, expected: number) => expect(Math.abs(actual - expected)).toBeLessThan(0.002);
 
 test.describe('kitaranäytteet', () => {
@@ -375,7 +382,7 @@ test.describe('kitaranäytteet', () => {
     await page.getByRole('button', { name: '▶ Kuuntele koko G-sointu' }).click();
     await expect(status).toHaveText('Kuulit G-soinnun kaikki kuusi kieltä.');
     const second = await page.evaluate(() => window.__audioLog);
-    expect(second.filter(entry => entry.type === 'stop' && entry.when === 0)).toHaveLength(6);
+    expect(second.filter(entry => entry.type === 'stop' && entry.when <= entry.at + 0.026)).toHaveLength(6);
     expect(second.filter(entry => entry.type === 'start')).toHaveLength(6);
     await expect(status).toHaveText('Esimerkki päättyi. Voit kuunnella uudelleen.', { timeout: 6000 });
   });
@@ -394,7 +401,7 @@ test.describe('kitaranäytteet', () => {
     await page.goto('/oppi/soinnut/kokeile-g-sointua-kitaralla.html');
     await page.getByRole('button', { name: '▶ Kuuntele koko G-sointu' }).click();
     const error = page.locator('[data-sointu-tila]');
-    await expect(error).toHaveText('Ääniä ei voitu ladata. Lataa sivu uudelleen ja kokeile uudestaan.');
+    await expect(error).toHaveText('Ääniä ei voitu ladata. Kokeile uudelleen.');
     await expect(error).toHaveClass(/is-error/);
   });
 
@@ -409,7 +416,7 @@ test.describe('kitaranäytteet', () => {
       document.dispatchEvent(new Event('visibilitychange'));
     });
     const log = await page.evaluate(() => window.__audioLog);
-    expect(log.filter(entry => entry.type === 'stop' && entry.when === 0)).toHaveLength(3);
+    expect(log.filter(entry => entry.type === 'stop' && entry.when <= entry.at + 0.026)).toHaveLength(3);
   });
 });
 
@@ -450,9 +457,9 @@ test.describe('aiempien sisältöjen tilateksti (progress_text)', () => {
     await page.goto(topicPath);
     await expect(earlier(page).locator('summary [data-study-total]')).toHaveText('✓ Aiemmat sisällöt tehty');
     await expect(earlier(page).locator('summary')).toHaveAccessibleName(/^Aiemmat oppitunnit ja harjoitukset.*✓ Aiemmat sisällöt tehty$/);
-    await expect(core(page).locator('summary [data-unit-progress]')).toHaveText('0/3 sisältöä tehty');
-    await expect(core(page).locator('summary')).toHaveAccessibleName(/0\/3 sisältöä tehty$/);
-    await expect(core(page).locator('[data-study-intro-status]')).toHaveText(['Tekemättä', 'Tekemättä', 'Tekemättä']);
+    await expect(page.locator('#ydinopinnot').locator('summary [data-unit-progress]')).toHaveText('0/3 kokeiltu');
+    await expect(page.locator('#ydinopinnot').locator('summary')).toHaveAccessibleName(/0\/3 kokeiltu$/);
+    await expect(page.locator('#ydinopinnot').locator('[data-study-attempt-status]')).toHaveText(['Kokeilematta', 'Kokeilematta', 'Kokeilematta']);
     await expect(page.getByText(notWhole)).toHaveCount(0);
 
     // Vanhan sarjan viimeinen sivu: ylä- ja alareunan tila samalla tekstillä, alareunan tila ilmoitetaan (aria-live).
@@ -480,4 +487,241 @@ test.describe('aiempien sisältöjen tilateksti (progress_text)', () => {
     await page.getByRole('button', { name: 'Merkitse harjoitus tehdyksi' }).click();
     await expect(page.locator('[data-boundary-progress]')).toHaveText(['✓ Aiemmat sisällöt tehty', '✓ Aiemmat sisällöt tehty']);
   });
+});
+
+const ydinPages = [
+  ['kuule-ja-kokoa-sointu', 'Kuule ja kokoa sointu'],
+  ['yksi-savel-muuttaa-sointua', 'Yksi sävel muuttaa sointua'],
+  ['mihin-kappale-haluaa-palata', 'Mihin kappale haluaa palata?'],
+] as const;
+const ydinPath = (index: number) => `/oppi/soinnut/${ydinPages[index][0]}.html`;
+
+test.describe('Ydinopinnot v0.5', () => {
+  test('kolme korttia, suorat reitit, navigointi ja itsenäinen kokeiltu-merkintä', async ({ page }) => {
+    await page.goto(topicPath);
+    const unit = page.locator('#ydinopinnot');
+    await expect(unit).toHaveAttribute('open', '');
+    await expect(page.locator('.study-units > details').first()).toHaveId('ydinopinnot');
+    await expect(core(page)).toBeHidden();
+    await expect(earlier(page)).not.toHaveAttribute('open', '');
+    await expect(unit.locator('[data-unit-progress]')).toHaveText('0/3 kokeiltu');
+    expect(await storage(page)).toBeNull();
+    await page.evaluate(key => localStorage.setItem(key, JSON.stringify(['oppitunti:kuule-mika-on-sointu', 'harmoninen-kentta'])), readingKey);
+    await page.reload();
+    for (const [index, [slug, title]] of ydinPages.entries()) {
+      await expect(unit.getByRole('link', { name: new RegExp(title) })).toHaveAttribute('href', slug + '.html');
+      await page.goto(ydinPath(index));
+      await expect(page.locator('main')).toHaveAttribute('data-study-item', 'harjoitus:' + slug);
+      await expect(page.getByRole('heading', { level: 1, name: title })).toBeVisible();
+      await expect(page.locator('[data-study-unit]')).toHaveText(`Harjoitus 0${index + 1} / 03 Ydinopinnot`);
+      await page.locator('.study-up a').click();
+      await expect(page).toHaveURL(topicPath + '#ydinopinnot');
+    }
+    await unit.getByRole('link', { name: /Kuule ja kokoa sointu/ }).click();
+    await page.getByRole('button', { name: 'Merkitse kokeilluksi' }).click();
+    await expect(page.getByRole('button', { name: '✓ Kokeiltu' })).toHaveAttribute('aria-pressed', 'true');
+    await page.goBack();
+    await expect(unit.locator('[data-unit-progress]')).toHaveText('1/3 kokeiltu');
+    await expect(page.locator('#valinta-kuule-ja-kokoa-sointu')).toBeFocused();
+    await expect(earlier(page).locator('[data-study-total]')).toHaveText('1/18 aiemmista sisällöistä tehty');
+    await page.locator('#valinta-kuule-ja-kokoa-sointu').click();
+    await page.getByRole('button', { name: '✓ Kokeiltu' }).click();
+    expect(JSON.parse(await storage(page) ?? '[]')).toEqual(['oppitunti:kuule-mika-on-sointu', 'harmoninen-kentta']);
+    for (const index of [1, 2]) {
+      await page.locator('.study-steps--bottom [rel="next"]').click();
+      await expect(page).toHaveURL(ydinPath(index));
+    }
+    await page.locator('.study-steps--bottom').getByRole('link', { name: /Palaa alkuun/ }).click();
+    await expect(page).toHaveURL(ydinPath(0));
+  });
+
+  test('asteikon mikä tahansa kolmen sävelen valinta soi ja G–B–D käyttää samaa rekisteriä molemmissa esimerkeissä', async ({ page }) => {
+    await recordAudio(page);
+    const files = new Set<string>();
+    page.on('response', response => {
+      if (response.ok() && response.url().includes('/assets/audio/soinnut/')) {
+        files.add(response.url().split('/').pop()!.replace(/\.(m4a|ogg)$/, ''));
+      }
+    });
+    await page.goto(ydinPath(0));
+    const single = page.getByRole('button', { name: 'Sävelet yksitellen' });
+    const both = page.getByRole('button', { name: 'Sävelet yhdessä' });
+    const selection = page.getByRole('button', { name: 'Kuuntele valintasi' });
+    const note = (name: string) => page.getByRole('group', { name: 'Valitse kolme säveltä' }).getByRole('button', { name, exact: true });
+    await expect(selection).toBeDisabled();
+    const box = await sizeOf(single);
+    await single.click();
+    await expect(single).toHaveAttribute('data-playing', '');
+    expect(await sizeOf(single)).toEqual(box);
+    const first = await starts(page);
+    expect(first).toHaveLength(3);
+    first.forEach((source, index) => close(source.when - first[0].when, index * 0.52));
+    expect([...files].sort()).toEqual([
+      'INSGuitarSteel_StringB_Vel02_B3_01', 'INSGuitarSteel_StringD_Vel02_D4_01', 'INSGuitarSteel_StringG_Vel02_G3_01',
+    ]);
+    await both.click();
+    await expect(both).toHaveAttribute('data-playing', '');
+    await expect(single).not.toHaveAttribute('data-playing', '');
+    const second = (await starts(page)).slice(3);
+    expect(second).toHaveLength(3);
+    second.forEach(source => close(source.when, second[0].when));
+    expect(files.size).toBe(3);
+
+    for (const name of ['A', 'E', 'F ylennetty']) await note(name).click();
+    await note('B').click();
+    await expect(page.locator('[data-maara]')).toHaveText('3/3');
+    await expect(page.locator('[data-valinnat]')).toHaveText('A · E · F♯');
+    await expect(note('B')).toHaveAttribute('aria-pressed', 'false');
+    await selection.click();
+    await expect(selection).toHaveAttribute('data-playing', '');
+    expect(files.size).toBe(6);
+    await note('E').click();
+    await expect(selection).toBeDisabled();
+    await expect(selection).not.toHaveAttribute('data-playing', '');
+    for (const name of ['A', 'F ylennetty', 'G', 'B', 'D']) await note(name).click();
+    await expect(page.locator('[data-valintapalaute]')).toHaveText(/Löysit G-duurisoinnun kolme säveltä/);
+    await expect(page.locator('.done-toggle')).toHaveAttribute('aria-pressed', 'false');
+    expect(await storage(page)).toBeNull();
+  });
+
+  test('arvauksessa kuuntelu ja vastaus ovat erillisiä, järjestys ja kysymys arvotaan', async ({ page, isMobile }) => {
+    await recordAudio(page);
+    await page.goto(ydinPath(1));
+    const charts = page.locator('[data-arvaus-kaaviot]');
+    const tip = page.locator('details.study-knoppi');
+    await expect(charts.getByRole('img')).toHaveCount(2);
+    const normal = page.getByRole('group', { name: 'Kuuntele soinnut' });
+    await normal.getByRole('button', { name: 'E', exact: true }).click();
+    await expect(normal.getByRole('button', { name: 'E', exact: true })).toHaveAttribute('data-playing', '');
+    await tip.locator('summary').click();
+    await page.evaluate(() => {
+      const values = [0.9, 0.1, 0.1, 0.9];
+      Math.random = () => values.shift() ?? 0;
+    });
+    await page.getByRole('button', { name: 'Arvaa' }).click();
+    await expect(page.getByRole('heading', { name: 'Kumpi on molli?' })).toBeFocused();
+    await expect(charts).toBeHidden();
+    await expect(tip).toBeHidden();
+    await expect(normal).toBeHidden();
+    const listen = page.getByRole('button', { name: 'Kuuntele sointu 1' });
+    const bounds = await sizeOf(listen);
+    if (isMobile) await listen.click();
+    else {
+      await page.keyboard.press('Tab');
+      await expect(listen).toBeFocused();
+      await expect(listen).toHaveCSS('outline-style', 'solid');
+      await page.keyboard.press('Enter');
+    }
+    await expect(listen).toHaveAttribute('data-playing', '');
+    expect(await sizeOf(listen)).toEqual(bounds);
+    const reply = page.getByRole('group', { name: 'Vastaa' });
+    await reply.getByRole('button', { name: 'Sointu 1' }).click();
+    await expect(page.locator('[data-arvauspalaute]')).toHaveText('Oikein! Sointu 1 oli E-molli ja sointu 2 oli E-duuri.');
+    await expect(charts.locator('figcaption')).toHaveText(['Sointu 1 = Em', 'Sointu 2 = E']);
+    await expect(reply.getByRole('button', { name: 'Sointu 1' })).toHaveAttribute('aria-disabled', 'true');
+    expect(await storage(page)).toBeNull();
+
+    await page.getByRole('button', { name: 'Uusi arvaus' }).click();
+    await expect(page.getByRole('heading', { name: 'Kumpi on duuri?' })).toBeFocused();
+    await expect(charts).toBeHidden();
+    await reply.getByRole('button', { name: 'Sointu 2' }).click();
+    await expect(page.locator('[data-arvauspalaute]')).toHaveText('Tällä kertaa ei. Sointu 1 oli E-duuri ja sointu 2 oli E-molli.');
+    await expect(charts.locator('figcaption')).toHaveText(['Sointu 1 = E', 'Sointu 2 = Em']);
+    expect(await storage(page)).toBeNull();
+  });
+
+  test('kierron neljä sointua seuraavat äänikelloa ja vaihto sekä piilotus katkaisevat toiston', async ({ page }) => {
+    await recordAudio(page);
+    await page.goto(ydinPath(2));
+    const play = page.locator('[data-kierto]');
+    const path = page.locator('#sointukierto');
+    const names = path.locator('strong');
+    await expect(names).toHaveText(['•', '•', '•', '?']);
+    const bounds = await sizeOf(play);
+    await play.click();
+    await expect(play).toHaveAccessibleName(/Pysäytä/);
+    expect(await sizeOf(play)).toEqual(bounds);
+    await expect(path.locator('li').nth(0)).toHaveAttribute('aria-current', 'step');
+    const log = await starts(page);
+    expect(log).toHaveLength(16);
+    log.forEach((source, index) => close(source.when - log[0].when, Math.floor(index / 4) * 2.25 + (index % 4) * 0.022));
+    await expect(path.locator('li').nth(1)).toHaveAttribute('aria-current', 'step');
+    await page.getByRole('button', { name: 'Näytä sointujen nimet' }).click();
+    await expect(names).toHaveText(['G', 'C', 'D', 'G']);
+    await expect(path.locator('[aria-current]')).toHaveCount(1);
+
+    for (const ending of ['C', 'D']) {
+      await page.getByRole('button', { name: 'Lopetus ' + ending }).click();
+      await expect(play).toHaveAccessibleName(/Kuuntele/);
+      await expect(path.locator('[aria-current]')).toHaveCount(0);
+      await expect(names).toHaveText(['G', 'C', 'D', ending]);
+      await play.click();
+      await expect(path.locator('li').nth(0)).toHaveAttribute('aria-current', 'step');
+    }
+    expect(await starts(page)).toHaveLength(48);
+    await page.evaluate(() => {
+      Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+    await expect(play).toHaveAccessibleName(/Kuuntele/);
+    await expect(path.locator('[aria-current]')).toHaveCount(0);
+    expect(await storage(page)).toBeNull();
+  });
+
+  test('vanhentunut lataus ei käynnistä ääntä ja virheestä voi yrittää uudelleen', async ({ page }) => {
+    await recordAudio(page);
+    let release!: () => void;
+    const hold = new Promise<void>(resolve => { release = resolve; });
+    await page.route('**/assets/audio/soinnut/*', async route => {
+      await hold;
+      await route.abort().catch(() => {});
+    });
+    await page.goto(ydinPath(2));
+    const request = page.waitForRequest('**/assets/audio/soinnut/*');
+    const play = page.locator('[data-kierto]');
+    await play.click();
+    await request;
+    await play.click();
+    await expect(play).toHaveAccessibleName(/Kuuntele/);
+    release();
+    await page.unrouteAll({ behavior: 'wait' });
+    expect(await starts(page)).toHaveLength(0);
+
+    await page.route('**/assets/audio/soinnut/*', route => route.fulfill({ status: 503, body: '' }));
+    await play.click();
+    await expect(page.locator('[data-sointu-tila]')).toHaveText('Ääniä ei voitu ladata. Kokeile uudelleen.');
+    await expect(play).toHaveAccessibleName(/Kuuntele/);
+    await page.unrouteAll({ behavior: 'wait' });
+    await play.click();
+    await expect(page.locator('[data-sointu-tila]')).toHaveText('Kuuntelu käynnissä.');
+    expect(await starts(page)).toHaveLength(16);
+  });
+
+  for (const width of [320, 375, 390, 768, 1200]) {
+    test(`v0.5 sopii ${width} px:iin myös 200 % tekstillä ja yksi ⓘ ei siirrä kuuntelupainiketta`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      for (const url of [topicPath + '#ydinopinnot', ...ydinPages.map((_, index) => ydinPath(index))]) {
+        await page.goto(url);
+        for (const size of ['100%', '200%']) {
+          await page.evaluate(value => { document.documentElement.style.fontSize = value; }, size);
+          const testCase = `${url}, ${width}px, ${size}`;
+          const tip = page.locator('details.study-knoppi');
+          if (await tip.count()) {
+            const button = page.locator('[data-sointu-ohjaimet] button').first();
+            const summary = tip.locator('summary');
+            await summary.scrollIntoViewIfNeeded();
+            const before = await button.evaluate(element => element.getBoundingClientRect().top + window.scrollY);
+            await expect(summary).toHaveCSS('width', '44px');
+            await expect(summary).toHaveCSS('height', '44px');
+            if (await tip.evaluate(element => (element as HTMLDetailsElement).open)) await summary.click();
+            await summary.click();
+            await expect(tip).toHaveAttribute('open', '');
+            const after = await button.evaluate(element => element.getBoundingClientRect().top + window.scrollY);
+            expect(Math.abs(after - before), testCase).toBeLessThan(1);
+          }
+          expect(await noHorizontalScroll(page), testCase).toBe(true);
+        }
+      }
+    });
+  }
 });

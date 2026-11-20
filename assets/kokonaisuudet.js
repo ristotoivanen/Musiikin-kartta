@@ -37,8 +37,7 @@
   // uudelleen vaan päivittää vain kokonaisuuden laskurin. Ilman sitä tuki on tässä tiedostossa.
   const READING_KEY = 'musiikin-kartta:luvut';
   const progressUnits = [...units].filter(unit => unit.querySelector('[data-unit-progress]'));
-  const cardRows = progressUnits.flatMap(unit => [...unit.querySelectorAll('[data-study-intro-status]')]);
-  const engineShowsRows = cardRows.length > 0 && cardRows.every(row => !row.hidden);
+  const engineRows = new Set(document.querySelectorAll('[data-study-intro-status]:not([hidden])'));
   function marks() {
     try {
       const list = JSON.parse(localStorage.getItem(READING_KEY) ?? '[]');
@@ -50,18 +49,22 @@
   function showProgress() {
     const done = marks();
     for (const unit of progressUnits) {
-      const rows = [...unit.querySelectorAll('[data-study-intro-status]')];
+      const total = unit.querySelector('[data-unit-progress]');
+      const attempts = total.hasAttribute('data-unit-attempts');
+      const attr = attempts ? 'data-study-attempt-status' : 'data-study-intro-status';
+      const rows = [...unit.querySelectorAll(`[${attr}]`)];
       let count = 0;
       for (const row of rows) {
-        const marked = done.has(row.dataset.studyIntroStatus);
+        const marked = done.has(row.getAttribute(attr));
         if (marked) count++;
-        if (engineShowsRows) continue;
-        row.textContent = marked ? '✓ Tehty' : 'Tekemättä';
+        if (engineRows.has(row)) continue;
+        row.textContent = attempts
+          ? (marked ? '✓ Kokeiltu' : 'Kokeilematta')
+          : (marked ? '✓ Tehty' : 'Tekemättä');
         row.classList.toggle('is-done', marked);
         row.hidden = false;
       }
-      const total = unit.querySelector('[data-unit-progress]');
-      total.textContent = `${count}/${rows.length} sisältöä tehty`;
+      total.textContent = `${count}/${rows.length} ${attempts ? 'kokeiltu' : 'sisältöä tehty'}`;
       total.classList.toggle('is-done', rows.length > 0 && count === rows.length);
       total.hidden = false;
     }
@@ -76,7 +79,7 @@
 
   let closed = [];
   window.addEventListener('beforeprint', () => {
-    closed = [...units].filter(details => !details.open);
+    closed = [...units].filter(details => !details.open && !details.matches('.study-unit--archived'));
     closed.forEach(details => { details.open = true; });
   });
   window.addEventListener('afterprint', () => {

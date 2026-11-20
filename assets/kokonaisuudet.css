@@ -75,3 +75,6 @@
 .study-unit-progress { margin: 0; }
 .study-unit-count:has(+ .study-unit-progress:not([hidden])) { display: none; }
 .study-unit-progress:not([hidden]) { margin-left: auto; font-size: .875rem; font-weight: 600; }
+
+/* V0.5 korvaa G-pilotin listauksessa. Pilotin suorat linkit ja paluuankkurit toimivat edelleen. */
+.study-unit--archived:not([open], :target, :has(:target)) { display: none; }

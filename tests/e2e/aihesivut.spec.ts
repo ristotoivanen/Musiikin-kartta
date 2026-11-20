@@ -381,7 +381,7 @@ for (const width of [320, 390, 768, 1024, 1440]) {
           const style = getComputedStyle(card);
           const parts = ['.study-number', '.study-title', '.study-description', '.study-arrow']
             .map(selector => card.querySelector(selector)!);
-          const status = card.querySelector('[data-study-status], [data-study-intro-status]');
+          const status = card.querySelector('[data-study-status], [data-study-intro-status], [data-study-attempt-status]');
           const textFits = parts.every(part => {
             const range = document.createRange();
             range.selectNodeContents(part);
@@ -403,6 +403,7 @@ for (const width of [320, 390, 768, 1024, 1440]) {
             title: parts[1].textContent!.trim(),
             description: parts[2].textContent!.trim(),
             status: status?.textContent?.trim(),
+            attempt: status?.hasAttribute('data-study-attempt-status'),
             statusTop: status ? status.getBoundingClientRect().top - rect.top : null,
             textFits,
           };
@@ -411,7 +412,7 @@ for (const width of [320, 390, 768, 1024, 1440]) {
         expect(boxes.some(box => box.title.startsWith('Harjoitus · ')), context).toBe(true);
         for (const box of boxes) {
           const first = boxes.find(other => other.list === box.list)!;
-          expect(box.status, context).toBe('Tekemättä');
+          expect(box.status, context).toBe(box.attempt ? 'Kokeilematta' : 'Tekemättä');
           expect(box.statusTop!, context).toBeCloseTo(first.statusTop!, 0);
           expect(box.description, context).not.toBe('');
           expect(box.size[1], context).toBeGreaterThanOrEqual(44);
