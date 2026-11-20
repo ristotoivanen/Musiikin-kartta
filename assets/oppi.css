@@ -170,3 +170,72 @@
 .study-page .chord-diagram, .study-page .chord-diagram svg { max-inline-size: 100%; }
 .study-page .et-level, .study-page .et-bar select { min-inline-size: 0; max-inline-size: 100%; }
 .study-table { overflow-x: auto; max-inline-size: 100%; }
+.study-sr {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* Avattavat oppimiskokonaisuudet aihesivulla (#116). Sama +/− -rivi kuin Kitaratreenin aiheissa
+ * (assets/osiot.css, .train-topic). Natiivi details/summary: toimii ilman JavaScriptiä, ja
+ * ruudunlukija saa avautumistilan selaimelta. Avaaminen ei muuta suoritusmerkintöjä. */
+.study-units { --study-card-tracks: 1fr 1.4fr; display: grid; gap: .6rem; margin-block: 1.25rem 1.5rem; }
+@supports (grid-template-rows: subgrid) {
+  /* Jokainen kokonaisuuden luettelo on oma ruudukkonsa: saman luettelon kortit ovat yhtä korkeita. */
+  .study-units .study-choices { grid-template-rows: var(--study-rows); }
+}
+.study-unit { min-width: 0; border: 1px solid #453854; border-radius: .875rem; background: var(--panel); scroll-margin-top: .75rem; }
+.study-unit[open] { border-color: #71638c; background: transparent; }
+.study-unit > summary {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .625rem; min-height: 52px;
+  padding: .625rem 2.75rem .625rem 1rem; position: relative; list-style: none;
+  color: var(--text); font-size: 1.0625rem; font-weight: 650; line-height: 1.3; cursor: pointer;
+}
+.study-unit > summary::-webkit-details-marker { display: none; }
+.study-unit > summary::after {
+  content: "+"; position: absolute; right: 1rem; top: 50%; translate: 0 -50%;
+  color: var(--accent); font-size: 1.5rem; font-weight: 400; line-height: 1;
+}
+.study-unit[open] > summary::after { content: "−"; }
+.study-unit > summary:hover .study-unit-title { text-decoration: underline; text-underline-offset: .18em; }
+.study-unit > summary:focus-visible { outline: 2px solid #75e5c6; outline-offset: 2px; }
+.study-unit-number { color: var(--accent); font-variant-numeric: tabular-nums; }
+.study-unit-title { min-width: 0; overflow-wrap: anywhere; hyphens: auto; }
+.study-unit-count { margin-left: auto; color: var(--muted); font-size: .875rem; font-weight: 600; }
+.study-unit-body { padding: 0 1rem 1rem; }
+.study-unit-goal { margin: 0 0 .75rem; color: var(--muted); }
+.study-unit-body .study-start { margin: 0 0 .5rem; }
+.study-unit-body > .study-group h2 { font-size: 1.05rem; margin-block: 1.25rem .5rem; }
+
+/* ⓘ Knoppitieto: vapaaehtoinen lisätieto sisältökortin oikeassa yläkulmassa (#116, 19.11.2026).
+ * Oletuksena suljettu natiivi details. Avaaminen ei vaikuta ääneen eikä suorituksiin. */
+.study-knoppi-host { position: relative; }
+.study-knoppi-host > h2:first-child { padding-inline-end: 2.75rem; }
+.study-knoppi { margin: .5rem 0 0; }
+.study-knoppi > summary {
+  position: absolute; top: .25rem; right: .25rem; display: grid; place-items: center;
+  width: 44px; height: 44px; padding: 0; border-radius: 50%; list-style: none; cursor: pointer;
+}
+.study-knoppi > summary::-webkit-details-marker { display: none; }
+.study-knoppi-merkki {
+  display: grid; place-items: center; width: 21px; height: 21px;
+  border: 1px solid #8e82a5; border-radius: 50%; color: #d2c9e2;
+  font: 700 .78rem/1 system-ui, sans-serif;
+}
+.study-knoppi > summary:hover .study-knoppi-merkki,
+.study-knoppi[open] > summary .study-knoppi-merkki { color: #fff; background: #473756; border-color: #baa6e7; }
+.study-knoppi > summary:focus-visible { outline: 2px solid #75e5c6; outline-offset: 1px; }
+.study-knoppi-sisalto {
+  width: min(100%, 420px); padding: .75rem .875rem;
+  border: 1px solid #71638c; border-radius: .7rem; background: var(--bg);
+}
+.study-knoppi-sisalto p { margin: 0; }
+.study-knoppi-sisalto p + p { margin-top: .3rem; }
+
+@media (max-width: 600px) {
+  .study-unit > summary { padding-left: .75rem; }
+  .study-unit-body { padding: 0 .75rem .875rem; }
+}
+@media print {
+  .study-unit > summary::after, .study-knoppi > summary { display: none; }
+  .study-unit, .study-unit[open] { border-color: #999; background: none; }
+}

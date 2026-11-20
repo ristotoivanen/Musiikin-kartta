@@ -363,6 +363,23 @@ def topic_home(topic, lookup, exercise_descriptions, books):
     parts = [f'<p class="study-meta">Aihe {topic["number"]:02}</p>',
              f'<h1>{escape(topic["title"])}</h1>', f'<p class="lead">{escape(topic["lead"])}</p>',
              '<p class="study-status" data-study-total hidden></p>']
+    if topic.get('layout') == 'kokonaisuudet':
+        parts.append(learning_units(topic, exercise_descriptions))
+    else:
+        parts.append(card_groups(topic, exercise_descriptions))
+    if topic.get('tools'):
+        links = []
+        for tool in topic['tools']:
+            url = urlsplit(tool['href'])
+            href = scoped_url(url.path, url.query, url.fragment, topic['path'], topic)
+            links.append(link(href, tool['title']))
+        parts.append(section('Harjoittelijat ja työkalut', listed(links)))
+    related = [link(related_url(lookup[key][0], topic), lookup[key][1]) for key in topic['related']]
+    parts.append(section('Tutki myös', listed(related)))
+    return '\n'.join(parts)
+
+
+def card_groups(topic, exercise_descriptions):
     step = 0
     groups = []
     rows = []
@@ -376,18 +393,64 @@ def topic_home(topic, lookup, exercise_descriptions, books):
         groups.append(f'<section class="study-group" style="--study-group-span: {1 + size * 2}">\n'
                       + indent(heading + '\n' + listed(links, ordered=True), '  ') + '\n</section>')
         step += size
-    parts.append(f'<div class="study-card-groups" style="--study-rows: {" ".join(rows)}">\n'
-                 + indent('\n'.join(groups), '  ') + '\n</div>')
-    if topic.get('tools'):
-        links = []
-        for tool in topic['tools']:
-            url = urlsplit(tool['href'])
-            href = scoped_url(url.path, url.query, url.fragment, topic['path'], topic)
-            links.append(link(href, tool['title']))
-        parts.append(section('Harjoittelijat ja työkalut', listed(links)))
-    related = [link(related_url(lookup[key][0], topic), lookup[key][1]) for key in topic['related']]
-    parts.append(section('Tutki myös', listed(related)))
-    return '\n'.join(parts)
+    return (f'<div class="study-card-groups" style="--study-rows: {" ".join(rows)}">\n'
+            + indent('\n'.join(groups), '  ') + '\n</div>')
+
+
+def content_count(size):
+    return '1 sisältö' if size == 1 else f'{size} sisältöä'
+
+
+def unit(anchor, title, size, body, *, number=None, opened=False, kind=''):
+    """Avattava oppimiskokonaisuus Kitaratreenin aiherivien tapaan (natiivi details/summary).
+    Avaaminen vain näyttää sisällöt: se ei käynnistä harjoitusta eikä muuta suoritusmerkintöjä."""
+    if not SLUG.fullmatch(anchor):
+        raise ValueError(f'Virheellinen kokonaisuuden tunniste {anchor}')
+    label = f'<span class="study-unit-number">{number:02}</span> ' if number else ''
+    return (f'<details class="study-unit{kind}" id="{anchor}"{" open" if opened else ""}>\n'
+            f'  <summary>{label}<span class="study-unit-title">{escape(title)}</span>'
+            f'<span class="study-unit-count">{content_count(size)}</span></summary>\n'
+            f'  <div class="study-unit-body">\n{indent(body, "    ")}\n  </div>\n</details>')
+
+
+def unit_choices(links):
+    """Kokonaisuuden korttiluettelo: luettelon kortit jakavat rivien mitoituksen kuten korttiruudukossa."""
+    return (f'<ol class="study-choices" role="list" style="--study-rows: repeat({len(links)}, var(--study-card-tracks))">\n'
+            + '\n'.join(f'  <li>{item}</li>' for item in links) + '\n</ol>')
+
+
+def learning_units(topic, exercise_descriptions):
+    """#116: uudet oppimiskokonaisuudet ensin, aiemmat sisällöt yhden oletuksena suljetun osion alla.
+    Sivujen osoitteet, Edellinen/Seuraava-järjestys ja suoritustunnisteet muodostuvat kuten ennenkin."""
+    groups = topic['groups']
+    first_legacy = next((i for i, group in enumerate(groups) if group.get('legacy')), len(groups))
+    current, legacy = groups[:first_legacy], groups[first_legacy:]
+    if not current or any(not group.get('legacy') for group in legacy):
+        raise ValueError(f'{topic["title"]}: uudet kokonaisuudet ensin, aiemmat sisällöt niiden jälkeen')
+    step = 0
+    units = []
+    for group in current:
+        links = [choice(page, number, exercise_descriptions)
+                 for number, page in enumerate(group['pages'], step + 1)]
+        body = [f'<p class="study-unit-goal">{escape(group["goal"])}</p>']
+        if step == 0:
+            body.append('<p class="study-start">Aloita tästä</p>')
+        body.append(unit_choices(links))
+        units.append(unit(group['id'], group['title'], len(links), '\n'.join(body),
+                          number=group['number'], opened=group.get('open', False)))
+        step += len(links)
+    if legacy:
+        info = topic['legacy']
+        sections = [f'<p class="study-unit-goal">{escape(info["intro"])}</p>']
+        size = 0
+        for group in legacy:
+            links = [choice(page, number, exercise_descriptions)
+                     for number, page in enumerate(group['pages'], step + 1)]
+            sections.append(section(group['title'], unit_choices(links)))
+            step += len(links)
+            size += len(links)
+        units.append(unit(info['id'], info['title'], size, '\n'.join(sections), kind=' study-unit--legacy'))
+    return '<div class="study-units">\n' + indent('\n'.join(units), '  ') + '\n</div>'
 
 
 def related_url(target, topic):
