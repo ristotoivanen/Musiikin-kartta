@@ -5,6 +5,9 @@ const status = document.querySelector('#status');
 const stopButton = document.querySelector('#stop');
 const details = document.querySelector('#details');
 const fileInput = document.querySelector('#backing');
+const gainInput = document.querySelector('#model-gain');
+const gainValue = document.querySelector('#gain-value');
+gainInput.addEventListener('input', () => { gainValue.textContent = Number(gainInput.value).toFixed(1).replace('.', ',') + ' ×'; });
 let context;
 let bank;
 let active;
@@ -93,7 +96,7 @@ async function run(name) {
     }
     const startAt = ctx.currentTime + .15;
     request.player = scheduleSteelNotes(ctx, scores[name], prepared.samples, {
-      gain: prepared.manifest.referenceGain,
+      gain: prepared.manifest.referenceGain * (name === 'm2' ? Number(gainInput.value) : 1),
       startAt,
       onEnd: () => {
         if (name !== 'm2' && active === request) stop('Koe päättyi.');
