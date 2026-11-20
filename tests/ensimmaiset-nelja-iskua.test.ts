@@ -55,6 +55,14 @@ describe('Ensimmäiset neljä iskua -testisivu', () => {
     }
   });
 
+  it('asettaa iOS:n äänisession playback-tilaan ennen AudioContextin luontia', () => {
+    expect(page).toContain("if(session.type!=='playback')session.type='playback'");
+    const audio = page.slice(page.indexOf('async function audio(){'));
+    expect(audio.indexOf('playbackSession();')).toBeGreaterThan(0);
+    expect(audio.indexOf('playbackSession();')).toBeLessThan(audio.indexOf('new AC()'));
+    expect(audio.indexOf('new AC()')).toBeLessThan(audio.indexOf('ac.resume()'));
+  });
+
   it('on piilotettu hakukoneilta eikä näy sivuston navigaatiossa', () => {
     expect(page).toContain('<meta name="robots" content="noindex,nofollow">');
     const html = (folder: string) => readdirSync(url(folder)).filter(f => f.endsWith('.html')).map(f => folder + f);

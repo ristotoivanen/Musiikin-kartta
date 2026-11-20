@@ -313,3 +313,66 @@ test('iOS:n interrupted-tila pysäyttää toiston neutraalilla viestillä, ja uu
   await expect(message(page)).toContainText('M3-tausta soi');
   await stopButton(page).click();
 });
+
+test('iOS:n äänisessio asetetaan playback-tilaan ennen äänen käynnistystä, eikä se muuta pysäytystä', async ({ page }) => {
+  // Chromiumissa ei ole navigator.audioSessionia, joten Safarin rajapinta simuloidaan: kirjataan asetusten järjestys.
+  await page.addInitScript(() => {
+    const w = window as unknown as { __session: string[]; AudioContext: typeof AudioContext };
+    w.__session = [];
+    let type = 'auto';
+    Object.defineProperty(navigator, 'audioSession', { configurable: true, value: {
+      get type() { return type; },
+      set type(value: string) { type = value; w.__session.push('type=' + value); },
+    } });
+    const Base = w.AudioContext;
+    w.AudioContext = class extends Base {
+      constructor(options?: AudioContextOptions) { w.__session.push('new AudioContext'); super(options); }
+      resume() { w.__session.push('resume'); return super.resume(); }
+    };
+  });
+  await open(page);
+  const log = () => page.evaluate(() => (window as unknown as { __session: string[] }).__session);
+  expect(await log()).toEqual([]);
+  await page.getByRole('button', { name: /M1/ }).click();
+  await start(page).click();
+  await expect(message(page)).toContainText('Metronomi käy');
+  const first = await log();
+  expect(first[0]).toBe('type=playback');
+  expect(first.indexOf('type=playback')).toBeLessThan(first.indexOf('new AudioContext'));
+  await expect(page.locator('#reviewInfo')).toContainText('äänisessio playback', { timeout: 6000 });
+
+  await stopButton(page).click();
+  await expect(message(page)).toHaveText('Pysäytetty');
+  await clearEvents(page);
+  await page.waitForTimeout(1000);
+  expect(await events(page)).toEqual([]);
+  // Uudelleenkäynnistys ei aseta tyyppiä turhaan uudelleen eikä luo uutta AudioContextia.
+  await start(page).click();
+  await expect(message(page)).toContainText('Metronomi käy');
+  expect((await log()).filter(e => e === 'type=playback' || e === 'new AudioContext')).toEqual(['type=playback', 'new AudioContext']);
+
+  // Taustalle siirtyminen pysäyttää toiston myös playback-sessiossa, eikä paluu käynnistä sitä.
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  await expect(message(page)).toHaveText('Pysäytetty, koska sivu siirtyi taustalle. Käynnistä uudelleen, kun palaat.');
+  await clearEvents(page);
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => false });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  await page.waitForTimeout(800);
+  expect(await events(page)).toEqual([]);
+  await expect(start(page)).toBeEnabled();
+});
+
+test('ilman audioSession-tukea sivu toimii ja kertoo tilan tarkistuspaneelissa', async ({ page }) => {
+  await open(page);
+  expect(await page.evaluate(() => 'audioSession' in navigator)).toBe(false);
+  await page.getByRole('button', { name: /M1/ }).click();
+  await start(page).click();
+  await expect(message(page)).toContainText('Metronomi käy');
+  await expect(page.locator('#reviewInfo')).toContainText('äänisessio ei tuettu', { timeout: 6000 });
+  await stopButton(page).click();
+});
