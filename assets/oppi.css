@@ -178,7 +178,11 @@
 /* Avattavat oppimiskokonaisuudet aihesivulla (#116). Sama +/− -rivi kuin Kitaratreenin aiheissa
  * (assets/osiot.css, .train-topic). Natiivi details/summary: toimii ilman JavaScriptiä, ja
  * ruudunlukija saa avautumistilan selaimelta. Avaaminen ei muuta suoritusmerkintöjä. */
-.study-units { display: grid; gap: .6rem; margin-block: 1.25rem 1.5rem; }
+.study-units { --study-card-tracks: 1fr 1.4fr; display: grid; gap: .6rem; margin-block: 1.25rem 1.5rem; }
+@supports (grid-template-rows: subgrid) {
+  /* Jokainen kokonaisuuden luettelo on oma ruudukkonsa: saman luettelon kortit ovat yhtä korkeita. */
+  .study-units .study-choices { grid-template-rows: var(--study-rows); }
+}
 .study-unit { min-width: 0; border: 1px solid #453854; border-radius: .875rem; background: var(--panel); scroll-margin-top: .75rem; }
 .study-unit[open] { border-color: #71638c; background: transparent; }
 .study-unit > summary {

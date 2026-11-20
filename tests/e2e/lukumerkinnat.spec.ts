@@ -57,6 +57,11 @@ async function expectTopicMark(page: Page, topic: Topic, item: Item, done: boole
     return;
   }
   const marker = page.locator(`#valinta-${item.slug} [data-study-status]`);
+  // Avattavan kokonaisuuden (#116) sisältö näkyy, kun käyttäjä avaa osion.
+  const unit = page.locator('details.study-unit', { has: page.locator(`#valinta-${item.slug}`) });
+  if (await unit.count() && !(await unit.evaluate(details => (details as HTMLDetailsElement).open))) {
+    await unit.locator('summary').click();
+  }
   await expect(marker).toBeVisible();
   await expect(marker).toHaveText(done ? '✓ Tehty' : 'Tekemättä');
   await expect(page.locator('[data-study-total]')).toHaveText(
@@ -113,12 +118,13 @@ async function verifyCompletion(page: Page, topic: Topic, item: Item, isMobile: 
   if (isChapter) await expectBookMark(page, item.id, false);
 }
 
-test('kaikki 73 sisältösivua kuuluvat suoritusmerkintöjen testiin', () => {
+test('kaikki 76 sisältösivua kuuluvat suoritusmerkintöjen testiin', () => {
   const pages = topics.flatMap(topic => topic.pages);
   expect(topics).toHaveLength(8);
-  expect(pages).toHaveLength(73);
+  // 73 aiempaa + Soinnut ja harmonia -aiheen kolme uutta oppituntia (#116).
+  expect(pages).toHaveLength(76);
   expect(pages.filter(({ kind }) => kind === 'harjoitus')).toHaveLength(41);
-  expect(pages.filter(({ kind }) => kind === 'oppitunti')).toHaveLength(4);
+  expect(pages.filter(({ kind }) => kind === 'oppitunti')).toHaveLength(7);
   expect([...chapterIds.values()].sort()).toEqual([...bookRoutes.keys()].sort());
   expect(bookRoutes.size).toBe(28);
 });

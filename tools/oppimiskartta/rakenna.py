@@ -420,6 +420,12 @@ def unit(anchor, title, size, body, *, number=None, opened=False, kind=''):
             f'  <div class="study-unit-body">\n{indent(body, "    ")}\n  </div>\n</details>')
 
 
+def unit_choices(links):
+    """Kokonaisuuden korttiluettelo: luettelon kortit jakavat rivien mitoituksen kuten korttiruudukossa."""
+    return (f'<ol class="study-choices" role="list" style="--study-rows: repeat({len(links)}, var(--study-card-tracks))">\n'
+            + '\n'.join(f'  <li>{item}</li>' for item in links) + '\n</ol>')
+
+
 def learning_units(topic, exercise_descriptions):
     """#116: uudet oppimiskokonaisuudet ensin, aiemmat sisällöt yhden oletuksena suljetun osion alla.
     Sivujen osoitteet, Edellinen/Seuraava-järjestys ja suoritustunnisteet muodostuvat kuten ennenkin."""
@@ -436,7 +442,7 @@ def learning_units(topic, exercise_descriptions):
         body = [f'<p class="study-unit-goal">{escape(group["goal"])}</p>']
         if step == 0:
             body.append('<p class="study-start">Aloita tästä</p>')
-        body.append(listed(links, ordered=True))
+        body.append(unit_choices(links))
         units.append(unit(group['id'], group['title'], len(links), '\n'.join(body),
                           number=group['number'], opened=group.get('open', False)))
         step += len(links)
@@ -447,7 +453,7 @@ def learning_units(topic, exercise_descriptions):
         for group in legacy:
             links = [choice(page, number, exercise_descriptions)
                      for number, page in enumerate(group['pages'], step + 1)]
-            sections.append(section(group['title'], listed(links, ordered=True)))
+            sections.append(section(group['title'], unit_choices(links)))
             step += len(links)
             size += len(links)
         units.append(unit(info['id'], info['title'], size, '\n'.join(sections), kind=' study-unit--legacy'))

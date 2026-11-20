@@ -370,6 +370,8 @@ for (const width of [320, 390, 768, 1024, 1440]) {
       for (const scale of ['', '200%']) {
         const context = title + ' · ' + width + ' px · ' + (scale || '100%');
         await page.evaluate(size => { document.documentElement.style.fontSize = size; }, scale);
+        // Avattavat kokonaisuudet (#116) mitataan auki.
+        await page.evaluate(() => document.querySelectorAll('details.study-unit').forEach(details => { (details as HTMLDetailsElement).open = true; }));
         expect(await page.evaluate(() => document.documentElement.scrollWidth), context).toBeLessThanOrEqual(width);
 
         const boxes = await page.locator('a.study-choice').evaluateAll(cards => cards.map(card => {
@@ -385,7 +387,11 @@ for (const width of [320, 390, 768, 1024, 1440]) {
               line.left >= rect.left - 1 && line.right <= rect.right + 1 &&
               line.top >= rect.top - 1 && line.bottom <= rect.bottom + 1);
           });
+          // Korttiruudukossa kaikki kortit ovat samankokoisia; avattavissa kokonaisuuksissa
+          // korkeus ja sisäinen sijoittelu yhtenäistetään saman luettelon sisällä.
+          const list = card.closest('.study-units') ? [...document.querySelectorAll('.study-units ol')].indexOf(card.closest('ol')!) : 0;
           return {
+            list,
             size: [rect.width, rect.height],
             offsets: parts.flatMap(part => {
               const box = part.getBoundingClientRect();
@@ -402,12 +408,14 @@ for (const width of [320, 390, 768, 1024, 1440]) {
         expect(boxes.length, context).toBeGreaterThanOrEqual(2);
         expect(boxes.some(box => box.title.startsWith('Harjoitus · ')), context).toBe(true);
         for (const box of boxes) {
+          const first = boxes.find(other => other.list === box.list)!;
           expect(box.status, context).toBe('Tekemättä');
-          expect(box.statusTop!, context).toBeCloseTo(boxes[0].statusTop!, 0);
+          expect(box.statusTop!, context).toBeCloseTo(first.statusTop!, 0);
           expect(box.description, context).not.toBe('');
           expect(box.size[1], context).toBeGreaterThanOrEqual(44);
-          box.size.forEach((value, index) => expect(value, context).toBeCloseTo(boxes[0].size[index], 0));
-          box.offsets.forEach((value, index) => expect(value, context).toBeCloseTo(boxes[0].offsets[index], 0));
+          expect(box.size[0], context).toBeCloseTo(boxes[0].size[0], 0);
+          expect(box.size[1], context).toBeCloseTo(first.size[1], 0);
+          box.offsets.forEach((value, index) => expect(value, context).toBeCloseTo(first.offsets[index], 0));
           expect(box.style, context).toEqual(boxes[0].style);
           expect(box.textFits, context).toBe(true);
         }
