@@ -135,7 +135,8 @@ for (const [topicIndex, [anchor, slug, title, backName]] of topics.entries()) {
       await expect(page.locator('a[href="../../index.html#aihe-' + anchor + '"]')).toHaveCount(1);
       await expect(page.locator('a.study-back')).toBeVisible();
       await expect(page.getByRole('link', { name: 'Teoriaoppaan kaikki osat' })).toHaveAttribute('href', '../../book/index.html');
-      const choices = page.locator('a.study-choice');
+      // Aiheen etenemisjärjestys; oman oppimiskokonaisuuden (#116) järjestys testataan erikseen.
+      const choices = page.locator('a.study-choice:not(.study-choice--unit)');
       expect(await choices.count()).toBeGreaterThanOrEqual(2);
       items = await choices.evaluateAll(nodes => nodes.map(node => ({
         path: new URL((node as HTMLAnchorElement).href).pathname,
@@ -226,7 +227,7 @@ for (const [index, [, slug, title]] of topics.slice(0, -1).entries()) {
   const [nextAnchor, nextSlug, nextTitle] = topics[index + 1];
   test(title + ' · seuraava pääaihe avautuu ylhäältä ja alhaalta ilman suorituksia', async ({ page }) => {
     await page.goto('/oppi/' + slug + '/index.html');
-    const choices = page.locator('.study-choice');
+    const choices = page.locator('.study-choice:not(.study-choice--unit)');
     const total = await choices.count();
     const lastUrl = slug === 'kitara'
       ? guitarExercises.at(-1)!.path
@@ -240,7 +241,8 @@ for (const [index, [, slug, title]] of topics.slice(0, -1).entries()) {
     for (const steps of [topSteps(page), bottomSteps(page)]) {
       const progress = steps.locator('[data-boundary-progress]');
       if (slug === 'kitara') await expect(progress).toHaveCount(0);
-      else await expect(progress).toHaveText(`0/${total} sisältöä tehty`);
+      // Soinnut ja harmonia: aiempien sisältöjen laskurin oma teksti (#116, progress_text).
+      else await expect(progress).toHaveText(`0/${total} ${slug === 'soinnut' ? 'aiemmista sisällöistä' : 'sisältöä'} tehty`);
       await steps.getByRole('link', { name: 'Seuraava aihe: ' + nextTitle, exact: true }).click();
       await expect(page).toHaveURL(nextPath);
       await expect(page.getByRole('heading', { level: 1, name: nextTitle, exact: true })).toBeVisible();
@@ -250,7 +252,7 @@ for (const [index, [, slug, title]] of topics.slice(0, -1).entries()) {
     expect(await page.evaluate(key => localStorage.getItem(key), readingKey)).toBeNull();
     await page.goto('/index.html');
     await expect(mapCard).toBeVisible();
-    await expect(mapCard.locator('.topic-status')).toHaveText(/^0\/\d+ sisältöä tehty$/);
+    await expect(mapCard.locator('.topic-status')).toHaveText(nextSlug === 'soinnut' ? /^0\/18 aiemmista sisällöistä tehty$/ : /^0\/\d+ sisältöä tehty$/);
     await page.reload();
     await expect(mapCard).toBeVisible();
   });
@@ -370,6 +372,8 @@ for (const width of [320, 390, 768, 1024, 1440]) {
       for (const scale of ['', '200%']) {
         const context = title + ' · ' + width + ' px · ' + (scale || '100%');
         await page.evaluate(size => { document.documentElement.style.fontSize = size; }, scale);
+        // Avattavat kokonaisuudet (#116) mitataan auki.
+        await page.evaluate(() => document.querySelectorAll('details.study-unit').forEach(details => { (details as HTMLDetailsElement).open = true; }));
         expect(await page.evaluate(() => document.documentElement.scrollWidth), context).toBeLessThanOrEqual(width);
 
         const boxes = await page.locator('a.study-choice').evaluateAll(cards => cards.map(card => {
@@ -377,7 +381,7 @@ for (const width of [320, 390, 768, 1024, 1440]) {
           const style = getComputedStyle(card);
           const parts = ['.study-number', '.study-title', '.study-description', '.study-arrow']
             .map(selector => card.querySelector(selector)!);
-          const status = card.querySelector('[data-study-status]');
+          const status = card.querySelector('[data-study-status], [data-study-intro-status]');
           const textFits = parts.every(part => {
             const range = document.createRange();
             range.selectNodeContents(part);
@@ -385,7 +389,11 @@ for (const width of [320, 390, 768, 1024, 1440]) {
               line.left >= rect.left - 1 && line.right <= rect.right + 1 &&
               line.top >= rect.top - 1 && line.bottom <= rect.bottom + 1);
           });
+          // Korttiruudukossa kaikki kortit ovat samankokoisia; avattavissa kokonaisuuksissa
+          // korkeus ja sisäinen sijoittelu yhtenäistetään saman luettelon sisällä.
+          const list = card.closest('.study-units') ? [...document.querySelectorAll('.study-units ol')].indexOf(card.closest('ol')!) : 0;
           return {
+            list,
             size: [rect.width, rect.height],
             offsets: parts.flatMap(part => {
               const box = part.getBoundingClientRect();
@@ -402,12 +410,14 @@ for (const width of [320, 390, 768, 1024, 1440]) {
         expect(boxes.length, context).toBeGreaterThanOrEqual(2);
         expect(boxes.some(box => box.title.startsWith('Harjoitus · ')), context).toBe(true);
         for (const box of boxes) {
+          const first = boxes.find(other => other.list === box.list)!;
           expect(box.status, context).toBe('Tekemättä');
-          expect(box.statusTop!, context).toBeCloseTo(boxes[0].statusTop!, 0);
+          expect(box.statusTop!, context).toBeCloseTo(first.statusTop!, 0);
           expect(box.description, context).not.toBe('');
           expect(box.size[1], context).toBeGreaterThanOrEqual(44);
-          box.size.forEach((value, index) => expect(value, context).toBeCloseTo(boxes[0].size[index], 0));
-          box.offsets.forEach((value, index) => expect(value, context).toBeCloseTo(boxes[0].offsets[index], 0));
+          expect(box.size[0], context).toBeCloseTo(boxes[0].size[0], 0);
+          expect(box.size[1], context).toBeCloseTo(first.size[1], 0);
+          box.offsets.forEach((value, index) => expect(value, context).toBeCloseTo(first.offsets[index], 0));
           expect(box.style, context).toEqual(boxes[0].style);
           expect(box.textFits, context).toBe(true);
         }

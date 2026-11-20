@@ -212,7 +212,9 @@
 
   function showTopicProgress(status, count, total) {
     const complete = count === total;
-    status.textContent = complete ? '✓ Aihe käyty läpi' : count + '/' + total + ' sisältöä tehty';
+    // Aihe voi antaa laskurille oman tekstin (data-progress-*, rakenna.py), muuten oletus.
+    const text = status.dataset;
+    status.textContent = complete ? text.progressDone ?? '✓ Aihe käyty läpi' : count + '/' + total + ' ' + (text.progressCount ?? 'sisältöä tehty');
     status.classList.toggle('is-done', complete);
     status.hidden = false;
     return complete;

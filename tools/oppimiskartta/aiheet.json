@@ -87,16 +87,34 @@
       "slug": "soinnut", "anchor": "aihe-soinnut", "title": "Soinnut ja harmonia",
       "back_label": "Sointuihin ja harmoniaan",
       "summary": "Sointujen rakenne, tehtävät ja otteet.",
-      "lead": "Rakenna asteikosta sointuja, kuuntele niiden tehtäviä ja siirrä sointukiertoja. Syvennä lopuksi nelisointuihin.",
+      "lead": "Kuule, miten yksittäisistä sävelistä syntyy sointu. Rakenna sitten G-duurisointu ja kokeile sitä oikealla kitaralla.",
+      "layout": "kokonaisuudet",
+      "progress_text": {"count": "aiemmista sisällöistä tehty", "done": "✓ Aiemmat sisällöt tehty"},
+      "legacy": {
+        "id": "aiemmat",
+        "title": "Aiemmat oppitunnit ja harjoitukset",
+        "intro": "Kaikki aiemmat oppitunnit ja harjoitukset löytyvät täältä entisillä osoitteillaan. Aiemmat suoritusmerkintäsi säilyvät."
+      },
       "groups": [
-        {"title": "Sointujen rakentaminen ja liike", "lessons": [
-          {"source": "osa-3#harmoninen-kentta", "goal": "Muodosta kolmisointuja poimimalla asteikosta joka toinen sävel."},
+        {"id": "miten-sointu-muodostuu", "number": 1, "title": "Miten sointu muodostuu?", "open": true,
+         "goal": "Kuuntele, rakenna ja soita: kolme lyhyttä harjoitusta G-duurisoinnusta. Voit avata minkä tahansa vaiheen omassa järjestyksessäsi.",
+         "lessons": [
+          {"standalone": "kuule-mika-on-sointu", "title": "Kuule, mikä on sointu", "goal": "Vertaa kolmea säveltä peräkkäin ja samanaikaisesti. Musiikki ensin, selitys sitten."},
+          {"standalone": "rakenna-g-duurisointu", "title": "Rakenna G-duurisointu", "goal": "Valitse G-duuriasteikolta 1., 3. ja 5. sävel ja tarkista valintasi."},
+          {"standalone": "kokeile-g-sointua-kitaralla", "title": "Kokeile G-sointua kitaralla", "goal": "Soita sama kolmisointu kitaralla ja kuuntele, miten sen sävelet yhdistyvät."}
+        ]},
+        {"legacy": true, "title": "Rakenna sointuja asteikosta", "lessons": [
+          {"source": "osa-3#harmoninen-kentta", "goal": "Muodosta kolmisointuja poimimalla asteikosta joka toinen sävel."}
+        ]},
+        {"legacy": true, "title": "Ymmärrä sointujen tehtävät ja liike", "lessons": [
           {"source": "osa-3#roomalaiset-numerot", "goal": "Kirjoita sointukierto asteina ja soita se toisessa sävellajissa."},
           {"source": "osa-3#sointujen-tehtavat", "goal": "Kuule kotisointu, kodista poispäin vievä sointu ja paluuta valmisteleva sointu."},
-          {"source": "osa-4#kvinttiympyra", "goal": "Löydä I-, IV- ja V-soinnun suhteet kvinttiympyrästä."},
+          {"source": "osa-4#kvinttiympyra", "goal": "Löydä I-, IV- ja V-soinnun suhteet kvinttiympyrästä."}
+        ]},
+        {"legacy": true, "title": "Soita siirrettävillä otteilla", "lessons": [
           {"source": "osa-6#barre", "goal": "Siirrä barré-ote ja etsi perussävel E- tai A-kieleltä."}
         ]},
-        {"title": "Syventävät septimisoinnut", "lessons": [
+        {"legacy": true, "title": "Syvenny septimisointuihin", "lessons": [
           {"source": "osa-10#septimisoinnut", "goal": "Rakenna nelisointuja ja tunnista niiden tavallisimmat tyypit."},
           {"source": "osa-10#ii-v-i", "goal": "Soita ii–V–I ja seuraa, miten terssit ja septimit liikkuvat."}
         ]}

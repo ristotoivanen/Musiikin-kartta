@@ -32,4 +32,5 @@ Sunon ehdot eivät takaa, että tekoälyllä luotuun äänitteeseen syntyy
 tekijänoikeus.
 
 Pääsivuston muut ääniesimerkit (`assets/audio/osa-*`) eivät kuulu tähän
-rajaukseen.
+rajaukseen. Hakemiston `assets/audio/soinnut/` kitaranäytteet ovat Meta Open
+Soundin CC0 1.0 -aineistoa; lähteet ja muunnokset: `soinnut/LAHTEET.md`.

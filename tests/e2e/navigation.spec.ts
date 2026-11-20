@@ -164,6 +164,8 @@ test.describe('Oppimiskartan navigointi ja paluu', () => {
   test('opetussivun päävalikosta pääsee koko Oppimiskarttaan', async ({ page }) => {
     await page.goto('/index.html#aihe-soinnut');
     await page.locator('#aihe-soinnut').click();
+    // Aiemmat sisällöt ovat oletuksena suljetun osion alla (#116).
+    await page.locator('details#aiemmat > summary').click();
     await page.locator('#valinta-septimisoinnut').click();
     await expect(page).toHaveURL('/oppi/soinnut/septimisoinnut.html');
     await mainNav(page).getByRole('link', { name: 'Opi & oivalla' }).click();

@@ -1,0 +1,60 @@
+/* Soinnut ja harmonia: Miten sointu muodostuu? (#116). Ladataan vain sivuille, joilla on
+ * [data-sointuharjoitus] (tools/oppimiskartta/rakenna.py). Värit book/reader.css:n muuttujista. */
+.sointuharjoitus h2 { margin-block: 0 .55rem; font-size: 1.1rem; }
+.sointuharjoitus [hidden] { display: none !important; }
+
+.sointu-toiminnot { display: flex; flex-wrap: wrap; gap: .5rem; margin: .85rem 0 .35rem; }
+.sointuharjoitus button {
+  min-height: 44px;
+  padding: .45rem .95rem;
+  border: 1px solid #71638c;
+  border-radius: .55rem;
+  background: #2d2444;
+  color: var(--text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.sointuharjoitus button:hover { border-color: var(--accent); background: #3a2f55; }
+.sointuharjoitus .sointu-ensisijainen { border-color: #d6c7ff; background: var(--accent); color: #170f28; }
+.sointuharjoitus .sointu-ensisijainen:hover { background: #d5c6ff; }
+.sointuharjoitus button:focus-visible { outline: 3px solid #75e5c6; outline-offset: 2px; }
+
+.sointu-tila { min-height: 1.5em; margin: .35rem 0 0; color: #9fe4c3; font-size: .92rem; }
+.sointu-tila.is-error { color: #ffd6b3; }
+.sointu-ohje, .sointu-lahde { color: var(--muted); font-size: .9rem; }
+
+/* Rakenna G-duurisointu: seitsemän asteikkosäveltä, puhelimessa neljä riviin. */
+.sointu-asteikko { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .45rem; margin: .9rem 0 .7rem; }
+.sointu-asteikko button { position: relative; min-width: 0; min-height: 54px; padding: .2rem; font-size: 1.1rem; }
+.sointu-asteikko button.is-selected { border-color: #d8caff; background: var(--accent); color: #171021; }
+/* Valinta kerrotaan ruudunlukijalle aria-pressed-tilana; ✓ on vain näkyvä merkki (tyhjä vaihtoehtoteksti). */
+.sointu-asteikko button.is-selected::after { content: "✓"; content: "✓" / ""; position: absolute; top: 2px; right: 5px; font-size: .7rem; }
+.sointu-valinta {
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: .25rem .75rem;
+  margin: .5rem 0; padding: .6rem .8rem; border-radius: .55rem; background: var(--bg);
+}
+.sointu-valinta strong { font-variant-numeric: tabular-nums; }
+.sointu-maara { color: var(--muted); font-size: .9rem; }
+.sointu-selitys { margin-top: .8rem; padding: .8rem .9rem; border: 1px solid #76988d; border-radius: .6rem; background: #1b3030; }
+.sointu-selitys h3 { margin: 0 0 .5rem; font-size: 1.05rem; }
+.sointu-kaava { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .55rem; margin: .7rem 0; }
+.sointu-kaava > div { min-width: 0; padding: .55rem .3rem; border: 1px solid #7b6c97; border-radius: .55rem; background: var(--panel); text-align: center; }
+.sointu-kaava b { display: block; font-size: 1.4rem; }
+.sointu-kaava small { display: block; color: var(--muted); }
+
+/* Kokeile G-sointua kitaralla: kielten sävelet ⓘ-knoppitiedossa. */
+.sointu-kielet { margin: .2rem 0 0; color: #9fe4c3; font-size: clamp(1.1rem, 4vw, 1.35rem); font-weight: 800; letter-spacing: .02em; }
+
+@media (max-width: 560px) {
+  .sointu-asteikko { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .sointu-kaava { grid-template-columns: minmax(0, 1fr); }
+}
+@media (forced-colors: active) {
+  .sointu-asteikko button.is-selected { outline: 3px solid Highlight; }
+}
+@media print {
+  .sointu-toiminnot, .sointu-tila, .sointu-asteikko, .sointu-valinta { display: none !important; }
+  .sointuharjoitus .sointu-selitys[hidden] { display: block !important; }
+  .sointu-selitys { background: none; border-color: #999; }
+}
