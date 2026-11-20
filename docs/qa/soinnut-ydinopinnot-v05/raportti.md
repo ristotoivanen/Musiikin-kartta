@@ -12,7 +12,7 @@ painalluksesta ja sen voi perua. Kuuntelu, palaute ja merkintä eivät mittaa so
 Katselmointihaara `codex/soinnut-ydinopinnot-v05` perustuu [Draft-PR #133:n](https://github.com/ristotoivanen/Musiikin-kartta/pull/133)
 tarkistettuun päätasoon `25712ed4655bbf54824ce6d9086f76f4ce55c1f3`.
 Jatko-PR:n vertailuhaara on `claude/soinnut-harmonia-beta-integraatio`.
-Cloudflare käyttää repon nykyistä Pages-integraatiota. Katselmointilinkit ovat Draft-PR:ssä.
+Cloudflare käyttää repon nykyistä Pages-integraatiota. Katselmointilinkit ja tarkka HEAD ovat [Draft-PR #137:ssä](https://github.com/ristotoivanen/Musiikin-kartta/pull/137).
 
 - [Aihesivu](../../../oppi/soinnut/index.html)
 - [Kuule ja kokoa sointu](../../../oppi/soinnut/kuule-ja-kokoa-sointu.html)
@@ -44,6 +44,25 @@ Käytössä ovat sivuston päävalikko ja aiheen paluulinkki, `study-unit`-avatt
 | Toisto | Sama #133:n sivukohtainen Web Audio -sovitus palvelee kaikkia Sointujen esimerkkejä. Uusi käynnistys katkaisee edellisen. Soivat lähteet häipyvät 25 ms:ssa ja tulevat ajastukset sekä keskeneräiset lataukset perutaan. Testattu AAC:n virhe → OGG, kahden muodon virhe → uusi yritys, nopea keskeytys sekä piilotus. Kierron näkyvä kohta seuraa `AudioContext.currentTime`-kelloa. |
 | Musiikillinen sisältö | Ensimmäinen vertailu käyttää samoja äänitettyjä G3-, B3- ja D4-säveliä. Kaikki kolmen valinnat voi kuulla, ja palaute tunnistaa G–B–D:n. E/Em käyttää samaa kuuden kielen rakennetta vaihtamalla G-kielen G♯3:n G3:ksi. Kierto käyttää prototyypin G–C–D–G/C/D-äänijärjestystä ja etenemistä 2,25 sekunnin välein. |
 | Mikrofoni | Harjoituksissa kuunnellaan ja valitaan painikkeilla. Mikrofoni-, äänenkorkeuden tunnistus- tai soittosuorituksen mittauskriteerejä ei sovelleta. |
+
+### Automaattitestit ja HTTPS
+
+Testattu sovelluskoodi: `597119bb8991e832c7922bffd2e87d27feeada36`. Ympäristö
+macOS arm64, Node 22.23.5, Chrome 158, Playwright 1.56.1. Työpöytäprojekti ja
+puhelimen Chromium-emulaatio suorittavat äänitestit ilman kaiutinlähtöä.
+
+| Komento tai koe | Tulos |
+| --- | --- |
+| `npm run check` | ESLint, 626 Vitest-testiä, TypeScript ja build läpäisty. Rinnakkaisessa ajossa yksi Riffikaiun ennestään olemassa oleva yksikkötesti ylitti 5 s:n aikarajan. Erillinen koko tarkistusajo läpäistiin. |
+| `npm run test:e2e -- --workers=4` | 851 läpäisty, 40 projektikohtaisesti ohitettu, yksi epäonnistui. Sointujen tiedostossa 65 läpäistyä ja yksi työpöydälle rajattu näppäimistötesti ohitettu puhelinprojektissa. |
+| `npm run test:e2e -- tests/e2e/responsive.spec.ts --project=desktop --grep '430 px: moodit' --workers=1` | Rinnakkaisessa ajossa pentatonisen toiston 3 s:n otos sai kolme eri säveltä, kun testi odotti yli kolmea. Erillinen uusinta läpäistiin sekä lähtöcommitilla että v0.5-commitilla. |
+| `python3 tools/oppimiskartta/rakenna.py --tarkista` ja `python3 tools/linkit/tarkista-linkit.py` | Generoidut sivut ajan tasalla. 110 sivua, 2 775 viitettä ja 0 ongelmaa. |
+| `python3 tools/aanet/soinnut-naytteet.py tarkista` ja `node --check` | 32 jakelutiedoston SHA-256-tarkisteet ja muuttuneiden selain-JS-tiedostojen syntaksi kunnossa. |
+| Cloudflare Pages, HTTPS | Neljä sivua HTTP 200. G♯3-esimerkin AAC- ja OGG-vastaukset vastasivat repotiedostoja. Selainajossa kolme kuuntelua, arvaus ja kaaviot, kierron pysäytys sekä kokeiltu-laskuri toimivat ilman sivuskriptivirheitä. |
+
+Lähde- ja diffirajaus: kolmen harjoituksen sisältöfragmentit ja niistä generoidut sivut,
+Sointujen nykyinen näytetoistin, kokeiltu-merkintä, 20 uutta AAC/OGG-tiedostoa ja testit.
+81 HTML-tiedostossa ainoa muutos on yhteisen etenemisskriptin välimuistiversio.
 
 ### Ääninäytteet
 
@@ -86,7 +105,9 @@ Kaikki alla mainitut fyysiset ja käyttäjäkokeet ovat **testaamatta** tässä 
 - **G-pilotin näkyvyys.** #133:n pilotin kolme suoraa harjoitusosoitetta, ankkurit ja merkinnät
   säilyvät. Pilotin kortit tulevat näkyviin suoraan pilotin ankkurista, jotta oletusnäkymässä
   on kolme sovittua Ydinopintojen harjoitusta ja aiemmat 18. Suunnittelukeskustelu voi päättää,
-  tarvitaanko myöhemmin pilotille näkyvä paikka syventävässä opintopolussa.
+  tarvitaanko myöhemmin pilotille näkyvä paikka syventävässä opintopolussa. Aiemmat syventävät
+  aiheet ovat edelleen ryhmiteltyinä Aiemmat-osiossa. Mahdolliset uudet tai erikseen avattavat
+  syventävät kokonaisuudet kuuluvat suunnittelukeskusteluun.
 - **Sivumalli.** Liitteen välilehtimäinen prototyyppi on sovitettu sivuston omiin
   harjoitussivuihin, joten sivulta toiselle siirryttäessä väliaikainen kuuntelu- ja valintatila
   palautuu alkuasetuksiin. Kokeiltu-merkintä säilyy. Ensiharjoitukseen palaaminen käyttää
@@ -96,15 +117,23 @@ Kaikki alla mainitut fyysiset ja käyttäjäkokeet ovat **testaamatta** tässä 
 
 - [PR #111](https://github.com/ristotoivanen/Musiikin-kartta/pull/111), `794d106a9824068fac80064244a8c850f12da5e4`,
   lisää Rytmin numeroimattoman johdannon, omat korttimerkinnät ja aloituslinkin. Aiemmat
-  päällekkäisyydet painottuvat generoituun HTML:ään. Sointujen korttimerkinnät käyttävät #111:n
-  tilarivin kanssa rinnakkain toimivaa merkintää.
+  päällekkäisyydet painottuvat generoituun HTML:ään. Yhdistelykoe tehtiin Git-viitteiden ulkopuolella.
+  Lähteet yhdistyivät automaattisesti. Etusivulla säilytettiin #111:n generoitu aloitus ja poistettiin
+  sen perään jäänyt käsin kirjoitettu lause, sitten generoitiin sivut uudestaan. 11 yksikkötestiä
+  ja neljä työpöytä-/puhelinmerkintätestiä läpäistiin. Linkkitarkistuksessa 111 sivua ja
+  2 792 viitettä ilman virheitä.
 - [Rytmi #134](https://github.com/ristotoivanen/Musiikin-kartta/pull/134),
   `a962bf6`, kehittää omaa Ydinopinnot-kokonaisuutta. Rinnakkaiset muutokset osuvat generaattoriin,
   avattavien kokonaisuuksien tyyleihin ja etenemisskriptiin. Harjoitussivun kokeiltu-merkintä
   käyttää samaa `data-study-mark`-attribuuttia.
 - [#132](https://github.com/ristotoivanen/Musiikin-kartta/issues/132) on avoin rajapintaselvitys.
-  [A/B/C-koe #135](https://github.com/ristotoivanen/Musiikin-kartta/pull/135) on erillisellä testipinnalla.
-  Tämän haaran sointu- ja aikatapahtumat voidaan kytkeä myöhemmin sovittuun näyteadapteriin.
+  [A/B/C-koe #135](https://github.com/ristotoivanen/Musiikin-kartta/pull/135) ja
+  [Meta Steel -kirjastopilotti #136](https://github.com/ristotoivanen/Musiikin-kartta/pull/136)
+  ovat erillisiä Draft-PR:iä. Tämän haaran sointu- ja aikatapahtumat voidaan kytkeä myöhemmin
+  sovittuun näyteadapteriin.
+- Avoimista 51 PR:stä myös #65 osuu aihemääritykseen ja generaattoriin. #57, #61, #62 ja #63
+  osuvat etenemisskriptiin. Niiden yhdistelyä ei kokeiltu. #130, #131, #135 ja #136 eivät
+  muokkaa v0.5:n kanssa samoja koodilähteitä.
 - Suositeltu integraatio hyväksynnän jälkeen: yhdistä #133 ja v0.5 samana Sointujen kokonaisuutena
   erillisessä integraatiotyöpuussa. Sovita #111:n johdanto yhteisiin lähteisiin ja Rytmi #134 siihen
   erillisenä sisältönä. Regeneroi oppimiskartta aina yhdistetyistä lähteistä, ja aja Sointujen ja
