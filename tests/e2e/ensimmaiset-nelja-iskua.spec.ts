@@ -162,7 +162,7 @@ test('M2 toistaa mallibassotaustan kerran ja M3 bassottoman taustan silmukkana',
   expect(buffers[0].loop).toBe(true);
   expect(buffers[0].loopStart).toBeCloseTo(4 * beat, 9);
   expect(buffers[0].loopEnd).toBeCloseTo(36 * beat, 9);
-  expect(audio).toEqual([audioDir + 'em-komppi-a-m2-mallibasso.wav 200', audioDir + 'em-komppi-a-m3-ilman-mallibassoa.wav 200']);
+  expect(audio).toEqual([audioDir + 'em-komppi-a-m2-mallibasso.wav 200', audioDir + 'em-komppi-b-m3-hillitty-basso.wav 200']);
 
   await stopButton(page).click();
   await expect(message(page)).toHaveText('Pysäytetty');
@@ -180,7 +180,7 @@ test('epäonnistunut äänen lataus näyttää virheen ja uusi yritys toimii', a
   expect((await events(page)).filter(e => e.kind === 'osc' || e.kind === 'buffer')).toEqual([]);
 
   await page.unroute('**/e2-freepats-fsbs-clean-bridge-alku-2s.wav');
-  await page.route('**/em-komppi-a-m3-ilman-mallibassoa.wav', route => route.fulfill({ status: 200, contentType: 'audio/wav', body: 'ei ääntä' }));
+  await page.route('**/em-komppi-b-m3-hillitty-basso.wav', route => route.fulfill({ status: 200, contentType: 'audio/wav', body: 'ei ääntä' }));
   await modeButton(page, 'M3').click();
   await start(page).click();
   await expect(message(page)).toContainText('Säestys ei purkautunut ääneksi');
@@ -218,7 +218,7 @@ test('M3:n silmukka jatkuu iskuruudukossa saumakohdan yli (OfflineAudioContext)'
   const result = await page.evaluate(async ([dir, beatLength]) => {
     const rate = 48000, countin = 4 * beatLength, music = 32 * beatLength, length = Math.ceil((countin + 2 * music + 1) * rate);
     const ctx = new OfflineAudioContext(1, length, rate);
-    const data = await (await fetch(dir + 'em-komppi-a-m3-ilman-mallibassoa.wav')).arrayBuffer();
+    const data = await (await fetch(dir + 'em-komppi-b-m3-hillitty-basso.wav')).arrayBuffer();
     const buffer = await ctx.decodeAudioData(data);
     const src = ctx.createBufferSource();
     src.buffer = buffer; src.loop = true; src.loopStart = countin; src.loopEnd = countin + music;

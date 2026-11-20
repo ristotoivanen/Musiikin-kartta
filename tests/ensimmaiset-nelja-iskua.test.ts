@@ -13,8 +13,11 @@ const readme = read(dir + 'README.md');
 const files = {
   e2: 'e2-freepats-fsbs-clean-bridge-alku-2s.wav',
   m2: 'em-komppi-a-m2-mallibasso.wav',
-  m3: 'em-komppi-a-m3-ilman-mallibassoa.wav',
+  // M3 käyttää omistajan hyväksymää B-versiota (Em-komppi + hillitty basso).
+  m3: 'em-komppi-b-m3-hillitty-basso.wav',
 };
+// Säilytetään vertailua varten, ei sivun käytössä: v4:n bassoton M3 ja hyväksytty alkuperäinen B-MP3.
+const reference = { m3a: 'em-komppi-a-m3-ilman-mallibassoa.wav', m3Source: 'lahde/M3_AB_B_hillitty_basso_72bpm.mp3' };
 
 function wav(file: string) {
   const bytes = readFileSync(url(dir + file));
@@ -42,6 +45,8 @@ describe('Ensimmäiset neljä iskua -testisivu', () => {
       expect(page).toContain(file);
       expect(existsSync(url(dir + file))).toBe(true);
     }
+    expect(page).not.toContain(reference.m3a);
+    expect(page).not.toContain('.mp3');
   });
 
   it('säilyttää v4:n tempon, vaimennuksen ja harjoitusten pituudet', () => {
@@ -74,7 +79,7 @@ describe('Ensimmäiset neljä iskua -testisivu', () => {
   });
 
   it('äänitiedostot vastaavat README:n tiivisteitä ja muotoja', () => {
-    for (const file of Object.values(files)) {
+    for (const file of [...Object.values(files), ...Object.values(reference)]) {
       const hash = createHash('sha256').update(readFileSync(url(dir + file))).digest('hex');
       expect(readme).toContain('`' + file + '`');
       expect(readme, file).toContain(hash);
@@ -88,14 +93,17 @@ describe('Ensimmäiset neljä iskua -testisivu', () => {
 
   it('taustojen musiikki alkaa sisäänlaskun jälkeen ja silmukan loppu osuu iskuun', () => {
     const rate = 22050, countin = Math.round(4 * 60 / 72 * rate), loopEnd = countin + Math.round(32 * 60 / 72 * rate);
-    for (const file of [files.m2, files.m3]) {
+    for (const file of [files.m2, files.m3, reference.m3a]) {
       const w = wav(file);
       expect([w.format, w.channels, w.rate, w.bits]).toEqual([1, 1, rate, 16]);
       const s = (i: number) => w.data.readInt16LE(i * 2);
       const rms = (a: number, b: number) => { let sum = 0; for (let i = a; i < b; i++) sum += s(i) ** 2; return Math.sqrt(sum / (b - a)) / 32768; };
-      // Ensimmäinen musiikki-isku alkaa tasan sisäänlaskun lopussa (3,333 s), ei ennen.
-      expect(rms(countin - 441, countin)).toBeLessThan(0.001);
-      expect(rms(countin, countin + 441)).toBeGreaterThan(0.1);
+      // Ensimmäinen musiikki-isku alkaa tasan sisäänlaskun lopussa (3,333 s), ei ennen. B on purettu hyväksytystä
+      // MP3:sta, jonka koodekki jättää iskun eteen noin −55 dB:n esikaiun; häviöttömissä raja on 0,001.
+      const before = rms(countin - 441, countin), onset = rms(countin, countin + 441);
+      expect(before).toBeLessThan(file === files.m3 ? 0.003 : 0.001);
+      expect(onset).toBeGreaterThan(0.1);
+      expect(onset / before).toBeGreaterThan(30);
       // Viimeisen iskun ääni on vaimentunut ennen silmukan loppua: silmukka ei katkaise soivaa ääntä.
       expect(rms(loopEnd - 2205, loopEnd)).toBeLessThan(0.001);
       expect(rms(loopEnd, w.data.length / 2)).toBe(0);
@@ -104,6 +112,22 @@ describe('Ensimmäiset neljä iskua -testisivu', () => {
         const at = countin + Math.round(beat * 60 / 72 * rate);
         expect(rms(at, at + 441), file + ' isku ' + beat).toBeGreaterThan(0.1);
       }
+    }
+  });
+
+  it('M3:n B-tausta: sama laskenta ja komppi kuin A, basso harvempi ja jatkuu taukotahdissa', () => {
+    const rate = 22050, beat = 60 / 72 * rate, countin = Math.round(4 * beat);
+    const b = wav(files.m3), a = wav(reference.m3a);
+    expect(b.data.length).toBe(a.data.length);
+    const diff = (i: number) => (b.data.readInt16LE(i * 2) - a.data.readInt16LE(i * 2)) / 32768;
+    const rmsDiff = (s: number, e: number) => { let sum = 0; for (let i = s; i < e; i++) sum += diff(i) ** 2; return Math.sqrt(sum / (e - s)); };
+    // Laskennassa ero on vain MP3-koodekin kohinaa (ei bassoa).
+    expect(rmsDiff(0, countin)).toBeLessThan(0.01);
+    // Basso soi tahdin 1. ja 3. iskulla (parilliset iskut), myös oppijan taukotahdissa (kierroksen iskut 4 ja 6).
+    for (let k = 0; k < 32; k++) {
+      const s = countin + Math.round(k * beat), e = countin + Math.round((k + 1) * beat), d = rmsDiff(s, e);
+      if (k % 2 === 0) expect(d, 'bassoisku ' + k).toBeGreaterThan(0.03);
+      else expect(d, 'isku ' + k + ' ilman uutta bassoääntä').toBeLessThan(0.01);
     }
   });
 });
