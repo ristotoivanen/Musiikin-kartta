@@ -12,12 +12,12 @@ const dir = 'assets/audio/ensimmaiset-nelja-iskua/';
 const readme = read(dir + 'README.md');
 const files = {
   e2: 'e2-freepats-fsbs-clean-bridge-alku-2s.wav',
-  m2: 'em-komppi-a-m2-mallibasso.wav',
+  m2: 'em-komppi-b-m3-hillitty-basso.wav',
   // M3 käyttää omistajan hyväksymää B-versiota (Em-komppi + hillitty basso).
   m3: 'em-komppi-b-m3-hillitty-basso.wav',
 };
 // Säilytetään vertailua varten, ei sivun käytössä: v4:n bassoton M3 ja hyväksytty alkuperäinen B-MP3.
-const reference = { m3a: 'em-komppi-a-m3-ilman-mallibassoa.wav', m3Source: 'lahde/M3_AB_B_hillitty_basso_72bpm.mp3' };
+const reference = { m2a: 'em-komppi-a-m2-mallibasso.wav', m3a: 'em-komppi-a-m3-ilman-mallibassoa.wav', m3Source: 'lahde/M3_AB_B_hillitty_basso_72bpm.mp3' };
 
 function wav(file: string) {
   const bytes = readFileSync(url(dir + file));
@@ -55,6 +55,8 @@ describe('Ensimmäiset neljä iskua -testisivu', () => {
     expect(page).toContain("for(let i=0;i<20;i++)");
     expect(page).toContain("(mode==='M0'&&n>=20)||(mode==='M2'&&n>=36)");
     expect(page).toContain("src.loop=true;src.loopStart=countin;src.loopEnd=countin+musicLength;");
+    expect(page).toContain("if(mode==='M2'){for(let round=0;round<4;round++)");
+    expect(page).toContain('id="phaseicon"');
     expect(page).not.toContain('Mallibassoa ei ole');
     for (const label of ['Kuuntele esimerkki', 'Soita harjoitus', 'Kuuntele mallia musiikin mukana', 'Soita musiikin mukana', 'Kuuntelu', 'Oma soitto', '1/4', '4/4', 'Anna soida', 'Vaimenna nyt', 'Odota', 'Taustalla soi hiljainen basso, mutta se ei soita neljää iskuasi mallina.']) {
       expect(page).toContain(label);
@@ -94,7 +96,7 @@ describe('Ensimmäiset neljä iskua -testisivu', () => {
 
   it('taustojen musiikki alkaa sisäänlaskun jälkeen ja silmukan loppu osuu iskuun', () => {
     const rate = 22050, countin = Math.round(4 * 60 / 72 * rate), loopEnd = countin + Math.round(32 * 60 / 72 * rate);
-    for (const file of [files.m2, files.m3, reference.m3a]) {
+    for (const file of [files.m2, files.m3, reference.m2a, reference.m3a]) {
       const w = wav(file);
       expect([w.format, w.channels, w.rate, w.bits]).toEqual([1, 1, rate, 16]);
       const s = (i: number) => w.data.readInt16LE(i * 2);
