@@ -75,3 +75,10 @@ Lähtöaineisto: suunnittelukeskustelussa hyväksytty
   saatavilla. WAV-muunnos ei paranna eikä heikennä hyväksyttyä ääntä.
 - **Käyttöoikeus:** kuten M2/M3-demotaustat (yllä), omistajan vahvistettava ennen käyttöä testisivun ulkopuolella.
 
+
+## M2: väliaikainen mallikitara ja yhteinen B-säestys (20.11.2026)
+
+- M2 ja M3 lataavat saman hyväksytyn `em-komppi-b-m3-hillitty-basso.wav` -taustan. M2 soittaa 8 tahtia kerran, M3 silmukkana.
+- M2 lisää 16 mallikitaran E2-iskua nykyisellä FreePats-näytteellä käyttäen M0:n `sample`-ajastinta: 4 iskua neljän kahden tahdin kierroksen ensimmäiseen tahtiin. Neljäs soi seuraavan tahdin ykköselle; vaimennuksen mallihäivytys 150 ms.
+- M2:n mallikitaran koemiksaus: näytteen vahvistus 1,15 ja B-säestyksen vahvistus 0,62 (Web Audio -gain). Tasapaino ei ole vielä hyväksytty fyysisessä kuuntelukokeessa, eikä lähdemateriaalin äänenlaatu ole julkaisukelpoinen.
+- Vanha M2-mallibassotausta on säilytetty vain vertailua varten. Soitinäänien yhteinen ratkaisu arvioidaan tehtävässä #132, ei tässä testissä.
