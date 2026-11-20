@@ -37,16 +37,19 @@ test.describe('aihesivu', () => {
     const units = page.locator('details.study-unit');
     await expect(units).toHaveCount(2);
     await expect(core(page)).toHaveAttribute('open', '');
-    await expect(core(page).locator('summary')).toHaveText('01 Miten sointu muodostuu?3 sisältöä');
+    await expect(core(page).locator('summary')).toHaveText(/^01 Miten sointu muodostuu\?3 sisältöä/);
     await expect(core(page).locator('.study-choice')).toHaveCount(3);
     for (const [slug, title] of newLessons) {
       await expect(core(page).getByRole('link', { name: new RegExp(title) })).toHaveAttribute('href', `${slug}.html`);
     }
     await expect(earlier(page)).not.toHaveAttribute('open', '');
     await expect(earlier(page).locator('summary')).toHaveText(/^Aiemmat oppitunnit ja harjoitukset18 sisältöä/);
-    // Aiempien sisältöjen laskuri on osion otsikkorivillä; uusille oppitunneille ei ole laskuria eikä tilarivejä.
+    // Kummallakin kokonaisuudella on oma laskurinsa otsikkorivillä; uusia ei lasketa aiempiin.
     await expect(earlier(page).locator('summary [data-study-total]')).toHaveText('0/18 sisältöä tehty');
+    await expect(core(page).locator('summary [data-unit-progress]')).toHaveText('0/3 sisältöä tehty');
+    await expect(core(page).locator('summary .study-unit-count')).toBeHidden();
     await expect(core(page).locator('[data-study-status]')).toHaveCount(0);
+    await expect(core(page).locator('[data-study-intro-status]')).toHaveText(['Tekemättä', 'Tekemättä', 'Tekemättä']);
     const links = earlier(page).locator('.study-choice');
     await expect(links).toHaveCount(18);
     expect(await links.evaluateAll(all => all.map(a => a.getAttribute('href'))))
@@ -96,7 +99,9 @@ test.describe('aihesivu', () => {
     }
     // Sama merkitys kuin ennen: kaikki 18 aiempaa sisältöä tehty = aihe käyty läpi.
     await expect(earlier(page).locator('summary [data-study-total]')).toHaveText('✓ Aihe käyty läpi');
-    await expect(core(page).locator('.study-status')).toHaveCount(0);
+    // Vanhat merkinnät eivät kuittaa uusia harjoituksia.
+    await expect(core(page).locator('summary [data-unit-progress]')).toHaveText('0/3 sisältöä tehty');
+    await expect(core(page).locator('[data-study-intro-status]')).toHaveText(['Tekemättä', 'Tekemättä', 'Tekemättä']);
     expect(JSON.parse(await storage(page) ?? '[]')).toEqual(old);
     await page.goto('/index.html#aihe-soinnut');
     await expect(page.locator('#aihe-soinnut .topic-status')).toHaveText('✓ Aihe käyty läpi');
@@ -107,9 +112,46 @@ test.describe('aihesivu', () => {
     await page.getByRole('button', { name: 'Merkitse oppitunti tehdyksi' }).click();
     expect(JSON.parse(await storage(page) ?? '[]')).toEqual(['oppitunti:kuule-mika-on-sointu']);
     await page.goto(topicPath);
+    await expect(core(page).locator('summary [data-unit-progress]')).toHaveText('1/3 sisältöä tehty');
+    await expect(page.locator('#valinta-kuule-mika-on-sointu [data-study-intro-status]')).toHaveText('✓ Tehty');
+    await expect(page.locator('#valinta-rakenna-g-duurisointu [data-study-intro-status]')).toHaveText('Tekemättä');
     await expect(earlier(page).locator('summary [data-study-total]')).toHaveText('0/18 sisältöä tehty');
     await page.goto('/index.html#aihe-soinnut');
     await expect(page.locator('#aihe-soinnut .topic-status')).toHaveText('0/18 sisältöä tehty');
+  });
+
+  test('kaikki kolme uutta tehtyinä: kokonaisuus valmis, aiemmat ennallaan, toisen välilehden muutos päivittyy', async ({ page, context }) => {
+    await page.goto(topicPath);
+    await page.evaluate(([key, ids]) => localStorage.setItem(key, JSON.stringify(ids)),
+      [readingKey, newLessons.map(([slug]) => `oppitunti:${slug}`)] as const);
+    await page.reload();
+    await expect(core(page).locator('summary [data-unit-progress]')).toHaveText('3/3 sisältöä tehty');
+    await expect(core(page).locator('summary [data-unit-progress]')).toHaveClass(/is-done/);
+    await expect(earlier(page).locator('summary [data-study-total]')).toHaveText('0/18 sisältöä tehty');
+    const other = await context.newPage();
+    await other.goto('/oppi/soinnut/kuule-mika-on-sointu.html');
+    await other.getByRole('button', { name: '✓ Oppitunti tehty' }).click();
+    await expect(core(page).locator('summary [data-unit-progress]')).toHaveText('2/3 sisältöä tehty');
+    await expect(page.locator('#valinta-kuule-mika-on-sointu [data-study-intro-status]')).toHaveText('Tekemättä');
+  });
+
+  test('jokainen uuden kortin tilarivi päivittyy kerran muutosta kohti (yksi kirjoittaja)', async ({ page, context }) => {
+    await page.goto(topicPath);
+    await expect(core(page).locator('summary [data-unit-progress]')).toHaveText('0/3 sisältöä tehty');
+    // Laske tilarivien tekstinvaihdot: edistyminen.js (PR #111:n jälkeen) tai kokonaisuudet.js, ei molemmat.
+    await page.evaluate(() => {
+      const rows = [...document.querySelectorAll('[data-study-intro-status]')];
+      (window as unknown as { __writes: number[] }).__writes = rows.map(() => 0);
+      rows.forEach((row, index) => new MutationObserver(records => {
+        (window as unknown as { __writes: number[] }).__writes[index] += records.filter(record => record.type === 'childList').length;
+      }).observe(row, { childList: true }));
+    });
+    const other = await context.newPage();
+    await other.goto('/oppi/soinnut/rakenna-g-duurisointu.html');
+    await other.getByRole('button', { name: 'Merkitse oppitunti tehdyksi' }).click();
+    await expect(core(page).locator('summary [data-unit-progress]')).toHaveText('1/3 sisältöä tehty');
+    await expect(page.locator('#valinta-rakenna-g-duurisointu [data-study-intro-status]')).toHaveText('✓ Tehty');
+    expect(await page.evaluate(() => (window as unknown as { __writes: number[] }).__writes)).toEqual([1, 1, 1]);
   });
 
   test('paluu aiemmasta sisällöstä avaa osion ja kohdistaa valittuun linkkiin', async ({ page }) => {

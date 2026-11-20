@@ -48,5 +48,8 @@ describe('Soinnut ja harmonia: oma oppimiskokonaisuus', () => {
     expect(topic.match(/data-study-total/g)).toHaveLength(1);
     expect(topic).toMatch(/<details class="study-unit study-unit--legacy" id="aiemmat">\n\s+<summary>[^\n]*data-study-total hidden><\/span><\/summary>/);
     expect([...topic.matchAll(/class="study-choice study-choice--unit" id="valinta-([^"]+)"/g)].map(([, slug]) => slug)).toEqual(unitPages);
+    // Uusien korttien tila käyttää PR #111:n johdannon merkintää: näkyy, mutta ei kuulu aiheen laskuriin.
+    expect([...topic.matchAll(/data-study-intro-status="([^"]+)"/g)].map(([, id]) => id)).toEqual(unitIds);
+    expect(topic).toMatch(/<details class="study-unit" id="miten-sointu-muodostuu" open>\n\s+<summary>[^\n]*data-unit-progress hidden><\/span><\/summary>/);
   });
 });

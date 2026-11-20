@@ -431,13 +431,15 @@ def unit(anchor, title, size, body, *, number=None, opened=False, kind='', progr
 
 
 def unit_choice(page, index):
-    """Oman kokonaisuuden kortti. Ei data-study-status-merkintää, joten aiheen laskuri
-    (assets/edistyminen.js) laskee edelleen vain aiemmat sisällöt."""
+    """Oman kokonaisuuden kortti. Tila on data-study-intro-status-merkinnässä (sama kuin PR #111:n
+    numeroimattomassa johdannossa: näkyy, mutta ei kuulu aiheen laskuriin), ei data-study-status-
+    merkinnässä, joten aiheen laskuri (assets/edistyminen.js) laskee edelleen vain aiemmat sisällöt."""
     slug = Path(page.path).stem
+    status = f'<span data-study-intro-status="{page.study_id}" class="study-status" hidden></span>'
     return (f'<a class="study-choice study-choice--unit" id="valinta-{slug}" href="{posixpath.basename(page.path)}">'
             f'<span class="study-number" aria-hidden="true">{index:02}</span>'
             f'<strong class="study-title">{escape(page.title)}</strong>'
-            f'<span class="study-choice-details"><span class="study-description">{escape(page.goal)}</span></span>'
+            f'<span class="study-choice-details"><span class="study-description">{escape(page.goal)}</span>{status}</span>'
             '<span class="study-arrow" aria-hidden="true">→</span></a>')
 
 
@@ -477,8 +479,10 @@ def units_home(topic, lookup, exercise_descriptions):
         if order == 0:
             body.append('<p class="study-start">Aloita tästä</p>')
         body.append(unit_choices(links))
+        # Kokonaisuuden oma laskuri (assets/kokonaisuudet.js) lukee vain tämän kokonaisuuden korttien tilat.
+        progress = '<span class="study-status study-unit-progress" data-unit-progress hidden></span>'
         units.append(unit(group['id'], group['title'], len(links), '\n'.join(body),
-                          number=group['number'], opened=group.get('open', False)))
+                          number=group['number'], opened=group.get('open', False), progress=progress))
     if legacy:
         info = topic['legacy']
         sections = [f'<p class="study-unit-goal">{escape(info["intro"])}</p>']

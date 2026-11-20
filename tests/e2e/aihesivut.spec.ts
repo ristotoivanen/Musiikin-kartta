@@ -380,7 +380,7 @@ for (const width of [320, 390, 768, 1024, 1440]) {
           const style = getComputedStyle(card);
           const parts = ['.study-number', '.study-title', '.study-description', '.study-arrow']
             .map(selector => card.querySelector(selector)!);
-          const status = card.querySelector('[data-study-status]');
+          const status = card.querySelector('[data-study-status], [data-study-intro-status]');
           const textFits = parts.every(part => {
             const range = document.createRange();
             range.selectNodeContents(part);
@@ -392,7 +392,6 @@ for (const width of [320, 390, 768, 1024, 1440]) {
           // korkeus ja sisäinen sijoittelu yhtenäistetään saman luettelon sisällä.
           const list = card.closest('.study-units') ? [...document.querySelectorAll('.study-units ol')].indexOf(card.closest('ol')!) : 0;
           return {
-            unit: card.classList.contains('study-choice--unit'),
             list,
             size: [rect.width, rect.height],
             offsets: parts.flatMap(part => {
@@ -411,9 +410,8 @@ for (const width of [320, 390, 768, 1024, 1440]) {
         expect(boxes.some(box => box.title.startsWith('Harjoitus · ')), context).toBe(true);
         for (const box of boxes) {
           const first = boxes.find(other => other.list === box.list)!;
-          // Oman kokonaisuuden korteilla ei ole aiheen laskuriin kuuluvaa tilariviä (#116).
-          expect(box.status, context).toBe(box.unit ? undefined : 'Tekemättä');
-          if (!box.unit) expect(box.statusTop!, context).toBeCloseTo(first.statusTop!, 0);
+          expect(box.status, context).toBe('Tekemättä');
+          expect(box.statusTop!, context).toBeCloseTo(first.statusTop!, 0);
           expect(box.description, context).not.toBe('');
           expect(box.size[1], context).toBeGreaterThanOrEqual(44);
           expect(box.size[0], context).toBeCloseTo(boxes[0].size[0], 0);

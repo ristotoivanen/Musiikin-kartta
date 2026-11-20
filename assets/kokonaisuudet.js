@@ -3,7 +3,7 @@
 // Suora linkki (#kokonaisuus tai #valinta-<sivu>), selaimen paluu sisältösivulta ja tulostus avaavat
 // sisällön sisältävän osion. assets/oppimiskartta.js kohdistaa paluun jälkeen valittuun linkkiin
 // requestAnimationFrame-kutsulla; tämä tiedosto avaa osion sitä ennen samassa pageshow-tapahtumassa.
-// Ei lue eikä kirjoita suoritusmerkintöjä.
+// Suoritusmerkintöjä luetaan vain oman kokonaisuuden etenemistietoa varten; niitä ei kirjoiteta.
 (() => {
   const units = document.querySelectorAll('details.study-unit');
   if (!units.length) return;
@@ -27,6 +27,52 @@
   window.addEventListener('pageshow', event => {
     if (event.persisted || navigation?.type === 'back_forward') openId(history.state?.returnTopic ?? '');
   });
+
+  // Oman kokonaisuuden etenemistieto (#116, vaihe B). Lukee vain nykyiset suoritusmerkinnät
+  // (assets/edistyminen.js, avain musiikin-kartta:luvut) eikä kirjoita niitä. Korttien tila on
+  // data-study-intro-status-merkinnässä kuten PR #111:n johdannossa: se näkyy, mutta aiheen laskuri
+  // ja etusivun kortti laskevat edelleen vain aiemmat sisällöt (data-study-status).
+  // Yksi kirjoittaja kullekin tilariville: edistyminen.js ajetaan ennen tätä tiedostoa. Jos se jo
+  // näytti korttien tilat (PR #111:n data-study-intro-status-tuki), tämä tiedosto ei kirjoita niitä
+  // uudelleen vaan päivittää vain kokonaisuuden laskurin. Ilman sitä tuki on tässä tiedostossa.
+  const READING_KEY = 'musiikin-kartta:luvut';
+  const progressUnits = [...units].filter(unit => unit.querySelector('[data-unit-progress]'));
+  const cardRows = progressUnits.flatMap(unit => [...unit.querySelectorAll('[data-study-intro-status]')]);
+  const engineShowsRows = cardRows.length > 0 && cardRows.every(row => !row.hidden);
+  function marks() {
+    try {
+      const list = JSON.parse(localStorage.getItem(READING_KEY) ?? '[]');
+      return new Set(Array.isArray(list) ? list.filter(value => typeof value === 'string') : []);
+    } catch {
+      return new Set();
+    }
+  }
+  function showProgress() {
+    const done = marks();
+    for (const unit of progressUnits) {
+      const rows = [...unit.querySelectorAll('[data-study-intro-status]')];
+      let count = 0;
+      for (const row of rows) {
+        const marked = done.has(row.dataset.studyIntroStatus);
+        if (marked) count++;
+        if (engineShowsRows) continue;
+        row.textContent = marked ? '✓ Tehty' : 'Tekemättä';
+        row.classList.toggle('is-done', marked);
+        row.hidden = false;
+      }
+      const total = unit.querySelector('[data-unit-progress]');
+      total.textContent = `${count}/${rows.length} sisältöä tehty`;
+      total.classList.toggle('is-done', rows.length > 0 && count === rows.length);
+      total.hidden = false;
+    }
+  }
+  if (progressUnits.length) {
+    showProgress();
+    window.addEventListener('pageshow', event => { if (event.persisted) showProgress(); });
+    window.addEventListener('storage', event => {
+      if (event.key === READING_KEY || event.key === null) showProgress();
+    });
+  }
 
   let closed = [];
   window.addEventListener('beforeprint', () => {
