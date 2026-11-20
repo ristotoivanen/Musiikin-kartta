@@ -96,7 +96,7 @@ async function run(name) {
       gain: prepared.manifest.referenceGain,
       startAt,
       onEnd: () => {
-        if (active === request) stop('Koe päättyi.');
+        if (name !== 'm2' && active === request) stop('Koe päättyi.');
       },
     });
     if (backingBuffer) {
@@ -104,6 +104,9 @@ async function run(name) {
       request.backing.buffer = backingBuffer;
       request.backing.connect(ctx.destination);
       request.backing.start(startAt);
+      request.backing.onended = () => {
+        if (active === request) stop('Koe päättyi.');
+      };
     }
     details.textContent = `${prepared.samples.size} näytettä · ${prepared.stats.bytes} B · purku ${Math.round(prepared.stats.decodeMs)} ms · ${prepared.stats.cacheHits} muistista`;
     status.textContent = 'Toistetaan Meta Steel -äänillä.';
