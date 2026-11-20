@@ -89,6 +89,11 @@ leveydellä noin 38 px lisää tilaa. 1200 px:n vertailumitta pysyi 605 px:ssa. 
 18 kohdennettua yksikkötestiä ja 12 selaintestiä, mukaan lukien 200 % tekstillä
 320/375/390/768/1200 px:n näkymät. Mobiilikuvakaappaus on päivitetty.
 
+Kun avataan toinen harjoituskortti, näkymä vierittää avatun kortin otsikkoon edellisen
+kortin sulkeuduttua. Kohdennettu selaintesti varmisti otsikon sijainnin ja äänen pysäytyksen
+sekä työpöytä- että puhelinprojektissa. Lint, tyyppitarkistus, 18 kohdennettua yksikkötestiä
+ja 12 selaintestiä läpäistiin.
+
 ### Ääninäytteet
 
 Käytössä on 16 oikean teräskielisen kitaran kielinäytettä, joista 6 tulee #133:sta ja 10

@@ -561,6 +561,10 @@ test.describe('Ydinopinnot v0.5', () => {
     const unit = page.locator('#ydinopinnot');
     const cards = unit.locator('.study-inline');
     const header = (index: number) => cards.nth(index).locator(':scope > summary');
+    const distanceFromTop = (index: number) => header(index).evaluate(element => {
+      const margin = parseFloat(getComputedStyle(element).scrollMarginTop);
+      return Math.abs(element.getBoundingClientRect().top - margin);
+    });
     await unit.locator(':scope > summary').click();
     if (isMobile) await header(0).click();
     else {
@@ -573,6 +577,7 @@ test.describe('Ydinopinnot v0.5', () => {
     await expect(cards.nth(0).locator('[data-playing]')).toHaveCount(1);
     await header(1).click();
     await expect(cards.nth(0)).not.toHaveAttribute('open', '');
+    await expect.poll(() => distanceFromTop(1)).toBeLessThan(2);
     await expect(cards.nth(0).locator('[data-playing]')).toHaveCount(0);
     expect(await page.evaluate(() => window.__audioLog.some(entry => entry.type === 'stop' && entry.when <= entry.at + 0.026))).toBe(true);
 
@@ -587,8 +592,13 @@ test.describe('Ydinopinnot v0.5', () => {
     await expect(header(1).locator('[data-study-attempt-status]')).toHaveText('✓ Kokeiltu');
     await expect(earlier(page).locator('[data-study-total]')).toHaveText('0/18 aiemmista sisällöistä tehty');
 
-    await header(2).click();
+    if (isMobile) await header(2).click();
+    else {
+      await header(2).focus();
+      await page.keyboard.press('Enter');
+    }
     await expect(cards.nth(1)).not.toHaveAttribute('open', '');
+    await expect.poll(() => distanceFromTop(2)).toBeLessThan(2);
     await cards.nth(2).getByRole('button', { name: 'Lopetus D' }).click();
     await cards.nth(2).getByRole('button', { name: /Kuuntele$/ }).click();
     await expect(cards.nth(2).locator('[aria-current="step"]')).toBeVisible();

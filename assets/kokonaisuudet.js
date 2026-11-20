@@ -28,6 +28,19 @@
     if (event.persisted || navigation?.type === 'back_forward') openId(history.state?.returnTopic ?? '');
   });
 
+  for (const list of document.querySelectorAll('.study-inline-choices')) {
+    list.addEventListener('click', event => {
+      if (!(event.target instanceof Element)) return;
+      const heading = event.target.closest('.study-inline > summary');
+      if (!heading || heading.parentElement.open || !list.querySelector('.study-inline[open]')) return;
+
+      // Selain sulkee edellisen details-kortin ennen seuraavaa piirtoa. Vieritä vasta uuden korkeuden mukaan.
+      requestAnimationFrame(() => {
+        if (heading.parentElement.open) heading.scrollIntoView({ block: 'start', behavior: 'instant' });
+      });
+    });
+  }
+
   // Oman kokonaisuuden etenemistieto (#116, vaihe B). Lukee vain nykyiset suoritusmerkinnät
   // (assets/edistyminen.js, avain musiikin-kartta:luvut) eikä kirjoita niitä. Korttien tila on
   // data-study-intro-status-merkinnässä kuten PR #111:n johdannossa: se näkyy, mutta aiheen laskuri
