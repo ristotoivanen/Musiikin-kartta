@@ -224,6 +224,8 @@ test.describe('Oppimiskartan navigointi ja paluu', () => {
     const rhythm = page.locator('#aihe-rytmi');
     await rhythm.click();
     const lesson = page.locator('#valinta-pulssi-ja-komppi');
+    // Aiemmat sisällöt ovat oletuksena suljetun osion alla (#116, Rytmin Ydinopinnot).
+    await page.locator('details#aiemmat > summary').click();
     await lesson.click();
     await page.getByRole('button', { name: 'Merkitse luku tehdyksi' }).click();
     await page.goBack();
