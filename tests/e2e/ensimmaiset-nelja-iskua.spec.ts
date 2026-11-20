@@ -139,20 +139,23 @@ test('M1 soittaa pulssin ilman näytteitä, ja pysäytys sekä uudelleenkäynnis
   expect(external).toEqual([]);
 });
 
-test('M2 toistaa mallibassotaustan kerran ja M3 bassottoman taustan silmukkana', async ({ page }) => {
+test('M2 toistaa B-säestyksen ja 16 E2-malli-iskua, M3 saman taustan ilman mallikitaraa silmukkana', async ({ page }) => {
   const { external, audio } = await open(page);
   await modeButton(page, 'M2').click();
   await start(page).click();
-  await expect(message(page)).toHaveText('Musiikki soi: kuuntele mallibassoa.');
+  await expect(message(page)).toHaveText('Musiikki soi: kuuntele mallikitaraa.');
   let buffers = (await events(page)).filter(e => e.kind === 'buffer');
-  expect(buffers).toHaveLength(1);
+  expect(buffers).toHaveLength(17);
   expect(buffers[0].loop).toBe(false);
+  expect(buffers.slice(1).every(b => b.dur === 2)).toBe(true);
+  const baseM2=buffers[0].when;
+  buffers.slice(1).forEach((b,i)=>expect(near(b.when,baseM2+(4+Math.floor(i/4)*8+i%4)*beat)).toBe(true));
   expect(buffers[0].dur).toBeCloseTo(30.4, 3);
-  expect(audio).toEqual([audioDir + 'em-komppi-a-m2-mallibasso.wav 200']);
+  expect(audio).toEqual([audioDir + 'em-komppi-b-m3-hillitty-basso.wav 200',audioDir + 'e2-freepats-fsbs-clean-bridge-alku-2s.wav 200']);
   await expect(page.locator('#phase')).toHaveText(/Lähtölasku · [1-4]\/4|Soita/, { timeout: 4000 });
 
   await modeButton(page, 'M3').click();
-  await expect(message(page)).toHaveText('Musiikki soi: kuuntele mallibassoa.');
+  await expect(message(page)).toHaveText('Musiikki soi: kuuntele mallikitaraa.');
   await expect(page.locator('#phase')).toHaveText('Lähtölasku');
   await clearEvents(page);
   await start(page).click();
@@ -162,7 +165,7 @@ test('M2 toistaa mallibassotaustan kerran ja M3 bassottoman taustan silmukkana',
   expect(buffers[0].loop).toBe(true);
   expect(buffers[0].loopStart).toBeCloseTo(4 * beat, 9);
   expect(buffers[0].loopEnd).toBeCloseTo(36 * beat, 9);
-  expect(audio).toEqual([audioDir + 'em-komppi-a-m2-mallibasso.wav 200', audioDir + 'em-komppi-b-m3-hillitty-basso.wav 200']);
+  expect(audio).toEqual([audioDir + 'em-komppi-b-m3-hillitty-basso.wav 200',audioDir + 'e2-freepats-fsbs-clean-bridge-alku-2s.wav 200']);
 
   await stopButton(page).click();
   await expect(message(page)).toHaveText('Pysäytetty');
@@ -424,7 +427,7 @@ test('aloitusohje, harjoitusnimet ja tehtävänannot ovat selkokielisiä, ja vai
   await expect(group).not.toContainText(/\bM[0-3]\b/);
   expect(await group.getByRole('button').evaluateAll(buttons => buttons.map(b => (b as HTMLElement).dataset.mode))).toEqual(['M0', 'M1', 'M2', 'M3']);
   const tasks = {
-    M0: /Kuuntele ensin/, M1: /Soita itse pulssin mukana/, M2: /Kuuntele, miten mallibasso.*Tässä ei tarvitse soittaa/, M3: /Soita itse musiikin mukana\. Taustalla soi hiljainen basso, mutta se ei soita neljää iskuasi mallina\./,
+    M0: /Kuuntele ensin/, M1: /Soita itse pulssin mukana/, M2: /Kuuntele, miten kitara.*Tässä ei tarvitse soittaa/, M3: /Soita itse musiikin mukana\. Taustalla soi hiljainen basso, mutta se ei soita neljää iskuasi mallina\./,
   } as const;
   for (const mode of ['M0', 'M1', 'M2', 'M3'] as const) {
     await modeButton(page, mode).click();
