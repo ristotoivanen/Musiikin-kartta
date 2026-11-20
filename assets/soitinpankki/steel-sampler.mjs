@@ -43,20 +43,19 @@ export class SteelSampleBank {
     this.fetcher = fetcher;
     this.formats = formats;
     this.decoded = new Map();
-    this.manifestPromise = null;
+    this.loadedManifest = null;
   }
 
   async manifest(signal) {
-    if (!this.manifestPromise) {
-      this.manifestPromise = (async () => {
-        const response = await this.fetcher(this.manifestUrl, { signal });
-        if (!response.ok) throw new Error(`Ääniluettelo: HTTP ${response.status}`);
-        const data = await response.json();
-        if (data.schema !== 'musiikin-kartta-instrument-bank-v1') throw new Error('Virheellinen ääniluettelo.');
-        return data;
-      })().catch(error => { this.manifestPromise = null; throw error; });
-    }
-    return this.manifestPromise;
+    if (this.loadedManifest) return this.loadedManifest;
+    // Ei jaeta keskeneräistä, AbortSignal-sidonnaista hakua eri toistopyyntöjen kesken.
+    const response = await this.fetcher(this.manifestUrl, { signal });
+    if (!response.ok) throw new Error(`Ääniluettelo: HTTP ${response.status}`);
+    const data = await response.json();
+    signal.throwIfAborted();
+    if (data.schema !== 'musiikin-kartta-instrument-bank-v1') throw new Error('Virheellinen ääniluettelo.');
+    this.loadedManifest = data;
+    return data;
   }
 
   async prepare(events, { signal = new AbortController().signal } = {}) {
