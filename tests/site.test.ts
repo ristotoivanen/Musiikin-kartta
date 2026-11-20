@@ -140,7 +140,8 @@ describe('staattisen sivuston yhteensopivuus',()=>{
     const allIds = new Set<string>();
     const map = read('index.html');
     for (const topic of topics) {
-      const items = studyFiles.filter(file => file.startsWith('oppi/' + topic + '/') && !file.endsWith('/index.html'));
+      // Oman oppimiskokonaisuuden (#116) oppitunnit eivät kuulu aiheen laskuriin: tests/oppimiskartta-kokonaisuudet.test.ts.
+      const items = studyFiles.filter(file => file.startsWith('oppi/' + topic + '/') && !file.endsWith('/index.html') && !read(file).includes('data-study-unit='));
       const topicIds = new Set<string>();
       for (const file of items) {
         const html = read(file);

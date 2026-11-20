@@ -180,13 +180,17 @@
     setupCompletion(entries, refresh);
   }
 
+  // Rytmin Ydinopinnoissa (#116, v0.9) oma kuittaus on sanamuodoltaan "kokeiltu" (main[data-study-mark]).
+  // Merkintä tallentuu samaan joukkoon omalla tunnisteellaan; se ei muuta vanhojen merkintöjen
+  // merkitystä eikä ole osaamistesti.
   function setupCompletion(entries, afterRefresh) {
     function refresh() {
       const done = load();
       for (const { id, kind, button } of entries) {
         const on = done.has(id);
         button.setAttribute('aria-pressed', String(on));
-        button.textContent = on ? '✓ ' + kind[0].toUpperCase() + kind.slice(1) + ' tehty' : 'Merkitse ' + kind + ' tehdyksi';
+        if (button.closest('[data-study-mark]')?.dataset.studyMark === 'kokeiltu') button.textContent = on ? '✓ Kokeiltu' : 'Merkitse kokeilluksi';
+        else button.textContent = on ? '✓ ' + kind[0].toUpperCase() + kind.slice(1) + ' tehty' : 'Merkitse ' + kind + ' tehdyksi';
       }
       afterRefresh?.(done);
     }

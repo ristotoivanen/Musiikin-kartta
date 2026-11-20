@@ -8,7 +8,6 @@
     function focusEntry(id) {
       const link = document.getElementById(id);
       if (!link?.matches('.topic-card, .study-choice')) return;
-      openParents(link);
       link.focus({ preventScroll: true });
       link.scrollIntoView({ block: 'nearest' });
     }
@@ -29,36 +28,6 @@
         history.replaceState({ ...history.state, returnTopic }, '');
       });
     }
-  }
-
-  // Aihesivun avattavat oppimiskokonaisuudet (details.study-unit, #116): paluu tai suora linkki
-  // sisältöön tai kokonaisuuteen avaa sen sisältävät osiot. Tulosteessa kaikki ovat auki.
-  function openParents(element) {
-    for (let node = element; node; node = node.parentElement?.closest('details')) {
-      if (node.matches('details')) node.open = true;
-    }
-  }
-  const units = document.querySelectorAll('.study-unit');
-  if (units.length) {
-    const openTarget = () => {
-      let id = location.hash.slice(1);
-      try { id = decodeURIComponent(id); } catch { /* käytetään sellaisenaan */ }
-      const target = id && document.getElementById(id);
-      if (!target) return;
-      openParents(target);
-      target.scrollIntoView({ block: 'start' });
-    };
-    openTarget();
-    window.addEventListener('hashchange', openTarget);
-    let closed = [];
-    window.addEventListener('beforeprint', () => {
-      closed = [...units].filter(details => !details.open);
-      closed.forEach(details => { details.open = true; });
-    });
-    window.addEventListener('afterprint', () => {
-      closed.forEach(details => { details.open = false; });
-      closed = [];
-    });
   }
 
   // Ääni ei jää taustalle selaimen sivuvälimuistista palattaessa.
