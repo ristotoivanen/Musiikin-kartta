@@ -293,3 +293,23 @@ for (const size of [{ width: 375, height: 667 }, { width: 320, height: 568 }]) {
     await stopButton(page).click();
   });
 }
+
+test('iOS:n interrupted-tila pysäyttää toiston neutraalilla viestillä, ja uusi käynnistys toimii', async ({ page }) => {
+  await open(page);
+  await page.getByRole('button', { name: /M3/ }).click();
+  await start(page).click();
+  await expect(message(page)).toContainText('M3-tausta soi');
+  // Safari ilmoittaa sovelluksen vaihdossa ja puhelussa tilan "interrupted" (Chromium ei tue tilaa, joten se simuloidaan).
+  await page.evaluate(() => {
+    const ac = (window as unknown as { __ac: AudioContext }).__ac;
+    Object.defineProperty(ac, 'state', { configurable: true, get: () => 'interrupted' });
+    ac.onstatechange?.(new Event('statechange'));
+  });
+  await expect(message(page)).toContainText('Pysäytetty, koska laite keskeytti äänen');
+  await expect(message(page)).not.toHaveClass(/virhe/);
+  await expect(page.locator('#phase')).toHaveText('Lähtölasku');
+  await page.evaluate(() => { delete (window as unknown as { __ac: { state?: string } }).__ac.state; });
+  await start(page).click();
+  await expect(message(page)).toContainText('M3-tausta soi');
+  await stopButton(page).click();
+});
