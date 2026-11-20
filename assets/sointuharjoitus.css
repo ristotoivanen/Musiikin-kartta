@@ -121,3 +121,13 @@
 .study-inline-body { padding: 0 clamp(.45rem, 2vw, .875rem) .875rem; min-width: 0; }
 .study-inline-body .done-row, .study-inline-link { margin-block: .75rem 0; }
 .study-inline-link a { display: inline-flex; align-items: center; min-height: 44px; }
+
+@media (max-width: 600px) {
+  .study-unit-body:has(> .study-inline-choices) { padding-inline: .25rem; }
+  .study-unit-body:has(> .study-inline-choices) > :is(.study-unit-goal, .study-start) {
+    margin-inline: .5rem;
+  }
+  .study-inline-body { padding-inline: .125rem; }
+  .study-inline-body > :is(.practice, .note) { padding-inline: .625rem; }
+  .study-inline-body > :is(.sointu-lahde, .done-row, .study-inline-link) { margin-inline: .5rem; }
+}

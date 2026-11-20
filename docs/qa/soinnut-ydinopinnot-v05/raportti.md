@@ -83,6 +83,12 @@ tyyppitarkistuksen ja buildin. Generaattoritarkistus ja linkkitarkistus läpäis
 yhteentoiminnan sekä 320/375/390/768/1200 pikselin näkymät 200 prosentin tekstillä myös
 avatuissa korteissa. Uusimman selaintestin ja HTTPS-kokeen tulos on PR-kuvauksessa.
 
+Mobiilissa avattujen korttien sivusisennyksiä kavennettiin enintään 600 px:n näkymissä.
+E/Em-harjoituksen tekstialue sai Chromiumissa 390 px:n leveydellä noin 40 px ja 320 px:n
+leveydellä noin 38 px lisää tilaa. 1200 px:n vertailumitta pysyi 605 px:ssa. Läpäisty:
+18 kohdennettua yksikkötestiä ja 12 selaintestiä, mukaan lukien 200 % tekstillä
+320/375/390/768/1200 px:n näkymät. Mobiilikuvakaappaus on päivitetty.
+
 ### Ääninäytteet
 
 Käytössä on 16 oikean teräskielisen kitaran kielinäytettä, joista 6 tulee #133:sta ja 10
