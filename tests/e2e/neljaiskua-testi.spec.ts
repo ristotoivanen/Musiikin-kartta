@@ -1,0 +1,270 @@
+import { expect, test, type Page } from '@playwright/test';
+
+// MK-20261117-01: Ensimmäiset neljä iskua M0–M3 -testisivu. Testit ajetaan mykistettynä
+// (playwright.config.ts), joten ne todentavat ajastetut äänitapahtumat ja ladatut tiedostot,
+// eivät kuultavaa ääntä tai fyysisen puhelimen toistoa.
+const path = '/neljaiskua-testi.html';
+const audioDir = '/assets/audio/neljaiskua-testi/';
+const beat = 60 / 72;
+
+type Event = { kind: 'buffer' | 'osc' | 'ramp' | 'set' | 'stop'; when: number; value?: number; dur?: number; rate?: number; channels?: number; loop?: boolean; loopStart?: number; loopEnd?: number };
+
+async function open(page: Page) {
+  const external: string[] = [];
+  const audio: string[] = [];
+  await page.route(/^https?:\/\/(?!127\.0\.0\.1)/, route => { external.push(route.request().url()); return route.abort(); });
+  page.on('response', response => { if (response.url().includes(audioDir)) audio.push(new URL(response.url()).pathname + ' ' + response.status()); });
+  await page.addInitScript(() => {
+    const w = window as unknown as { __events: Event[]; __ac: AudioContext | null; AudioContext: typeof AudioContext };
+    w.__events = []; w.__ac = null;
+    const Base = window.AudioContext;
+    w.AudioContext = class extends Base { constructor(options?: AudioContextOptions) { super(options); w.__ac = this; } };
+    const bufferStart = AudioBufferSourceNode.prototype.start;
+    AudioBufferSourceNode.prototype.start = function (this: AudioBufferSourceNode, when = 0, ...rest: number[]) {
+      w.__events.push({ kind: 'buffer', when, dur: this.buffer?.duration, rate: this.buffer?.sampleRate, channels: this.buffer?.numberOfChannels, loop: this.loop, loopStart: this.loopStart, loopEnd: this.loopEnd });
+      return bufferStart.call(this, when, ...rest);
+    };
+    const bufferStop = AudioBufferSourceNode.prototype.stop;
+    AudioBufferSourceNode.prototype.stop = function (this: AudioBufferSourceNode, when = 0) {
+      w.__events.push({ kind: 'stop', when });
+      return bufferStop.call(this, when);
+    };
+    const scheduledStart = AudioScheduledSourceNode.prototype.start;
+    OscillatorNode.prototype.start = function (this: OscillatorNode, when = 0) {
+      w.__events.push({ kind: 'osc', when });
+      return scheduledStart.call(this, when);
+    };
+    const set = AudioParam.prototype.setValueAtTime;
+    AudioParam.prototype.setValueAtTime = function (this: AudioParam, value: number, when: number) {
+      w.__events.push({ kind: 'set', when, value });
+      return set.call(this, value, when);
+    };
+    const ramp = AudioParam.prototype.linearRampToValueAtTime;
+    AudioParam.prototype.linearRampToValueAtTime = function (this: AudioParam, value: number, when: number) {
+      w.__events.push({ kind: 'ramp', when, value });
+      return ramp.call(this, value, when);
+    };
+  });
+  await page.goto(path);
+  return { external, audio };
+}
+
+const events = (page: Page) => page.evaluate(() => (window as unknown as { __events: Event[] }).__events);
+const clearEvents = (page: Page) => page.evaluate(() => { (window as unknown as { __events: Event[] }).__events = []; });
+const now = (page: Page) => page.evaluate(() => (window as unknown as { __ac: AudioContext }).__ac.currentTime);
+const start = (page: Page) => page.getByRole('button', { name: '▶ Käynnistä' });
+const stopButton = (page: Page) => page.getByRole('button', { name: '■ Pysäytä' });
+const message = (page: Page) => page.locator('#message');
+// Naksujen sävelkorkeus asetetaan setValueAtTime-kutsulla: 960 Hz tahdin ykkönen, 760 Hz muut.
+const pitches = (all: Event[]) => all.filter(e => e.kind === 'set' && (e.value === 960 || e.value === 760)).map(e => e.value);
+const near = (a: number, b: number, eps = 1e-6) => Math.abs(a - b) < eps;
+
+test('M0 soittaa E2-näytteen neljästi kahdesti, vaimentaa 150 ms:ssa ja päättyy itsestään', async ({ page }) => {
+  test.setTimeout(60_000);
+  const { external, audio } = await open(page);
+  await expect(page.getByRole('heading', { level: 2, name: 'M0 · Kuuntele malli' })).toBeVisible();
+  // Opasteen tilat kirjataan jokaisesta muutoksesta, koska yksittäinen isku kestää vain 0,83 s.
+  await page.evaluate(() => {
+    const w = window as unknown as { __phases: string[] };
+    w.__phases = [];
+    const phase = document.getElementById('phase')!;
+    new MutationObserver(() => {
+      const state = phase.textContent + ' [' + [...document.querySelectorAll('.beat')].map(b => b.classList.contains('rest') ? 'R' : b.classList.contains('active') ? 'A' : '-').join('') + ']';
+      if (w.__phases[w.__phases.length - 1] !== state) w.__phases.push(state);
+    }).observe(document.getElementById('beats')!.parentElement!, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['class'] });
+  });
+  await start(page).click();
+  await expect(message(page)).toHaveText('Kuunnellaan mallia.');
+  await expect(message(page)).not.toHaveClass(/virhe/);
+  expect(audio).toEqual([audioDir + 'e2-freepats-fsbs-clean-bridge-alku-2s.wav 200']);
+
+  const all = await events(page);
+  const clicks = all.filter(e => e.kind === 'osc');
+  const samples = all.filter(e => e.kind === 'buffer');
+  expect(clicks).toHaveLength(20);
+  const base = clicks[0].when;
+  clicks.forEach((c, i) => expect(near(c.when, base + i * beat)).toBe(true));
+  expect(pitches(all)).toEqual(Array.from({ length: 20 }, (_, i) => (i % 4 === 0 ? 960 : 760)));
+  // Iskut 5–8 ja 13–16 (sisäänlaskun jälkeen kahden tahdin kierroksen ensimmäinen tahti).
+  expect(samples.map(s => Math.round((s.when - base) / beat))).toEqual([4, 5, 6, 7, 12, 13, 14, 15]);
+  // decodeAudioData muuntaa näytteen AudioContextin näytetaajuudelle; kesto ja kanavat säilyvät.
+  for (const s of samples) { expect(s.dur).toBeCloseTo(2, 3); expect([s.channels, s.loop]).toEqual([2, false]); }
+  // Vaimennus: jokainen ääni hiljenee nollaan 150 ms seuraavan iskun alun jälkeen.
+  const fades = all.filter(e => e.kind === 'ramp' && e.value === 0).map(e => e.when);
+  expect(fades).toHaveLength(8);
+  samples.forEach((s, i) => expect(near(fades[i], s.when + beat + 0.150)).toBe(true));
+
+  await expect(message(page)).toHaveText('Harjoitus päättyi.', { timeout: 20_000 });
+  const cell = (i: number, rest: boolean) => '[' + [0, 1, 2, 3].map(k => (k === i ? (rest ? 'R' : 'A') : '-')).join('') + ']';
+  const round = [0, 1, 2, 3].map(i => 'Soita E · ' + (i + 1) + '/4 ' + cell(i, false))
+    .concat(['VAIMENNA NYT · 1/4 ' + cell(0, true)], [1, 2, 3].map(i => 'Odota · ' + (i + 1) + '/4 ' + cell(i, true)));
+  // Käynnistys nollaa ensin opasteen (stop), sitten sisäänlasku, kaksi kierrosta ja nollaus lopussa.
+  const expected = ['Lähtölasku [----]'].concat([0, 1, 2, 3].map(i => 'Lähtölasku · ' + (i + 1) + '/4 ' + cell(i, false))).concat(round, round, ['Lähtölasku [----]']);
+  expect(await page.evaluate(() => (window as unknown as { __phases: string[] }).__phases)).toEqual(expected);
+  await expect(start(page)).toBeEnabled();
+  expect(external).toEqual([]);
+});
+
+test('M1 soittaa pulssin ilman näytteitä, ja pysäytys sekä uudelleenkäynnistys toimivat', async ({ page }) => {
+  const { external, audio } = await open(page);
+  await page.getByRole('button', { name: /M1/ }).click();
+  await start(page).click();
+  await expect(message(page)).toContainText('Metronomi käy');
+  await expect.poll(async () => (await events(page)).filter(e => e.kind === 'osc').length, { timeout: 5000 }).toBeGreaterThanOrEqual(5);
+  expect((await events(page)).some(e => e.kind === 'buffer')).toBe(false);
+  expect(audio).toEqual([]);
+
+  await stopButton(page).click();
+  await expect(message(page)).toHaveText('Pysäytetty');
+  await expect(page.locator('#phase')).toHaveText('Lähtölasku');
+  await expect(page.locator('.beat.active')).toHaveCount(0);
+  const stoppedAt = await now(page);
+  await clearEvents(page);
+  await page.waitForTimeout(1200);
+  expect(await events(page)).toEqual([]);
+
+  await start(page).click();
+  await expect(message(page)).toContainText('Metronomi käy');
+  await expect.poll(async () => (await events(page)).filter(e => e.kind === 'osc').length, { timeout: 5000 }).toBeGreaterThanOrEqual(1);
+  const again = await events(page);
+  expect(again.filter(e => e.kind === 'osc')[0].when).toBeGreaterThan(stoppedAt);
+  // Uusi käynnistys aloittaa korostetulla ykkösellä.
+  expect(pitches(again)[0]).toBe(960);
+  await stopButton(page).click();
+  expect(external).toEqual([]);
+});
+
+test('M2 toistaa mallibassotaustan kerran ja M3 bassottoman taustan silmukkana', async ({ page }) => {
+  const { external, audio } = await open(page);
+  await page.getByRole('button', { name: /M2/ }).click();
+  await start(page).click();
+  await expect(message(page)).toHaveText('M2-tausta soi: kuuntele mallibassoa.');
+  let buffers = (await events(page)).filter(e => e.kind === 'buffer');
+  expect(buffers).toHaveLength(1);
+  expect(buffers[0].loop).toBe(false);
+  expect(buffers[0].dur).toBeCloseTo(30.4, 3);
+  expect(audio).toEqual([audioDir + 'em-komppi-a-m2-mallibasso.wav 200']);
+  await expect(page.locator('#phase')).toHaveText(/Lähtölasku · [1-4]\/4|Soita E/, { timeout: 4000 });
+
+  await page.getByRole('button', { name: /M3/ }).click();
+  await expect(message(page)).toHaveText('M2-tausta soi: kuuntele mallibassoa.');
+  await expect(page.locator('#phase')).toHaveText('Lähtölasku');
+  await clearEvents(page);
+  await start(page).click();
+  await expect(message(page)).toHaveText('M3-tausta soi: soita mukana. Pysäytä, kun haluat.');
+  buffers = (await events(page)).filter(e => e.kind === 'buffer');
+  expect(buffers).toHaveLength(1);
+  expect(buffers[0].loop).toBe(true);
+  expect(buffers[0].loopStart).toBeCloseTo(4 * beat, 9);
+  expect(buffers[0].loopEnd).toBeCloseTo(36 * beat, 9);
+  expect(audio).toEqual([audioDir + 'em-komppi-a-m2-mallibasso.wav 200', audioDir + 'em-komppi-a-m3-ilman-mallibassoa.wav 200']);
+
+  await stopButton(page).click();
+  await expect(message(page)).toHaveText('Pysäytetty');
+  expect((await events(page)).filter(e => e.kind === 'stop').length).toBeGreaterThanOrEqual(1);
+  expect(external).toEqual([]);
+});
+
+test('epäonnistunut äänen lataus näyttää virheen ja uusi yritys toimii', async ({ page }) => {
+  await open(page);
+  await page.route('**/e2-freepats-fsbs-clean-bridge-alku-2s.wav', route => route.fulfill({ status: 404, body: 'puuttuu' }));
+  await start(page).click();
+  await expect(message(page)).toHaveClass(/virhe/);
+  await expect(message(page)).toContainText('Toisto ei käynnistynyt: E2-kitaranäyte ei latautunut (HTTP 404)');
+  await expect(start(page)).toBeEnabled();
+  expect((await events(page)).filter(e => e.kind === 'osc' || e.kind === 'buffer')).toEqual([]);
+
+  await page.unroute('**/e2-freepats-fsbs-clean-bridge-alku-2s.wav');
+  await page.route('**/em-komppi-a-m3-ilman-mallibassoa.wav', route => route.fulfill({ status: 200, contentType: 'audio/wav', body: 'ei ääntä' }));
+  await page.getByRole('button', { name: /M3/ }).click();
+  await start(page).click();
+  await expect(message(page)).toContainText('M3-tausta ei purkautunut ääneksi');
+  await expect(message(page)).toHaveClass(/virhe/);
+
+  await page.getByRole('button', { name: /M0/ }).click();
+  await start(page).click();
+  await expect(message(page)).toHaveText('Kuunnellaan mallia.');
+  await expect(message(page)).not.toHaveClass(/virhe/);
+  await stopButton(page).click();
+});
+
+test('sivun siirtyminen taustalle pysäyttää toiston eikä käynnistä sitä itsestään', async ({ page }) => {
+  await open(page);
+  await page.getByRole('button', { name: /M1/ }).click();
+  await start(page).click();
+  await expect(message(page)).toContainText('Metronomi käy');
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  await expect(message(page)).toHaveText('Pysäytetty, koska sivu siirtyi taustalle. Käynnistä uudelleen, kun palaat.');
+  await clearEvents(page);
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => false });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  await page.waitForTimeout(800);
+  expect(await events(page)).toEqual([]);
+  await expect(start(page)).toBeEnabled();
+});
+
+test('M3:n silmukka jatkuu iskuruudukossa saumakohdan yli (OfflineAudioContext)', async ({ page }) => {
+  await open(page);
+  const result = await page.evaluate(async ([dir, beatLength]) => {
+    const rate = 48000, countin = 4 * beatLength, music = 32 * beatLength, length = Math.ceil((countin + 2 * music + 1) * rate);
+    const ctx = new OfflineAudioContext(1, length, rate);
+    const data = await (await fetch(dir + 'em-komppi-a-m3-ilman-mallibassoa.wav')).arrayBuffer();
+    const buffer = await ctx.decodeAudioData(data);
+    const src = ctx.createBufferSource();
+    src.buffer = buffer; src.loop = true; src.loopStart = countin; src.loopEnd = countin + music;
+    src.connect(ctx.destination); src.start(0);
+    const out = (await ctx.startRendering()).getChannelData(0);
+    const rms = (a: number, b: number) => { let s = 0; for (let i = Math.round(a * rate); i < Math.round(b * rate); i++) s += out[i] ** 2; return Math.sqrt(s / ((b - a) * rate)); };
+    const onsets: number[] = [], before: number[] = [];
+    for (let k = 0; k < 64; k++) { const t = countin + k * beatLength; onsets.push(rms(t, t + 0.02)); before.push(rms(t - 0.03, t - 0.005)); }
+    // Saumakohdan jälkeinen sekunti on sama kuin ensimmäisen kierroksen alku.
+    let maxDiff = 0;
+    const seam = Math.round((countin + music) * rate), first = Math.round(countin * rate);
+    for (let i = 0; i < rate; i++) maxDiff = Math.max(maxDiff, Math.abs(out[seam + i] - out[first + i]));
+    return { onsets, before, maxDiff, seamGap: rms(countin + music - 0.6, countin + music) };
+  }, [audioDir, beat] as const);
+  result.onsets.forEach((v, k) => expect(v, 'isku ' + k).toBeGreaterThan(0.1));
+  result.before.forEach((v, k) => expect(v, 'ennen iskua ' + k).toBeLessThan(result.onsets[k] / 3));
+  expect(result.onsets[32]).toBeCloseTo(result.onsets[0], 2);
+  expect(result.maxDiff).toBeLessThan(0.01);
+});
+
+test('rytmiopaste vaihtuu äänikellon iskuissa M3:n silmukan yli', async ({ page }) => {
+  test.setTimeout(75_000);
+  await open(page);
+  await page.getByRole('button', { name: /M3/ }).click();
+  await page.evaluate(() => {
+    const w = window as unknown as { __beats: { i: number; t: number }[]; __ac: AudioContext };
+    w.__beats = [];
+    const cells = [...document.querySelectorAll('.beat')];
+    new MutationObserver(() => {
+      const i = cells.findIndex(c => c.classList.contains('active'));
+      const last = w.__beats[w.__beats.length - 1];
+      if (i >= 0 && (!last || last.i !== i)) w.__beats.push({ i, t: w.__ac.currentTime });
+    }).observe(document.getElementById('beats')!, { subtree: true, attributes: true, attributeFilter: ['class'] });
+  });
+  await start(page).click();
+  await expect(message(page)).toContainText('M3-tausta soi');
+  const base = (await events(page)).find(e => e.kind === 'buffer')!.when;
+  // Sauma on iskussa 36 (30,0 s); seurataan iskuun 41 asti.
+  const recorded = () => page.evaluate(() => (window as unknown as { __beats: { i: number; t: number }[] }).__beats);
+  await expect.poll(async () => (await recorded()).length, { timeout: 45_000, intervals: [500] }).toBeGreaterThanOrEqual(42);
+  await expect(page.locator('#reviewInfo')).toContainText(/Kierros [56] · tahti/);
+  const beats = await recorded();
+  await stopButton(page).click();
+  const lags = beats.map(b => {
+    const n = Math.round((b.t - base) / beat);
+    expect(((n % 4) + 4) % 4).toBe(b.i);
+    return b.t - (base + n * beat);
+  });
+  // Jokainen isku 0–41 näkyy kerran ja järjestyksessä myös saumakohdan (isku 36) yli.
+  expect(beats.slice(0, 42).map(b => Math.round((b.t - base) / beat))).toEqual(Array.from({ length: 42 }, (_, n) => n));
+  // Kuva ei vaihdu ennen ääntä, ja viive pysyy ajastimen (25 ms) ja raportoidun lähtöviiveen rajoissa.
+  for (const lag of lags) { expect(lag).toBeGreaterThanOrEqual(-0.002); expect(lag).toBeLessThan(0.12); }
+  test.info().annotations.push({ type: 'kuvan viive (ms)', description: `min ${Math.round(Math.min(...lags) * 1000)}, max ${Math.round(Math.max(...lags) * 1000)}, n=${lags.length}` });
+});
