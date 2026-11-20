@@ -140,7 +140,8 @@ describe('staattisen sivuston yhteensopivuus',()=>{
     const allIds = new Set<string>();
     const map = read('index.html');
     for (const topic of topics) {
-      const items = studyFiles.filter(file => file.startsWith('oppi/' + topic + '/') && !file.endsWith('/index.html'));
+      // Oman oppimiskokonaisuuden (#116) oppitunnit eivät kuulu aiheen laskuriin: tests/oppimiskartta-kokonaisuudet.test.ts.
+      const items = studyFiles.filter(file => file.startsWith('oppi/' + topic + '/') && !file.endsWith('/index.html') && !read(file).includes('data-study-unit='));
       const topicIds = new Set<string>();
       for (const file of items) {
         const html = read(file);
@@ -170,11 +171,10 @@ describe('staattisen sivuston yhteensopivuus',()=>{
       }
       expect(topicPage, topic).not.toContain('class="done-toggle"');
     }
-    // Oppitunnit: Kitaran perusteiden 4 ja Soinnut ja harmonia -aiheen 01 · Miten sointu muodostuu? -kokonaisuuden 3 (#116).
-    expect(byKind).toEqual({ luku: 28, harjoitus: 41, oppitunti: 7 });
+    expect(byKind).toEqual({ luku: 28, harjoitus: 41, oppitunti: 4 });
   });
 
-  it('kaikki 70 vanhaa sisältöosoitetta säilyvät ja uudet oppitunnit sijoittuvat vain Kitaran perusteisiin ja Sointujen 01-kokonaisuuteen', () => {
+  it('kaikki 70 vanhaa sisältöosoitetta säilyvät ja uudet oppitunnit sijoittuvat vain Kitaran perusteisiin', () => {
     const studyRoutes = (topic: string) => [...read(`oppi/${topic}/index.html`)
       .matchAll(/<a class="study-choice"[^>]* href="([^"]+)\.html"/g)].map(([, route]) => route);
     expect(Object.values(legacyStudyRoutes).flat()).toHaveLength(70);
@@ -183,9 +183,7 @@ describe('staattisen sivuston yhteensopivuus',()=>{
       expect(studyFiles).toContain(`oppi/kitara/${slug}.html`);
     }
     for (const [topic, routes] of Object.entries(legacyStudyRoutes)) {
-      // #116: Soinnut ja harmonia -aiheessa kolme uutta oppituntia ennen aiempia 18 sisältöä.
-      const added = topic === 'soinnut' ? ['kuule-mika-on-sointu', 'rakenna-g-duurisointu', 'kokeile-g-sointua-kitaralla'] : [];
-      if (topic !== 'kitara') expect(studyRoutes(topic), topic).toEqual([...added, ...routes]);
+      if (topic !== 'kitara') expect(studyRoutes(topic), topic).toEqual(routes);
       for (const route of routes) {
         expect(studyFiles, topic + '/' + route).toContain(`oppi/${topic}/${route}.html`);
       }

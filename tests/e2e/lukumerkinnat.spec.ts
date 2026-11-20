@@ -34,7 +34,8 @@ const topics = readdirSync(new URL('oppi/', site), { withFileTypes: true })
         const kind: Kind = chapter ? 'luku' : read(path).includes('data-oppisisalto=') ? 'harjoitus' : 'oppitunti';
         return { path: `/${path}`, slug, kind, id: chapter ?? `${kind}:${slug}` };
       });
-    return { path: `/${directory}index.html`, name, pages };
+    // Oman oppimiskokonaisuuden (#116) oppitunnit testataan erikseen (soinnut-kokonaisuudet.spec.ts).
+    return { path: `/${directory}index.html`, name, pages: pages.filter(({ path }) => !read(path.slice(1)).includes('data-study-unit=')) };
   });
 type Topic = typeof topics[number];
 type Item = Topic['pages'][number];
@@ -57,7 +58,7 @@ async function expectTopicMark(page: Page, topic: Topic, item: Item, done: boole
     return;
   }
   const marker = page.locator(`#valinta-${item.slug} [data-study-status]`);
-  // Avattavan kokonaisuuden (#116) sisältö näkyy, kun käyttäjä avaa osion.
+  // Aiemmat sisällöt ovat avattavan osion alla (#116); käyttäjä avaa osion nähdäkseen merkinnän.
   const unit = page.locator('details.study-unit', { has: page.locator(`#valinta-${item.slug}`) });
   if (await unit.count() && !(await unit.evaluate(details => (details as HTMLDetailsElement).open))) {
     await unit.locator('summary').click();
@@ -118,13 +119,12 @@ async function verifyCompletion(page: Page, topic: Topic, item: Item, isMobile: 
   if (isChapter) await expectBookMark(page, item.id, false);
 }
 
-test('kaikki 76 sisältösivua kuuluvat suoritusmerkintöjen testiin', () => {
+test('kaikki 73 sisältösivua kuuluvat suoritusmerkintöjen testiin', () => {
   const pages = topics.flatMap(topic => topic.pages);
   expect(topics).toHaveLength(8);
-  // 73 aiempaa + Soinnut ja harmonia -aiheen kolme uutta oppituntia (#116).
-  expect(pages).toHaveLength(76);
+  expect(pages).toHaveLength(73);
   expect(pages.filter(({ kind }) => kind === 'harjoitus')).toHaveLength(41);
-  expect(pages.filter(({ kind }) => kind === 'oppitunti')).toHaveLength(7);
+  expect(pages.filter(({ kind }) => kind === 'oppitunti')).toHaveLength(4);
   expect([...chapterIds.values()].sort()).toEqual([...bookRoutes.keys()].sort());
   expect(bookRoutes.size).toBe(28);
 });

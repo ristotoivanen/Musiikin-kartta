@@ -135,7 +135,8 @@ for (const [topicIndex, [anchor, slug, title, backName]] of topics.entries()) {
       await expect(page.locator('a[href="../../index.html#aihe-' + anchor + '"]')).toHaveCount(1);
       await expect(page.locator('a.study-back')).toBeVisible();
       await expect(page.getByRole('link', { name: 'Teoriaoppaan kaikki osat' })).toHaveAttribute('href', '../../book/index.html');
-      const choices = page.locator('a.study-choice');
+      // Aiheen etenemisjärjestys; oman oppimiskokonaisuuden (#116) järjestys testataan erikseen.
+      const choices = page.locator('a.study-choice:not(.study-choice--unit)');
       expect(await choices.count()).toBeGreaterThanOrEqual(2);
       items = await choices.evaluateAll(nodes => nodes.map(node => ({
         path: new URL((node as HTMLAnchorElement).href).pathname,
@@ -226,7 +227,7 @@ for (const [index, [, slug, title]] of topics.slice(0, -1).entries()) {
   const [nextAnchor, nextSlug, nextTitle] = topics[index + 1];
   test(title + ' · seuraava pääaihe avautuu ylhäältä ja alhaalta ilman suorituksia', async ({ page }) => {
     await page.goto('/oppi/' + slug + '/index.html');
-    const choices = page.locator('.study-choice');
+    const choices = page.locator('.study-choice:not(.study-choice--unit)');
     const total = await choices.count();
     const lastUrl = slug === 'kitara'
       ? guitarExercises.at(-1)!.path
@@ -391,6 +392,7 @@ for (const width of [320, 390, 768, 1024, 1440]) {
           // korkeus ja sisäinen sijoittelu yhtenäistetään saman luettelon sisällä.
           const list = card.closest('.study-units') ? [...document.querySelectorAll('.study-units ol')].indexOf(card.closest('ol')!) : 0;
           return {
+            unit: card.classList.contains('study-choice--unit'),
             list,
             size: [rect.width, rect.height],
             offsets: parts.flatMap(part => {
@@ -409,8 +411,9 @@ for (const width of [320, 390, 768, 1024, 1440]) {
         expect(boxes.some(box => box.title.startsWith('Harjoitus · ')), context).toBe(true);
         for (const box of boxes) {
           const first = boxes.find(other => other.list === box.list)!;
-          expect(box.status, context).toBe('Tekemättä');
-          expect(box.statusTop!, context).toBeCloseTo(first.statusTop!, 0);
+          // Oman kokonaisuuden korteilla ei ole aiheen laskuriin kuuluvaa tilariviä (#116).
+          expect(box.status, context).toBe(box.unit ? undefined : 'Tekemättä');
+          if (!box.unit) expect(box.statusTop!, context).toBeCloseTo(first.statusTop!, 0);
           expect(box.description, context).not.toBe('');
           expect(box.size[1], context).toBeGreaterThanOrEqual(44);
           expect(box.size[0], context).toBeCloseTo(boxes[0].size[0], 0);

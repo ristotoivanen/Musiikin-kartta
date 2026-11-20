@@ -131,8 +131,7 @@ test('kaikki teorialuvut tehnyt käyttäjä näkee säilyneet merkinnät ja kesk
     '1/3 sisältöä tehty',
     '6/14 sisältöä tehty',
     '3/8 sisältöä tehty',
-    // Soinnut ja harmonia: 18 aiempaa sisältöä + 3 uutta oppituntia (#116). Vanhat merkinnät eivät kata uusia.
-    '7/21 sisältöä tehty',
+    '7/18 sisältöä tehty',
     '3/7 sisältöä tehty',
     '6/14 sisältöä tehty',
   ]);

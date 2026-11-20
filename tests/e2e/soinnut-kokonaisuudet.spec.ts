@@ -43,7 +43,10 @@ test.describe('aihesivu', () => {
       await expect(core(page).getByRole('link', { name: new RegExp(title) })).toHaveAttribute('href', `${slug}.html`);
     }
     await expect(earlier(page)).not.toHaveAttribute('open', '');
-    await expect(earlier(page).locator('summary')).toHaveText('Aiemmat oppitunnit ja harjoitukset18 sisältöä');
+    await expect(earlier(page).locator('summary')).toHaveText(/^Aiemmat oppitunnit ja harjoitukset18 sisältöä/);
+    // Aiempien sisältöjen laskuri on osion otsikkorivillä; uusille oppitunneille ei ole laskuria eikä tilarivejä.
+    await expect(earlier(page).locator('summary [data-study-total]')).toHaveText('0/18 sisältöä tehty');
+    await expect(core(page).locator('[data-study-status]')).toHaveCount(0);
     const links = earlier(page).locator('.study-choice');
     await expect(links).toHaveCount(18);
     expect(await links.evaluateAll(all => all.map(a => a.getAttribute('href'))))
@@ -81,18 +84,32 @@ test.describe('aihesivu', () => {
   test('aiemmat suoritusmerkinnät näkyvät ennallaan, uusia ei merkitä niiden perusteella', async ({ page }) => {
     await page.goto(topicPath);
     const old = legacy.map(([, id]) => id);
+    await page.evaluate(([key, ids]) => localStorage.setItem(key, JSON.stringify(ids.slice(0, 7))), [readingKey, old] as const);
+    await page.reload();
+    await expect(earlier(page).locator('summary [data-study-total]')).toHaveText('7/18 sisältöä tehty');
+    await expect(earlier(page).locator('summary .study-unit-count')).toBeHidden();
     await page.evaluate(([key, ids]) => localStorage.setItem(key, JSON.stringify(ids)), [readingKey, old] as const);
     await page.reload();
     await earlier(page).locator('summary').click();
     for (const [slug] of legacy) {
       await expect(page.locator(`#valinta-${slug} .study-status`)).toHaveText('✓ Tehty');
     }
-    for (const [slug] of newLessons) {
-      await expect(page.locator(`#valinta-${slug} .study-status`)).toHaveText('Tekemättä');
-    }
-    await expect(page.locator('[data-study-total]')).toContainText('18');
-    await expect(page.locator('[data-study-total]')).toContainText('21');
+    // Sama merkitys kuin ennen: kaikki 18 aiempaa sisältöä tehty = aihe käyty läpi.
+    await expect(earlier(page).locator('summary [data-study-total]')).toHaveText('✓ Aihe käyty läpi');
+    await expect(core(page).locator('.study-status')).toHaveCount(0);
     expect(JSON.parse(await storage(page) ?? '[]')).toEqual(old);
+    await page.goto('/index.html#aihe-soinnut');
+    await expect(page.locator('#aihe-soinnut .topic-status')).toHaveText('✓ Aihe käyty läpi');
+  });
+
+  test('uuden oppitunnin merkintä tallentuu omaan tunnisteeseensa eikä muuta aiempien laskuria', async ({ page }) => {
+    await page.goto('/oppi/soinnut/kuule-mika-on-sointu.html');
+    await page.getByRole('button', { name: 'Merkitse oppitunti tehdyksi' }).click();
+    expect(JSON.parse(await storage(page) ?? '[]')).toEqual(['oppitunti:kuule-mika-on-sointu']);
+    await page.goto(topicPath);
+    await expect(earlier(page).locator('summary [data-study-total]')).toHaveText('0/18 sisältöä tehty');
+    await page.goto('/index.html#aihe-soinnut');
+    await expect(page.locator('#aihe-soinnut .topic-status')).toHaveText('0/18 sisältöä tehty');
   });
 
   test('paluu aiemmasta sisällöstä avaa osion ja kohdistaa valittuun linkkiin', async ({ page }) => {
@@ -123,7 +140,8 @@ test.describe('aihesivu', () => {
       await expect(page.locator('.study-up .study-back')).toHaveText('← Sointuihin ja harmoniaan');
     }
     await page.goto('/oppi/soinnut/harmoninen-kentta.html');
-    await expect(page.locator('.study-steps--top a[rel="prev"]')).toHaveAttribute('href', 'kokeile-g-sointua-kitaralla.html');
+    await expect(page.locator('.study-meta')).toHaveText('Oppitunti 01 / 18 Teoriaoppaan luku 6');
+    await expect(page.locator('.study-steps--top a[rel="prev"]')).toHaveCount(0);
     await expect(page.locator('.study-steps--top a[rel="next"]')).toHaveAttribute('href', 'kolme-sointua-g-duurista.html');
     await page.goto('/oppi/soinnut/ii-v-i-kahdessa-savellajissa.html');
     await expect(page.locator('.study-steps--top a[rel="next"]')).toHaveText(/Seuraava aihe: Asteikot ja moodit/);
@@ -137,7 +155,7 @@ test.describe('aihesivu', () => {
       await page.goto(`/oppi/soinnut/${slug}.html`);
       await expect(page.getByRole('heading', { level: 1, name: title })).toBeVisible();
       await expect(page.locator('main')).toHaveAttribute('data-study-item', `oppitunti:${slug}`);
-      await expect(page.locator('.study-meta')).toHaveText(`Oppitunti 0${index + 1} / 21`);
+      await expect(page.locator('.study-meta')).toHaveText(`Oppitunti 0${index + 1} / 03 01 · Miten sointu muodostuu?`);
       await expect(page.locator('.study-up .study-back')).toHaveAttribute('href', 'index.html');
     }
     await page.goto('/oppi/soinnut/kuule-mika-on-sointu.html');
@@ -146,6 +164,12 @@ test.describe('aihesivu', () => {
     await expect(page).toHaveURL(/rakenna-g-duurisointu\.html$/);
     await page.locator('.study-steps--top a[rel="next"]').click();
     await expect(page).toHaveURL(/kokeile-g-sointua-kitaralla\.html$/);
+    // Kokonaisuuden viimeisestä oppitunnista palataan aihesivulle, ei jatketa aiempiin sisältöihin.
+    await expect(page.locator('.study-steps a[rel="next"]')).toHaveCount(0);
+    await page.locator('.study-steps--bottom').getByRole('link', { name: 'Palaa aihesivulle: Soinnut ja harmonia' }).click();
+    await expect(page).toHaveURL(`${topicPath}#miten-sointu-muodostuu`);
+    await expect(core(page)).toHaveAttribute('open', '');
+    await expect(earlier(page)).not.toHaveAttribute('open', '');
   });
 });
 
