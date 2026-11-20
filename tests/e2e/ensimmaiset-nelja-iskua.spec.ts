@@ -58,8 +58,9 @@ const message = (page: Page) => page.locator('#message');
 // Naksujen sävelkorkeus asetetaan setValueAtTime-kutsulla: 960 Hz tahdin ykkönen, 760 Hz muut.
 const pitches = (all: Event[]) => all.filter(e => e.kind === 'set' && (e.value === 960 || e.value === 760)).map(e => e.value);
 // Harjoitusvalinnat näkyvät oppijalle selkokielisinä; M0–M3 ovat vain sisäisiä tunnuksia (data-mode).
-const modeNames = { M0: 'Kuuntele esimerkki', M1: 'Harjoittele itse', M2: 'Kuuntele musiikissa', M3: 'Soita musiikin mukana' } as const;
-const modeButton = (page: Page, mode: keyof typeof modeNames) => page.getByRole('button', { name: modeNames[mode], exact: true });
+const modeNames = { M0: 'Kuuntele esimerkki', M1: 'Soita harjoitus', M2: 'Kuuntele mallia musiikin mukana', M3: 'Soita musiikin mukana' } as const;
+// Vaihekortin saavutettava nimi: "<nimi>, vaihe n/4, Kuuntelu|Oma soitto".
+const modeButton = (page: Page, mode: keyof typeof modeNames) => page.getByRole('button', { name: new RegExp('^' + modeNames[mode] + ', vaihe') });
 const near = (a: number, b: number, eps = 1e-6) => Math.abs(a - b) < eps;
 
 test('M0 soittaa E2-näytteen neljästi kahdesti, vaimentaa 150 ms:ssa ja päättyy itsestään', async ({ page }) => {
@@ -286,6 +287,16 @@ for (const size of [{ width: 375, height: 667 }, { width: 320, height: 568 }]) {
       const fits = await tiles.nth(i).evaluate(el => [...el.children].every(c => c.scrollWidth <= c.clientWidth + 1));
       expect(fits, 'ruutu ' + i).toBe(true);
     }
+    // Vaihekortit ovat yhdessä sarakkeessa: sama vasen reuna, kuvake nimen vasemmalla ja vaihe oikealla; teksti ei leikkaudu.
+    const cards = page.locator('.modes .mode');
+    const lefts = await cards.evaluateAll(els => els.map(e => Math.round(e.getBoundingClientRect().left)));
+    expect(new Set(lefts).size).toBe(1);
+    for (let i = 0; i < 4; i++) {
+      const [icon, name, step] = await Promise.all(['.icon', '.name', '.step'].map(sel => cards.nth(i).locator(sel).boundingBox()));
+      expect(icon!.x + icon!.width).toBeLessThanOrEqual(name!.x);
+      expect(step!.x).toBeGreaterThanOrEqual(name!.x + name!.width - 1);
+      expect(await cards.nth(i).evaluate(el => [...el.querySelectorAll('.name,.step,.kind')].every(c => c.scrollWidth <= c.clientWidth + 1))).toBe(true);
+    }
     // Harjoitusvalinnat, Käynnistä/Pysäytä ja vaimennusavun otsikko ovat helposti painettavia.
     for (const target of [...await page.locator('.modes button').all(), start(page), stopButton(page)]) {
       expect((await target.boundingBox())!.height).toBeGreaterThanOrEqual(44);
@@ -397,7 +408,19 @@ test('aloitusohje, harjoitusnimet ja tehtävänannot ovat selkokielisiä, ja vai
   await open(page);
   await expect(page.locator('#ohje')).toHaveText('Soita paksua vapaata E-kieltä neljä kertaa tasaisessa rytmissä. Anna neljännen äänen soida seuraavan tahdin ykköseen asti. Vaimenna silloin ja jatka laskemista hiljaa.');
   const group = page.getByRole('group', { name: 'Valitse harjoitus' });
-  expect(await group.getByRole('button').allInnerTexts()).toEqual(Object.values(modeNames));
+  expect(await group.locator('.mode .name').allInnerTexts()).toEqual(Object.values(modeNames));
+  // Vaihekortit: korva = kuuntelu, kitara = oma soitto; vaihe 1/4–4/4; kuvakkeet piilotettu ruudunlukijalta.
+  const kinds = ['Kuuntelu', 'Oma soitto', 'Kuuntelu', 'Oma soitto'];
+  for (const [i, mode] of (['M0', 'M1', 'M2', 'M3'] as const).entries()) {
+    await expect(modeButton(page, mode)).toHaveAccessibleName(modeNames[mode] + ', vaihe ' + (i + 1) + '/4, ' + kinds[i]);
+  }
+  expect(await group.locator('.mode svg.icon').evaluateAll(icons => icons.map(i => i.getAttribute('aria-hidden') + ' ' + i.querySelector('use')!.getAttribute('href'))))
+    .toEqual(['true #i-kuuntele', 'true #i-soita', 'true #i-kuuntele', 'true #i-soita']);
+  for (const id of ['i-kuuntele', 'i-soita']) {
+    const box = await page.locator('.mode svg.icon').first().boundingBox();
+    expect(box!.width).toBe(20);
+    expect(await page.locator('symbol#' + id).count()).toBe(1);
+  }
   await expect(group).not.toContainText(/\bM[0-3]\b/);
   expect(await group.getByRole('button').evaluateAll(buttons => buttons.map(b => (b as HTMLElement).dataset.mode))).toEqual(['M0', 'M1', 'M2', 'M3']);
   const tasks = {

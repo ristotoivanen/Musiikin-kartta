@@ -50,7 +50,7 @@ describe('Ensimmäiset neljä iskua -testisivu', () => {
     expect(page).toContain("for(let i=0;i<20;i++)");
     expect(page).toContain("(mode==='M0'&&n>=20)||(mode==='M2'&&n>=36)");
     expect(page).toContain("src.loop=true;src.loopStart=countin;src.loopEnd=countin+musicLength;");
-    for (const label of ['Kuuntele esimerkki', 'Harjoittele itse', 'Kuuntele musiikissa', 'Soita musiikin mukana', 'Anna soida', 'Vaimenna nyt', 'Odota']) {
+    for (const label of ['Kuuntele esimerkki', 'Soita harjoitus', 'Kuuntele mallia musiikin mukana', 'Soita musiikin mukana', 'Kuuntelu', 'Oma soitto', '1/4', '4/4', 'Anna soida', 'Vaimenna nyt', 'Odota']) {
       expect(page).toContain(label);
     }
   });
