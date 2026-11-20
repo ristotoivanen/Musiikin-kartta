@@ -70,7 +70,7 @@ it('Ydinopinnot on ensimmäinen ja kokeilut eivät sekoitu G-pilotin tai aiempie
   const topic = read('oppi/soinnut/index.html');
   const slugs = ['kuule-ja-kokoa-sointu', 'yksi-savel-muuttaa-sointua', 'mihin-kappale-haluaa-palata'];
   const attempts = slugs.map(slug => 'harjoitus:' + slug);
-  expect(topic).toMatch(/<div class="study-units">\s+<details class="study-unit" id="ydinopinnot" open>/);
+  expect(topic).toMatch(/<div class="study-units">\s+<details class="study-unit" id="ydinopinnot">/);
   expect([...topic.matchAll(/data-study-attempt-status="([^"]+)"/g)].map(([, id]) => id)).toEqual(attempts);
   for (const [index, slug] of slugs.entries()) {
     const html = read('oppi/soinnut/' + slug + '.html');

@@ -500,14 +500,21 @@ test.describe('Ydinopinnot v0.5', () => {
   test('kolme korttia, suorat reitit, navigointi ja itsenäinen kokeiltu-merkintä', async ({ page }) => {
     await page.goto(topicPath);
     const unit = page.locator('#ydinopinnot');
-    await expect(unit).toHaveAttribute('open', '');
+    const summary = unit.locator('summary');
+    await expect(unit).not.toHaveAttribute('open', '');
+    await expect(unit.locator('.study-choice').first()).toBeHidden();
+    await summary.click();
+    await expect(unit.locator('.study-choice').first()).toBeVisible();
+    await summary.click();
+    await expect(unit).not.toHaveAttribute('open', '');
     await expect(page.locator('.study-units > details').first()).toHaveId('ydinopinnot');
     await expect(core(page)).toBeHidden();
     await expect(earlier(page)).not.toHaveAttribute('open', '');
     await expect(unit.locator('[data-unit-progress]')).toHaveText('0/3 kokeiltu');
     expect(await storage(page)).toBeNull();
     await page.evaluate(key => localStorage.setItem(key, JSON.stringify(['oppitunti:kuule-mika-on-sointu', 'harmoninen-kentta'])), readingKey);
-    await page.reload();
+    await page.goto(topicPath + '#ydinopinnot');
+    await expect(unit).toHaveAttribute('open', '');
     for (const [index, [slug, title]] of ydinPages.entries()) {
       await expect(unit.getByRole('link', { name: new RegExp(title) })).toHaveAttribute('href', slug + '.html');
       await page.goto(ydinPath(index));

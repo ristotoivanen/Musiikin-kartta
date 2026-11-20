@@ -129,6 +129,7 @@ for (const [topicIndex, [anchor, slug, title, backName]] of topics.entries()) {
     if (slug === 'kitara') {
       await expect(page.locator('.study-choice, [data-study-total]')).toHaveCount(0);
     } else {
+      if (slug === 'soinnut') await page.locator('#ydinopinnot > summary').click();
       await expect(page.getByText('Aloita tästä', { exact: true })).toBeVisible();
       await expect(back(page)).toHaveCount(1);
       await expect(exactBack(page, 'Oppimiskarttaan')).toHaveAttribute('href', '../../index.html#aihe-' + anchor);

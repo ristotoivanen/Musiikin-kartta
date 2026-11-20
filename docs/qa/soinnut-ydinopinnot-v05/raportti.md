@@ -8,6 +8,8 @@ Kolme liitteessä määriteltyä harjoitusta toteutettiin Musiikin kartan genera
 Aloitteleva oppija voi kuunnella säveliä erikseen ja yhdessä, vertailla E-duuria ja E-mollia
 sekä kuunnella kolmea erilaista lopetusta. Kokeiltu-merkintä tallentuu vain käyttäjän omasta
 painalluksesta ja sen voi perua. Kuuntelu, palaute ja merkintä eivät mittaa soittotaitoa.
+Ydinopinnot on aihesivulla oletuksena suljettu. Osion suora linkki ja harjoituksesta
+aihesivulle palaaminen avaavat sen.
 
 Katselmointihaara `codex/soinnut-ydinopinnot-v05` perustuu [Draft-PR #133:n](https://github.com/ristotoivanen/Musiikin-kartta/pull/133)
 tarkistettuun päätasoon `25712ed4655bbf54824ce6d9086f76f4ce55c1f3`.
@@ -63,6 +65,13 @@ puhelimen Chromium-emulaatio suorittavat äänitestit ilman kaiutinlähtöä.
 Lähde- ja diffirajaus: kolmen harjoituksen sisältöfragmentit ja niistä generoidut sivut,
 Sointujen nykyinen näytetoistin, kokeiltu-merkintä, 20 uutta AAC/OGG-tiedostoa ja testit.
 81 HTML-tiedostossa ainoa muutos on yhteisen etenemisskriptin välimuistiversio.
+
+Oletusnäkymän muutoksessa ajettiin lint, tyyppitarkistus, generaattori, linkkitarkistus sekä
+kohdennetut yksikkötestit (`tests/oppimiskartta-kokonaisuudet.test.ts`, `tests/site.test.ts`,
+18 läpäisty). Sointujen ja aihesivujen Playwright-ajo (`tests/e2e/soinnut-kokonaisuudet.spec.ts`
+ja `tests/e2e/aihesivut.spec.ts`, 4 työntekijää) antoi 141 läpäistyä ja yhden puhelinprojektissa
+ohitetun näppäimistötestin. Selainajo tarkisti oletustilan, avaamisen ja sulkemisen, suoran linkin
+sekä paluun harjoituksesta.
 
 ### Ääninäytteet
 
@@ -147,5 +156,5 @@ npm run build
 python3 tools/playwright-server.py
 ```
 
-Avaa [http://127.0.0.1:8765/oppi/soinnut/index.html#ydinopinnot](http://127.0.0.1:8765/oppi/soinnut/index.html#ydinopinnot).
+Avaa [http://127.0.0.1:8765/oppi/soinnut/index.html](http://127.0.0.1:8765/oppi/soinnut/index.html).
 Verkon Pages-testeissä tarkistetaan lisäksi kaikki neljä katselmointireittiä ja AAC/OGG-runkovastaukset.
