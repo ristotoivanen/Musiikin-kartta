@@ -33,6 +33,8 @@
     <p>Valitse omalta laitteeltasi M3:n hyväksytty B-tausta WAV-tiedostona. Taustaa ei julkaista eikä kopioida tähän PR:ään. Mallikitara soittaa neljä E2-iskua neljästi 72 BPM:ssä ja on hiljaa taukotahdeissa.</p>
     <label for="backing">Paikallinen M3 B -tausta (WAV)</label>
     <input id="backing" type="file" accept="audio/wav,.wav">
+    <p><label for="model-gain">Mallikitaran suhteellinen voimakkuus</label> <output id="gain-value">1,0 ×</output></p>
+    <input id="model-gain" type="range" min="0.5" max="2.5" step="0.1" value="1">
     <div class="actions"><button id="m2">Kuuntele M2:n mallikitara ja tausta</button></div>
     <small>Odotettu rakenne: neljän iskun sisäänlasku + 32 iskua musiikkia, 72 BPM. Valitse vain hyväksytty versio.</small>
   </section>
