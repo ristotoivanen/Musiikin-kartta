@@ -120,4 +120,31 @@ describe('#132 Meta Steel -kirjastopilotin rajapinta', () => {
     controller.abort();
     await expect(bank.prepare(scores.e2, { signal: controller.signal })).rejects.toThrow();
   });
+  it('uusi toisto ei peri keskeytynyttä manifestin latauspyyntöä', async () => {
+    const context = fakeContext();
+    let manifestRequests = 0;
+    const fetcher = async (url, { signal } = {}) => {
+      if (String(url).endsWith('.json')) {
+        manifestRequests++;
+        if (manifestRequests === 1) {
+          await new Promise((_, reject) => {
+            signal.addEventListener('abort', () => reject(new Error('Edellinen pyyntö peruttu.')), { once: true });
+          });
+        }
+        return { ok: true, json: async () => manifest };
+      }
+      return { ok: true, arrayBuffer: async () => new Uint8Array([1, 2, 3]).buffer };
+    };
+    const bank = new SteelSampleBank(context, 'https://example.invalid/assets/soitinpankki/meta-steel-v1.json',
+      { fetcher, formats: ['ogg', 'm4a'] });
+    const controller = new AbortController();
+    const first = bank.prepare(scores.e2, { signal: controller.signal });
+    const rejected = expect(first).rejects.toThrow('Edellinen pyyntö peruttu.');
+    controller.abort();
+    await rejected;
+    const second = await bank.prepare(scores.e2);
+    expect(second.samples.size).toBe(1);
+    expect(manifestRequests).toBe(2);
+  });
+
 });
