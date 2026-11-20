@@ -241,20 +241,6 @@ def lesson_pages(topic, item, books, excerpts):
     return [page, *tasks]
 
 
-def apply_marks(topics):
-    """aiheet.json: erillisen oppitunnin "mark": "kokeiltu" vaihtaa vain merkintäpainikkeen sanamuodon."""
-    for topic in topics:
-        for group in topic['groups']:
-            for item in group['lessons']:
-                if 'mark' not in item:
-                    continue
-                if item['mark'] not in MARKS or 'standalone' not in item:
-                    raise ValueError(f'{topic["title"]}: merkintätapa {item["mark"]!r} sopii vain erilliselle oppitunnille')
-                path = target_path(topic, item['standalone'])
-                page, = (page for page in group['pages'] if page.path == path)
-                page.mark = item['mark']
-
-
 def index_targets(pages):
     """Vanhan kirjan ankkurista sen sisältävälle itsenäiselle sivulle."""
     targets = {}
@@ -793,6 +779,20 @@ def collect(config, books):
     if len({page.study_id for page in all_pages}) != len(all_pages):
         raise ValueError('Oppimiskartassa on päällekkäisiä suoritusmerkinnän tunnisteita')
     return all_pages
+
+
+def apply_marks(topics):
+    """aiheet.json: erillisen oppitunnin "mark": "kokeiltu" vaihtaa vain merkintäpainikkeen sanamuodon."""
+    for topic in topics:
+        for group in topic['groups']:
+            for item in group['lessons']:
+                if 'mark' not in item:
+                    continue
+                if item['mark'] not in MARKS or 'standalone' not in item:
+                    raise ValueError(f'{topic["title"]}: merkintätapa {item["mark"]!r} sopii vain erilliselle oppitunnille')
+                path = target_path(topic, item['standalone'])
+                page, = (page for page in group['pages'] if page.path == path)
+                page.mark = item['mark']
 
 
 def pages():
