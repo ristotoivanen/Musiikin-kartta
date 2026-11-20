@@ -424,7 +424,7 @@ test('aloitusohje, harjoitusnimet ja tehtävänannot ovat selkokielisiä, ja vai
   await expect(group).not.toContainText(/\bM[0-3]\b/);
   expect(await group.getByRole('button').evaluateAll(buttons => buttons.map(b => (b as HTMLElement).dataset.mode))).toEqual(['M0', 'M1', 'M2', 'M3']);
   const tasks = {
-    M0: /Kuuntele ensin/, M1: /Soita itse pulssin mukana/, M2: /Kuuntele, miten mallibasso.*Tässä ei tarvitse soittaa/, M3: /Soita itse musiikin mukana\. Mallibassoa ei ole/,
+    M0: /Kuuntele ensin/, M1: /Soita itse pulssin mukana/, M2: /Kuuntele, miten mallibasso.*Tässä ei tarvitse soittaa/, M3: /Soita itse musiikin mukana\. Taustalla soi hiljainen basso, mutta se ei soita neljää iskuasi mallina\./,
   } as const;
   for (const mode of ['M0', 'M1', 'M2', 'M3'] as const) {
     await modeButton(page, mode).click();
