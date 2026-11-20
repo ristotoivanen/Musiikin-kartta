@@ -170,10 +170,11 @@ describe('staattisen sivuston yhteensopivuus',()=>{
       }
       expect(topicPage, topic).not.toContain('class="done-toggle"');
     }
-    expect(byKind).toEqual({ luku: 28, harjoitus: 41, oppitunti: 4 });
+    // Oppitunnit: Kitaran perusteiden 4 ja Soinnut ja harmonia -aiheen 01 · Miten sointu muodostuu? -kokonaisuuden 3 (#116).
+    expect(byKind).toEqual({ luku: 28, harjoitus: 41, oppitunti: 7 });
   });
 
-  it('kaikki 70 vanhaa sisältöosoitetta säilyvät ja uudet oppitunnit sijoittuvat vain Kitaran perusteisiin', () => {
+  it('kaikki 70 vanhaa sisältöosoitetta säilyvät ja uudet oppitunnit sijoittuvat vain Kitaran perusteisiin ja Sointujen 01-kokonaisuuteen', () => {
     const studyRoutes = (topic: string) => [...read(`oppi/${topic}/index.html`)
       .matchAll(/<a class="study-choice"[^>]* href="([^"]+)\.html"/g)].map(([, route]) => route);
     expect(Object.values(legacyStudyRoutes).flat()).toHaveLength(70);
@@ -182,7 +183,9 @@ describe('staattisen sivuston yhteensopivuus',()=>{
       expect(studyFiles).toContain(`oppi/kitara/${slug}.html`);
     }
     for (const [topic, routes] of Object.entries(legacyStudyRoutes)) {
-      if (topic !== 'kitara') expect(studyRoutes(topic), topic).toEqual(routes);
+      // #116: Soinnut ja harmonia -aiheessa kolme uutta oppituntia ennen aiempia 18 sisältöä.
+      const added = topic === 'soinnut' ? ['kuule-mika-on-sointu', 'rakenna-g-duurisointu', 'kokeile-g-sointua-kitaralla'] : [];
+      if (topic !== 'kitara') expect(studyRoutes(topic), topic).toEqual([...added, ...routes]);
       for (const route of routes) {
         expect(studyFiles, topic + '/' + route).toContain(`oppi/${topic}/${route}.html`);
       }
