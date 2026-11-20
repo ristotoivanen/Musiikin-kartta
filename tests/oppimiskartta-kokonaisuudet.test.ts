@@ -39,6 +39,18 @@ describe('Soinnut ja harmonia: oma oppimiskokonaisuus', () => {
     expect(path.some(id => unitIds.includes(id))).toBe(false);
   });
 
+  it('aiempien sisältöjen oma laskuriteksti on vain Soinnut-aiheen kolmessa laskurissa', () => {
+    const attrs = 'data-progress-count="aiemmista sisällöistä tehty" data-progress-done="✓ Aiemmat sisällöt tehty"';
+    expect(read('index.html').match(/data-progress-count=/g)).toHaveLength(1);
+    expect(read('index.html')).toMatch(new RegExp(`id="aihe-soinnut"[^]*?<span class="topic-status" ${attrs} hidden>`));
+    expect(read('oppi/soinnut/index.html')).toContain(`data-study-total ${attrs} hidden`);
+    expect(read('oppi/soinnut/ii-v-i-kahdessa-savellajissa.html').match(new RegExp(`data-boundary-progress( aria-live="polite")? ${attrs} hidden`, 'g'))).toHaveLength(2);
+    // Muut sivut eivät saa tekstimäärittelyä.
+    for (const file of ['oppi/rytmi/index.html', 'oppi/asteikot/index.html', 'oppi/soinnut/harmoninen-kentta.html']) {
+      expect(read(file), file).not.toContain('data-progress-');
+    }
+  });
+
   it('aihesivun laskuri ja korttien tilat kattavat vain aiemmat sisällöt', () => {
     const topic = read('oppi/soinnut/index.html');
     const statuses = [...topic.matchAll(/data-study-status="([^"]+)"/g)].map(([, id]) => id);
@@ -46,7 +58,7 @@ describe('Soinnut ja harmonia: oma oppimiskokonaisuus', () => {
     expect(statuses.some(id => unitIds.includes(id))).toBe(false);
     // Laskuri on Aiemmat oppitunnit ja harjoitukset -osion otsikkorivillä, ei koko aiheen yläpuolella.
     expect(topic.match(/data-study-total/g)).toHaveLength(1);
-    expect(topic).toMatch(/<details class="study-unit study-unit--legacy" id="aiemmat">\n\s+<summary>[^\n]*data-study-total hidden><\/span><\/summary>/);
+    expect(topic).toMatch(/<details class="study-unit study-unit--legacy" id="aiemmat">\n\s+<summary>[^\n]*data-study-total[^>]*hidden><\/span><\/summary>/);
     expect([...topic.matchAll(/class="study-choice study-choice--unit" id="valinta-([^"]+)"/g)].map(([, slug]) => slug)).toEqual(unitPages);
     // Uusien korttien tila käyttää PR #111:n johdannon merkintää: näkyy, mutta ei kuulu aiheen laskuriin.
     expect([...topic.matchAll(/data-study-intro-status="([^"]+)"/g)].map(([, id]) => id)).toEqual(unitIds);

@@ -45,7 +45,7 @@ test.describe('aihesivu', () => {
     await expect(earlier(page)).not.toHaveAttribute('open', '');
     await expect(earlier(page).locator('summary')).toHaveText(/^Aiemmat oppitunnit ja harjoitukset18 sisältöä/);
     // Kummallakin kokonaisuudella on oma laskurinsa otsikkorivillä; uusia ei lasketa aiempiin.
-    await expect(earlier(page).locator('summary [data-study-total]')).toHaveText('0/18 sisältöä tehty');
+    await expect(earlier(page).locator('summary [data-study-total]')).toHaveText('0/18 aiemmista sisällöistä tehty');
     await expect(core(page).locator('summary [data-unit-progress]')).toHaveText('0/3 sisältöä tehty');
     await expect(core(page).locator('summary .study-unit-count')).toBeHidden();
     await expect(core(page).locator('[data-study-status]')).toHaveCount(0);
@@ -89,7 +89,7 @@ test.describe('aihesivu', () => {
     const old = legacy.map(([, id]) => id);
     await page.evaluate(([key, ids]) => localStorage.setItem(key, JSON.stringify(ids.slice(0, 7))), [readingKey, old] as const);
     await page.reload();
-    await expect(earlier(page).locator('summary [data-study-total]')).toHaveText('7/18 sisältöä tehty');
+    await expect(earlier(page).locator('summary [data-study-total]')).toHaveText('7/18 aiemmista sisällöistä tehty');
     await expect(earlier(page).locator('summary .study-unit-count')).toBeHidden();
     await page.evaluate(([key, ids]) => localStorage.setItem(key, JSON.stringify(ids)), [readingKey, old] as const);
     await page.reload();
@@ -97,14 +97,14 @@ test.describe('aihesivu', () => {
     for (const [slug] of legacy) {
       await expect(page.locator(`#valinta-${slug} .study-status`)).toHaveText('✓ Tehty');
     }
-    // Sama merkitys kuin ennen: kaikki 18 aiempaa sisältöä tehty = aihe käyty läpi.
-    await expect(earlier(page).locator('summary [data-study-total]')).toHaveText('✓ Aihe käyty läpi');
+    // Sama laskenta kuin ennen (18/18), mutta teksti ei väitä koko aihetta suoritetuksi.
+    await expect(earlier(page).locator('summary [data-study-total]')).toHaveText('✓ Aiemmat sisällöt tehty');
     // Vanhat merkinnät eivät kuittaa uusia harjoituksia.
     await expect(core(page).locator('summary [data-unit-progress]')).toHaveText('0/3 sisältöä tehty');
     await expect(core(page).locator('[data-study-intro-status]')).toHaveText(['Tekemättä', 'Tekemättä', 'Tekemättä']);
     expect(JSON.parse(await storage(page) ?? '[]')).toEqual(old);
     await page.goto('/index.html#aihe-soinnut');
-    await expect(page.locator('#aihe-soinnut .topic-status')).toHaveText('✓ Aihe käyty läpi');
+    await expect(page.locator('#aihe-soinnut .topic-status')).toHaveText('✓ Aiemmat sisällöt tehty');
   });
 
   test('uuden oppitunnin merkintä tallentuu omaan tunnisteeseensa eikä muuta aiempien laskuria', async ({ page }) => {
@@ -115,9 +115,9 @@ test.describe('aihesivu', () => {
     await expect(core(page).locator('summary [data-unit-progress]')).toHaveText('1/3 sisältöä tehty');
     await expect(page.locator('#valinta-kuule-mika-on-sointu [data-study-intro-status]')).toHaveText('✓ Tehty');
     await expect(page.locator('#valinta-rakenna-g-duurisointu [data-study-intro-status]')).toHaveText('Tekemättä');
-    await expect(earlier(page).locator('summary [data-study-total]')).toHaveText('0/18 sisältöä tehty');
+    await expect(earlier(page).locator('summary [data-study-total]')).toHaveText('0/18 aiemmista sisällöistä tehty');
     await page.goto('/index.html#aihe-soinnut');
-    await expect(page.locator('#aihe-soinnut .topic-status')).toHaveText('0/18 sisältöä tehty');
+    await expect(page.locator('#aihe-soinnut .topic-status')).toHaveText('0/18 aiemmista sisällöistä tehty');
   });
 
   test('kaikki kolme uutta tehtyinä: kokonaisuus valmis, aiemmat ennallaan, toisen välilehden muutos päivittyy', async ({ page, context }) => {
@@ -127,7 +127,7 @@ test.describe('aihesivu', () => {
     await page.reload();
     await expect(core(page).locator('summary [data-unit-progress]')).toHaveText('3/3 sisältöä tehty');
     await expect(core(page).locator('summary [data-unit-progress]')).toHaveClass(/is-done/);
-    await expect(earlier(page).locator('summary [data-study-total]')).toHaveText('0/18 sisältöä tehty');
+    await expect(earlier(page).locator('summary [data-study-total]')).toHaveText('0/18 aiemmista sisällöistä tehty');
     const other = await context.newPage();
     await other.goto('/oppi/soinnut/kuule-mika-on-sointu.html');
     await other.getByRole('button', { name: '✓ Oppitunti tehty' }).click();
@@ -427,4 +427,57 @@ test.describe('pienet näytöt ja suurennettu teksti', () => {
       }
     });
   }
+});
+
+test.describe('aiempien sisältöjen tilateksti (progress_text)', () => {
+  const allOld = legacy.map(([, id]) => id);
+  const notWhole = /Aihe käyty läpi/;
+
+  test('kaikki 18 aiempaa tehty, uusia ei: etusivu, Aiemmat-osio ja vanhan sarjan viimeinen sivu', async ({ page }) => {
+    await page.goto('/index.html');
+    await page.evaluate(([key, ids]) => localStorage.setItem(key, JSON.stringify(ids)), [readingKey, allOld] as const);
+
+    // Etusivu: laskuri kertoo kuvaavansa aiempia sisältöjä, ja sama teksti on linkin saavutettavassa nimessä.
+    await page.goto('/index.html#aihe-soinnut');
+    const card = page.locator('#aihe-soinnut');
+    await expect(card.locator('.topic-status')).toHaveText('✓ Aiemmat sisällöt tehty');
+    await expect(card).toHaveAccessibleName(/✓ Aiemmat sisällöt tehty/);
+    await expect(card).not.toHaveAccessibleName(notWhole);
+    // Muiden aiheiden oletusteksti säilyy.
+    await expect(page.locator('#aihe-rytmi .topic-status')).toHaveText('0/4 sisältöä tehty');
+
+    // Aihesivu: Aiemmat-osion otsikossa sama teksti, uusi kokonaisuus 0/3 ja kortit tekemättä.
+    await page.goto(topicPath);
+    await expect(earlier(page).locator('summary [data-study-total]')).toHaveText('✓ Aiemmat sisällöt tehty');
+    await expect(earlier(page).locator('summary')).toHaveAccessibleName(/^Aiemmat oppitunnit ja harjoitukset.*✓ Aiemmat sisällöt tehty$/);
+    await expect(core(page).locator('summary [data-unit-progress]')).toHaveText('0/3 sisältöä tehty');
+    await expect(core(page).locator('summary')).toHaveAccessibleName(/0\/3 sisältöä tehty$/);
+    await expect(core(page).locator('[data-study-intro-status]')).toHaveText(['Tekemättä', 'Tekemättä', 'Tekemättä']);
+    await expect(page.getByText(notWhole)).toHaveCount(0);
+
+    // Vanhan sarjan viimeinen sivu: ylä- ja alareunan tila samalla tekstillä, alareunan tila ilmoitetaan (aria-live).
+    await page.goto('/oppi/soinnut/ii-v-i-kahdessa-savellajissa.html');
+    const boundary = page.locator('[data-boundary-progress]');
+    await expect(boundary).toHaveText(['✓ Aiemmat sisällöt tehty', '✓ Aiemmat sisällöt tehty']);
+    await expect(boundary.nth(1)).toHaveAttribute('aria-live', 'polite');
+    await expect(page.getByText(notWhole)).toHaveCount(0);
+    await expect(page.locator('.study-steps--top a[rel="next"]')).toHaveText(/Seuraava aihe: Asteikot ja moodit/);
+
+    // Laskenta ja tallenne ennallaan.
+    expect(JSON.parse(await storage(page) ?? '[]')).toEqual(allOld);
+  });
+
+  test('osittain tehty: x/18 aiemmista sisällöistä kaikissa kolmessa kohdassa', async ({ page }) => {
+    await page.goto('/index.html');
+    await page.evaluate(([key, ids]) => localStorage.setItem(key, JSON.stringify(ids)), [readingKey, allOld.slice(0, 17)] as const);
+    await page.goto('/index.html#aihe-soinnut');
+    await expect(page.locator('#aihe-soinnut .topic-status')).toHaveText('17/18 aiemmista sisällöistä tehty');
+    await page.goto(topicPath);
+    await expect(earlier(page).locator('summary [data-study-total]')).toHaveText('17/18 aiemmista sisällöistä tehty');
+    await page.goto('/oppi/soinnut/ii-v-i-kahdessa-savellajissa.html');
+    await expect(page.locator('[data-boundary-progress]')).toHaveText(['17/18 aiemmista sisällöistä tehty', '17/18 aiemmista sisällöistä tehty']);
+    // Viimeisen sisällön merkitseminen päivittää tilan heti samalla sivulla.
+    await page.getByRole('button', { name: 'Merkitse harjoitus tehdyksi' }).click();
+    await expect(page.locator('[data-boundary-progress]')).toHaveText(['✓ Aiemmat sisällöt tehty', '✓ Aiemmat sisällöt tehty']);
+  });
 });

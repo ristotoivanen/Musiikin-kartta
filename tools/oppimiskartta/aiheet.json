@@ -89,6 +89,7 @@
       "summary": "Sointujen rakenne, tehtävät ja otteet.",
       "lead": "Kuule, miten yksittäisistä sävelistä syntyy sointu. Rakenna sitten G-duurisointu ja kokeile sitä oikealla kitaralla.",
       "layout": "kokonaisuudet",
+      "progress_text": {"count": "aiemmista sisällöistä tehty", "done": "✓ Aiemmat sisällöt tehty"},
       "legacy": {
         "id": "aiemmat",
         "title": "Aiemmat oppitunnit ja harjoitukset",
