@@ -8,7 +8,7 @@ permissions:
 jobs:
   targeted:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -16,6 +16,20 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
-      - name: Diagnostic measurements
-        run: npx playwright test tests/e2e/intervallimuisti-143-diagnostic.spec.ts --workers=2 --reporter=line
+      - name: Static checks, unit tests and build
+        run: npm run check
+      - name: Generated lesson and links
+        run: |
+          python3 tools/oppimiskartta/rakenna.py --tarkista
+          node tools/versioi-tyylit.mjs --tarkista
+          python3 tools/linkit/tarkista-linkit.py
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Intervallimuisti browser regressions, Chromium and WebKit
+        run: npx playwright test tests/e2e/intervallimuisti.spec.ts --config=playwright.intervallimuisti-143.config.ts --workers=4 --reporter=line
+      - name: Upload failure traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: intervallimuisti-143-failure
+          path: test-results/
+          if-no-files-found: ignore
