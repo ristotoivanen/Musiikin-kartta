@@ -164,6 +164,7 @@ test.describe('Oppimiskartan navigointi ja paluu', () => {
   test('opetussivun päävalikosta pääsee koko Oppimiskarttaan', async ({ page }) => {
     await page.goto('/index.html#aihe-soinnut');
     await page.locator('#aihe-soinnut').click();
+    await page.locator('#aiemmat > summary').click();
     await page.locator('#valinta-septimisoinnut').click();
     await expect(page).toHaveURL('/oppi/soinnut/septimisoinnut.html');
     await mainNav(page).getByRole('link', { name: 'Opi & oivalla' }).click();
@@ -330,7 +331,7 @@ test.describe('Oppimiskartan navigointi ja paluu', () => {
               const box = part.getBoundingClientRect();
               return [box.left - rect.left, box.top - rect.top];
             }),
-            numberBackground: getComputedStyle(number).backgroundColor,
+            iconBoxBackground: getComputedStyle(card.querySelector('.topic-icon-box')!).backgroundColor,
             textFits: rows.every(Boolean),
           };
         }));
@@ -342,7 +343,7 @@ test.describe('Oppimiskartan navigointi ja paluu', () => {
           expect(box.left).toBeCloseTo(boxes[0].left, 0);
           if (index > 0) expect(box.top).toBeGreaterThanOrEqual(boxes[index - 1].bottom);
           box.offsets.forEach((value, position) => expect(value).toBeCloseTo(boxes[0].offsets[position], 0));
-          expect(box.numberBackground).not.toBe('rgba(0, 0, 0, 0)');
+          expect(box.iconBoxBackground).not.toBe('rgba(0, 0, 0, 0)');
           expect(box.textFits).toBe(true);
         }
       }

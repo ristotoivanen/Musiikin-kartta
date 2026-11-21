@@ -32,12 +32,14 @@ test.describe('aihesivu', () => {
     await expect(page.locator('details.study-unit')).toHaveCount(2);
     // Omistajan päätös 20.11.2026: Ydinopinnot on oletuksena suljettu.
     await expect(core(page)).not.toHaveAttribute('open', '');
-    await core(page).locator('summary').click();
+    await core(page).locator(':scope > summary').click();
     await expect(core(page)).toHaveAttribute('open', '');
-    await expect(core(page).locator('summary')).toContainText('Ydinopinnot');
-    await expect(core(page).locator('summary')).toContainText('3 sisältöä');
+    await expect(core(page).locator(':scope > summary')).toContainText('Ydinopinnot');
+    await expect(core(page).locator(':scope > summary')).toContainText('3 sisältöä');
     for (const [slug, title] of lessons) {
-      await expect(core(page).getByRole('link', { name: new RegExp(title) })).toHaveAttribute('href', `${slug}.html`);
+      const summary = page.locator(`#valinta-${slug}`);
+      await expect(summary).toContainText(title);
+      await expect(summary.locator('xpath=..').getByRole('link', { name: 'Avaa omalla sivullaan' })).toHaveAttribute('href', `${slug}.html`);
     }
     await expect(earlier(page)).not.toHaveAttribute('open', '');
     await expect(earlier(page).locator('summary')).toContainText('Aiemmat oppitunnit ja harjoitukset');
@@ -139,9 +141,10 @@ test.describe('aiempien sisältöjen laskuri (progress_text, sama kuin Soinnuiss
 test.describe('suljettu Ydinopinnot ja paluu', () => {
   test('paluu harjoituksesta avaa Ydinopinnot ja kohdistaa valittuun linkkiin', async ({ page }) => {
     await page.goto(topicPath);
-    await core(page).locator('summary').click();
+    await core(page).locator(':scope > summary').click();
     const lesson = page.locator('#valinta-hiljaisuus-kuuluu-rytmiin');
     await lesson.click();
+    await lesson.locator('xpath=..').getByRole('link', { name: 'Avaa omalla sivullaan' }).click();
     await expect(page).toHaveURL(/hiljaisuus-kuuluu-rytmiin/);
     await page.goBack();
     await expect(core(page)).toHaveAttribute('open', '');
@@ -150,10 +153,10 @@ test.describe('suljettu Ydinopinnot ja paluu', () => {
 
   test('viimeisen harjoituksen ”Palaa aihesivulle” avaa Ydinopinnot', async ({ page }) => {
     await page.goto(`/oppi/rytmi/${lessons[2][0]}.html`);
-    await page.locator('.study-steps--bottom').getByRole('link', { name: /Palaa aihesivulle: Rytmi/ }).click();
-    await expect(page).toHaveURL(/index\.html#ydinopinnot$/);
+    await page.locator('.study-up .study-back').click();
+    await expect(page).toHaveURL(/index\\.html#valinta-sama-musiikki-eri-tuntuma$/);
     await expect(core(page)).toHaveAttribute('open', '');
-    await expect(core(page).getByRole('link', { name: /Löydä pulssi ja ykkönen/ })).toBeVisible();
+    await expect(page.locator('#valinta-sama-musiikki-eri-tuntuma')).toBeVisible();
   });
 });
 
@@ -165,7 +168,7 @@ test.describe('harjoitussivut', () => {
       const summary = info(page).locator('summary');
       await expect(summary).toHaveAccessibleName(new RegExp(infoTitle));
       // Kuvake ilman näkyvää tekstiä, kortin oikeassa yläkulmassa.
-      await expect(summary.locator('.study-knoppi-merkki')).toHaveText('i');
+      await expect(summary.locator('.study-knoppi-merkki use')).toHaveAttribute('href', '../../assets/oppimisikonit.svg#extra-info');
       await expect(summary.locator('.study-sr')).toHaveCSS('width', '1px');
       const cardBox = (await card(page).boundingBox())!;
       const iconBox = (await summary.boundingBox())!;
@@ -319,7 +322,7 @@ test.describe('ilman JavaScriptiä', () => {
   test.use({ javaScriptEnabled: false });
   test('sisältö ja linkit löytyvät, toisto-ohjaimet piilossa', async ({ page }) => {
     await page.goto(topicPath);
-    await core(page).locator('summary').click();
+    await core(page).locator(':scope > summary').click();
     await expect(core(page).getByRole('link', { name: /Löydä pulssi ja ykkönen/ })).toBeVisible();
     await earlier(page).locator('summary').click();
     await expect(earlier(page).getByRole('link', { name: /Pulssi ja komppi/ })).toBeVisible();

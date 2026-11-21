@@ -67,6 +67,8 @@ for (const { topic, slug, id, old } of cases) {
 
 test('Oppimiskartan kahdeksan pääkorttia käyttävät 44 px SVG-symboleja', async ({ page }) => {
   await page.goto('/index.html');
+  const expand = page.locator('#topic-toggle');
+  if (await expand.isVisible()) await expand.click();
   const icons = page.locator('.topic-card .topic-icon');
   await expect(icons).toHaveCount(8);
   const sizes = await icons.evaluateAll(nodes => nodes.map(node => ({
