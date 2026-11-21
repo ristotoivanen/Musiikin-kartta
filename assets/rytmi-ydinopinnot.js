@@ -449,6 +449,11 @@ function setupExercise(root) {
   const stopHidden = () => { if (document.hidden) stop(); };
   document.addEventListener('visibilitychange', stopHidden);
   window.addEventListener('pagehide', () => stop());
+  // Aihesivun sisäinen oppitunti voi sulkeutua kesken soiton.
+  const inlineCard = root.closest('details.study-inline');
+  inlineCard?.addEventListener('toggle', () => {
+    if (!inlineCard.open) stop();
+  });
 
   setButton(false);
   if (reveal) drawReveal();
