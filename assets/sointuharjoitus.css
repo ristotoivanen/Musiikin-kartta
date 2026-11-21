@@ -89,13 +89,13 @@
  * alkaessa. Puhelimessa molemmat kuuntelupainikkeet pinoutuvat jo ennen Arvaa-
  * painallusta; leveämmässä näkymässä ne pysyvät rinnakkain kummassakin tilassa. */
 .sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-kysymys] {
-  min-block-size: 6rem;
+  min-block-size: 7.5rem;
 }
 .sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-kysymys].is-active {
   border-color: var(--accent);
   background: color-mix(in srgb, var(--accent) 10%, var(--panel));
 }
-.sointu-ydin[data-sointuharjoitus="arvaa"] [data-sointu-ohjaimet] > .sointu-toiminnot:first-of-type {
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-sointu-ohjaimet] > .sointu-toiminnot:not([data-arvaus-vastaus]) {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   justify-items: start;
