@@ -510,8 +510,10 @@ def units_home(topic, lookup, exercise_descriptions, targets):
     legacy = [group for group in groups if not own_unit(topic, group)]
     if not own or groups != own + legacy:
         raise ValueError(f'{topic["title"]}: omat kokonaisuudet ensin, aiemmat sisällöt niiden jälkeen')
+    topic_icon = rel('assets/oppimisikonit.svg', topic['path']) + '#topic-' + topic['slug']
     parts = [f'<p class="study-meta">Aihe {topic["number"]:02}</p>',
-             f'<h1>{escape(topic["title"])}</h1>', f'<p class="lead">{escape(topic["lead"])}</p>']
+             f'<h1 class="study-topic-title"><svg class="study-topic-small" aria-hidden="true" focusable="false"><use href="{topic_icon}"></use></svg>{escape(topic["title"])}</h1>',
+             f'<p class="lead">{escape(topic["lead"])}</p>']
     units = []
     for order, group in enumerate(own):
         links = [unit_choice(page, number, topic, targets) for number, page in enumerate(group['pages'], 1)]
