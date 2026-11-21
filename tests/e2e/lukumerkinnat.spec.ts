@@ -21,6 +21,14 @@ const labels = {
 } as const;
 type Kind = keyof typeof labels;
 
+// #116: Sointujen kolme erillistä Lisäopinnot-pilottisivua ovat yhä `Tehty`-merkittäviä,
+// mutta eivät kuulu `#aiemmat`-osion 18 sisältöön eikä sen laskuriin.
+// Oma soinnut-kokonaisuudet.spec.ts testaa niiden merkinnät, navigaation ja tallennuksen.
+const soinnutExtra = new Set([
+  'kuule-mika-on-sointu', 'rakenna-g-duurisointu', 'kokeile-g-sointua-kitaralla',
+]);
+
+
 const topics = readdirSync(new URL('oppi/', site), { withFileTypes: true })
   .filter(entry => entry.isDirectory())
   .map(({ name }) => {
@@ -34,9 +42,11 @@ const topics = readdirSync(new URL('oppi/', site), { withFileTypes: true })
         const kind: Kind = chapter ? 'luku' : read(path).includes('data-oppisisalto=') ? 'harjoitus' : 'oppitunti';
         return { path: `/${path}`, slug, kind, id: chapter ?? `${kind}:${slug}` };
       });
-    // Kokeiltu-ydinoppituntien omat sivut eivät kuulu vanhaan Tehty-laskuriin.
-    // Ne testataan erikseen Sointujen, Rytmin ja yhteisen UI:n testeissä.
-    return { path: `/${directory}index.html`, name, pages: pages.filter(({ path }) => !read(path.slice(1)).includes('data-study-mark="kokeiltu"')) };
+    // Tämä vanhan Tehty-laskurin regressiojoukko rajautuu aiempiin sisältöihin.
+    // Sekä Kokeiltu-ydinopinnot että 3 erillistä Sointujen Lisäopinnot-sivua testataan muissa sviiteissä.
+    return { path: `/${directory}index.html`, name, pages: pages.filter(({ path, slug }) =>
+      !read(path.slice(1)).includes('data-study-mark="kokeiltu"') &&
+      !(name === 'soinnut' && soinnutExtra.has(slug))) };
   });
 type Topic = typeof topics[number];
 type Item = Topic['pages'][number];
