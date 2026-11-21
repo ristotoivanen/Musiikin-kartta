@@ -34,8 +34,9 @@ const topics = readdirSync(new URL('oppi/', site), { withFileTypes: true })
         const kind: Kind = chapter ? 'luku' : read(path).includes('data-oppisisalto=') ? 'harjoitus' : 'oppitunti';
         return { path: `/${path}`, slug, kind, id: chapter ?? `${kind}:${slug}` };
       });
-    // Oman oppimiskokonaisuuden (#116) oppitunnit testataan erikseen (soinnut-kokonaisuudet.spec.ts).
-    return { path: `/${directory}index.html`, name, pages: pages.filter(({ path }) => !read(path.slice(1)).includes('data-study-unit=')) };
+    // Kokeiltu-ydinoppituntien omat sivut eivät kuulu vanhaan Tehty-laskuriin.
+    // Ne testataan erikseen Sointujen, Rytmin ja yhteisen UI:n testeissä.
+    return { path: `/${directory}index.html`, name, pages: pages.filter(({ path }) => !read(path.slice(1)).includes('data-study-mark="kokeiltu"')) };
   });
 type Topic = typeof topics[number];
 type Item = Topic['pages'][number];
@@ -67,7 +68,7 @@ async function expectTopicMark(page: Page, topic: Topic, item: Item, done: boole
   await expect(marker).toHaveText(done ? '✓ Tehty' : 'Tekemättä');
   await expect(page.locator('[data-study-total]')).toHaveText(
     // Rytmi: laskuri kattaa vain aiemmat sisällöt kuten Soinnuissa (#116, progress_text).
-    `${done ? 1 : 0}/${topic.pages.length} ${topic.name === 'rytmi' ? 'aiemmista sisällöistä' : 'sisältöä'} tehty`,
+    `${done ? 1 : 0}/${topic.pages.length} ${['rytmi', 'soinnut'].includes(topic.name) ? 'aiemmista sisällöistä' : 'sisältöä'} tehty`,
   );
 }
 

@@ -132,7 +132,7 @@ test('kaikki teorialuvut tehnyt käyttäjä näkee säilyneet merkinnät ja kesk
     '1/3 sisältöä tehty',
     '6/14 sisältöä tehty',
     '3/8 sisältöä tehty',
-    '7/18 sisältöä tehty',
+    '7/18 aiemmista sisällöistä tehty',
     '3/7 sisältöä tehty',
     '6/14 sisältöä tehty',
   ]);
