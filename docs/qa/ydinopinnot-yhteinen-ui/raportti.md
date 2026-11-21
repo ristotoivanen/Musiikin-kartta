@@ -1,77 +1,59 @@
-# Ydinopintojen yhteinen UI: katselmointiraportti ja päätökset
+# Ydinopintojen yhteinen UI: loppukatselmus ja testausportti
 
-**21.11.2026 · Draft-PR #141 · ei beta-mergeä eikä tuotantojulkaisua.**
+**21.11.2026 · Draft-PR #141 · beta- ja main-haaroihin ei yhdistetty mitään.**
 
+## Sovittu rajaus
 
-## Viimeisin automaattinen QA (21.11.2026)
+Tähän PR:ään on yhdistetty Sointujen ja Rytmin yhteinen Ydinopinnot-käyttöliittymä, niiden kolme ydintehtävää/aihe, omat oppituntisivut, tunnisteiden säilyminen ja yhtenäinen SVG-kuvakkeisto. Muut kuusi aihetta eivät saa tässä PR:ssä keksittyjä tai keskeneräisesti hyväksyttyjä Ydinopintoja.
 
-**[GitHub Actions -ajo #44904071988](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/44904071988): SUCCESS.**
+## Omistajan hyväksymät graafiset ratkaisut (21.11.2026)
 
-- Python-generaattorin ajo + --tarkista läpi; generoituun HTML:ään 0 muutosta tarkistuksessa.
-- Lint, TypeScript/tyyppitarkistus ja build läpi.
-- **Vitest: 650/650 läpi**, 40 testitiedostoa.
-- **Linkkitarkistus: 113 sivua, 2 836 viittausta, 0 ongelmaa.**
-- **Kohdennettu Playwright: 249 läpi, 9 ohitettu, 0 epäonnistunutta** (desktop + phone -projektit; yhteinen UI, Soinnut, Rytmi ja navigointi).
-
-Tämä todentaa lähde- ja selaintason integraatiota, **ei** fyysistä iPhone/Safari- tai Android-kuuntelua, VoiceOveria tai koko sivuston kaikkien Playwright-testien ajamista. Beta-merge ja tuotanto vaativat erillisen hyväksynnän. Alla oleva alkuperäinen tarkistusrajalista kuvaa ennakkotilannetta; tämä QA-merkintä tarkentaa sen nyt automaattisesti todistettuja osia.
-
-## Graafinen katselmointi
-
-**[Avaa toiminnallinen visuaalinen katselmointimalli](esikatselu.html)**. Mallissa voi vaihtaa Soinnut/Rytmi, aihesivu/oma sivu, tietokone/390 px puhelin sekä tumma/vaalea teema. Mallin Kuuntele-painike on vain ulkoasun havainnollistamista varten, ei soittava audio.
-
-Vertaa lisäksi varsinaisia esikatselusivuja:
-- [Soinnut ja harmonia](../../../oppi/soinnut/index.html)
-- [Rytmi](../../../oppi/rytmi/index.html)
-- [Oppimiskartan kahdeksan aiheikonia](../../../index.html)
-
-Aiempi kuvageneroitu yleiskuva on pelkkä luonnos, **ei** käyttöliittymän tarkka näyttö eikä #125:n ikonien hyväksytty master. Käytä HTML-esikatselua ja oikeita sivuja katselmoinnin perustana.
-
-## Toteutettu tähän Draft-PR:ään
-
-1. PR #137:n (#133:n päälle rakennetun) Sointu-puun ja PR #134:n Rytmi-lähteiden yhteensovitus; alkuperäiset lähdesivut ja aiempien sisältöjen URL:t säilyvät.
-2. Rytmin uusi inline-oppituntinäkymä samalla natiivilla details/summary- ja name-ryhmittelyllä kuin Soinnuissa. Rytmin CSS ja ES-moduuli ladataan myös aihesivulle. Suljettavan kortin toggle pysäyttää Rytmin äänen; Sointujen vastaava kuuntelija oli jo olemassa.
-3. Sama erillisen oppitunnin keskittymistila Soinnuille ja Rytmille: näkyvä paluu, kompakti H1, sisältö, ääniohjaimet, Knoppitieto ja Kokeiltu. Päävalikko ja päällekkäiset navigaatiot on jätetty pois.
-4. Paluulinkki osoittaa pysyvään oppituntiankkuriin muodossa #valinta-slug. Yhteinen avauskoodi avaa vanhempana olevan Ydinopinnot-osion ja sisemmän details-kortin.
-5. Rytmin olemassa olevat oppitunti:-tallennustunnisteet ja Sointujen harjoitus:-tunnisteet on säilytetty. Vanhojen Tehty-merkintöjen laskureita ei ole tarkoitus yhdistää Kokeiltu-laskuriin.
-6. Yksi keskitetty SVG-sprite, jossa kahdeksan aiheen ehdokkaat (44 px pääkortilla), semanttiset korva/kitara-toimintakuvakkeet ja i-kirjaimeton Knoppitieto-plektra (22 px symboli, 44 × 44 px valintapinta). Pääkortin numero ja nimi säilyvät.
-7. Sointujen kolmen G-oppitunnin vanha pilotti siirrettiin pois CSS-piilotuksesta näkyväksi, oletussuljetuksi **Lisäopinnot · Miten sointu muodostuu?** -kokonaisuudeksi. Sama tunniste ja URL:t; sijoittelu on palautettavissa.
-8. Uusi selainregressiotiedosto: tests/e2e/ydinopinnot-yhteinen-ui.spec.ts (avaus, yksi kerrallaan, suora URL, paluu, merkit, ikonit).
-
-## Myöhemmin katselmoitavat vaihtoehdot
-
-| Päätös | Näytä esikatselussa | Suositus |
+| Kohde | Hyväksytty toteutus | Käyttökoko |
 | --- | --- | --- |
-| **D1. Aihesivun hierarkia** | Soinnut, desktop, Ydinopinnot auki/kiinni | Suljettu oletuksena, kolme selkeää nimeä, yksi oppitunti auki kerrallaan |
-| **D2. Mobiili** | Rytmi, 390 px, ensimmäinen oppitunti auki | Mahdollisimman vähän sisäkkäistä reunusta ja turhaa sisennystä |
-| **D3. Keskittymistila** | Soinnut ja Rytmi, Oma sivu, tumma/vaalea | Yksi yläpaluulinkki, yksi H1, opetus, äänet, valinnainen Knoppitieto, kokeiltu |
-| **D4. Kahdeksan aiheikonia** | Sivun alareunan ikonigalleria ja Oppimiskartan pääkortit | Vertaa #125:n hyväksyttyyn PNG-malliin ennen lopullista hyväksyntää |
-| **D5. Toimintakuvakkeet** | Kuuntele, Soita itse, Knoppitieto | Korva = kuuntele, kitara = soita oikealla soittimella, plektra = lisätieto |
-| **D6. Vanha G-pilotti** | Soinnut, Lisäopinnot-kortti | Pidä löydettävissä odottamassa #115:n lopullista sijoittelua |
-| **D7. Pedagogiikka** | Molempien aiheiden kolme ydintuntia | Älä tee alkeisista pakollista ydinpolkua. PR #138:n soveltava taso ohjaa jatkoa |
+| Kahdeksan aiheen pääkuvakkeet | Yhteinen rauhallinen SVG-sarja; lopullinen akustinen kitara hyväksytty oikeasta esikatselusta | 44 × 44 px pääkortissa |
+| Kuuntele | Pelkistetty korva, ei ääniaaltoja | 19 × 19 px Sointujen painikkeissa |
+| Soita itse | Sama kuusikielisen kitaran vektorimuoto kuin hyväksytyssä pääkuvakkeessa | 22 × 22 px |
+| Knoppitieto | Noin 20 % kapeampi, **tyhjä plektran ääriviiva**; ei i-kirjainta | 22 × 22 px, 44 × 44 px painikealue |
 
-### Kahdeksan hyväksytyn ikonikonseptin viitteet
+Lopullisten kahdeksan kuvakkeen sisältöjärjestys: **01** akustinen kitara, **02** metronomi, **03** nuotti viivastolla, **04** korva, **05** otelauta, **06** G-avain, **07** nousevat palkit, **08** avoin kirja. Nämä ovat omistajan myöhemmin hyväksymiä graafisia ratkaisuja, jotka poikkeavat joidenkin symbolien osalta #125:n alkuperäisistä ideointiriveistä (mm. 03 C♯, 06 kolmisointu, 08 kynä). Älä palauta vanhoja vaihtoehtoja ilman uutta katselmointia. Koko sivuston teemojen viimeistely kuuluu #124:ään.
 
-01 akustinen kitara; 02 mekaaninen metronomi; 03 C♯ + nuotti; 04 korva + nuotti + melodian kaari; 05 otelauta; 06 kolmisoinnun nuottipino; 07 nouseva asteikko; 08 nuottivihko + kynä. Uudet SVG:t ovat **toteutusehdokkaita**, eivät todiste siitä että paikallinen PNG-referenssi on vektoroitu tarkasti. Koot, kontrastit ja erityisesti 03:n C♯-merkintä sekä 44 px optinen luettavuus on katselmoitava.
+Katselmus: [todellisen SVG:n 44 px vertailu](ikonit-44px.html) ja [UI-esikatselu](esikatselu.html).
 
-## Todennettu / vielä todentamatta
+## Yhteisen käyttöliittymän hyväksytyt periaatteet
 
-| Tieto | Tila |
+1. Aihesivun **Ydinopinnot, Lisäopinnot ja Aiemmat sisällöt** ovat oletusarvoisesti suljettuja, ja näkyvissä avataan vain yksi pääkokonaisuus kerrallaan. Yksi sisäinen oppitunti on kerrallaan avattuna.
+2. Oppitunnin avaaminen siirtää otsikon tarvittaessa sopivasti näkyviin. Sulkeminen otsikosta tai **Sulje oppitunti** -painikkeesta palauttaa aiemman otsikon kohdan ja näppäimistöfokuksen.
+3. Soinnuilla ja Rytmillä on oma kompakti keskittymistila, jossa ei toisteta päävalikkoa. Paluu vie saman oppitunnin korttiin. Käyttäjä kokeili näkymää myös fyysisellä iPhonella ja hyväksyi käyttöliittymän.
+4. Oppituntien varsinaiset aiemmat URL:t, suorat ankkurit, suoritus- ja tallennustunnisteet säilyvät. **Tehty** ja **Kokeiltu** eivät tarkoita samaa, eikä harjoituksen merkitseminen osoita soittotaitoa.
+5. Sointujen vanha G-pilotti löytyy edelleen oletussuljetusta **Lisäopinnot**-kokonaisuudesta. Pedagoginen lopullinen sijoitus käsitellään #115:n yhteydessä. Äänentoiston sulkemistilanteet ovat automaattisen regressiotestauksen piirissä.
+
+## Toteutettu tekninen kokonaisuus
+
+- Sointujen PR #133/#137:n ja Rytmin PR #134:n toiminnalliset lähteet samassa PR #141:n puussa. Päällekkäisiä Draft-PR:iä ei pidä yhdistää betaan rinnakkain.
+- Yhteinen `assets/kokonaisuudet.js`: avaaminen, sulkeminen, vieritys, fokus ja hash-paluu. Päivitys `b0a16b2` estää pääosion viivästettyä animaatiokehystä kaappaamasta fokusta juuri sisäisen oppitunnin Enter-avauksessa.
+- Keskitetty `assets/oppimisikonit.svg` ja CSS, Sointujen ja Rytmin omat ES-äänimoduulit, Python-generaattorin lähteet ja automaattiset regressiotestit.
+- Uusi Playwright-regressiotesti kattaa tilanteen, jossa käyttäjä siirtää fokuksen sisäisen oppitunnin otsikkoon heti pääosion avauksen jälkeen. Se ei yksin todista VoiceOverin toimintaa.
+
+## Automaattinen laadunvarmistus
+
+Viimeisin ennen fokuskorjausta **todennettu onnistunut** kohdennettu ajo: [GitHub Actions #44935580742](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/44935580742), commit `2b8b65b`: Python-generaattori + `--tarkista`, lint, tyyppitarkistus, build, **656/656 Vitest**, **273 Playwright läpi / 9 ohitettu**, linkit **113 sivua / 2 836 viittausta / 0 virhettä**.
+
+Fokuskorjauksen commitin `b0a16b2` QA ajetaan uudelleen. Lisäksi tämän Draft-haaran `.github/workflows/ydinopinnot-draft-qa.yml` suorittaa **koko** Playwrightin selainregressiosarjan sekä desktop- että Chromium-puhelinemulaatiolla eikä enää vain neljää kohdennettua tiedostoa. Katso aina [ajantasainen GitHub Actions -tila](https://github.com/ristotoivanen/Musiikin-kartta/actions/workflows/ydinopinnot-draft-qa.yml); onnistunut Pages-deploy ei todista QA:ta.
+
+## Jäljellä olevat todentamiset ennen mahdollista beta-mergeä
+
+| Portti | Tila ja rajaus |
 | --- | --- |
-| Beta ja main eivät ole muuttuneet tämän työn vuoksi | GitHubissa oma Draft-PR, ei mergeä |
-| Molempien aiheiden lähteet ja luettelo-HTML samassa puussa | Kyllä, GitHubissa |
-| Kahdeksan SVG-viittausta Oppimiskartan pääkorteissa | Kyllä, lähdetarkistus |
-| Sointujen ja Rytmin kolme inline-korttia ja oma keskittymistila | Koodattu ja generoitu, ei vielä ajettu uutta Playwright-sarjaa |
-| Vanhojen localStorage-ID:iden semantiikka | Lähdetarkistus; oikean selaimen regressioajo puuttuu |
-| Äänen pysäytys kortin sulkeutuessa | Koodattu, ei kuunneltu fyysisellä laitteella |
-| Cloudflare Pages -build | Palvelu raportoi onnistuneita feature-branch-käännöksiä; ei korvaa testiajoa |
-| Tumma ja vaalea teema | Itsenäisessä design-esikatselussa; koko sivuston vaalea teema odottaa #124:ää |
-| Oikea iPhone/Safari, VoiceOver, Android, kuuntelu | Ei testattu |
-| Kuuden muun aiheen ydinsisällöt | Ei toteutettu: pedagoginen hyväksyntä ja #115:n kattava sisältöpäätös puuttuvat |
+| Lähde/build, yksikkötestit ja linkit | Onnistui viimeksi commitissa `2b8b65b`; uusi testauspäivitys tarkistetaan Actionsissa |
+| Koko Playwright-sarja (desktop/puhelinemulaatio) | Ajetaan Draft-haaran laajennetulla työnkululla; tulos kirjataan erikseen |
+| 320/360/390 px, 200 % / 400 % suurennus ja reflow, tulostus, JS pois | Vain automatisoitu/testattu osa on todennettu; mahdolliset aukot pitää testata ennen mergeä |
+| Fyysinen iPhone/Safari | Käyttäjä hyväksyi avauksen/sulkemisen ja keskittymistilan käyttöliittymän; kattava äänen, paluun ja lukituksen jälkeinen toiminta **ei todennettu** |
+| VoiceOver / ruudunlukija, kontrastit ja pakotetut värit | Ei kattavaa manuaalista hyväksyntänäyttöä |
+| Koko muutoksen yhdistämisjärjestys | PR #133, #134 ja #137 ovat edelleen omia avoimia Draft-PR:iään; yhteensovitus ratkaistava ennen yhdistämistä |
+| Omistajan beta-/tuotantolupa | **Ei annettu** |
 
-**Ennen beta-mergeä ajettava testipaketti:** Python-generaattorin --tarkista, npm run check, täysi Playwright-kierros (desktop ja phone), linkkitarkistin, 320/360/390 px ja 200 % / 400 % reflow, näppäimistö, tulostus, JS pois, suorien URLien ja tallennusten regressio sekä oikean iPhone/Safarin ääni ja VoiceOver. Koodista ja jo generoituista HTML:istä tehty vertailu ei yksin osoita Python-generaattorin tavutarkkaa --tarkista-läpimenoa.
+## Katselmointituomio
 
-**Katselmointituomio:** Hyvä Draft-tasoinen toteutus ja käyttöliittymän vertailuaineisto. **NO-GO beta-mergeen**, kunnes testit ja omistajan graafinen/pedagoginen katselmointi on tehty.
+**Graafinen ja Soinnut–Rytmi-yhteisen käyttöliittymän katselmointi: hyväksytty.** Toteutus on koottu omaan Draft-PR:ään eikä sitä ole yhdistetty betaan. **Beta-merge: NO-GO toistaiseksi**, kunnes koko selaintestiajo ja erilliset saavutettavuus-/laitekokeet on dokumentoitu sekä omistaja antaa nimenomaisen yhdistämisluvan. Muun kuuden aiheen ydinsisältöjen pedagoginen hyväksyntä (#115, PR #138) ja koko sivuston vaalea teema (#124) ovat erillisiä jatkotehtäviä.
 
-## Riippuvuudet
-
-[PR #141](https://github.com/ristotoivanen/Musiikin-kartta/pull/141) · [PR #140](https://github.com/ristotoivanen/Musiikin-kartta/pull/140) · [#115](https://github.com/ristotoivanen/Musiikin-kartta/issues/115) · [#116](https://github.com/ristotoivanen/Musiikin-kartta/issues/116) · [#125](https://github.com/ristotoivanen/Musiikin-kartta/issues/125) · [PR #138](https://github.com/ristotoivanen/Musiikin-kartta/pull/138).
+Riippuvuudet: [PR #141](https://github.com/ristotoivanen/Musiikin-kartta/pull/141), [PR #140](https://github.com/ristotoivanen/Musiikin-kartta/pull/140), [#115](https://github.com/ristotoivanen/Musiikin-kartta/issues/115), [#116](https://github.com/ristotoivanen/Musiikin-kartta/issues/116), [#125](https://github.com/ristotoivanen/Musiikin-kartta/issues/125), [PR #138](https://github.com/ristotoivanen/Musiikin-kartta/pull/138).

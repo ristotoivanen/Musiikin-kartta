@@ -16,7 +16,7 @@ jobs:
   qa:
     if: github.ref == 'refs/heads/codex/ydinopinnot-yhteinen-ui-pilotti'
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    timeout-minutes: 55
     steps:
       - uses: actions/checkout@v4
         with:
@@ -52,6 +52,8 @@ jobs:
           python3 tools/oppimiskartta/rakenna.py --tarkista
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
-      - name: Cross-topic UI and regression browser tests
+      # Full suite includes the former targeted Soinnut, Rytmi and shared UI tests.
+      # Keep the browser regression gate in this PR branch until merge authorization.
+      - name: Full Playwright browser regression (desktop and phone emulation)
         run: |
-          npx playwright test tests/e2e/ydinopinnot-yhteinen-ui.spec.ts tests/e2e/soinnut-kokonaisuudet.spec.ts tests/e2e/rytmi-ydinopinnot.spec.ts tests/e2e/navigation.spec.ts --workers=3 --max-failures=12
+          npx playwright test --workers=3 --max-failures=20
