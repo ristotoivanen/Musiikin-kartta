@@ -20,7 +20,12 @@
     return target;
   }
 
-  const fromHash = () => openId(location.hash.slice(1))?.scrollIntoView({ block: 'start' });
+  const fromHash = () => {
+    const target = openId(location.hash.slice(1));
+    if (!target) return;
+    target.scrollIntoView({ block: 'start' });
+    if (target.matches('.study-choice, summary')) target.focus({ preventScroll: true });
+  };
   fromHash();
   window.addEventListener('hashchange', fromHash);
   const navigation = performance.getEntriesByType('navigation')[0];
