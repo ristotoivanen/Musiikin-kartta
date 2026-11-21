@@ -684,7 +684,7 @@ test.describe('Ydinopinnot v0.5', () => {
     expect(initial[1].y).toBeGreaterThan(initial[0].y);
 
     await start.click();
-    await expect(question.locator('[data-kysymys]')).toHaveText(/Kumpi on (duuri|molli)\\?/);
+    await expect(question.locator('[data-kysymys]')).toHaveText(/Kumpi on (duuri|molli)\?/);
     await expect(question).toHaveClass(/is-active/);
     await expect(section.getByRole('group', { name: 'Vastaa' })).toBeVisible();
     const active = await layout(guessing);
