@@ -211,6 +211,18 @@ describe('Rytmin aihesivu ja muodostetut sivut', () => {
     expect(card).toHaveLength(4);
   });
 
+  it('Ydinopinnot käyttää yhteistä Kokeiltu-mekanismia samoilla oppitunti-tunnisteilla; aiemmat laskevat oman tekstinsä', () => {
+    const topic = read('oppi/rytmi/index.html');
+    // Ryhmän "attempts": Kokeilematta / ✓ Kokeiltu ja x/3 kokeiltu (assets/edistyminen.js). Tunnisteet eivät muutu.
+    expect([...topic.matchAll(/data-study-attempt-status="([^"]+)"/g)].map(([, id]) => id)).toEqual(lessons.map(slug => 'oppitunti:' + slug));
+    expect(topic).not.toContain('data-study-intro-status=');
+    expect(topic).toContain('data-unit-progress data-unit-attempts hidden');
+    const text = 'data-progress-count="aiemmista sisällöistä tehty" data-progress-done="✓ Aiemmat sisällöt tehty"';
+    expect(topic).toContain(`data-study-total ${text} hidden`);
+    expect(read('index.html')).toContain(`<span class="topic-status" ${text} hidden>`);
+    expect(read('oppi/rytmi/kaksi-sointua-yhdessa-tahdissa.html').match(new RegExp(`data-boundary-progress[^>]*${text}`, 'g'))).toHaveLength(2);
+  });
+
   it('ⓘ-lisävinkki on kohtien 1 ja 2 jälkeen; harjoituksessa 03 kohdat 3 ja 4 tässä järjestyksessä', () => {
     for (const slug of lessons) {
       const html = read(`oppi/rytmi/${slug}.html`);

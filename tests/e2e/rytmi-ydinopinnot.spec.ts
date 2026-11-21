@@ -62,10 +62,10 @@ test.describe('aihesivu', () => {
     expect(saved).toEqual([...old, 'oppitunti:hiljaisuus-kuuluu-rytmiin']);
 
     await page.goto(topicPath);
-    await expect(core(page).locator('[data-unit-progress]')).toHaveText('1/3 sisältöä tehty');
-    await expect(core(page).locator('#valinta-hiljaisuus-kuuluu-rytmiin [data-study-intro-status]')).toHaveText('✓ Tehty');
+    await expect(core(page).locator('[data-unit-progress]')).toHaveText('1/3 kokeiltu');
+    await expect(core(page).locator('#valinta-hiljaisuus-kuuluu-rytmiin [data-study-attempt-status]')).toHaveText('✓ Kokeiltu');
     // Aiempien laskuri: kaksi neljästä kuten ennenkin; uutta kokeilua ei lasketa aiempiin.
-    await expect(earlier(page).locator('[data-study-total]')).toHaveText('2/4 sisältöä tehty');
+    await expect(earlier(page).locator('[data-study-total]')).toHaveText('2/4 aiemmista sisällöistä tehty');
     await earlier(page).locator('summary').click();
     await expect(page.locator('#valinta-kuuntele-pulssi [data-study-status]')).toHaveText('✓ Tehty');
 
@@ -74,6 +74,65 @@ test.describe('aihesivu', () => {
     await page.locator('.done-toggle').click();
     await expect(page.locator('.done-toggle')).toHaveText('Merkitse kokeilluksi');
     expect(JSON.parse((await page.evaluate(key => localStorage.getItem(key), readingKey))!)).toEqual(old);
+  });
+});
+
+test.describe('aiempien sisältöjen laskuri (progress_text, sama kuin Soinnuissa)', () => {
+  const allOld = legacy.map(([, id]) => id);
+
+  test('kaikki neljä aiempaa tehty, Ydinopintoja ei kokeiltu: aihesivu, etusivun kortti ja vanhan sarjan viimeinen sivu', async ({ page }) => {
+    await page.goto(topicPath);
+    await page.evaluate(([key, value]) => localStorage.setItem(key, value), [readingKey, JSON.stringify(allOld)]);
+    await page.reload();
+    await expect(earlier(page).locator('[data-study-total]')).toHaveText('✓ Aiemmat sisällöt tehty');
+    await expect(core(page).locator('[data-unit-progress]')).toHaveText('0/3 kokeiltu');
+    for (const [slug] of lessons) {
+      await expect(core(page).locator(`#valinta-${slug} [data-study-attempt-status]`)).toHaveText('Kokeilematta');
+    }
+    await page.goto('/index.html');
+    await expect(page.locator('#aihe-rytmi .topic-status')).toHaveText('✓ Aiemmat sisällöt tehty');
+    await page.goto(`/oppi/rytmi/${legacy[3][0]}.html`);
+    await expect(page.locator('[data-boundary-progress]').first()).toHaveText('✓ Aiemmat sisällöt tehty');
+    expect(JSON.parse((await page.evaluate(key => localStorage.getItem(key), readingKey))!)).toEqual(allOld);
+  });
+
+  test('aiemmin tallennetut oppitunti-merkinnät näkyvät Kokeiltuina, yhden lisäys ja peruminen', async ({ page }) => {
+    // Ennen yhteistä mekanismia tallennetut merkinnät: samat avaimet ja tunnisteet, ei migraatiota.
+    const saved = [...allOld, 'oppitunti:loyda-pulssi-ja-ykkonen', 'harmoninen-kentta'];
+    await page.goto(topicPath);
+    await page.evaluate(([key, value]) => localStorage.setItem(key, value), [readingKey, JSON.stringify(saved)]);
+    await page.reload();
+    await expect(core(page).locator('[data-unit-progress]')).toHaveText('1/3 kokeiltu');
+    await expect(core(page).locator('[data-study-attempt-status]')).toHaveText(['✓ Kokeiltu', 'Kokeilematta', 'Kokeilematta']);
+    await expect(earlier(page).locator('[data-study-total]')).toHaveText('✓ Aiemmat sisällöt tehty');
+
+    await page.goto(`/oppi/rytmi/${lessons[2][0]}.html`);
+    await page.getByRole('button', { name: 'Merkitse kokeilluksi' }).click();
+    await page.goto(topicPath);
+    await expect(core(page).locator('[data-unit-progress]')).toHaveText('2/3 kokeiltu');
+    await expect(core(page).locator('[data-study-attempt-status]')).toHaveText(['✓ Kokeiltu', 'Kokeilematta', '✓ Kokeiltu']);
+    expect(JSON.parse((await page.evaluate(key => localStorage.getItem(key), readingKey))!))
+      .toEqual([...saved, 'oppitunti:sama-musiikki-eri-tuntuma']);
+
+    await page.goto(`/oppi/rytmi/${lessons[2][0]}.html`);
+    await page.getByRole('button', { name: '✓ Kokeiltu' }).click();
+    await page.goto(topicPath);
+    await expect(core(page).locator('[data-unit-progress]')).toHaveText('1/3 kokeiltu');
+    expect(JSON.parse((await page.evaluate(key => localStorage.getItem(key), readingKey))!)).toEqual(saved);
+    // Sointujen etenemistieto (harmoninen-kentta) ja Rytmin aiemmat merkinnät pysyvät ennallaan.
+    await page.goto('/oppi/soinnut/index.html');
+    await expect(page.locator('[data-study-status="harmoninen-kentta"]')).toHaveText('✓ Tehty');
+  });
+
+  test('osittain tehty: x/4 aiemmista sisällöistä kaikissa kolmessa kohdassa', async ({ page }) => {
+    await page.goto(topicPath);
+    await page.evaluate(([key, value]) => localStorage.setItem(key, value), [readingKey, JSON.stringify(allOld.slice(0, 3))]);
+    await page.reload();
+    await expect(earlier(page).locator('[data-study-total]')).toHaveText('3/4 aiemmista sisällöistä tehty');
+    await page.goto('/index.html');
+    await expect(page.locator('#aihe-rytmi .topic-status')).toHaveText('3/4 aiemmista sisällöistä tehty');
+    await page.goto(`/oppi/rytmi/${legacy[3][0]}.html`);
+    await expect(page.locator('[data-boundary-progress]').first()).toHaveText('3/4 aiemmista sisällöistä tehty');
   });
 });
 

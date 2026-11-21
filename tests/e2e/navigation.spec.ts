@@ -232,7 +232,7 @@ test.describe('Oppimiskartan navigointi ja paluu', () => {
     await expect(page).toHaveURL('/oppi/rytmi/index.html');
     await expect(lesson).toBeFocused();
     await expect(lesson.locator('[data-study-status]')).toHaveText('✓ Tehty');
-    await expect(page.locator('[data-study-total]')).toHaveText('1/4 sisältöä tehty');
+    await expect(page.locator('[data-study-total]')).toHaveText('1/4 aiemmista sisällöistä tehty');
     await page.goBack();
     await expect(rhythm).toBeFocused();
     await expect(page.locator('#home-continue')).toContainText('Jatka oppimista · Neljä otetta ja ensimmäinen kappale');
