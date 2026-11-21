@@ -57,7 +57,6 @@
       "groups": [
         {
           "id": "ydinopinnot",
-          "number": 1,
           "title": "Ydinopinnot",
           "attempts": true,
           "goal": "Kuuntele ensin malli ja kokeile sitten itse, esimerkiksi taputtaen tai kitaralla. Voit palata tehtäviin vapaasti. ”Kokeiltu” ei ole osaamistesti.",
@@ -77,7 +76,9 @@
               "title": "Sama musiikki, eri tuntuma",
               "goal": "Kuule ja vertaile"
             }
-          ]
+          ],
+          "inline": true,
+          "back": "unit"
         },
         {
           "legacy": true,
