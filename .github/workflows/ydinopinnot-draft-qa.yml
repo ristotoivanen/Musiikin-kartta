@@ -1,0 +1,57 @@
+name: Ydinopinnot draft integration QA
+on:
+  push:
+    branches:
+      - codex/ydinopinnot-yhteinen-ui-pilotti
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ydinopinnot-draft-qa
+  cancel-in-progress: false
+
+jobs:
+  qa:
+    if: github.ref == 'refs/heads/codex/ydinopinnot-yhteinen-ui-pilotti'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Regenerate Oppimiskartta from canonical sources
+        run: |
+          python3 tools/oppimiskartta/rakenna.py
+          python3 tools/oppimiskartta/rakenna.py --tarkista
+      - name: Persist generated HTML only to this Draft branch
+        run: |
+          git add -- index.html oppi/
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "build: regenerate Ydinopinnot draft HTML from canonical sources"
+            git push origin HEAD:codex/ydinopinnot-yhteinen-ui-pilotti
+          fi
+      - name: Lint
+        run: npm run lint
+      - name: Unit tests
+        run: npm test
+      - name: Typecheck and builds
+        run: npm run build
+      - name: Links and generated source consistency
+        run: |
+          python3 tools/linkit/tarkista-linkit.py
+          python3 tools/oppimiskartta/rakenna.py --tarkista
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Cross-topic UI and regression browser tests
+        run: |
+          npx playwright test tests/e2e/ydinopinnot-yhteinen-ui.spec.ts tests/e2e/soinnut-kokonaisuudet.spec.ts tests/e2e/rytmi-ydinopinnot.spec.ts tests/e2e/navigation.spec.ts --workers=3
