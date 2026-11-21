@@ -256,6 +256,7 @@ test('lisätiedon täytetty sulkuplektra palauttaa puhelimessa avauspaikan ja fo
   const open = tip.locator(':scope > summary');
   const original = open.locator('.study-knoppi-merkki');
   const close = tip.getByRole('button', { name: 'Sulje lisätieto ja palaa avauskohtaan' });
+  await open.scrollIntoViewIfNeeded();
   const openingTop = await open.evaluate(node => node.getBoundingClientRect().top);
 
   await expect(close).not.toBeVisible();
@@ -287,6 +288,7 @@ test('Knoppitiedon avaus vierittää lisäsisältöön myös omalla oppituntisiv
   const tip = page.locator('details.study-knoppi');
   const summary = tip.locator(':scope > summary');
   const heading = tip.locator('.study-knoppi-sisalto > h3');
+  await summary.scrollIntoViewIfNeeded();
   const openingTop = await summary.evaluate(node => node.getBoundingClientRect().top);
   await summary.click();
   await expect(tip).toHaveAttribute('open', '');

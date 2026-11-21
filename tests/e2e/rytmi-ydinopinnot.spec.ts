@@ -183,6 +183,7 @@ test.describe('harjoitussivut', () => {
       const fixed = ['[data-rytmi-toisto]', '.rytmi-ruudukko', '.rytmi-kokeile'];
       const beforeScroll = await page.evaluate(() => window.scrollY);
       const before = await Promise.all(fixed.map(selector => box(page, selector)));
+      await summary.scrollIntoViewIfNeeded();
       const openingTop = (await summary.boundingBox())!.y;
       await summary.click();
       await expect(info(page)).toHaveAttribute('open', '');
