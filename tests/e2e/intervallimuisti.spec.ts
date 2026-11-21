@@ -335,6 +335,7 @@ for (const url of [studyPage, bookPage]) {
     await page.setViewportSize({ width: 320, height: 700 });
     await page.goto(url);
     await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
+    const baselinePageWidth = await page.evaluate(() => document.documentElement.scrollWidth);
     const lesson = page.locator('[data-intervallimuisti]');
     await lesson.locator('summary').press('Enter');
     const scroller = lesson.getByRole('region', { name: 'Intervallitaulukon vieritys' });
@@ -349,12 +350,14 @@ for (const url of [studyPage, bookPage]) {
       await page.keyboard.press('ArrowRight');
       return position();
     }).toBeGreaterThanOrEqual(end - 1);
-    const actualPageLeft = await page.evaluate(() => window.scrollX);
-    const legacyBookScroll = url === bookPage
-      ? await page.evaluate(() => Math.min(8, Math.max(0, document.documentElement.scrollWidth - innerWidth)))
-      : 0;
-    // Kirjan vanha QA-01-ylivuoto voi liikuttaa koko sivua noin 5 px nuolinäppäimellä.
-    expect(Math.abs(actualPageLeft - pageLeft)).toBeLessThanOrEqual(legacyBookScroll);
+    if (url === studyPage) {
+      expect(await page.evaluate(() => window.scrollX)).toBe(pageLeft);
+    } else {
+      // Kirjan vanha QA-01-asteikkotaulukko aiheuttaa WebKitissä sivun vaakasiirtymän.
+      // Intervallitaulukko ei saa lisätä koko sivun leveyttä.
+      expect(await page.evaluate(() => document.documentElement.scrollWidth))
+        .toBeLessThanOrEqual(baselinePageWidth);
+    }
     await expect.poll(async () => {
       await page.keyboard.press('ArrowLeft');
       return Math.abs(await position());
@@ -619,7 +622,9 @@ test('monivalinta tarkistaa vasta Tarkista-painikkeesta ja selittää oikean vas
   await expect(page.locator('[data-intervallimuisti] details')).not.toHaveAttribute('open');
 });
 
-test('vihje ei näytä vastausta ja monivalinnan voi tehdä alusta loppuun ja aloittaa uudelleen', async ({ page }) => {
+test('vihje ei näytä vastausta ja monivalinnan voi tehdä alusta loppuun ja aloittaa uudelleen', async ({ page, browserName }) => {
+  // Täysi 26 kysymyksen testipolku, ei lyhennetä WebKitissä.
+  test.slow(browserName === 'webkit', 'WebKitin 26 kysymyksen selainajo on Chromiumia hitaampi.');
   await page.goto(studyPage);
   const before = await page.evaluate(() => ({ ...localStorage }));
   const choice = page.locator('.intervallivalinta');
