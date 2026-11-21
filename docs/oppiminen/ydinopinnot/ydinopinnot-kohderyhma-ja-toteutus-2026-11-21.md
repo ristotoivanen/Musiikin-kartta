@@ -1,6 +1,6 @@
 # Musiikin kartta – Ydinopintojen kohderyhmä-, sisältö- ja toteutussuunnitelma
 
-**Versio:** 1.1 · 21.11.2026, päivitetty Clauden riippumattoman auditoinnin havaintojen ja GitHub-verifioinnin pohjalta.
+**Versio:** 1.2 · 21.11.2026, riippumattoman auditoinnin korjaukset ja omistajan hyväksymä Perustaitojen minitunnit -sijoittelulinja.
 **Tila:** Yksityiskohtainen suunnitteluehdotus, EI toteutus-, merge- tai julkaisulupa.  
 **Kohderyhmä:** ensisijaisesti 1–2 vuotta tai vastaavat taidot kitaraa soittanut säestäjä; henkilökohtainen ensimmäinen käyttötapaus on noin kaksi vuotta soittanut, kappaleita sointunäytöltä (esim. Chordify) säestävä kitaristi, joka haluaa ymmärtää musiikkia ja pärjätä ilman jatkuvaa sointunäyttöä.
 
@@ -50,6 +50,16 @@ Näistä ei synny käyttäjän henkilökohtaista taitopisteytystä eikä automaa
 - **01B · Kertaa oma sointupakki tarvittaessa**: muutama yleinen ote, vaihtoehtoinen sormitus ja vaimennus vain tarvitsevalle. Sisällytä nelikielinen **F `xx3211`** ja **Bm `xx4432`** sekä capo-vaihtoehto. **Fmaj7 `xx3210` ei ole F-duuri**, vaikka se on joskus toimiva sointiväri. **Miksi:** tekninen ote ei saa estää harjoituksen varsinaista musiikillista tavoitetta. **Siirto:** valitse toimiva ote itselle.
 
 **Nykyinen sisältö:** `oppi/kitara/index.html`, siihen liittyvät nykyiset kertaukset. **Päätös:** säilytä/tiivistä tarpeen mukaan, ei ensisijainen aloituslinkki.
+
+### Omistajan hyväksymä kertausratkaisu: Perustaitojen minitunnit
+
+**Kitaran perusteiden nykyinen 2–5 minuutin pikakertaus säilyy.** Sen alle sijoitetaan yksi **oletuksena suljettu, valinnainen ja pieni** ”Perustaitojen minitunnit” -osio. Osiota ei tehdä uudeksi pakolliseksi opintopoluksi eikä Ydinopintojen pääaloitukseksi. Siitä voi valita yksittäisen minitunnin, palata alkuperäiseen harjoitukseen ja ohittaa kaiken kertauksen.
+
+Alustavat minitunnit ja lähteet ovat **K-M1 Löydä pulssi ja ykkönen** (betan vanha pulssiharjoitus tai #134:n yksi valittu versio), **K-M2 Ensimmäiset neljä iskua** (PR #130:n erillinen testisivu, ei vielä Oppimiskartassa), **K-M3 Komppikäsi ja sointuvaihto** (kaksi betan vanhaa harjoitusta yhdistettynä yhdeksi kertausvalinnaksi) sekä **K-M4 Merkintöjen ja tuttujen otteiden pikakertaus** (linkki jo olemassa olevaan kertausasiaan, ei uutta kopioitua sivua).
+
+**Teoriaa ei alenneta kertaukseksi vain siksi, että otteet ovat tuttuja.** Soinnun G–B–D-rakenne, duurin ja mollin terssi, toonikan paluu sekä kompin musiikillinen groove ja tarkkuus **pysyvät Ydinopinnoissa**. Yhden käsitteen ensimmäinen opetus määritetään #115:ssä; minitunnit saavat toimia lähtökohtana tai pikamuistutuksena.
+
+**Tarkka 4 minitunnin sisältö–lähde–sijoittelu-taulukko, tekniset rajat, käyttöliittymä, regressiot ja päätösportit:** [Perustaitojen minituntien suunnitelma](./perustaitojen-minitunnit-sisalto-ja-sijoittelu-2026-11-21.md). `aiheet.json` sisältää jo neljä ”Valinnaiset lisäharjoitukset” -viitettä; niiden mahdollinen näkyvyys ja uuden minituntiosion suhde on tutkittava generaattorista. Ei luoda kaksoislistaa automaattisesti.
 
 ## 4. Aihe 02 – Rytmi: tarkkuus ja ilmaisu, ei ensimmäinen komppi
 
@@ -181,7 +191,7 @@ Muiden lähdesivujen lopullinen sisältökohtainen inventaario kuuluu #115:een; 
 1. Hyväksy kohderyhmä: 1–2 vuotta vastaava **säestystaito**, ei välttämättä teoriaa.
 2. Kirjaa #115:n sisältölinja ja **#116:n pedagoginen kohderyhmätarkennus**: avattava Ydinopinnot säilyy aiheen johdantona, mutta alkaa jo säestämään pystyvän harrastajan tasolta. Aloittelijoille osoitetaan selkeä vapaaehtoinen Kitaran perusteiden/Rytmin kertausreitti, eikä sisältöä poisteta. `aiheet.json`:n nykyinen `start: rytmi/kuuntele-pulssi` tarvitsee oman päätöksensä ennen muutosta. #54 seuraa portteja ja #69 rytmin syventämistä.
 3. Inventoi vanhat sisältösivut ja kaikki riippuvuudet kuten #115 vaatii (URL, säilyvä/puuttuva asia, uusi kohde, suoritukset, äänet, mediaoikeudet). Päätä erikseen yksittäinen vanhan sisällön poistaminen näkyvästä listasta; URL:n poistaminen vielä eri päätös.
-4. Katselmoi **Rytmin PR #134 ja Sointujen #133/#137** uutta lähtötasoa vasten. Lisäksi #111:n päällekkäinen johdanto, intervallien #109/#114/#93 ja kirjalähteiden #117 huomioidaan. Älä muokkaa niiden haaroja tämän dokumentin perusteella.
+4. Katselmoi **Rytmin PR #134 ja Sointujen #133/#137** uutta lähtötasoa vasten. **Vahvista Perustaitojen minitunnit -osion K-M1…K-M4:n sijoittelut #115:ssa ja #116:n rakenteessa:** erotetaan nykyiset 01-aiheen lisäharjoitukset, betan kertauslinkit ja keskeneräiset PR:t toisistaan; ei tehdä uutta pakollista kurssia. Lisäksi #111:n päällekkäinen johdanto, intervallien #109/#114/#93 ja kirjalähteiden #117 huomioidaan. Älä muokkaa niiden haaroja tämän dokumentin perusteella.
 
 ### P0.5 – Yhteisen opintokokonaisuusrakenteen yhteensovitus (suunnitelma; toteutus vain erillisellä luvalla)
 - #133, #134 ja #137 tekevät päällekkäisiä muutoksia `rakenna.py`-tiedostoon ja `aiheet.json`iin. Yksi kanoninen `layout: "kokonaisuudet"`-malli tarvitaan ennen neljättä sisältöpilottia.
@@ -276,4 +286,4 @@ Saman asian **kertaus on sallittua** ja pedagogisesti usein tarpeen. Vältetää
 5. Rytmin #134:n **korjatuksi raportoitu** A/B/C-vaihto vaatii yhä oikean kuuntelun, fyysiset laitetestit ja pedagogisen hyväksynnän; samanaikaisesti #111/#130/#133/#134/#137:n rakenteiden ja iPhone-Safarin ääniongelmien yhteensovitus ovat avoimia.
 6. Minimiominaisuudet laajempaan sointurakenteen piilotustoimintoon: ensimmäiseen pilottiin ei automaattisesti kuulu ulkoisen kappaleen latausta, automaattista sävellajin tunnistamista, mikrofonipisteytystä, käyttäjätiliä eikä yleistä uutta äänimoottoria.
 
-**Ydinpäätös:** toteuta ensimmäiseksi **sointukierto → asteet → soita muistista → siirrä sävellajiin**. Rytmin seuraava merkittävä tehtävä on **groove ja kompin tarkkuus**, ei peruslyönnin opettaminen. Koko Ydinopinnot-uudistus mitataan konkreettisella hyödyllä, ei korttien lukumäärällä.
+**Ydinpäätös:** toteuta ensimmäiseksi **sointukierto → asteet → soita muistista → siirrä sävellajiin**. **Perustaitojen minitunnit** on erillinen valinnainen kertausratkaisu, jonka toteutusta ei saa nostaa tämän henkilökohtaisen P1-pilotin edelle. Rytmin seuraava merkittävä tehtävä on **groove ja kompin tarkkuus**, ei peruslyönnin opettaminen. Koko Ydinopinnot-uudistus mitataan konkreettisella hyödyllä, ei korttien lukumäärällä.
