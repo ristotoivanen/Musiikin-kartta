@@ -313,6 +313,7 @@
     const listening = section.querySelector('[data-arvaus-kuuntelu]');
     const question = section.querySelector('[data-arvaus-kysymys]');
     const heading = question.querySelector('[data-kysymys]');
+    const prompt = question.querySelector('[data-kysymys-ohje]');
     const answers = section.querySelector('[data-arvaus-vastaus]');
     const choices = [...answers.querySelectorAll('button')];
     const feedback = section.querySelector('[data-arvauspalaute]');
@@ -350,15 +351,20 @@
       target = Math.random() < 0.5 ? 'Em' : 'E';
       answered = false;
       normal.hidden = comparison.hidden = diagrams.hidden = tip.hidden = true;
-      question.hidden = listening.hidden = answers.hidden = feedback.hidden = false;
+      listening.hidden = answers.hidden = feedback.hidden = false;
+      question.classList.add('is-active');
       heading.textContent = target === 'E' ? 'Kumpi on duuri?' : 'Kumpi on molli?';
+      prompt.textContent = 'Kuuntele soinnut 1 ja 2. Valitse sitten vastaus.';
       feedback.textContent = firstPrompt;
       feedback.classList.remove('is-error');
       choices.forEach(button => button.removeAttribute('aria-disabled'));
       nameListening(false);
       next.textContent = 'Uusi arvaus';
       showExerciseStatus('Kuuntele sointu 1 ja sointu 2 ennen vastaamista.');
-      heading.focus();
+      // Sama kysymyskortti on olemassa jo alussa, joten fokus ei työnnä kaikkia
+      // painikkeita eri paikkaan. Vieritä vain, jos kysymys ei ole näkyvissä.
+      heading.focus({ preventScroll: true });
+      question.scrollIntoView({ block: 'nearest', behavior: 'instant' });
     });
     for (const button of choices) {
       button.addEventListener('click', () => {

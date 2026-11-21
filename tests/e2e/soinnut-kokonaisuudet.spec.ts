@@ -661,6 +661,39 @@ test.describe('Ydinopinnot v0.5', () => {
     expect(await storage(page)).toBeNull();
   });
 
+  test('arvaustilan vaihto pitää kuuntelupainikkeet ja Arvaa-painikkeen samoissa kohdissa', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 760 });
+    await page.goto(ydinPath(1));
+    const section = page.locator('[data-sointuharjoitus="arvaa"]');
+    const question = section.locator('[data-arvaus-kysymys]');
+    const normal = section.locator('[data-suora-kuuntelu] button');
+    const guessing = section.locator('[data-arvaus-kuuntelu] button');
+    const start = section.getByRole('button', { name: 'Arvaa', exact: true });
+    const layout = async (buttons: typeof normal) => Promise.all(
+      (await buttons.all()).map(button => button.evaluate(node => {
+        const b = node.getBoundingClientRect();
+        return { x: Math.round(b.left), y: Math.round(b.top + window.scrollY),
+          width: Math.round(b.width), height: Math.round(b.height) };
+      })),
+    );
+    await expect(question).toBeVisible();
+    await expect(question.locator('[data-kysymys]')).toHaveText('Kuuntele ensin E ja Em');
+    const startPosition = (await layout(start))[0];
+    const initial = await layout(normal);
+    expect(initial).toHaveLength(2);
+    expect(initial[1].y).toBeGreaterThan(initial[0].y);
+
+    await start.click();
+    await expect(question.locator('[data-kysymys]')).toHaveText(/Kumpi on (duuri|molli)\\?/);
+    await expect(question).toHaveClass(/is-active/);
+    await expect(section.getByRole('group', { name: 'Vastaa' })).toBeVisible();
+    const active = await layout(guessing);
+    expect(active).toEqual(initial);
+    expect((await layout(section.getByRole('button', { name: 'Uusi arvaus' })))[0])
+      .toEqual(startPosition);
+    await expect(question.locator('[data-kysymys]')).toBeInViewport();
+  });
+
   test('arvauksessa kuuntelu ja vastaus ovat erillisiä, järjestys ja kysymys arvotaan', async ({ page, isMobile }) => {
     await recordAudio(page);
     await page.goto(ydinPath(1));
@@ -849,7 +882,7 @@ test.describe('Ydinopinnot v0.5', () => {
   // kortti on 390 px:ssä 4 px kapeampi, joten siinä ja 320–375 px:ssä allekkain (hyväksytty).
   const guessSideBySide: Record<number, { oma: boolean; aihesivu: boolean }> = {
     320: { oma: false, aihesivu: false }, 360: { oma: false, aihesivu: false }, 375: { oma: false, aihesivu: false },
-    390: { oma: true, aihesivu: false }, 768: { oma: true, aihesivu: true },
+    390: { oma: false, aihesivu: false }, 768: { oma: true, aihesivu: true },
   };
   for (const [width, sideBySide] of Object.entries(guessSideBySide)) {
     test(`02:n arvauspainikkeet ${width} px: vakaat, ei leikkautumista 100/200 %:ssa`, async ({ page }) => {
@@ -884,10 +917,10 @@ test.describe('Ydinopinnot v0.5', () => {
           expect(before.labelAfterIcon, testCase).toBeGreaterThan(0);
           expect(before.labelAfterIcon, testCase).toBeLessThan(size === '100%' ? 10 : 18);
           if (size === '100%') {
-            // 390 px:n tarkka kahden sarakkeen raja riippuu nykyisestä sisäleveydestä.
-            // Samat napit eivät saa liikkua vastauksen paljastuessa tai leikkautua.
-            if (Number(width) !== 390) expect(before.sideBySide, testCase).toBe(sideBySide[where]);
-            if (before.sideBySide) expect(before.gap, testCase).toBe(4);
+            // Uusi ohjainruudukko pinoutuu 390 px:ssä sekä omalla sivulla että
+            // aihesivulla. Arvaus ei saa siirtää painikkeita toiseen riviin.
+            expect(before.sideBySide, testCase).toBe(sideBySide[where]);
+            if (before.sideBySide) expect(before.gap, testCase).toBe(8);
           }
           expect(await noHorizontalScroll(page), testCase).toBe(true);
         }

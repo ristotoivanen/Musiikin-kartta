@@ -85,12 +85,55 @@
 .sointu-ydin .sointu-kierron-toisto { display: inline-grid; }
 .sointu-kierron-toisto > span { grid-area: 1 / 1; }
 .sointu-piilossa, .sointu-varaus { visibility: hidden; }
+/* E/Em-kuunteluarvaus: kysymys ja ohjainten paikat eivät vaihdu tehtävän
+ * alkaessa. Puhelimessa molemmat kuuntelupainikkeet pinoutuvat jo ennen Arvaa-
+ * painallusta; leveämmässä näkymässä ne pysyvät rinnakkain kummassakin tilassa. */
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-kysymys] {
+  min-block-size: 6rem;
+}
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-kysymys].is-active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--panel));
+}
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-sointu-ohjaimet] > .sointu-toiminnot:first-of-type {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: start;
+  gap: .5rem;
+}
+.sointu-ydin[data-sointuharjoitus="arvaa"] :is([data-suora-kuuntelu], [data-arvaus-kuuntelu]) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.5rem), 1fr));
+  gap: .5rem;
+  inline-size: min(100%, 28rem);
+}
+.sointu-ydin[data-sointuharjoitus="arvaa"] :is([data-suora-kuuntelu], [data-arvaus-kuuntelu]) > button {
+  inline-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 2.5em;
+}
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-uusi-arvaus] {
+  inline-size: min(100%, 11rem);
+  justify-self: start;
+}
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-vastaus] {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-inline-size: 28rem;
+}
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-vastaus] > strong {
+  grid-column: 1 / -1;
+}
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-vastaus] button {
+  min-inline-size: 0;
+}
+
 /* E/Em-arvaus: nimetön ja nimetty teksti samassa ruudussa, leveys varattu pidemmälle. */
 .sointu-vaihtuva { display: inline-grid; justify-items: start; }
 .sointu-vaihtuva > span { grid-area: 1 / 1; }
 /* Arvauksen kuuntelupainikkeet: 4 px vaakarako, jotta varatun levyiset painikkeet mahtuvat
  * rinnakkain 390 px:ssä. Allekkain pinottuina pystyrako pysyy 8 px:nä. */
-.sointu-rivi[data-arvaus-kuuntelu] { column-gap: .25rem; }
+/* Molemmat kuunteluryhmät käyttävät yllä samaa .5rem ruudukkoväliä. */
 /* .sointuharjoitus-etuliite voittaa reader.css:n .practice ol -sisennyksen (0,1,1). */
 .sointuharjoitus .sointu-kierto {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 5rem), 1fr));
