@@ -164,8 +164,6 @@ test.describe('Oppimiskartan navigointi ja paluu', () => {
   test('opetussivun päävalikosta pääsee koko Oppimiskarttaan', async ({ page }) => {
     await page.goto('/index.html#aihe-soinnut');
     await page.locator('#aihe-soinnut').click();
-    // Aiemmat sisällöt ovat oletuksena suljetun osion alla (#116).
-    await page.locator('details#aiemmat > summary').click();
     await page.locator('#valinta-septimisoinnut').click();
     await expect(page).toHaveURL('/oppi/soinnut/septimisoinnut.html');
     await mainNav(page).getByRole('link', { name: 'Opi & oivalla' }).click();
@@ -226,13 +224,15 @@ test.describe('Oppimiskartan navigointi ja paluu', () => {
     const rhythm = page.locator('#aihe-rytmi');
     await rhythm.click();
     const lesson = page.locator('#valinta-pulssi-ja-komppi');
+    // Aiemmat sisällöt ovat oletuksena suljetun osion alla (#116, Rytmin Ydinopinnot).
+    await page.locator('details#aiemmat > summary').click();
     await lesson.click();
     await page.getByRole('button', { name: 'Merkitse luku tehdyksi' }).click();
     await page.goBack();
     await expect(page).toHaveURL('/oppi/rytmi/index.html');
     await expect(lesson).toBeFocused();
     await expect(lesson.locator('[data-study-status]')).toHaveText('✓ Tehty');
-    await expect(page.locator('[data-study-total]')).toHaveText('1/4 sisältöä tehty');
+    await expect(page.locator('[data-study-total]')).toHaveText('1/4 aiemmista sisällöistä tehty');
     await page.goBack();
     await expect(rhythm).toBeFocused();
     await expect(page.locator('#home-continue')).toContainText('Jatka oppimista · Neljä otetta ja ensimmäinen kappale');

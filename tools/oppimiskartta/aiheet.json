@@ -2,176 +2,464 @@
   "start": "rytmi/kuuntele-pulssi",
   "topics": [
     {
-      "slug": "kitara", "anchor": "aihe-kitara", "title": "Kitaran perusteet",
+      "slug": "kitara",
+      "anchor": "aihe-kitara",
+      "title": "Kitaran perusteet",
       "back_label": "Kitaran perusteisiin",
       "summary": "Kertaa kielet, soinnut ja rytmin perusteet 2–5 minuutissa.",
       "lead": "Palauta mieleen kitaransoiton perustiedot, joita tarvitset Musiikin kartan muissa aiheissa. Kertaus vie 2–5 minuuttia.",
       "recap": true,
       "groups": [
-        {"title": "Valinnaiset lisäharjoitukset", "lessons": [
-          {"standalone": "savelesta-sointuun", "title": "Sävelestä sointuun", "goal": "Kuuntele, miten yksittäisistä sävelistä syntyy sointu ja miten soinnuista muodostuu kierto."},
-          {"standalone": "vaihto-ja-sointukartta", "title": "Sointuvaihdot ja sointukartta", "goal": "Vaihda sointua tahdin rajalla ja seuraa lyhyen kappaleen rakennetta kartasta."},
-          {"source": "osa-1#sointukierrot", "goal": "Soita Kolme cowboyta -harjoitustaustan mukana ja löydä kartasta säkeistö, kertosäe ja kappaleen lopetus."},
-          {"standalone": "mihin-kierto-paattyy", "title": "Mihin sointukierto päättyy?", "goal": "Vertaa kahta lopetusta ja kuuntele, miten basso auttaa tunnistamaan soinnun."}
-        ]}
+        {
+          "title": "Valinnaiset lisäharjoitukset",
+          "lessons": [
+            {
+              "standalone": "savelesta-sointuun",
+              "title": "Sävelestä sointuun",
+              "goal": "Kuuntele, miten yksittäisistä sävelistä syntyy sointu ja miten soinnuista muodostuu kierto."
+            },
+            {
+              "standalone": "vaihto-ja-sointukartta",
+              "title": "Sointuvaihdot ja sointukartta",
+              "goal": "Vaihda sointua tahdin rajalla ja seuraa lyhyen kappaleen rakennetta kartasta."
+            },
+            {
+              "source": "osa-1#sointukierrot",
+              "goal": "Soita Kolme cowboyta -harjoitustaustan mukana ja löydä kartasta säkeistö, kertosäe ja kappaleen lopetus."
+            },
+            {
+              "standalone": "mihin-kierto-paattyy",
+              "title": "Mihin sointukierto päättyy?",
+              "goal": "Vertaa kahta lopetusta ja kuuntele, miten basso auttaa tunnistamaan soinnun."
+            }
+          ]
+        }
       ],
       "related": []
     },
     {
-      "slug": "rytmi", "anchor": "aihe-rytmi", "title": "Rytmi",
+      "slug": "rytmi",
+      "anchor": "aihe-rytmi",
+      "title": "Rytmi",
       "back_label": "Rytmiin",
       "summary": "Pulssi, neljään laskeminen ja komppi.",
-      "lead": "Löydä kappaleen tasainen pulssi. Ota sitten kitara mukaan ja pidä käsi liikkeessä myös sointua vaihtaessa.",
-      "groups": [
-        {"title": "Pulssista komppiin", "lessons": [
-          {"source": "osa-1#pulssi-ja-komppi", "goal": "Laske iskuja ja kahdeksasosia. Soita alas–ylös-komppia tasaisella kädellä."}
-        ]}
-      ],
-      "related": ["kitara", "savelnimet/kitaran-kielet-ja-sointumerkinnat"]
-    },
-    {
-      "slug": "savelnimet", "anchor": "aihe-nuotit", "title": "Sävelnimet ja sointumerkinnät",
-      "back_label": "Sävelnimiin ja sointumerkintöihin",
-      "summary": "Kielten nimet, intervallit ja sointukaaviot.",
-      "lead": "Lue kitaran sointukarttaa ja nimeä sävelet. Mittaa sävelten välejä nauhoina ja kuuntele, miten yksi sävel muuttaa soinnun.",
-      "groups": [
-        {"title": "Merkinnät ja sävelvälit", "lessons": [
-          {"source": "osa-1#kitaran-merkinnat", "excerpt": "kitaran-kielet-ja-sointumerkinnat", "title": "Kitaran kielet ja sointumerkinnät", "goal": "Lue kielten nimet ja sointukaavio. Kokeile ensimmäistä G-otetta."},
-          {"source": "osa-2#savelet-ja-intervallit", "goal": "Nimeä intervallit priimistä oktaaviin ja palauta niiden puolisävelmäärät mieleen."}
-        ]}
-      ],
-      "related": ["korva/intervallit", "asteikot/asteikot"]
-    },
-    {
-      "slug": "korva", "anchor": "aihe-korva", "title": "Sävelkorva ja melodia",
-      "back_label": "Sävelkorvaan ja melodiaan",
-      "summary": "Kotisävel, melodia ja sointujen kuuntelu.",
-      "lead": "Kuuntele, mihin melodia haluaa päättyä. Hyräile kuulemasi ennen kuin etsit säveliä tai sointuja kitaralta.",
-      "groups": [
-        {"title": "Kotisävel ja sävelvälit", "lessons": [
-          {"source": "osa-2#musiikki-on-kieli", "goal": "Kuule keskeneräisen ja päättyvän fraasin ero. Hyräile melodian kotisävel."},
-          {"source": "osa-4#savellajin-tunnistaminen", "goal": "Erota G-duurin ja e-mollin kotisävelet, vaikka säveliä ja sointuja on yhteisiä."},
-          {"source": "osa-7#intervallit", "goal": "Kuuntele sävelen suhdetta kotisäveleen ja tunnista kahden sävelen väli."}
-        ]},
-        {"title": "Basso ja soinnut", "lessons": [
-          {"source": "osa-7#basso", "goal": "Seuraa matalinta ääntä ja etsi bassolinja kitaralta."},
-          {"source": "osa-7#soinnut", "goal": "Erota duuri- ja mollisointu kuuntelemalla terssiä."},
-          {"source": "osa-10#septimi-korvalla", "goal": "Kuule, miten pieni tai suuri septimi muuttaa C-duurisointua."}
-        ]}
-      ],
-      "tools": [
-        {"title": "Ensikeikka · etsi melodialle lopetus", "href": "pelit/ensikeikka/index.html"},
-        {"title": "Riffikaiku · matki neljän sävelen riffi", "href": "riffikaiku.html"}
-      ],
-      "related": ["savelnimet/savelet-ja-intervallit", "kappaleet/kappale"]
-    },
-    {
-      "slug": "otelauta", "anchor": "aihe-otelauta", "title": "Otelauta",
-      "back_label": "Otelautaan",
-      "summary": "Sävelten sijainnit, oktaavit ja CAGED.",
-      "lead": "Etsi sama sävel useasta kohdasta. Käytä paksuja kieliä lähtöpisteinä ja tunnista avoimista otteista tutut muodot eri puolilla otelautaa.",
-      "groups": [
-        {"title": "Sävelten sijainnit ja muodot", "lessons": [
-          {"source": "osa-5#otelauta", "goal": "Löydä samanniminen sävel toiselta kieleltä tai toisesta oktaavista."},
-          {"source": "osa-5#perussavel", "goal": "Nimeä E- ja A-kielten sävelet ja käytä niitä etsinnän lähtöpisteinä."},
-          {"source": "osa-6#caged", "goal": "Tunnista C-, A-, G-, E- ja D-otteiden muodot eri kohdissa otelautaa."}
-        ]}
-      ],
-      "tools": [
-        {"title": "Etsi sävelet otelaudalta", "href": "kitaraharjoittelija.html?polku=otelauta&harjoitus=savelten-etsinta"},
-        {"title": "Tutki otelautakarttaa", "href": "otelautaharjoittelija.html"}
-      ],
-      "related": ["savelnimet/kitaran-kielet-ja-sointumerkinnat", "soinnut/barre"]
-    },
-    {
-      "slug": "soinnut", "anchor": "aihe-soinnut", "title": "Soinnut ja harmonia",
-      "back_label": "Sointuihin ja harmoniaan",
-      "summary": "Sointujen rakenne, tehtävät ja otteet.",
-      "lead": "Mistä sointu syntyy, miten yhden sävelen muutos kuuluu ja miksi jotkin soinnut tuntuvat vievän musiikkia eteenpäin? Kuuntele ja kokeile itse.",
+      "lead": "Musiikin pulssi pysyy, vaikka äänet vaihtuvat tai välillä hiljenevät. Löydä rytmi korvalla, kokeile itse ja huomaa, miten se muuttaa musiikkia.",
       "layout": "kokonaisuudet",
-      "progress_text": {"count": "aiemmista sisällöistä tehty", "done": "✓ Aiemmat sisällöt tehty"},
+      "progress_text": {
+        "count": "aiemmista sisällöistä tehty",
+        "done": "✓ Aiemmat sisällöt tehty"
+      },
       "legacy": {
         "id": "aiemmat",
         "title": "Aiemmat oppitunnit ja harjoitukset",
         "intro": "Kaikki aiemmat oppitunnit ja harjoitukset löytyvät täältä entisillä osoitteillaan. Aiemmat suoritusmerkintäsi säilyvät."
       },
       "groups": [
-        {"id": "ydinopinnot", "title": "Ydinopinnot", "kind": "harjoitus", "attempts": true, "inline": true,
-         "back": "unit", "last": "start",
-         "goal": "Etene haluamassasi järjestyksessä.",
-         "lessons": [
-          {"standalone": "kuule-ja-kokoa-sointu", "title": "Kuule ja kokoa sointu", "goal": "Sävelet ja yhteissointi"},
-          {"standalone": "yksi-savel-muuttaa-sointua", "title": "Yksi sävel muuttaa sointua", "goal": "Duuri ja molli"},
-          {"standalone": "mihin-kappale-haluaa-palata", "title": "Mihin kappale haluaa palata?", "goal": "Sointujen suhde"}
-        ]},
-        {"id": "miten-sointu-muodostuu", "number": 1, "title": "Miten sointu muodostuu?", "archived": true,
-         "goal": "Kuuntele, rakenna ja soita: kolme lyhyttä harjoitusta G-duurisoinnusta. Voit avata minkä tahansa vaiheen omassa järjestyksessäsi.",
-         "lessons": [
-          {"standalone": "kuule-mika-on-sointu", "title": "Kuule, mikä on sointu", "goal": "Vertaa kolmea säveltä peräkkäin ja samanaikaisesti. Musiikki ensin, selitys sitten."},
-          {"standalone": "rakenna-g-duurisointu", "title": "Rakenna G-duurisointu", "goal": "Valitse G-duuriasteikolta 1., 3. ja 5. sävel ja tarkista valintasi."},
-          {"standalone": "kokeile-g-sointua-kitaralla", "title": "Kokeile G-sointua kitaralla", "goal": "Soita sama kolmisointu kitaralla ja kuuntele, miten sen sävelet yhdistyvät."}
-        ]},
-        {"legacy": true, "title": "Rakenna sointuja asteikosta", "lessons": [
-          {"source": "osa-3#harmoninen-kentta", "goal": "Muodosta kolmisointuja poimimalla asteikosta joka toinen sävel."}
-        ]},
-        {"legacy": true, "title": "Ymmärrä sointujen tehtävät ja liike", "lessons": [
-          {"source": "osa-3#roomalaiset-numerot", "goal": "Kirjoita sointukierto asteina ja soita se toisessa sävellajissa."},
-          {"source": "osa-3#sointujen-tehtavat", "goal": "Kuule kotisointu, kodista poispäin vievä sointu ja paluuta valmisteleva sointu."},
-          {"source": "osa-4#kvinttiympyra", "goal": "Löydä I-, IV- ja V-soinnun suhteet kvinttiympyrästä."}
-        ]},
-        {"legacy": true, "title": "Soita siirrettävillä otteilla", "lessons": [
-          {"source": "osa-6#barre", "goal": "Siirrä barré-ote ja etsi perussävel E- tai A-kieleltä."}
-        ]},
-        {"legacy": true, "title": "Syvenny septimisointuihin", "lessons": [
-          {"source": "osa-10#septimisoinnut", "goal": "Rakenna nelisointuja ja tunnista niiden tavallisimmat tyypit."},
-          {"source": "osa-10#ii-v-i", "goal": "Soita ii–V–I ja seuraa, miten terssit ja septimit liikkuvat."}
-        ]}
+        {
+          "id": "ydinopinnot",
+          "number": 1,
+          "title": "Ydinopinnot",
+          "attempts": true,
+          "goal": "Kuuntele ensin malli ja kokeile sitten itse, esimerkiksi taputtaen tai kitaralla. Voit palata tehtäviin vapaasti. ”Kokeiltu” ei ole osaamistesti.",
+          "lessons": [
+            {
+              "standalone": "loyda-pulssi-ja-ykkonen",
+              "title": "Löydä pulssi ja ykkönen",
+              "goal": "Kuuntele ja naputa"
+            },
+            {
+              "standalone": "hiljaisuus-kuuluu-rytmiin",
+              "title": "Hiljaisuus kuuluu rytmiin",
+              "goal": "Kokeile taukoa"
+            },
+            {
+              "standalone": "sama-musiikki-eri-tuntuma",
+              "title": "Sama musiikki, eri tuntuma",
+              "goal": "Kuule ja vertaile"
+            }
+          ]
+        },
+        {
+          "legacy": true,
+          "title": "Pulssista komppiin",
+          "lessons": [
+            {
+              "source": "osa-1#pulssi-ja-komppi",
+              "goal": "Laske iskuja ja kahdeksasosia. Soita alas–ylös-komppia tasaisella kädellä."
+            }
+          ]
+        }
       ],
-      "tools": [
-        {"title": "Harjoittele sointuja ja sointusäveliä", "href": "kitaraharjoittelija.html?polku=soinnut"},
-        {"title": "Tutki sointukarttaa", "href": "otelautaharjoittelija.html#soinnut"}
-      ],
-      "related": ["asteikot/asteikot", "korva/soinnut", "kappaleet/mika-sointu-tulee"]
+      "related": [
+        "kitara",
+        "savelnimet/kitaran-kielet-ja-sointumerkinnat"
+      ]
     },
     {
-      "slug": "asteikot", "anchor": "aihe-asteikot", "title": "Asteikot ja moodit",
+      "slug": "savelnimet",
+      "anchor": "aihe-nuotit",
+      "title": "Sävelnimet ja sointumerkinnät",
+      "back_label": "Sävelnimiin ja sointumerkintöihin",
+      "summary": "Kielten nimet, intervallit ja sointukaaviot.",
+      "lead": "Lue kitaran sointukarttaa ja nimeä sävelet. Mittaa sävelten välejä nauhoina ja kuuntele, miten yksi sävel muuttaa soinnun.",
+      "groups": [
+        {
+          "title": "Merkinnät ja sävelvälit",
+          "lessons": [
+            {
+              "source": "osa-1#kitaran-merkinnat",
+              "excerpt": "kitaran-kielet-ja-sointumerkinnat",
+              "title": "Kitaran kielet ja sointumerkinnät",
+              "goal": "Lue kielten nimet ja sointukaavio. Kokeile ensimmäistä G-otetta."
+            },
+            {
+              "source": "osa-2#savelet-ja-intervallit",
+              "goal": "Nimeä intervallit priimistä oktaaviin ja palauta niiden puolisävelmäärät mieleen."
+            }
+          ]
+        }
+      ],
+      "related": [
+        "korva/intervallit",
+        "asteikot/asteikot"
+      ]
+    },
+    {
+      "slug": "korva",
+      "anchor": "aihe-korva",
+      "title": "Sävelkorva ja melodia",
+      "back_label": "Sävelkorvaan ja melodiaan",
+      "summary": "Kotisävel, melodia ja sointujen kuuntelu.",
+      "lead": "Kuuntele, mihin melodia haluaa päättyä. Hyräile kuulemasi ennen kuin etsit säveliä tai sointuja kitaralta.",
+      "groups": [
+        {
+          "title": "Kotisävel ja sävelvälit",
+          "lessons": [
+            {
+              "source": "osa-2#musiikki-on-kieli",
+              "goal": "Kuule keskeneräisen ja päättyvän fraasin ero. Hyräile melodian kotisävel."
+            },
+            {
+              "source": "osa-4#savellajin-tunnistaminen",
+              "goal": "Erota G-duurin ja e-mollin kotisävelet, vaikka säveliä ja sointuja on yhteisiä."
+            },
+            {
+              "source": "osa-7#intervallit",
+              "goal": "Kuuntele sävelen suhdetta kotisäveleen ja tunnista kahden sävelen väli."
+            }
+          ]
+        },
+        {
+          "title": "Basso ja soinnut",
+          "lessons": [
+            {
+              "source": "osa-7#basso",
+              "goal": "Seuraa matalinta ääntä ja etsi bassolinja kitaralta."
+            },
+            {
+              "source": "osa-7#soinnut",
+              "goal": "Erota duuri- ja mollisointu kuuntelemalla terssiä."
+            },
+            {
+              "source": "osa-10#septimi-korvalla",
+              "goal": "Kuule, miten pieni tai suuri septimi muuttaa C-duurisointua."
+            }
+          ]
+        }
+      ],
+      "tools": [
+        {
+          "title": "Ensikeikka · etsi melodialle lopetus",
+          "href": "pelit/ensikeikka/index.html"
+        },
+        {
+          "title": "Riffikaiku · matki neljän sävelen riffi",
+          "href": "riffikaiku.html"
+        }
+      ],
+      "related": [
+        "savelnimet/savelet-ja-intervallit",
+        "kappaleet/kappale"
+      ]
+    },
+    {
+      "slug": "otelauta",
+      "anchor": "aihe-otelauta",
+      "title": "Otelauta",
+      "back_label": "Otelautaan",
+      "summary": "Sävelten sijainnit, oktaavit ja CAGED.",
+      "lead": "Etsi sama sävel useasta kohdasta. Käytä paksuja kieliä lähtöpisteinä ja tunnista avoimista otteista tutut muodot eri puolilla otelautaa.",
+      "groups": [
+        {
+          "title": "Sävelten sijainnit ja muodot",
+          "lessons": [
+            {
+              "source": "osa-5#otelauta",
+              "goal": "Löydä samanniminen sävel toiselta kieleltä tai toisesta oktaavista."
+            },
+            {
+              "source": "osa-5#perussavel",
+              "goal": "Nimeä E- ja A-kielten sävelet ja käytä niitä etsinnän lähtöpisteinä."
+            },
+            {
+              "source": "osa-6#caged",
+              "goal": "Tunnista C-, A-, G-, E- ja D-otteiden muodot eri kohdissa otelautaa."
+            }
+          ]
+        }
+      ],
+      "tools": [
+        {
+          "title": "Etsi sävelet otelaudalta",
+          "href": "kitaraharjoittelija.html?polku=otelauta&harjoitus=savelten-etsinta"
+        },
+        {
+          "title": "Tutki otelautakarttaa",
+          "href": "otelautaharjoittelija.html"
+        }
+      ],
+      "related": [
+        "savelnimet/kitaran-kielet-ja-sointumerkinnat",
+        "soinnut/barre"
+      ]
+    },
+    {
+      "slug": "soinnut",
+      "anchor": "aihe-soinnut",
+      "title": "Soinnut ja harmonia",
+      "back_label": "Sointuihin ja harmoniaan",
+      "summary": "Sointujen rakenne, tehtävät ja otteet.",
+      "lead": "Mistä sointu syntyy, miten yhden sävelen muutos kuuluu ja miksi jotkin soinnut tuntuvat vievän musiikkia eteenpäin? Kuuntele ja kokeile itse.",
+      "layout": "kokonaisuudet",
+      "progress_text": {
+        "count": "aiemmista sisällöistä tehty",
+        "done": "✓ Aiemmat sisällöt tehty"
+      },
+      "legacy": {
+        "id": "aiemmat",
+        "title": "Aiemmat oppitunnit ja harjoitukset",
+        "intro": "Kaikki aiemmat oppitunnit ja harjoitukset löytyvät täältä entisillä osoitteillaan. Aiemmat suoritusmerkintäsi säilyvät."
+      },
+      "groups": [
+        {
+          "id": "ydinopinnot",
+          "title": "Ydinopinnot",
+          "kind": "harjoitus",
+          "attempts": true,
+          "inline": true,
+          "back": "unit",
+          "last": "start",
+          "goal": "Etene haluamassasi järjestyksessä.",
+          "lessons": [
+            {
+              "standalone": "kuule-ja-kokoa-sointu",
+              "title": "Kuule ja kokoa sointu",
+              "goal": "Sävelet ja yhteissointi"
+            },
+            {
+              "standalone": "yksi-savel-muuttaa-sointua",
+              "title": "Yksi sävel muuttaa sointua",
+              "goal": "Duuri ja molli"
+            },
+            {
+              "standalone": "mihin-kappale-haluaa-palata",
+              "title": "Mihin kappale haluaa palata?",
+              "goal": "Sointujen suhde"
+            }
+          ]
+        },
+        {
+          "id": "miten-sointu-muodostuu",
+          "number": 1,
+          "title": "Miten sointu muodostuu?",
+          "archived": true,
+          "goal": "Kuuntele, rakenna ja soita: kolme lyhyttä harjoitusta G-duurisoinnusta. Voit avata minkä tahansa vaiheen omassa järjestyksessäsi.",
+          "lessons": [
+            {
+              "standalone": "kuule-mika-on-sointu",
+              "title": "Kuule, mikä on sointu",
+              "goal": "Vertaa kolmea säveltä peräkkäin ja samanaikaisesti. Musiikki ensin, selitys sitten."
+            },
+            {
+              "standalone": "rakenna-g-duurisointu",
+              "title": "Rakenna G-duurisointu",
+              "goal": "Valitse G-duuriasteikolta 1., 3. ja 5. sävel ja tarkista valintasi."
+            },
+            {
+              "standalone": "kokeile-g-sointua-kitaralla",
+              "title": "Kokeile G-sointua kitaralla",
+              "goal": "Soita sama kolmisointu kitaralla ja kuuntele, miten sen sävelet yhdistyvät."
+            }
+          ]
+        },
+        {
+          "legacy": true,
+          "title": "Rakenna sointuja asteikosta",
+          "lessons": [
+            {
+              "source": "osa-3#harmoninen-kentta",
+              "goal": "Muodosta kolmisointuja poimimalla asteikosta joka toinen sävel."
+            }
+          ]
+        },
+        {
+          "legacy": true,
+          "title": "Ymmärrä sointujen tehtävät ja liike",
+          "lessons": [
+            {
+              "source": "osa-3#roomalaiset-numerot",
+              "goal": "Kirjoita sointukierto asteina ja soita se toisessa sävellajissa."
+            },
+            {
+              "source": "osa-3#sointujen-tehtavat",
+              "goal": "Kuule kotisointu, kodista poispäin vievä sointu ja paluuta valmisteleva sointu."
+            },
+            {
+              "source": "osa-4#kvinttiympyra",
+              "goal": "Löydä I-, IV- ja V-soinnun suhteet kvinttiympyrästä."
+            }
+          ]
+        },
+        {
+          "legacy": true,
+          "title": "Soita siirrettävillä otteilla",
+          "lessons": [
+            {
+              "source": "osa-6#barre",
+              "goal": "Siirrä barré-ote ja etsi perussävel E- tai A-kieleltä."
+            }
+          ]
+        },
+        {
+          "legacy": true,
+          "title": "Syvenny septimisointuihin",
+          "lessons": [
+            {
+              "source": "osa-10#septimisoinnut",
+              "goal": "Rakenna nelisointuja ja tunnista niiden tavallisimmat tyypit."
+            },
+            {
+              "source": "osa-10#ii-v-i",
+              "goal": "Soita ii–V–I ja seuraa, miten terssit ja septimit liikkuvat."
+            }
+          ]
+        }
+      ],
+      "tools": [
+        {
+          "title": "Harjoittele sointuja ja sointusäveliä",
+          "href": "kitaraharjoittelija.html?polku=soinnut"
+        },
+        {
+          "title": "Tutki sointukarttaa",
+          "href": "otelautaharjoittelija.html#soinnut"
+        }
+      ],
+      "related": [
+        "asteikot/asteikot",
+        "korva/soinnut",
+        "kappaleet/mika-sointu-tulee"
+      ]
+    },
+    {
+      "slug": "asteikot",
+      "anchor": "aihe-asteikot",
+      "title": "Asteikot ja moodit",
       "back_label": "Asteikkoihin ja moodeihin",
       "summary": "Duuri, molli, pentatoniikka ja moodit.",
       "lead": "Soita duuri ja molli samalta lähtösäveleltä. Rajaa soittosi sitten viiteen säveleen ja kuuntele lopuksi moodien eroja.",
       "groups": [
-        {"title": "Asteikkojen sävelet", "lessons": [
-          {"source": "osa-2#asteikot", "goal": "Soita duuri ja luonnollinen molli sekä paikanna niiden puoliaskeleet."},
-          {"source": "osa-8#pentatoniikka", "goal": "Soita viisisävelinen mollipentatoniikka ja käytä sitä lyhyessä melodiassa."}
-        ]},
-        {"title": "Syventävät moodit", "lessons": [
-          {"source": "osa-11#moodit", "goal": "Kuuntele moodien tunnussäveliä samalta kotisäveleltä ja kokeile niiden eroa otelaudalla."}
-        ]}
+        {
+          "title": "Asteikkojen sävelet",
+          "lessons": [
+            {
+              "source": "osa-2#asteikot",
+              "goal": "Soita duuri ja luonnollinen molli sekä paikanna niiden puoliaskeleet."
+            },
+            {
+              "source": "osa-8#pentatoniikka",
+              "goal": "Soita viisisävelinen mollipentatoniikka ja käytä sitä lyhyessä melodiassa."
+            }
+          ]
+        },
+        {
+          "title": "Syventävät moodit",
+          "lessons": [
+            {
+              "source": "osa-11#moodit",
+              "goal": "Kuuntele moodien tunnussäveliä samalta kotisäveleltä ja kokeile niiden eroa otelaudalla."
+            }
+          ]
+        }
       ],
       "tools": [
-        {"title": "Harjoittele pentatonisia asteikkoja ja moodeja", "href": "kitaraharjoittelija.html?polku=asteikot"},
-        {"title": "Näytä asteikot otelaudalla", "href": "otelautaharjoittelija.html"}
+        {
+          "title": "Harjoittele pentatonisia asteikkoja ja moodeja",
+          "href": "kitaraharjoittelija.html?polku=asteikot"
+        },
+        {
+          "title": "Näytä asteikot otelaudalla",
+          "href": "otelautaharjoittelija.html"
+        }
       ],
-      "related": ["savelnimet/savelet-ja-intervallit", "kappaleet/improvisointi"]
+      "related": [
+        "savelnimet/savelet-ja-intervallit",
+        "kappaleet/improvisointi"
+      ]
     },
     {
-      "slug": "kappaleet", "anchor": "aihe-kappaleet", "title": "Kappaleet ja oma musiikki",
+      "slug": "kappaleet",
+      "anchor": "aihe-kappaleet",
+      "title": "Kappaleet ja oma musiikki",
       "back_label": "Kappaleisiin ja omaan musiikkiin",
       "summary": "Soita mukana, improvisoi ja tee oma kappale.",
       "lead": "Soita sointukartasta ja kuuntele, miten kappale rakentuu. Käytä samoja taitoja omaan säestykseen ja lyhyeen äänitteeseen.",
       "groups": [
-        {"title": "Sointukartta ja korvakuulo", "lessons": [
-          {"source": "osa-3#kappale-asteina", "goal": "Kirjoita Kolmen cowboyn soinnut asteina ja löydä samat suhteet toisessa sävellajissa."},
-          {"source": "osa-4#transponointi", "goal": "Siirrä kappale laulajalle sopivaan sävellajiin, myös kapoa käyttäen."},
-          {"source": "osa-7#kappale", "goal": "Etsi Paluumatkan pulssi, osat ja soinnut kuuntelemalla."}
-        ]},
-        {"title": "Improvisoi, sovita ja äänitä", "lessons": [
-          {"source": "osa-8#improvisointi", "goal": "Keksi lyhyt fraasi ja vastaus kahden soinnun kiertoon."},
-          {"source": "osa-9#sovittaminen", "goal": "Erota kappaleen osat vaihtamalla säestystapaa."},
-          {"source": "osa-9#oma-kappale", "goal": "Kasvata lyhyestä melodiasta ja sointukierrosta oma kappaleluonnos."}
-        ]}
+        {
+          "title": "Sointukartta ja korvakuulo",
+          "lessons": [
+            {
+              "source": "osa-3#kappale-asteina",
+              "goal": "Kirjoita Kolmen cowboyn soinnut asteina ja löydä samat suhteet toisessa sävellajissa."
+            },
+            {
+              "source": "osa-4#transponointi",
+              "goal": "Siirrä kappale laulajalle sopivaan sävellajiin, myös kapoa käyttäen."
+            },
+            {
+              "source": "osa-7#kappale",
+              "goal": "Etsi Paluumatkan pulssi, osat ja soinnut kuuntelemalla."
+            }
+          ]
+        },
+        {
+          "title": "Improvisoi, sovita ja äänitä",
+          "lessons": [
+            {
+              "source": "osa-8#improvisointi",
+              "goal": "Keksi lyhyt fraasi ja vastaus kahden soinnun kiertoon."
+            },
+            {
+              "source": "osa-9#sovittaminen",
+              "goal": "Erota kappaleen osat vaihtamalla säestystapaa."
+            },
+            {
+              "source": "osa-9#oma-kappale",
+              "goal": "Kasvata lyhyestä melodiasta ja sointukierrosta oma kappaleluonnos."
+            }
+          ]
+        }
       ],
-      "tools": [{"title": "Avaa kappaleharjoittelija", "href": "kitaraharjoittelija.html?polku=kappaleet"}],
-      "related": ["kitara/sointukierrot", "asteikot/pentatoniikka"]
+      "tools": [
+        {
+          "title": "Avaa kappaleharjoittelija",
+          "href": "kitaraharjoittelija.html?polku=kappaleet"
+        }
+      ],
+      "related": [
+        "kitara/sointukierrot",
+        "asteikot/pentatoniikka"
+      ]
     }
   ],
   "exercise_descriptions": {
@@ -218,17 +506,42 @@
     "vaihda-f-nauhaa-ylemmas": "Vertaa saman fraasin F- ja F♯-säveltä Am-taustalla."
   },
   "exercise_audio": {
-    "kuuntele-pulssi": ["osa-1#pulssi-aanite"],
-    "soita-ensin-basso": ["osa-1#kappale-kuvaus"],
-    "taydenna-fraasi": ["osa-2#fraasi-kuvaus"],
-    "siirra-yhta-sormea": ["osa-2#terssi-kuvaus"],
-    "tee-sointukartta": ["osa-7#paluumatka-kuvaus"],
-    "etsi-ensimmainen-melodiasavel": ["osa-7#paluumatka-kuvaus"],
-    "soita-kysymys-ja-vastaus": ["osa-8#em-c-tausta"],
-    "vaihda-f-nauhaa-ylemmas": ["osa-8#am-tausta"],
-    "vaihda-kotisavelta": ["osa-4#kotisavel-kuvaus"],
-    "sovita-savellaji-laulajalle": ["osa-4#kapo-kuvaus"],
-    "kysymys-ja-vastaus-koko-boksilla": ["osa-8#em-c-tausta"],
-    "vaihda-saestysta": ["osa-9#nappaily-kuvaus", "osa-9#komppi-kuvaus"]
+    "kuuntele-pulssi": [
+      "osa-1#pulssi-aanite"
+    ],
+    "soita-ensin-basso": [
+      "osa-1#kappale-kuvaus"
+    ],
+    "taydenna-fraasi": [
+      "osa-2#fraasi-kuvaus"
+    ],
+    "siirra-yhta-sormea": [
+      "osa-2#terssi-kuvaus"
+    ],
+    "tee-sointukartta": [
+      "osa-7#paluumatka-kuvaus"
+    ],
+    "etsi-ensimmainen-melodiasavel": [
+      "osa-7#paluumatka-kuvaus"
+    ],
+    "soita-kysymys-ja-vastaus": [
+      "osa-8#em-c-tausta"
+    ],
+    "vaihda-f-nauhaa-ylemmas": [
+      "osa-8#am-tausta"
+    ],
+    "vaihda-kotisavelta": [
+      "osa-4#kotisavel-kuvaus"
+    ],
+    "sovita-savellaji-laulajalle": [
+      "osa-4#kapo-kuvaus"
+    ],
+    "kysymys-ja-vastaus-koko-boksilla": [
+      "osa-8#em-c-tausta"
+    ],
+    "vaihda-saestysta": [
+      "osa-9#nappaily-kuvaus",
+      "osa-9#komppi-kuvaus"
+    ]
   }
 }

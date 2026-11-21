@@ -56,7 +56,7 @@ test('kitaramerkinnät säilyvät ja vain varsinaisen aiheen valmistuminen näyt
   await page.goto(map);
   const rhythmItems = (await topic(page, 'aihe-rytmi').getAttribute('data-study-items'))!.split(' ');
   await expectTopics(page, initialTopics);
-  await expect(rhythmProgress(page)).toHaveText('0/4 sisältöä tehty');
+  await expect(rhythmProgress(page)).toHaveText('0/4 aiemmista sisällöistä tehty');
 
   await lessonTab.goto(kitaraLesson);
   await lessonTab.evaluate(({ key, marks }) => localStorage.setItem(key, JSON.stringify(marks)),
@@ -69,19 +69,19 @@ test('kitaramerkinnät säilyvät ja vain varsinaisen aiheen valmistuminen näyt
   const partial = [...guitarMarks, ...rhythmItems.slice(1)];
   await lessonTab.evaluate(({ key, marks }) => localStorage.setItem(key, JSON.stringify(marks)),
     { key: readingKey, marks: partial });
-  await expect(rhythmProgress(page)).toHaveText('3/4 sisältöä tehty');
+  await expect(rhythmProgress(page)).toHaveText('3/4 aiemmista sisällöistä tehty');
   await expectTopics(page, initialTopics);
   await lessonTab.goto('/oppi/rytmi/pulssi-ja-komppi.html');
   await lessonTab.getByRole('button', { name: 'Merkitse luku tehdyksi' }).click();
 
-  await expect(rhythmProgress(page)).toHaveText('✓ Aihe käyty läpi');
+  await expect(rhythmProgress(page)).toHaveText('✓ Aiemmat sisällöt tehty');
   const recommendedTopics = [...initialTopics, 'aihe-korva'];
   await expectTopics(page, recommendedTopics);
   await expect(toggle(page)).toHaveText('Näytä kaikki aiheet (4 lisää)');
   expect(await page.evaluate(key => JSON.parse(localStorage.getItem(key) ?? '[]'), readingKey))
     .toEqual([...partial, rhythmItems[0]]);
   await lessonTab.getByRole('button', { name: '✓ Luku tehty' }).click();
-  await expect(rhythmProgress(page)).toHaveText('3/4 sisältöä tehty');
+  await expect(rhythmProgress(page)).toHaveText('3/4 aiemmista sisällöistä tehty');
   await lessonTab.goto('/book/index.html');
   await expect(lessonTab.locator('#jatka')).toContainText('1/28 lukua merkitty tehdyiksi');
 
@@ -127,12 +127,12 @@ test('kaikki teorialuvut tehnyt käyttäjä näkee säilyneet merkinnät ja kesk
   await page.reload();
   await expect(topic(page, 'aihe-kitara').locator('.topic-status')).toHaveCount(0);
   await expect(list(page).locator('.topic-status')).toHaveText([
-    '1/4 sisältöä tehty',
+    // Rytmi: laskuri kattaa vain aiemmat sisällöt kuten Soinnuissa (#116, progress_text).
+    '1/4 aiemmista sisällöistä tehty',
     '1/3 sisältöä tehty',
     '6/14 sisältöä tehty',
     '3/8 sisältöä tehty',
-    // Soinnut ja harmonia: laskuri kattaa vain aiemmat sisällöt (#116, progress_text).
-    '7/18 aiemmista sisällöistä tehty',
+    '7/18 sisältöä tehty',
     '3/7 sisältöä tehty',
     '6/14 sisältöä tehty',
   ]);

@@ -681,6 +681,10 @@ def render(topic, content, nav, page=None, *, path_items=()):
     stylesheets = ['book/reader.css', 'assets/paavalikko.css', 'assets/oppi.css']
     if recap:
         stylesheets.append('assets/kitara-kertaus.css')
+    # Rytmin Ydinopinnot (#116): harjoitusten tyylit ja moduuli.
+    rhythm_practice = page and 'data-rytmiharjoitus=' in page.markup
+    if rhythm_practice:
+        stylesheets.append('assets/rytmi-ydinopinnot.css')
     interval_recall = page and 'data-intervallimuisti' in page.markup
     if interval_recall:
         stylesheets.append('assets/intervallimuisti.css')
@@ -723,6 +727,8 @@ def render(topic, content, nav, page=None, *, path_items=()):
     if interval_recall:
         url = versioned_url('assets/intervallimuisti.js', output)
         scripts += f'\n  <script type="module" src="{url}"></script>'
+    if rhythm_practice:
+        scripts += f'\n  <script type="module" src="{versioned_url("assets/rytmi-ydinopinnot.js", output)}"></script>'
     page_class = ' recap-page' if recap else ''
     if not recap:
         back = f'''<nav class="study-up" aria-label="Paluunavigointi">

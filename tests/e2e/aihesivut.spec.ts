@@ -129,8 +129,10 @@ for (const [topicIndex, [anchor, slug, title, backName]] of topics.entries()) {
     if (slug === 'kitara') {
       await expect(page.locator('.study-choice, [data-study-total]')).toHaveCount(0);
     } else {
-      if (slug === 'soinnut') await page.locator('#ydinopinnot > summary').click();
-      await expect(page.getByText('Aloita tästä', { exact: true })).toBeVisible();
+      // Aloituskohta voi olla oletuksena suljetun kokonaisuuden sisällä (#116, Rytmin Ydinopinnot).
+      const start = page.getByText('Aloita tästä', { exact: true });
+      await expect(start).toHaveCount(1);
+      if (!(await start.evaluate(node => Boolean(node.closest('details:not([open])'))))) await expect(start).toBeVisible();
       await expect(back(page)).toHaveCount(1);
       await expect(exactBack(page, 'Oppimiskarttaan')).toHaveAttribute('href', '../../index.html#aihe-' + anchor);
       await expect(page.locator('a[href="../../index.html#aihe-' + anchor + '"]')).toHaveCount(1);
@@ -242,8 +244,8 @@ for (const [index, [, slug, title]] of topics.slice(0, -1).entries()) {
     for (const steps of [topSteps(page), bottomSteps(page)]) {
       const progress = steps.locator('[data-boundary-progress]');
       if (slug === 'kitara') await expect(progress).toHaveCount(0);
-      // Soinnut ja harmonia: aiempien sisältöjen laskurin oma teksti (#116, progress_text).
-      else await expect(progress).toHaveText(`0/${total} ${slug === 'soinnut' ? 'aiemmista sisällöistä' : 'sisältöä'} tehty`);
+      // Rytmi: aiempien sisältöjen laskurin oma teksti kuten Soinnuissa (#116, progress_text).
+      else await expect(progress).toHaveText(`0/${total} ${slug === 'rytmi' ? 'aiemmista sisällöistä' : 'sisältöä'} tehty`);
       await steps.getByRole('link', { name: 'Seuraava aihe: ' + nextTitle, exact: true }).click();
       await expect(page).toHaveURL(nextPath);
       await expect(page.getByRole('heading', { level: 1, name: nextTitle, exact: true })).toBeVisible();
@@ -253,7 +255,7 @@ for (const [index, [, slug, title]] of topics.slice(0, -1).entries()) {
     expect(await page.evaluate(key => localStorage.getItem(key), readingKey)).toBeNull();
     await page.goto('/index.html');
     await expect(mapCard).toBeVisible();
-    await expect(mapCard.locator('.topic-status')).toHaveText(nextSlug === 'soinnut' ? /^0\/18 aiemmista sisällöistä tehty$/ : /^0\/\d+ sisältöä tehty$/);
+    await expect(mapCard.locator('.topic-status')).toHaveText(nextSlug === 'rytmi' ? /^0\/4 aiemmista sisällöistä tehty$/ : /^0\/\d+ sisältöä tehty$/);
     await page.reload();
     await expect(mapCard).toBeVisible();
   });
