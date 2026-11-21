@@ -91,7 +91,7 @@ describe('staattisen sivuston yhteensopivuus',()=>{
 
   it('kahdeksan numeroitua korttia avaa omat aihesivunsa ja vanhat ankkurit säilyvät', () => {
     const html = read('index.html');
-    const cards = [...html.matchAll(/<a class="topic-card" id="(aihe-[^"]+)" href="oppi\/([^/]+)\/index.html"[^>]*>\s*<span class="topic-number" aria-hidden="true">(\d\d)<\/span>/g)];
+    const cards = [...html.matchAll(/<a class="topic-card" id="(aihe-[^"]+)" href="oppi\/([^/]+)\/index.html"[^>]*>[\s\S]*?<span class="topic-number" aria-hidden="true">(\d\d)<\/span>/g)];
     expect(cards.map(card => card[1])).toEqual(['aihe-kitara', 'aihe-rytmi', 'aihe-nuotit', 'aihe-korva', 'aihe-otelauta', 'aihe-soinnut', 'aihe-asteikot', 'aihe-kappaleet']);
     expect(cards.map(card => card[2])).toEqual(topics);
     expect(cards.map(card => card[3])).toEqual(['01', '02', '03', '04', '05', '06', '07', '08']);
@@ -141,7 +141,7 @@ describe('staattisen sivuston yhteensopivuus',()=>{
     const map = read('index.html');
     for (const topic of topics) {
       // Oman oppimiskokonaisuuden (#116) oppitunnit eivät kuulu aiheen laskuriin: tests/oppimiskartta-kokonaisuudet.test.ts.
-      const items = studyFiles.filter(file => file.startsWith('oppi/' + topic + '/') && !file.endsWith('/index.html') && !read(file).includes('data-study-unit='));
+      const items = studyFiles.filter(file => file.startsWith('oppi/' + topic + '/') && !file.endsWith('/index.html') && !read(file).includes('data-study-unit=') && !read(file).includes('study-page--focus'));
       const topicIds = new Set<string>();
       for (const file of items) {
         const html = read(file);
@@ -213,6 +213,12 @@ describe('staattisen sivuston yhteensopivuus',()=>{
     for(const [file,active,kind] of pages){
       const html=read(file);
       const nav=html.match(/<nav class="main-nav" aria-label="Päävalikko">([\s\S]*?)<\/nav>/)?.[1];
+      // Keskittymistila jätetään tarkoituksella pois päävalikkotestistä.
+      if (html.includes('study-page--focus')) {
+        expect(nav, file).toBeUndefined();
+        expect(html, file).toContain('class="study-back"');
+        continue;
+      }
       expect(nav,file).toBeDefined();
       expect(html.match(/class="main-nav"/g),file).toHaveLength(1);
       expect(html,file).toContain('assets/paavalikko.css');

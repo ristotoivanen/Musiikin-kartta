@@ -16,7 +16,7 @@ describe('Soinnut ja harmonia: oma oppimiskokonaisuus', () => {
       const html = read(`oppi/soinnut/${slug}.html`);
       expect(main(html)).toContain(`data-study-item="oppitunti:${slug}" data-study-kind="oppitunti"`);
       expect(main(html)).not.toContain('data-topic-items=');
-      expect(html).toContain(`data-study-unit="miten-sointu-muodostuu">Oppitunti 0${index + 1} / 03 <span>01 · Miten sointu muodostuu?</span>`);
+      expect(html).toContain(`data-study-unit="miten-sointu-muodostuu">Oppitunti 0${index + 1} / 03 <span>01 · Lisäopinnot · Miten sointu muodostuu?</span>`);
       expect(html.match(/rel="prev"/g)?.length ?? 0).toBe(index === 0 ? 0 : 2);
       if (index < 2) expect(html).toContain(`href="${unitPages[index + 1]}.html" rel="next"`);
     });
@@ -42,12 +42,12 @@ describe('Soinnut ja harmonia: oma oppimiskokonaisuus', () => {
 
   it('aiempien sisältöjen oma laskuriteksti on vain Soinnut-aiheen kolmessa laskurissa', () => {
     const attrs = 'data-progress-count="aiemmista sisällöistä tehty" data-progress-done="✓ Aiemmat sisällöt tehty"';
-    expect(read('index.html').match(/data-progress-count=/g)).toHaveLength(1);
+    expect(read('index.html').match(/data-progress-count=/g)).toHaveLength(2);
     expect(read('index.html')).toMatch(new RegExp(`id="aihe-soinnut"[^]*?<span class="topic-status" ${attrs} hidden>`));
     expect(read('oppi/soinnut/index.html')).toContain(`data-study-total ${attrs} hidden`);
     expect(read('oppi/soinnut/ii-v-i-kahdessa-savellajissa.html').match(new RegExp(`data-boundary-progress( aria-live="polite")? ${attrs} hidden`, 'g'))).toHaveLength(2);
     // Muut sivut eivät saa tekstimäärittelyä.
-    for (const file of ['oppi/rytmi/index.html', 'oppi/asteikot/index.html', 'oppi/soinnut/harmoninen-kentta.html']) {
+    for (const file of ['oppi/asteikot/index.html', 'oppi/soinnut/harmoninen-kentta.html']) {
       expect(read(file), file).not.toContain('data-progress-');
     }
   });
@@ -63,7 +63,7 @@ describe('Soinnut ja harmonia: oma oppimiskokonaisuus', () => {
     expect([...topic.matchAll(/data-study-intro-status="oppitunti:([^"]+)"/g)].map(([, slug]) => slug)).toEqual(unitPages);
     // Uusien korttien tila käyttää PR #111:n johdannon merkintää: näkyy, mutta ei kuulu aiheen laskuriin.
     expect([...topic.matchAll(/data-study-intro-status="([^"]+)"/g)].map(([, id]) => id)).toEqual(unitIds);
-    expect(topic).toMatch(/<details class="study-unit study-unit--archived" id="miten-sointu-muodostuu">\n\s+<summary>[^\n]*data-unit-progress hidden><\/span><\/summary>/);
+    expect(topic).toMatch(/<details class="study-unit" id="miten-sointu-muodostuu">\n\s+<summary>[^\n]*data-unit-progress hidden><\/span><\/summary>/);
   });
 });
 
@@ -78,7 +78,7 @@ it('Ydinopinnot on ensimmäinen ja kokeilut eivät sekoitu G-pilotin tai aiempie
     expect(main(html)).toContain(`data-study-item="${attempts[index]}" data-study-kind="harjoitus" data-study-mark="kokeiltu"`);
     expect(main(html)).not.toContain('data-topic-items=');
     expect(html).toContain('aria-pressed="false" disabled>Merkitse kokeilluksi');
-    expect(html).toContain('href="index.html#ydinopinnot"');
+    expect(html).toContain(`href="index.html#valinta-${slug}"`);
     expect(topic).toContain(`<details class="study-inline" name="ydinopinnot-harjoitukset" data-study-item="${attempts[index]}"`);
     expect(topic).toContain(`<summary class="study-choice study-choice--unit" id="valinta-${slug}">`);
     expect(topic).toContain(`href="${slug}.html" data-return-topic="valinta-${slug}">Avaa omalla sivullaan</a>`);

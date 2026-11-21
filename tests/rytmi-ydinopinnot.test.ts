@@ -184,8 +184,9 @@ describe('Rytmin aihesivu ja muodostetut sivut', () => {
     const units = [...topic.matchAll(/<details class="(study-unit[^"]*)" id="([^"]+)"( open)?>/g)].map(([, kind, id, open]) => [id, kind, Boolean(open)]);
     // Omistajan päätös 20.11.2026: myös Ydinopinnot on oletuksena suljettu.
     expect(units).toEqual([['ydinopinnot', 'study-unit', false], ['aiemmat', 'study-unit study-unit--legacy', false]]);
-    expect([...topic.matchAll(/class="study-choice study-choice--unit" id="valinta-([^"]+)" href="([^"]+)"/g)].map(([, id, href]) => [id, href]))
-      .toEqual(lessons.map(slug => [slug, slug + '.html']));
+    expect([...topic.matchAll(/<summary class="study-choice study-choice--unit" id="valinta-([^"]+)"/g)].map(([, slug]) => slug))
+      .toEqual(lessons);
+    for (const slug of lessons) expect(topic).toContain(`href="${slug}.html" data-return-topic="valinta-${slug}"`);
     // Vanhat kortit: samat ankkurit, osoitteet ja suoritustunnisteet kuin betassa.
     expect([...topic.matchAll(/<a class="study-choice" id="valinta-([^"]+)" href="([^"]+)\.html"/g)].map(([, id]) => id)).toEqual(legacy);
     expect([...topic.matchAll(/data-study-status="([^"]+)"/g)].map(([, id]) => id)).toEqual([
@@ -198,13 +199,15 @@ describe('Rytmin aihesivu ja muodostetut sivut', () => {
     lessons.forEach((slug, index) => {
       const html = read(`oppi/rytmi/${slug}.html`);
       expect(html).toContain(`data-study-item="oppitunti:${slug}" data-study-kind="oppitunti" data-study-mark="kokeiltu"`);
-      expect(html).toContain(`data-study-unit="ydinopinnot">Oppitunti 0${index + 1} / 03`);
+      expect(html).toContain('class="study-page study-page--focus"');
+      expect(html).toContain(`href="index.html#valinta-${slug}"`);
+      expect(html).toContain('class="study-focus-title"');
       expect(html).toContain('>Merkitse kokeilluksi</button>');
       expect(html).toContain('assets/rytmi-ydinopinnot.js?v=');
       expect(html).not.toContain('(valinnainen)');
     });
     const last = read('oppi/rytmi/sama-musiikki-eri-tuntuma.html');
-    expect(last).toContain('href="index.html#ydinopinnot" class="study-step-map"');
+    expect(last).toContain('href="index.html#valinta-sama-musiikki-eri-tuntuma"');
     expect(last).not.toContain('pulssi-ja-komppi.html');
     // Etusivun Rytmi-kortti ja aiemman sarjan laskuri sisältävät vain aiemmat neljä.
     const card = read('index.html').match(/href="oppi\/rytmi\/index.html" data-study-items="([^"]+)"/)![1].split(' ');
