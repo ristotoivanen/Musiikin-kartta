@@ -21,9 +21,23 @@
       "slug": "rytmi", "anchor": "aihe-rytmi", "title": "Rytmi",
       "back_label": "Rytmiin",
       "summary": "Pulssi, neljään laskeminen ja komppi.",
-      "lead": "Löydä kappaleen tasainen pulssi. Ota sitten kitara mukaan ja pidä käsi liikkeessä myös sointua vaihtaessa.",
+      "lead": "Musiikin pulssi pysyy, vaikka äänet vaihtuvat tai välillä hiljenevät. Löydä rytmi korvalla, kokeile itse ja huomaa, miten se muuttaa musiikkia.",
+      "layout": "kokonaisuudet",
+      "progress_text": {"count": "aiemmista sisällöistä tehty", "done": "✓ Aiemmat sisällöt tehty"},
+      "legacy": {
+        "id": "aiemmat",
+        "title": "Aiemmat oppitunnit ja harjoitukset",
+        "intro": "Kaikki aiemmat oppitunnit ja harjoitukset löytyvät täältä entisillä osoitteillaan. Aiemmat suoritusmerkintäsi säilyvät."
+      },
       "groups": [
-        {"title": "Pulssista komppiin", "lessons": [
+        {"id": "ydinopinnot", "number": 1, "title": "Ydinopinnot", "attempts": true,
+         "goal": "Kuuntele ensin malli ja kokeile sitten itse, esimerkiksi taputtaen tai kitaralla. Voit palata tehtäviin vapaasti. ”Kokeiltu” ei ole osaamistesti.",
+         "lessons": [
+          {"standalone": "loyda-pulssi-ja-ykkonen", "title": "Löydä pulssi ja ykkönen", "goal": "Kuuntele ja naputa"},
+          {"standalone": "hiljaisuus-kuuluu-rytmiin", "title": "Hiljaisuus kuuluu rytmiin", "goal": "Kokeile taukoa"},
+          {"standalone": "sama-musiikki-eri-tuntuma", "title": "Sama musiikki, eri tuntuma", "goal": "Kuule ja vertaile"}
+        ]},
+        {"legacy": true, "title": "Pulssista komppiin", "lessons": [
           {"source": "osa-1#pulssi-ja-komppi", "goal": "Laske iskuja ja kahdeksasosia. Soita alas–ylös-komppia tasaisella kädellä."}
         ]}
       ],

@@ -180,13 +180,17 @@
     setupCompletion(entries, refresh);
   }
 
+  // Ydinopintojen oma kuittaus on sanamuodoltaan "kokeiltu" (data-study-mark).
+  // Merkintä tallentuu samaan joukkoon omalla tunnisteellaan; se ei muuta vanhojen merkintöjen
+  // merkitystä eikä ole osaamistesti.
   function setupCompletion(entries, afterRefresh) {
     function refresh() {
       const done = load();
       for (const { id, kind, button } of entries) {
         const on = done.has(id);
         button.setAttribute('aria-pressed', String(on));
-        button.textContent = on ? '✓ ' + kind[0].toUpperCase() + kind.slice(1) + ' tehty' : 'Merkitse ' + kind + ' tehdyksi';
+        if (button.closest('[data-study-mark]')?.dataset.studyMark === 'kokeiltu') button.textContent = on ? '✓ Kokeiltu' : 'Merkitse kokeilluksi';
+        else button.textContent = on ? '✓ ' + kind[0].toUpperCase() + kind.slice(1) + ' tehty' : 'Merkitse ' + kind + ' tehdyksi';
       }
       afterRefresh?.(done);
     }
@@ -212,7 +216,9 @@
 
   function showTopicProgress(status, count, total) {
     const complete = count === total;
-    status.textContent = complete ? '✓ Aihe käyty läpi' : count + '/' + total + ' sisältöä tehty';
+    // Aihe voi antaa laskurille oman tekstin (data-progress-*, rakenna.py), muuten oletus.
+    const text = status.dataset;
+    status.textContent = complete ? text.progressDone ?? '✓ Aihe käyty läpi' : count + '/' + total + ' ' + (text.progressCount ?? 'sisältöä tehty');
     status.classList.toggle('is-done', complete);
     status.hidden = false;
     return complete;
@@ -246,10 +252,18 @@
 
     const total = main.querySelector('[data-study-total]');
     const rows = [...main.querySelectorAll('[data-study-status]')];
-    if (!rows.length) return;
+    const attempts = [...main.querySelectorAll('[data-unit-attempts]')].map(counter => ({
+      counter,
+      rows: [...counter.closest('details').querySelectorAll('[data-study-attempt-status]')],
+    }));
+    const exercises = [...main.querySelectorAll('details[data-study-item]')].map(exercise => ({
+      id: exercise.dataset.studyItem,
+      kind: exercise.dataset.studyKind,
+      button: exercise.querySelector('.done-toggle'),
+    }));
+    if (!rows.length && !attempts.length) return;
 
-    const refresh = () => {
-      const done = load();
+    function refresh(done = load()) {
       let count = 0;
       for (const row of rows) {
         const marked = done.has(row.dataset.studyStatus);
@@ -258,11 +272,28 @@
         row.classList.toggle('is-done', marked);
         row.hidden = false;
       }
-      showTopicProgress(total, count, rows.length);
-    };
+      if (rows.length) showTopicProgress(total, count, rows.length);
 
-    refresh();
-    onReadingChange(refresh);
+      for (const unit of attempts) {
+        let tried = 0;
+        for (const row of unit.rows) {
+          const marked = done.has(row.dataset.studyAttemptStatus);
+          if (marked) tried++;
+          row.textContent = marked ? '✓ Kokeiltu' : 'Kokeilematta';
+          row.classList.toggle('is-done', marked);
+          row.hidden = false;
+        }
+        unit.counter.textContent = `${tried}/${unit.rows.length} kokeiltu`;
+        unit.counter.classList.toggle('is-done', tried === unit.rows.length);
+        unit.counter.hidden = false;
+      }
+    }
+
+    if (exercises.length) setupCompletion(exercises, refresh);
+    else {
+      refresh();
+      onReadingChange(refresh);
+    }
   }
 
   function readTopicView(fallback = { expanded: false, shown: [], openedBy: [] }) {
