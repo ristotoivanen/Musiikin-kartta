@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ydinopinnot | graafinen katselmointimalli</title>
+<style>
+:root { color-scheme:dark; --bg:#17131f; --panel:#241e31; --panel2:#2e273d; --text:#f2eefa; --muted:#c1b7d2; --border:#51445f; --soft:#e8a4b8; --focus:#71e4be; --switch:#a29bb8; --topic:#d887a8; }
+body.light {color-scheme:light;--bg:#faf9fc;--panel:#fff;--panel2:#f3f0f8;--text:#242034;--muted:#5e576d;--border:#c6bfd2;--soft:#774769;--focus:#17664e;--switch:#5f5572;--topic:#9a4774}
+* {box-sizing:border-box}
+body {margin:0;background:#100e15;color:#eae6f1;font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+button,select {font:inherit}
+button,a,summary { -webkit-tap-highlight-color:transparent }
+button:focus-visible,a:focus-visible,summary:focus-visible {outline:3px solid var(--focus);outline-offset:3px}
+.wrap {max-width:1190px;margin:auto;padding:24px 18px 80px}
+.controlbar {display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;background:#26202f;border:1px solid #483e50;padding:16px;border-radius:16px;margin-bottom:20px}
+.controlbar h1 {margin:0;font-size:18px;line-height:1.25}
+.controls {display:flex;flex-wrap:wrap;gap:8px}
+.controls button {background:#3d344c;color:#fff;border:1px solid #625475;padding:10px 14px;border-radius:10px;min-height:44px;cursor:pointer}
+.controls button[aria-pressed=true] {background:#796293;border-color:#bc9fe3}
+.explainer {color:#c7bacf;margin:8px 0 20px;font-size:14px}
+.preview {background:var(--bg);color:var(--text);border:1px solid #50455d;max-width:1020px;min-height:660px;margin:auto;border-radius:18px;overflow:hidden;box-shadow:0 18px 55px #0006;transition:width .2s}
+.preview.phone {width:390px;max-width:100%}
+.masthead {padding:15px 30px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:14px}
+.brand {font-weight:750;letter-spacing:.02em}
+.nav {color:var(--muted)}
+.content {max-width:780px;padding:27px 28px 45px;margin:auto}
+.eyebrow {font-size:13px;font-weight:750;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin:0 0 4px}
+.heading {display:flex;align-items:center;gap:16px;margin:0 0 18px}
+.heading h2 {font-size:clamp(24px,3vw,34px);line-height:1.17;margin:0 0 6px;letter-spacing:-.035em}
+.heading p {margin:0;color:var(--muted);font-size:15px}
+.iconbox {display:grid;place-items:center;flex:none;width:67px;height:67px;border-left:4px solid var(--topic);border-radius:12px;background:var(--panel2)}
+.iconbox svg {width:44px;height:44px}
+.iconbox.ry {--topic:#e98278}
+.iconbox.so {--topic:#d887a8}
+.feature {padding:15px;background:var(--panel);border:1px solid var(--border);border-radius:13px;color:var(--muted);font-size:14px;margin-bottom:18px}
+.unit {border:1px solid var(--border);border-radius:13px;background:var(--panel);overflow:visible;margin-bottom:13px}
+.unit>summary {min-height:56px;padding:15px 16px;cursor:pointer;font-weight:720;display:flex;align-items:center;gap:10px;list-style:none}
+.unit>summary::-webkit-details-marker,.lesson>summary::-webkit-details-marker{display:none}
+.unit>summary .count {font-size:13px;color:var(--muted);font-weight:500;margin-left:auto}
+.toggle {font-size:25px;color:var(--soft);line-height:1;margin-left:5px;font-weight:400}
+.unit>summary .toggle::after,.lesson>summary .toggle::after{content:"+"}
+.unit[open]>summary .toggle::after,.lesson[open]>summary .toggle::after{content:"−"}
+.unit[open]>summary {border-bottom:1px solid var(--border)}
+.unit-body {padding:12px 14px 15px}
+.lead {color:var(--muted);font-size:14px;margin:2px 2px 12px}
+.lessons {display:grid;gap:7px}
+.lesson {border-bottom:1px solid var(--border)}
+.lesson:last-child {border-bottom:0}
+.lesson>summary {display:flex;align-items:center;gap:12px;min-height:68px;cursor:pointer;list-style:none;padding:10px 6px}
+.ordinal {color:var(--soft);font-weight:750;font-variant-numeric:tabular-nums;min-width:27px}
+.lesson-title {flex:1;min-width:0}
+.lesson-title strong {display:block;font-size:16px}
+.lesson-title small {display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.inline-body {padding:14px 6px 20px 12px;border-left:2px solid var(--soft);margin:0 0 12px 35px}
+.inline-body h3 {font-size:18px;margin:0 0 6px}
+.inline-body p {color:var(--muted);margin:0 0 12px}
+.step {padding:10px 0}
+.step-title {font-weight:740;color:var(--text);margin:0 0 5px!important}
+.action {display:inline-flex;gap:8px;align-items:center;min-height:44px;background:#654875;color:white;border:1px solid #a78ab6;border-radius:10px;padding:9px 12px;text-decoration:none;cursor:pointer;margin:5px 7px 5px 0}
+.action svg {height:23px;width:23px}
+.secondary {background:transparent;color:var(--text);border:1px solid var(--border)}
+.small-info {display:inline-block;vertical-align:top}
+.small-info>summary {cursor:pointer;list-style:none;display:grid;place-items:center;min-width:44px;min-height:44px;border:1px solid var(--border);border-radius:10px}
+.small-info>summary::-webkit-details-marker{display:none}
+.small-info svg {height:22px;width:22px}
+.small-info p {padding:10px;border-radius:9px;background:var(--panel2);font-size:14px;max-width:370px;margin:6px 0}
+.learned {border-top:1px solid var(--border);padding-top:12px;font-size:14px}
+.counter {color:var(--muted);font-size:13px;white-space:nowrap}
+.back {color:var(--soft);display:inline-block;margin-bottom:21px;font-weight:660}
+.focus .masthead {display:none}
+.focus .content {max-width:680px;padding-top:29px}
+.focus h2 {font-size:28px;letter-spacing:-.03em;line-height:1.2;margin:0 0 12px}
+.focus .focus-lead {color:var(--muted);margin:0 0 22px}
+.footerlink {margin-top:18px}
+.hidden {display:none!important}
+.icon-gallery {padding:25px 0;color:#e8e1ee}
+.icon-gallery h2 {font-size:19px;margin:0 0 7px}
+.icon-grid {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.icon-tile {display:flex;align-items:center;gap:10px;background:#2b2435;border:1px solid #51445f;padding:12px;border-radius:12px;font-size:13px}
+.icon-tile svg {width:44px;height:44px;flex:none;color:#f5edf5}
+.note {font-size:13px;color:#b8abc4;margin-top:13px}
+@media(max-width:700px){.icon-grid {grid-template-columns:repeat(2,minmax(0,1fr))}.masthead {padding:12px 16px}.nav {display:none}.content {padding:20px 14px}.heading h2 {font-size:25px}.unit-body {padding:8px 8px 12px}.inline-body{margin-left:13px;padding-left:10px}.iconbox {width:63px;height:63px}.heading {gap:12px}}
+@media(max-width:440px){.wrap{padding:12px 8px 35px}.controlbar {padding:10px}.controls button {padding:9px}.icon-grid{grid-template-columns:1fr 1fr}.icon-tile {padding:8px;gap:6px;font-size:11px}.icon-tile svg{width:37px;height:37px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="controlbar">
+    <h1>Ydinopinnot · graafinen katselmointimalli</h1>
+    <div class="controls">
+      <button type="button" data-topic="soinnut" aria-pressed="true">Soinnut</button>
+      <button type="button" data-topic="rytmi" aria-pressed="false">Rytmi</button>
+      <button type="button" data-screen="topic" aria-pressed="true">Aihesivu</button>
+      <button type="button" data-screen="focus" aria-pressed="false">Oma sivu</button>
+      <button type="button" data-width="desktop" aria-pressed="true">Tietokone</button>
+      <button type="button" data-width="phone" aria-pressed="false">Puhelin</button>
+      <button type="button" data-theme="dark" aria-pressed="true">Tumma</button>
+      <button type="button" data-theme="light" aria-pressed="false">Vaalea</button>
+    </div>
+  </div>
+  <p class="explainer">Valitse aihe, näkymä, laitekoko ja teema. Tämä on käyttöliittymän visuaalinen malli, ei julkaistava oppitunti. Mallin Kuuntele-painike ei tuota ääntä.</p>
+  <div id="preview" class="preview" data-theme="dark">
+    <div class="masthead"><span class="brand">Musiikin kartta</span><span class="nav">Opi &amp; oivalla　 Musapelit　 Kitaratreeni　 Soittopakki</span></div>
+    <main class="content">
+      <section id="topicScreen">
+        <p class="eyebrow" id="meta">Aihe 06</p>
+        <div class="heading"><div id="topicIcon" class="iconbox so"><svg aria-hidden="true"><use id="topicUse" href="../../../assets/oppimisikonit.svg#topic-soinnut"></use></svg></div><div><h2 id="topicTitle">Soinnut ja harmonia</h2><p id="topicLead">Kuuntele miten sävelet muodostavat soinnun ja vievät musiikkia eteenpäin.</p></div></div>
+        <p class="feature">Mitä opit? Ymmärrät sointujen rakennetta ja kuulet, miten yksittäisen sävelen muutos vaikuttaa musiikkiin. Opit käyttämään havaintoja omassa soitossasi.</p>
+        <details class="unit" id="ydinopinnot"><summary><span>Ydinopinnot</span><span class="count">0/3 kokeiltu</span><span class="toggle" aria-hidden="true"></span></summary>
+          <div class="unit-body">
+            <p class="lead">Avaa oppitunti plus-merkistä. Toinen avaus sulkee aiemman. Oppitunnin voi myös avata omalla sivullaan.</p>
+            <div class="lessons">
+              <details class="lesson" name="lesson" id="l1"><summary><span class="ordinal">01</span><span class="lesson-title"><strong id="lesson1">Kuule ja kokoa sointu</strong><small>Kuuntele, huomaa ja kokoa</small></span><span class="counter">Kokeilematta</span><span class="toggle" aria-hidden="true"></span></summary><div class="inline-body" id="lessonBody"><h3>Kuuntele ensin esimerkki</h3><p>Vertaa peräkkäisiä säveliä ja samaan aikaan soivaa sointua.</p><div class="step"><p class="step-title">1 · Kuuntele ja huomaa</p><button class="action" type="button" id="demoPlay"><svg aria-hidden="true"><use href="../../../assets/oppimisikonit.svg#action-listen"></use></svg>Kuuntele esimerkki</button><details class="small-info"><summary aria-label="Näytä Knoppitieto" title="Knoppitieto"><svg aria-hidden="true"><use href="../../../assets/oppimisikonit.svg#extra-info"></use></svg></summary><p>Knoppitieto on vapaaehtoista. Olennaiset ohjeet ovat aina nähtävissä.</p></details></div><div class="step"><p class="step-title">2 · Kokeile omalla kitaralla</p><span><svg style="height:23px;width:23px;vertical-align:middle" aria-hidden="true"><use href="../../../assets/oppimisikonit.svg#action-play-guitar"></use></svg> Soita samat sävelet</span></div><p class="learned"><strong>Mitä opit?</strong> Erilliset sävelet muodostavat soinnun, kun ne soivat yhdessä.</p><button class="action secondary" type="button" id="mark">Merkitse kokeilluksi</button><button class="action secondary" type="button" id="goFocus">Avaa omalla sivullaan</button></div></details>
+              <details class="lesson" name="lesson" id="l2"><summary><span class="ordinal">02</span><span class="lesson-title"><strong id="lesson2">Yksi sävel muuttaa sointua</strong><small>Vertaa duuria ja mollia</small></span><span class="counter">Kokeilematta</span><span class="toggle" aria-hidden="true"></span></summary><div class="inline-body"><p>Kuuntele ja vertaile, kuinka yhden sävelen muuttuminen vaihtaa soinnun luonnetta.</p><button class="action secondary" type="button" data-focus="2">Avaa omalla sivullaan</button></div></details>
+              <details class="lesson" name="lesson" id="l3"><summary><span class="ordinal">03</span><span class="lesson-title"><strong id="lesson3">Mihin kappale haluaa palata?</strong><small>Kuule sointukierron suunta</small></span><span class="counter">Kokeilematta</span><span class="toggle" aria-hidden="true"></span></summary><div class="inline-body"><p>Kuuntele, miltä sointukierto tuntuu erilaisilla lopetuksilla.</p><button class="action secondary" type="button" data-focus="3">Avaa omalla sivullaan</button></div></details>
+            </div>
+          </div>
+        </details>
+        <details class="unit"><summary><span>Aiemmat oppitunnit ja harjoitukset</span><span class="count" id="legacyCount">18 sisältöä</span><span class="toggle" aria-hidden="true"></span></summary><div class="unit-body"><p class="lead">Aiemmat sisällöt ovat edelleen löydettävissä vanhoilla linkeillä ja merkinnöillä.</p><a href="javascript:void(0)" style="color:var(--soft)">Avaa aiempia harjoituksia</a></div></details>
+      </section>
+      <section id="focusScreen" class="hidden">
+        <a href="#ydinopinnot" class="back" id="goBack">← Takaisin Soinnut ja harmoniaan</a>
+        <h2 id="focusTitle">Kuule ja kokoa sointu</h2><p class="focus-lead" id="focusLead">Kuuntele, huomaa ja kokoa.</p>
+        <div class="step"><p class="step-title">1 · Kuuntele ja huomaa ero</p><p>Kuuntele kolmea säveltä peräkkäin ja sointuna.</p><button class="action" type="button"><svg aria-hidden="true"><use href="../../../assets/oppimisikonit.svg#action-listen"></use></svg>Kuuntele esimerkki</button></div>
+        <div class="step"><p class="step-title">2 · Kokeile oikealla kitaralla</p><p>Soita samat sävelet. Kuuntele niiden yhteissointia.</p></div>
+        <p class="learned"><strong>Mitä opit?</strong> Soinnun sävelet toimivat yhdessä mutta erottuvat myös yksittäin.</p>
+        <button class="action secondary" type="button">Merkitse kokeilluksi</button>
+        <p class="footerlink"><a href="#ydinopinnot" class="back goBack">← Takaisin samaan oppituntiin</a></p>
+      </section>
+    </main>
+  </div>
+  <section class="icon-gallery">
+    <h2>Kahdeksan aiheen SVG-ehdokkaat</h2>
+    <div class="icon-grid" id="gallery"></div>
+    <p class="note">Ehdokkaat eivät ole vielä lopullisesti hyväksytty ikonijärjestelmä. Vertaillaan #125:n aiemmin hyväksyttyyn visuaaliseen PNG-malliin. Symbolin oma mitta pääkortilla on 44 px; sitä ympäröivä laatikko on suurempi.</p>
+  </section>
+</div>
+<script>
+const icons = [['kitara','01 Kitaran perusteet'],['rytmi','02 Rytmi'],['savelnimet','03 Sävelnimet'],['korva','04 Sävelkorva'],['otelauta','05 Otelauta'],['soinnut','06 Soinnut'],['asteikot','07 Asteikot'],['kappaleet','08 Kappaleet']];
+document.getElementById('gallery').innerHTML=icons.map(([id,title])=>'<div class="icon-tile"><svg aria-hidden="true"><use href="../../../assets/oppimisikonit.svg#topic-'+id+'"></use></svg><span>'+title+'</span></div>').join('');
+const data={soinnut:{number:'06',title:'Soinnut ja harmonia',lead:'Kuuntele ja sovella sointujen rakennetta.',lessons:['Kuule ja kokoa sointu','Yksi sävel muuttaa sointua','Mihin kappale haluaa palata?'],goal:'Kuuntele, huomaa ja kokoa.',legacy:'18 sisältöä',cls:'so'},rytmi:{number:'02',title:'Rytmi',lead:'Löydä pulssi, tauko ja musiikillinen tuntuma.',lessons:['Löydä pulssi ja ykkönen','Hiljaisuus kuuluu rytmiin','Sama musiikki, eri tuntuma'],goal:'Kuuntele pulssi ja kokeile itse.',legacy:'4 sisältöä',cls:'ry'}};
+let state={topic:'soinnut',screen:'topic',width:'desktop',theme:'dark',lesson:1};
+const preview=document.getElementById('preview');
+function draw(){
+  const d=data[state.topic];
+  document.body.classList.toggle('light',state.theme==='light');preview.classList.toggle('phone',state.width==='phone');preview.classList.toggle('focus',state.screen==='focus');
+  document.getElementById('topicScreen').classList.toggle('hidden',state.screen==='focus');document.getElementById('focusScreen').classList.toggle('hidden',state.screen!=='focus');
+  document.getElementById('meta').textContent='Aihe '+d.number;document.getElementById('topicTitle').textContent=d.title;document.getElementById('topicLead').textContent=d.lead;
+  document.getElementById('topicUse').setAttribute('href','../../../assets/oppimisikonit.svg#topic-'+state.topic);document.getElementById('topicIcon').className='iconbox '+d.cls;
+  d.lessons.forEach((t,i)=>{document.getElementById('lesson'+(i+1)).textContent=t;});
+  document.getElementById('legacyCount').textContent=d.legacy;document.getElementById('focusTitle').textContent=d.lessons[state.lesson-1];document.getElementById('focusLead').textContent=d.goal;document.getElementById('goBack').textContent='← Takaisin '+d.title+' -aiheeseen';
+  document.querySelectorAll('.controls button').forEach(btn=>{for(const key of ['topic','screen','width','theme'])if(btn.dataset[key])btn.setAttribute('aria-pressed',String(btn.dataset[key]===state[key]));});
+}
+document.querySelectorAll('.controls button').forEach(btn=>btn.addEventListener('click',()=>{for(const key of ['topic','screen','width','theme'])if(btn.dataset[key])state[key]=btn.dataset[key];draw();}));
+function goFocus(n=1){state.lesson=n;state.screen='focus';draw();preview.scrollIntoView({block:'start',behavior:'smooth'});}
+document.getElementById('goFocus').addEventListener('click',()=>goFocus(1));document.querySelectorAll('[data-focus]').forEach(btn=>btn.addEventListener('click',()=>goFocus(Number(btn.dataset.focus))));
+function back(e){e.preventDefault();state.screen='topic';draw();document.getElementById('ydinopinnot').open=true;document.getElementById('l'+state.lesson).open=true;document.getElementById('l'+state.lesson).querySelector('summary').focus({preventScroll:true});}
+document.getElementById('goBack').addEventListener('click',back);document.querySelector('.goBack').addEventListener('click',back);
+document.getElementById('demoPlay').addEventListener('click',event=>{event.currentTarget.textContent='Äänen paikan esikatselu · ei toistoa';});
+document.getElementById('mark').addEventListener('click',e=>{e.currentTarget.textContent=e.currentTarget.textContent.startsWith('✓')?'Merkitse kokeilluksi':'✓ Kokeiltu';});
+draw();
+</script>
+</body></html>
