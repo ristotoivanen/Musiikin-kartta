@@ -13,3 +13,6 @@
 .topic-icon-box[data-topic="asteikot"] { --topic-line: #ad91df; }
 .topic-icon-box[data-topic="kappaleet"] { --topic-line: #d9b45a; }
 @media (max-width: 440px) { .topic-icon-box { width: 60px; height: 60px; } }
+
+/* Oppimiskartan pääkortti, ei erillisiä aihekohtaisia ikonikopioita. */
+.topic-card .topic-icon-box { width:64px; height:64px; }
