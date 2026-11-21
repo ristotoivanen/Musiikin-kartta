@@ -86,8 +86,11 @@
 .sointu-kierron-toisto > span { grid-area: 1 / 1; }
 .sointu-piilossa, .sointu-varaus { visibility: hidden; }
 /* E/Em-arvaus: nimetön ja nimetty teksti samassa ruudussa, leveys varattu pidemmälle. */
-.sointu-vaihtuva { display: inline-grid; justify-items: center; }
+.sointu-vaihtuva { display: inline-grid; justify-items: start; }
 .sointu-vaihtuva > span { grid-area: 1 / 1; }
+/* Arvauksen kuuntelupainikkeet: 4 px vaakarako, jotta varatun levyiset painikkeet mahtuvat
+ * rinnakkain 390 px:ssä. Allekkain pinottuina pystyrako pysyy 8 px:nä. */
+.sointu-rivi[data-arvaus-kuuntelu] { column-gap: .25rem; }
 /* .sointuharjoitus-etuliite voittaa reader.css:n .practice ol -sisennyksen (0,1,1). */
 .sointuharjoitus .sointu-kierto {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 5rem), 1fr));

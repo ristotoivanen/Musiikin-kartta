@@ -1,0 +1,522 @@
+[
+  {
+    "w": 320,
+    "font": "100%",
+    "where": "aihesivu",
+    "ennen": {
+      "rivi": 249,
+      "koot": "157×44 160×44",
+      "rinnakkain": false,
+      "rako": -157,
+      "tekstiKuvakkeesta": 7,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 | Sointu 2"
+    },
+    "jalkeen": {
+      "rivi": 249,
+      "koot": "157×44 160×44",
+      "rinnakkain": false,
+      "rako": -157,
+      "tekstiKuvakkeesta": 7,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 · Em | Sointu 2 · E"
+    },
+    "kokoSama": true
+  },
+  {
+    "w": 320,
+    "font": "100%",
+    "where": "oma",
+    "ennen": {
+      "rivi": 253,
+      "koot": "157×44 160×44",
+      "rinnakkain": false,
+      "rako": -157,
+      "tekstiKuvakkeesta": 7,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 | Sointu 2"
+    },
+    "jalkeen": {
+      "rivi": 253,
+      "koot": "157×44 160×44",
+      "rinnakkain": false,
+      "rako": -157,
+      "tekstiKuvakkeesta": 7,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 · Em | Sointu 2 · E"
+    },
+    "kokoSama": true
+  },
+  {
+    "w": 320,
+    "font": "200%",
+    "where": "aihesivu",
+    "ennen": {
+      "rivi": 181,
+      "koot": "181×194 181×194",
+      "rinnakkain": false,
+      "rako": -181,
+      "tekstiKuvakkeesta": 14,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 | Sointu 2"
+    },
+    "jalkeen": {
+      "rivi": 181,
+      "koot": "181×194 181×194",
+      "rinnakkain": false,
+      "rako": -181,
+      "tekstiKuvakkeesta": 14,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 · Em | Sointu 2 · E"
+    },
+    "kokoSama": true
+  },
+  {
+    "w": 320,
+    "font": "200%",
+    "where": "oma",
+    "ennen": {
+      "rivi": 185,
+      "koot": "185×194 185×194",
+      "rinnakkain": false,
+      "rako": -185,
+      "tekstiKuvakkeesta": 14,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 | Sointu 2"
+    },
+    "jalkeen": {
+      "rivi": 185,
+      "koot": "185×194 185×194",
+      "rinnakkain": false,
+      "rako": -185,
+      "tekstiKuvakkeesta": 14,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 · Em | Sointu 2 · E"
+    },
+    "kokoSama": true
+  },
+  {
+    "w": 360,
+    "font": "100%",
+    "where": "aihesivu",
+    "ennen": {
+      "rivi": 289,
+      "koot": "157×44 160×44",
+      "rinnakkain": false,
+      "rako": -157,
+      "tekstiKuvakkeesta": 7,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 | Sointu 2"
+    },
+    "jalkeen": {
+      "rivi": 289,
+      "koot": "157×44 160×44",
+      "rinnakkain": false,
+      "rako": -157,
+      "tekstiKuvakkeesta": 7,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 · Em | Sointu 2 · E"
+    },
+    "kokoSama": true
+  },
+  {
+    "w": 360,
+    "font": "100%",
+    "where": "oma",
+    "ennen": {
+      "rivi": 293,
+      "koot": "157×44 160×44",
+      "rinnakkain": false,
+      "rako": -157,
+      "tekstiKuvakkeesta": 7,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 | Sointu 2"
+    },
+    "jalkeen": {
+      "rivi": 293,
+      "koot": "157×44 160×44",
+      "rinnakkain": false,
+      "rako": -157,
+      "tekstiKuvakkeesta": 7,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 · Em | Sointu 2 · E"
+    },
+    "kokoSama": true
+  },
+  {
+    "w": 360,
+    "font": "200%",
+    "where": "aihesivu",
+    "ennen": {
+      "rivi": 221,
+      "koot": "221×140 221×140",
+      "rinnakkain": false,
+      "rako": -221,
+      "tekstiKuvakkeesta": 14,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 | Sointu 2"
+    },
+    "jalkeen": {
+      "rivi": 221,
+      "koot": "221×140 221×140",
+      "rinnakkain": false,
+      "rako": -221,
+      "tekstiKuvakkeesta": 14,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 · Em | Sointu 2 · E"
+    },
+    "kokoSama": true
+  },
+  {
+    "w": 360,
+    "font": "200%",
+    "where": "oma",
+    "ennen": {
+      "rivi": 225,
+      "koot": "225×140 225×140",
+      "rinnakkain": false,
+      "rako": -225,
+      "tekstiKuvakkeesta": 14,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 | Sointu 2"
+    },
+    "jalkeen": {
+      "rivi": 225,
+      "koot": "225×140 225×140",
+      "rinnakkain": false,
+      "rako": -225,
+      "tekstiKuvakkeesta": 14,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 · Em | Sointu 2 · E"
+    },
+    "kokoSama": true
+  },
+  {
+    "w": 375,
+    "font": "100%",
+    "where": "aihesivu",
+    "ennen": {
+      "rivi": 304,
+      "koot": "157×44 160×44",
+      "rinnakkain": false,
+      "rako": -157,
+      "tekstiKuvakkeesta": 7,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 | Sointu 2"
+    },
+    "jalkeen": {
+      "rivi": 304,
+      "koot": "157×44 160×44",
+      "rinnakkain": false,
+      "rako": -157,
+      "tekstiKuvakkeesta": 7,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 · Em | Sointu 2 · E"
+    },
+    "kokoSama": true
+  },
+  {
+    "w": 375,
+    "font": "100%",
+    "where": "oma",
+    "ennen": {
+      "rivi": 308,
+      "koot": "157×44 160×44",
+      "rinnakkain": false,
+      "rako": -157,
+      "tekstiKuvakkeesta": 7,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 | Sointu 2"
+    },
+    "jalkeen": {
+      "rivi": 308,
+      "koot": "157×44 160×44",
+      "rinnakkain": false,
+      "rako": -157,
+      "tekstiKuvakkeesta": 7,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 · Em | Sointu 2 · E"
+    },
+    "kokoSama": true
+  },
+  {
+    "w": 375,
+    "font": "200%",
+    "where": "aihesivu",
+    "ennen": {
+      "rivi": 236,
+      "koot": "236×140 236×140",
+      "rinnakkain": false,
+      "rako": -236,
+      "tekstiKuvakkeesta": 14,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 | Sointu 2"
+    },
+    "jalkeen": {
+      "rivi": 236,
+      "koot": "236×140 236×140",
+      "rinnakkain": false,
+      "rako": -236,
+      "tekstiKuvakkeesta": 14,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 · Em | Sointu 2 · E"
+    },
+    "kokoSama": true
+  },
+  {
+    "w": 375,
+    "font": "200%",
+    "where": "oma",
+    "ennen": {
+      "rivi": 240,
+      "koot": "240×140 240×140",
+      "rinnakkain": false,
+      "rako": -240,
+      "tekstiKuvakkeesta": 14,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 | Sointu 2"
+    },
+    "jalkeen": {
+      "rivi": 240,
+      "koot": "240×140 240×140",
+      "rinnakkain": false,
+      "rako": -240,
+      "tekstiKuvakkeesta": 14,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 · Em | Sointu 2 · E"
+    },
+    "kokoSama": true
+  },
+  {
+    "w": 390,
+    "font": "100%",
+    "where": "aihesivu",
+    "ennen": {
+      "rivi": 319,
+      "koot": "157×44 160×44",
+      "rinnakkain": false,
+      "rako": -157,
+      "tekstiKuvakkeesta": 7,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 | Sointu 2"
+    },
+    "jalkeen": {
+      "rivi": 319,
+      "koot": "157×44 160×44",
+      "rinnakkain": false,
+      "rako": -157,
+      "tekstiKuvakkeesta": 7,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 · Em | Sointu 2 · E"
+    },
+    "kokoSama": true
+  },
+  {
+    "w": 390,
+    "font": "100%",
+    "where": "oma",
+    "ennen": {
+      "rivi": 321,
+      "koot": "157×44 160×44",
+      "rinnakkain": true,
+      "rako": 4,
+      "tekstiKuvakkeesta": 7,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 | Sointu 2"
+    },
+    "jalkeen": {
+      "rivi": 321,
+      "koot": "157×44 160×44",
+      "rinnakkain": true,
+      "rako": 4,
+      "tekstiKuvakkeesta": 7,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 · Em | Sointu 2 · E"
+    },
+    "kokoSama": true
+  },
+  {
+    "w": 390,
+    "font": "200%",
+    "where": "aihesivu",
+    "ennen": {
+      "rivi": 251,
+      "koot": "251×140 251×140",
+      "rinnakkain": false,
+      "rako": -251,
+      "tekstiKuvakkeesta": 14,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 | Sointu 2"
+    },
+    "jalkeen": {
+      "rivi": 251,
+      "koot": "251×140 251×140",
+      "rinnakkain": false,
+      "rako": -251,
+      "tekstiKuvakkeesta": 14,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 · Em | Sointu 2 · E"
+    },
+    "kokoSama": true
+  },
+  {
+    "w": 390,
+    "font": "200%",
+    "where": "oma",
+    "ennen": {
+      "rivi": 255,
+      "koot": "255×140 255×140",
+      "rinnakkain": false,
+      "rako": -255,
+      "tekstiKuvakkeesta": 14,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 | Sointu 2"
+    },
+    "jalkeen": {
+      "rivi": 255,
+      "koot": "255×140 255×140",
+      "rinnakkain": false,
+      "rako": -255,
+      "tekstiKuvakkeesta": 14,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 · Em | Sointu 2 · E"
+    },
+    "kokoSama": true
+  },
+  {
+    "w": 768,
+    "font": "100%",
+    "where": "aihesivu",
+    "ennen": {
+      "rivi": 321,
+      "koot": "157×44 160×44",
+      "rinnakkain": true,
+      "rako": 4,
+      "tekstiKuvakkeesta": 7,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 | Sointu 2"
+    },
+    "jalkeen": {
+      "rivi": 321,
+      "koot": "157×44 160×44",
+      "rinnakkain": true,
+      "rako": 4,
+      "tekstiKuvakkeesta": 7,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 · Em | Sointu 2 · E"
+    },
+    "kokoSama": true
+  },
+  {
+    "w": 768,
+    "font": "100%",
+    "where": "oma",
+    "ennen": {
+      "rivi": 321,
+      "koot": "157×44 160×44",
+      "rinnakkain": true,
+      "rako": 4,
+      "tekstiKuvakkeesta": 7,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 | Sointu 2"
+    },
+    "jalkeen": {
+      "rivi": 321,
+      "koot": "157×44 160×44",
+      "rinnakkain": true,
+      "rako": 4,
+      "tekstiKuvakkeesta": 7,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 · Em | Sointu 2 · E"
+    },
+    "kokoSama": true
+  },
+  {
+    "w": 768,
+    "font": "200%",
+    "where": "aihesivu",
+    "ennen": {
+      "rivi": 534,
+      "koot": "284×85 288×85",
+      "rinnakkain": false,
+      "rako": -284,
+      "tekstiKuvakkeesta": 14,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 | Sointu 2"
+    },
+    "jalkeen": {
+      "rivi": 534,
+      "koot": "284×85 288×85",
+      "rinnakkain": false,
+      "rako": -284,
+      "tekstiKuvakkeesta": 14,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 · Em | Sointu 2 · E"
+    },
+    "kokoSama": true
+  },
+  {
+    "w": 768,
+    "font": "200%",
+    "where": "oma",
+    "ennen": {
+      "rivi": 580,
+      "koot": "284×85 288×85",
+      "rinnakkain": true,
+      "rako": 8,
+      "tekstiKuvakkeesta": 14,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 | Sointu 2"
+    },
+    "jalkeen": {
+      "rivi": 580,
+      "koot": "284×85 288×85",
+      "rinnakkain": true,
+      "rako": 8,
+      "tekstiKuvakkeesta": 14,
+      "leikkaus": false,
+      "vaaka": false,
+      "tekstit": "Sointu 1 · Em | Sointu 2 · E"
+    },
+    "kokoSama": true
+  }
+]

@@ -95,6 +95,42 @@ jälkeen näkyvän välin (kuva yllä). Tuotekoodia ei muutettu tämän takia. V
 - (c) Lyhyempi paljastus, esim. ”1 · Em”. Tämä poikkeaa hyväksytystä esimerkistä
   ”Sointu 1 · Em”.
 
+### Lisäkorjaus (hyväksytty): tasaus vasemmalle ja 4 px:n rako
+
+Omistaja hyväksyi vaihtoehdon (a). Lisäksi kokeiltiin arvauksen kuuntelupainikkeiden välisen raon
+pienentämistä. Allekkainen asettelu 320 ja 360 px:n näytöillä hyväksyttiin.
+
+- `.sointu-vaihtuva { justify-items: start; }`: teksti alkaa heti korvakuvakkeen jälkeen
+  (väli 7 px, 200 %:ssa 14 px). Varattu tyhjä tila jää painikkeen oikeaan reunaan.
+- `.sointu-rivi[data-arvaus-kuuntelu] { column-gap: .25rem; }`: vaakarako 8 px → 4 px (200 %:ssa
+  8 px). Pystyrako allekkain pinottuina pysyy 8 px:nä. Muut rivit eivät muutu.
+- Nimet, arvottu järjestys, äänet, tekstit ja vastauslogiikka ovat ennallaan.
+
+Mitattu ([`mittaus-02-rako.json`](mittaus-02-rako.json), skripti [`mittaa02b.cjs`](mittaa02b.cjs)):
+
+| Leveys | Oma sivu: tila → tarve 321 px | Aihesivun kortti | 200 % |
+|---|---|---|---|
+| 320 px | 253 → allekkain | 249 → allekkain | allekkain |
+| 360 px | 293 → allekkain | 289 → allekkain | allekkain |
+| 375 px | 308 → allekkain | 304 → allekkain | allekkain |
+| 390 px | 323 → **rinnakkain (2 px varaa)** | 319 → **allekkain (2 px liian kapea)** | allekkain |
+| 768 px | rinnakkain | rinnakkain | oma sivu rinnakkain, kortti allekkain |
+
+- **390 px:** painikkeet mahtuvat rinnakkain harjoituksen omalla sivulla. Aihesivun avatussa
+  kortissa sisäreunat ovat 4 px kapeammat, joten siellä ne jäävät allekkain. Mitta on Chromen
+  fonttimetriikalla. Safarin tekstinleveys voi poiketa pikselin tai kaksi, joten oikea iPhone voi
+  päätyä kumpaan tahansa asetteluun.
+- Kaikissa 20 yhdistelmässä (5 leveyttä × 100/200 % × kaksi sivua) painikkeiden koko on sama
+  ennen vastausta ja sen jälkeen. Leikkautumista tai vaakavieritystä ei ole.
+- 320 px · 200 %: sanat katkeavat kesken (”Soint/u 1 · Em”) koko sivulla, myös otsikoissa ja
+  leipätekstissä. Tämä ei ole painikkeiden oma ongelma, eikä tekstiä leikkaudu.
+
+![390 px arvaus ja vastattu, 320 px · 200 %](kuvat/02-rako-4px-390-ja-320-200.png)
+
+Jos 390 px:n aihesivun kortissakin halutaan rinnakkaiset painikkeet, tarvitaan 2 px lisää tilaa.
+Vaihtoehtoja ovat esimerkiksi painikkeiden sivupaddingin pienentäminen 1 px:llä tai kortin
+sisäreunan kaventaminen. Tätä ei tehty, koska tehtävä rajattiin raon kokeiluun.
+
 ## Täsmällinen diffi
 
 ```
@@ -114,8 +150,8 @@ Muita aiheita, aiempia 18 sisältöä, niiden osoitteita tai tallennusavaimia ei
 
 | Ajo | Tulos |
 |---|---|
-| `tests/e2e/soinnut-kokonaisuudet.spec.ts` | **79 läpäisty, 1 ohitettu** (työpöytään rajattu testi puhelinprojektissa) |
-| `aihesivut`, `osiot`, `navigation` -e2e | 253 läpäisty, 5 ohitettu |
+| `tests/e2e/soinnut-kokonaisuudet.spec.ts` | **89 läpäisty, 1 ohitettu** (työpöytään rajattu testi puhelinprojektissa; lisäkorjauksen jälkeen, mukana 02:n rivitestit 320/360/375/390/768 px) |
+| `aihesivut`, `osiot`, `navigation` -e2e | 253 läpäisty, 5 ohitettu (ajettu ennen lisäkorjausta, joka muuttaa vain Sointujen CSS:ää) |
 | `npm test` (vitest) | 627 läpäisty (uusi: 03:n aloitustila, tekstin paikka, 02:n varattu tila) |
 | `npm run lint`, `npm run typecheck` | läpäisty |
 

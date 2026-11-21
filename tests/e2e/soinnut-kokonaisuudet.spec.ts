@@ -845,6 +845,55 @@ test.describe('Ydinopinnot v0.5', () => {
     expect(await starts(page)).toHaveLength(16);
   });
 
+  // 02:n arvauksen kuuntelupainikkeet: koko sama ennen ja jälkeen vastauksen, teksti vasemmalla kuvakkeen
+  // vieressä, 4 px vaakarako. Rinnakkain 390 px:n omalla sivulla (2 px varaa) ja 768 px:ssä; aihesivun
+  // kortti on 390 px:ssä 4 px kapeampi, joten siinä ja 320–375 px:ssä allekkain (hyväksytty).
+  const guessSideBySide: Record<number, { oma: boolean; aihesivu: boolean }> = {
+    320: { oma: false, aihesivu: false }, 360: { oma: false, aihesivu: false }, 375: { oma: false, aihesivu: false },
+    390: { oma: true, aihesivu: false }, 768: { oma: true, aihesivu: true },
+  };
+  for (const [width, sideBySide] of Object.entries(guessSideBySide)) {
+    test(`02:n arvauspainikkeet ${width} px: vakaat, ei leikkautumista 100/200 %:ssa`, async ({ page }) => {
+      await page.setViewportSize({ width: Number(width), height: 900 });
+      for (const [where, url] of [['aihesivu', topicPath + '#valinta-yksi-savel-muuttaa-sointua'], ['oma', ydinPath(1)]] as const) {
+        for (const size of ['100%', '200%']) {
+          await page.goto('about:blank');
+          await page.goto(url);
+          await page.evaluate(value => { document.documentElement.style.fontSize = value; }, size);
+          const section = page.locator('.sointuharjoitus[data-sointuharjoitus="arvaa"]:visible');
+          const measure = () => section.locator('[data-arvaus-kuuntelu]').evaluate(row => {
+            const buttons = [...row.querySelectorAll('button')];
+            const boxes = buttons.map(button => button.getBoundingClientRect());
+            const icon = buttons[0].querySelector('svg')!.getBoundingClientRect();
+            const label = buttons[0].querySelector('[data-arvaus-teksti]')!.getBoundingClientRect();
+            return {
+              sizes: boxes.map(box => `${Math.round(box.width)}x${Math.round(box.height)}`),
+              sideBySide: Math.abs(boxes[0].top - boxes[1].top) < 2,
+              gap: Math.round(boxes[1].left - boxes[0].right),
+              labelAfterIcon: label.left - icon.right,
+              clipped: buttons.some(button => button.scrollWidth > button.clientWidth + 1 || button.scrollHeight > button.clientHeight + 1),
+            };
+          });
+          const testCase = `${where} ${width}px ${size}`;
+          await section.getByRole('button', { name: 'Arvaa' }).click();
+          const before = await measure();
+          await section.getByRole('group', { name: 'Vastaa' }).getByRole('button', { name: 'Sointu 1' }).click();
+          await expect(section.locator('[data-arvaus-teksti]').first()).toContainText(' · ');
+          const after = await measure();
+          expect(after, testCase).toEqual(before);
+          expect(before.clipped, testCase).toBe(false);
+          expect(before.labelAfterIcon, testCase).toBeGreaterThan(0);
+          expect(before.labelAfterIcon, testCase).toBeLessThan(size === '100%' ? 10 : 18);
+          if (size === '100%') {
+            expect(before.sideBySide, testCase).toBe(sideBySide[where]);
+            if (before.sideBySide) expect(before.gap, testCase).toBe(4);
+          }
+          expect(await noHorizontalScroll(page), testCase).toBe(true);
+        }
+      }
+    });
+  }
+
   // 03:n sointurivi: neljä rinnakkain kun mahtuu, 2 + 2 kapealla, suurella tekstillä yksi riviä kohti.
   // Neljäs sointu ei jää koskaan yksin riville (ei 3 + 1), eikä rivi ole sisennetty painikkeista.
   // 768 px · 200 %: aihesivun kapeampi kortti 2 + 2, oma sivu mahtuu neljään.
