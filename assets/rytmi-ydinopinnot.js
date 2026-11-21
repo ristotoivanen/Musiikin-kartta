@@ -359,6 +359,7 @@ function setupExercise(root) {
     frame = 0;
     clearActive();
     button.disabled = !supported;
+    button.removeAttribute('aria-busy');
     setButton(false);
     drawGroove(state.mode);
   }
@@ -372,7 +373,9 @@ function setupExercise(root) {
     }
     starting = true;
     const current = ++token;
-    button.disabled = true;
+    // Painikkeen hetkellinen disabled=true pudottaa näppäimistöfokuksen Chromessa.
+    // Tuplakäynnistys estetään starting-tilalla, jolloin Enter voi myös pysäyttää.
+    button.setAttribute('aria-busy', 'true');
     status.textContent = MESSAGES.starting;
     try {
       await context.resume();
@@ -380,7 +383,7 @@ function setupExercise(root) {
     } catch {
       if (current === token) {
         starting = false;
-        button.disabled = false;
+        button.removeAttribute('aria-busy');
         setButton(false);
         status.textContent = MESSAGES.failed;
       }
@@ -388,6 +391,7 @@ function setupExercise(root) {
     }
     if (current !== token || !button.isConnected) return;
     starting = false;
+    button.removeAttribute('aria-busy');
     const bus = context.createGain();
     bus.gain.value = 0.8;
     bus.connect(context.destination);
@@ -400,7 +404,6 @@ function setupExercise(root) {
     };
     session = { transport, bus, timer: setInterval(tick, 25), announced: state.mode };
     tick();
-    button.disabled = false;
     setButton(true);
     status.textContent = MESSAGES.playing;
     frame = requestAnimationFrame(draw);
