@@ -41,6 +41,13 @@ describe('Oppimiskartan hyväksytty kahdeksan kuvakkeen ulkoasu', () => {
     expect(topic('kappaleet')).toContain('M31.9 20');
     expect(topic('kappaleet')).not.toContain('pen');
   });
+  it('Soita itse näyttää täsmälleen saman hyväksytyn kuusikielisen kitaran siluetin kuin pääkuvake', () => {
+    const actionGuitar = symbols.find(([, name]) => name === 'action-play-guitar')?.[2] ?? '';
+    const guitarPath = topic('kitara').match(/<path d="([^"]+)" fill="currentColor" fill-rule="evenodd" stroke="none"/)?.[1];
+    const actionPath = actionGuitar.match(/<path d="([^"]+)" fill="currentColor" fill-rule="evenodd" stroke="none"/)?.[1];
+    expect(guitarPath).toBeTruthy();
+    expect(actionPath).toBe(guitarPath);
+  });
   it('toimintojen korva, kitara ja plektra eivät muutu aiheen tunnisteiden mukana', () => {
     for (const id of ['action-listen', 'action-play-guitar', 'extra-info']) {
       expect(names).toContain(id);
