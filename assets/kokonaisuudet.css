@@ -58,9 +58,26 @@
 .study-knoppi-sisalto { scroll-margin-block-start: 1rem; }
 .study-knoppi > summary:focus-visible { outline: 2px solid #75e5c6; outline-offset: 1px; }
 .study-knoppi-sisalto {
+  position: relative;
   width: min(100%, 420px); padding: .75rem .875rem;
   border: 1px solid #71638c; border-radius: .7rem; background: var(--bg);
 }
+/* 44 px sulkukohde on avatun lisätiedon oikeassa yläkulmassa.
+ * Otsikko varaa sille tilan, eikä tekstin tarvitse peittyä. */
+.study-knoppi-sisalto > h3:first-child {
+  padding-inline-end: 3rem;
+  min-block-size: 2.75rem;
+}
+.study-knoppi-close {
+  position: absolute; top: .25rem; right: .25rem;
+  display: grid; place-items: center;
+  width: 44px; height: 44px; padding: 0;
+  border: 0; border-radius: 50%; background: transparent;
+  color: var(--accent); cursor: pointer;
+}
+.study-knoppi-close .study-knoppi-merkki { color: inherit; fill: currentColor; }
+.study-knoppi-close:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.study-knoppi-close:focus-visible { outline: 2px solid #75e5c6; outline-offset: 1px; }
 .study-knoppi-sisalto p { margin: 0; }
 .study-knoppi-sisalto p + p { margin-top: .3rem; }
 
@@ -69,7 +86,7 @@
   .study-unit-body { padding: 0 .75rem .875rem; }
 }
 @media print {
-  .study-unit > summary::after, .study-knoppi > summary { display: none; }
+  .study-unit > summary::after, .study-knoppi > summary, .study-knoppi-close { display: none; }
   .study-unit, .study-unit[open] { border-color: #999; background: none; }
 }
 

@@ -246,16 +246,61 @@ test('avattu Knoppitiedon plektra täyttyy ja lisätiedon otsikko siirtyy näkyv
   await expect(icon).toHaveCSS('fill', 'none');
 });
 
+test('lisätiedon täytetty sulkuplektra palauttaa puhelimessa avauspaikan ja fokuksen', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 640 });
+  await page.goto('/oppi/soinnut/index.html');
+  await page.locator('#ydinopinnot > summary').click();
+  await page.locator('#valinta-kuule-ja-kokoa-sointu').click();
+
+  const tip = page.locator('#ydinopinnot .study-knoppi').first();
+  const open = tip.locator(':scope > summary');
+  const original = open.locator('.study-knoppi-merkki');
+  const close = tip.getByRole('button', { name: 'Sulje lisätieto ja palaa avauskohtaan' });
+  const openingTop = await open.evaluate(node => node.getBoundingClientRect().top);
+
+  await expect(close).not.toBeVisible();
+  await open.click();
+  await expect(tip).toHaveAttribute('open', '');
+  await expect(close).toBeInViewport();
+  await expect(close.locator('use')).toHaveAttribute('href', /oppimisikonit\\.svg#extra-info$/);
+  const box = await close.boundingBox();
+  expect(box!.width).toBeGreaterThanOrEqual(44);
+  expect(box!.height).toBeGreaterThanOrEqual(44);
+  await expect(close.locator('.study-knoppi-merkki')).not.toHaveCSS('fill', 'none');
+  await close.click();
+  await expect(tip).not.toHaveAttribute('open', '');
+  await expect(open).toBeFocused();
+  await expect(original).toHaveCSS('fill', 'none');
+  await expect.poll(() => open.evaluate(node => node.getBoundingClientRect().top))
+    .toBeGreaterThanOrEqual(Math.max(16, openingTop) - 8);
+  await expect.poll(() => open.evaluate(node => node.getBoundingClientRect().top))
+    .toBeLessThanOrEqual(Math.max(16, openingTop) + 8);
+
+  // Käyttäjä voi avata saman lisätiedon uudestaan näppäimistöllä.
+  await open.press('Enter');
+  await expect(tip).toHaveAttribute('open', '');
+});
+
 test('Knoppitiedon avaus vierittää lisäsisältöön myös omalla oppituntisivulla', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 640 });
   await page.goto('/oppi/soinnut/kuule-ja-kokoa-sointu.html');
   const tip = page.locator('details.study-knoppi');
+  const summary = tip.locator(':scope > summary');
   const heading = tip.locator('.study-knoppi-sisalto > h3');
-  await tip.locator(':scope > summary').click();
+  const openingTop = await summary.evaluate(node => node.getBoundingClientRect().top);
+  await summary.click();
   await expect(tip).toHaveAttribute('open', '');
   await expect(heading).toBeInViewport();
   await expect.poll(() => heading.evaluate(node => node.getBoundingClientRect().top))
     .toBeLessThanOrEqual(72);
+  const close = tip.getByRole('button', { name: 'Sulje lisätieto ja palaa avauskohtaan' });
+  await expect(close).toBeInViewport();
+  await close.focus();
+  await close.press('Enter');
+  await expect(tip).not.toHaveAttribute('open', '');
+  await expect(summary).toBeFocused();
+  await expect.poll(() => summary.evaluate(node => node.getBoundingClientRect().top))
+    .toBeGreaterThanOrEqual(Math.max(16, openingTop) - 8);
 });
 
 test('Oppimiskartan kahdeksan pääkorttia käyttävät 44 px SVG-symboleja', async ({ page }) => {

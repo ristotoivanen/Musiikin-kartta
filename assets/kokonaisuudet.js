@@ -5,27 +5,62 @@
 // requestAnimationFrame-kutsulla; tämä tiedosto avaa osion sitä ennen samassa pageshow-tapahtumassa.
 // Suoritusmerkintöjä luetaan vain oman kokonaisuuden etenemistietoa varten; niitä ei kirjoiteta.
 (() => {
-  // Knoppitieto on natiivi details sekä aihesivun inline-kortissa että oppitunnin
-  // omalla sivulla. Siirrä käyttäjän avaaman lisätiedon otsikko näkyviin:
-  // muuten oikean yläkulman plektra voi avata sisällön kauas näkymän alapuolelle.
-  // Älä siirrä näppäimistöfokusta pois summarysta; näin saman kohdan voi myös sulkea.
-  // Ohita ohjelmalliset avaukset, kuten tulostus ja muiden harjoitusten tilapäivitykset.
+  // Knoppitieto toimii natiivilla details/summary-elementillä myös ilman JS:ää.
+  // Aihesivun ja erillisen oppitunnin sisältöön lisätään samalla plektralla
+  // merkitty sulkupainike, koska avauskohta jää puhelimessa usein näkyvistä.
+  // Sulkeminen palauttaa sekä vierityskohdan että näppäimistöfokuksen avausplektraan.
+  const pickUrl = new URL('oppimisikonit.svg#extra-info', document.currentScript.src).href;
   for (const tip of document.querySelectorAll('details.study-knoppi')) {
     const summary = tip.querySelector(':scope > summary');
     const content = tip.querySelector('.study-knoppi-sisalto');
     if (!summary || !content) continue;
+
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'study-knoppi-close';
+    close.setAttribute('aria-label', 'Sulje lisätieto ja palaa avauskohtaan');
+    const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    icon.setAttribute('class', 'study-knoppi-merkki');
+    icon.setAttribute('aria-hidden', 'true');
+    icon.setAttribute('focusable', 'false');
+    const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+    use.setAttribute('href', pickUrl);
+    icon.append(use);
+    close.append(icon);
+    const title = content.querySelector(':scope > h3');
+    if (title) title.after(close);
+    else content.prepend(close);
+
     let activatedByUser = false;
+    let openingTop = 16;
     summary.addEventListener('click', () => {
       activatedByUser = !tip.open;
+      if (activatedByUser) {
+        openingTop = Math.max(16, Math.min(summary.getBoundingClientRect().top, window.innerHeight - 64));
+      }
     });
+
     tip.addEventListener('toggle', () => {
       const shouldMove = activatedByUser && tip.open;
       activatedByUser = false;
-      if (!shouldMove) return;
+      if (!shouldMove) return; // myös tulostus ja ohjelmalliset sulkemiset
       requestAnimationFrame(() => {
         if (tip.open && !tip.hidden && tip.getClientRects().length) {
           content.scrollIntoView({ block: 'start', behavior: 'instant' });
         }
+      });
+    });
+
+    close.addEventListener('click', () => {
+      if (!tip.open) return;
+      tip.open = false;
+      requestAnimationFrame(() => {
+        if (tip.open || !summary.isConnected || !summary.getClientRects().length) return;
+        const delta = summary.getBoundingClientRect().top - openingTop;
+        if (Math.abs(delta) > 2) {
+          window.scrollTo({ top: Math.max(0, window.scrollY + delta), behavior: 'instant' });
+        }
+        summary.focus({ preventScroll: true });
       });
     });
   }
