@@ -19,13 +19,16 @@ describe('Oppimiskartan hyväksytty kahdeksan kuvakkeen ulkoasu', () => {
     }
   });
   it('01 on kokonaisella lavalla varustettu kitara ja 02 jalallinen metronomi', () => {
-    expect(topic('kitara')).toContain('M43 19 47 13');
+    expect(topic('kitara')).toContain('M39 30 C34 23 28 22');
+    expect(topic('kitara')).toContain('M30.5 35.1 L47.5 16.2');
+    expect(topic('kitara')).toContain('cx="32.6"');
     expect(topic('kitara')).toContain('Z');
-    expect(topic('rytmi')).toContain('M22 54v4M43 54v4');
-    expect(topic('rytmi')).toContain('M19 45H46');
+    expect(topic('rytmi')).toContain('M27.5 12.5 H36.5');
+    expect(topic('rytmi')).toContain('cx="32"');
+    expect(topic('rytmi')).toContain('M17 46 H47');
   });
   it('03–05 näyttävät nuotin, pelkistetyn korvan ja otelautakaavion', () => {
-    expect(topic('savelnimet')).toContain('M35 49V12');
+    expect(topic('savelnimet')).toContain('M35.2 46 V12.5');
     expect(topic('korva').match(/<path /g)).toHaveLength(2);
     expect(topic('korva')).not.toMatch(/<ellipse|sound|wave|ääniaalto/i);
     expect(topic('otelauta').match(/<circle /g)).toHaveLength(3);
@@ -34,7 +37,7 @@ describe('Oppimiskartan hyväksytty kahdeksan kuvakkeen ulkoasu', () => {
     expect(topic('soinnut')).toContain('Noto Music');
     expect(topic('soinnut')).toContain('stroke="none"');
     expect(topic('asteikot').match(/<rect /g)).toHaveLength(4);
-    expect(topic('kappaleet')).toContain('M32 19');
+    expect(topic('kappaleet')).toContain('M31.9 20');
     expect(topic('kappaleet')).not.toContain('pen');
   });
   it('toimintojen korva, kitara ja plektra eivät muutu aiheen tunnisteiden mukana', () => {
