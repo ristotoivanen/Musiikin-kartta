@@ -368,7 +368,7 @@ def topic_home(topic, lookup, exercise_descriptions, books, targets):
         body = chord_placeholders(body, books)
         action = link(rel('index.html', output) + '#oppimisaiheet', 'Siirry Oppimiskarttaan', ' class="primary-link"')
         return f'''<header class="recap-header">
-  <h1>{escape(topic['title'])}</h1>
+  <h1 class="study-topic-title"><svg class="study-topic-small" aria-hidden="true" focusable="false"><use href="{rel('assets/oppimisikonit.svg', topic['path'])}#topic-{topic['slug']}"></use></svg>{escape(topic['title'])}</h1>
   <p class="lead">{escape(topic['lead'])}</p>
   {action}
 </header>
@@ -376,8 +376,10 @@ def topic_home(topic, lookup, exercise_descriptions, books, targets):
 <p class="recap-next">{action}</p>'''
     if topic.get('layout') == 'kokonaisuudet':
         return units_home(topic, lookup, exercise_descriptions, targets)
+    topic_icon = rel('assets/oppimisikonit.svg', topic['path']) + '#topic-' + topic['slug']
     parts = [f'<p class="study-meta">Aihe {topic["number"]:02}</p>',
-             f'<h1>{escape(topic["title"])}</h1>', f'<p class="lead">{escape(topic["lead"])}</p>',
+             f'<h1 class="study-topic-title"><svg class="study-topic-small" aria-hidden="true" focusable="false"><use href="{topic_icon}"></use></svg>{escape(topic["title"])}</h1>',
+             f'<p class="lead">{escape(topic["lead"])}</p>',
              '<p class="study-status" data-study-total hidden></p>']
     step = 0
     groups = []
