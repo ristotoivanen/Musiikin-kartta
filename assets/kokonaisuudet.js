@@ -97,7 +97,11 @@
         } else {
           alignHeading(heading, unitOpeningPositions.get(unit) ?? OPEN_TOP);
         }
-        heading.focus({ preventScroll: true });
+        // Avaamisen jälkeen käyttäjä voi ehtiä siirtää kohdistuksen oppitunnin
+        // otsikkoon. Viivästetty kutsu ei saa kaapata sitä takaisin pääotsikkoon.
+        if (document.activeElement === heading || document.activeElement === document.body) {
+          heading.focus({ preventScroll: true });
+        }
       });
     });
   }

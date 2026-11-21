@@ -85,6 +85,26 @@ for (const { topic, slug, id, old } of cases) {
         .toBeLessThanOrEqual(before + 6);
     });
 
+    test('pääosion viivästetty fokus ei kaappaa oppitunnin Enter-kohdistusta', async ({ page }) => {
+      await page.goto(home);
+      const unit = page.locator('#ydinopinnot');
+      const firstSummary = unit.locator('details.study-inline > summary').first();
+      // Pääosion avaaminen ja sisäisen otsikon fokus peräkkäin samassa JS-vuorossa.
+      // Aiemmin pääotsikon animaatiokehyksen fokus varasti Enter-painalluksen.
+      await page.evaluate(() => {
+        const main = document.querySelector<HTMLElement>('#ydinopinnot > summary');
+        const lesson = document.querySelector<HTMLElement>('#ydinopinnot .study-inline > summary');
+        if (!main || !lesson) throw new Error('Ydinopintojen otsikko puuttuu');
+        main.click();
+        lesson.focus();
+        return new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+      });
+      await expect(firstSummary).toBeFocused();
+      await page.keyboard.press('Enter');
+      await expect(unit).toHaveAttribute('open', '');
+      await expect(unit.locator('details.study-inline').first()).toHaveAttribute('open', '');
+    });
+
     test('syvälinkin vaihto avaa vain kohdekokonaisuuden', async ({ page }) => {
       await page.goto(`${home}#valinta-${slug}`);
       const core = page.locator('#ydinopinnot');
