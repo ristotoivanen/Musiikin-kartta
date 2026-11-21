@@ -78,3 +78,11 @@
 
 /* V0.5 korvaa G-pilotin listauksessa. Pilotin suorat linkit ja paluuankkurit toimivat edelleen. */
 .study-unit--archived:not([open], :target, :has(:target)) { display: none; }
+
+/* Keskittymistila: sisältö säilyy samana, ylimääräinen ylänavigointi jätetään pois. */
+.study-page--focus { max-width:44rem; padding-block:1rem 2rem; }
+.study-page--focus .study-up { margin-block-end:1rem; }
+.study-page--focus h1.study-focus-title { font-size:clamp(1.5rem,1.2rem + 1.25vw,2rem); line-height:1.2; margin-block:0 1.15rem; }
+.study-page--focus .study-knoppi { margin-bottom:.5rem; }
+.study-page--focus .done-row { margin-block:1rem 2rem; }
+@media(max-width:600px){ .study-page--focus { padding-inline:clamp(.5rem,2vw,.85rem); } }
