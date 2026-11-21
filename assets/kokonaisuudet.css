@@ -84,3 +84,7 @@
 .study-page--focus .study-knoppi { margin-bottom:.5rem; }
 .study-page--focus .done-row { margin-block:1rem 2rem; }
 @media(max-width:600px){ .study-page--focus { padding-inline:clamp(.5rem,2vw,.85rem); } }
+
+/* Aihesivun nimi ja aihekuvake: kuvake ei korvaa H1-tekstiä. */
+.study-page h1.study-topic-title { display:flex; align-items:center; gap:.55rem; }
+.study-topic-small { width:27px; height:27px; flex:none; color:var(--accent); }
