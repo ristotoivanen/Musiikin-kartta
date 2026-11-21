@@ -787,8 +787,8 @@ def home_grid(topics):
             items = f' data-study-items="{escape(study_ids(topic["pages"]))}"'
             status = f'\n        <span class="topic-status"{progress_text(topic)} hidden></span>'
         cards.append(f'''    <a class="topic-card" id="{topic['anchor']}" href="{topic['path']}"{items}>
-      <span class="topic-number" aria-hidden="true">{topic['number']:02}</span>
-      <strong class="topic-title">{escape(topic['title'])}</strong>
+      <span class="topic-icon-box" data-topic="{topic['slug']}" aria-hidden="true"><svg class="topic-icon"><use href="assets/oppimisikonit.svg#topic-{topic['slug']}"></use></svg></span>
+      <span class="topic-heading"><span class="topic-number" aria-hidden="true">{topic['number']:02}</span> <strong class="topic-title">{escape(topic['title'])}</strong></span>
       <span class="topic-details">
         <span class="topic-description">{escape(topic['summary'])}</span>{status}
       </span>
