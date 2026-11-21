@@ -6,7 +6,7 @@ export default defineConfig({
   ...original,
   projects: [
     ...(original.projects ?? []),
-    { name: 'webkit-desktop-143', use: { ...devices['Desktop Safari'] } },
-    { name: 'webkit-phone-143', use: { ...devices['iPhone 13'], browserName: 'webkit' } },
+    { name: 'webkit-desktop-143', use: { ...devices['Desktop Safari'], launchOptions: { args: [] } } },
+    { name: 'webkit-phone-143', use: { ...devices['iPhone 13'], browserName: 'webkit', launchOptions: { args: [] } } },
   ],
 });

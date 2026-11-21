@@ -1,4 +1,4 @@
-name: Intervallimuisti #143 isolated QA
+name: 'Intervallimuisti #143 isolated QA'
 on:
   push:
     branches: [codex/intervallimuisti-mobiili-a11y-143]
