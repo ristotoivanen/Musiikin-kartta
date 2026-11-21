@@ -740,6 +740,10 @@ def render(topic, content, nav, page=None, *, path_items=()):
     if rhythm_practice:
         scripts += f'\n  <script type="module" src="{versioned_url("assets/rytmi-ydinopinnot.js", output)}"></script>'
     page_class = ' recap-page' if recap else (' study-page--focus' if focus_mode else '')
+    # Muiden sivujen yhteinen päävalikko pysyy tavulleen ennallaan.
+    header_html = '' if focus_mode else ('  <header class="site-top">\n'
+                                         + indent(rebase(nav, "book/osa-2.html", output, {}), '    ')
+                                         + '\n  </header>\n')
     if not recap:
         back = f'''<nav class="study-up" aria-label="Paluunavigointi">
   <a class="study-back" href="{escape(back_href)}"><span aria-hidden="true">←</span> {escape(back_label)}</a>
@@ -756,8 +760,7 @@ def render(topic, content, nav, page=None, *, path_items=()):
 </head>
 <body>
   <a class="study-skip" href="#oppi-sisalto">Siirry sisältöön</a>
-{'' if focus_mode else '<header class="site-top">' + chr(10) + indent(rebase(nav, "book/osa-2.html", output, {}), '    ') + chr(10) + '</header>'}
-  <main class="frame study-page{page_class}" id="oppi-sisalto"{progress}>
+{header_html}  <main class="frame study-page{page_class}" id="oppi-sisalto"{progress}>
 {indent(content, '    ')}
   </main>
 {scripts}
