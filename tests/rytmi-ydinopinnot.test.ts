@@ -199,7 +199,7 @@ describe('Rytmin aihesivu ja muodostetut sivut', () => {
     lessons.forEach((slug) => {
       const html = read(`oppi/rytmi/${slug}.html`);
       expect(html).toContain(`data-study-item="oppitunti:${slug}" data-study-kind="oppitunti" data-study-mark="kokeiltu"`);
-      expect(html).toContain('class="study-page study-page--focus"');
+      expect(html).toContain('class="frame study-page study-page--focus"');
       expect(html).toContain(`href="index.html#valinta-${slug}"`);
       expect(html).toContain('class="study-focus-title"');
       expect(html).toContain('>Merkitse kokeilluksi</button>');
