@@ -127,6 +127,32 @@
 .sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-vastaus] button {
   min-inline-size: 0;
 }
+/* Arvauksen palaute näkyy siinä painikkeessa, jota oppija käytti.
+ * Vaihdetaan vain värit ja reunaviivan piirtotapa: ei paddingia, kokoa eikä sijaintia. */
+.sointu-ydin [data-arvaus-vastaus] button.is-correct,
+.sointu-ydin [data-arvaus-vastaus] button.is-correct:hover {
+  background: #16633f;
+  border-color: #a2efc1;
+  color: #f5fff9;
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+.sointu-ydin [data-arvaus-vastaus] button.is-wrong,
+.sointu-ydin [data-arvaus-vastaus] button.is-wrong:hover {
+  background: #812c3d;
+  border-color: #ffacba;
+  border-style: dashed;
+  color: #fff3f3;
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+/* Lukitut neutraalit vaihtoehdot himmennetään kuten ennen, mutta
+ * väärin/oikein-merkitty tulos pidetään riittävän kontrastisena. */
+.sointu-ydin [data-arvaus-vastaus] button:is(.is-correct, .is-wrong) {
+  opacity: 1;
+}
+@media (forced-colors: active) {
+  .sointu-ydin [data-arvaus-vastaus] button.is-correct { outline: 2px solid Highlight; outline-offset: -3px; }
+  .sointu-ydin [data-arvaus-vastaus] button.is-wrong { outline: 2px dashed CanvasText; outline-offset: -3px; }
+}
 
 /* E/Em-arvaus: nimetön ja nimetty teksti samassa ruudussa, leveys varattu pidemmälle. */
 .sointu-vaihtuva { display: inline-grid; justify-items: start; }

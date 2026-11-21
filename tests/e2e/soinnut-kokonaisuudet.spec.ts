@@ -725,7 +725,20 @@ test.describe('Ydinopinnot v0.5', () => {
     await expect(listen).toHaveAttribute('data-playing', '');
     expect(await sizeOf(listen)).toEqual(bounds);
     const reply = page.getByRole('group', { name: 'Vastaa' });
+    const choiceButtons = reply.locator('button');
+    const choicePositions = () => choiceButtons.evaluateAll(nodes => nodes.map(node => {
+      const box = node.getBoundingClientRect();
+      return { x: Math.round(box.left), y: Math.round(box.top + window.scrollY),
+        width: Math.round(box.width), height: Math.round(box.height) };
+    }));
+    const beforeChoicePositions = await choicePositions();
     await reply.getByRole('button', { name: 'Sointu 1' }).click();
+    await expect(choiceButtons.nth(0)).toHaveClass(/is-correct/);
+    await expect(choiceButtons.nth(0)).toHaveAccessibleName('Sointu 1, oikea vastaus');
+    await expect(choiceButtons.nth(0)).toHaveCSS('background-color', 'rgb(22, 99, 63)');
+    await expect(choiceButtons.nth(0)).toHaveCSS('opacity', '1');
+    await expect(choiceButtons.nth(1)).not.toHaveClass(/is-(correct|wrong)/);
+    expect(await choicePositions()).toEqual(beforeChoicePositions);
     await expect(page.locator('[data-arvauspalaute]')).toHaveText('Oikein! Sointu 1 oli E-molli ja sointu 2 oli E-duuri.');
     await expect(charts.locator('figcaption')).toHaveText(['Sointu 1 = Em', 'Sointu 2 = E']);
     await expect(reply.getByRole('button', { name: 'Sointu 1' })).toHaveAttribute('aria-disabled', 'true');
@@ -759,6 +772,12 @@ test.describe('Ydinopinnot v0.5', () => {
     await expect(page.locator('[data-arvauspalaute]')).toHaveText('Oikein! Sointu 1 oli E-molli ja sointu 2 oli E-duuri.');
 
     await page.getByRole('button', { name: 'Uusi arvaus' }).click();
+    for (const [index, name] of ['Sointu 1', 'Sointu 2'].entries()) {
+      await expect(choiceButtons.nth(index)).not.toHaveClass(/is-(correct|wrong)/);
+      await expect(choiceButtons.nth(index)).toHaveAccessibleName(name);
+      await expect(choiceButtons.nth(index)).not.toHaveAttribute('aria-disabled', 'true');
+    }
+    expect(await choicePositions()).toEqual(beforeChoicePositions);
     await expect(page.getByRole('heading', { name: 'Kumpi on duuri?' })).toBeFocused();
     await expect(charts).toBeHidden();
     await expect(labels).toHaveText(['Sointu 1', 'Sointu 2']);
@@ -767,6 +786,14 @@ test.describe('Ydinopinnot v0.5', () => {
     expect(await listenSizes()).toEqual(revealedSizes);
     await expect(reply.getByRole('button', { name: 'Sointu 1' })).not.toHaveAttribute('aria-disabled', 'true');
     await reply.getByRole('button', { name: 'Sointu 2' }).click();
+    await expect(choiceButtons.nth(0)).toHaveClass(/is-correct/);
+    await expect(choiceButtons.nth(0)).toHaveAccessibleName('Sointu 1, oikea vastaus');
+    await expect(choiceButtons.nth(0)).toHaveCSS('background-color', 'rgb(22, 99, 63)');
+    await expect(choiceButtons.nth(1)).toHaveClass(/is-wrong/);
+    await expect(choiceButtons.nth(1)).toHaveAccessibleName('Sointu 2, väärä vastaus');
+    await expect(choiceButtons.nth(1)).toHaveCSS('background-color', 'rgb(129, 44, 61)');
+    await expect(choiceButtons.nth(1)).toHaveCSS('opacity', '1');
+    expect(await choicePositions()).toEqual(beforeChoicePositions);
     await expect(page.locator('[data-arvauspalaute]')).toHaveText('Tällä kertaa ei. Sointu 1 oli E-duuri ja sointu 2 oli E-molli.');
     await expect(charts.locator('figcaption')).toHaveText(['Sointu 1 = E', 'Sointu 2 = Em']);
     await expect(labels).toHaveText(['Sointu 1 · E', 'Sointu 2 · Em']);

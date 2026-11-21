@@ -357,7 +357,11 @@
       prompt.textContent = 'Kuuntele soinnut 1 ja 2. Valitse sitten vastaus.';
       feedback.textContent = firstPrompt;
       feedback.classList.remove('is-error');
-      choices.forEach(button => button.removeAttribute('aria-disabled'));
+      choices.forEach(button => {
+        button.removeAttribute('aria-disabled');
+        button.removeAttribute('aria-label');
+        button.classList.remove('is-correct', 'is-wrong');
+      });
       nameListening(false);
       next.textContent = 'Uusi arvaus';
       showExerciseStatus('Kuuntele sointu 1 ja sointu 2 ennen vastaamista.');
@@ -371,8 +375,23 @@
         if (answered) return;
         answered = true;
         stopExample();
-        const correct = pair[Number(button.dataset.vastaus)] === target;
-        choices.forEach(choice => choice.setAttribute('aria-disabled', 'true'));
+        const selectedIndex = Number(button.dataset.vastaus);
+        const correctIndex = pair.indexOf(target);
+        const correct = selectedIndex === correctIndex;
+        choices.forEach((choice, index) => {
+          const isCorrect = index === correctIndex;
+          const isWrong = index === selectedIndex && !correct;
+          choice.setAttribute('aria-disabled', 'true');
+          choice.classList.toggle('is-correct', isCorrect);
+          choice.classList.toggle('is-wrong', isWrong);
+          // Painikkeen näkyvä teksti ei muutu eikä siirrä muita ohjaimia.
+          // Tulos on luettavissa myös kohdistamalla ruudunlukija painikkeeseen.
+          if (isCorrect || isWrong) {
+            choice.setAttribute('aria-label', `Sointu ${index + 1}, ${isCorrect ? 'oikea vastaus' : 'väärä vastaus'}`);
+          } else {
+            choice.removeAttribute('aria-label');
+          }
+        });
         feedback.classList.toggle('is-error', !correct);
         feedback.textContent = `${correct ? 'Oikein!' : 'Tällä kertaa ei.'} Sointu 1 oli ${fullName[pair[0]]} ja sointu 2 oli ${fullName[pair[1]]}.`;
         pair.forEach((chord, index) => {
