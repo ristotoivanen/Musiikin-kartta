@@ -48,7 +48,7 @@ for (const url of ['/oppi/savelnimet/savelet-ja-intervallit.html', '/book/osa-2.
         const rect = s.getBoundingClientRect();
         const table = s.querySelector('table')!.getBoundingClientRect();
         const x = Math.round(rect.left + rect.width / 2);
-        const y = Math.round(Math.max(rect.top + 8, Math.min(rect.bottom - 8, table.top + 80)));
+        const y = Math.round(Math.max(rect.top + 40, Math.min(rect.bottom - 16, table.top + 350)));
         const target = document.elementFromPoint(x, y);
         return { x, y, rect: rect.toJSON(), table: table.toJSON(),
           scrollWidth: s.scrollWidth, clientWidth: s.clientWidth, scrollLeft: s.scrollLeft,
@@ -62,8 +62,20 @@ for (const url of ['/oppi/savelnimet/savelet-ja-intervallit.html', '/book/osa-2.
           gestureSourceType: 'touch', preventFling: true,
         });
       } catch (e) { console.log('QA143_SWIPE_ERROR ' + String(e)); }
-      const after = await scroller.evaluate(s => ({ left: s.scrollLeft, max: s.scrollWidth - s.clientWidth }));
-      console.log('QA143_SWIPE ' + JSON.stringify({ metrics, after }));
+      const afterGesture = await scroller.evaluate(s => ({ left: s.scrollLeft, max: s.scrollWidth - s.clientWidth }));
+      await session.send('Input.dispatchTouchEvent', {
+        type: 'touchStart', touchPoints: [{ x: metrics.x, y: metrics.y }],
+      });
+      for (let i = 1; i <= 9; i += 1) {
+        await session.send('Input.dispatchTouchEvent', {
+          type: 'touchMove',
+          touchPoints: [{ x: metrics.x - i * 16, y: metrics.y }],
+        });
+      }
+      await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+      await page.waitForTimeout(200);
+      const afterTouch = await scroller.evaluate(s => ({ left: s.scrollLeft, max: s.scrollWidth - s.clientWidth }));
+      console.log('QA143_SWIPE ' + JSON.stringify({ metrics, afterGesture, afterTouch }));
     }
   });
 }
