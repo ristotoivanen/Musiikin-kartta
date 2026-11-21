@@ -300,6 +300,7 @@ test.describe('Oppimiskartan navigointi ja paluu', () => {
     await page.keyboard.press('Enter');
     await expect(page).toHaveURL('/oppi/kappaleet/index.html');
     await page.keyboard.press('Tab');
+    console.info('Keyboard focus after same-origin navigation:', await page.evaluate(() => document.activeElement?.outerHTML));
     await expect(page.getByRole('link', { name: 'Siirry sisältöön' })).toBeFocused();
   });
 
