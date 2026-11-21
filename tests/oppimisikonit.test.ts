@@ -19,10 +19,11 @@ describe('Oppimiskartan hyväksytty kahdeksan kuvakkeen ulkoasu', () => {
     }
   });
   it('01 on kokonaisella lavalla varustettu kitara ja 02 jalallinen metronomi', () => {
-    expect(topic('kitara')).toContain('M39 30 C34 23 28 22');
-    expect(topic('kitara')).toContain('M30.5 35.1 L47.5 16.2');
-    expect(topic('kitara')).toContain('cx="32.6"');
-    expect(topic('kitara')).toContain('Z');
+    expect(topic('kitara')).toContain('M59.54,8.53');
+    expect(topic('kitara')).toContain('M25.17,34.3');
+    expect(topic('kitara')).toContain('M13.82,43.12');
+    expect(topic('kitara')).toContain('fill-rule="evenodd"');
+    expect(topic('kitara')).toContain('6 viritintä');
     expect(topic('rytmi')).toContain('M27.5 12.5 H36.5');
     expect(topic('rytmi')).toContain('cx="32"');
     expect(topic('rytmi')).toContain('M17 46 H47');
