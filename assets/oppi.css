@@ -170,3 +170,7 @@
 .study-page .chord-diagram, .study-page .chord-diagram svg { max-inline-size: 100%; }
 .study-page .et-level, .study-page .et-bar select { min-inline-size: 0; max-inline-size: 100%; }
 .study-table { overflow-x: auto; max-inline-size: 100%; }
+
+/* Yhteinen aiheidentiteetti kaikille kahdeksalle aihesivulle. */
+.study-page h1.study-topic-title { display:flex; align-items:center; gap:.55rem; }
+.study-topic-small { width:27px; height:27px; flex:none; color:var(--accent); }

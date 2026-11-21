@@ -113,11 +113,18 @@ class Page:
     chapter_number: str = ''
     parent: object = None
 
+    # Oman kokonaisuuden asetukset (aiheet.json-ryhmä) ovat toisistaan riippumattomia, ks. UNIT_OPTIONS:
+    # "kind" määrää sisältötyypin ja siten pysyvän tallennustunnisteen, "attempts" vain merkinnän
+    # esitystavan ja ryhmän laskurin, "back" ja "last" navigoinnin.
     @property
     def study_kind(self):
         if self.chapter:
             return 'luku'
-        return 'harjoitus' if self.parent else 'oppitunti'
+        return 'harjoitus' if self.parent else getattr(self, 'unit', {}).get('kind', 'oppitunti')
+
+    @property
+    def attempts(self):
+        return getattr(self, 'unit', {}).get('attempts', False)
 
     @property
     def study_id(self):
@@ -199,6 +206,7 @@ def lesson_pages(topic, item, books, excerpts):
         content = source.read_text(encoding='utf-8').strip()
         if not content:
             raise ValueError(f'{source.name}: oppitunnin sisältö puuttuu')
+        content = chord_placeholders(content, books)
         return [Page(path, item['title'], source.relative_to(ROOT).as_posix(), content, item['goal'])]
 
     source, key = part_anchor(item['source'])
@@ -330,6 +338,13 @@ def recap_chord_diagrams(match, books):
     return indent('\n'.join(diagrams[chord] for chord in chords), match[1])
 
 
+def chord_placeholders(body, books):
+    """Korvaa rivin <!-- sointukaaviot:osa-N#luku G C --> teoriaoppaan saman luvun sointukaavioilla.
+    Näin sama ote piirtyy kaikkialla yhdestä lähteestä (tools/kaaviot/sointukaavio.py → book/)."""
+    return re.sub(r'^([ ]*)<!-- sointukaaviot:(\S+) ([^\n]+?) -->',
+                  lambda match: recap_chord_diagrams(match, books), body, flags=re.MULTILINE)
+
+
 def recap_fret_notes():
     open_strings = (64, 59, 55, 50, 45, 40)  # Vakiovire tabulatuurin järjestyksessä, ohuin e ensin.
     natural_notes = {0: 'C', 2: 'D', 4: 'E', 5: 'F', 7: 'G', 9: 'A', 11: 'B'}
@@ -343,25 +358,28 @@ def recap_fret_notes():
     return '\n'.join(labels)
 
 
-def topic_home(topic, lookup, exercise_descriptions, books):
+def topic_home(topic, lookup, exercise_descriptions, books, targets):
     if topic.get('recap'):
         output = topic['path']
         source = CONFIG.parent / 'sisallot' / topic['slug'] / 'pikakertaus.html'
         body = rebase(source.read_text(encoding='utf-8').strip(), source.relative_to(ROOT).as_posix(), output, {})
         body = re.sub(r'^([ ]*)<!-- otelaudan-luonnolliset-savelet -->',
                       lambda match: indent(recap_fret_notes(), match[1]), body, flags=re.MULTILINE)
-        body = re.sub(r'^([ ]*)<!-- sointukaaviot:(\S+) ([^\n]+?) -->',
-                      lambda match: recap_chord_diagrams(match, books), body, flags=re.MULTILINE)
+        body = chord_placeholders(body, books)
         action = link(rel('index.html', output) + '#oppimisaiheet', 'Siirry Oppimiskarttaan', ' class="primary-link"')
         return f'''<header class="recap-header">
-  <h1>{escape(topic['title'])}</h1>
+  <h1 class="study-topic-title"><svg class="study-topic-small" aria-hidden="true" focusable="false"><use href="{rel('assets/oppimisikonit.svg', topic['path'])}#topic-{topic['slug']}"></use></svg>{escape(topic['title'])}</h1>
   <p class="lead">{escape(topic['lead'])}</p>
   {action}
 </header>
 {body}
 <p class="recap-next">{action}</p>'''
+    if topic.get('layout') == 'kokonaisuudet':
+        return units_home(topic, lookup, exercise_descriptions, targets)
+    topic_icon = rel('assets/oppimisikonit.svg', topic['path']) + '#topic-' + topic['slug']
     parts = [f'<p class="study-meta">Aihe {topic["number"]:02}</p>',
-             f'<h1>{escape(topic["title"])}</h1>', f'<p class="lead">{escape(topic["lead"])}</p>',
+             f'<h1 class="study-topic-title"><svg class="study-topic-small" aria-hidden="true" focusable="false"><use href="{topic_icon}"></use></svg>{escape(topic["title"])}</h1>',
+             f'<p class="lead">{escape(topic["lead"])}</p>',
              '<p class="study-status" data-study-total hidden></p>']
     step = 0
     groups = []
@@ -388,6 +406,183 @@ def topic_home(topic, lookup, exercise_descriptions, books):
     related = [link(related_url(lookup[key][0], topic), lookup[key][1]) for key in topic['related']]
     parts.append(section('Tutki myös', listed(related)))
     return '\n'.join(parts)
+
+
+def own_unit(topic, group):
+    """#116: aiheen oma oppimiskokonaisuus (ei aiempien sisältöjen ryhmä). Sen oppitunneilla on oma
+    numerointi ja Edellinen/Seuraava, eivätkä ne kuulu aiheen etenemisjärjestykseen, aihesivun ja
+    etusivun laskuriin eivätkä oppimispolun loppuun. Aiempien sisältöjen merkitys pysyy ennallaan."""
+    return topic.get('layout') == 'kokonaisuudet' and not group.get('legacy')
+
+
+# Oman kokonaisuuden valinnaiset asetukset ja sallitut arvot (oletus ensin).
+UNIT_OPTIONS = {
+    'kind': ('oppitunti', 'harjoitus'),  # sisältötyyppi: study_kind ja tallennustunniste tyyppi:polku
+    'attempts': (False, True),           # "Merkitse kokeilluksi", Kokeilematta/✓ Kokeiltu, x/N kokeiltu
+    'back': ('topic', 'unit'),           # sivun paluulinkki: aihesivu tai kokonaisuuden ankkuri aihesivulla
+    'last': ('topic', 'start'),          # viimeisen sivun jatko: aihesivulle tai kokonaisuuden alkuun
+}
+
+
+def unit_pages(group):
+    for option, allowed in UNIT_OPTIONS.items():
+        if group.get(option, allowed[0]) not in allowed:
+            raise ValueError(f'{group["title"]}: {option} voi olla vain {", ".join(map(repr, allowed))}')
+    for page in group['pages']:
+        if page.parent or page.chapter:
+            raise ValueError(f'{group["title"]}: kokonaisuudessa voi olla vain itsenäisiä oppitunteja')
+        page.unit = group
+    return group['pages']
+
+
+def content_count(size):
+    return '1 sisältö' if size == 1 else f'{size} sisältöä'
+
+
+def unit(anchor, title, size, body, *, number=None, opened=False, kind='', progress=''):
+    """Avattava oppimiskokonaisuus Kitaratreenin aiherivien tapaan (natiivi details/summary).
+    Avaaminen vain näyttää sisällöt: se ei käynnistä harjoitusta eikä muuta suoritusmerkintöjä."""
+    if not SLUG.fullmatch(anchor):
+        raise ValueError(f'Virheellinen kokonaisuuden tunniste {anchor}')
+    label = f'<span class="study-unit-number">{number:02}</span> ' if number else ''
+    return (f'<details class="study-unit{kind}" id="{anchor}"{" open" if opened else ""}>\n'
+            f'  <summary>{label}<span class="study-unit-title">{escape(title)}</span>'
+            f'<span class="study-unit-count">{content_count(size)}</span>{progress}</summary>\n'
+            f'  <div class="study-unit-body">\n{indent(body, "    ")}\n  </div>\n</details>')
+
+
+def unit_mark(page):
+    label = 'Merkitse kokeilluksi' if page.attempts else f'Merkitse {page.study_kind} tehdyksi'
+    return ('<p class="done-row"><button type="button" class="done-toggle" aria-pressed="false" disabled>'
+            f'{label}</button></p>')
+
+
+def unit_choice(page, index, topic, targets):
+    """Oman kokonaisuuden tilarivi ei kuulu aiemman sarjan data-study-status-laskuriin."""
+    slug = Path(page.path).stem
+    anchor = f'valinta-{slug}'
+    href = posixpath.basename(page.path)
+    status_attr = 'data-study-attempt-status' if page.attempts else 'data-study-intro-status'
+    status = f'<span {status_attr}="{page.study_id}" class="study-status" hidden></span>'
+    caption = (f'<span class="study-number" aria-hidden="true">{index:02}</span>'
+               f'<strong class="study-title">{escape(page.title)}</strong>'
+               f'<span class="study-choice-details"><span class="study-description">{escape(page.goal)}</span>{status}</span>')
+    toggle = f'class="study-choice study-choice--unit" id="{anchor}"'
+    if not page.unit.get('inline'):
+        return f'<a {toggle} href="{href}">{caption}<span class="study-arrow" aria-hidden="true">→</span></a>'
+
+    content = rebase(page.markup, page.source, topic['path'], targets, topic)
+    separate = link(href, 'Avaa omalla sivullaan', f' data-return-topic="{anchor}"')
+    body = '\n'.join([content, unit_mark(page), f'<p class="study-inline-link">{separate}</p>'])
+    return (f'<details class="study-inline" name="{page.unit["id"]}-harjoitukset" '
+            f'data-study-item="{page.study_id}" data-study-kind="{page.study_kind}"{study_mark(page)}>\n'
+            f'  <summary {toggle}>{caption}<span class="study-arrow" aria-hidden="true"></span></summary>\n'
+            f'  <div class="study-inline-body">\n{indent(body, "    ")}\n  </div>\n</details>')
+
+
+def study_mark(page):
+    return ' data-study-mark="kokeiltu"' if page.attempts else ''
+
+
+def unit_choices(choices, inline=False):
+    """Tavalliset kortit jakavat rivien mitoituksen. Avattavat kortit kasvavat sisällön mukaan."""
+    attrs = ('class="study-choices study-inline-choices" role="list"' if inline else
+             f'class="study-choices" role="list" style="--study-rows: repeat({len(choices)}, var(--study-card-tracks))"')
+    return f'<ol {attrs}>\n' + '\n'.join(indent(f'<li>{item}</li>', '  ') for item in choices) + '\n</ol>'
+
+
+def topic_links(topic, lookup):
+    parts = []
+    if topic.get('tools'):
+        links = []
+        for tool in topic['tools']:
+            url = urlsplit(tool['href'])
+            links.append(link(scoped_url(url.path, url.query, url.fragment, topic['path'], topic), tool['title']))
+        parts.append(section('Harjoittelijat ja työkalut', listed(links)))
+    related = [link(related_url(lookup[key][0], topic), lookup[key][1]) for key in topic['related']]
+    parts.append(section('Tutki myös', listed(related)))
+    return parts
+
+
+def units_home(topic, lookup, exercise_descriptions, targets):
+    """#116: omat oppimiskokonaisuudet ensin, aiemmat sisällöt yhden oletuksena suljetun osion alla.
+    Aiempien sisältöjen numerointi, osoitteet ja laskuri ovat samat kuin korttiruudukossa."""
+    groups = topic['groups']
+    own = [group for group in groups if own_unit(topic, group)]
+    legacy = [group for group in groups if not own_unit(topic, group)]
+    if not own or groups != own + legacy:
+        raise ValueError(f'{topic["title"]}: omat kokonaisuudet ensin, aiemmat sisällöt niiden jälkeen')
+    topic_icon = rel('assets/oppimisikonit.svg', topic['path']) + '#topic-' + topic['slug']
+    parts = [f'<p class="study-meta">Aihe {topic["number"]:02}</p>',
+             f'<h1 class="study-topic-title"><svg class="study-topic-small" aria-hidden="true" focusable="false"><use href="{topic_icon}"></use></svg>{escape(topic["title"])}</h1>',
+             f'<p class="lead">{escape(topic["lead"])}</p>']
+    units = []
+    for order, group in enumerate(own):
+        links = [unit_choice(page, number, topic, targets) for number, page in enumerate(group['pages'], 1)]
+        body = [f'<p class="study-unit-goal">{escape(group["goal"])}</p>']
+        if order == 0:
+            body.append('<p class="study-start">Aloita tästä</p>')
+        body.append(unit_choices(links, group.get('inline', False)))
+        # Kokonaisuuden oma laskuri perustuu vain sen omiin tilariveihin.
+        attempts = ' data-unit-attempts' if group.get('attempts') else ''
+        progress = f'<span class="study-status study-unit-progress" data-unit-progress{attempts} hidden></span>'
+        kind = ' study-unit--archived' if group.get('archived') else ''
+        units.append(unit(group['id'], group['title'], len(links), '\n'.join(body),
+                          number=group.get('number'), opened=group.get('open', False), kind=kind, progress=progress))
+    if legacy:
+        info = topic['legacy']
+        sections = [f'<p class="study-unit-goal">{escape(info["intro"])}</p>']
+        step = 0
+        for group in legacy:
+            links = [choice(page, number, exercise_descriptions)
+                     for number, page in enumerate(group['pages'], step + 1)]
+            sections.append(section(group['title'], unit_choices(links)))
+            step += len(links)
+        # Aiheen laskuri (edistyminen.js) täyttää tämän aiempien sisältöjen merkinnöistä kuten ennenkin.
+        progress = f'<span class="study-status study-unit-progress" data-study-total{progress_text(topic)} hidden></span>'
+        units.append(unit(info['id'], info['title'], step, '\n'.join(sections),
+                          kind=' study-unit--legacy', progress=progress))
+    parts.append('<div class="study-units">\n' + indent('\n'.join(units), '  ') + '\n</div>')
+    return '\n'.join(parts + topic_links(topic, lookup))
+
+
+def unit_page_content(page, group, index, topic, targets):
+    """Oman kokonaisuuden sisällöt numeroidaan ja linkitetään sen sisällä. Viimeinen sivu jatkaa
+    ryhmän "last"-asetuksen mukaan kokonaisuuden alkuun tai aihesivun kokonaisuuden ankkuriin."""
+    sequence = group['pages']
+    number = f'{group["number"]:02} · ' if 'number' in group else ''
+    meta = (f'<p class="study-meta" data-study-unit="{group["id"]}">{page.study_kind.capitalize()} '
+            f'{index + 1:02} / {len(sequence):02} <span>{number}{escape(group["title"])}</span></p>')
+
+    def nav(bottom):
+        items = []
+        if index > 0:
+            previous = sequence[index - 1]
+            items.append(step_link(rel(previous.path, page.path), f'Edellinen: {previous.title}', ' rel="prev"'))
+        if index + 1 < len(sequence):
+            following = sequence[index + 1]
+            items.append(step_link(rel(following.path, page.path), f'Seuraava: {following.title}', ' rel="next"', forward=True))
+        elif group.get('last') == 'start':
+            url = rel(sequence[0].path, page.path)
+            items.append(step_link(url, 'Palaa alkuun', '', forward=True))
+        else:
+            url = rel(topic['path'], page.path) + '#' + group['id']
+            items.append(step_link(url, f'Palaa aihesivulle: {topic["title"]}', ' class="study-step-map"'))
+        where, label = ('bottom', 'lopussa') if bottom else ('top', 'alussa')
+        return (f'<nav class="study-steps study-steps--{where}" aria-label="Sisältönavigointi sivun {label}">\n'
+                + indent('\n'.join(items), '  ') + '\n</nav>')
+
+    if group.get('inline'):
+        # Keskittymistila käyttää samaa oppituntilähdettä kuin aiheen sisäinen kortti.
+        # Näkyvä paluu rakennetaan render()-funktiossa oppitunnin omaan ankkuriin.
+        return '\n'.join([
+            f'<h1 class="study-focus-title">{escape(page.title)}</h1>',
+            rebase(page.markup, page.source, page.path, targets, topic),
+            unit_mark(page)])
+    return '\n'.join([
+        meta, f'<h1>{escape(page.title)}</h1>', f'<p class="lead">{escape(page.goal)}</p>', nav(False),
+        rebase(page.markup, page.source, page.path, targets, topic),
+        unit_mark(page), nav(True)])
 
 
 def related_url(target, topic):
@@ -467,7 +662,7 @@ def steps(topic, index, next_topic, *, bottom=False):
     items = []
     if index == len(sequence) - 1 and not topic.get('recap'):
         live = ' aria-live="polite"' if bottom else ''
-        status = f'<p class="study-status" data-boundary-progress{live} hidden></p>'
+        status = f'<p class="study-status" data-boundary-progress{live}{progress_text(topic)} hidden></p>'
         if next_topic is None:
             status += '<p class="study-status is-done" data-path-progress hidden>✓ Oppimispolku käyty läpi</p>'
         items.append(f'<div class="study-boundary-status">{status}</div>')
@@ -497,18 +692,35 @@ def render(topic, content, nav, page=None, *, path_items=()):
     stylesheets = ['book/reader.css', 'assets/paavalikko.css', 'assets/oppi.css']
     if recap:
         stylesheets.append('assets/kitara-kertaus.css')
+    # Rytmin Ydinopinnot (#116): harjoitusten tyylit ja moduuli.
+    rhythm_practice = 'data-rytmiharjoitus=' in (page.markup if page else content)
+    if rhythm_practice:
+        stylesheets.append('assets/rytmi-ydinopinnot.css')
     interval_recall = page and 'data-intervallimuisti' in page.markup
     if interval_recall:
         stylesheets.append('assets/intervallimuisti.css')
+    # Avattavat oppimiskokonaisuudet ja ⓘ Knoppitieto (#116) sekä Soinnut-aiheen kitaranäyteharjoitukset.
+    units = getattr(page, 'unit', None) if page else topic.get('layout') == 'kokonaisuudet'
+    chord_practice = 'data-sointuharjoitus=' in (page.markup if page else content)
+    if units:
+        stylesheets.append('assets/kokonaisuudet.css')
+    if chord_practice:
+        stylesheets.append('assets/sointuharjoitus.css')
     styles = '\n'.join(stylesheet(path, output) for path in stylesheets)
+    focus_mode = bool(page and getattr(page, 'unit', None) and page.unit.get('inline'))
     back_href = rel(topic['path'], output) if page else rel('index.html', output) + '#' + topic['anchor']
-    back_label = topic['back_label'] if page else 'Oppimiskarttaan'
+    if focus_mode:
+        back_href += '#valinta-' + Path(page.path).stem
+    elif page and getattr(page, 'unit', {}).get('back') == 'unit':
+        back_href += '#' + page.unit['id']
+    back_label = ('Takaisin aiheeseen: ' + topic['title']) if focus_mode else (topic['back_label'] if page else 'Oppimiskarttaan')
     if not page and not recap:
         content += '\n<p class="study-reference">' + link(rel('book/index.html', output), 'Teoriaoppaan kaikki osat') + '</p>'
     if page:
         progress = f' data-study-item="{page.study_id}" data-study-kind="{page.study_kind}"'
         if page.chapter:
             progress += f' data-theory-chapter="{page.chapter}"'
+        progress += study_mark(page)
         if page is topic['pages'][-1] and not topic.get('recap'):
             progress += f' data-topic-items="{escape(study_ids(topic["pages"]))}"'
         if path_items:
@@ -521,11 +733,21 @@ def render(topic, content, nav, page=None, *, path_items=()):
     # Musapeleistä ja Kitaratreenistä avattu sivu palaa samaan oppimistapaan (?tapa=…), ja aihesivulla
     # näkyy saman aiheen vaihto. Muodostetaan komennolla tools/oppimiskartta/rakenna-osiot.py.
     scripts.append(rel('assets/oppimistapa.js', output))
+    if units:
+        scripts.append(versioned_url('assets/kokonaisuudet.js', output))
+    if chord_practice:
+        scripts.append(versioned_url('assets/sointuharjoitus.js', output))
     scripts = '\n'.join(f'  <script src="{url}"></script>' for url in scripts)
     if interval_recall:
         url = versioned_url('assets/intervallimuisti.js', output)
         scripts += f'\n  <script type="module" src="{url}"></script>'
-    page_class = ' recap-page' if recap else ''
+    if rhythm_practice:
+        scripts += f'\n  <script type="module" src="{versioned_url("assets/rytmi-ydinopinnot.js", output)}"></script>'
+    page_class = ' recap-page' if recap else (' study-page--focus' if focus_mode else '')
+    # Muiden sivujen yhteinen päävalikko pysyy tavulleen ennallaan.
+    header_html = '' if focus_mode else ('  <header class="site-top">\n'
+                                         + indent(rebase(nav, "book/osa-2.html", output, {}), '    ')
+                                         + '\n  </header>\n')
     if not recap:
         back = f'''<nav class="study-up" aria-label="Paluunavigointi">
   <a class="study-back" href="{escape(back_href)}"><span aria-hidden="true">←</span> {escape(back_label)}</a>
@@ -542,10 +764,7 @@ def render(topic, content, nav, page=None, *, path_items=()):
 </head>
 <body>
   <a class="study-skip" href="#oppi-sisalto">Siirry sisältöön</a>
-  <header class="site-top">
-{indent(rebase(nav, "book/osa-2.html", output, {}), '    ')}
-  </header>
-  <main class="frame study-page{page_class}" id="oppi-sisalto"{progress}>
+{header_html}  <main class="frame study-page{page_class}" id="oppi-sisalto"{progress}>
 {indent(content, '    ')}
   </main>
 {scripts}
@@ -564,16 +783,27 @@ def replace_block(source, start, end, value, name):
     return source[:begin] + '\n' + value + '\n' + source[closing:]
 
 
+def progress_text(topic):
+    """Aiheen laskurin valinnainen oma teksti (aiheet.json "progress_text": count, done). Käytössä vain
+    Soinnut ja harmonia -aiheessa (#116), jonka laskuri kattaa vain aiemmat sisällöt."""
+    text = topic.get('progress_text')
+    if not text:
+        return ''
+    if set(text) != {'count', 'done'}:
+        raise ValueError(f'{topic["title"]}: progress_text tarvitsee täsmälleen count ja done')
+    return f' data-progress-count="{escape(text["count"])}" data-progress-done="{escape(text["done"])}"'
+
+
 def home_grid(topics):
     cards = []
     for topic in topics:
         items = status = ''
         if not topic.get('recap'):
             items = f' data-study-items="{escape(study_ids(topic["pages"]))}"'
-            status = '\n        <span class="topic-status" hidden></span>'
+            status = f'\n        <span class="topic-status"{progress_text(topic)} hidden></span>'
         cards.append(f'''    <a class="topic-card" id="{topic['anchor']}" href="{topic['path']}"{items}>
-      <span class="topic-number" aria-hidden="true">{topic['number']:02}</span>
-      <strong class="topic-title">{escape(topic['title'])}</strong>
+      <span class="topic-icon-box" data-topic="{topic['slug']}" aria-hidden="true"><svg class="topic-icon"><use href="assets/oppimisikonit.svg#topic-{topic['slug']}"></use></svg></span>
+      <span class="topic-heading"><span class="topic-number" aria-hidden="true">{topic['number']:02}</span> <strong class="topic-title">{escape(topic['title'])}</strong></span>
       <span class="topic-details">
         <span class="topic-description">{escape(topic['summary'])}</span>{status}
       </span>
@@ -602,7 +832,10 @@ def collect(config, books):
         sequence = []
         for group in topic['groups']:
             group['pages'] = [page for item in group['lessons'] for page in lesson_pages(topic, item, books, excerpts)]
-            sequence.extend(group['pages'])
+            if own_unit(topic, group):
+                all_pages.extend(unit_pages(group))
+            else:
+                sequence.extend(group['pages'])
         if not sequence:
             raise ValueError(f'{topic["title"]}: vähintään yksi oppitunti tarvitaan')
         topic['pages'] = sequence
@@ -642,7 +875,10 @@ def pages():
     output = {}
     for number, topic in enumerate(topics):
         next_topic = topics[number + 1] if number + 1 < len(topics) else None
-        output[topic['path']] = render(topic, topic_home(topic, lookup, exercise_descriptions, books), nav)
+        output[topic['path']] = render(topic, topic_home(topic, lookup, exercise_descriptions, books, targets), nav)
+        for group in topic['groups']:
+            for index, page in enumerate(group['pages'] if own_unit(topic, group) else ()):
+                output[page.path] = render(topic, unit_page_content(page, group, index, topic, targets), nav, page)
         sequence = topic['pages']
         for index, page in enumerate(sequence):
             content = page_content(page, topic, index, next_topic, books, targets, audio)

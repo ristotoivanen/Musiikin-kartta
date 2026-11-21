@@ -1,0 +1,18 @@
+/* Ydinopintojen ja Oppimiskartan semanttinen kuvakeluonnos (#125).
+   Symbolien väri tulee nykyisestä teemasta; koko ja osuma-alue eivät ole sama asia. */
+.topic-icon-box { --topic-line: var(--accent); display: inline-grid; place-items: center; flex: none; width: 64px; height: 64px; border-inline-start: 3px solid var(--topic-line); border-radius: .7rem; background: color-mix(in srgb, var(--panel) 88%, white 12%); }
+.topic-icon { display: block; width: 44px; height: 44px; color: var(--text); }
+.study-action-icon { display: inline-block; width: 22px; height: 22px; flex: none; color: currentColor; }
+.study-extra-info-icon { display: block; width: 22px; height: 22px; }
+.topic-icon-box[data-topic="kitara"] { --topic-line: #d69a4a; }
+.topic-icon-box[data-topic="rytmi"] { --topic-line: #e98278; }
+.topic-icon-box[data-topic="savelnimet"] { --topic-line: #649ce9; }
+.topic-icon-box[data-topic="korva"] { --topic-line: #4ba9a9; }
+.topic-icon-box[data-topic="otelauta"] { --topic-line: #91ac59; }
+.topic-icon-box[data-topic="soinnut"] { --topic-line: #d887a8; }
+.topic-icon-box[data-topic="asteikot"] { --topic-line: #ad91df; }
+.topic-icon-box[data-topic="kappaleet"] { --topic-line: #d9b45a; }
+@media (max-width: 440px) { .topic-icon-box { width: 60px; height: 60px; } }
+
+/* Oppimiskartan pääkortti, ei erillisiä aihekohtaisia ikonikopioita. */
+.topic-card .topic-icon-box { width:64px; height:64px; }

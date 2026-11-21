@@ -1,0 +1,513 @@
+{
+  "aihesivu · 320px · nykyinen": {
+    "rivit": "2+2",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 110,
+    "korostettu": 4
+  },
+  "aihesivu · 320px · v1-nelja-rivissa": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 51,
+    "korostettu": 4
+  },
+  "aihesivu · 320px · v2-hallittu-2plus2": {
+    "rivit": "2+2",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 110,
+    "korostettu": 4
+  },
+  "aihesivu · 320px · v3-nelja-tai-2plus2": {
+    "rivit": "2+2",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 110,
+    "korostettu": 4
+  },
+  "aihesivu · 320px · v4-4-2plus2-1": {
+    "rivit": "2+2",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 121,
+    "korostettu": 4
+  },
+  "aihesivu · 360px · nykyinen": {
+    "rivit": "3+1",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 84,
+    "korostettu": 4
+  },
+  "aihesivu · 360px · v1-nelja-rivissa": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 61,
+    "korostettu": 4
+  },
+  "aihesivu · 360px · v2-hallittu-2plus2": {
+    "rivit": "2+2",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 130,
+    "korostettu": 4
+  },
+  "aihesivu · 360px · v3-nelja-tai-2plus2": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 61,
+    "korostettu": 4
+  },
+  "aihesivu · 360px · v4-4-2plus2-1": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 66,
+    "korostettu": 4
+  },
+  "aihesivu · 390px · nykyinen": {
+    "rivit": "3+1",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 94,
+    "korostettu": 4
+  },
+  "aihesivu · 390px · v1-nelja-rivissa": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 68,
+    "korostettu": 4
+  },
+  "aihesivu · 390px · v2-hallittu-2plus2": {
+    "rivit": "2+2",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 145,
+    "korostettu": 4
+  },
+  "aihesivu · 390px · v3-nelja-tai-2plus2": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 68,
+    "korostettu": 4
+  },
+  "aihesivu · 390px · v4-4-2plus2-1": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 74,
+    "korostettu": 4
+  },
+  "aihesivu · 320px-200pct · nykyinen": {
+    "rivit": "1+1+1+1",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 138,
+    "korostettu": 4
+  },
+  "aihesivu · 320px-200pct · v1-nelja-rivissa": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": true,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 22,
+    "korostettu": 4
+  },
+  "aihesivu · 320px-200pct · v2-hallittu-2plus2": {
+    "rivit": "2+2",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 61,
+    "korostettu": 4
+  },
+  "aihesivu · 320px-200pct · v3-nelja-tai-2plus2": {
+    "rivit": "2+2",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 61,
+    "korostettu": 4
+  },
+  "aihesivu · 320px-200pct · v4-4-2plus2-1": {
+    "rivit": "1+1+1+1",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 181,
+    "korostettu": 4
+  },
+  "aihesivu · 390px-200pct · nykyinen": {
+    "rivit": "1+1+1+1",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 208,
+    "korostettu": 4
+  },
+  "aihesivu · 390px-200pct · v1-nelja-rivissa": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 40,
+    "korostettu": 4
+  },
+  "aihesivu · 390px-200pct · v2-hallittu-2plus2": {
+    "rivit": "2+2",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 96,
+    "korostettu": 4
+  },
+  "aihesivu · 390px-200pct · v3-nelja-tai-2plus2": {
+    "rivit": "2+2",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 96,
+    "korostettu": 4
+  },
+  "aihesivu · 390px-200pct · v4-4-2plus2-1": {
+    "rivit": "1+1+1+1",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 251,
+    "korostettu": 4
+  },
+  "aihesivu · 768px · nykyinen": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 140,
+    "korostettu": 4
+  },
+  "aihesivu · 768px · v1-nelja-rivissa": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 140,
+    "korostettu": 4
+  },
+  "aihesivu · 768px · v2-hallittu-2plus2": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 140,
+    "korostettu": 4
+  },
+  "aihesivu · 768px · v3-nelja-tai-2plus2": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 140,
+    "korostettu": 4
+  },
+  "aihesivu · 768px · v4-4-2plus2-1": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 145,
+    "korostettu": 4
+  },
+  "oma-sivu · 320px · nykyinen": {
+    "rivit": "2+2",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 112,
+    "korostettu": 4
+  },
+  "oma-sivu · 320px · v1-nelja-rivissa": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 52,
+    "korostettu": 4
+  },
+  "oma-sivu · 320px · v2-hallittu-2plus2": {
+    "rivit": "2+2",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 112,
+    "korostettu": 4
+  },
+  "oma-sivu · 320px · v3-nelja-tai-2plus2": {
+    "rivit": "2+2",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 112,
+    "korostettu": 4
+  },
+  "oma-sivu · 320px · v4-4-2plus2-1": {
+    "rivit": "2+2",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 123,
+    "korostettu": 4
+  },
+  "oma-sivu · 360px · nykyinen": {
+    "rivit": "3+1",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 85,
+    "korostettu": 4
+  },
+  "oma-sivu · 360px · v1-nelja-rivissa": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 62,
+    "korostettu": 4
+  },
+  "oma-sivu · 360px · v2-hallittu-2plus2": {
+    "rivit": "2+2",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 132,
+    "korostettu": 4
+  },
+  "oma-sivu · 360px · v3-nelja-tai-2plus2": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 62,
+    "korostettu": 4
+  },
+  "oma-sivu · 360px · v4-4-2plus2-1": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 67,
+    "korostettu": 4
+  },
+  "oma-sivu · 390px · nykyinen": {
+    "rivit": "3+1",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 95,
+    "korostettu": 4
+  },
+  "oma-sivu · 390px · v1-nelja-rivissa": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 69,
+    "korostettu": 4
+  },
+  "oma-sivu · 390px · v2-hallittu-2plus2": {
+    "rivit": "2+2",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 147,
+    "korostettu": 4
+  },
+  "oma-sivu · 390px · v3-nelja-tai-2plus2": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 69,
+    "korostettu": 4
+  },
+  "oma-sivu · 390px · v4-4-2plus2-1": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 75,
+    "korostettu": 4
+  },
+  "oma-sivu · 320px-200pct · nykyinen": {
+    "rivit": "1+1+1+1",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 142,
+    "korostettu": 4
+  },
+  "oma-sivu · 320px-200pct · v1-nelja-rivissa": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": true,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 23,
+    "korostettu": 4
+  },
+  "oma-sivu · 320px-200pct · v2-hallittu-2plus2": {
+    "rivit": "2+2",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 63,
+    "korostettu": 4
+  },
+  "oma-sivu · 320px-200pct · v3-nelja-tai-2plus2": {
+    "rivit": "2+2",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 63,
+    "korostettu": 4
+  },
+  "oma-sivu · 320px-200pct · v4-4-2plus2-1": {
+    "rivit": "1+1+1+1",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 185,
+    "korostettu": 4
+  },
+  "oma-sivu · 390px-200pct · nykyinen": {
+    "rivit": "1+1+1+1",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 212,
+    "korostettu": 4
+  },
+  "oma-sivu · 390px-200pct · v1-nelja-rivissa": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 41,
+    "korostettu": 4
+  },
+  "oma-sivu · 390px-200pct · v2-hallittu-2plus2": {
+    "rivit": "2+2",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 98,
+    "korostettu": 4
+  },
+  "oma-sivu · 390px-200pct · v3-nelja-tai-2plus2": {
+    "rivit": "2+2",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 98,
+    "korostettu": 4
+  },
+  "oma-sivu · 390px-200pct · v4-4-2plus2-1": {
+    "rivit": "1+1+1+1",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 255,
+    "korostettu": 4
+  },
+  "oma-sivu · 768px · nykyinen": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 156,
+    "korostettu": 4
+  },
+  "oma-sivu · 768px · v1-nelja-rivissa": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 156,
+    "korostettu": 4
+  },
+  "oma-sivu · 768px · v2-hallittu-2plus2": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 156,
+    "korostettu": 4
+  },
+  "oma-sivu · 768px · v3-nelja-tai-2plus2": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 156,
+    "korostettu": 4
+  },
+  "oma-sivu · 768px · v4-4-2plus2-1": {
+    "rivit": "4",
+    "lukujarjestys": true,
+    "tekstiYlittaaSolun": false,
+    "sivunVaakavieritys": false,
+    "solunLeveys_px": 161,
+    "korostettu": 4
+  },
+  "ui02": {
+    "alku": [
+      "E",
+      "Em",
+      "Arvaa"
+    ],
+    "arvaa": [
+      "Sointu 1",
+      "Sointu 2",
+      "Uusi arvaus",
+      "Sointu 1",
+      "Sointu 2"
+    ],
+    "vastattu": [
+      "Sointu 1",
+      "Sointu 2",
+      "Uusi arvaus",
+      "Sointu 1",
+      "Sointu 2"
+    ],
+    "vastattuPalaute": "Tällä kertaa ei. Sointu 1 oli E-molli ja sointu 2 oli E-duuri.",
+    "vastattuPainike": {
+      "ariaDisabled": "true",
+      "disabled": false,
+      "tabIndex": 0
+    },
+    "palauteEnterinJalkeen": "Tällä kertaa ei. Sointu 1 oli E-molli ja sointu 2 oli E-duuri.",
+    "fokusEnterinJalkeen": "Sointu 2",
+    "nimetytNakyvissaVastauksenJalkeen": false,
+    "nimetytNakyvissaLatauksenJalkeen": true
+  }
+}

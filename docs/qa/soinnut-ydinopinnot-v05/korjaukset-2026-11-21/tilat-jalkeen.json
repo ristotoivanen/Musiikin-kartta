@@ -1,0 +1,56 @@
+{
+  "03-alku": {
+    "tila": "Valitse ensin lopetus: G, C tai D.",
+    "valitut": [
+      "G=false",
+      "C=false",
+      "D=false"
+    ],
+    "kuunteleDisabled": true
+  },
+  "03-valittu-C": {
+    "tila": "Lopetus C valittu. Kuuntele kierto.",
+    "valitut": [
+      "G=false",
+      "C=true",
+      "D=false"
+    ],
+    "kuunteleDisabled": false
+  },
+  "02-arvaus": [
+    {
+      "teksti": "Sointu 1",
+      "nimi": "Kuuntele sointu 1",
+      "leveys": 157
+    },
+    {
+      "teksti": "Sointu 2",
+      "nimi": "Kuuntele sointu 2",
+      "leveys": 160
+    }
+  ],
+  "02-vastattu": [
+    {
+      "teksti": "Sointu 1 · Em",
+      "nimi": "Kuuntele sointu 1, E-molli",
+      "leveys": 157
+    },
+    {
+      "teksti": "Sointu 2 · E",
+      "nimi": "Kuuntele sointu 2, E-duuri",
+      "leveys": 160
+    }
+  ],
+  "02-uusi-arvaus": [
+    {
+      "teksti": "Sointu 1",
+      "nimi": "Kuuntele sointu 1",
+      "leveys": 157
+    },
+    {
+      "teksti": "Sointu 2",
+      "nimi": "Kuuntele sointu 2",
+      "leveys": 160
+    }
+  ]
+}

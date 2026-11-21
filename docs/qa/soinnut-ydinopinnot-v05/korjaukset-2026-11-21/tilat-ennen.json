@@ -1,0 +1,56 @@
+{
+  "03-alku": {
+    "tila": "Valitse lopetus ja käynnistä kuuntelu.",
+    "valitut": [
+      "G=true",
+      "C=false",
+      "D=false"
+    ],
+    "kuunteleDisabled": false
+  },
+  "03-valittu-C": {
+    "tila": "Valitse lopetus ja käynnistä kuuntelu.",
+    "valitut": [
+      "G=false",
+      "C=true",
+      "D=false"
+    ],
+    "kuunteleDisabled": false
+  },
+  "02-arvaus": [
+    {
+      "teksti": "Sointu 1",
+      "nimi": "Kuuntele sointu 1",
+      "leveys": 120
+    },
+    {
+      "teksti": "Sointu 2",
+      "nimi": "Kuuntele sointu 2",
+      "leveys": 122
+    }
+  ],
+  "02-vastattu": [
+    {
+      "teksti": "Sointu 1",
+      "nimi": "Kuuntele sointu 1",
+      "leveys": 120
+    },
+    {
+      "teksti": "Sointu 2",
+      "nimi": "Kuuntele sointu 2",
+      "leveys": 122
+    }
+  ],
+  "02-uusi-arvaus": [
+    {
+      "teksti": "Sointu 1",
+      "nimi": "Kuuntele sointu 1",
+      "leveys": 120
+    },
+    {
+      "teksti": "Sointu 2",
+      "nimi": "Kuuntele sointu 2",
+      "leveys": 122
+    }
+  ]
+}

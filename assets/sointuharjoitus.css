@@ -1,0 +1,153 @@
+/* Soinnut ja harmonia: Miten sointu muodostuu? (#116). Ladataan vain sivuille, joilla on
+ * [data-sointuharjoitus] (tools/oppimiskartta/rakenna.py). Värit book/reader.css:n muuttujista. */
+.sointuharjoitus h2 { margin-block: 0 .55rem; font-size: 1.1rem; }
+.sointuharjoitus [hidden] { display: none !important; }
+
+.sointu-toiminnot { display: flex; flex-wrap: wrap; gap: .5rem; margin: .85rem 0 .35rem; }
+.sointuharjoitus button {
+  min-height: 44px;
+  padding: .45rem .95rem;
+  border: 1px solid #71638c;
+  border-radius: .55rem;
+  background: #2d2444;
+  color: var(--text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.sointuharjoitus button:hover { border-color: var(--accent); background: #3a2f55; }
+.sointuharjoitus .sointu-ensisijainen { border-color: #d6c7ff; background: var(--accent); color: #170f28; }
+.sointuharjoitus .sointu-ensisijainen:hover { background: #d5c6ff; }
+.sointuharjoitus button:focus-visible { outline: 3px solid #75e5c6; outline-offset: 2px; }
+
+.sointu-tila { min-height: 1.5em; margin: .35rem 0 0; color: #9fe4c3; font-size: .92rem; }
+.sointu-tila.is-error { color: #ffd6b3; }
+.sointu-ohje, .sointu-lahde { color: var(--muted); font-size: .9rem; }
+
+/* Rakenna G-duurisointu: seitsemän asteikkosäveltä, puhelimessa neljä riviin. */
+.sointu-asteikko { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .45rem; margin: .9rem 0 .7rem; }
+.sointu-asteikko button { position: relative; min-width: 0; min-height: 54px; padding: .2rem; font-size: 1.1rem; }
+.sointu-asteikko button.is-selected { border-color: #d8caff; background: var(--accent); color: #171021; }
+/* Valinta kerrotaan ruudunlukijalle aria-pressed-tilana; ✓ on vain näkyvä merkki (tyhjä vaihtoehtoteksti). */
+.sointu-asteikko button.is-selected::after { content: "✓"; content: "✓" / ""; position: absolute; top: 2px; right: 5px; font-size: .7rem; }
+.sointu-valinta {
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: .25rem .75rem;
+  margin: .5rem 0; padding: .6rem .8rem; border-radius: .55rem; background: var(--bg);
+}
+.sointu-valinta strong { font-variant-numeric: tabular-nums; }
+.sointu-maara { color: var(--muted); font-size: .9rem; }
+.sointu-selitys { margin-top: .8rem; padding: .8rem .9rem; border: 1px solid #76988d; border-radius: .6rem; background: #1b3030; }
+.sointu-selitys h3 { margin: 0 0 .5rem; font-size: 1.05rem; }
+.sointu-kaava { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .55rem; margin: .7rem 0; }
+.sointu-kaava > div { min-width: 0; padding: .55rem .3rem; border: 1px solid #7b6c97; border-radius: .55rem; background: var(--panel); text-align: center; }
+.sointu-kaava b { display: block; font-size: 1.4rem; }
+.sointu-kaava small { display: block; color: var(--muted); }
+
+/* Kokeile G-sointua kitaralla: kielten sävelet ⓘ-knoppitiedossa. */
+.sointu-kielet { margin: .2rem 0 0; color: #9fe4c3; font-size: clamp(1.1rem, 4vw, 1.35rem); font-weight: 800; letter-spacing: .02em; }
+
+@media (max-width: 560px) {
+  .sointu-asteikko { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .sointu-kaava { grid-template-columns: minmax(0, 1fr); }
+}
+@media (forced-colors: active) {
+  .sointu-asteikko button.is-selected { outline: 3px solid Highlight; }
+}
+@media print {
+  .sointu-toiminnot, .sointu-tila, .sointu-asteikko, .sointu-valinta { display: none !important; }
+  .sointuharjoitus .sointu-selitys[hidden] { display: block !important; }
+  .sointu-selitys { background: none; border-color: #999; }
+}
+
+/* Ydinopinnot v0.5, samoilla korteilla ja näppäinfokuksella kuin G-pilotissa. */
+.sointu-ydin button[data-ydin-play], .sointu-ydin button[data-arvaa-kuuntele] {
+  display: inline-flex; align-items: center; gap: .45rem; max-width: 100%; text-align: start;
+}
+.sointu-kuvake { width: 19px; height: 19px; flex: 0 0 19px; display: inline-block; vertical-align: middle; }
+.sointu-rivi { display: flex; flex-wrap: wrap; gap: .5rem; }
+.sointu-tehtava {
+  min-width: 0; margin-block: .85rem; padding: .65rem .75rem;
+  border: 1px solid var(--line); border-radius: .55rem;
+}
+.sointu-tehtava h3, .sointu-ydin .study-knoppi h3 { margin: 0 0 .5rem; font-size: 1.05rem; }
+.sointu-ydin.study-knoppi-host h2:first-child { padding-inline-end: 44px; }
+.sointu-ydin.study-knoppi-host .study-knoppi-sisalto { width: 100%; }
+.sointu-ydin button:disabled, .sointu-ydin button[aria-disabled="true"] { opacity: .6; cursor: default; }
+.sointu-ydin button[data-playing], .sointu-ydin button[aria-pressed="true"] {
+  border-color: var(--accent); box-shadow: inset 0 0 0 1px currentColor;
+}
+.sointu-ydin button[data-playing] { background: #234133; }
+.sointu-ydin .sointu-valinta { display: block; }
+.sointu-ydin .sointu-ohje.is-error { color: #ffd6b3; }
+.sointu-ydin [data-arvaus-vastaus] { align-items: baseline; }
+.sointu-ydin .chord-diagram { min-width: 0; max-width: 100%; }
+.sointu-ydin .chord-diagram svg { max-width: 100%; }
+.sointu-ydin .sointu-kierron-toisto { display: inline-grid; }
+.sointu-kierron-toisto > span { grid-area: 1 / 1; }
+.sointu-piilossa, .sointu-varaus { visibility: hidden; }
+/* E/Em-arvaus: nimetön ja nimetty teksti samassa ruudussa, leveys varattu pidemmälle. */
+.sointu-vaihtuva { display: inline-grid; justify-items: start; }
+.sointu-vaihtuva > span { grid-area: 1 / 1; }
+/* Arvauksen kuuntelupainikkeet: 4 px vaakarako, jotta varatun levyiset painikkeet mahtuvat
+ * rinnakkain 390 px:ssä. Allekkain pinottuina pystyrako pysyy 8 px:nä. */
+.sointu-rivi[data-arvaus-kuuntelu] { column-gap: .25rem; }
+/* .sointuharjoitus-etuliite voittaa reader.css:n .practice ol -sisennyksen (0,1,1). */
+.sointuharjoitus .sointu-kierto {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 5rem), 1fr));
+  gap: .5rem; padding: 0; margin: .75rem 0; list-style: none;
+}
+/* Neljä sointua rinnakkain, kun tila riittää; muuten 2 + 2 ja suurella tekstillä yksi riviä kohti.
+ * Neljäs sointu ei jää yksin riville. Ilman container queryja käytetään yllä olevaa auto-fitiä. */
+@supports (container-type: inline-size) {
+  .sointu-kierto-alue { container-type: inline-size; }
+  .sointuharjoitus .sointu-kierto { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .sointu-kierto li { min-width: 0; }
+  @container (max-width: 17rem) {
+    .sointuharjoitus .sointu-kierto { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @container (max-width: 10.5rem) {
+    .sointuharjoitus .sointu-kierto { grid-template-columns: minmax(0, 1fr); }
+  }
+}
+.sointu-kierto li {
+  text-align: center; padding: .35rem .25rem; margin: 0;
+  background: var(--bg); border: 1px solid var(--line); border-radius: .55rem;
+}
+.sointu-kierto strong { display: block; font-size: 1.15rem; }
+.sointu-kierto li[aria-current="step"] {
+  outline: 2px solid var(--accent); outline-offset: -2px; background: #234133;
+}
+@media (max-width: 560px) {
+  .sointu-ydin[data-sointuharjoitus="kokoa"] .sointu-asteikko {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, max(44px, 2.6rem)), 1fr));
+  }
+}
+
+/* Aihesivun harjoituskortti käyttää samaa korttipohjaa ja natiivia avautumista kuin kokonaisuus. */
+.study-units .study-inline-choices { grid-template-rows: none; grid-auto-rows: auto; }
+.study-inline-choices > li { display: block; grid-row: auto; min-width: 0; }
+.study-inline { min-width: 0; border: 1px solid #71638c; border-radius: .65rem; }
+.study-inline > summary { grid-template-rows: auto 1fr; border: 0; list-style: none; cursor: pointer; }
+.study-inline > summary::-webkit-details-marker { display: none; }
+.study-inline > summary:hover .study-title { text-decoration: underline; text-underline-offset: .18em; }
+.study-inline > summary:focus-visible { outline: 2px solid #75e5c6; }
+.study-inline .study-arrow::before { color: var(--accent); content: "+"; content: "+" / ""; }
+.study-inline[open] .study-arrow::before { content: "−"; content: "−" / ""; }
+.study-inline[open] > summary {
+  border-bottom: 1px solid #71638c;
+  border-end-start-radius: 0;
+  border-end-end-radius: 0;
+}
+.study-inline-body { padding: 0 clamp(.45rem, 2vw, .875rem) .875rem; min-width: 0; }
+.study-inline-body .done-row, .study-inline-link { margin-block: .75rem 0; }
+.study-inline-link a { display: inline-flex; align-items: center; min-height: 44px; }
+
+@media (max-width: 600px) {
+  .study-unit-body:has(> .study-inline-choices) { padding-inline: .25rem; }
+  .study-unit-body:has(> .study-inline-choices) > :is(.study-unit-goal, .study-start) {
+    margin-inline: .5rem;
+  }
+  .study-inline-body { padding-inline: .125rem; }
+  .study-inline-body > :is(.practice, .note) { padding-inline: .625rem; }
+  .study-inline-body > :is(.sointu-lahde, .done-row, .study-inline-link) { margin-inline: .5rem; }
+}
