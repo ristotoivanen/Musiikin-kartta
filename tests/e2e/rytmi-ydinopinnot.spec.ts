@@ -39,7 +39,9 @@ test.describe('aihesivu', () => {
     for (const [slug, title] of lessons) {
       const summary = page.locator(`#valinta-${slug}`);
       await expect(summary).toContainText(title);
+      await summary.click();
       await expect(summary.locator('xpath=..').getByRole('link', { name: 'Avaa omalla sivullaan' })).toHaveAttribute('href', `${slug}.html`);
+      await summary.click();
     }
     await expect(earlier(page)).not.toHaveAttribute('open', '');
     await expect(earlier(page).locator('summary')).toContainText('Aiemmat oppitunnit ja harjoitukset');
@@ -154,7 +156,7 @@ test.describe('suljettu Ydinopinnot ja paluu', () => {
   test('viimeisen harjoituksen ”Palaa aihesivulle” avaa Ydinopinnot', async ({ page }) => {
     await page.goto(`/oppi/rytmi/${lessons[2][0]}.html`);
     await page.locator('.study-up .study-back').click();
-    await expect(page).toHaveURL(/index\\.html#valinta-sama-musiikki-eri-tuntuma$/);
+    await expect(page).toHaveURL(/index\.html#valinta-sama-musiikki-eri-tuntuma$/);
     await expect(core(page)).toHaveAttribute('open', '');
     await expect(page.locator('#valinta-sama-musiikki-eri-tuntuma')).toBeVisible();
   });
@@ -323,7 +325,10 @@ test.describe('ilman JavaScriptiä', () => {
   test('sisältö ja linkit löytyvät, toisto-ohjaimet piilossa', async ({ page }) => {
     await page.goto(topicPath);
     await core(page).locator(':scope > summary').click();
-    await expect(core(page).getByRole('link', { name: /Löydä pulssi ja ykkönen/ })).toBeVisible();
+    const first = page.locator('#valinta-loyda-pulssi-ja-ykkonen');
+    await expect(first).toBeVisible();
+    await first.click();
+    await expect(first.locator('xpath=..').getByRole('link', { name: 'Avaa omalla sivullaan' })).toBeVisible();
     await earlier(page).locator('summary').click();
     await expect(earlier(page).getByRole('link', { name: /Pulssi ja komppi/ })).toBeVisible();
     await page.goto(`/oppi/rytmi/${lessons[2][0]}.html`);
