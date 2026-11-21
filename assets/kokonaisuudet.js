@@ -5,6 +5,31 @@
 // requestAnimationFrame-kutsulla; tämä tiedosto avaa osion sitä ennen samassa pageshow-tapahtumassa.
 // Suoritusmerkintöjä luetaan vain oman kokonaisuuden etenemistietoa varten; niitä ei kirjoiteta.
 (() => {
+  // Knoppitieto on natiivi details sekä aihesivun inline-kortissa että oppitunnin
+  // omalla sivulla. Siirrä käyttäjän avaaman lisätiedon otsikko näkyviin:
+  // muuten oikean yläkulman plektra voi avata sisällön kauas näkymän alapuolelle.
+  // Älä siirrä näppäimistöfokusta pois summarysta; näin saman kohdan voi myös sulkea.
+  // Ohita ohjelmalliset avaukset, kuten tulostus ja muiden harjoitusten tilapäivitykset.
+  for (const tip of document.querySelectorAll('details.study-knoppi')) {
+    const summary = tip.querySelector(':scope > summary');
+    const content = tip.querySelector('.study-knoppi-sisalto');
+    if (!summary || !content) continue;
+    let activatedByUser = false;
+    summary.addEventListener('click', () => {
+      activatedByUser = !tip.open;
+    });
+    tip.addEventListener('toggle', () => {
+      const shouldMove = activatedByUser && tip.open;
+      activatedByUser = false;
+      if (!shouldMove) return;
+      requestAnimationFrame(() => {
+        if (tip.open && !tip.hidden && tip.getClientRects().length) {
+          content.scrollIntoView({ block: 'start', behavior: 'instant' });
+        }
+      });
+    });
+  }
+
   const units = document.querySelectorAll('details.study-unit');
   if (!units.length) return;
 

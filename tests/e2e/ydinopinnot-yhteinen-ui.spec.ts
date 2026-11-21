@@ -219,6 +219,45 @@ for (const { topic, slug, id, old } of cases) {
   });
 }
 
+test('avattu Knoppitiedon plektra täyttyy ja lisätiedon otsikko siirtyy näkyviin puhelimessa', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 640 });
+  await page.goto('/oppi/soinnut/index.html');
+  await page.locator('#ydinopinnot > summary').click();
+  await page.locator('#valinta-kuule-ja-kokoa-sointu').click();
+
+  const tip = page.locator('#ydinopinnot .study-knoppi').first();
+  const summary = tip.locator(':scope > summary');
+  const icon = summary.locator('.study-knoppi-merkki');
+  const heading = tip.locator('.study-knoppi-sisalto > h3');
+
+  await expect(summary).toHaveAccessibleName('Lisätieto: Kuusi kieltä, kolme eri säveltä');
+  await expect(icon).toHaveCSS('fill', 'none');
+  await summary.click();
+  await expect(tip).toHaveAttribute('open', '');
+  await expect(icon).not.toHaveCSS('fill', 'none');
+  await expect(heading).toBeInViewport();
+  await expect.poll(() => heading.evaluate(node => node.getBoundingClientRect().top))
+    .toBeLessThanOrEqual(72);
+
+  // Summary säilyy natiivina näppäimistökohteena, eikä tilaa korvata i-kuvakkeella.
+  await summary.focus();
+  await summary.press('Enter');
+  await expect(tip).not.toHaveAttribute('open', '');
+  await expect(icon).toHaveCSS('fill', 'none');
+});
+
+test('Knoppitiedon avaus vierittää lisäsisältöön myös omalla oppituntisivulla', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 640 });
+  await page.goto('/oppi/soinnut/kuule-ja-kokoa-sointu.html');
+  const tip = page.locator('details.study-knoppi');
+  const heading = tip.locator('.study-knoppi-sisalto > h3');
+  await tip.locator(':scope > summary').click();
+  await expect(tip).toHaveAttribute('open', '');
+  await expect(heading).toBeInViewport();
+  await expect.poll(() => heading.evaluate(node => node.getBoundingClientRect().top))
+    .toBeLessThanOrEqual(72);
+});
+
 test('Oppimiskartan kahdeksan pääkorttia käyttävät 44 px SVG-symboleja', async ({ page }) => {
   await page.goto('/index.html');
   const expand = page.locator('#topic-toggle');

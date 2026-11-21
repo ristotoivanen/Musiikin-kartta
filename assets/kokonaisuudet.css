@@ -48,10 +48,14 @@
 }
 .study-knoppi > summary::-webkit-details-marker { display: none; }
 .study-knoppi-merkki {
-  display:block; width:22px; height:22px; color:var(--muted);
+  display:block; width:22px; height:22px; color:var(--muted); fill:none;
 }
+/* Suljettuna kapean plektran ääriviiva; avattuna täysi värillinen plektra.
+ * Muoto, koko ja 44 px osuma-alue pysyvät ennallaan. */
+.study-knoppi[open] > summary .study-knoppi-merkki { fill:currentColor; }
 .study-knoppi > summary:hover .study-knoppi-merkki,
 .study-knoppi[open] > summary .study-knoppi-merkki { color:var(--accent); }
+.study-knoppi-sisalto { scroll-margin-block-start: 1rem; }
 .study-knoppi > summary:focus-visible { outline: 2px solid #75e5c6; outline-offset: 1px; }
 .study-knoppi-sisalto {
   width: min(100%, 420px); padding: .75rem .875rem;
