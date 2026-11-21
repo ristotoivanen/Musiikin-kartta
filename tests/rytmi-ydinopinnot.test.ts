@@ -196,7 +196,7 @@ describe('Rytmin aihesivu ja muodostetut sivut', () => {
   });
 
   it('uusilla sivuilla on omat tunnisteet, kokeiltu-sanamuoto ja paluu aihesivulle', () => {
-    lessons.forEach((slug, index) => {
+    lessons.forEach((slug) => {
       const html = read(`oppi/rytmi/${slug}.html`);
       expect(html).toContain(`data-study-item="oppitunti:${slug}" data-study-kind="oppitunti" data-study-mark="kokeiltu"`);
       expect(html).toContain('class="study-page study-page--focus"');

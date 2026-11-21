@@ -54,7 +54,7 @@ for (const { topic, slug, id, old } of cases) {
       await page.locator('#ydinopinnot > summary').click();
       await page.locator(`#valinta-${slug}`).click();
       const pick = page.locator('#ydinopinnot .study-knoppi-merkki').first();
-      await expect(pick.locator('use')).toHaveAttribute('href', '/assets/oppimisikonit.svg#extra-info');
+      await expect(pick.locator('use')).toHaveAttribute('href', '../../assets/oppimisikonit.svg#extra-info');
       const dimensions = await pick.locator('xpath=..').evaluate(node => {
         const box = node.getBoundingClientRect();
         return { width: box.width, height: box.height };
