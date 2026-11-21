@@ -164,7 +164,7 @@ test.describe('suljettu Ydinopinnot ja paluu', () => {
 
 test.describe('harjoitussivut', () => {
   for (const [slug, title, infoTitle] of lessons) {
-    test(`${title}: ⓘ oikeassa yläkulmassa, sisältö kohtien 1 ja 2 jälkeen, mikään ei siirry`, async ({ page }) => {
+    test(`${title}: plektrasta avattu lisätieto näkyy ja palaa avauskohtaan`, async ({ page }) => {
       await page.goto(`/oppi/rytmi/${slug}.html`);
       await expect(page.getByRole('heading', { level: 1, name: title })).toBeVisible();
       const summary = info(page).locator('summary');
@@ -181,23 +181,37 @@ test.describe('harjoitussivut', () => {
       await expect(info(page)).not.toHaveAttribute('open', '');
 
       const fixed = ['[data-rytmi-toisto]', '.rytmi-ruudukko', '.rytmi-kokeile'];
+      const beforeScroll = await page.evaluate(() => window.scrollY);
       const before = await Promise.all(fixed.map(selector => box(page, selector)));
+      const openingTop = (await summary.boundingBox())!.y;
       await summary.click();
       await expect(info(page)).toHaveAttribute('open', '');
-      const after = await Promise.all(fixed.map(selector => box(page, selector)));
-      after.forEach((rect, index) => {
-        expect(rect.y, fixed[index]).toBeCloseTo(before[index].y, 0);
-        expect(rect.x, fixed[index]).toBeCloseTo(before[index].x, 0);
-      });
       const content = info(page).locator('.study-knoppi-sisalto');
       await expect(content).toBeVisible();
+      await expect(content.locator('h3').first()).toBeInViewport();
+      const afterScroll = await page.evaluate(() => window.scrollY);
+      const after = await Promise.all(fixed.map(selector => box(page, selector)));
+      // Vieritys muuttuu tarkoituksella, mutta harjoituksen aiemmat kohdat
+      // pysyvät samalla absoluuttisella paikalla dokumentissa.
+      after.forEach((rect, index) => {
+        expect(rect.y + afterScroll, fixed[index]).toBeCloseTo(before[index].y + beforeScroll, 0);
+        expect(rect.x, fixed[index]).toBeCloseTo(before[index].x, 0);
+      });
       const tryIt = await box(page, '.rytmi-kokeile');
-      expect((await content.boundingBox())!.y).toBeGreaterThan(tryIt.y + tryIt.height - 1);
+      expect((await content.boundingBox())!.y + afterScroll)
+        .toBeGreaterThan(tryIt.y + afterScroll + tryIt.height - 1);
+
       // Avaaminen ei käynnistä ääntä eikä muuta merkintää.
       await expect(playButton(page)).toHaveAccessibleName('Kuuntele');
       await expect(page.locator('.done-toggle')).toHaveAttribute('aria-pressed', 'false');
-      await summary.click();
+      const close = info(page).getByRole('button', { name: 'Sulje lisätieto ja palaa avauskohtaan' });
+      await expect(close).toBeInViewport();
+      await expect(close.locator('.study-knoppi-merkki')).not.toHaveCSS('fill', 'none');
+      await close.click();
       await expect(info(page)).not.toHaveAttribute('open', '');
+      await expect(summary).toBeFocused();
+      await expect.poll(() => summary.evaluate(node => node.getBoundingClientRect().top))
+        .toBeGreaterThanOrEqual(Math.max(16, openingTop) - 8);
       await expect(page.getByText('(valinnainen)')).toHaveCount(0);
       expect(await noHorizontalScroll(page)).toBe(true);
     });
