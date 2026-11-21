@@ -27,6 +27,72 @@ for (const { topic, slug, id, old } of cases) {
       await expect(oldUnit.locator('.study-choice')).toHaveCount(old);
     });
 
+
+    test('avaus kohdistaa otsikon ja alalaidan sulku palauttaa aiempaan listakohtaan', async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 800 });
+      await page.goto(home);
+      await page.locator('#ydinopinnot > summary').click();
+      const heading = page.locator(`#valinta-${slug}`);
+      const card = heading.locator('xpath=..');
+      await heading.scrollIntoViewIfNeeded();
+      const before = await heading.evaluate(node => node.getBoundingClientRect().top);
+      await heading.click();
+      await expect(card).toHaveAttribute('open');
+      await expect.poll(() => heading.evaluate(node => Math.round(node.getBoundingClientRect().top)))
+        .toBeGreaterThanOrEqual(8);
+      await expect.poll(() => heading.evaluate(node => Math.round(node.getBoundingClientRect().top)))
+        .toBeLessThanOrEqual(64);
+      const close = card.getByRole('button', { name: 'Sulje oppitunti' });
+      await expect(close).toBeVisible();
+      await expect(close).toHaveCSS('min-height', '44px');
+      await close.click();
+      await expect(card).not.toHaveAttribute('open');
+      await expect(heading).toBeFocused();
+      await expect.poll(() => heading.evaluate(node => node.getBoundingClientRect().top))
+        .toBeGreaterThanOrEqual(Math.max(8, before - 6));
+      await expect.poll(() => heading.evaluate(node => node.getBoundingClientRect().top))
+        .toBeLessThanOrEqual(before + 6);
+    });
+
+    test('otsikosta sulkeminen palauttaa paikan, sisaroppitunti avautuu ylös ja fokus säilyy', async ({ page }) => {
+      await page.setViewportSize({ width: 800, height: 700 });
+      await page.goto(home);
+      await page.locator('#ydinopinnot > summary').click();
+      const first = page.locator(`#valinta-${slug}`);
+      await first.scrollIntoViewIfNeeded();
+      const before = await first.evaluate(node => node.getBoundingClientRect().top);
+      await first.focus();
+      await page.keyboard.press('Enter');
+      await expect(first.locator('xpath=..')).toHaveAttribute('open');
+      await expect.poll(() => first.evaluate(node => node.getBoundingClientRect().top)).toBeLessThanOrEqual(64);
+      await page.keyboard.press('Enter');
+      await expect(first.locator('xpath=..')).not.toHaveAttribute('open');
+      await expect(first).toBeFocused();
+      await expect.poll(() => first.evaluate(node => node.getBoundingClientRect().top))
+        .toBeGreaterThanOrEqual(Math.max(8, before - 6));
+      await expect.poll(() => first.evaluate(node => node.getBoundingClientRect().top))
+        .toBeLessThanOrEqual(before + 6);
+
+      await first.click();
+      const second = page.locator('#ydinopinnot details.study-inline').nth(1);
+      const secondSummary = second.locator(':scope > summary');
+      await secondSummary.click();
+      await expect(first.locator('xpath=..')).not.toHaveAttribute('open');
+      await expect(second).toHaveAttribute('open');
+      await expect.poll(() => secondSummary.evaluate(node => node.getBoundingClientRect().top))
+        .toBeLessThanOrEqual(64);
+    });
+
+    test('syvälinkistä avattu oppitunti voidaan sulkea paluufokukseen', async ({ page }) => {
+      await page.goto(`${home}#valinta-${slug}`);
+      const heading = page.locator(`#valinta-${slug}`);
+      const card = heading.locator('xpath=..');
+      await expect(card).toHaveAttribute('open');
+      await card.getByRole('button', { name: 'Sulje oppitunti' }).click();
+      await expect(card).not.toHaveAttribute('open');
+      await expect(heading).toBeFocused();
+    });
+
     test('oma sivu on kompakti ja palaa samaan oppituntiin', async ({ page }) => {
       await page.goto(home);
       await page.locator('#ydinopinnot > summary').click();

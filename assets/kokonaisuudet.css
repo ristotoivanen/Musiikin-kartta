@@ -83,3 +83,16 @@
 .study-page--focus .study-knoppi { margin-bottom:.5rem; }
 .study-page--focus .done-row { margin-block:1rem 2rem; }
 @media(max-width:600px){ .study-page--focus { padding-inline:clamp(.5rem,2vw,.85rem); } }
+
+/* Pitkän inline-oppitunnin alalaidan sulku. Näkyy vasta, kun JS on alustettu. */
+.study-inline > summary { scroll-margin-top: 1rem; }
+.study-inline-end { display: flex; justify-content: flex-end; margin-block: .85rem 0; }
+.study-inline-close {
+  min-height: 44px; padding: .55rem .8rem; color: var(--accent);
+  background: var(--panel); border: 1px solid #71638c; border-radius: .55rem;
+  font: inherit; cursor: pointer;
+}
+.study-inline-close[hidden] { display: none; }
+.study-inline-close:hover { border-color: var(--accent); color: var(--text); }
+.study-inline-close:focus-visible { outline: 3px solid #75e5c6; outline-offset: 2px; }
+@media print { .study-inline-end { display: none; } }

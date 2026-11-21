@@ -473,7 +473,8 @@ def unit_choice(page, index, topic, targets):
 
     content = rebase(page.markup, page.source, topic['path'], targets, topic)
     separate = link(href, 'Avaa omalla sivullaan', f' data-return-topic="{anchor}"')
-    body = '\n'.join([content, unit_mark(page), f'<p class="study-inline-link">{separate}</p>'])
+    body = '\n'.join([content, unit_mark(page), f'<p class="study-inline-link">{separate}</p>',
+                      '<p class="study-inline-end"><button type="button" class="study-inline-close" hidden>↑ Sulje oppitunti</button></p>'])
     return (f'<details class="study-inline" name="{page.unit["id"]}-harjoitukset" '
             f'data-study-item="{page.study_id}" data-study-kind="{page.study_kind}"{study_mark(page)}>\n'
             f'  <summary {toggle}>{caption}<span class="study-arrow" aria-hidden="true"></span></summary>\n'

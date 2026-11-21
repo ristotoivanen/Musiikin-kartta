@@ -187,6 +187,7 @@ describe('Rytmin aihesivu ja muodostetut sivut', () => {
     expect([...topic.matchAll(/<summary class="study-choice study-choice--unit" id="valinta-([^"]+)"/g)].map(([, slug]) => slug))
       .toEqual(lessons);
     for (const slug of lessons) expect(topic).toContain(`href="${slug}.html" data-return-topic="valinta-${slug}"`);
+    expect(topic.match(/class="study-inline-close" hidden>↑ Sulje oppitunti<\\/button>/g)).toHaveLength(3);
     // Vanhat kortit: samat ankkurit, osoitteet ja suoritustunnisteet kuin betassa.
     expect([...topic.matchAll(/<a class="study-choice" id="valinta-([^"]+)" href="([^"]+)\.html"/g)].map(([, id]) => id)).toEqual(legacy);
     expect([...topic.matchAll(/data-study-status="([^"]+)"/g)].map(([, id]) => id)).toEqual([

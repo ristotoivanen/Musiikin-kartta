@@ -33,16 +33,69 @@
     if (event.persisted || navigation?.type === 'back_forward') openId(history.state?.returnTopic ?? '');
   });
 
+  // Pitkän inline-oppitunnin hallittu avaus/sulku. Muistetaan OTSIKON sijainti
+  // näkymässä, ei window.scrollY:tä: jälkimmäinen ei enää tarkoita samaa paikkaa
+  // kun details-sisältö suljetaan tai sisaroppitunti avataan.
+  // Ohitetaan hash- ja printtitilanteiden ohjelmalliset toggle-tapahtumat.
+  const openingPositions = new WeakMap();
+  const pendingMoves = new WeakMap();
+  const OPEN_TOP = 16;
+
+  function alignHeading(heading, desiredTop) {
+    const delta = heading.getBoundingClientRect().top - desiredTop;
+    if (Math.abs(delta) > 2) {
+      window.scrollTo({ top: Math.max(0, window.scrollY + delta), behavior: 'instant' });
+    }
+  }
+
   for (const list of document.querySelectorAll('.study-inline-choices')) {
+    for (const card of list.querySelectorAll('details.study-inline')) {
+      // Ilman JavaScriptiä natiivi summary toimii yhä; erillinen sulkemispainike
+      // ei silloin ole käytettävissä eikä saa näkyä toimimattomana.
+      const close = card.querySelector('.study-inline-close');
+      if (close) close.hidden = false;
+
+      card.addEventListener('toggle', () => {
+        const intent = pendingMoves.get(card);
+        if (!intent) return; // esim. name-ryhmän toisen kortin automaattisulku
+        pendingMoves.delete(card);
+        requestAnimationFrame(() => {
+          if (card.open !== intent.open) return;
+          const heading = card.querySelector(':scope > summary');
+          if (!heading) return;
+          if (intent.open) {
+            // Otsikko riittävän ylhäällä ilman ylimääräistä hyppyä,
+            // kun se on jo lähellä näkymän yläreunaa.
+            const top = heading.getBoundingClientRect().top;
+            if (top < 8 || top > 64) alignHeading(heading, OPEN_TOP);
+          } else {
+            const previousTop = openingPositions.get(card) ?? OPEN_TOP;
+            alignHeading(heading, previousTop);
+            heading.focus({ preventScroll: true });
+          }
+        });
+      });
+    }
+
     list.addEventListener('click', event => {
       if (!(event.target instanceof Element)) return;
       const heading = event.target.closest('.study-inline > summary');
-      if (!heading || heading.parentElement.open || !list.querySelector('.study-inline[open]')) return;
-
-      // Selain sulkee edellisen details-kortin ennen seuraavaa piirtoa. Vieritä vasta uuden korkeuden mukaan.
-      requestAnimationFrame(() => {
-        if (heading.parentElement.open) heading.scrollIntoView({ block: 'start', behavior: 'instant' });
-      });
+      if (heading) {
+        const card = heading.parentElement;
+        if (!card.open) {
+          const top = heading.getBoundingClientRect().top;
+          openingPositions.set(card, Math.max(OPEN_TOP, Math.min(top, window.innerHeight - 64)));
+        }
+        // Natiivin summaryn click käynnistää togglen vasta tämän käsittelijän jälkeen.
+        pendingMoves.set(card, { open: !card.open });
+        return;
+      }
+      const button = event.target.closest('.study-inline-close');
+      if (!button) return;
+      const card = button.closest('details.study-inline');
+      if (!card?.open) return;
+      pendingMoves.set(card, { open: false });
+      card.open = false; // triggeröi myös Rytmin/Sointujen äänentoiston pysäytyksen
     });
   }
 
