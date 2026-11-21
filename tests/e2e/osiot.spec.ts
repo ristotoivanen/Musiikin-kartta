@@ -333,7 +333,11 @@ test.describe('Opi & oivalla -päävalikkolinkki', () => {
     await expect(page).toHaveURL(/\/index\.html$/);
     await page.goBack();
     await expect(page).toHaveURL(/septimisoinnut\.html$/);
-    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(1500);
+    // Browserin sivuhistoria saattaa palauttaa kohdan muutaman CSS-pikselin
+    // päähän (esim. 1496/1500) fonttimittausten ja vieritysankkuroinnin takia.
+    // Vaadi sama näkyvä kohta 8 px:n tarkkuudella; isompi hyppy on regressio.
+    await expect.poll(() => page.evaluate(() => Math.abs(window.scrollY - 1500)))
+      .toBeLessThanOrEqual(8);
   });
 
   test('tarkoitukselliset suorat kohdelinkit toimivat edelleen', async ({ page }) => {
