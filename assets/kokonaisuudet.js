@@ -13,10 +13,31 @@
       if (node.matches('details')) node.open = true;
     }
   }
+  // Pääkokonaisuuksista pidetään yksi auki kerrallaan. Ennen sulkemista
+  // suljetaan myös mahdollinen sisäinen oppitunti, jotta sen toggle-pohjainen
+  // äänentoiston pysäytys saa tapahtuman (Rytmi ja Soinnut).
+  function closeInlineLessons(unit) {
+    for (const lesson of unit.querySelectorAll('details.study-inline[open]')) {
+      lesson.open = false;
+    }
+  }
+
+  function closeOtherUnits(selected) {
+    for (const unit of units) {
+      if (unit === selected || !unit.open) continue;
+      closeInlineLessons(unit);
+      unit.open = false;
+    }
+  }
+
   function openId(id) {
     try { id = decodeURIComponent(id); } catch { /* käytetään sellaisenaan */ }
     const target = id ? document.getElementById(id) : null;
-    if (target) openParents(target);
+    if (target) {
+      const unit = target.matches('details.study-unit') ? target : target.closest('details.study-unit');
+      if (unit) closeOtherUnits(unit);
+      openParents(target);
+    }
     return target;
   }
 
@@ -46,6 +67,39 @@
     if (Math.abs(delta) > 2) {
       window.scrollTo({ top: Math.max(0, window.scrollY + delta), behavior: 'instant' });
     }
+  }
+
+  // Sama navigointimalli myös pääkokonaisuuksien välille: Ydinopinnot,
+  // Lisäopinnot ja Aiemmat sisällöt ovat vaihtoehtoisia, eivät päällekkäisiä
+  // pitkiä näkymiä. Muistetaan pääotsikon alkuperäinen paikka sulkemista varten.
+  const unitOpeningPositions = new WeakMap();
+  for (const unit of units) {
+    const heading = unit.querySelector(':scope > summary');
+    if (!heading) continue;
+    heading.addEventListener('click', () => {
+      const opening = !unit.open;
+      if (opening) {
+        const top = heading.getBoundingClientRect().top;
+        unitOpeningPositions.set(unit, Math.max(OPEN_TOP, Math.min(top, window.innerHeight - 64)));
+        // Sulje vanha sisältö ennen uuden avautumista; selaimen natiivi
+        // summary-aktivointi avaa vasta tämän click-käsittelijän jälkeen.
+        closeOtherUnits(unit);
+      } else {
+        // Myös pääkokonaisuuden manuaalinen sulku keskeyttää aktiivisen äänen.
+        closeInlineLessons(unit);
+      }
+
+      requestAnimationFrame(() => {
+        if (unit.open !== opening) return;
+        if (opening) {
+          const top = heading.getBoundingClientRect().top;
+          if (top < 8 || top > 64) alignHeading(heading, OPEN_TOP);
+        } else {
+          alignHeading(heading, unitOpeningPositions.get(unit) ?? OPEN_TOP);
+        }
+        heading.focus({ preventScroll: true });
+      });
+    });
   }
 
   for (const list of document.querySelectorAll('.study-inline-choices')) {

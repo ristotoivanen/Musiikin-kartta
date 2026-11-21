@@ -28,6 +28,74 @@ for (const { topic, slug, id, old } of cases) {
     });
 
 
+    test('pääkokonaisuudesta toiseen: vanha ja sisäinen oppitunti sulkeutuvat, uusi kohdistuu ylös', async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 800 });
+      await page.goto(home);
+      const core = page.locator('#ydinopinnot');
+      const earlier = page.locator('#aiemmat');
+      const first = core.locator('details.study-inline').first();
+      await core.locator(':scope > summary').click();
+      await first.locator(':scope > summary').click();
+      await expect(core).toHaveAttribute('open');
+      await expect(first).toHaveAttribute('open');
+
+      const next = topic === 'soinnut' ? page.locator('#miten-sointu-muodostuu') : earlier;
+      const nextSummary = next.locator(':scope > summary');
+      await nextSummary.click();
+      await expect(core).not.toHaveAttribute('open');
+      await expect(first).not.toHaveAttribute('open');
+      await expect(next).toHaveAttribute('open');
+      await expect(nextSummary).toBeFocused();
+      await expect.poll(() => nextSummary.evaluate(node => node.getBoundingClientRect().top))
+        .toBeLessThanOrEqual(64);
+      await expect.poll(() => nextSummary.evaluate(node => node.getBoundingClientRect().top))
+        .toBeGreaterThanOrEqual(8);
+
+      if (topic === 'soinnut') {
+        await earlier.locator(':scope > summary').click();
+        await expect(next).not.toHaveAttribute('open');
+        await expect(earlier).toHaveAttribute('open');
+        await expect(earlier.locator(':scope > summary')).toBeFocused();
+      }
+
+      await core.locator(':scope > summary').click();
+      await expect(core).toHaveAttribute('open');
+      await expect(earlier).not.toHaveAttribute('open');
+      await expect(first).not.toHaveAttribute('open');
+      await expect(core.locator(':scope > summary')).toBeFocused();
+    });
+
+    test('pääkokonaisuuden sulkeminen palauttaa saman otsikon ja näppäimistöfokuksen', async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 800 });
+      await page.goto(home);
+      const summary = page.locator('#ydinopinnot > summary');
+      await summary.scrollIntoViewIfNeeded();
+      const before = await summary.evaluate(node => node.getBoundingClientRect().top);
+      await summary.focus();
+      await page.keyboard.press('Enter');
+      await expect(page.locator('#ydinopinnot')).toHaveAttribute('open');
+      await expect.poll(() => summary.evaluate(node => node.getBoundingClientRect().top))
+        .toBeLessThanOrEqual(64);
+      await page.keyboard.press('Enter');
+      await expect(page.locator('#ydinopinnot')).not.toHaveAttribute('open');
+      await expect(summary).toBeFocused();
+      await expect.poll(() => summary.evaluate(node => node.getBoundingClientRect().top))
+        .toBeGreaterThanOrEqual(Math.max(8, before - 6));
+      await expect.poll(() => summary.evaluate(node => node.getBoundingClientRect().top))
+        .toBeLessThanOrEqual(before + 6);
+    });
+
+    test('syvälinkin vaihto avaa vain kohdekokonaisuuden', async ({ page }) => {
+      await page.goto(`${home}#valinta-${slug}`);
+      const core = page.locator('#ydinopinnot');
+      const first = page.locator(`#valinta-${slug}`).locator('xpath=..');
+      await expect(first).toHaveAttribute('open');
+      await page.evaluate(() => { window.location.hash = 'aiemmat'; });
+      await expect(page.locator('#aiemmat')).toHaveAttribute('open');
+      await expect(core).not.toHaveAttribute('open');
+      await expect(first).not.toHaveAttribute('open');
+    });
+
     test('avaus kohdistaa otsikon ja alalaidan sulku palauttaa aiempaan listakohtaan', async ({ page }) => {
       await page.setViewportSize({ width: 390, height: 800 });
       await page.goto(home);
