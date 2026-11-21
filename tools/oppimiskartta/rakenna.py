@@ -568,6 +568,13 @@ def unit_page_content(page, group, index, topic, targets):
         return (f'<nav class="study-steps study-steps--{where}" aria-label="Sisältönavigointi sivun {label}">\n'
                 + indent('\n'.join(items), '  ') + '\n</nav>')
 
+    if group.get('inline'):
+        # Keskittymistila käyttää samaa oppituntilähdettä kuin aiheen sisäinen kortti.
+        # Näkyvä paluu rakennetaan render()-funktiossa oppitunnin omaan ankkuriin.
+        return '\n'.join([
+            f'<h1 class="study-focus-title">{escape(page.title)}</h1>',
+            rebase(page.markup, page.source, page.path, targets, topic),
+            unit_mark(page)])
     return '\n'.join([
         meta, f'<h1>{escape(page.title)}</h1>', f'<p class="lead">{escape(page.goal)}</p>', nav(False),
         rebase(page.markup, page.source, page.path, targets, topic),
@@ -682,7 +689,7 @@ def render(topic, content, nav, page=None, *, path_items=()):
     if recap:
         stylesheets.append('assets/kitara-kertaus.css')
     # Rytmin Ydinopinnot (#116): harjoitusten tyylit ja moduuli.
-    rhythm_practice = page and 'data-rytmiharjoitus=' in page.markup
+    rhythm_practice = 'data-rytmiharjoitus=' in (page.markup if page else content)
     if rhythm_practice:
         stylesheets.append('assets/rytmi-ydinopinnot.css')
     interval_recall = page and 'data-intervallimuisti' in page.markup
@@ -696,10 +703,13 @@ def render(topic, content, nav, page=None, *, path_items=()):
     if chord_practice:
         stylesheets.append('assets/sointuharjoitus.css')
     styles = '\n'.join(stylesheet(path, output) for path in stylesheets)
+    focus_mode = bool(page and getattr(page, 'unit', None) and page.unit.get('inline'))
     back_href = rel(topic['path'], output) if page else rel('index.html', output) + '#' + topic['anchor']
-    if page and getattr(page, 'unit', {}).get('back') == 'unit':
+    if focus_mode:
+        back_href += '#valinta-' + Path(page.path).stem
+    elif page and getattr(page, 'unit', {}).get('back') == 'unit':
         back_href += '#' + page.unit['id']
-    back_label = topic['back_label'] if page else 'Oppimiskarttaan'
+    back_label = ('Takaisin aiheeseen: ' + topic['title']) if focus_mode else (topic['back_label'] if page else 'Oppimiskarttaan')
     if not page and not recap:
         content += '\n<p class="study-reference">' + link(rel('book/index.html', output), 'Teoriaoppaan kaikki osat') + '</p>'
     if page:
@@ -729,7 +739,7 @@ def render(topic, content, nav, page=None, *, path_items=()):
         scripts += f'\n  <script type="module" src="{url}"></script>'
     if rhythm_practice:
         scripts += f'\n  <script type="module" src="{versioned_url("assets/rytmi-ydinopinnot.js", output)}"></script>'
-    page_class = ' recap-page' if recap else ''
+    page_class = ' recap-page' if recap else (' study-page--focus' if focus_mode else '')
     if not recap:
         back = f'''<nav class="study-up" aria-label="Paluunavigointi">
   <a class="study-back" href="{escape(back_href)}"><span aria-hidden="true">←</span> {escape(back_label)}</a>
@@ -746,9 +756,7 @@ def render(topic, content, nav, page=None, *, path_items=()):
 </head>
 <body>
   <a class="study-skip" href="#oppi-sisalto">Siirry sisältöön</a>
-  <header class="site-top">
-{indent(rebase(nav, "book/osa-2.html", output, {}), '    ')}
-  </header>
+{'' if focus_mode else '<header class="site-top">' + chr(10) + indent(rebase(nav, "book/osa-2.html", output, {}), '    ') + chr(10) + '</header>'}
   <main class="frame study-page{page_class}" id="oppi-sisalto"{progress}>
 {indent(content, '    ')}
   </main>
