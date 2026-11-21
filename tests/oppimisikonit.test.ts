@@ -5,13 +5,13 @@ import { describe, expect, it } from 'vitest';
 // Tarkoitus ei ole lukita Bezier-koordinaatteja, vaan estää paluu vanhaan
 // kuvakokonaisuuteen, jossa neljän aiheen kuva oli kokonaan eri.
 const sprite = readFileSync(new URL('../assets/oppimisikonit.svg', import.meta.url), 'utf8');
-const symbols = [...sprite.matchAll(/<symbol id="([^"]+)"\b[^>]*>([\s\S]*?)<\/symbol>/g)];
+const symbols = [...sprite.matchAll(/<symbol id="([^"]+)"[^>]*>([\s\S]*?)<\/symbol>/g)];
+const names = symbols.map(([, name]) => name);
 const topic = (id: string) => symbols.find(([, name]) => name === 'topic-' + id)?.[2] ?? '';
 
 describe('Oppimiskartan hyväksytty kahdeksan kuvakkeen ulkoasu', () => {
   it('kaikilla kahdeksalla aiheella on yksilöllinen, 64×64-viewBoxin SVG', () => {
     const topics = ['kitara', 'rytmi', 'savelnimet', 'korva', 'otelauta', 'soinnut', 'asteikot', 'kappaleet'];
-    const names = symbols.map(([, name]) => name);
     expect(new Set(names).size).toBe(names.length);
     for (const name of topics) {
       expect(topic(name), name).not.toBe('');
