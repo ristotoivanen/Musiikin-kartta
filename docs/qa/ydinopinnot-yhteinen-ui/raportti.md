@@ -2,6 +2,19 @@
 
 **21.11.2026 · Draft-PR #141 · ei beta-mergeä eikä tuotantojulkaisua.**
 
+
+## Viimeisin automaattinen QA (21.11.2026)
+
+**[GitHub Actions -ajo #44904071988](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/44904071988): SUCCESS.**
+
+- Python-generaattorin ajo + --tarkista läpi; generoituun HTML:ään 0 muutosta tarkistuksessa.
+- Lint, TypeScript/tyyppitarkistus ja build läpi.
+- **Vitest: 650/650 läpi**, 40 testitiedostoa.
+- **Linkkitarkistus: 113 sivua, 2 836 viittausta, 0 ongelmaa.**
+- **Kohdennettu Playwright: 249 läpi, 9 ohitettu, 0 epäonnistunutta** (desktop + phone -projektit; yhteinen UI, Soinnut, Rytmi ja navigointi).
+
+Tämä todentaa lähde- ja selaintason integraatiota, **ei** fyysistä iPhone/Safari- tai Android-kuuntelua, VoiceOveria tai koko sivuston kaikkien Playwright-testien ajamista. Beta-merge ja tuotanto vaativat erillisen hyväksynnän. Alla oleva alkuperäinen tarkistusrajalista kuvaa ennakkotilannetta; tämä QA-merkintä tarkentaa sen nyt automaattisesti todistettuja osia.
+
 ## Graafinen katselmointi
 
 **[Avaa toiminnallinen visuaalinen katselmointimalli](esikatselu.html)**. Mallissa voi vaihtaa Soinnut/Rytmi, aihesivu/oma sivu, tietokone/390 px puhelin sekä tumma/vaalea teema. Mallin Kuuntele-painike on vain ulkoasun havainnollistamista varten, ei soittava audio.
