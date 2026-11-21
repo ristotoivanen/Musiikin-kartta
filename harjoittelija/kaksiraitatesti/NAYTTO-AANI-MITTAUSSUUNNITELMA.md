@@ -67,7 +67,9 @@ Testisivulle tehdään erillinen tila `&koe=nayttoaani`. Se ei vaikuta muihin ti
 
 - **Kuvaus:** toisella laitteella 240 fps:n hidastettu video iPhonen näytöstä ja kaiuttimesta, kun välähdyksen säätö on 0.
 - **Kalibrointi:** kuvaavan laitteen oma kuva–ääni-siirtymä kalibroidaan läpsyttimellä tai käsien taputuksella samassa kohdassa ennen mittausta ja sen jälkeen.
-- **Tulos:** O − V kaiuttimelle noin 4 ms:n kuvaresoluutiolla, kalibrointivirheen tarkkuudella.
+- **Tulos:** O − V kaiuttimelle. Kuvaväli (noin 4 ms 240 fps:llä) on vain resoluutio, ei mittauksen kokonaisepävarmuus.
+  - Kokonaisepävarmuus ja kameran kalibroinnin vakaus määritetään vaiheissa P0–P2 (`H4-VIDEOMITTAUS-SUUNNITELMA.md` ja `H4-VIDEO-P0-P2-OHJE.md`).
+  - Ei oleteta, että 240 fps:n video sisältää reaaliaikaisen ääniraidan.
 - **Rajoitus:** Bluetooth-kuulokkeiden ääntä ei saada mitattua tällä menetelmällä.
 
 ### M3. Selaimen viivearviot (jo raportissa v2)
@@ -78,6 +80,9 @@ Testisivulle tehdään erillinen tila `&koe=nayttoaani`. Se ei vaikuta muihin ti
 ### Ei käytetä
 
 - **Mikrofonitallenne:** projektin linjaus on, ettei mikrofonia tallenneta.
+  - Linjaus koskee sovellusta ja testisivua. Ne eivät avaa eivätkä tallenna tutkittavan iPhonen mikrofonia.
+  - **Rajattu tarkennus (omistajan päätös 19.11.2026):** M2:n ulkoisen kameran mikrofonilla saa tallentaa testisivun piippaukset ja kalibrointiäänet. Ehdot: ei puhetta, tallenne ei mene repoon eikä ulkoisiin palveluihin, ja säilytyksestä päätetään erikseen.
+  - Vaatimuksen tarkoitus ja soveltuminen on käsitelty tiedostossa `H4-VIDEOMITTAUS-SUUNNITELMA.md`, luku 5.1. Tarkennus purkaa aiemman ristiriidan, sillä M2:n taputuskalibrointi edellytti kameran äänen tallennusta jo alun perin.
 - **Simulaattori O:n mittaukseen:** simulaattori soittaa Macin äänilaitteeseen. Sen viive ei vastaa iPhonea, ja äänen kaappaus vaatisi lisäohjelmiston asennuksen.
   - Simulaattoria voi käyttää M1:n toiminnan kuivaharjoitukseen (painikkeet, kirjaus ja analyysi), mutta ei tuloksiin.
 
