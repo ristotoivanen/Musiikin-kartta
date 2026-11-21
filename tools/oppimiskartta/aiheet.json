@@ -87,7 +87,7 @@
       "slug": "soinnut", "anchor": "aihe-soinnut", "title": "Soinnut ja harmonia",
       "back_label": "Sointuihin ja harmoniaan",
       "summary": "Sointujen rakenne, tehtävät ja otteet.",
-      "lead": "Kuule, miten yksittäisistä sävelistä syntyy sointu. Rakenna sitten G-duurisointu ja kokeile sitä oikealla kitaralla.",
+      "lead": "Mistä sointu syntyy, miten yhden sävelen muutos kuuluu ja miksi jotkin soinnut tuntuvat vievän musiikkia eteenpäin? Kuuntele ja kokeile itse.",
       "layout": "kokonaisuudet",
       "progress_text": {"count": "aiemmista sisällöistä tehty", "done": "✓ Aiemmat sisällöt tehty"},
       "legacy": {
@@ -96,7 +96,15 @@
         "intro": "Kaikki aiemmat oppitunnit ja harjoitukset löytyvät täältä entisillä osoitteillaan. Aiemmat suoritusmerkintäsi säilyvät."
       },
       "groups": [
-        {"id": "miten-sointu-muodostuu", "number": 1, "title": "Miten sointu muodostuu?", "open": true,
+        {"id": "ydinopinnot", "title": "Ydinopinnot", "kind": "harjoitus", "attempts": true, "inline": true,
+         "back": "unit", "last": "start",
+         "goal": "Etene haluamassasi järjestyksessä.",
+         "lessons": [
+          {"standalone": "kuule-ja-kokoa-sointu", "title": "Kuule ja kokoa sointu", "goal": "Sävelet ja yhteissointi"},
+          {"standalone": "yksi-savel-muuttaa-sointua", "title": "Yksi sävel muuttaa sointua", "goal": "Duuri ja molli"},
+          {"standalone": "mihin-kappale-haluaa-palata", "title": "Mihin kappale haluaa palata?", "goal": "Sointujen suhde"}
+        ]},
+        {"id": "miten-sointu-muodostuu", "number": 1, "title": "Miten sointu muodostuu?", "archived": true,
          "goal": "Kuuntele, rakenna ja soita: kolme lyhyttä harjoitusta G-duurisoinnusta. Voit avata minkä tahansa vaiheen omassa järjestyksessäsi.",
          "lessons": [
           {"standalone": "kuule-mika-on-sointu", "title": "Kuule, mikä on sointu", "goal": "Vertaa kolmea säveltä peräkkäin ja samanaikaisesti. Musiikki ensin, selitys sitten."},

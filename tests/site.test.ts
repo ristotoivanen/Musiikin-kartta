@@ -169,7 +169,9 @@ describe('staattisen sivuston yhteensopivuus',()=>{
         expect(cardIds.sort(), topic).toEqual([...topicIds].sort());
         expect(mapCard?.[1].split(' ').sort(), topic).toEqual([...topicIds].sort());
       }
-      expect(topicPage, topic).not.toContain('class="done-toggle"');
+      const inlineActions = [...topicPage.matchAll(/<details class="study-inline"[^>]*data-study-item="([^"]+)"/g)];
+      expect(topicPage.match(/class="done-toggle"/g) ?? [], topic).toHaveLength(inlineActions.length);
+      for (const [, id] of inlineActions) expect(topicIds.has(id), topic).toBe(false);
     }
     expect(byKind).toEqual({ luku: 28, harjoitus: 41, oppitunti: 4 });
   });

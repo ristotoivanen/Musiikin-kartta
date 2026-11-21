@@ -1,99 +1,121 @@
-// Soinnut ja harmonia: Miten sointu muodostuu? (#116)
-//
-// Kolmen harjoituksen sivukohtainen toiminta: kuuntele G–B–D peräkkäin ja yhdessä, rakenna
-// G-duurisointu asteikosta ja kuuntele koko G-ote. Sivut muodostaa tools/oppimiskartta/rakenna.py,
-// joka lataa tämän tiedoston vain, kun sivulla on [data-sointuharjoitus].
-//
-// Äänet ovat oikean teräskielisen kitaran näytteitä hakemistosta assets/audio/soinnut/
-// (Meta Open Sound · Meta Steel Guitar, CC0 1.0; ks. LAHTEET.md). Tämä pieni Web Audio -soitin
-// on tarkoituksella erillään sivuston yhteisestä äänimoottorista eikä muuta sitä.
-//
-// Toisto käynnistyy vain käyttäjän painalluksesta. Uusi esimerkki katkaisee edellisen; lyhyillä
-// esimerkeillä ei ole erillistä Pysäytä-painiketta. Ääni pysähtyy, kun sivu piilotetaan tai suljetaan.
+// Soinnut ja harmonia (#116). PR #133:n sivukohtainen Meta Steel Guitar -toisto palvelee
+// sekä G-pilottia että v0.5:tä. Sävel- ja aikatapahtumat pysyvät erillään näytepankista.
 (() => {
   'use strict';
-  const sections = [...document.querySelectorAll('[data-sointuharjoitus]')];
+  const sections = document.querySelectorAll('[data-sointuharjoitus]');
   if (!sections.length) return;
-  const base = new URL('audio/soinnut/', document.currentScript?.src ?? location.href);
+  const base = new URL('audio/soinnut/', document.currentScript.src);
 
-  // Pedagogiset kestot sekunteina (pilotin käyttäjäarvio 20.11.2026): sävelille aikaa erottua,
-  // yhteissoinnille aikaa soida. Kuuden kielen ote soi kielestä toiseen 45 ms:n välein.
-  const TIMING = Object.freeze({
-    noteLength: 1.05, noteInterval: 1.18, triadLength: 3.10, chordLength: 3.60,
-    stringInterval: 0.045, startDelay: 0.10
-  });
-  // G-ote 320003 paksusta E-kielestä ohueen e-kieleen.
-  const STRINGS = [
-    { string: '6. E', pitch: 'G2', file: 'INSGuitarSteel_StringLowE_Vel02_G2_01' },
-    { string: '5. A', pitch: 'B2', file: 'INSGuitarSteel_StringA_Vel02_B2_01' },
-    { string: '4. D', pitch: 'D3', file: 'INSGuitarSteel_StringD_Vel02_D3_01' },
-    { string: '3. G', pitch: 'G3', file: 'INSGuitarSteel_StringG_Vel02_G3_01' },
-    { string: '2. B', pitch: 'B3', file: 'INSGuitarSteel_StringB_Vel02_B3_01' },
-    { string: '1. e', pitch: 'G4', file: 'INSGuitarSteel_StringHighE_Vel02_G4_01' }
-  ];
-  const EXAMPLES = {
-    perakkain: { notes: STRINGS.slice(0, 3), playing: 'G, B ja D soivat peräkkäin.' },
-    yhdessa: { notes: STRINGS.slice(0, 3), playing: 'G, B ja D soivat yhdessä.' },
-    ote: { notes: STRINGS, playing: 'Kuulit G-soinnun kaikki kuusi kieltä.' }
+  // Nimi ilmaisee äänitetyn kielen ja sävelen. Esimerkeissä ei transponoida näytteitä.
+  const OPEN_G = ['LowE:G2', 'A:B2', 'D:D3', 'G:G3', 'B:B3', 'HighE:G4'];
+  const OPEN_EM = ['LowE:E2', 'A:B2', 'D:E3', 'G:G3', 'B:B3', 'HighE:E4'];
+  const OPEN_E = OPEN_EM.map(note => note === 'G:G3' ? 'G:Gs3' : note);
+  const SCALE = { G: 'G:G3', A: 'G:A3', B: 'B:B3', C: 'B:C4', D: 'D:D4', E: 'HighE:E4', 'F♯': 'HighE:Fs4' };
+  const HARMONY = {
+    G: ['LowE:G2', 'G:G3', 'B:B3', 'D:D4'],
+    C: ['A:C3', 'G:G3', 'B:C4', 'HighE:E4'],
+    D: ['D:D3', 'G:A3', 'B:D4', 'HighE:Fs4'],
   };
-  const READY = {
+  const TRIAD = [SCALE.G, SCALE.B, SCALE.D];
+  const BAR = 2.25;
+
+  function notes(pitches, duration, gain, interval = 0, at = 0) {
+    return pitches.map((pitch, index) => ({ pitch, duration, gain, at: at + interval * index }));
+  }
+
+  const plans = {
+    perakkain: notes(OPEN_G.slice(0, 3), 1.05, 0.48, 1.18),
+    yhdessa: notes(OPEN_G.slice(0, 3), 3.10, 0.33),
+    ote: notes(OPEN_G, 3.60, 0.19, 0.045),
+    yksitellen: notes(TRIAD, 1.2, 0.48, 0.52),
+    ydinYhdessa: notes(TRIAD, 1.9, 0.33),
+    E: notes(OPEN_E, 2.15, 0.19, 0.023),
+    Em: notes(OPEN_EM, 2.15, 0.19, 0.023),
+  };
+  const playingLabels = {
+    perakkain: 'G, B ja D soivat peräkkäin.',
+    yhdessa: 'G, B ja D soivat yhdessä.',
+    ote: 'Kuulit G-soinnun kaikki kuusi kieltä.',
+  };
+  const ready = {
     kuuntele: 'Valitse kuuntelutapa. Näytteet on äänitetty oikeasta akustisesta kitarasta.',
     soita: 'Kuuntele, miltä kaikki kuusi kieltä kuulostavat yhdessä. Ääni on oikeasta kitaranäytteestä.',
-    rakenna: 'Voit valita kolme säveltä haluamassasi järjestyksessä.'
+    rakenna: 'Voit valita kolme säveltä haluamassasi järjestyksessä.',
+    kokoa: 'Valitse esimerkki kuunneltavaksi.',
+    arvaa: 'Napauta E:tä tai Em:ää kuunnellaksesi.',
+    paluu: 'Valitse ensin lopetus: G, C tai D.',
   };
 
-  // AAC (M4A) ensin, jos selain ilmoittaa tukevansa sitä; muuten OGG Vorbis. Toinen muoto on varalla,
-  // jos ensimmäisen lataus tai purku epäonnistuu.
-  const formats = (() => {
-    try {
-      return new Audio().canPlayType('audio/mp4; codecs="mp4a.40.2"') ? ['m4a', 'ogg'] : ['ogg', 'm4a'];
-    } catch {
-      return ['m4a', 'ogg'];
-    }
-  })();
-
-  let audio = null;
-  let sources = [];
-  let timer = 0;
-  let version = 0;
-  let loading = null;
+  // AAC ensin, jos selain ilmoittaa tukevansa sitä. Verkkovirhe tai purkuvirhe kokeilee toista muotoa.
+  const formats = new Audio().canPlayType('audio/mp4; codecs="mp4a.40.2"') ? ['m4a', 'ogg'] : ['ogg', 'm4a'];
   const buffers = new Map();
+  let audio;
+  let session;
+
+  function showStatus(status, message, error = false) {
+    status.textContent = message;
+    status.classList.toggle('is-error', error);
+  }
+
+  function stop(message) {
+    const last = session;
+    if (!last) return;
+    session = null;
+    clearTimeout(last.timeout);
+    cancelAnimationFrame(last.frame);
+    last.abort.abort();
+    if (last.bus) {
+      const now = audio.currentTime;
+      const cutoff = now + 0.025;
+      last.bus.gain.setValueAtTime(1, now);
+      last.bus.gain.linearRampToValueAtTime(0, cutoff);
+      for (const { source, envelope, when, end } of last.sources) {
+        if (end > now && audio.state !== 'closed') source.stop(when > now ? 0 : Math.min(end, cutoff));
+        if (audio.state !== 'running') {
+          source.disconnect();
+          envelope.disconnect();
+        }
+      }
+      if (audio.state !== 'running') last.bus.disconnect();
+    }
+    delete last.trigger.dataset.playing;
+    last.onPosition?.(-1);
+    last.onStop?.();
+    if (message) showStatus(last.status, message);
+  }
 
   function context() {
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContextClass) return null;
-    if (!audio || audio.state === 'closed') audio = new AudioContextClass();
+    if (!audio || audio.state === 'closed') {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) throw new Error('Web Audio ei ole käytettävissä');
+      audio = new AudioContextClass();
+      audio.addEventListener('statechange', () => {
+        if (session?.bus && audio.state !== 'running') stop('Kuuntelu keskeytyi. Voit kuunnella uudelleen.');
+      });
+    }
     return audio;
   }
 
-  function stop() {
-    clearTimeout(timer);
-    timer = 0;
-    loading?.abort();
-    loading = null;
-    for (const source of sources) {
-      try { source.stop(); } catch { /* jo pysähtynyt */ }
-    }
-    sources = [];
-  }
-
-  function decode(data) {
+  function decode(ctx, data) {
     // Vanhempi Safari tukee vain takaisinkutsumuotoa.
     return new Promise((resolve, reject) => {
-      const result = audio.decodeAudioData(data, resolve, reject);
+      const result = ctx.decodeAudioData(data, resolve, reject);
       result?.then?.(resolve, reject);
     });
   }
 
-  async function sample(note, signal) {
-    if (buffers.has(note.file)) return buffers.get(note.file);
-    let failure = null;
+  async function sample(ctx, pitch, signal) {
+    if (buffers.has(pitch)) return buffers.get(pitch);
+    const [string, note] = pitch.split(':');
+    const file = `INSGuitarSteel_String${string}_Vel02_${note}_01`;
+    let failure;
     for (const format of formats) {
       try {
-        const response = await fetch(new URL(`${note.file}.${format}`, base), { signal });
-        if (!response.ok) throw new Error(`${note.pitch}: HTTP ${response.status}`);
-        const buffer = await decode(await response.arrayBuffer());
-        buffers.set(note.file, buffer);
+        const response = await fetch(new URL(`${file}.${format}`, base), { signal });
+        if (!response.ok) throw new Error(`${pitch}: HTTP ${response.status}`);
+        const buffer = await decode(ctx, await response.arrayBuffer());
+        if (signal.aborted) throw signal.reason;
+        buffers.set(pitch, buffer);
         return buffer;
       } catch (error) {
         if (signal.aborted) throw error;
@@ -103,83 +125,100 @@
     throw failure;
   }
 
-  function schedule(buffer, when, duration, volume) {
+  function schedule(own, buffer, { at, duration, gain }) {
+    const when = own.start + at;
+    const end = when + duration + 0.02;
     const source = audio.createBufferSource();
     source.buffer = buffer;
     const envelope = audio.createGain();
-    // Kitaran oma luonnollinen sammuminen kuuluu; häivytys vasta soittokeston lopussa.
     const fade = duration > 2 ? 0.55 : 0.22;
     envelope.gain.setValueAtTime(0.0001, when);
-    envelope.gain.linearRampToValueAtTime(volume, when + 0.014);
-    envelope.gain.setValueAtTime(volume, when + duration - fade);
+    envelope.gain.linearRampToValueAtTime(gain, when + 0.014);
+    envelope.gain.setValueAtTime(gain, when + duration - fade);
     envelope.gain.exponentialRampToValueAtTime(0.0001, when + duration);
-    source.connect(envelope).connect(audio.destination);
+    source.connect(envelope).connect(own.bus);
+    const event = { source, envelope, when, end };
+    own.sources.add(event);
+    source.onended = () => {
+      source.disconnect();
+      envelope.disconnect();
+      own.sources.delete(event);
+      if (!own.sources.size) own.bus.disconnect();
+    };
     source.start(when);
-    source.stop(when + duration + 0.02);
-    sources.push(source);
+    source.stop(end);
   }
 
-  async function play(kind, status) {
+  async function play(trigger, status, plan, { label = 'Kuuntelu käynnissä.', onPosition, onStop } = {}) {
     stop();
-    const mine = ++version;
-    const example = EXAMPLES[kind];
-    status.classList.remove('is-error');
-    if (!context()) {
-      status.textContent = 'Selaimesi ei tue Web Audiota.';
-      return;
-    }
-    // resume() kutsutaan heti painalluksen aikana, jotta iPhone sallii äänen.
-    try {
-      await audio.resume();
-    } catch {
-      status.textContent = 'Ääntä ei saatu käynnistettyä.';
-      return;
-    }
-    if (mine !== version) return;
-    const controller = new AbortController();
-    loading = controller;
-    status.textContent = 'Ladataan oikean kitaran ääninäytteitä…';
-    let loaded;
-    try {
-      loaded = await Promise.all(example.notes.map(note => sample(note, controller.signal)));
-    } catch {
-      if (mine !== version || controller.signal.aborted) return;
+    const own = { trigger, status, onPosition, onStop, abort: new AbortController(), sources: new Set() };
+    session = own;
+    showStatus(status, 'Ladataan kitaran ääninäytteitä…');
+    own.timeout = setTimeout(() => {
+      if (session !== own) return;
       stop();
-      status.textContent = 'Ääniä ei voitu ladata. Lataa sivu uudelleen ja kokeile uudestaan.';
-      status.classList.add('is-error');
+      showStatus(status, 'Äänen käynnistys kesti liian kauan. Kokeile uudelleen.', true);
+    }, 12000);
+
+    let ctx;
+    try {
+      // Käyttäjäeleen aikana, ennen yhtään odotusta. audioSession on valinnainen Safari-rajapinta.
+      try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch { /* valinnainen */ }
+      ctx = context();
+      await ctx.resume();
+    } catch {
+      if (session === own) {
+        stop();
+        showStatus(status, 'Ääntä ei saatu käynnistettyä. Kokeile uudelleen.', true);
+      }
       return;
     }
-    if (mine !== version || controller.signal.aborted) return;
-    loading = null;
-    const start = audio.currentTime + TIMING.startDelay;
-    let soundingUntil;
-    if (kind === 'perakkain') {
-      loaded.forEach((buffer, index) => schedule(buffer, start + index * TIMING.noteInterval, TIMING.noteLength, 0.48));
-      soundingUntil = (loaded.length - 1) * TIMING.noteInterval + TIMING.noteLength;
-    } else if (kind === 'yhdessa') {
-      loaded.forEach(buffer => schedule(buffer, start, TIMING.triadLength, 0.33));
-      soundingUntil = TIMING.triadLength;
-    } else {
-      loaded.forEach((buffer, index) => schedule(buffer, start + index * TIMING.stringInterval, TIMING.chordLength, 0.19));
-      soundingUntil = (loaded.length - 1) * TIMING.stringInterval + TIMING.chordLength;
+    if (session !== own) return;
+    try {
+      const pitches = [...new Set(plan.map(event => event.pitch))];
+      const loaded = await Promise.all(pitches.map(pitch => sample(ctx, pitch, own.abort.signal)));
+      if (session !== own) return;
+      if (ctx.state !== 'running' || trigger.closest('details:not([open])')) {
+        stop('Kuuntelu keskeytyi. Voit kuunnella uudelleen.');
+        return;
+      }
+      clearTimeout(own.timeout);
+      const loadedByPitch = new Map(pitches.map((pitch, index) => [pitch, loaded[index]]));
+      own.bus = ctx.createGain();
+      own.bus.connect(ctx.destination);
+      own.start = ctx.currentTime + 0.10;
+      const end = Math.max(...plan.map(event => event.at + event.duration + 0.02));
+      for (const event of plan) schedule(own, loadedByPitch.get(event.pitch), event);
+      trigger.dataset.playing = '';
+      showStatus(status, label);
+      function followClock() {
+        if (session !== own) return;
+        const elapsed = ctx.currentTime - own.start;
+        if (elapsed >= end) {
+          stop('Esimerkki päättyi. Voit kuunnella uudelleen.');
+          return;
+        }
+        onPosition?.(elapsed);
+        own.frame = requestAnimationFrame(followClock);
+      }
+      followClock();
+    } catch {
+      if (session === own) {
+        stop();
+        showStatus(status, 'Ääniä ei voitu ladata. Kokeile uudelleen.', true);
+      }
     }
-    status.textContent = example.playing;
-    timer = setTimeout(() => {
-      if (mine !== version) return;
-      stop();
-      status.textContent = 'Esimerkki päättyi. Voit kuunnella uudelleen.';
-    }, (TIMING.startDelay + soundingUntil + 0.18) * 1000);
   }
 
-  function silence() {
-    version++;
-    stop();
-    if (audio?.state === 'running') audio.suspend().catch(() => {});
-  }
+  const silence = () => stop('Kuuntelu keskeytyi. Voit kuunnella uudelleen.');
   window.addEventListener('pagehide', silence);
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) silence();
   });
+  document.addEventListener('toggle', event => {
+    const details = event.target;
+    if (session && details instanceof HTMLDetailsElement && !details.open && details.contains(session.trigger)) silence();
+  }, true);
 
   function setupChordBuilder(section, status) {
     const order = ['G', 'A', 'B', 'C', 'D', 'E', 'F#'];
@@ -232,13 +271,190 @@
     update();
   }
 
-  for (const section of sections) {
-    const status = section.querySelector('[data-sointu-tila]');
-    for (const controls of section.querySelectorAll('[data-sointu-ohjaimet]')) controls.hidden = false;
-    status.textContent = READY[section.dataset.sointuharjoitus] ?? '';
-    for (const button of section.querySelectorAll('[data-soita]')) {
-      button.addEventListener('click', () => play(button.dataset.soita, status));
+
+  function setupTriad(section, playExample, stopExample) {
+    const selected = new Set();
+    const buttons = [...section.querySelectorAll('[data-savel]')];
+    const selection = section.querySelector('[data-ydin-play="valinta"]');
+    const count = section.querySelector('[data-maara]');
+    const list = section.querySelector('[data-valinnat]');
+    const hint = section.querySelector('[data-valintapalaute]');
+    const initialHint = hint.textContent;
+    for (const button of buttons) {
+      button.addEventListener('click', () => {
+        const note = button.dataset.savel;
+        if (selected.has(note)) selected.delete(note);
+        else if (selected.size < 3) selected.add(note);
+        else {
+          hint.textContent = 'Valitse enintään kolme säveltä. Poista ensin jokin nykyisistä.';
+          return;
+        }
+        if (session?.trigger === selection) stopExample(ready.kokoa);
+        button.setAttribute('aria-pressed', String(selected.has(note)));
+        const ordered = Object.keys(SCALE).filter(item => selected.has(item));
+        count.textContent = `${ordered.length}/3`;
+        list.textContent = ordered.length ? ordered.join(' · ') : 'ei vielä';
+        selection.disabled = ordered.length !== 3;
+        hint.textContent = selection.disabled ? initialHint : ordered.join('') === 'GBD'
+          ? 'Löysit G-duurisoinnun kolme säveltä. Kuuntele niitä yhdessä.'
+          : 'Kuuntele tämän yhdistelmän sointi ja vertaa sitä muihin valintoihin.';
+      });
     }
-    if (section.dataset.sointuharjoitus === 'rakenna') setupChordBuilder(section, status);
+    section.querySelector('[data-ydin-play="yksitellen"]').addEventListener('click', event => playExample(event.currentTarget, plans.yksitellen));
+    section.querySelector('[data-ydin-play="yhdessa"]').addEventListener('click', event => playExample(event.currentTarget, plans.ydinYhdessa));
+    selection.addEventListener('click', () => {
+      const pitches = Object.keys(SCALE).filter(note => selected.has(note)).map(note => SCALE[note]);
+      playExample(selection, notes(pitches, 1.75, 0.33));
+    });
+  }
+
+  function setupGuess(section, playExample, stopExample, showExerciseStatus) {
+    const normal = section.querySelector('[data-suora-kuuntelu]');
+    const listening = section.querySelector('[data-arvaus-kuuntelu]');
+    const question = section.querySelector('[data-arvaus-kysymys]');
+    const heading = question.querySelector('[data-kysymys]');
+    const answers = section.querySelector('[data-arvaus-vastaus]');
+    const choices = [...answers.querySelectorAll('button')];
+    const feedback = section.querySelector('[data-arvauspalaute]');
+    const firstPrompt = feedback.textContent;
+    const diagrams = section.querySelector('[data-arvaus-kaaviot]');
+    const chords = { E: diagrams.children[0], Em: diagrams.children[1] };
+    const comparison = section.querySelector('[data-otevertailu]');
+    const tip = section.querySelector('.study-knoppi');
+    const next = section.querySelector('[data-uusi-arvaus]');
+    const fullName = { E: 'E-duuri', Em: 'E-molli' };
+    const listenButtons = [...listening.querySelectorAll('button')];
+    let pair;
+    let target;
+    let answered = false;
+
+    for (const button of normal.querySelectorAll('button')) {
+      button.addEventListener('click', () => playExample(button, plans[button.dataset.ydinPlay]));
+    }
+    for (const button of listenButtons) {
+      button.addEventListener('click', () => playExample(button, plans[pair[Number(button.dataset.arvaaKuuntele)]]));
+    }
+    // Vastauksen jälkeen nimet näkyvät samoissa painikkeissa arvotussa järjestyksessä. Varattu
+    // leveys (.sointu-varaus) pitää painikkeen koon samana nimettynä ja nimettömänä.
+    function nameListening(reveal) {
+      listenButtons.forEach((button, index) => {
+        const number = index + 1;
+        const chord = pair[Number(button.dataset.arvaaKuuntele)];
+        button.querySelector('[data-arvaus-teksti]').textContent = reveal ? `Sointu ${number} · ${chord}` : `Sointu ${number}`;
+        button.setAttribute('aria-label', reveal ? `Kuuntele sointu ${number}, ${fullName[chord]}` : `Kuuntele sointu ${number}`);
+      });
+    }
+    next.addEventListener('click', () => {
+      stopExample();
+      pair = Math.random() < 0.5 ? ['E', 'Em'] : ['Em', 'E'];
+      target = Math.random() < 0.5 ? 'Em' : 'E';
+      answered = false;
+      normal.hidden = comparison.hidden = diagrams.hidden = tip.hidden = true;
+      question.hidden = listening.hidden = answers.hidden = feedback.hidden = false;
+      heading.textContent = target === 'E' ? 'Kumpi on duuri?' : 'Kumpi on molli?';
+      feedback.textContent = firstPrompt;
+      feedback.classList.remove('is-error');
+      choices.forEach(button => button.removeAttribute('aria-disabled'));
+      nameListening(false);
+      next.textContent = 'Uusi arvaus';
+      showExerciseStatus('Kuuntele sointu 1 ja sointu 2 ennen vastaamista.');
+      heading.focus();
+    });
+    for (const button of choices) {
+      button.addEventListener('click', () => {
+        if (answered) return;
+        answered = true;
+        stopExample();
+        const correct = pair[Number(button.dataset.vastaus)] === target;
+        choices.forEach(choice => choice.setAttribute('aria-disabled', 'true'));
+        feedback.classList.toggle('is-error', !correct);
+        feedback.textContent = `${correct ? 'Oikein!' : 'Tällä kertaa ei.'} Sointu 1 oli ${fullName[pair[0]]} ja sointu 2 oli ${fullName[pair[1]]}.`;
+        pair.forEach((chord, index) => {
+          const figure = chords[chord];
+          figure.querySelector('figcaption').textContent = `Sointu ${index + 1} = ${chord}`;
+          diagrams.append(figure);
+        });
+        nameListening(true);
+        diagrams.hidden = tip.hidden = false;
+        showExerciseStatus('Voit kuunnella molemmat soinnut uudelleen nimineen.');
+      });
+    }
+  }
+
+  function setupProgression(section, playExample, stopExample, showExerciseStatus) {
+    const playButton = section.querySelector('[data-kierto]');
+    const endings = [...section.querySelectorAll('[data-lopetus]')];
+    const nameButton = section.querySelector('[data-nayta-nimet]');
+    const names = [...section.querySelectorAll('[data-kierron-nimi]')];
+    // Neljäs sointu on oppijan oma valinta. Mitään lopetusta ei ole valittu valmiiksi.
+    const sequence = ['G', 'C', 'D', null];
+    let showNames = false;
+    let active = -1;
+
+    function draw(index) {
+      active = index;
+      names.forEach((name, position) => {
+        name.textContent = showNames ? sequence[position] ?? '?' : position === 3 ? '?' : '•';
+        if (position === index) name.parentElement.setAttribute('aria-current', 'step');
+        else name.parentElement.removeAttribute('aria-current');
+      });
+    }
+    function playLabel(playing) {
+      playButton.querySelector('[data-kuuntele]').classList.toggle('sointu-piilossa', playing);
+      playButton.querySelector('[data-pysayta]').classList.toggle('sointu-piilossa', !playing);
+    }
+
+    for (const button of endings) {
+      button.addEventListener('click', () => {
+        stopExample('Pysäytetty.');
+        sequence[3] = button.dataset.lopetus;
+        endings.forEach(ending => ending.setAttribute('aria-pressed', String(ending === button)));
+        playButton.disabled = false;
+        showExerciseStatus(`Lopetus ${sequence[3]} valittu. Kuuntele kierto.`);
+        draw(-1);
+      });
+    }
+    nameButton.addEventListener('click', () => {
+      showNames = !showNames;
+      nameButton.setAttribute('aria-expanded', String(showNames));
+      nameButton.textContent = showNames ? 'Piilota sointujen nimet' : 'Näytä sointujen nimet';
+      draw(active);
+    });
+    playButton.addEventListener('click', () => {
+      if (session?.trigger === playButton) {
+        stopExample('Pysäytetty.');
+        return;
+      }
+      if (!sequence[3]) return;
+      const plan = sequence.flatMap((chord, index) => notes(HARMONY[chord], 2.15, 0.23, 0.022, index * BAR));
+      playLabel(true);
+      playExample(playButton, plan, {
+        onPosition: elapsed => {
+          const index = Math.floor(elapsed / BAR);
+          if (index !== active) draw(index);
+        },
+        onStop: () => playLabel(false),
+      });
+    });
+  }
+
+  for (const section of sections) {
+    const kind = section.dataset.sointuharjoitus;
+    const status = section.querySelector('[data-sointu-tila]');
+    const playExample = (trigger, plan, options) => play(trigger, status, plan, options);
+    const stopExample = message => {
+      if (session?.status === status) stop(message);
+    };
+    const showExerciseStatus = message => showStatus(status, message);
+
+    for (const controls of section.querySelectorAll('[data-sointu-ohjaimet]')) controls.hidden = false;
+    showExerciseStatus(ready[kind]);
+    for (const button of section.querySelectorAll('[data-soita]')) {
+      button.addEventListener('click', () => playExample(button, plans[button.dataset.soita], { label: playingLabels[button.dataset.soita] }));
+    }
+    if (kind === 'rakenna') setupChordBuilder(section, status);
+    if (kind === 'kokoa') setupTriad(section, playExample, stopExample);
+    if (kind === 'arvaa') setupGuess(section, playExample, stopExample, showExerciseStatus);
+    if (kind === 'paluu') setupProgression(section, playExample, stopExample, showExerciseStatus);
   }
 })();
