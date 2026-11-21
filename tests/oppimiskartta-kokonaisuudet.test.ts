@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
@@ -104,4 +105,38 @@ it('03 alkaa ilman valittua lopetusta ja kertoo G:n roolin vasta Mitä opit? -os
       expect(html).toContain(`<span class="sointu-vaihtuva"><span data-arvaus-teksti>Sointu ${number}</span><span class="sointu-varaus" aria-hidden="true">Sointu ${number} · Em</span></span>`);
     }
   }
+});
+
+// Yhteinen Kokeiltu-mekanismi (#116, Soinnut #137 ja Rytmi #134): ryhmän "attempts" määrää vain
+// merkinnän esitystavan ja laskurin. Sisältötyyppi (tallennustunniste) ja navigointi ovat omia asetuksiaan.
+describe('oman kokonaisuuden asetukset ovat toisistaan riippumattomia', () => {
+  const generator = (script: string) => execFileSync('python3', ['-c',
+    `import sys, json; sys.path.insert(0, 'tools/oppimiskartta'); import rakenna\n${script}`],
+  { cwd: new URL('..', import.meta.url), encoding: 'utf8', stdio: 'pipe' });
+  const describePage = (group: object) => JSON.parse(generator(`
+group = dict(title='T', id='ydin', **json.loads(${JSON.stringify(JSON.stringify(group))}))
+page = rakenna.Page('oppi/x/kokeilu.html', 'Kokeilu', 'lahde.html', '<p>x</p>', 'tavoite')
+group['pages'] = [page]
+rakenna.unit_pages(group)
+print(json.dumps({'id': page.study_id, 'kind': page.study_kind, 'mark': rakenna.study_mark(page),
+                  'button': rakenna.unit_mark(page)}))`));
+
+  it('attempts yksin: oppitunti-tunniste säilyy, merkintä on Kokeiltu', () => {
+    expect(describePage({ attempts: true })).toEqual({
+      id: 'oppitunti:kokeilu', kind: 'oppitunti', mark: ' data-study-mark="kokeiltu"',
+      button: expect.stringContaining('>Merkitse kokeilluksi</button>'),
+    });
+  });
+
+  it('kind yksin muuttaa tunnisteen mutta ei merkintää; ilman asetuksia kaikki ennallaan', () => {
+    expect(describePage({ kind: 'harjoitus' })).toMatchObject({ id: 'harjoitus:kokeilu', mark: '' });
+    expect(describePage({ kind: 'harjoitus' }).button).toContain('>Merkitse harjoitus tehdyksi</button>');
+    expect(describePage({})).toMatchObject({ id: 'oppitunti:kokeilu', kind: 'oppitunti', mark: '' });
+  });
+
+  it('tuntematon arvo pysäyttää generoinnin', () => {
+    for (const group of [{ kind: 'luku' }, { back: 'alkuun' }, { last: 'unit' }, { attempts: 'kyllä' }]) {
+      expect(() => describePage(group)).toThrow(/voi olla vain/);
+    }
+  });
 });

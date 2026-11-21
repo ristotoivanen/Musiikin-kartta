@@ -113,11 +113,14 @@ class Page:
     chapter_number: str = ''
     parent: object = None
 
+    # Oman kokonaisuuden asetukset (aiheet.json-ryhmä) ovat toisistaan riippumattomia, ks. UNIT_OPTIONS:
+    # "kind" määrää sisältötyypin ja siten pysyvän tallennustunnisteen, "attempts" vain merkinnän
+    # esitystavan ja ryhmän laskurin, "back" ja "last" navigoinnin.
     @property
     def study_kind(self):
         if self.chapter:
             return 'luku'
-        return 'harjoitus' if self.parent or self.attempts else 'oppitunti'
+        return 'harjoitus' if self.parent else getattr(self, 'unit', {}).get('kind', 'oppitunti')
 
     @property
     def attempts(self):
@@ -410,7 +413,19 @@ def own_unit(topic, group):
     return topic.get('layout') == 'kokonaisuudet' and not group.get('legacy')
 
 
+# Oman kokonaisuuden valinnaiset asetukset ja sallitut arvot (oletus ensin).
+UNIT_OPTIONS = {
+    'kind': ('oppitunti', 'harjoitus'),  # sisältötyyppi: study_kind ja tallennustunniste tyyppi:polku
+    'attempts': (False, True),           # "Merkitse kokeilluksi", Kokeilematta/✓ Kokeiltu, x/N kokeiltu
+    'back': ('topic', 'unit'),           # sivun paluulinkki: aihesivu tai kokonaisuuden ankkuri aihesivulla
+    'last': ('topic', 'start'),          # viimeisen sivun jatko: aihesivulle tai kokonaisuuden alkuun
+}
+
+
 def unit_pages(group):
+    for option, allowed in UNIT_OPTIONS.items():
+        if group.get(option, allowed[0]) not in allowed:
+            raise ValueError(f'{group["title"]}: {option} voi olla vain {", ".join(map(repr, allowed))}')
     for page in group['pages']:
         if page.parent or page.chapter:
             raise ValueError(f'{group["title"]}: kokonaisuudessa voi olla vain itsenäisiä oppitunteja')
@@ -458,9 +473,13 @@ def unit_choice(page, index, topic, targets):
     separate = link(href, 'Avaa omalla sivullaan', f' data-return-topic="{anchor}"')
     body = '\n'.join([content, unit_mark(page), f'<p class="study-inline-link">{separate}</p>'])
     return (f'<details class="study-inline" name="{page.unit["id"]}-harjoitukset" '
-            f'data-study-item="{page.study_id}" data-study-kind="{page.study_kind}" data-study-mark="kokeiltu">\n'
+            f'data-study-item="{page.study_id}" data-study-kind="{page.study_kind}"{study_mark(page)}>\n'
             f'  <summary {toggle}>{caption}<span class="study-arrow" aria-hidden="true"></span></summary>\n'
             f'  <div class="study-inline-body">\n{indent(body, "    ")}\n  </div>\n</details>')
+
+
+def study_mark(page):
+    return ' data-study-mark="kokeiltu"' if page.attempts else ''
 
 
 def unit_choices(choices, inline=False):
@@ -524,8 +543,8 @@ def units_home(topic, lookup, exercise_descriptions, targets):
 
 
 def unit_page_content(page, group, index, topic, targets):
-    """Oman kokonaisuuden sisällöt numeroidaan ja linkitetään sen sisällä. Ydinopinnoista voi
-    palata alkuun; pilotin viimeinen sivu palaa pilotin ankkuriin."""
+    """Oman kokonaisuuden sisällöt numeroidaan ja linkitetään sen sisällä. Viimeinen sivu jatkaa
+    ryhmän "last"-asetuksen mukaan kokonaisuuden alkuun tai aihesivun kokonaisuuden ankkuriin."""
     sequence = group['pages']
     number = f'{group["number"]:02} · ' if 'number' in group else ''
     meta = (f'<p class="study-meta" data-study-unit="{group["id"]}">{page.study_kind.capitalize()} '
@@ -539,7 +558,7 @@ def unit_page_content(page, group, index, topic, targets):
         if index + 1 < len(sequence):
             following = sequence[index + 1]
             items.append(step_link(rel(following.path, page.path), f'Seuraava: {following.title}', ' rel="next"', forward=True))
-        elif page.attempts:
+        elif group.get('last') == 'start':
             url = rel(sequence[0].path, page.path)
             items.append(step_link(url, 'Palaa alkuun', '', forward=True))
         else:
@@ -674,7 +693,7 @@ def render(topic, content, nav, page=None, *, path_items=()):
         stylesheets.append('assets/sointuharjoitus.css')
     styles = '\n'.join(stylesheet(path, output) for path in stylesheets)
     back_href = rel(topic['path'], output) if page else rel('index.html', output) + '#' + topic['anchor']
-    if page and page.attempts:
+    if page and getattr(page, 'unit', {}).get('back') == 'unit':
         back_href += '#' + page.unit['id']
     back_label = topic['back_label'] if page else 'Oppimiskarttaan'
     if not page and not recap:
@@ -683,8 +702,7 @@ def render(topic, content, nav, page=None, *, path_items=()):
         progress = f' data-study-item="{page.study_id}" data-study-kind="{page.study_kind}"'
         if page.chapter:
             progress += f' data-theory-chapter="{page.chapter}"'
-        if page.attempts:
-            progress += ' data-study-mark="kokeiltu"'
+        progress += study_mark(page)
         if page is topic['pages'][-1] and not topic.get('recap'):
             progress += f' data-topic-items="{escape(study_ids(topic["pages"]))}"'
         if path_items:
