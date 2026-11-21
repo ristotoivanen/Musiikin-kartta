@@ -22,7 +22,7 @@
 | PR #111 | avoin Draft @ `794d106` | Johdantokortti ja Rytmin ensimmäiset neljä iskua, ei yhdistettävä sellaisenaan |
 | PR #133 | avoin Draft @ `25712ed`, base beta | Sointujen ensimmäinen yhteinen kokonaisuusrakenne ja G-pilotti |
 | PR #134 | avoin Draft @ `e755959`, base beta | Sama yhteinen rakenne + Rytmin oma sisältö/audio ja `mark`-käytäntö |
-| PR #137 | avoin Draft @ `9270c63`, base **PR #133:n haara** | Sointujen uudempi inline-malli, kolme sisältöä ja yhteisten osien muutokset |
+| PR #137 | avoin Draft @ `d4e547f`, base **PR #133:n haara** | Sointujen uudempi inline-malli, kolme sisältöä ja yhteisten osien muutokset |
 | PR #138 | avoin docs-only Draft @ `7b9d150`, base beta | Kohderyhmä ja minituntien sijoittelu, ei valmis koodipohja |
 
 Huomaa: #137:n PR-kuvauksen vanhempi katselmointi-SHA ei ole nykyinen HEAD. Sen 169 tiedoston ero on suhteessa #133:n haaraan, ei betaan. Suoritustestiluvut ovat PR-haaroissa raportoituja, eivät tämän integraation hyväksyttyjä testejä.
@@ -123,3 +123,53 @@ Huomaa: #137:n PR-kuvauksen vanhempi katselmointi-SHA ei ole nykyinen HEAD. Sen 
 - **D4:** erillinen lupa koodauksen aloittamiseen, erillinen lupa beta-mergeen ja erillinen lupa tuotantojulkaisuun.
 
 **Avoimet riippuvuudet:** #115, #116, #124, #125, PR #111/#130/#133/#134/#137/#138. Dokumentti on arkkitehtuurin auditoitava lähtökohta, ei uusi pedagoginen sisältörekisteri.
+
+## 11. Seurantatarkistus 21.11.2026: uusin GitHub-tila ja P0:n tarkennettu yhteensovitus
+
+Tarkistettu GitHubin nykyiset PR-HEADit ja betan suhde referenssiin. **Beta on edelleen täsmälleen `5a8905694e0b29b306e473173ea8d3dde72eab53`** (vertailu identical, 0 uutta commitia). #133 (`25712ed`), #134 (`e755959`), #138 (`7b9d150`) ja #111 (`794d106`) ovat ennallaan. **#137 on päivittynyt `9270c63` → `d4e547fe429ffc705f42a4cdfc3cc55bb4f2de34`** yhdellä commitilla. Vain lähteet `rakenna.py`, `aiheet.json` ja `tests/oppimiskartta-kokonaisuudet.test.ts` muuttuivat. **Sointujen neljä tarkistettua generoitu HTML -tiedostoa** (`index.html` ja kolme ydintuntia) sekä `kokonaisuudet.js` ja `edistyminen.js` ovat kahden SHA:n välillä tavulleen samat. Tämä todentaa repo-sisällön invarianssin kyseisissä tiedostoissa, ei todista fyysisen selaimen toimivuutta.
+
+Uuden commitin olennainen ratkaisu: ryhmäasetukset ovat toisistaan riippumattomia. `kind` ohjaa `study_kind`/tallennus-ID:tä, `attempts` ohjaa vain kokeiltu-tekstin ja laskurin, `back` määrää paluun aiheeseen tai ryhmään, `last` määrää viimeisen sivun lopputoiminnon. Sointujen ryhmässä on nyt `kind: harjoitus`, `attempts: true`, `back: unit`, `last: start`. Generaattorin `UNIT_OPTIONS` validoi arvot. **Tämä on parannus ja suositeltava integraation lähtökohta, mutta `back: unit` johtaa yhä vain `#ydinopinnot`-ankkuriin. Se ei yksin avaa samaa inline-oppituntia.** Tätä ei pidä merkitä korjatuksi.
+
+### 11.1. P0: säilytä–yhdistä–älä siirrä -matriisi
+
+| Kohde / lähde | Säilytä | Yhdistettävä muutos | Mitä ei saa tehdä | Tarkistava näyttö |
+| --- | --- | --- | --- | --- |
+| `rakenna.py`: #133 | `units_home`, `own_unit`, `unit_page_content`, `progress_text`, `chord_placeholders` | #137:n inline ja `UNIT_OPTIONS`, #134:n Rytmi-ominaisuudet | Älä kopioi uusinta/pisintä generaattoria yksinään | Molemmat aiheet generoituina; `--tarkista`, tallennus-ID:t, linkit |
+| `rakenna.py`: #134 | `Page.mark`, `MARKS`, `apply_marks`; Rytmin JS/CSS-moduulin ehdollinen lataus | Päätä, jatkuuko oppituntikohtainen `mark` vai siirtyykö sama semantiikka turvallisesti ryhmätason `attempts`-asetukseksi | Älä vaihda `oppitunti:<slug>` → `harjoitus:<slug>` hiljaisesti | Rytmin kolme `study_id`-tunnistetta ennen/jälkeen, palautettavat kuittaukset |
+| `rakenna.py`: #137 uusimmassa HEADissa | Inline-renderöinti, `study_mark`, `UNIT_OPTIONS`; erillinen `kind` / `attempts` / `back` / `last` | Korjaa näkyvä paluulinkki oppitunnin `#valinta-<slug>`-ankkuriin inline-tilassa; säilytä muut paluut | Älä päättele `Kokeiltu`-sanasta sisältötyyppiä, ID:tä tai seuraavaa linkkiä | Direct URL, Back/Forward, aihesivu → oma sivu → sama avattu kortti |
+| `aiheet.json`: #134 ja #137 | Rytmin kolme omaa ydinsisältöä ja vanha pulssi; Sointujen kolme uutta ja olemassa oleva 18 sisältöä; erilliset tunnisteet | Molemmat ryhmät samaan skeemaan, mutta #115/#138:n pedagogiset päätökset **eivät** muuta harjoituksia automaattisesti | Älä monista alkeisharjoituksia tai poista G-pilottia toistaiseksi | 8 aihetta, 68 aiempaa numeroitua oppituntia 02–08 ja Kitaran perusteiden erityisrakenne |
+| `kokonaisuudet.js` | #133/#134 yhteinen avaus/hash/printti; #137:n inline-vierityksen täydentävä osa | Siirrä saman tapahtuman tilarivien kirjoittaminen `edistyminen.js`-moottorille; täydennä vain navigointiavaukset | Ei kahta laskurin tai merkkijonojen kirjoittajaa | Storage-event, bfcache, hashchange, printti, uusi oppituntikortti |
+| `kokonaisuudet.css` | `details/summary` ja mobiilin kompaktit välit, näkyvä fokus | #125:n plektra-asset, tulevat teematokenit, #137:n reunus- ja painikeparannukset | Poista/piilota CSS:n arkistointisääntö **vasta kun sisällön löydettävä paikka on päätetty**; älä julkaise sisältöä saavuttamattomana | 320/360/390, 200 %, JS-off, printti ja fokus |
+| `edistyminen.js` | Betan tallennusavaimet ja vanhojen merkintöjen merkitykset; #133:n laskurin teksti; #134:n kokeiltu; #137:n inline-merkit | Yksi kuittauksen ja kaikkien tilarivien kirjoittaja; laskurit per sisältöluokka | Ei uutta localStorage-avainta, alias-migraatiota tai `Tehty`→`Kokeiltu` tulkintaa ilman näyttöä | Old/new fixtures, monivälilehtisyys, estetty tallennus, peruutus |
+| `oppimiskartta.js` | Nykyinen `returnTopic` ja bfcache-fokus | Avattu kokonaisuus ja oikea inline-kortti ennen fokuksen asettamista | Älä kytke koko navigaatiota uusiin JS-ankkureihin | Näppäimistö, direct-hash, paluu suoraan omalta sivulta |
+| #111:n `study-intro` | Vanhat linkit ja lähdesisältö inventointiin | Päätä #111:n nykyisen johdannon tarkoitus suhteessa #130:een ja Perustaitojen minitunteihin | Älä mergeä vanhaa #111:tä automaattisesti yhteen Rytmin ydinsisältöjen kanssa | Päällekkäiset slugit, äänet, tallennukset, opetustavoitteet |
+| `sointuharjoitus.js/css` ja `rytmi-ydinopinnot.js/css` | Aihekohtaiset harjoitukset ja äänilogiikat | Ainoastaan yhteiset ohjaintyylit, interaktiotilan semantiikka ja pysäytysrajapinta | Ei yhteistä soitin- tai rytmiäänimoottoria tässä PR:ssä | Toiston stop, ajan tarkkuus, fyysinen kuuntelu |
+| #125 / #124 | Hyväksytty 8 aiheen aihekuvakonsepti; korva, kitara ja i-kirjaimeton plektra | Yksi semanttinen kuvakerekisteri, teematokenit, yhteinen tyylillinen SVG-perhe | Ei emojia ikoniksi, PNG:n nimeämistä SVG:ksi tai koko sivuston vaalean teeman käyttöönottoa | 44 px symbolit, 22 px plektra, min 44 px osuma-alue, kontrasti molemmissa teemoissa |
+
+### 11.2. Erillinen regressioehto: ID, kuittaus, sivun muoto ja navigointi
+
+Uudessa `UNIT_OPTIONS`-rakenteessa yksittäisen oppitunnin `study_id` ei saa vaihtua, kun vain `attempts` muuttuu. Rytmin #134:n kolme nykyistä `mark: kokeiltu` -oppituntia käyttävät `oppitunti:<slug>`-tunnisteita. Sointujen #137:n kolme uutta oppituntia käyttävät `harjoitus:<slug>`-tunnisteita (eksplisiittinen `kind`). Tämä ero on säilytettävä **olemassa oleville tallennuksille**, vaikka kummankin näkyvä painiketeksti on ”Merkitse kokeilluksi”.
+
+| Testitilanne | Hyväksytty lopputulos |
+| --- | --- |
+| Vanhassa localStoragessa on `oppitunti:loyda-pulssi-ja-ykkonen` | Rytmin inline- ja omasivu löytävät vanhan merkinnän; vastaava `harjoitus:`-avain ei synny vahingossa |
+| Sointujen `harjoitus:kuule-ja-kokoa-sointu` on merkitty | Molemmat sivumuodot ja ryhmän laskuri näyttävät ”Kokeiltu”; vanha aiempien sisältöjen 18 laskuri ei kasva |
+| Erillisen sivun näkyvä paluu klikataan | Aihesivulla Ydinopinnot ja juuri kyseinen oppitunti ovat auki; fokus kohdistuu oppitunnin otsikkoon/summaryyn |
+| Suora `oppi/soinnut/yksi-savel-muuttaa-sointua.html` | Sisältö toimii ilman aikaisempaa historiaa; näkyvä paluu avaa vastaavan ankkurin |
+| Suora `#valinta-yksi-savel-muuttaa-sointua` | Oikea kokonaisuus ja oppitunti avautuvat, muut saman ryhmän oppitunnit sulkeutuvat |
+| Inline-ääni soi ja kortti suljetaan | Ääni katkeaa, eikä jää toiseen korttiin tai bfcache-palautuksessa soimaan |
+| JS estetty tai tulostetaan | Kaikki linkit ja vanhat sisällöt löytyvät; vältetään CSS:llä piiloon jäävä hyväksytty opetus |
+
+### 11.3. P1: käyttäytymismäärittely ennen mallikuvaa
+
+**Tilat:** kokonaisuus `closed|open`; oppitunti `closed|open`; ääni `idle|playing|paused|error`; merkintä `unmarked|attempted` (vanhoissa sisällöissä `unmarked|done`). Nämä ovat toisistaan riippumattomia. Oppitunnin avaaminen ei ole suoritus ja merkinnän tekeminen ei saa avata toista korttia. Yhdessä Ydinopinnot-ryhmässä korkeintaan yksi `study-inline[open]`. Oma sivu on sama oppitunti toisessa esitystavassa, **ei uusi suorituskohde**.
+
+**URL-periaate:** ryhmän pysyvä tunniste `#ydinopinnot`; yksittäisen oppitunnin pysyvä tunniste `#valinta-<slug>`; aina oikea oma `href` erilliselle sivulle. Yksi URL yksilöi valittavan oppitunnin ilman session tilaa. Bfcache-fokus ja paluuankkuri täydentävät URL:ää, eivät korvaa sitä. Ei uutta `pushState`-historiaketjua avaus/sulkuoperaatioista ilman erillistä perustetta.
+
+**Komponenttiraja:** `rakenna.py` tuottaa semanttisen HTML:n ja oikean linkityksen. `kokonaisuudet.js` avaa/sulkee, käsittelee hashin ja tulostuksen, ilmoittaa vain tapahtumista. `edistyminen.js` ylläpitää tallennukset ja merkinnät. Aihekohtaiset harjoitusmoduulit hoitavat soittamisen ja audio-pysäytyksen (tehdään yksi pieni, dokumentoitu rajapinta tai yhteinen tapahtumakäytäntö, ei isoa uutta frameworkia). CSS hoitaa symbolit, välit, teemavärit, fokus- ja tilatyylit. Käyttöliittymän omat näkymäluokat ovat samaa komponenttia; ei kahta identtistä HTML-lähdettä.
+
+**Visuaalinen tarkistusportti:** ennen koodausta tehdään Soinnut ja Rytmi, kummastakin kolme näkymää (suljettu, yksi avattu, oma sivu), desktop + 320/390 px, tumma/vaalea suunnittelutila, 100/200 %. Aiheikoni 44 px vain Oppimiskartan pääkortissa. Pienissä valinnoissa ikonien koko perustuu todelliseen optiseen vertailuun. Kuuntele = korva, Soita itse = kitara, Knoppitieto = pieni plektra; kaikki tekstien tukena, ei muotokuvaa koristeluksi.
+
+**Odottaa ennen koodaus-PR:ää:** (1) edellisen taulukon integraatiokatselmointi; (2) #115:n päätös G-pilotin löydettävästä paikasta ja #111:n johdannon rajauksesta; (3) P1/P2:n käyttäytymis- ja visuaalinen malli; (4) erillinen omistajan lupa. Beta-merge ja tuotantoon vienti pysyvät erillisinä päätöksinä.
+
+**Lähdeankkurit:** [PR #137 HEAD d4e547f](https://github.com/ristotoivanen/Musiikin-kartta/commit/d4e547fe429ffc705f42a4cdfc3cc55bb4f2de34), [PR #134](https://github.com/ristotoivanen/Musiikin-kartta/pull/134), [PR #133](https://github.com/ristotoivanen/Musiikin-kartta/pull/133), [#115](https://github.com/ristotoivanen/Musiikin-kartta/issues/115), [#116](https://github.com/ristotoivanen/Musiikin-kartta/issues/116), [#125](https://github.com/ristotoivanen/Musiikin-kartta/issues/125).
