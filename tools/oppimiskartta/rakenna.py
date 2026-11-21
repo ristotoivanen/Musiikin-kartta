@@ -492,7 +492,7 @@ def units_home(topic, lookup, exercise_descriptions):
             sections.append(section(group['title'], unit_choices(links)))
             step += len(links)
         # Aiheen laskuri (edistyminen.js) täyttää tämän aiempien sisältöjen merkinnöistä kuten ennenkin.
-        progress = '<span class="study-status study-unit-progress" data-study-total hidden></span>'
+        progress = f'<span class="study-status study-unit-progress" data-study-total{progress_text(topic)} hidden></span>'
         units.append(unit(info['id'], info['title'], step, '\n'.join(sections),
                           kind=' study-unit--legacy', progress=progress))
     parts.append('<div class="study-units">\n' + indent('\n'.join(units), '  ') + '\n</div>')
@@ -605,7 +605,7 @@ def steps(topic, index, next_topic, *, bottom=False):
     items = []
     if index == len(sequence) - 1 and not topic.get('recap'):
         live = ' aria-live="polite"' if bottom else ''
-        status = f'<p class="study-status" data-boundary-progress{live} hidden></p>'
+        status = f'<p class="study-status" data-boundary-progress{live}{progress_text(topic)} hidden></p>'
         if next_topic is None:
             status += '<p class="study-status is-done" data-path-progress hidden>✓ Oppimispolku käyty läpi</p>'
         items.append(f'<div class="study-boundary-status">{status}</div>')
@@ -723,13 +723,24 @@ def replace_block(source, start, end, value, name):
     return source[:begin] + '\n' + value + '\n' + source[closing:]
 
 
+def progress_text(topic):
+    """Aiheen laskurin valinnainen oma teksti (aiheet.json "progress_text": count, done). Käytössä vain
+    Soinnut ja harmonia -aiheessa (#116), jonka laskuri kattaa vain aiemmat sisällöt."""
+    text = topic.get('progress_text')
+    if not text:
+        return ''
+    if set(text) != {'count', 'done'}:
+        raise ValueError(f'{topic["title"]}: progress_text tarvitsee täsmälleen count ja done')
+    return f' data-progress-count="{escape(text["count"])}" data-progress-done="{escape(text["done"])}"'
+
+
 def home_grid(topics):
     cards = []
     for topic in topics:
         items = status = ''
         if not topic.get('recap'):
             items = f' data-study-items="{escape(study_ids(topic["pages"]))}"'
-            status = '\n        <span class="topic-status" hidden></span>'
+            status = f'\n        <span class="topic-status"{progress_text(topic)} hidden></span>'
         cards.append(f'''    <a class="topic-card" id="{topic['anchor']}" href="{topic['path']}"{items}>
       <span class="topic-number" aria-hidden="true">{topic['number']:02}</span>
       <strong class="topic-title">{escape(topic['title'])}</strong>
