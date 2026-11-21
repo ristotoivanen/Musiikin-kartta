@@ -84,10 +84,27 @@
 .sointu-ydin .chord-diagram svg { max-width: 100%; }
 .sointu-ydin .sointu-kierron-toisto { display: inline-grid; }
 .sointu-kierron-toisto > span { grid-area: 1 / 1; }
-.sointu-piilossa { visibility: hidden; }
-.sointu-kierto {
+.sointu-piilossa, .sointu-varaus { visibility: hidden; }
+/* E/Em-arvaus: nimetön ja nimetty teksti samassa ruudussa, leveys varattu pidemmälle. */
+.sointu-vaihtuva { display: inline-grid; justify-items: center; }
+.sointu-vaihtuva > span { grid-area: 1 / 1; }
+/* .sointuharjoitus-etuliite voittaa reader.css:n .practice ol -sisennyksen (0,1,1). */
+.sointuharjoitus .sointu-kierto {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 5rem), 1fr));
   gap: .5rem; padding: 0; margin: .75rem 0; list-style: none;
+}
+/* Neljä sointua rinnakkain, kun tila riittää; muuten 2 + 2 ja suurella tekstillä yksi riviä kohti.
+ * Neljäs sointu ei jää yksin riville. Ilman container queryja käytetään yllä olevaa auto-fitiä. */
+@supports (container-type: inline-size) {
+  .sointu-kierto-alue { container-type: inline-size; }
+  .sointuharjoitus .sointu-kierto { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .sointu-kierto li { min-width: 0; }
+  @container (max-width: 17rem) {
+    .sointuharjoitus .sointu-kierto { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @container (max-width: 10.5rem) {
+    .sointuharjoitus .sointu-kierto { grid-template-columns: minmax(0, 1fr); }
+  }
 }
 .sointu-kierto li {
   text-align: center; padding: .35rem .25rem; margin: 0;

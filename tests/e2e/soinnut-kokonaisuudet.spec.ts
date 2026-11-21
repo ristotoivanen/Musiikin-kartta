@@ -699,12 +699,46 @@ test.describe('Ydinopinnot v0.5', () => {
     await expect(reply.getByRole('button', { name: 'Sointu 1' })).toHaveAttribute('aria-disabled', 'true');
     expect(await storage(page)).toBeNull();
 
+    // Vastauksen jälkeen nimet näkyvät samoissa kuuntelupainikkeissa arvotussa järjestyksessä,
+    // painikkeiden koko ei muutu ja molempia voi kuunnella uudelleen. Paluuvalikkoa ei ole.
+    const listenRow = page.getByRole('group', { name: 'Arvaustehtävän ääniesimerkit' });
+    const listenButtons = listenRow.getByRole('button');
+    const labels = listenRow.locator('[data-arvaus-teksti]');
+    const listenSizes = async () => Promise.all((await listenButtons.all()).map(sizeOf));
+    await expect(labels).toHaveText(['Sointu 1 · Em', 'Sointu 2 · E']);
+    await expect(listenButtons.nth(0)).toHaveAccessibleName('Kuuntele sointu 1, E-molli');
+    await expect(listenButtons.nth(1)).toHaveAccessibleName('Kuuntele sointu 2, E-duuri');
+    expect(await sizeOf(listen)).toEqual(bounds);
+    const revealedSizes = await listenSizes();
+    await expect(page.locator('[data-sointu-tila]')).toHaveText('Voit kuunnella molemmat soinnut uudelleen nimineen.');
+    await expect(normal).toBeHidden();
+    const played = (await starts(page)).length;
+    await listenButtons.nth(1).click();
+    await expect(listenButtons.nth(1)).toHaveAttribute('data-playing', '');
+    await expect.poll(async () => (await starts(page)).length - played).toBe(6);
+    await listenButtons.nth(0).click();
+    await expect(listenButtons.nth(0)).toHaveAttribute('data-playing', '');
+    // Vastatut painikkeet pysyvät fokusoitavina (aria-disabled), eikä uusi painallus muuta palautetta.
+    const answered = reply.getByRole('button', { name: 'Sointu 2' });
+    await answered.focus();
+    await expect(answered).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(answered).toBeFocused();
+    await expect(page.locator('[data-arvauspalaute]')).toHaveText('Oikein! Sointu 1 oli E-molli ja sointu 2 oli E-duuri.');
+
     await page.getByRole('button', { name: 'Uusi arvaus' }).click();
     await expect(page.getByRole('heading', { name: 'Kumpi on duuri?' })).toBeFocused();
     await expect(charts).toBeHidden();
+    await expect(labels).toHaveText(['Sointu 1', 'Sointu 2']);
+    await expect(listenButtons.nth(0)).toHaveAccessibleName('Kuuntele sointu 1');
+    await expect(listenButtons.nth(1)).toHaveAccessibleName('Kuuntele sointu 2');
+    expect(await listenSizes()).toEqual(revealedSizes);
+    await expect(reply.getByRole('button', { name: 'Sointu 1' })).not.toHaveAttribute('aria-disabled', 'true');
     await reply.getByRole('button', { name: 'Sointu 2' }).click();
     await expect(page.locator('[data-arvauspalaute]')).toHaveText('Tällä kertaa ei. Sointu 1 oli E-duuri ja sointu 2 oli E-molli.');
     await expect(charts.locator('figcaption')).toHaveText(['Sointu 1 = E', 'Sointu 2 = Em']);
+    await expect(labels).toHaveText(['Sointu 1 · E', 'Sointu 2 · Em']);
+    expect(await listenSizes()).toEqual(revealedSizes);
     expect(await storage(page)).toBeNull();
   });
 
@@ -715,6 +749,22 @@ test.describe('Ydinopinnot v0.5', () => {
     const path = page.locator('#sointukierto');
     const names = path.locator('strong');
     await expect(names).toHaveText(['•', '•', '•', '?']);
+    // Aloitustila: mitään lopetusta ei ole valittu, ja Kuuntele odottaa valintaa.
+    const endings = page.getByRole('group', { name: 'Valitse kierron lopetus' }).getByRole('button');
+    await expect(endings).toHaveText(['Lopetus G', 'Lopetus C', 'Lopetus D']);
+    for (const ending of await endings.all()) await expect(ending).toHaveAttribute('aria-pressed', 'false');
+    await expect(play).toBeDisabled();
+    await expect(page.locator('[data-sointu-tila]')).toHaveText('Valitse ensin lopetus: G, C tai D.');
+    await page.getByRole('button', { name: 'Näytä sointujen nimet' }).click();
+    await expect(names).toHaveText(['G', 'C', 'D', '?']);
+    await page.getByRole('button', { name: 'Piilota sointujen nimet' }).click();
+    const controlSizes = async () => Promise.all([play, ...await endings.all()].map(sizeOf));
+    const initialSizes = await controlSizes();
+    await page.getByRole('button', { name: 'Lopetus G' }).click();
+    await expect(page.getByRole('button', { name: 'Lopetus G' })).toHaveAttribute('aria-pressed', 'true');
+    await expect(play).toBeEnabled();
+    await expect(page.locator('[data-sointu-tila]')).toHaveText('Lopetus G valittu. Kuuntele kierto.');
+    expect(await controlSizes()).toEqual(initialSizes);
     const bounds = await sizeOf(play);
     await play.click();
     await expect(play).toHaveAccessibleName(/Pysäytä/);
@@ -731,6 +781,7 @@ test.describe('Ydinopinnot v0.5', () => {
     for (const ending of ['C', 'D']) {
       await page.getByRole('button', { name: 'Lopetus ' + ending }).click();
       await expect(play).toHaveAccessibleName(/Kuuntele/);
+      expect(await controlSizes()).toEqual(initialSizes);
       await expect(path.locator('[aria-current]')).toHaveCount(0);
       await expect(names).toHaveText(['G', 'C', 'D', ending]);
       await play.click();
@@ -746,6 +797,24 @@ test.describe('Ydinopinnot v0.5', () => {
     expect(await storage(page)).toBeNull();
   });
 
+  test('kierron luonnollinen loppu ei muuta painikkeiden kokoa ja valinta säilyy', async ({ page }) => {
+    await recordAudio(page);
+    await page.goto(ydinPath(2));
+    const play = page.locator('[data-kierto]');
+    const endings = page.getByRole('group', { name: 'Valitse kierron lopetus' }).getByRole('button');
+    const controlSizes = async () => Promise.all([play, ...await endings.all()].map(sizeOf));
+    const initialSizes = await controlSizes();
+    await page.getByRole('button', { name: 'Lopetus D' }).click();
+    await play.click();
+    await expect(play).toHaveAccessibleName(/Pysäytä/);
+    await expect(page.locator('[data-sointu-tila]')).toHaveText('Esimerkki päättyi. Voit kuunnella uudelleen.', { timeout: 15000 });
+    await expect(play).toHaveAccessibleName(/Kuuntele/);
+    await expect(play).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Lopetus D' })).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('#sointukierto [aria-current]')).toHaveCount(0);
+    expect(await controlSizes()).toEqual(initialSizes);
+  });
+
   test('vanhentunut lataus ei käynnistä ääntä ja virheestä voi yrittää uudelleen', async ({ page }) => {
     await recordAudio(page);
     let release!: () => void;
@@ -757,6 +826,7 @@ test.describe('Ydinopinnot v0.5', () => {
     await page.goto(ydinPath(2));
     const request = page.waitForRequest('**/assets/audio/soinnut/*');
     const play = page.locator('[data-kierto]');
+    await page.getByRole('button', { name: 'Lopetus G' }).click();
     await play.click();
     await request;
     await play.click();
@@ -775,7 +845,43 @@ test.describe('Ydinopinnot v0.5', () => {
     expect(await starts(page)).toHaveLength(16);
   });
 
-  for (const width of [320, 375, 390, 768, 1200]) {
+  // 03:n sointurivi: neljä rinnakkain kun mahtuu, 2 + 2 kapealla, suurella tekstillä yksi riviä kohti.
+  // Neljäs sointu ei jää koskaan yksin riville (ei 3 + 1), eikä rivi ole sisennetty painikkeista.
+  // 768 px · 200 %: aihesivun kapeampi kortti 2 + 2, oma sivu mahtuu neljään.
+  const kiertoRows: Record<number, [string, string[]]> = {
+    320: ['2+2', ['1+1+1+1']], 360: ['4', ['1+1+1+1']], 390: ['4', ['1+1+1+1']], 768: ['4', ['2+2', '4']],
+  };
+  for (const [width, [normal, large]] of Object.entries(kiertoRows)) {
+    test(`03:n sointurivi ${width} px: ${normal}, 200 %: ${large.join(' tai ')}`, async ({ page }) => {
+      await page.setViewportSize({ width: Number(width), height: 900 });
+      for (const url of [topicPath + '#valinta-mihin-kappale-haluaa-palata', ydinPath(2)]) {
+        await page.goto(url);
+        for (const [size, allowed] of [['100%', [normal]], ['200%', large]] as const) {
+          await page.evaluate(value => { document.documentElement.style.fontSize = value; }, size);
+          const layout = await page.locator('.sointuharjoitus[data-sointuharjoitus="paluu"]:visible').evaluate(section => {
+            const list = section.querySelector('#sointukierto')!;
+            const boxes = [...list.querySelectorAll('li')].map(item => item.getBoundingClientRect());
+            const rows: number[] = [];
+            boxes.forEach((box, index) => {
+              if (index && Math.abs(box.top - boxes[index - 1].top) < 4) rows[rows.length - 1]++;
+              else rows.push(1);
+            });
+            const ending = section.querySelector('[data-lopetus]')!.getBoundingClientRect();
+            return {
+              rows: rows.join('+'),
+              indent: Math.round(boxes[0].left - ending.left),
+              overflow: [...list.querySelectorAll('li')].some(item => item.scrollWidth > item.clientWidth + 1),
+            };
+          });
+          expect(allowed, `${url} ${width}px ${size}: ${layout.rows}`).toContain(layout.rows);
+          expect({ indent: layout.indent, overflow: layout.overflow }, `${url} ${width}px ${size}`).toEqual({ indent: 0, overflow: false });
+          expect(await noHorizontalScroll(page)).toBe(true);
+        }
+      }
+    });
+  }
+
+  for (const width of [320, 360, 375, 390, 768, 1200]) {
     test(`v0.5 sopii ${width} px:iin myös 200 % tekstillä ja avattu ⓘ ei siirrä päätoimintoja`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       const inline = ydinPages.map(([slug]) => topicPath + '#valinta-' + slug);

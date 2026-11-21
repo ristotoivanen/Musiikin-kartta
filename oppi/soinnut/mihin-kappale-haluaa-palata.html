@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="../../assets/paavalikko.css?v=4e5c7fbf95">
   <link rel="stylesheet" href="../../assets/oppi.css?v=cf1b18af1d">
   <link rel="stylesheet" href="../../assets/kokonaisuudet.css?v=d3216b05a6">
-  <link rel="stylesheet" href="../../assets/sointuharjoitus.css?v=0e9e104442">
+  <link rel="stylesheet" href="../../assets/sointuharjoitus.css?v=07c8eb7ddd">
 </head>
 <body>
   <a class="study-skip" href="#oppi-sisalto">Siirry sisältöön</a>
@@ -40,16 +40,16 @@
       <p>Soinnut voivat luoda odotusta ja paluun tunnetta. Valitse viimeiseksi G, C tai D ja kuuntele, miten <strong>G–C–D</strong> jatkuu.</p>
       <div data-sointu-ohjaimet hidden>
         <div class="sointu-toiminnot" role="group" aria-label="Valitse kierron lopetus">
-          <button type="button" data-lopetus="G" aria-pressed="true">Lopetus G</button>
+          <button type="button" data-lopetus="G" aria-pressed="false">Lopetus G</button>
           <button type="button" data-lopetus="C" aria-pressed="false">Lopetus C</button>
           <button type="button" data-lopetus="D" aria-pressed="false">Lopetus D</button>
         </div>
-        <button class="sointu-ensisijainen sointu-kierron-toisto" type="button" data-kierto>
+        <button class="sointu-ensisijainen sointu-kierron-toisto" type="button" data-kierto disabled>
           <span data-kuuntele>▶ Kuuntele</span><span class="sointu-piilossa" data-pysayta>■ Pysäytä</span>
         </button>
       </div>
       <p class="sointu-tila" data-sointu-tila role="status">Ääniesimerkki tarvitsee JavaScriptin ja selaimen äänituen.</p>
-      <div data-sointu-ohjaimet hidden>
+      <div class="sointu-kierto-alue" data-sointu-ohjaimet hidden>
         <ol class="sointu-kierto" role="list" id="sointukierto" aria-label="Sointukierto">
           <li><strong data-kierron-nimi>•</strong><span>1. sointu</span></li>
           <li><strong data-kierron-nimi>•</strong><span>2. sointu</span></li>
@@ -61,7 +61,6 @@
       <div class="sointu-tehtava">
         <h3>2 · Kokeile itse</h3>
         <p>Vertaa ainakin kahta lopetusta. Mikä kuulostaa sinusta päättyneeltä? Mikä jättää odottamaan jatkoa? Kuuntele ensin, päätä vasta sitten.</p>
-        <p><strong>Harmoninen suunta.</strong> Tässä G-duuriin rakentuvassa kierrossa G toimii kotisointuna eli toonikana. Sen paluu voi tuntua lopetukselta. Kuulokokemus ei silti ole kaikille täysin samanlainen.</p>
       </div>
       <details class="study-knoppi">
         <summary><span class="study-knoppi-merkki" aria-hidden="true">i</span><span class="study-sr">Lisätieto: Kokeile myös kitaralla</span></summary>
@@ -79,7 +78,7 @@
     </section>
     <section class="note">
       <h2>Mitä opit?</h2>
-      <p>Harmonia ei ole pelkkää sointujen vaihtumista. Sointujen järjestys ja suhde toisiinsa voivat synnyttää odotuksen, jännitteen ja paluun kokemuksia.</p>
+      <p>Harmonia ei ole pelkkää sointujen vaihtumista. Sointujen järjestys ja suhde toisiinsa voivat synnyttää odotuksen, jännitteen ja paluun kokemuksia. Tässä G-duuriin rakentuvassa kierrossa G toimii kotisointuna eli toonikana, ja sen paluu voi tuntua lopetukselta. Kuulokokemus ei silti ole kaikille täysin samanlainen.</p>
     </section>
     <p class="sointu-lahde">Kierto on koottu yksittäisistä kitaran kielinäytteistä. <a href="https://github.com/facebookincubator/Meta-open-sound">Meta Open Sound · Meta Steel Guitar</a>, CC0 1.0.</p>
     <p class="done-row"><button type="button" class="done-toggle" aria-pressed="false" disabled>Merkitse kokeilluksi</button></p>
@@ -92,6 +91,6 @@
   <script src="../../assets/edistyminen.js?v=39bccb10a6"></script>
   <script src="../../assets/oppimistapa.js"></script>
   <script src="../../assets/kokonaisuudet.js?v=1f69c48007"></script>
-  <script src="../../assets/sointuharjoitus.js?v=4564721964"></script>
+  <script src="../../assets/sointuharjoitus.js?v=5844e78e4b"></script>
 </body>
 </html>

@@ -43,7 +43,7 @@
     rakenna: 'Voit valita kolme säveltä haluamassasi järjestyksessä.',
     kokoa: 'Valitse esimerkki kuunneltavaksi.',
     arvaa: 'Napauta E:tä tai Em:ää kuunnellaksesi.',
-    paluu: 'Valitse lopetus ja käynnistä kuuntelu.',
+    paluu: 'Valitse ensin lopetus: G, C tai D.',
   };
 
   // AAC ensin, jos selain ilmoittaa tukevansa sitä. Verkkovirhe tai purkuvirhe kokeilee toista muotoa.
@@ -323,6 +323,7 @@
     const tip = section.querySelector('.study-knoppi');
     const next = section.querySelector('[data-uusi-arvaus]');
     const fullName = { E: 'E-duuri', Em: 'E-molli' };
+    const listenButtons = [...listening.querySelectorAll('button')];
     let pair;
     let target;
     let answered = false;
@@ -330,8 +331,18 @@
     for (const button of normal.querySelectorAll('button')) {
       button.addEventListener('click', () => playExample(button, plans[button.dataset.ydinPlay]));
     }
-    for (const button of listening.querySelectorAll('button')) {
+    for (const button of listenButtons) {
       button.addEventListener('click', () => playExample(button, plans[pair[Number(button.dataset.arvaaKuuntele)]]));
+    }
+    // Vastauksen jälkeen nimet näkyvät samoissa painikkeissa arvotussa järjestyksessä. Varattu
+    // leveys (.sointu-varaus) pitää painikkeen koon samana nimettynä ja nimettömänä.
+    function nameListening(reveal) {
+      listenButtons.forEach((button, index) => {
+        const number = index + 1;
+        const chord = pair[Number(button.dataset.arvaaKuuntele)];
+        button.querySelector('[data-arvaus-teksti]').textContent = reveal ? `Sointu ${number} · ${chord}` : `Sointu ${number}`;
+        button.setAttribute('aria-label', reveal ? `Kuuntele sointu ${number}, ${fullName[chord]}` : `Kuuntele sointu ${number}`);
+      });
     }
     next.addEventListener('click', () => {
       stopExample();
@@ -344,6 +355,7 @@
       feedback.textContent = firstPrompt;
       feedback.classList.remove('is-error');
       choices.forEach(button => button.removeAttribute('aria-disabled'));
+      nameListening(false);
       next.textContent = 'Uusi arvaus';
       showExerciseStatus('Kuuntele sointu 1 ja sointu 2 ennen vastaamista.');
       heading.focus();
@@ -362,25 +374,27 @@
           figure.querySelector('figcaption').textContent = `Sointu ${index + 1} = ${chord}`;
           diagrams.append(figure);
         });
+        nameListening(true);
         diagrams.hidden = tip.hidden = false;
-        showExerciseStatus('');
+        showExerciseStatus('Voit kuunnella molemmat soinnut uudelleen nimineen.');
       });
     }
   }
 
-  function setupProgression(section, playExample, stopExample) {
+  function setupProgression(section, playExample, stopExample, showExerciseStatus) {
     const playButton = section.querySelector('[data-kierto]');
     const endings = [...section.querySelectorAll('[data-lopetus]')];
     const nameButton = section.querySelector('[data-nayta-nimet]');
     const names = [...section.querySelectorAll('[data-kierron-nimi]')];
-    const sequence = ['G', 'C', 'D', 'G'];
+    // Neljäs sointu on oppijan oma valinta. Mitään lopetusta ei ole valittu valmiiksi.
+    const sequence = ['G', 'C', 'D', null];
     let showNames = false;
     let active = -1;
 
     function draw(index) {
       active = index;
       names.forEach((name, position) => {
-        name.textContent = showNames ? sequence[position] : position === 3 ? '?' : '•';
+        name.textContent = showNames ? sequence[position] ?? '?' : position === 3 ? '?' : '•';
         if (position === index) name.parentElement.setAttribute('aria-current', 'step');
         else name.parentElement.removeAttribute('aria-current');
       });
@@ -395,6 +409,8 @@
         stopExample('Pysäytetty.');
         sequence[3] = button.dataset.lopetus;
         endings.forEach(ending => ending.setAttribute('aria-pressed', String(ending === button)));
+        playButton.disabled = false;
+        showExerciseStatus(`Lopetus ${sequence[3]} valittu. Kuuntele kierto.`);
         draw(-1);
       });
     }
@@ -409,6 +425,7 @@
         stopExample('Pysäytetty.');
         return;
       }
+      if (!sequence[3]) return;
       const plan = sequence.flatMap((chord, index) => notes(HARMONY[chord], 2.15, 0.23, 0.022, index * BAR));
       playLabel(true);
       playExample(playButton, plan, {
@@ -438,6 +455,6 @@
     if (kind === 'rakenna') setupChordBuilder(section, status);
     if (kind === 'kokoa') setupTriad(section, playExample, stopExample);
     if (kind === 'arvaa') setupGuess(section, playExample, stopExample, showExerciseStatus);
-    if (kind === 'paluu') setupProgression(section, playExample, stopExample);
+    if (kind === 'paluu') setupProgression(section, playExample, stopExample, showExerciseStatus);
   }
 })();

@@ -83,3 +83,25 @@ it('Ydinopinnot on ensimmäinen ja kokeilut eivät sekoitu G-pilotin tai aiempie
     expect(topic).toContain(`href="${slug}.html" data-return-topic="valinta-${slug}">Avaa omalla sivullaan</a>`);
   }
 });
+
+it('03 alkaa ilman valittua lopetusta ja kertoo G:n roolin vasta Mitä opit? -osiossa; 02 varaa nimille tilan', () => {
+  const topic = read('oppi/soinnut/index.html');
+  for (const html of [read('oppi/soinnut/mihin-kappale-haluaa-palata.html'), topic]) {
+    const practice = html.slice(html.indexOf('data-sointuharjoitus="paluu"'));
+    const note = practice.indexOf('<h2>Mitä opit?</h2>');
+    expect(note).toBeGreaterThan(0);
+    const [task, learned] = [practice.slice(0, note), practice.slice(note)];
+    expect([...task.matchAll(/data-lopetus="([GCD])" aria-pressed="(\w+)"/g)].map(([, chord, pressed]) => chord + pressed))
+      .toEqual(['Gfalse', 'Cfalse', 'Dfalse']);
+    expect(task).toContain('type="button" data-kierto disabled>');
+    expect(task).toContain('<div class="sointu-kierto-alue" data-sointu-ohjaimet hidden>');
+    expect(task).not.toMatch(/toonika|kotisointu|Harmoninen suunta/);
+    expect(learned).toMatch(/^[\s\S]*?<p>[^<]*G toimii kotisointuna eli toonikana, ja sen paluu voi tuntua lopetukselta\. Kuulokokemus ei silti ole kaikille täysin samanlainen\.<\/p>/);
+    expect(practice).not.toContain('Paljasta');
+  }
+  for (const html of [read('oppi/soinnut/yksi-savel-muuttaa-sointua.html'), topic]) {
+    for (const number of [1, 2]) {
+      expect(html).toContain(`<span class="sointu-vaihtuva"><span data-arvaus-teksti>Sointu ${number}</span><span class="sointu-varaus" aria-hidden="true">Sointu ${number} · Em</span></span>`);
+    }
+  }
+});
