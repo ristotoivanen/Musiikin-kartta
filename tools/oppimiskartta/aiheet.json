@@ -29,7 +29,7 @@
         "intro": "Kaikki aiemmat oppitunnit ja harjoitukset löytyvät täältä entisillä osoitteillaan. Aiemmat suoritusmerkintäsi säilyvät."
       },
       "groups": [
-        {"id": "ydinopinnot", "number": 1, "title": "Ydinopinnot", "open": true,
+        {"id": "ydinopinnot", "number": 1, "title": "Ydinopinnot",
          "goal": "Kuuntele ensin malli ja kokeile sitten itse, esimerkiksi taputtaen tai kitaralla. Voit palata tehtäviin vapaasti. ”Kokeiltu” ei ole osaamistesti.",
          "lessons": [
           {"standalone": "loyda-pulssi-ja-ykkonen", "title": "Löydä pulssi ja ykkönen", "goal": "Kuuntele ja naputa", "mark": "kokeiltu"},

@@ -27,9 +27,12 @@ const noHorizontalScroll = (page: Page) =>
 const box = async (page: Page, selector: string) => (await page.locator(selector).first().boundingBox())!;
 
 test.describe('aihesivu', () => {
-  test('Ydinopinnot ensin auki, aiemmat neljä sisältöä suljettuna entisillä osoitteilla', async ({ page }) => {
+  test('Ydinopinnot ensin, aiemmat neljä sisältöä entisillä osoitteilla, molemmat oletuksena suljettuina', async ({ page }) => {
     await page.goto(topicPath);
     await expect(page.locator('details.study-unit')).toHaveCount(2);
+    // Omistajan päätös 20.11.2026: Ydinopinnot on oletuksena suljettu.
+    await expect(core(page)).not.toHaveAttribute('open', '');
+    await core(page).locator('summary').click();
     await expect(core(page)).toHaveAttribute('open', '');
     await expect(core(page).locator('summary')).toContainText('Ydinopinnot');
     await expect(core(page).locator('summary')).toContainText('3 sisältöä');
@@ -71,6 +74,27 @@ test.describe('aihesivu', () => {
     await page.locator('.done-toggle').click();
     await expect(page.locator('.done-toggle')).toHaveText('Merkitse kokeilluksi');
     expect(JSON.parse((await page.evaluate(key => localStorage.getItem(key), readingKey))!)).toEqual(old);
+  });
+});
+
+test.describe('suljettu Ydinopinnot ja paluu', () => {
+  test('paluu harjoituksesta avaa Ydinopinnot ja kohdistaa valittuun linkkiin', async ({ page }) => {
+    await page.goto(topicPath);
+    await core(page).locator('summary').click();
+    const lesson = page.locator('#valinta-hiljaisuus-kuuluu-rytmiin');
+    await lesson.click();
+    await expect(page).toHaveURL(/hiljaisuus-kuuluu-rytmiin/);
+    await page.goBack();
+    await expect(core(page)).toHaveAttribute('open', '');
+    await expect(lesson).toBeFocused();
+  });
+
+  test('viimeisen harjoituksen ”Palaa aihesivulle” avaa Ydinopinnot', async ({ page }) => {
+    await page.goto(`/oppi/rytmi/${lessons[2][0]}.html`);
+    await page.locator('.study-steps--bottom').getByRole('link', { name: /Palaa aihesivulle: Rytmi/ }).click();
+    await expect(page).toHaveURL(/index\.html#ydinopinnot$/);
+    await expect(core(page)).toHaveAttribute('open', '');
+    await expect(core(page).getByRole('link', { name: /Löydä pulssi ja ykkönen/ })).toBeVisible();
   });
 });
 
@@ -236,6 +260,7 @@ test.describe('ilman JavaScriptiä', () => {
   test.use({ javaScriptEnabled: false });
   test('sisältö ja linkit löytyvät, toisto-ohjaimet piilossa', async ({ page }) => {
     await page.goto(topicPath);
+    await core(page).locator('summary').click();
     await expect(core(page).getByRole('link', { name: /Löydä pulssi ja ykkönen/ })).toBeVisible();
     await earlier(page).locator('summary').click();
     await expect(earlier(page).getByRole('link', { name: /Pulssi ja komppi/ })).toBeVisible();

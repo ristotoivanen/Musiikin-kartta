@@ -179,10 +179,11 @@ describe('Rytmin aihesivu ja muodostetut sivut', () => {
   const lessons = ['loyda-pulssi-ja-ykkonen', 'hiljaisuus-kuuluu-rytmiin', 'sama-musiikki-eri-tuntuma'];
   const legacy = ['pulssi-ja-komppi', 'kuuntele-pulssi', 'alas-ylos-yhdella-soinnulla', 'kaksi-sointua-yhdessa-tahdissa'];
 
-  it('Ydinopinnot on ensimmäinen avattava kokonaisuus ja aiemmat neljä sisältöä suljettuna sen jälkeen', () => {
+  it('Ydinopinnot on ensimmäinen avattava kokonaisuus ja aiemmat neljä sisältöä sen jälkeen, molemmat suljettuina', () => {
     const topic = read('oppi/rytmi/index.html');
     const units = [...topic.matchAll(/<details class="(study-unit[^"]*)" id="([^"]+)"( open)?>/g)].map(([, kind, id, open]) => [id, kind, Boolean(open)]);
-    expect(units).toEqual([['ydinopinnot', 'study-unit', true], ['aiemmat', 'study-unit study-unit--legacy', false]]);
+    // Omistajan päätös 20.11.2026: myös Ydinopinnot on oletuksena suljettu.
+    expect(units).toEqual([['ydinopinnot', 'study-unit', false], ['aiemmat', 'study-unit study-unit--legacy', false]]);
     expect([...topic.matchAll(/class="study-choice study-choice--unit" id="valinta-([^"]+)" href="([^"]+)"/g)].map(([, id, href]) => [id, href]))
       .toEqual(lessons.map(slug => [slug, slug + '.html']));
     // Vanhat kortit: samat ankkurit, osoitteet ja suoritustunnisteet kuin betassa.

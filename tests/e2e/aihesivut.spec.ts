@@ -129,7 +129,10 @@ for (const [topicIndex, [anchor, slug, title, backName]] of topics.entries()) {
     if (slug === 'kitara') {
       await expect(page.locator('.study-choice, [data-study-total]')).toHaveCount(0);
     } else {
-      await expect(page.getByText('Aloita tästä', { exact: true })).toBeVisible();
+      // Aloituskohta voi olla oletuksena suljetun kokonaisuuden sisällä (#116, Rytmin Ydinopinnot).
+      const start = page.getByText('Aloita tästä', { exact: true });
+      await expect(start).toHaveCount(1);
+      if (!(await start.evaluate(node => Boolean(node.closest('details:not([open])'))))) await expect(start).toBeVisible();
       await expect(back(page)).toHaveCount(1);
       await expect(exactBack(page, 'Oppimiskarttaan')).toHaveAttribute('href', '../../index.html#aihe-' + anchor);
       await expect(page.locator('a[href="../../index.html#aihe-' + anchor + '"]')).toHaveCount(1);
