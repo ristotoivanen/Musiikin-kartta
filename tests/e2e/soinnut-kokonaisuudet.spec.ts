@@ -1353,6 +1353,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
   };
   for (const [width, sideBySide] of Object.entries(guessSideBySide)) {
     test(`02:n arvauspainikkeet ${width} px: vakaat, ei leikkautumista 100/200 %:ssa`, async ({ page }) => {
+      await recordAudio(page);
       await page.setViewportSize({ width: Number(width), height: 900 });
       for (const [where, url] of [['aihesivu', topicPath + '#valinta-yksi-savel-muuttaa-sointua'], ['oma', ydinPath(1)]] as const) {
         for (const size of ['100%', '200%']) {
@@ -1376,7 +1377,11 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
           const testCase = `${where} ${width}px ${size}`;
           await section.getByRole('button', { name: 'Tunnista' }).click();
           const before = await measure();
-          await section.getByRole('group', { name: 'Vastaa' }).getByRole('button', { name: 'Sointu 1' }).click();
+          const answer = section.getByRole('group', { name: 'Vastaa' }).getByRole('button', { name: 'Sointu 1' });
+          await expect(answer).toBeDisabled();
+          await section.locator('[data-arvaus-kuuntelu] button').first().click();
+          await expect(answer).toBeEnabled();
+          await answer.click();
           await expect(section.locator('[data-arvaus-teksti]').first()).toContainText(' · ');
           const after = await measure();
           expect(after, testCase).toEqual(before);
