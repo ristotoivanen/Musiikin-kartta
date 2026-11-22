@@ -6,14 +6,18 @@ const v = JSON.parse(readFileSync(`${dir}/valahdykset.json`, 'utf8'));
 const med = a => { const s = [...a].sort((x, y) => x - y); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
 const sd = a => { const m = a.reduce((x, y) => x + y, 0) / a.length; return Math.sqrt(a.reduce((x, y) => x + (y - m) ** 2, 0) / (a.length - 1)); };
 const jf = p.flashFit[0].j;
+// Aikatauluindeksit kuviohausta, jos tallennettu (muuten peräkkäisyysoletus j + k).
+const fIdx = k => p.aikatauluindeksi ? p.aikatauluindeksi.flashes[k] : jf + k;
 for (const hz of [300, 1500]) {
   const audio = p.audioPeaks[hz].map(x => x.t);
   const ja = p.audioFit[hz][0].j;
+  const aIdx = m => p.aikatauluindeksi ? p.aikatauluindeksi[hz][m] : ja + m;
+  const aPos = new Map(audio.map((_, m) => [aIdx(m), m]));
   // Lähin naapuri: jokaiselle välähdykselle lähin piippaus ajassa (ilman aikataulua).
   let wrong = 0, close = [];
   p.flashes.forEach((t, k) => {
     let best = 0; audio.forEach((a, m) => { if (Math.abs(a - t) < Math.abs(audio[best] - t)) best = m; });
-    if (ja + best !== jf + k) wrong++;
+    if (aIdx(best) !== fIdx(k)) wrong++;
     const prev = audio.filter(a => a <= t).pop(), next = audio.find(a => a > t);
     if (prev !== undefined && next !== undefined) close.push(Math.abs((next - t) - (t - prev)));
   });
@@ -21,7 +25,7 @@ for (const hz of [300, 1500]) {
   // Vaihtoehtoiset kohdistukset ±1, ±2 indeksiä.
   for (const s of [-2, -1, 0, 1, 2]) {
     const d = [];
-    p.flashes.forEach((t, k) => { const m = jf + k + s - ja; if (m >= 0 && m < audio.length) d.push((t - audio[m]) * 1000); });
+    p.flashes.forEach((t, k) => { const m = aPos.get(fIdx(k) + s); if (m !== undefined) d.push((t - audio[m]) * 1000); });
     console.log(`   siirto ${s >= 0 ? '+' : ''}${s}: n ${d.length}, mediaani ${med(d).toFixed(1)} ms, keskihajonta ${sd(d).toFixed(1)} ms, vaihteluväli ${Math.min(...d).toFixed(0)}…${Math.max(...d).toFixed(0)}`);
   }
 }

@@ -20,7 +20,11 @@ sh tools/h4-video/aja.sh <video.MOV> <ulostulokansio> <säädin ms> [ääniraida
 - Säädin on testisivun *Välähdyksen siirto* tallenteen aikana. Luetaan kuvasta.
 - Jos `node` ei ole PATHissa: `NODE=/polku/node sh tools/h4-video/aja.sh …`.
 
-Repoon tallennetaan vain johdetut tekstitulosteet ja pienet JSON-tiedostot hakemistoon `harjoittelija/kaksiraitatesti/raportit/h4-video/<tallenne>/`: `sha256.txt`, `info.txt`, `valahdykset.*`, `paritus.*`, `lisatarkistus.txt`, `raitaero.txt`, `taulukko.md`, `valotus.*` ja `kuvamalli.txt`. P1-tallenteesta lisäksi `roi.txt`, `iskut.*` ja `kalibrointi.*`.
+Repoon tallennetaan vain johdetut tekstitulosteet ja pienet JSON-tiedostot hakemistoon `harjoittelija/kaksiraitatesti/raportit/h4-video/<tallenne>/`: `sha256.txt`, `info.txt`, `valahdykset.*`, `paritus.*`, `lisatarkistus.txt`, `raitaero.txt`, `taulukko.md`, `valotus.*` ja `kuvamalli.*`. P1-tallenteesta lisäksi `roi.txt`, `iskut.*` ja `kalibrointi.*`.
+
+**Välähdysalueen rajaus:** jos kuvassa on muuta vaihtelevaa (iskut, puhelimen siirtyminen) tai näytön kirkkaus muuttuu, `ALUE=x0,y0,x1,y1` (ruudukon solut puskurin suunnassa) ja `PAIKALLINEN=s` (tasot ±s sekunnin ikkunasta) ennen `aja.sh`:ta. Ilman niitä tulos on sama kuin ennen.
+
+**Tunnettu rajoitus (22.11.2026):** `isku.mjs`:n etureunamenetelmä hyväksyi oikeilla P1-videoilla iskuja, joissa tunnistus oli tarttunut käden muuhun liikkeeseen. Ks. `harjoittelija/kaksiraitatesti/H4-P1-TULOKSET-2026-11-22.md`.
 
 ### P1: kalibrointi-iskut samassa tallenteessa
 
@@ -57,6 +61,7 @@ node tools/h4-video/testi-kalibrointi.mjs <työkansio repon ulkopuolella>
 | `isku.mjs` | P1: iskun äänen alku (yli 1 kHz, 10 % huipusta) ja kosketushetki kuvasta (etureunan ekstrapolointi, peitolla painotettu). Laatuehdot ja hylkäyssyyt. |
 | `kalibroi.sh` | P1-vaiheet: `roi`, `isku.mjs`, `kalibrointi.mjs`. |
 | `sivuraitaero.mjs` | Sivun oman raporttien raitaeron (renderöity ja mediakellot) yhteenveto ja vertailu videon raitaeroon samalla merkillä. |
+| `liikepysahdys.mjs` | Kokeellinen lisätarkistus (ei P1:n ennalta kirjattu menetelmä): missä kuvavälissä iskijän liike pysähtyy suhteessa iskun ääneen. Tarkkuus noin yksi kuvaväli. |
 | `testi-kalibrointi.mjs` | Synteettinen kontrolli: 3 skenaariota tunnetuilla arvoilla ja 2 negatiivista kontrollia (ajautuma, kimpoaminen). |
 
 ## Merkit

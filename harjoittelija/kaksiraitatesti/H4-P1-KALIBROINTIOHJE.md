@@ -1,6 +1,8 @@
 # H4 P1: kameran kalibrointi ja H4-toisto samassa tallenteessa (ohje, 19.11.2026)
 
-**Tila:** ohje ja analyysityökalut valmiina, tallennetta ei vielä ole. Työkalut on testattu vain synteettisellä aineistolla (luku 8).
+**Tila 22.11.:** kaksi P1-tallennetta analysoitu, kalibrointi ei onnistunut ennalta kirjatuilla ehdoilla. Tulokset: [`H4-P1-TULOKSET-2026-11-22.md`](H4-P1-TULOKSET-2026-11-22.md).
+
+**Alkuperäinen tila:** ohje ja analyysityökalut valmiina, tallennetta ei vielä ole. Työkalut on testattu vain synteettisellä aineistolla (luku 8).
 - Testisivua, toistomoottoria tai hyväksymiskriteerejä ei muuteta. PR #126 pysyy Draft-tilassa ja issue #9 NO-GO-tilassa.
 - Pohja: [`H4-VIDEOMITTAUS-SUUNNITELMA.md`](H4-VIDEOMITTAUS-SUUNNITELMA.md) (P1) ja iPhone-video [`H4-VIDEO-IPHONE-2026-11-19.md`](H4-VIDEO-IPHONE-2026-11-19.md).
 

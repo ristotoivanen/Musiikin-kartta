@@ -1,0 +1,94 @@
+rajattu alue (solut) 26,18,35,47
+suurin hajonta (26,38) sd 41.8 ka 14 (26,33) sd 41.7 ka 13 (26,37) sd 41.7 ka 14 (26,39) sd 41.7 ka 14 (26,36) sd 41.6 ka 14 (26,40) sd 41.6 ka 14 (26,31) sd 41.6 ka 13 (26,32) sd 41.6 ka 13 (27,38) sd 41.5 ka 14 (26,35) sd 41.5 ka 14
+alue x 26 – 31 y 25 – 42
+taso: pimeä p10 2.9 kirkas p99 192.0 kynnys 97.5
+paikalliset tasot ±4 s
+välähdyksiä 87
+  21.5412 s  kuva 646  kuvia 3  edeltävä 3  huippu 191.7  osittainen ensimmäinen kuva
+  22.7300 s  kuva 682  kuvia 3  edeltävä 2.9  huippu 178.4
+  23.2056 s  kuva 696  kuvia 3  edeltävä 3  huippu 197.3  osittainen ensimmäinen kuva
+  23.7053 s  kuva 711  kuvia 3  edeltävä 3.4  huippu 191  osittainen ensimmäinen kuva
+  24.3626 s  kuva 731  kuvia 2  edeltävä 3.8  huippu 190.3
+  24.9308 s  kuva 748  kuvia 3  edeltävä 3.3  huippu 184.4
+  25.5308 s  kuva 766  kuvia 2  edeltävä 3.3  huippu 184.1
+  26.0736 s  kuva 782  kuvia 3  edeltävä 3.3  huippu 191.2  osittainen ensimmäinen kuva
+  26.4733 s  kuva 794  kuvia 3  edeltävä 3.2  huippu 190.3  osittainen ensimmäinen kuva
+  26.8731 s  kuva 806  kuvia 3  edeltävä 3.5  huippu 189.7  osittainen ensimmäinen kuva
+  27.4392 s  kuva 823  kuvia 3  edeltävä 3.2  huippu 194.4  osittainen ensimmäinen kuva
+  28.0409 s  kuva 841  kuvia 3  edeltävä 3.5  huippu 193.4  osittainen ensimmäinen kuva
+  28.4653 s  kuva 854  kuvia 2  edeltävä 3.4  huippu 188.1
+  29.1064 s  kuva 873  kuvia 3  edeltävä 3.4  huippu 192  osittainen ensimmäinen kuva
+  29.8319 s  kuva 895  kuvia 2  edeltävä 3.5  huippu 188.7
+  30.4728 s  kuva 914  kuvia 3  edeltävä 3.2  huippu 192.3  osittainen ensimmäinen kuva
+  30.9063 s  kuva 927  kuvia 3  edeltävä 3.5  huippu 190.8  osittainen ensimmäinen kuva
+  31.4002 s  kuva 942  kuvia 2  edeltävä 3.5  huippu 189.3
+  31.7669 s  kuva 953  kuvia 2  edeltävä 3.2  huippu 188.9
+  32.1745 s  kuva 965  kuvia 3  edeltävä 3.4  huippu 189.4  osittainen ensimmäinen kuva
+  32.7741 s  kuva 983  kuvia 3  edeltävä 3.5  huippu 190.6  osittainen ensimmäinen kuva
+  33.3334 s  kuva 1000  kuvia 2  edeltävä 3.4  huippu 190.4
+  33.9404 s  kuva 1018  kuvia 3  edeltävä 3.4  huippu 190.6  osittainen ensimmäinen kuva
+  34.5683 s  kuva 1037  kuvia 2  edeltävä 3.4  huippu 191.5
+  35.1017 s  kuva 1053  kuvia 2  edeltävä 3.3  huippu 190.2
+  35.6017 s  kuva 1068  kuvia 2  edeltävä 3.3  huippu 191.1
+  36.0350 s  kuva 1081  kuvia 2  edeltävä 3.4  huippu 191.2
+  36.6414 s  kuva 1099  kuvia 3  edeltävä 3.1  huippu 190  osittainen ensimmäinen kuva
+  37.2746 s  kuva 1118  kuvia 3  edeltävä 3.4  huippu 190.6  osittainen ensimmäinen kuva
+  37.9032 s  kuva 1137  kuvia 2  edeltävä 3.4  huippu 192.5
+  38.3428 s  kuva 1150  kuvia 3  edeltävä 3.4  huippu 190.7  osittainen ensimmäinen kuva
+  38.7365 s  kuva 1162  kuvia 2  edeltävä 3.4  huippu 193.1
+  39.1760 s  kuva 1175  kuvia 3  edeltävä 3.4  huippu 190.5  osittainen ensimmäinen kuva
+  39.6700 s  kuva 1190  kuvia 2  edeltävä 3.5  huippu 191.3
+  40.2426 s  kuva 1207  kuvia 3  edeltävä 3.4  huippu 189.3  osittainen ensimmäinen kuva
+  40.6700 s  kuva 1220  kuvia 2  edeltävä 3.4  huippu 191.9
+  41.3773 s  kuva 1241  kuvia 3  edeltävä 3.3  huippu 190  osittainen ensimmäinen kuva
+  41.9103 s  kuva 1257  kuvia 3  edeltävä 3.4  huippu 190.7  osittainen ensimmäinen kuva
+  42.5103 s  kuva 1275  kuvia 3  edeltävä 3.3  huippu 190.1  osittainen ensimmäinen kuva
+  43.0382 s  kuva 1291  kuvia 2  edeltävä 3.4  huippu 193
+  43.4049 s  kuva 1302  kuvia 2  edeltävä 3.4  huippu 192.3
+  43.9436 s  kuva 1318  kuvia 3  edeltävä 3.6  huippu 191.1  osittainen ensimmäinen kuva
+  44.4400 s  kuva 1333  kuvia 2  edeltävä 3.5  huippu 191.8
+  44.8066 s  kuva 1344  kuvia 2  edeltävä 3.4  huippu 192.3
+  45.2785 s  kuva 1358  kuvia 3  edeltävä 3.5  huippu 189.1  osittainen ensimmäinen kuva
+  45.9400 s  kuva 1378  kuvia 2  edeltävä 3.4  huippu 192.3
+  46.4733 s  kuva 1394  kuvia 2  edeltävä 3.3  huippu 192.5
+  47.0777 s  kuva 1412  kuvia 3  edeltävä 3.6  huippu 190.5  osittainen ensimmäinen kuva
+  47.8083 s  kuva 1434  kuvia 2  edeltävä 3.4  huippu 192.4
+  48.5084 s  kuva 1455  kuvia 2  edeltävä 3.5  huippu 191.2
+  49.0794 s  kuva 1472  kuvia 3  edeltävä 3.2  huippu 194  osittainen ensimmäinen kuva
+  49.6083 s  kuva 1488  kuvia 2  edeltävä 3.4  huippu 193.1
+  50.2123 s  kuva 1506  kuvia 3  edeltävä 3.2  huippu 190.4  osittainen ensimmäinen kuva
+  50.6124 s  kuva 1518  kuvia 3  edeltävä 3.3  huippu 190.5  osittainen ensimmäinen kuva
+  51.1100 s  kuva 1533  kuvia 2  edeltävä 3.3  huippu 193.3
+  51.7806 s  kuva 1553  kuvia 3  edeltävä 3.3  huippu 189.3  osittainen ensimmäinen kuva
+  52.2768 s  kuva 1568  kuvia 2  edeltävä 3.3  huippu 191.7
+  52.8434 s  kuva 1585  kuvia 2  edeltävä 3.4  huippu 192.9
+  53.4801 s  kuva 1604  kuvia 3  edeltävä 3.7  huippu 189.8  osittainen ensimmäinen kuva
+  54.0781 s  kuva 1622  kuvia 2  edeltävä 3.3  huippu 196.3
+  54.4479 s  kuva 1633  kuvia 3  edeltävä 3.3  huippu 194.3
+  54.9449 s  kuva 1648  kuvia 2  edeltävä 3.5  huippu 196.7
+  55.3148 s  kuva 1659  kuvia 3  edeltävä 3.3  huippu 192.6  osittainen ensimmäinen kuva
+  56.0451 s  kuva 1681  kuvia 2  edeltävä 3.5  huippu 193.9
+  56.5451 s  kuva 1696  kuvia 2  edeltävä 3.7  huippu 194
+  57.1812 s  kuva 1715  kuvia 3  edeltävä 3.4  huippu 193  osittainen ensimmäinen kuva
+  57.8827 s  kuva 1736  kuvia 3  edeltävä 3.2  huippu 192.7
+  58.4465 s  kuva 1753  kuvia 2  edeltävä 4.1  huippu 196.2
+  58.8468 s  kuva 1765  kuvia 3  edeltävä 4.1  huippu 193.6
+  59.5132 s  kuva 1785  kuvia 2  edeltävä 4  huippu 194.9
+  60.0489 s  kuva 1801  kuvia 3  edeltävä 3.4  huippu 192.2
+  60.5498 s  kuva 1816  kuvia 3  edeltävä 3.3  huippu 192.6
+  61.0813 s  kuva 1832  kuvia 2  edeltävä 4.8  huippu 198.1
+  61.4599 s  kuva 1843  kuvia 2  edeltävä 6.7  huippu 126.2  osittainen ensimmäinen kuva
+  64.7910 s  kuva 1943  kuvia 2  edeltävä 9.3  huippu 87.5  osittainen ensimmäinen kuva
+  65.4875 s  kuva 1964  kuvia 2  edeltävä 6.7  huippu 85  osittainen ensimmäinen kuva
+  66.1541 s  kuva 1984  kuvia 2  edeltävä 7  huippu 85.1  osittainen ensimmäinen kuva
+  66.8492 s  kuva 2005  kuvia 2  edeltävä 11.5  huippu 86.6
+  67.4506 s  kuva 2023  kuvia 2  edeltävä 11.9  huippu 87.4
+  67.8553 s  kuva 2035  kuvia 2  edeltävä 7.2  huippu 86.1  osittainen ensimmäinen kuva
+  68.2835 s  kuva 2048  kuvia 2  edeltävä 11.8  huippu 90
+  68.6503 s  kuva 2059  kuvia 2  edeltävä 13.4  huippu 87.6
+  69.1502 s  kuva 2074  kuvia 2  edeltävä 13.6  huippu 87.7
+  69.8675 s  kuva 2095  kuvia 1  edeltävä 16.4  huippu 87.9  osittainen ensimmäinen kuva
+  73.5228 s  kuva 2205  kuvia 3  edeltävä 7.7  huippu 199  osittainen ensimmäinen kuva
+  74.1658 s  kuva 2224  kuvia 3  edeltävä 3.7  huippu 196.7  osittainen ensimmäinen kuva
+  74.8324 s  kuva 2244  kuvia 3  edeltävä 3.6  huippu 196.6  osittainen ensimmäinen kuva
+välit 1.1888 0.4756 0.4997 0.6573 0.5682 0.6 0.5428 0.3997 0.3999 0.5661 0.6017 0.4244 0.6411 0.7255 0.6409 0.4335 0.4939 0.3667 0.4076 0.5996 0.5592 0.607 0.6279 0.5335 0.4999 0.4333 0.6064 0.6333 0.6286 0.4396 0.3937 0.4395 0.494 0.5726 0.4273 0.7073 0.5331 0.6 0.5279 0.3667 0.5387 0.4964 0.3666 0.4718 0.6615 0.5333 0.6044 0.7306 0.7001 0.571 0.5288 0.604 0.4001 0.4977 0.6705 0.4963 0.5666 0.6367 0.598 0.3698 0.497 0.3699 0.7303 0.5 0.6361 0.7015 0.5638 0.4002 0.6665 0.5357 0.5008 0.5315 0.3787 3.3311 0.6965 0.6666 0.6951 0.6014 0.4046 0.4283 0.3668 0.5 0.7173 3.6552 0.643 0.6666

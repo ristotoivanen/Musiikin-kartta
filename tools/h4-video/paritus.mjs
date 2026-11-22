@@ -99,7 +99,7 @@ function robustFit(times, label) {
   keep = main;
   const contiguous = keep.every((k, x) => x === 0 || k.m === keep[x - 1].m + 1);
   console.log(`${label}: kuviohaku ±50 ms: ${keep.length}/${times.length} osuu aikatauluun (seuraavaksi paras siirto ${second ? second.n : 0}/${times.length}).${removed.length ? ' Poistetaan: ' + removed.map(r => r.t.toFixed(3) + ' s').join(', ') + '.' : ''}${contiguous ? '' : ' VAROITUS: hyväksytyt tapahtumat eivät ole peräkkäisiä aikataulussa (puuttuva piippaus tai välähdys).'}`);
-  return { keep: keep.map(k => k.i), removed, contiguous, best: best.n, second: second ? second.n : 0 };
+  return { keep: keep.map(k => k.i), idx: keep.map(k => k.m), removed, contiguous, best: best.n, second: second ? second.n : 0 };
 }
 const robust = { flashes: robustFit(flashesAll, 'Välähdykset') };
 const flashes = robust.flashes.keep.map(i => flashesAll[i]);
@@ -151,10 +151,11 @@ const audio = results[300].found.length >= 10 ? 300 : 1500;
 for (const hz of [300, 1500]) {
   const fit = audioFits[hz][0];
   const times = results[hz].found.map(f => f.t);
-  const byIndex = new Map(times.map((t, m) => [fit.j + m, t]));
+  // Aikatauluindeksi kuviohausta (ei oleteta peräkkäisyyttä: puuttuva välähdys tai piippaus ei siirrä myöhempiä pareja).
+  const byIndex = new Map(times.map((t, m) => [robust[hz].idx[m], t]));
   const rows = [];
   flashes.forEach((t, k) => {
-    const idx = bestFlash.j + k;
+    const idx = robust.flashes.idx[k];
     const a = byIndex.get(idx);
     if (a === undefined) return;
     rows.push({ idx, flash: t, audio: a, diffMs: (t - a) * 1000 });
@@ -176,5 +177,6 @@ console.log('  kitara − tausta (ms)', xT.map((c, i) => ((xK[i].A - c.A) * 1000
 writeFileSync(`${dir}/paritus.json`, JSON.stringify({
   sliderMs, flashes, flashFit: flashFits.slice(0, 4), audioFit: { 300: audioFits[300].slice(0, 4), 1500: audioFits[1500].slice(0, 4) },
   audioPeaks: { 300: results[300].found, 1500: results[1500].found }, pairs, xcorr: { tausta: xT, kitara: xK },
+  aikatauluindeksi: { flashes: robust.flashes.idx, 300: robust[300].idx, 1500: robust[1500].idx },
   kuviohaku: Object.fromEntries(Object.entries(robust).map(([k, r]) => [k, { osuu: r.best, seuraavaksiParas: r.second, perakkaiset: r.contiguous, poistetut: r.removed.map(x => x.t) }])),
 }, null, 1));

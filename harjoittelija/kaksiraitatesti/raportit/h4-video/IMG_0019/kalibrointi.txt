@@ -1,0 +1,58 @@
+Säädin d = 0 ms. Kuvaväli 33.33 ms. Välähdysalueen rivi 0.759, iskualueen rivi 0.130.
+Kuva-ajan malli: E ≤ 16.9 ms (60 Hz:n näytön oletuksella), ρ = R/E 0.24…2.80. Viitearvo E = 12 ms, ρ = 0.24.
+
+1. Iskusarjat (kameran ero C = kuva − ääni, viitemallilla)
+  alku: ehdokkaita 5, hyväksyttyjä 2, C ka -214.1 ms, SD +109.9 ms, vaihteluväli -291.8…-136.4 ms
+  loppu: ehdokkaita 5, hyväksyttyjä 2, C ka -347.7 ms, SD +1.9 ms, vaihteluväli -349.0…-346.4 ms
+  hylätty (alku) 3.784 s: kosketusarvio ei osu viimeisen lähestymiskuvan ja ensimmäisen lepokuvan väliin
+  hylätty (alku) 6.981 s: liike 2.0 px/kuva < 2
+  hylätty (alku) 16.058 s: alle 2 lähestymiskuvaa (liike liian nopea tai ROI liian pieni)
+  hylätty (loppu) 67.869 s: heikko (<25 % sarjan voimakkaimmasta); alle 2 lähestymiskuvaa (liike liian nopea tai ROI liian pieni)
+  hylätty (loppu) 78.021 s: alle 2 lähestymiskuvaa (liike liian nopea tai ROI liian pieni)
+  hylätty (loppu) 81.337 s: liike 0.2 px/kuva < 2; kosketusarvio ei osu viimeisen lähestymiskuvan ja ensimmäisen lepokuvan väliin
+  Ajautuma loppu − alku: -133.6 ms
+
+2. H4-toisto: 75 välähdys–piippaus-paria (aikatauluindeksi j = 1), osittaisia 49
+  V − A mediaani viitemallilla +41.8 ms (bootstrap +39.6…+42.6); vanhalla interpoloinnilla +32.9 ms
+
+3. Erottelu E- ja ρ-ruudukolla (ms): E | ρ | V − A | C alku | C loppu | C | L = (V − A) − d − C
+  2 | 0.24 | +37.5 | -217.6 | -351.2 | -284.4 | +321.8
+  2 | 2.80 | +37.5 | -220.8 | -354.4 | -287.6 | +325.1
+  4 | 0.24 | +38.2 | -216.9 | -350.5 | -283.7 | +321.9
+  4 | 2.80 | +38.2 | -223.4 | -356.9 | -290.1 | +328.3
+  8 | 0.24 | +40.0 | -215.5 | -349.1 | -282.3 | +322.3
+  8 | 2.80 | +40.0 | -228.4 | -362.0 | -295.2 | +335.2
+  12 | 0.24 | +41.8 | -214.1 | -347.7 | -280.9 | +322.7
+  12 | 2.80 | +41.8 | -233.5 | -367.1 | -300.3 | +342.1
+  16 | 0.24 | +43.4 | -212.7 | -346.3 | -279.5 | +322.9
+  16 | 2.80 | +43.4 | -238.5 | -372.1 | -305.3 | +348.7
+  20 (rajan yli) | 0.24 | +44.5 | -211.3 | -344.9 | -278.1 | +322.6
+  20 (rajan yli) | 2.80 | +44.5 | -243.6 | -377.2 | -310.4 | +354.9
+  25 (rajan yli) | 0.24 | +46.9 | -209.6 | -343.1 | -276.3 | +323.2
+  25 (rajan yli) | 2.80 | +46.9 | -249.9 | -383.5 | -316.7 | +363.6
+  30 (rajan yli) | 0.24 | +48.9 | -207.8 | -341.4 | -274.6 | +323.4
+  30 (rajan yli) | 2.80 | +48.9 | -256.2 | -389.8 | -323.0 | +371.9
+  L sallitulla mallivälillä: +321.8…+348.7 ms
+
+4. Epävarmuuserät (ms)
+  Iskujen satunnaishajonta (1,96 × SD/√n): ±97.9
+  Alku- ja loppusarjan ero (ajautuma) / 2: ±66.8
+  V − A:n mediaanin bootstrap-väli / 2: ±1.5
+  Kuva-ajan malli (E- ja ρ-vaihteluväli) / 2: ±13.4
+  Iskun ekstrapolointi (lineaarinen − 2. aste, keskiarvo): ±3.1
+  Yhdistetty (neliösumma): ±119.3 ms
+
+5. Ennalta kirjatut ehdot
+  EI täyty: E1 Kummassakin sarjassa vähintään 4/5 hyväksyttyä iskua
+  EI täyty: E2 Sarjan sisäinen SD ≤ 8 ms
+  EI täyty: E3 |loppu − alku| ≤ 10 ms
+  EI täyty: E4 L:n yhdistetty epävarmuus ≤ ±20 ms
+  → Kalibrointi EI onnistunut. L:ää ei raportoida kalibroituna arvona.
+
+6. P2-valmius
+  Välähdysten kohdistus: seuraavaksi paras / paras MAD = 17.3. Puolikkaat: n 39, V − A +40.2 ms (+38.9…+41.9) | n 36, V − A +42.5 ms (+40.5…+45.5)
+  EI täyty: V1 Paritus yksiselitteinen: kaikki välähdykset osuvat aikatauluun ja seuraavaksi paras kohdistus ≥ 3 × MAD
+  EI täyty: V2 Kameran ero pysyy: E3 täyttyy
+  täyttyy: V3 Puolikkaiden mediaanien 95 %:n välit ≤ ±10 ms
+  täyttyy: V4 Puolikkaat poikkeavat toisistaan ≤ 10 ms (sama käynnistys)
+  → P2 EI ole luotettava tällä järjestelyllä ennen korjauksia.

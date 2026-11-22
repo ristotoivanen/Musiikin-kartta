@@ -53,3 +53,7 @@ P1-tallenteessa ([`H4-P1-KALIBROINTIOHJE.md`](H4-P1-KALIBROINTIOHJE.md), luku 3,
 Vertailu: `sivuraitaero.mjs <P1-raportti> --video <kitara − tausta>`.
 - Jos arvot ovat samat (±1 ms), sivu ja video mittaavat samaa ja raitaero on käynnistyskohtainen.
 - Jos ne eroavat, ero kirjataan issueen #9 havaintona ilman juurisyytä.
+
+## 5. Tulos P1-tallenteista (22.11.2026)
+
+Saman ajon sivuraportti ja video antoivat saman raitaeron 0,02 ms:n tarkkuudella kahdessa ajossa: −16,0 ms (`IMG_0018`) ja +10,67 ms (`IMG_0019`), ks. [`H4-P1-TULOKSET-2026-11-22.md`](H4-P1-TULOKSET-2026-11-22.md) luku 4. Sivu mittaa siis kuuluvaa raitaeroa näissä ajoissa, ja ero vaihtelee käynnistyksittäin. Vaihtelun juurisyytä ei päätellä.

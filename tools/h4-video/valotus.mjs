@@ -25,7 +25,9 @@ const C = frames[0].cells.length;
 const mean = new Float64Array(C), sd = new Float64Array(C);
 for (const f of frames) f.cells.forEach((v, i) => { mean[i] += v / frames.length; });
 for (const f of frames) f.cells.forEach((v, i) => { sd[i] += (v - mean[i]) ** 2 / frames.length; });
-const top = [...sd.keys()].sort((a, b) => sd[b] - sd[a]).slice(0, 60);
+const A = vd.alue;   // sama rajaus kuin valahdys.mjs:ssä, jos annettu
+const inArea = i => !A || (i % gw >= A[0] && i % gw <= A[2] && Math.floor(i / gw) >= A[1] && Math.floor(i / gw) <= A[3]);
+const top = [...sd.keys()].filter(inArea).sort((a, b) => sd[b] - sd[a]).slice(0, 60);
 const rowOf = i => (Math.floor(i / gw) + 0.5) / gh;   // puskurin rivin osuus (ruudukko on puskurin suunnassa)
 const rows = top.map(rowOf);
 const flashRow = med(rows);

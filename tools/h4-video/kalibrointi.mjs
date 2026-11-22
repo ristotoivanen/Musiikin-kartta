@@ -16,6 +16,7 @@
 // Ennalta kirjatut ehdot (H4-P1-KALIBROINTIOHJE.md, luku 4) arvioidaan lopuksi. Mikään ehto ei ole H4:n hyväksymisehto.
 //
 // Ajo: node kalibrointi.mjs <analyysikansio> <säädin ms>
+//   Ilman iskut.json:ia kirjoittaa kuvamalli.json:n (ei kalibrointi.json:ia).
 //   Kansiossa: iskut.json (isku.mjs; valinnainen), valahdykset.json, valotus.json, paritus.json, piippaukset.json. → kalibrointi.json
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 
@@ -64,7 +65,7 @@ const valByKuva = new Map(val.valahdykset.map(v => [v.kuva, v]));
 // paritus.json:n välähdykset ovat kuviohaun jälkeen peräkkäisiä aikataulussa alkaen indeksistä j.
 const events = par.flashes.map((t, k) => {
   const fl = vd.flashes.find(x => Math.abs(x.alkuInterp - t) < 1e-9);
-  const b = beeps[flashJ + k]; const v = fl && valByKuva.get(fl.kuva);
+  const b = beeps[par.aikatauluindeksi ? par.aikatauluindeksi.flashes[k] : flashJ + k]; const v = fl && valByKuva.get(fl.kuva);
   if (b === undefined || !v) return null;
   const A = b + Aat(fl.ptsEnsimmainenKirkas);
   return { k, pts: v.ptsAlku, naive: fl.alkuInterp, f: v.f, tyyppi: v.tyyppi, A };
@@ -141,7 +142,7 @@ if (!hasStrikes) {
   console.log('  V − A kuva-ajan mallilla (valotuksen alku välähdysalueen rivillä), E | mediaani | bootstrap 95 %:');
   for (const E of Egrid) { const v = events.map(e => Vof(e, E) - e.A); const c = bootMedian(v).map(ms); console.log(`  ${(E * 1000).toFixed(0)} ms${E > eMax + 1e-9 ? ' (rajan yli)' : ''} | ${f(ms(med(v)))} | ${f(c[0])}…${f(c[1])}`); }
   console.log(`  Puolikkaat (E = ${(ref.E * 1000).toFixed(0)} ms): ${halves.map(h => `n ${h.n}, ${f(h.med)} ms (${f(h.ci[0])}…${f(h.ci[1])})`).join(' | ')}`);
-  writeFileSync(`${dir}/kalibrointi.json`, JSON.stringify({ d, T, rowFlash, eMax, iskuja: false, VAmalli: Egrid.map(E => ({ E, VA: med(events.map(e => Vof(e, E) - e.A)) })), halves, fitMargin }, null, 1));
+  writeFileSync(`${dir}/kuvamalli.json`, JSON.stringify({ d, T, rowFlash, eMax, iskuja: false, VAmalli: Egrid.map(E => ({ E, VA: med(events.map(e => Vof(e, E) - e.A)) })), halves, fitMargin }, null, 1));
   process.exit(0);
 }
 // --- Tulostus

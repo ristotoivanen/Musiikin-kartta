@@ -1,0 +1,83 @@
+Kuvaväli 33.33 ms. Välähdysalue puskurin riveillä 0.639–0.880 (mediaani 0.759).
+Ensimmäinen kirkas kuva: osittainen 50, kokonainen 26. Osittaisten f (alueen mediaani) 0.29–0.94.
+Rullaava suljin: f:n kulmakerroin riviosuuden suhteen ρ = R/E = 0.42 (vaihtelu 0.24…2.80).
+  → koko kuvan lukuaika R = 0.42 × E. Positiivinen: puskurin suuremmat rivit valottuvat myöhemmin.
+Valotusajan yläraja, jos näyttö 60 Hz: E ≤ 16,7 ms / max f = 16.9 ms (max f 0.98).
+Alku edeltävässä kuvassa (n − 1): 6/76.
+  pts (1. kynnyksen ylittävä) | alkukuva | tyyppi | f mediaani (min…max) | kulmakerroin
+  21.1767 | n | osittainen | 0.86 (0.82…0.92) | 0.38
+  22.3450 | n | osittainen | 0.90 (0.86…0.93) | 0.26
+  22.8450 | n | kokonainen | 1.00 (1.00…1.00) | 
+  23.3450 | n | osittainen | 0.87 (0.82…0.92) | 0.43
+  23.9783 | n | osittainen | 0.88 (0.82…0.93) | 0.42
+  24.5450 | n | osittainen | 0.87 (0.83…0.92) | 0.36
+  25.1467 | n | osittainen | 0.88 (0.83…0.94) | 0.41
+  25.7133 | n − 1 | osittainen | 0.29 (-0.00…0.55) | 2.78
+  26.1133 | n − 1 | osittainen | 0.32 (-0.00…0.56) | 2.80
+  26.5133 | n − 1 | osittainen | 0.35 (-0.00…0.57) | 2.79
+  27.0800 | n − 1 | osittainen | 0.38 (-0.00…0.58) | 2.74
+  27.6800 | n − 1 | osittainen | 0.41 (-0.00…0.58) | 2.66
+  28.0817 | n | osittainen | 0.89 (0.85…0.94) | 0.37
+  28.7817 | n | osittainen | 0.91 (0.86…0.96) | 0.41
+  29.4483 | n | osittainen | 0.90 (0.86…0.95) | 0.37
+  30.1150 | n | osittainen | 0.91 (0.86…0.95) | 0.38
+  30.5483 | n − 1 | osittainen | 0.50 (0.01…0.61) | 1.96
+  31.0150 | n | osittainen | 0.91 (0.87…0.96) | 0.37
+  31.3833 | n | osittainen | 0.93 (0.88…0.98) | 0.39
+  31.7833 | n | osittainen | 0.53 (0.18…0.63) | 1.44
+  32.3833 | n | osittainen | 0.54 (0.26…0.63) | 1.22
+  32.9500 | n | osittainen | 0.55 (0.32…0.64) | 1.09
+  33.5500 | n | osittainen | 0.56 (0.36…0.64) | 0.96
+  34.1833 | n | osittainen | 0.57 (0.40…0.64) | 0.85
+  34.7183 | n | kokonainen | 0.95 (0.91…1.00) | 
+  35.2183 | n | osittainen | 0.58 (0.45…0.65) | 0.73
+  35.6517 | n | osittainen | 0.94 (0.90…0.98) | 0.35
+  36.2517 | n | osittainen | 0.59 (0.48…0.66) | 0.68
+  36.8850 | n | osittainen | 0.60 (0.49…0.67) | 0.63
+  37.5183 | n | kokonainen | 0.97 (0.93…1.00) | 
+  37.9533 | n | osittainen | 0.61 (0.52…0.68) | 0.56
+  38.3533 | n | kokonainen | 0.98 (0.93…1.00) | 
+  38.7867 | n | osittainen | 0.60 (0.52…0.66) | 0.48
+  39.2867 | n | kokonainen | 0.96 (0.92…1.00) | 
+  39.8533 | n | osittainen | 0.63 (0.56…0.70) | 0.52
+  40.2867 | n | osittainen | 0.63 (0.57…0.70) | 0.49
+  40.9883 | n | osittainen | 0.64 (0.58…0.71) | 0.48
+  41.5217 | n | osittainen | 0.64 (0.59…0.71) | 0.46
+  42.1217 | n | osittainen | 0.65 (0.60…0.71) | 0.46
+  42.6550 | n | kokonainen | 1.00 (0.96…1.00) | 
+  43.0217 | n | kokonainen | 1.00 (0.96…1.00) | 
+  43.5883 | n | kokonainen | 0.99 (0.95…1.00) | 
+  44.0550 | n | kokonainen | 1.00 (0.97…1.00) | 
+  44.4233 | n | kokonainen | 1.00 (0.97…1.00) | 
+  44.8900 | n | osittainen | 0.68 (0.62…0.74) | 0.45
+  45.5567 | n | kokonainen | 1.00 (0.98…1.00) | 
+  46.0900 | n | kokonainen | 1.00 (0.98…1.00) | 
+  46.6900 | n | osittainen | 0.69 (0.63…0.75) | 0.45
+  47.4233 | n | kokonainen | 1.00 (0.99…1.00) | 
+  48.1250 | n | kokonainen | 1.00 (1.00…1.00) | 
+  48.6917 | n | osittainen | 0.70 (0.65…0.77) | 0.44
+  49.2250 | n | kokonainen | 1.00 (1.00…1.00) | 
+  49.8250 | n | osittainen | 0.67 (0.63…0.72) | 0.37
+  50.2250 | n | osittainen | 0.71 (0.67…0.77) | 0.39
+  50.7250 | n | osittainen | 0.72 (0.67…0.78) | 0.42
+  51.3933 | n | osittainen | 0.73 (0.68…0.79) | 0.42
+  51.8933 | n | osittainen | 0.73 (0.68…0.79) | 0.42
+  52.4600 | n | kokonainen | 1.00 (1.00…1.00) | 
+  53.0933 | n | osittainen | 0.74 (0.69…0.79) | 0.38
+  53.6933 | n | osittainen | 0.75 (0.69…0.79) | 0.38
+  54.0617 | n | osittainen | 0.74 (0.69…0.80) | 0.40
+  54.5617 | n | kokonainen | 1.00 (1.00…1.00) | 
+  54.9617 | n | kokonainen | 1.00 (1.00…1.00) | 
+  55.6617 | n | kokonainen | 1.00 (1.00…1.00) | 
+  56.1617 | n | kokonainen | 1.00 (1.00…1.00) | 
+  56.7950 | n | osittainen | 0.77 (0.72…0.81) | 0.35
+  57.4967 | n | osittainen | 0.77 (0.72…0.82) | 0.35
+  58.0633 | n | kokonainen | 1.00 (1.00…1.00) | 
+  58.4633 | n | kokonainen | 1.00 (0.99…1.00) | 
+  59.1300 | n | osittainen | 0.78 (0.73…0.83) | 0.34
+  59.6967 | n | kokonainen | 1.00 (0.99…1.00) | 
+  60.1633 | n | osittainen | 0.76 (0.73…0.80) | 0.27
+  60.6983 | n | kokonainen | 1.00 (1.00…1.00) | 
+  61.0650 | n | osittainen | 0.80 (0.77…0.84) | 0.24
+  62.4983 | n | kokonainen | 1.00 (1.00…1.00) | 
+  63.1983 | n | kokonainen | 1.00 (1.00…1.00) | 
