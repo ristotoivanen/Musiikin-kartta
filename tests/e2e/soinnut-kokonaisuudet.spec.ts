@@ -601,7 +601,7 @@ test('02:n D/Dm-tunnistus toimii oletuksena ja E/Em-vaihtoehto samassa tehtävä
   await expect(question).toBeVisible();
   await expect(section.locator('[data-arvaus-kuuntelu]')).toBeVisible();
   await expect(charts).toBeHidden();
-  await expect(section.locator('[data-arvauspalaute]')).toBeHidden();
+  await expect(section.locator('[data-arvauspalaute]')).toContainText('Valitse sointu 1 tai 2.');
   await expect(section.locator('[data-eem-kaaviot] figcaption')).toHaveText(['E', 'Em']);
   await expect(section.getByRole('button', { name: 'Tunnista', exact: true })).toBeHidden();
   await expect(question.locator('[data-kysymys]')).toHaveText('Kumpi on duuri?');
@@ -612,7 +612,7 @@ test('02:n D/Dm-tunnistus toimii oletuksena ja E/Em-vaihtoehto samassa tehtävä
   // Vastauksen jälkeen valittu sama pari aloittaa uuden tehtävän ilman Tunnista-painiketta.
   await pairE.click();
   await expect(question.locator('[data-kysymys]')).toHaveText('Kumpi on molli?');
-  await expect(section.locator('[data-arvauspalaute]')).toBeHidden();
+  await expect(section.locator('[data-arvauspalaute]')).toContainText('Valitse sointu 1 tai 2.');
   await expect(charts).toBeHidden();
   await expect(section.locator('[data-arvaus-teksti]')).toHaveText(['Sointu 1', 'Sointu 2']);
   await expect(section.getByRole('button', { name: 'Tunnista', exact: true })).toBeHidden();
@@ -622,7 +622,7 @@ test('02:n D/Dm-tunnistus toimii oletuksena ja E/Em-vaihtoehto samassa tehtävä
   await expect(question).toBeVisible();
   await expect(question.locator('[data-kysymys]')).toHaveText('Kumpi on molli?');
   await expect(section.locator('[data-arvaus-teksti]')).toHaveText(['Sointu 1', 'Sointu 2']);
-  await expect(section.locator('[data-arvauspalaute]')).toBeHidden();
+  await expect(section.locator('[data-arvauspalaute]')).toContainText('Valitse sointu 1 tai 2.');
   // Jo valitun D/Dm-parin uusi painallus palauttaa duurikysymyksen.
   await pairD.click();
   await expect(question.locator('[data-kysymys]')).toHaveText('Kumpi on duuri?');
@@ -1136,7 +1136,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     await expect(listenButtons.nth(0)).toHaveAttribute('data-playing', '');
     // Palaute ei katoa itsekseen. Seuraava vastauspainallus käynnistää uuden tehtävän.
     await expect(page.locator('[data-arvauspalaute]')).toHaveText('Oikein! Sointu 1 oli E-duuri ja sointu 2 oli E-molli.');
-    await expect(page.getByRole('button', { name: 'Uusi tehtävä' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Uusi tehtävä', exact: true })).toHaveCount(0);
     const answered = reply.getByRole('button', { name: 'Sointu 2' });
     await answered.focus();
     await expect(answered).toBeFocused();
