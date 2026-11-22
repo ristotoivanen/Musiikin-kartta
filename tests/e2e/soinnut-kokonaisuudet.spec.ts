@@ -580,6 +580,7 @@ test('02:n D/Dm-tunnistus toimii oletuksena ja E/Em-vaihtoehto samassa tehtävä
   await expect(question).toBeVisible();
   await expect(question.locator('[data-kysymys]')).toHaveText('Kumpi on duuri?');
   await expect(section.locator('[data-arvaus-kuuntelu]')).toBeVisible();
+  await expect(answers.getByRole('button', { name: 'Sointu 2' })).toBeDisabled();
   await expect(section.locator('[data-eem-kaaviot]')).toBeVisible();
   await section.getByRole('button', { name: 'Kuuntele sointu 1' }).click();
   await expect(section.locator('[data-arvaus-kuuntelu] [data-playing]')).toHaveCount(1);
@@ -605,6 +606,9 @@ test('02:n D/Dm-tunnistus toimii oletuksena ja E/Em-vaihtoehto samassa tehtävä
   await expect(section.locator('[data-eem-kaaviot] figcaption')).toHaveText(['E', 'Em']);
   await expect(section.getByRole('button', { name: 'Tunnista', exact: true })).toBeHidden();
   await expect(question.locator('[data-kysymys]')).toHaveText('Kumpi on duuri?');
+  await expect(answers.getByRole('button', { name: 'Sointu 1' })).toBeDisabled();
+  await section.getByRole('button', { name: 'Kuuntele sointu 2' }).click();
+  await expect(answers.getByRole('button', { name: 'Sointu 1' })).toBeEnabled();
   await answers.getByRole('button', { name: 'Sointu 1' }).click();
   await expect(section.locator('[data-arvauspalaute]'))
     .toHaveText('Oikein! Sointu 1 oli E-duuri ja sointu 2 oli E-molli.');
@@ -631,6 +635,7 @@ test('02:n D/Dm-tunnistus toimii oletuksena ja E/Em-vaihtoehto samassa tehtävä
 });
 
 test('02:n duuri/molli-vuorottelu on parikohtainen ja Sointu 1/2 -järjestys arvotaan', async ({ page }) => {
+  await recordAudio(page);
   await page.goto(ydinPath(1));
   const section = page.locator('[data-sointuharjoitus="arvaa"]');
   const pairD = section.getByRole('button', { name: 'D / Dm' });
@@ -643,6 +648,9 @@ test('02:n duuri/molli-vuorottelu on parikohtainen ja Sointu 1/2 -järjestys arv
   await page.evaluate(() => { Math.random = () => 0.9; });
   await section.getByRole('button', { name: 'Tunnista', exact: true }).click();
   await expect(heading).toHaveText('Kumpi on duuri?');
+  await expect(answers.getByRole('button', { name: 'Sointu 2' })).toBeDisabled();
+  await section.getByRole('button', { name: 'Kuuntele sointu 1' }).click();
+  await expect(answers.getByRole('button', { name: 'Sointu 2' })).toBeEnabled();
   await answers.getByRole('button', { name: 'Sointu 2' }).click();
   await expect(diagrams).toHaveText(['Sointu 1 = Dm', 'Sointu 2 = D']);
 
@@ -650,6 +658,9 @@ test('02:n duuri/molli-vuorottelu on parikohtainen ja Sointu 1/2 -järjestys arv
   await page.evaluate(() => { Math.random = () => 0.1; });
   await pairD.click();
   await expect(heading).toHaveText('Kumpi on molli?');
+  await expect(answers.getByRole('button', { name: 'Sointu 2' })).toBeDisabled();
+  await section.getByRole('button', { name: 'Kuuntele sointu 2' }).click();
+  await expect(answers.getByRole('button', { name: 'Sointu 2' })).toBeEnabled();
   await answers.getByRole('button', { name: 'Sointu 2' }).click();
   await expect(diagrams).toHaveText(['Sointu 1 = D', 'Sointu 2 = Dm']);
   await expect(section.locator('[data-arvauspalaute]')).toContainText('Oikein!');
@@ -903,6 +914,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
   });
 
   test('tunnistus alkaa suoraan parin valinnasta ja kuuntelupainikkeet näkyvät vasta aloituksesta', async ({ page }) => {
+    await recordAudio(page);
     await page.setViewportSize({ width: 390, height: 760 });
     await page.goto(ydinPath(1));
     const section = page.locator('[data-sointuharjoitus="arvaa"]');
@@ -935,8 +947,12 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     expect(questionBox!.y).toBeGreaterThan(pairBox!.y);
 
     const answer = section.getByRole('group', { name: 'Vastaa' }).getByRole('button', { name: 'Sointu 1' });
+    await expect(answer).toBeDisabled();
+    await guessing.nth(0).click();
+    await expect(answer).toBeEnabled();
     await answer.click();
-    await answer.click();
+    await expect(answer).toHaveAttribute('aria-disabled', 'true');
+    await answer.dispatchEvent('click');
     await expect(pairSelection).toBeInViewport({ ratio: 0.95 });
     await expect(question.locator('[data-kysymys]')).toBeInViewport();
   });
@@ -1046,7 +1062,11 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
         // 100 %:ssa vastaukset rinnakkain, zoomattuna allekkain.
         expect(first.top === second.top, testCase).toBe(width === 402);
 
-        await section.getByRole('group', { name: 'Vastaa' }).getByRole('button', { name: 'Sointu 1' }).click();
+        const answer = section.getByRole('group', { name: 'Vastaa' }).getByRole('button', { name: 'Sointu 1' });
+        await expect(answer).toBeDisabled();
+        await section.locator('[data-arvaus-kuuntelu] button').first().click();
+        await expect(answer).toBeEnabled();
+        await answer.click();
         await expect(section.locator('[data-arvaus-teksti]').first()).toContainText(' · ');
         expect(await controls(), `${testCase}: vastattu`).toEqual(active);
         expect(await brokenWords(), `${testCase}: vastattu`).toEqual([]);
