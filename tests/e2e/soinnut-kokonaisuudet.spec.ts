@@ -604,13 +604,14 @@ test('02:n D/Dm-tunnistus toimii oletuksena ja E/Em-vaihtoehto samassa tehtävä
   await expect(section.locator('[data-arvauspalaute]')).toBeHidden();
   await expect(section.locator('[data-eem-kaaviot] figcaption')).toHaveText(['E', 'Em']);
   await expect(section.getByRole('button', { name: 'Tunnista', exact: true })).toBeHidden();
-  await expect(question.locator('[data-kysymys]')).toHaveText('Kumpi on molli?');
-  await answers.getByRole('button', { name: 'Sointu 2' }).click();
+  await expect(question.locator('[data-kysymys]')).toHaveText('Kumpi on duuri?');
+  await answers.getByRole('button', { name: 'Sointu 1' }).click();
   await expect(section.locator('[data-arvauspalaute]'))
     .toHaveText('Oikein! Sointu 1 oli E-duuri ja sointu 2 oli E-molli.');
   await expect(charts.locator('figcaption')).toHaveText(['Sointu 1 = E', 'Sointu 2 = Em']);
   // Vastauksen jälkeen valittu sama pari aloittaa uuden tehtävän ilman Tunnista-painiketta.
   await pairE.click();
+  await expect(question.locator('[data-kysymys]')).toHaveText('Kumpi on molli?');
   await expect(section.locator('[data-arvauspalaute]')).toBeHidden();
   await expect(charts).toBeHidden();
   await expect(section.locator('[data-arvaus-teksti]')).toHaveText(['Sointu 1', 'Sointu 2']);
@@ -619,8 +620,13 @@ test('02:n D/Dm-tunnistus toimii oletuksena ja E/Em-vaihtoehto samassa tehtävä
   await pairD.click();
   await expect(pairD).toHaveAttribute('aria-pressed', 'true');
   await expect(question).toBeVisible();
+  await expect(question.locator('[data-kysymys]')).toHaveText('Kumpi on molli?');
   await expect(section.locator('[data-arvaus-teksti]')).toHaveText(['Sointu 1', 'Sointu 2']);
   await expect(section.locator('[data-arvauspalaute]')).toBeHidden();
+  // Jo valitun D/Dm-parin uusi painallus palauttaa duurikysymyksen.
+  await pairD.click();
+  await expect(question.locator('[data-kysymys]')).toHaveText('Kumpi on duuri?');
+  await expect(section.locator('[data-arvaus-teksti]')).toHaveText(['Sointu 1', 'Sointu 2']);
   await expect(page.locator('.done-toggle')).toHaveAttribute('aria-pressed', 'false');
 });
 
