@@ -52,8 +52,29 @@ jobs:
           python3 tools/oppimiskartta/rakenna.py --tarkista
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
+      - name: Targeted scroll and focus regression (Chromium)
+        run: npx playwright test tests/e2e/ydinopinnot-scroll.spec.ts --workers=2
       # Full suite includes the former targeted Soinnut, Rytmi and shared UI tests.
       # Keep the browser regression gate in this PR branch until merge authorization.
       - name: Full Playwright browser regression (desktop and phone emulation)
         run: |
           npx playwright test --workers=3 --max-failures=20
+
+  webkit-scroll:
+    if: github.ref == 'refs/heads/codex/ydinopinnot-yhteinen-ui-pilotti'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Check generated pages
+        run: python3 tools/oppimiskartta/rakenna.py --tarkista
+      - name: Install WebKit
+        run: npx playwright install --with-deps webkit
+      - name: WebKit desktop and iPhone emulation scroll and focus
+        run: npx playwright test --config=playwright.ydinopinnot-webkit.config.ts --workers=2

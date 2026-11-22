@@ -44,24 +44,23 @@
       const shouldMove = activatedByUser && tip.open;
       activatedByUser = false;
       if (!shouldMove) return; // myös tulostus ja ohjelmalliset sulkemiset
-      requestAnimationFrame(() => {
+      // Native details -avaus voi asettua vasta seuraavassa piirtojaksossa (WebKit).
+      // Kohdista mitattuun 16 px paikkaan myös selaimen scroll anchoringin jälkeen.
+      requestAnimationFrame(() => requestAnimationFrame(() => {
         if (tip.open && !tip.hidden && tip.getClientRects().length) {
-          content.scrollIntoView({ block: 'start', behavior: 'instant' });
+          alignHeading(content, OPEN_TOP);
         }
-      });
+      }));
     });
 
     close.addEventListener('click', () => {
       if (!tip.open) return;
       tip.open = false;
-      requestAnimationFrame(() => {
+      requestAnimationFrame(() => requestAnimationFrame(() => {
         if (tip.open || !summary.isConnected || !summary.getClientRects().length) return;
-        const delta = summary.getBoundingClientRect().top - openingTop;
-        if (Math.abs(delta) > 2) {
-          window.scrollTo({ top: Math.max(0, window.scrollY + delta), behavior: 'instant' });
-        }
+        alignHeading(summary, openingTop);
         summary.focus({ preventScroll: true });
-      });
+      }));
     });
   }
 
@@ -177,21 +176,19 @@
         const intent = pendingMoves.get(card);
         if (!intent) return; // esim. name-ryhmän toisen kortin automaattisulku
         pendingMoves.delete(card);
-        requestAnimationFrame(() => {
+        requestAnimationFrame(() => requestAnimationFrame(() => {
           if (card.open !== intent.open) return;
           const heading = card.querySelector(':scope > summary');
           if (!heading) return;
           if (intent.open) {
-            // Otsikko riittävän ylhäällä ilman ylimääräistä hyppyä,
-            // kun se on jo lähellä näkymän yläreunaa.
-            const top = heading.getBoundingClientRect().top;
-            if (top < 8 || top > 64) alignHeading(heading, OPEN_TOP);
+            // Aina 16 px:iin. Aiempi 8–64 px ohitus jätti avauksen paikalleen.
+            alignHeading(heading, OPEN_TOP);
           } else {
             const previousTop = openingPositions.get(card) ?? OPEN_TOP;
             alignHeading(heading, previousTop);
             heading.focus({ preventScroll: true });
           }
-        });
+        }));
       });
     }
 
