@@ -223,7 +223,7 @@ test.describe('ilman JavaScriptiä', () => {
 
   test('kaikki sisältölinkit löytyvät ja osiot aukeavat', async ({ page }) => {
     await page.goto(topicPath);
-    await expect(page.locator('.study-choice')).toHaveCount(26);
+    await expect(page.locator('.study-choice')).toHaveCount(27);
     await earlier(page).locator('summary').click();
     await expect(earlier(page).getByRole('link', { name: /Septimisoinnut/ }).first()).toBeVisible();
   });
@@ -458,9 +458,9 @@ test.describe('aiempien sisältöjen tilateksti (progress_text)', () => {
     await page.goto(topicPath);
     await expect(earlier(page).locator('summary [data-study-total]')).toHaveText('✓ Aiemmat sisällöt tehty');
     await expect(earlier(page).locator('summary')).toHaveAccessibleName(/^Aiemmat oppitunnit ja harjoitukset.*✓ Aiemmat sisällöt tehty$/);
-    await expect(page.locator('#ydinopinnot').locator('summary [data-unit-progress]')).toHaveText('0/5 kokeiltu');
-    await expect(page.locator('#ydinopinnot > summary')).toHaveAccessibleName(/0\/5 kokeiltu$/);
-    await expect(page.locator('#ydinopinnot').locator('[data-study-attempt-status]')).toHaveText(['Kokeilematta', 'Kokeilematta', 'Kokeilematta', 'Kokeilematta', 'Kokeilematta']);
+    await expect(page.locator('#ydinopinnot').locator('summary [data-unit-progress]')).toHaveText('0/6 kokeiltu');
+    await expect(page.locator('#ydinopinnot > summary')).toHaveAccessibleName(/0\/6 kokeiltu$/);
+    await expect(page.locator('#ydinopinnot').locator('[data-study-attempt-status]')).toHaveText(['Kokeilematta', 'Kokeilematta', 'Kokeilematta', 'Kokeilematta', 'Kokeilematta', 'Kokeilematta']);
     await expect(page.getByText(notWhole)).toHaveCount(0);
 
     // Vanhan sarjan viimeinen sivu: ylä- ja alareunan tila samalla tekstillä, alareunan tila ilmoitetaan (aria-live).
@@ -495,6 +495,7 @@ const ydinPages = [
   ['yksi-savel-muuttaa-sointua', 'Yksi sävel muuttaa sointua'],
   ['mihin-kappale-haluaa-palata', 'Mihin kappale haluaa palata?'],
   ['sointukierto-ja-asteet', 'Sointukierto ja sointuasteet'],
+  ['siirra-sama-rakenne', 'Siirrä sama rakenne'],
   ['sama-kierto-vahemmilla-vihjeilla', 'Sama kierto, vähemmän apua'],
 ] as const;
 const ydinPath = (index: number) => `/oppi/soinnut/${ydinPages[index][0]}.html`;
@@ -520,9 +521,26 @@ test('04 sointukierto ja asteet: G–D–Em–C neljän tahdin kitaranäytteill�
   await expect(page.getByRole('button', { name: 'Merkitse kokeilluksi' })).toHaveAttribute('aria-pressed', 'false');
 });
 
+test('05 transponointi G-duurista C-duuriin näyttää oikean F-duurin otteen', async ({ page }) => {
+  await page.goto(ydinPath(4));
+  await expect(page.getByRole('heading', { level: 1, name: 'Siirrä sama rakenne' })).toBeVisible();
+  const progression = page.locator('.sointu-kierto');
+  await expect(progression).toHaveCount(2);
+  await expect(progression.nth(0).locator('li strong')).toHaveText(['G', 'D', 'Em', 'C']);
+  await expect(progression.nth(1).locator('li strong')).toHaveText(['C', 'G', 'Am', 'F']);
+  await expect(page.locator('figure.chord-diagram figcaption')).toHaveText(['C', 'G', 'Am', 'F']);
+  await expect(page.locator('figure.chord-diagram').last()).toContainText('xx3211');
+  await expect(page.locator('.done-toggle')).toHaveAttribute('aria-pressed', 'false');
+  await page.getByRole('button', { name: 'Merkitse kokeilluksi' }).click();
+  await expect(page.locator('.done-toggle')).toHaveAttribute('aria-pressed', 'true');
+  await page.goto('/oppi/soinnut/index.html');
+  await expect(page.locator('#ydinopinnot [data-unit-progress]')).toHaveText('1/6 kokeiltu');
+  await expect(page.locator('#aiemmat [data-study-total]')).toHaveText('0/18 aiemmista sisällöistä tehty');
+});
+
 test('06 vihjeitä saa vähentää ja palauttaa myös neljän kierron aikana', async ({ page }) => {
   await recordAudio(page);
-  await page.goto(ydinPath(4));
+  await page.goto(ydinPath(5));
   const unit = page.locator('[data-sointuharjoitus="vihjeet"]');
   const modes = unit.locator('[data-vihje-mode]');
   const texts = unit.locator('[data-vihje-teksti]');
@@ -557,7 +575,7 @@ test('06 vihjeitä saa vähentää ja palauttaa myös neljän kierron aikana', a
 });
 
 test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
-  test('viisi korttia, suorat reitit, navigointi ja itsenäinen kokeiltu-merkintä', async ({ page }) => {
+  test('kuusi korttia, suorat reitit, navigointi ja itsenäinen kokeiltu-merkintä', async ({ page }) => {
     await page.goto(topicPath);
     const unit = page.locator('#ydinopinnot');
     const summary = unit.locator(':scope > summary');
@@ -570,7 +588,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     await expect(page.locator('.study-units > details').first()).toHaveId('ydinopinnot');
     await expect(core(page)).not.toHaveAttribute('open', '');
     await expect(earlier(page)).not.toHaveAttribute('open', '');
-    await expect(unit.locator('[data-unit-progress]')).toHaveText('0/5 kokeiltu');
+    await expect(unit.locator('[data-unit-progress]')).toHaveText('0/6 kokeiltu');
     expect(await storage(page)).toBeNull();
     await page.evaluate(key => localStorage.setItem(key, JSON.stringify(['oppitunti:kuule-mika-on-sointu', 'harmoninen-kentta'])), readingKey);
     await page.goto(topicPath + '#ydinopinnot');
@@ -598,13 +616,13 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     await page.getByRole('button', { name: 'Merkitse kokeilluksi' }).click();
     await expect(page.getByRole('button', { name: '✓ Kokeiltu' })).toHaveAttribute('aria-pressed', 'true');
     await page.goBack();
-    await expect(unit.locator('[data-unit-progress]')).toHaveText('1/5 kokeiltu');
+    await expect(unit.locator('[data-unit-progress]')).toHaveText('1/6 kokeiltu');
     await expect(firstHeader).toBeFocused();
     await expect(first).toHaveAttribute('open', '');
     await expect(earlier(page).locator('[data-study-total]')).toHaveText('1/18 aiemmista sisällöistä tehty');
     await first.getByRole('button', { name: '✓ Kokeiltu' }).click();
     await expect(firstHeader.locator('[data-study-attempt-status]')).toHaveText('Kokeilematta');
-    await expect(unit.locator('[data-unit-progress]')).toHaveText('0/5 kokeiltu');
+    await expect(unit.locator('[data-unit-progress]')).toHaveText('0/6 kokeiltu');
     expect(JSON.parse(await storage(page) ?? '[]')).toEqual(['oppitunti:kuule-mika-on-sointu', 'harmoninen-kentta']);
     await first.getByRole('link', { name: 'Avaa omalla sivullaan' }).click();
     // Keskittymistila ei näytä aiempaa päällekkäistä Edellinen/Seuraava-navigaatiota.
@@ -646,7 +664,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     await expect(cards.nth(1).locator('[data-arvauspalaute]')).toContainText('Sointu 1 oli');
     await expect(cards.nth(1).locator('[data-arvaus-kaaviot] svg')).toHaveCount(2);
     await cards.nth(1).getByRole('button', { name: 'Merkitse kokeilluksi' }).click();
-    await expect(unit.locator('[data-unit-progress]')).toHaveText('1/5 kokeiltu');
+    await expect(unit.locator('[data-unit-progress]')).toHaveText('1/6 kokeiltu');
     await expect(header(1).locator('[data-study-attempt-status]')).toHaveText('✓ Kokeiltu');
     await expect(earlier(page).locator('[data-study-total]')).toHaveText('0/18 aiemmista sisällöistä tehty');
 
@@ -668,7 +686,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     await page.goto(topicPath + '#valinta-mihin-kappale-haluaa-palata');
     await expect(unit).toHaveAttribute('open', '');
     await expect(cards.nth(2)).toHaveAttribute('open', '');
-    await expect(unit.locator('[data-unit-progress]')).toHaveText('1/5 kokeiltu');
+    await expect(unit.locator('[data-unit-progress]')).toHaveText('1/6 kokeiltu');
   });
 
   test('asteikon mikä tahansa kolmen sävelen valinta soi ja G–B–D käyttää samaa rekisteriä molemmissa esimerkeissä', async ({ page }) => {
