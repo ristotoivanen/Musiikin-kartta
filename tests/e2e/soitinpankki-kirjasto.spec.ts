@@ -107,8 +107,10 @@ test('M2 hyväksyy vain tarkistetun B-taustatiedoston', async ({ page }) => {
 test('sovittimen PCM-aikajana säilyttää 72 BPM:n, 150 ms:n vaimennuksen ja G-otteen kielivälit', async ({ page }) => {
   await page.goto(path);
   const output = await page.evaluate(async () => {
-    const { scheduleSteelNotes, sampleKey } = await import('/assets/soitinpankki/steel-sampler.mjs');
-    const { scores } = await import('/testit/soitinpankki-kirjasto/scores.mjs');
+    const moduleUrl = new URL('/assets/soitinpankki/steel-sampler.mjs', location.href).href;
+    const scoreUrl = new URL('/testit/soitinpankki-kirjasto/scores.mjs', location.href).href;
+    const { scheduleSteelNotes, sampleKey } = await import(moduleUrl);
+    const { scores } = await import(scoreUrl);
     const rate = 48000;
     const lead = 0.12;
     const onset = 0.005;
