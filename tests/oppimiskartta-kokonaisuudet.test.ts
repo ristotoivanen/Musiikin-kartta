@@ -206,3 +206,34 @@ it('05 C–G–Am–F käyttää oikean F-duurin valmista graafista otetta', () 
   expect(topic).toContain('data-study-attempt-status="harjoitus:siirra-sama-rakenne"');
   expect(page).toContain('data-study-item="harjoitus:siirra-sama-rakenne"');
 });
+
+
+it('02:n D/Dm käyttää F♯4:n rinnalla aitoa F4-näytettä ja säilyttää E/Em-arvauksen', () => {
+  const src = read('tools/oppimiskartta/sisallot/soinnut/yksi-savel-muuttaa-sointua.html');
+  const page = read('oppi/soinnut/yksi-savel-muuttaa-sointua.html');
+  const topic = read('oppi/soinnut/index.html');
+  const audio = read('assets/sointuharjoitus.js');
+  expect(src).toContain('D–F♯–A');
+  expect(src).toContain('D–F–A');
+  expect(src).toContain('data-ddm-play="D"');
+  expect(src).toContain('data-ddm-play="Dm"');
+  expect(src).toContain('data-ydin-play="E"');
+  expect(src).toContain('data-ydin-play="Em"');
+  expect(src).toContain('data-uusi-arvaus');
+  expect(audio).toContain("Dm: ['D:D3', 'G:A3', 'B:D4', 'HighE:F4']");
+  expect(audio).toContain("D: ['D:D3', 'G:A3', 'B:D4', 'HighE:Fs4']");
+  expect(exists('assets/audio/soinnut/INSGuitarSteel_StringHighE_Vel02_F4_01.ogg')).toBe(true);
+  expect(exists('assets/audio/soinnut/INSGuitarSteel_StringHighE_Vel02_F4_01.m4a')).toBe(true);
+  for (const markup of [page, topic]) {
+    const section = markup.slice(markup.indexOf('data-sointuharjoitus="arvaa"'));
+    expect(section).toContain('data-ddm-play="D"');
+    expect(section).toContain('data-ddm-play="Dm"');
+    const diagrams = [...section.matchAll(/<figure class="chord-diagram"><figcaption>(D|Dm)<\/figcaption>[\s\S]*?<code>([^<]+)<\/code><\/figure>/g)]
+      .slice(0, 2).map(([, chord, fingering]) => ({ chord, fingering }));
+    expect(diagrams).toEqual([
+      { chord: 'D', fingering: 'xx0232' },
+      { chord: 'Dm', fingering: 'xx0231' },
+    ]);
+    expect(section).toContain('data-arvaus-kaaviot');
+  }
+});
