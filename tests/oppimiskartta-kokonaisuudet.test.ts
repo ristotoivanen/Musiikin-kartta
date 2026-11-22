@@ -152,7 +152,7 @@ print(json.dumps({'id': page.study_id, 'kind': page.study_kind, 'mark': rakenna.
 });
 
 
-test('04 G–D–Em–C säilyttää hyväksytyn yhden soinnun 4/4-tahdissa ja oikean kaaviosarjan', () => {
+it('04 G–D–Em–C säilyttää hyväksytyn yhden soinnun 4/4-tahdissa ja oikean kaaviosarjan', () => {
   const markup = read('tools/oppimiskartta/sisallot/soinnut/sointukierto-ja-asteet.html');
   const standalone = read('oppi/soinnut/sointukierto-ja-asteet.html');
   const topic = read('oppi/soinnut/index.html');
