@@ -12,6 +12,29 @@ laadun A/B/C-valinta ja teknisten testien tulokset ovat eri asioita.
 Tämä on vain **digitaalisen signaalin mittausraportti**, ei miksauspäätös,
 ei luotettava kuuluvuuden arvio eikä päätös uuden pankin masteroinnista.
 
+## Bassotaajuuksien kuuntelutulos: rajattu M2-havainto
+
+22.11.2026 omistaja kuunteli erillisen #160-koesivun M2-tilaa
+asetuksilla **Steel 2,4×, B-tausta 55 % ja 90 Hz low-shelf +2 dB** ja
+totesi: **"Tässä toimii basso hyvin."**
+
+Tämä on riittävä hyväksyntä **M2:n bassotaajuuksien tämänhetkiseen
+QA-koekuunteluun**, ei todistus erillisen bassokitararaidan oikeasta tasosta.
+Low-shelf vaikuttaa myös bassorummun ja muun miksauksen mataliin ääniin.
+Yhteinen tausta-WAV on ennallaan. M0:n ja M2:n muu balanssi sekä laitetestit
+arvioidaan erillisinä.
+
+Koesivun tilakohtaiset aloitteluarvot:
+- **M2: +2 dB** (käyttäjän toimivaksi kuulema kokeellinen korostus).
+- **M3: 0 dB** (alkuperäinen ääni, tätä käyttäjä ei ole arvioinut samalla EQ:lla).
+- Siirryttäessä M2:sta M3:een arvo ei saa siirtyä mukana.
+- Sivun sisällä tehtyjä muutoksia pidetään erillään kummallekin tilalle;
+  niitä ei tallenneta selaimen pysyvään asetukseen tai #130:n alkuperäiseen harjoitukseen.
+
+Aiemmin tunnistettu M3:n +4 dB:n yliohjausriski estettiin
+QA-versiossa erillisellä headroom-kompensaatiolla. Se ei tee
+M3:n +2/+4 dB:n vaihtoehdoista kuunteluhyväksyttyjä.
+
 ## Lähteet ja menetelmä
 
 - `assets/audio/ensimmaiset-nelja-iskua/e2-freepats-fsbs-clean-bridge-alku-2s.wav`
