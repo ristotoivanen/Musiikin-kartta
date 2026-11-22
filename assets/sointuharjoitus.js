@@ -364,18 +364,11 @@
     let pair;
     let target;
     let answered = false;
-    const NEXT_ROUND_DELAY_MS = 4000;
-    let nextRoundTimer = null;
-    function cancelNextRound() {
-      if (nextRoundTimer !== null) clearTimeout(nextRoundTimer);
-      nextRoundTimer = null;
-    }
 
     // Vertailut ovat erilliset kohdat 1 ja 2. Tunnistus aloitetaan suoraan parin
     // valinnasta; nimetyt soinnut eivät näy tässä kolmannessa vaiheessa.
     function chooseFamily(nextFamily) {
       if (family === nextFamily) return;
-      cancelNextRound();
       stop();
       family = nextFamily;
       pair = null;
@@ -407,7 +400,6 @@
       });
     }
     function startRound(initiatedByUser = false) {
-      cancelNextRound();
       stop();
       const selected = families[family];
       pair = Math.random() < 0.5 ? [...selected] : [...selected].reverse();
@@ -437,7 +429,12 @@
     next.addEventListener('click', () => startRound(true));
     for (const button of choices) {
       button.addEventListener('click', () => {
-        if (answered) return;
+        if (answered) {
+          // Vastaus jää näkyviin kunnes oppija pyytää uuden kysymyksen.
+          // Kumpikin vastauspainike toimii silloin seuraavan tehtävän aloituksena.
+          startRound();
+          return;
+        }
         answered = true;
         stopExample();
         const selectedIndex = Number(button.dataset.vastaus);
@@ -446,15 +443,14 @@
         choices.forEach((choice, index) => {
           const isCorrect = index === correctIndex;
           const isWrong = index === selectedIndex && !correct;
-          choice.setAttribute('aria-disabled', 'true');
           choice.classList.toggle('is-correct', isCorrect);
           choice.classList.toggle('is-wrong', isWrong);
           // Painikkeen näkyvä teksti ei muutu eikä siirrä muita ohjaimia.
           // Tulos on luettavissa myös kohdistamalla ruudunlukija painikkeeseen.
           if (isCorrect || isWrong) {
-            choice.setAttribute('aria-label', `Sointu ${index + 1}, ${isCorrect ? 'oikea vastaus' : 'väärä vastaus'}`);
+            choice.setAttribute('aria-label', `Sointu ${index + 1}, ${isCorrect ? 'oikea vastaus' : 'väärä vastaus'}, aloita uusi tehtävä`);
           } else {
-            choice.removeAttribute('aria-label');
+            choice.setAttribute('aria-label', `Sointu ${index + 1}, aloita uusi tehtävä`);
           }
         });
         feedback.classList.toggle('is-error', !correct);
@@ -469,16 +465,9 @@
         });
         nameListening(true);
         diagrams.hidden = false;
-        showExerciseStatus('Seuraava tehtävä alkaa automaattisesti neljän sekunnin kuluttua.');
-        // Palaute sekä oikea/väärä-väri saavat näkyä ennen uutta kierrosta.
-        // Parin vaihto peruu odotuksen, ettei vanha tehtävä käynnisty väärällä parilla.
-        nextRoundTimer = setTimeout(() => {
-          nextRoundTimer = null;
-          if (answered) startRound();
-        }, NEXT_ROUND_DELAY_MS);
+        showExerciseStatus('Palaute jää näkyviin. Valitse Sointu 1 tai Sointu 2 uudelleen aloittaaksesi uuden tehtävän.');
       });
     }
-    window.addEventListener('pagehide', cancelNextRound);
   }
 
   function setupProgression(section, playExample, stopExample, showExerciseStatus) {
