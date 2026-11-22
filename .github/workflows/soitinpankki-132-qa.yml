@@ -4,14 +4,6 @@ on:
   push:
     branches:
       - chatgpt/132-meta-steel-library-pilot
-  pull_request:
-    branches: [beta]
-    paths:
-      - 'assets/soitinpankki/**'
-      - 'testit/soitinpankki-kirjasto/**'
-      - 'tests/soitinpankki-kirjasto.test.*'
-      - 'tests/e2e/soitinpankki-kirjasto.spec.ts'
-      - '.github/workflows/soitinpankki-132-qa.yml'
 
 permissions:
   contents: read
@@ -25,6 +17,8 @@ jobs:
     outputs:
       first_failure: ${{ steps.browser.outputs.first_failure }}
       first_error: ${{ steps.browser.outputs.first_error }}
+      expected_text: ${{ steps.browser.outputs.expected_text }}
+      received_text: ${{ steps.browser.outputs.received_text }}
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
@@ -66,7 +60,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          npx playwright test tests/e2e/soitinpankki-kirjasto.spec.ts --project=desktop --project=phone --workers=2 > playwright.log 2>&1
+          FORCE_COLOR=0 npx playwright test tests/e2e/soitinpankki-kirjasto.spec.ts --project=desktop --project=phone --workers=2 > playwright.log 2>&1
           code=$?
           cat playwright.log
           failed=$(grep -m1 -E '^[[:space:]]*[0-9]+\) \[' playwright.log || true)
@@ -75,6 +69,12 @@ jobs:
           error=${error:0:230}
           echo "first_failure=${failed:-PASS}" >> "$GITHUB_OUTPUT"
           echo "first_error=${error:-Not available}" >> "$GITHUB_OUTPUT"
+          expected=$(grep -m1 -E 'Expected string:|Expected pattern:' playwright.log || true)
+          received=$(grep -m1 -E 'Received string:' playwright.log || true)
+          expected=${expected:0:220}
+          received=${received:0:220}
+          echo "expected_text=${expected:-not found}" >> "$GITHUB_OUTPUT"
+          echo "received_text=${received:-not found}" >> "$GITHUB_OUTPUT"
           exit "$code"
       - name: Upload browser failure traces
         if: failure()
@@ -99,3 +99,19 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - run: echo 'First Playwright error is displayed in this check name.'
+
+  browser_expected:
+    if: always()
+    needs: quality
+    name: "Expected text: ${{ needs.quality.outputs.expected_text }}"
+    runs-on: ubuntu-24.04
+    steps:
+      - run: echo 'Expected state reported in this check name.'
+
+  browser_received:
+    if: always()
+    needs: quality
+    name: "Received text: ${{ needs.quality.outputs.received_text }}"
+    runs-on: ubuntu-24.04
+    steps:
+      - run: echo 'Actual state reported in this check name.'
