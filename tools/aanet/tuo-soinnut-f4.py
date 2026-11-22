@@ -24,6 +24,7 @@ ROOT = Path(__file__).resolve().parents[2]
 TARGET = ROOT / "assets" / "audio" / "soinnut"
 NAME = "INSGuitarSteel_StringHighE_Vel02_F4_01"
 OGG_SHA256 = "79fc96bcdea8c49147bc561c2109b030fcbdf40ffe698e098525eaa3c586516d"
+AAC_SHA256 = "35e538b2e87d653e8806663a5dfd42f51370672f0cdd548c0853c4e190ff0cd0"
 SAMPLES = runpy.run_path(str(ROOT / "tools" / "aanet" / "soinnut-naytteet.py"))
 
 
@@ -86,6 +87,8 @@ def main() -> None:
             if not all(entry in probe for entry in ("codec_name=aac", "channels=1", "sample_rate=48000")):
                 raise RuntimeError(f"Virheellinen AAC-LC F4: {probe!r}")
             shutil.copyfile(output, aac)
+    if sha256(aac) != AAC_SHA256:
+        raise RuntimeError("F4 AAC-tiedoston SHA-256 ei vastaa hyväksyttyä repo-versiota")
     print(f"AAC SHA-256: {sha256(aac)}")
     print(f"F4 valmis: {ogg.name} ja {aac.name}")
 
