@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-const url = '/testit/ensimmaiset-nelja-iskua-steel.html';
+const url = '/assets/soitinpankki/ensimmaiset-nelja-iskua-steel.html';
 
 test('M2 käyttää beta-koosteessa Steel E2:ta, B-taustaa ja samaa neljän iskun mallia', async ({page}) => {
   const requests:string[]=[];
