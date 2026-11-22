@@ -273,7 +273,8 @@ test('M2 ja M3 käyttävät samaa B-WAV:ia mutta omia bassotaajuuksien koesäät
     const f=filters.at(-1);
     return f ? {type:f.type,frequency:f.frequency.value,gain:f.gain.value} : null;
   });
-  await expect.poll(state).toEqual({type:'lowshelf',frequency:90,gain:0});
+  await expect.poll(state).toEqual({type:'lowshelf',frequency:90,gain:2});
+  await expect(page.locator('#bassBoostLabel')).toHaveText('+2 dB');
   await page.locator('#bassBoost').fill('2');
   await expect(page.locator('#bassBoostLabel')).toHaveText('+2 dB');
   await expect.poll(async () => (await state())?.gain).toBeCloseTo(2, 1);
@@ -297,6 +298,25 @@ test('M2 ja M3 käyttävät samaa B-WAV:ia mutta omia bassotaajuuksien koesäät
   })).toBe(true);
   await page.locator('#stop').click();
   expect(requests).toHaveLength(1);
+});
+
+test('M2:n +2 dB säilyy omana esiasetuksenaan, M3 käynnistyy edelleen 0 dB:stä', async ({page}) => {
+  await page.goto(url);
+  await page.locator('button[data-mode="M2"]').click();
+  await expect(page.locator('#bassBoostLabel')).toHaveText('+2 dB');
+  await expect(page.locator('#bassBoost')).toHaveValue('2');
+  await page.locator('#bassBoost').fill('4');
+  await page.locator('button[data-mode="M3"]').click();
+  await expect(page.locator('#bassBoostLabel')).toHaveText('0 dB');
+  await expect(page.locator('#bassBoost')).toHaveValue('0');
+  await page.locator('#bassBoost').fill('2');
+  await page.locator('button[data-mode="M2"]').click();
+  await expect(page.locator('#bassBoost')).toHaveValue('4');
+  await page.locator('#bassBoost').fill('2');
+  await page.locator('button[data-mode="M3"]').click();
+  await expect(page.locator('#bassBoost')).toHaveValue('2');
+  await page.locator('button[data-mode="M2"]').click();
+  await expect(page.locator('#bassBoost')).toHaveValue('2');
 });
 
 test('bassotaajuuksien säätö pysyy piilossa sokkoutetun A/B/C-kuuntelun aikana', async ({page}) => {
