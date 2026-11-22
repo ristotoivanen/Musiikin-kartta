@@ -18,11 +18,11 @@ Molemmissa 320 CSS px / 200 % / JavaScript pois -tilan `readable` epäonnistui d
 
 ## Korjaus
 
-Vain `assets/kitara-kertaus.css`: alle 431 CSS-pikselin leveydellä `.recap-neck-section` saa `margin-inline: -.5rem` sekä `padding-inline: 8px`. Näin osa jo olemassa olevasta ulkoreunamarginaalista tulee yksinomaan otelaudan käyttöön.
+Vain `assets/kitara-kertaus.css`: alle 431 CSS-pikselin leveydellä `.recap-neck-section` saa `margin-inline: -.625rem` sekä `padding-inline: 8px`. Näin osa jo olemassa olevasta ulkoreunamarginaalista tulee yksinomaan otelaudan käyttöön.
 
 Tekstejä, sävelten fonttikokoja, 18 sävelen generointia, kielten SVG-koordinaatteja, nauhasarakkeiden suhdetta, sointukaavioita, H/B-selitystä tai yhteistä generaattoria ei muutettu.
 
-**Generoidun HTML:n poikkeus:** `oppi/kitara/index.html`-tiedoston CSS-välimuistitunniste muuttuu `0073b54ff0` → `98bd8fd624`. Yksi rivimuutos on välttämätön, jotta uudistunut CSS latautuu välimuistista huolimatta. PR #141:n haarassa on eri `oppi.css`-tunniste ja otsikkokuvake; sen sisältö on säilytettävä. Generaattori voi tuottaa uuden CSS-tunnisteen PR #141:n pohjalla automaattisesti.
+**Generoidun HTML:n poikkeus:** `oppi/kitara/index.html`-tiedoston CSS-välimuistitunniste muuttuu `0073b54ff0` → `04a6e3df06`. Yksi rivimuutos on välttämätön, jotta uudistunut CSS latautuu välimuistista huolimatta. PR #141:n haarassa on eri `oppi.css`-tunniste ja otsikkokuvake; sen sisältö on säilytettävä. Generaattori voi tuottaa uuden CSS-tunnisteen PR #141:n pohjalla automaattisesti.
 
 ## Paikallinen selainmittaus (rajattu mallisivu)
 
@@ -47,6 +47,9 @@ Testin rakenne on otelaudan HTML:n ja relevanttien lähtö-CSS-sääntöjen kopi
 Erillisessä workflow'ssa `.github/workflows/kitara-144-qa.yml` ajetaan generaattorin determinismi, lint, typecheck, Vitest sekä olemassa oleva Kitaran perusteiden koko E2E ja uusi geometriaregressio molemmissa Chromium-projekteissa.
 
 Työnkulun ensimmäinen ajo [#44992906950](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/44992906950) epäonnistui YAML:n lainausmerkkivirheeseen **ennen yhtään testisuoritusta**; korjattu komitissa `7f1d481`. Varsinainen uusinta-ajo: [#44992979265](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/44992979265). **Tulosta ei ole vielä kirjattu tähän raportin versioon.**
+
+
+**Tarkennus 22.11.:** Tiukempi koko sivun regressioajokerta [#44993102472](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/44993102472) raportoi 24 läpäistyä ja 4 epäonnistunutta selaintestiä: kaikissa 320 px / 200 % -tapauksissa mitattu minimi oli 2,90625 px, kun regressioraja oli 3 px. CSS:n negatiivinen marginaali kasvatettiin arvosta `-.5rem` arvoon `-.625rem` mittausvaran lisäämiseksi, ei testin höllentämiseksi. Uudessa testiversiossa alkuperäistä layoutia vastaava mobiilisääntö palautetaan hetkeksi *vain mittausta varten*, jotta koko sivun ennen/jälkeen-leveydet ja reunavarat tulevat CI-lokiin. [Uusin tarkistus](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/44993384082) on vielä vahvistamatta.
 
 ## Integraatioriskit ja julkaisuportti
 
