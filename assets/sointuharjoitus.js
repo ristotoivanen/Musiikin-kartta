@@ -364,11 +364,18 @@
     let pair;
     let target;
     let answered = false;
+    const NEXT_ROUND_DELAY_MS = 4000;
+    let nextRoundTimer = null;
+    function cancelNextRound() {
+      if (nextRoundTimer !== null) clearTimeout(nextRoundTimer);
+      nextRoundTimer = null;
+    }
 
     // Vertailut ovat erilliset kohdat 1 ja 2. Tunnistus aloitetaan suoraan parin
     // valinnasta; nimetyt soinnut eivät näy tässä kolmannessa vaiheessa.
     function chooseFamily(nextFamily) {
       if (family === nextFamily) return;
+      cancelNextRound();
       stop();
       family = nextFamily;
       pair = null;
@@ -379,7 +386,7 @@
       question.hidden = listening.hidden = answers.hidden = feedback.hidden = diagrams.hidden = true;
       question.classList.remove('is-active');
       diagrams.replaceChildren();
-      next.querySelector('[data-uusi-arvaus-teksti]').textContent = 'Tunnista';
+      next.hidden = false;
       feedback.textContent = firstPrompt;
       feedback.classList.remove('is-error');
       showExerciseStatus(`Valittu ${names.join(' ja ')}. Paina Tunnista.`);
@@ -399,7 +406,8 @@
         button.setAttribute('aria-label', reveal ? `Kuuntele sointu ${number}, ${fullName[chord]}` : `Kuuntele sointu ${number}`);
       });
     }
-    next.addEventListener('click', () => {
+    function startRound(initiatedByUser = false) {
+      cancelNextRound();
       stop();
       const selected = families[family];
       pair = Math.random() < 0.5 ? [...selected] : [...selected].reverse();
@@ -419,13 +427,14 @@
         button.classList.remove('is-correct', 'is-wrong');
       });
       nameListening(false);
-      next.querySelector('[data-uusi-arvaus-teksti]').textContent = 'Uusi tehtävä';
+      next.hidden = true;
       showExerciseStatus('Kuuntele sointu 1 ja sointu 2 ennen vastaamista.');
-      // Sama kysymyskortti on olemassa jo alussa, joten fokus ei työnnä kaikkia
-      // painikkeita eri paikkaan. Vieritä vain, jos kysymys ei ole näkyvissä.
-      heading.focus({ preventScroll: true });
-      question.scrollIntoView({ block: 'nearest', behavior: 'instant' });
-    });
+      // Ensimmäinen käynnistys vie suoraan kysymykseen. Automaattinen uusi kierros
+      // ei vie näppäimistöfokusta kesken käyttäjän toiminnan.
+      if (initiatedByUser) heading.focus({ preventScroll: true });
+      question.scrollIntoView({ block: 'start', behavior: 'instant' });
+    }
+    next.addEventListener('click', () => startRound(true));
     for (const button of choices) {
       button.addEventListener('click', () => {
         if (answered) return;
@@ -460,9 +469,16 @@
         });
         nameListening(true);
         diagrams.hidden = false;
-        showExerciseStatus('Voit kuunnella molemmat soinnut uudelleen nimineen.');
+        showExerciseStatus('Seuraava tehtävä alkaa automaattisesti neljän sekunnin kuluttua.');
+        // Palaute sekä oikea/väärä-väri saavat näkyä ennen uutta kierrosta.
+        // Parin vaihto peruu odotuksen, ettei vanha tehtävä käynnisty väärällä parilla.
+        nextRoundTimer = setTimeout(() => {
+          nextRoundTimer = null;
+          if (answered) startRound();
+        }, NEXT_ROUND_DELAY_MS);
       });
     }
+    window.addEventListener('pagehide', cancelNextRound);
   }
 
   function setupProgression(section, playExample, stopExample, showExerciseStatus) {
