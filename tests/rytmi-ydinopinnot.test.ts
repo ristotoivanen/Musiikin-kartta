@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
-  compLevel, createTransport, grooveCells, gridCell, LOOP_STEPS, positionAt, requestMode, scheduleUntil, STEPS_PER_BAR,
+  compLevel, createTransport, grooveCells, gridCell, LOOP_STEPS, positionAt, requestMode, scheduleUntil, STEPS_PER_BAR, transitionCells,
   stepEvents, tempoFor,
 // @ts-expect-error Testattu selainmoduuli palvellaan suoraan JavaScriptinä.
 } from '../assets/rytmi-ydinopinnot.js';
@@ -19,7 +19,7 @@ describe('Rytmin Ydinopinnot: tempot ja tausta', () => {
   });
 
   it('rumpu- ja bassotausta soi jokaisella kahdeksasosalla kaikissa harjoituksissa', () => {
-    for (const task of ['pulssi', 'hiljaisuus', 'tuntuma']) {
+    for (const task of ['pulssi', 'hiljaisuus', 'tuntuma', 'osanvaihto']) {
       for (const step of loop(task)) expect(step.some((role: string) => ['hi-hat', 'virveli', 'bassorumpu', 'melodia'].includes(role))).toBe(true);
     }
   });
@@ -100,6 +100,54 @@ describe('03 Sama musiikki, eri tuntuma: ruudukko ja ääni vastaavat toisiaan',
   });
 });
 
+
+describe('04 Valmistaudu seuraavaan osaan: D–G ja aktiivinen vaimennus', () => {
+  const chords = (mode: string) =>
+    Array.from({ length: LOOP_STEPS }, (_, step) =>
+      stepEvents('osanvaihto', step, { mode }).find((event: Event) => event.role === 'osan-sointu'))
+      .filter(Boolean);
+
+  it('D ja G alkavat aina samojen tahtien ykkösillä', () => {
+    expect(chords('A').map((event: Event) => event.harmony)).toEqual(['D', 'G']);
+    expect(chords('B').map((event: Event) => event.harmony)).toEqual(['D', 'G']);
+    expect(gridCell('osanvaihto', 0)).toEqual({ bar: 0, index: 0 });
+    expect(gridCell('osanvaihto', 14)).toEqual({ bar: 1, index: 3 });
+  });
+
+  it('B vaimentaa D:n nelosiskun alussa, A antaa soida nelosen yli; tausta ja G eivät muutu', () => {
+    const [aD, aG] = chords('A');
+    const [bD, bG] = chords('B');
+    const beat = 60 / tempoFor('osanvaihto');
+    expect(aD.duration).toBeCloseTo(4 * beat);
+    expect(bD.duration).toBeCloseTo(3 * beat);
+    expect(aG.duration).toBeCloseTo(4 * beat);
+    expect(bG.duration).toBe(aG.duration);
+    for (let step = 0; step < LOOP_STEPS; step++) {
+      const sounds = (mode: string) => stepEvents('osanvaihto', step, { mode })
+        .filter((event: Event) => event.role !== 'osan-sointu');
+      expect(sounds('A')).toEqual(sounds('B'));
+    }
+    expect(transitionCells('A')).toEqual(['Soita D', 'Anna soida', 'Anna soida', 'Anna soida']);
+    expect(transitionCells('B')).toEqual(['Soita D', 'Anna soida', 'Anna soida', 'Vaimenna']);
+  });
+
+  it('käyttäjän B-vaihto tapahtuu seuraavan tahdin rajalla, ei valmiiksi ajastettuun D-ääneen', () => {
+    const tempo = tempoFor('osanvaihto');
+    const transport = createTransport({ task: 'osanvaihto', tempo, begin: 1, mode: 'A' });
+    const oneEighth = 60 / tempo / 2;
+    const prior = scheduleUntil(transport, 1 + 5 * oneEighth);
+    expect(prior.find((event: Event) => event.role === 'osan-sointu')?.duration)
+      .toBe(4 * 60 / tempo);
+    requestMode(transport, 'B');
+    const after = scheduleUntil(transport, 1 + 24 * oneEighth);
+    expect(transport.switches[1].step).toBe(8);
+    expect(after.find((event: Event) => event.role === 'osan-sointu' && event.step === 16)?.duration)
+      .toBe(3 * 60 / tempo);
+    expect(positionAt(transport, transport.switches[1].time - .001).mode).toBe('A');
+    expect(positionAt(transport, transport.switches[1].time).mode).toBe('B');
+  });
+});
+
 describe('Versiovaihto tahdin rajalla', () => {
   const tempo = 96;
   const step = 60 / tempo / 2;
@@ -176,7 +224,7 @@ describe('Versiovaihto tahdin rajalla', () => {
 
 describe('Rytmin aihesivu ja muodostetut sivut', () => {
   const read = (path: string) => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
-  const lessons = ['loyda-pulssi-ja-ykkonen', 'hiljaisuus-kuuluu-rytmiin', 'sama-musiikki-eri-tuntuma'];
+  const lessons = ['loyda-pulssi-ja-ykkonen', 'hiljaisuus-kuuluu-rytmiin', 'sama-musiikki-eri-tuntuma', 'valmistaudu-seuraavaan-osaan'];
   const legacy = ['pulssi-ja-komppi', 'kuuntele-pulssi', 'alas-ylos-yhdella-soinnulla', 'kaksi-sointua-yhdessa-tahdissa'];
 
   it('Ydinopinnot on ensimmäinen avattava kokonaisuus ja aiemmat neljä sisältöä sen jälkeen, molemmat suljettuina', () => {
@@ -187,7 +235,7 @@ describe('Rytmin aihesivu ja muodostetut sivut', () => {
     expect([...topic.matchAll(/<summary class="study-choice study-choice--unit" id="valinta-([^"]+)"/g)].map(([, slug]) => slug))
       .toEqual(lessons);
     for (const slug of lessons) expect(topic).toContain(`href="${slug}.html" data-return-topic="valinta-${slug}"`);
-    expect(topic.match(/class="study-inline-close" hidden>↑ Sulje oppitunti<\/button>/g)).toHaveLength(3);
+    expect(topic.match(/class="study-inline-close" hidden>↑ Sulje oppitunti<\/button>/g)).toHaveLength(4);
     // Vanhat kortit: samat ankkurit, osoitteet ja suoritustunnisteet kuin betassa.
     expect([...topic.matchAll(/<a class="study-choice" id="valinta-([^"]+)" href="([^"]+)\.html"/g)].map(([, id]) => id)).toEqual(legacy);
     expect([...topic.matchAll(/data-study-status="([^"]+)"/g)].map(([, id]) => id)).toEqual([
@@ -207,8 +255,8 @@ describe('Rytmin aihesivu ja muodostetut sivut', () => {
       expect(html).toContain('assets/rytmi-ydinopinnot.js?v=');
       expect(html).not.toContain('(valinnainen)');
     });
-    const last = read('oppi/rytmi/sama-musiikki-eri-tuntuma.html');
-    expect(last).toContain('href="index.html#valinta-sama-musiikki-eri-tuntuma"');
+    const last = read('oppi/rytmi/valmistaudu-seuraavaan-osaan.html');
+    expect(last).toContain('href="index.html#valinta-valmistaudu-seuraavaan-osaan"');
     expect(last).not.toContain('pulssi-ja-komppi.html');
     // Etusivun Rytmi-kortti ja aiemman sarjan laskuri sisältävät vain aiemmat neljä.
     const card = read('index.html').match(/href="oppi\/rytmi\/index.html" data-study-items="([^"]+)"/)![1].split(' ');
@@ -217,7 +265,7 @@ describe('Rytmin aihesivu ja muodostetut sivut', () => {
 
   it('Ydinopinnot käyttää yhteistä Kokeiltu-mekanismia samoilla oppitunti-tunnisteilla; aiemmat laskevat oman tekstinsä', () => {
     const topic = read('oppi/rytmi/index.html');
-    // Ryhmän "attempts": Kokeilematta / ✓ Kokeiltu ja x/3 kokeiltu (assets/edistyminen.js). Tunnisteet eivät muutu.
+    // Ryhmän "attempts": Kokeilematta / ✓ Kokeiltu ja x/4 kokeiltu (assets/edistyminen.js). Tunnisteet eivät muutu.
     expect([...topic.matchAll(/data-study-attempt-status="([^"]+)"/g)].map(([, id]) => id)).toEqual(lessons.map(slug => 'oppitunti:' + slug));
     expect(topic).not.toContain('data-study-intro-status=');
     expect(topic).toContain('data-unit-progress data-unit-attempts hidden');
