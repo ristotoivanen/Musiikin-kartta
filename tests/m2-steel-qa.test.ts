@@ -56,6 +56,17 @@ describe('#160 – M2 Steel -harjoitusvertailun rajaus', () => {
     expect(original).not.toContain('m0GainControls');
   });
 
+  it('erottaa käyttäjän toimivaksi kuuleman M2:n +2 dB basson M3:n muuttumattomasta 0 dB:stä', () => {
+    const trial = text('assets/soitinpankki/balance-trial.mjs');
+    expect(qa).toContain('const bassByMode={M2:2,M3:0}');
+    expect(qa).toContain("if(mode==='M2'||mode==='M3')bassByMode[mode]=db");
+    expect(qa).toContain("String(bassByMode[m])");
+    expect(qa).toContain('M2:n +2 dB toimi kuuntelussa, M3:n lähtöarvo pysyy 0 dB');
+    expect(trial).toContain("if (trials[group].mode === 'M2') setControl('bassBoost', 2)");
+    expect(original).not.toContain('bassByMode');
+    expect(original).not.toContain('bassBoost');
+  });
+
   it('M0 ja M2 käyttävät erillisiä, toiston aikana säädettäviä Web Audio -vahvistimia', () => {
     expect(qa).toContain("node.gain.setTargetAtTime(value,now,0.02)");
     expect(qa).toContain("smoothLevel(m0GuitarBus,value)");
