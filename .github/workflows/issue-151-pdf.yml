@@ -55,6 +55,7 @@ jobs:
       - name: Build a new PDF from the checked-out source tree
         env:
           OUTPUT_DIR: ${{ runner.temp }}/issue-151-pdf
+          CHROME_NO_SANDBOX: '1'
         run: |
           set -euo pipefail
           mkdir -p "$OUTPUT_DIR"
