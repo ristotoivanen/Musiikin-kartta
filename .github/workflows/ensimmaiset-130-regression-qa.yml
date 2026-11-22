@@ -1,0 +1,52 @@
+name: First Four Beats 130 Regression and Steel Mobile QA
+on:
+  push:
+    branches:
+      - chatgpt/130-regression-and-rights-review
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: first-four-beats-130-fix-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Lint, typecheck, unit tests and build
+        run: npm run check
+      - name: Install Chromium and WebKit
+        run: npx playwright install --with-deps chromium webkit
+      - name: Complete original #130 and Steel Chrome/phone regression
+        run: >
+          npx playwright test
+          tests/e2e/ensimmaiset-nelja-iskua.spec.ts
+          tests/e2e/ensimmaiset-nelja-iskua-steel.spec.ts
+          tests/e2e/ensimmaiset-mobile-guidance-qa.spec.ts
+          --project=desktop --project=phone --workers=2
+      - name: WebKit physical-size emulation and Steel smoke tests
+        run: >
+          npx playwright test
+          tests/e2e/ensimmaiset-nelja-iskua-steel.spec.ts
+          tests/e2e/ensimmaiset-mobile-guidance-qa.spec.ts
+          --config=playwright.webkit-m2-assembly.config.ts
+          --workers=2
+      - name: Save traces on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: 130-regression-and-steel-mobile-traces
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 7
