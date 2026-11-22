@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 const root = new URL('../', import.meta.url);
 const source = (path: string) => readFileSync(new URL(path, root), 'utf8');
 const original = source('testit/ensimmaiset-nelja-iskua.html');
-const integrated = source('testit/ensimmaiset-nelja-iskua-steel.html');
+const integrated = source('assets/soitinpankki/ensimmaiset-nelja-iskua-steel.html');
 const bank = JSON.parse(source('assets/soitinpankki/meta-steel-v1.json'));
 
 const digest = (path: string) => createHash('sha256')
@@ -20,7 +20,7 @@ describe('Beta-pohjainen M2 Steel -integraatiovalmistelu', () => {
     expect(integrated).toContain("if(mode==='M3'){src.loop=true;src.loopStart=countin;src.loopEnd=countin+musicLength;}");
     expect(integrated).not.toContain('balance-trial.mjs');
     expect(integrated).toContain('name="robots" content="noindex,nofollow"');
-    expect(integrated).toContain("const AUDIO_DIR='../assets/audio/ensimmaiset-nelja-iskua/'");
+    expect(integrated).toContain("const AUDIO_DIR='../audio/ensimmaiset-nelja-iskua/'");
   });
 
   it('käyttää täsmälleen hyväksyttyjä B-WAV- ja FreePats E2 -lähteitä', () => {
@@ -56,7 +56,7 @@ describe('Beta-pohjainen M2 Steel -integraatiovalmistelu', () => {
     expect(integrated).toContain("Musiikki soi FreePats-varakitaralla:");
     expect(integrated).toContain("Meta Steelin lataus ei onnistunut");
     expect(integrated).toContain("steelPlayer.stop(true)");
-    expect(integrated).toContain("import('../assets/soitinpankki/steel-sampler.mjs')");
-    expect(integrated).toContain("import('../assets/soitinpankki/m2-steel-model.mjs')");
+    expect(integrated).toContain("import('./steel-sampler.mjs')");
+    expect(integrated).toContain("import('./m2-steel-model.mjs')");
   });
 });
