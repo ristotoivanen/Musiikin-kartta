@@ -116,15 +116,33 @@
   inline-size: min(100%, 11rem);
   justify-self: start;
 }
+/* Vastaukset rinnakkain vain, kun "Sointu 1" mahtuu ehjänä (6.5rem); Safarin 150–200 %:n
+ * sivuzoomauksella (n. 200–270 CSS px) ne ovat allekkain ja yhtä korkeita. */
 .sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-vastaus] {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
   max-inline-size: 28rem;
 }
+/* Kysymyskortin otsikko ja ohje vaihtuvat Arvaa-painalluksella. Jokainen otsikko–ohje-pari on
+ * samassa ruudussa (näkymättömät aria-hidden-varaukset), joten kortti on aina pisimmän parin
+ * korkuinen myös sivun zoomauksella, eivätkä sen alla olevat ohjaimet siirry. Mahdollinen
+ * ylimääräinen tila jää kortin alaosaan, ei otsikon ja ohjeen väliin. */
+.sointu-pino { display: grid; }
+.sointu-pino > * { grid-area: 1 / 1; }
+.sointu-pino > .sointu-varaus > span { display: block; }
+.sointu-pino .sointu-varaus-otsikko { margin-block-end: .75rem; font-size: 1.05rem; font-weight: 700; line-height: 1.2; }
+/* Arvaa → Uusi arvaus: nimi keskellä, painike varaa pidemmän nimen tilan. */
+.sointu-vaihtuva.sointu-vaihtuva--keski { justify-items: center; align-items: center; }
+/* ⓘ-kosketusalue (44 px, .25rem kortin reunasta) ulottuu sisältöalueelle enintään
+ * 44 px + .25rem − .625rem (kapein kortin sisennys). Yleinen 44 px:n varaus katkaisi
+ * 200 %:n zoomauksella sanan "Kuuntele" kesken. */
+.sointu-ydin[data-sointuharjoitus="arvaa"].study-knoppi-host > h2:first-child {
+  padding-inline-end: calc(44px + .25rem - .625rem);
+}
 .sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-vastaus] > strong {
-  grid-column: 1 / -1;
+  flex: 0 0 100%;
 }
 .sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-vastaus] button {
+  flex: 1 1 6.5rem;
   min-inline-size: 0;
 }
 /* Arvauksen palaute näkyy siinä painikkeessa, jota oppija käytti.
@@ -155,7 +173,7 @@
 }
 
 /* E/Em-arvaus: nimetön ja nimetty teksti samassa ruudussa, leveys varattu pidemmälle. */
-.sointu-vaihtuva { display: inline-grid; justify-items: start; }
+.sointu-vaihtuva { display: inline-grid; justify-items: start; align-items: center; }
 .sointu-vaihtuva > span { grid-area: 1 / 1; }
 /* Arvauksen kuuntelupainikkeet: 4 px vaakarako, jotta varatun levyiset painikkeet mahtuvat
  * rinnakkain 390 px:ssä. Allekkain pinottuina pystyrako pysyy 8 px:nä. */

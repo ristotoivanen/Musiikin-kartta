@@ -363,7 +363,7 @@
         button.classList.remove('is-correct', 'is-wrong');
       });
       nameListening(false);
-      next.textContent = 'Uusi arvaus';
+      next.querySelector('[data-uusi-arvaus-teksti]').textContent = 'Uusi arvaus';
       showExerciseStatus('Kuuntele sointu 1 ja sointu 2 ennen vastaamista.');
       // Sama kysymyskortti on olemassa jo alussa, joten fokus ei työnnä kaikkia
       // painikkeita eri paikkaan. Vieritä vain, jos kysymys ei ole näkyvissä.

@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="../../assets/paavalikko.css?v=4e5c7fbf95">
   <link rel="stylesheet" href="../../assets/oppi.css?v=8a69bdc0e8">
   <link rel="stylesheet" href="../../assets/kokonaisuudet.css?v=db6d10a623">
-  <link rel="stylesheet" href="../../assets/sointuharjoitus.css?v=fd935fe212">
+  <link rel="stylesheet" href="../../assets/sointuharjoitus.css?v=1d9b4b7d5e">
 </head>
 <body>
   <a class="study-skip" href="#oppi-sisalto">Siirry sisältöön</a>
@@ -23,19 +23,26 @@
       <p>E-duurin ja E-mollin sävelistä vain yksi on erilainen: <strong>G♯ vaihtuu G:ksi</strong>. Kuuntele ensin molemmat soinnut. Valitse sitten <strong>Arvaa</strong>, jolloin nimet piilotetaan ja saat pienen kuuntelutehtävän.</p>
       <div data-sointu-ohjaimet hidden>
         <div class="sointu-tehtava" data-arvaus-kysymys>
-          <h3 tabindex="-1" data-kysymys>Kuuntele ensin E ja Em</h3>
-          <p data-kysymys-ohje>Kuuntele molemmat soinnut. Valitse sitten Arvaa.</p>
+          <div class="sointu-pino">
+            <div>
+              <h3 tabindex="-1" data-kysymys>Kuuntele ensin E ja Em</h3>
+              <p data-kysymys-ohje>Kuuntele molemmat soinnut. Valitse sitten Arvaa.</p>
+            </div>
+            <div class="sointu-varaus" aria-hidden="true"><span class="sointu-varaus-otsikko">Kuuntele ensin E ja Em</span><span>Kuuntele molemmat soinnut. Valitse sitten Arvaa.</span></div>
+            <div class="sointu-varaus" aria-hidden="true"><span class="sointu-varaus-otsikko">Kumpi on duuri?</span><span>Kuuntele soinnut 1 ja 2. Valitse sitten vastaus.</span></div>
+            <div class="sointu-varaus" aria-hidden="true"><span class="sointu-varaus-otsikko">Kumpi on molli?</span><span>Kuuntele soinnut 1 ja 2. Valitse sitten vastaus.</span></div>
+          </div>
         </div>
         <div class="sointu-toiminnot">
           <div class="sointu-rivi" data-suora-kuuntelu role="group" aria-label="Kuuntele soinnut">
-            <button type="button" data-ydin-play="E"><svg class="sointu-kuvake" aria-hidden="true" focusable="false"><use href="../../assets/oppimisikonit.svg#action-listen"/></svg>E</button>
-            <button type="button" data-ydin-play="Em"><svg class="sointu-kuvake" aria-hidden="true" focusable="false"><use href="../../assets/oppimisikonit.svg#action-listen"/></svg>Em</button>
+            <button type="button" data-ydin-play="E"><svg class="sointu-kuvake" aria-hidden="true" focusable="false"><use href="../../assets/oppimisikonit.svg#action-listen"/></svg><span class="sointu-vaihtuva"><span>E</span><span class="sointu-varaus" aria-hidden="true">Sointu 1 · Em</span></span></button>
+            <button type="button" data-ydin-play="Em"><svg class="sointu-kuvake" aria-hidden="true" focusable="false"><use href="../../assets/oppimisikonit.svg#action-listen"/></svg><span class="sointu-vaihtuva"><span>Em</span><span class="sointu-varaus" aria-hidden="true">Sointu 2 · Em</span></span></button>
           </div>
           <div class="sointu-rivi" data-arvaus-kuuntelu role="group" aria-label="Arvaustehtävän ääniesimerkit" hidden>
             <button type="button" data-arvaa-kuuntele="0" aria-label="Kuuntele sointu 1"><svg class="sointu-kuvake" aria-hidden="true" focusable="false"><use href="../../assets/oppimisikonit.svg#action-listen"/></svg><span class="sointu-vaihtuva"><span data-arvaus-teksti>Sointu 1</span><span class="sointu-varaus" aria-hidden="true">Sointu 1 · Em</span></span></button>
             <button type="button" data-arvaa-kuuntele="1" aria-label="Kuuntele sointu 2"><svg class="sointu-kuvake" aria-hidden="true" focusable="false"><use href="../../assets/oppimisikonit.svg#action-listen"/></svg><span class="sointu-vaihtuva"><span data-arvaus-teksti>Sointu 2</span><span class="sointu-varaus" aria-hidden="true">Sointu 2 · Em</span></span></button>
           </div>
-          <button type="button" data-uusi-arvaus>Arvaa</button>
+          <button type="button" data-uusi-arvaus><span class="sointu-vaihtuva sointu-vaihtuva--keski"><span data-uusi-arvaus-teksti>Arvaa</span><span class="sointu-varaus" aria-hidden="true">Uusi arvaus</span></span></button>
         </div>
         <div class="sointu-toiminnot" data-arvaus-vastaus role="group" aria-label="Vastaa" hidden>
           <strong>Vastaa</strong>
@@ -74,6 +81,6 @@
   <script src="../../assets/edistyminen.js?v=39bccb10a6"></script>
   <script src="../../assets/oppimistapa.js"></script>
   <script src="../../assets/kokonaisuudet.js?v=326aed1a00"></script>
-  <script src="../../assets/sointuharjoitus.js?v=4869521e18"></script>
+  <script src="../../assets/sointuharjoitus.js?v=21759591d5"></script>
 </body>
 </html>

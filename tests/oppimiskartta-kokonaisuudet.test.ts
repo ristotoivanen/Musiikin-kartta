@@ -105,6 +105,15 @@ it('03 alkaa ilman valittua lopetusta ja kertoo G:n roolin vasta Mitä opit? -os
     for (const number of [1, 2]) {
       expect(html).toContain(`<span class="sointu-vaihtuva"><span data-arvaus-teksti>Sointu ${number}</span><span class="sointu-varaus" aria-hidden="true">Sointu ${number} · Em</span></span>`);
     }
+    // PR #141 (zoom): jokainen Arvaa-tilan vaihtuva teksti on myös näkymättömänä varauksena, jotta
+    // kortin ja painikkeiden korkeus ei muutu tilanvaihdossa. JS:n teksti ja varaus pidetään samoina.
+    const script = read('assets/sointuharjoitus.js');
+    const prompt = 'Kuuntele soinnut 1 ja 2. Valitse sitten vastaus.';
+    for (const text of ['Kumpi on duuri?', 'Kumpi on molli?', prompt, 'Uusi arvaus']) expect(script).toContain(`'${text}'`);
+    for (const [heading, text] of [['Kuuntele ensin E ja Em', 'Kuuntele molemmat soinnut. Valitse sitten Arvaa.'], ['Kumpi on duuri?', prompt], ['Kumpi on molli?', prompt]]) {
+      expect(html).toContain(`<div class="sointu-varaus" aria-hidden="true"><span class="sointu-varaus-otsikko">${heading}</span><span>${text}</span></div>`);
+    }
+    expect(html).toContain('<span data-uusi-arvaus-teksti>Arvaa</span><span class="sointu-varaus" aria-hidden="true">Uusi arvaus</span>');
   }
 });
 

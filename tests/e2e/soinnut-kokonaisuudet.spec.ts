@@ -694,6 +694,109 @@ test.describe('Ydinopinnot v0.5', () => {
     await expect(question.locator('[data-kysymys]')).toBeInViewport();
   });
 
+  // PR #141, iOS Simulator -auditointi 22.11.2026: Safarin sivuzoomaus kaventaa CSS-näkymää
+  // (iPhone 16 Pro 402 pt: 150 % ≈ 268 px, 200 % ≈ 201 px) eikä muuta rem-kokoa. Kysymyskortin
+  // otsikko rivittyi eri tavalla tiloissa, ja ohjaimet hyppäsivät 20–36 px; 200 %:ssa
+  // "Sointu 1" ja "Kuuntele" katkesivat kesken sanan. Leveydet mallintavat zoomausta; oikea Safari
+  // tarkistetaan erikseen simulaattorissa.
+  const zoomWidths = [[402, '100 %'], [268, '150 %'], [201, '200 %']] as const;
+  const arvaaPlaces = [['aihesivu', topicPath + '#valinta-yksi-savel-muuttaa-sointua'], ['oma', ydinPath(1)]] as const;
+  for (const [width, zoom] of zoomWidths) {
+    test(`02:n Arvaa-tila ${width} px (Safari ${zoom}): ohjaimet pysyvät, tekstit ehjinä`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      for (const [where, url] of arvaaPlaces) {
+        const testCase = `${where} ${width}px`;
+        await page.goto('about:blank');
+        await page.goto(url);
+        const section = page.locator('.sointuharjoitus[data-sointuharjoitus="arvaa"]:visible');
+        const next = section.locator('[data-uusi-arvaus]');
+        // Näkyvien ohjainten dokumenttisijainnit: kysymyskortti, kaksi kuuntelupainiketta, Arvaa.
+        const controls = () => section.evaluate(root => {
+          const shown = [...root.querySelectorAll<HTMLElement>(
+            '[data-arvaus-kysymys], [data-suora-kuuntelu] button, [data-arvaus-kuuntelu] button, [data-uusi-arvaus]',
+          )].filter(element => element.offsetParent);
+          return shown.map(element => {
+            const box = element.getBoundingClientRect();
+            return [Math.round(box.left), Math.round(box.top + window.scrollY), Math.round(box.width), Math.round(box.height)].join(',');
+          });
+        });
+        // Sana, jonka kirjaimet ovat usealla rivillä, on katkennut kesken (näissä teksteissä ei ole tavuviivoja).
+        const brokenWords = () => section.evaluate(root => {
+          const targets = root.querySelectorAll<HTMLElement>(
+            ':scope > h2, [data-kysymys], [data-kysymys-ohje], [data-sointu-ohjaimet] button, [data-arvaus-vastaus] strong',
+          );
+          const broken: string[] = [];
+          for (const target of targets) {
+            if (!target.offsetParent) continue;
+            const walker = document.createTreeWalker(target, NodeFilter.SHOW_TEXT);
+            for (let node = walker.nextNode() as Text | null; node; node = walker.nextNode() as Text | null) {
+              if (getComputedStyle(node.parentElement!).visibility === 'hidden') continue;
+              for (const match of node.data.matchAll(/\S+/g)) {
+                const range = document.createRange();
+                range.setStart(node, match.index!);
+                range.setEnd(node, match.index! + match[0].length);
+                const lines = new Set([...range.getClientRects()].filter(rect => rect.width > 0).map(rect => Math.round(rect.top)));
+                if (lines.size > 1) broken.push(match[0]);
+              }
+            }
+          }
+          return broken;
+        });
+        const answers = () => section.locator('[data-arvaus-vastaus] button').evaluateAll(buttons => buttons.map(button => {
+          const box = button.getBoundingClientRect();
+          return { top: Math.round(box.top), height: Math.round(box.height), clipped: button.scrollWidth > button.clientWidth + 1 };
+        }));
+
+        // Arvaa/Uusi arvaus -nimi on painikkeen keskellä, vaikka painike varaa pidemmän nimen tilan.
+        const labelOffCenter = () => next.evaluate(button => {
+          const box = button.getBoundingClientRect();
+          const label = button.querySelector('[data-uusi-arvaus-teksti]')!.getBoundingClientRect();
+          return Math.abs((label.left + label.right) / 2 - (box.left + box.right) / 2);
+        });
+        // Kuuntelupainikkeen nimi on kuvakkeen tasalla, vaikka painike varaa kaksirivisen nimen tilan.
+        const labelsBesideIcons = () => section.evaluate(root => [...root.querySelectorAll<HTMLElement>(
+          '[data-suora-kuuntelu] button, [data-arvaus-kuuntelu] button',
+        )].filter(button => button.offsetParent).every(button => {
+          const icon = button.querySelector('svg')!.getBoundingClientRect();
+          const text = document.createRange();
+          text.selectNodeContents(button.querySelector('.sointu-vaihtuva > span:first-child')!);
+          const label = text.getBoundingClientRect();
+          return Math.abs((icon.top + icon.bottom) / 2 - (label.top + label.bottom) / 2) < 2;
+        }));
+        await expect(next).toBeVisible();
+        expect(await labelOffCenter(), testCase).toBeLessThan(2);
+        expect(await labelsBesideIcons(), testCase).toBe(true);
+        const initial = await controls();
+        expect(initial, testCase).toHaveLength(4);
+        expect(await brokenWords(), testCase).toEqual([]);
+
+        await next.click();
+        await expect(section.locator('[data-kysymys]')).toHaveText(/Kumpi on (duuri|molli)\?/);
+        await expect(next).toHaveAccessibleName('Uusi arvaus');
+        expect(await labelOffCenter(), testCase).toBeLessThan(2);
+        expect(await labelsBesideIcons(), `${testCase}: Arvaa`).toBe(true);
+        expect(await controls(), `${testCase}: Arvaa`).toEqual(initial);
+        expect(await brokenWords(), `${testCase}: Arvaa`).toEqual([]);
+        const [first, second] = await answers();
+        expect([first.clipped, second.clipped], testCase).toEqual([false, false]);
+        expect(first.height, testCase).toBe(second.height);
+        expect(first.height, testCase).toBeGreaterThanOrEqual(44);
+        // 100 %:ssa vastaukset rinnakkain, zoomattuna allekkain.
+        expect(first.top === second.top, testCase).toBe(width === 402);
+
+        await section.getByRole('group', { name: 'Vastaa' }).getByRole('button', { name: 'Sointu 1' }).click();
+        await expect(section.locator('[data-arvaus-teksti]').first()).toContainText(' · ');
+        expect(await controls(), `${testCase}: vastattu`).toEqual(initial);
+        expect(await brokenWords(), `${testCase}: vastattu`).toEqual([]);
+
+        await next.click();
+        await expect(section.locator('[data-arvaus-teksti]').first()).not.toContainText(' · ');
+        expect(await controls(), `${testCase}: Uusi arvaus`).toEqual(initial);
+        expect(await noHorizontalScroll(page), testCase).toBe(true);
+      }
+    });
+  }
+
   test('arvauksessa kuuntelu ja vastaus ovat erillisiä, järjestys ja kysymys arvotaan', async ({ page, isMobile }) => {
     await recordAudio(page);
     await page.goto(ydinPath(1));
