@@ -166,7 +166,9 @@ export function requestMode(transport, mode) {
 export function scheduleUntil(transport, horizon, options = {}) {
   const scheduled = [];
   while (transport.next < horizon) {
-    if (transport.step % STEPS_PER_BAR === 0 && transport.pending) {
+    // Osanvaihdossa ero on D-tahdissa: uusi A/B alkaa vasta seuraavan D:n ykkösellä.
+    const boundary = transport.task === 'osanvaihto' ? LOOP_STEPS : STEPS_PER_BAR;
+    if (transport.step % boundary === 0 && transport.pending) {
       transport.mode = transport.pending;
       transport.pending = null;
       transport.switches.push({ time: transport.next, step: transport.step, mode: transport.mode });
@@ -546,7 +548,7 @@ function setupExercise(root) {
       requestMode(session.transport, mode);
       // Valittu versio ei vielä soi: ruudukko ja ilmoitus "Nyt soi" vaihtuvat vasta tahdin rajalla.
       status.textContent = session.transport.pending
-        ? `Valittu ${versionNames[mode]}. Versio vaihtuu seuraavan tahdin alussa.`
+        ? `Valittu ${versionNames[mode]}. Versio vaihtuu ${isTransition ? 'seuraavan D–G-kierron' : 'seuraavan tahdin'} alussa.`
         : `Nyt soi ${versionNames[session.announced]}.`;
     });
   }
