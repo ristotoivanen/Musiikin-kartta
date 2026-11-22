@@ -29,5 +29,14 @@ jobs:
           node tools/soitinpankki/plan-meta-steel.mjs --validate
           node tools/soitinpankki/plan-meta-steel.mjs --example
           npx vitest run tests/meta-steel-inventory.test.ts
+      - name: Verify WAV staging converter without source archives
+        run: |
+          if ! command -v ffmpeg >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y ffmpeg
+          fi
+          node tools/soitinpankki/plan-meta-steel.mjs --example > "$RUNNER_TEMP/steel-plan.json"
+          python3 tools/soitinpankki/valmistele_meta_steel.py --plan "$RUNNER_TEMP/steel-plan.json" --dry-run
+          python3 -m unittest discover -s tools/soitinpankki -p 'test_valmistele_meta_steel.py' -v
       - name: Full project static checks, unit tests and build
         run: npm run check
