@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { SongChordChart } from './SongChordChart';
 import { SongScales } from './SongScales';
 import {
-  SongGainMixer, StemAligner, loadSongVolume, saveSongVolume, songVolumeMode, trackLevel, type SongTrack,
+  START_ALIGN_TOLERANCE_SECONDS, START_READY_TIMEOUT_MS, STARTUP_SETTLE_MS, SongGainMixer, StemAligner, loadSongVolume, saveSongVolume, songVolumeMode,
+  startLoading, trackLevel, tracksReady, waitForTracksReady, type SongTrack,
 } from './songAudio';
 import { DEFAULT_SONG_VERSION, isSongLink, songLink, versionFromSongLink, type SongVersion } from './songChart';
 
@@ -84,12 +85,12 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   const [duration, setDuration] = useState(0);
   const [error, setError] = useState('');
 
-  function syncStems(force = false, only?: HTMLAudioElement) {
+  function syncStems(force = false, only?: HTMLAudioElement, tolerance?: number) {
     const backing = backingRef.current;
     if (!backing) return;
     // Pois kytketty raita on pysäytettynä, joten tahdistin ohittaa sen jatkuvassa toistossa.
     for (const stem of [guitarRef.current, vocalsRef.current]) {
-      if (stem && (!only || stem === only)) aligner.current.align(backing, stem, force);
+      if (stem && (!only || stem === only)) aligner.current.align(backing, stem, force, undefined, tolerance);
     }
   }
 
@@ -204,17 +205,37 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
     applyLevels();
     guitar.muted = !guitarOn;
     vocals.muted = !vocalsOn;
-    syncStems(true);
+    // Raitaa kelataan Soita-painalluksesta vain, jos se on selvästi eri kohdassa (ks. START_ALIGN_TOLERANCE_SECONDS):
+    // iPhonen WebKitissä kelattu raita pysähtelee toiston alussa, joten pieni korjaus tauon jälkeen loi suuren eron.
+    syncStems(true, undefined, START_ALIGN_TOLERANCE_SECONDS);
     const request = ++playbackRequest.current;
+    // Pois kytkettyä raitaa ei soiteta mykistettynä: iPhonen Safari ei vie mykistettyä raitaa eteenpäin,
+    // eikä se ala kuulua, kun mykistys poistetaan. Se käynnistetään vasta, kun raita kytketään päälle.
+    if (!guitarOn) guitar.pause();
+    if (!vocalsOn) vocals.pause();
+    const active = [backing, ...(guitarOn ? [guitar] : []), ...(vocalsOn ? [vocals] : [])];
+    if (!tracksReady(active)) {
+      // Kylmäkäynnistys (issue #9): preload="metadata"-raidat lataavat dataa vasta play()-kutsusta, ja
+      // ensin dataa saanut raita lähti muita aiemmin. Lataus käynnistetään kaikille samasta painalluksesta,
+      // ja toisto aloitetaan vasta, kun jokaisella raidalla on dataa. Tauon jälkeen sama koskee raitoja,
+      // joiden tahdistuskelaus (syncStems yllä) on vielä kesken.
+      startLoading(active);
+      const ready = await waitForTracksReady(active, START_READY_TIMEOUT_MS, () => request !== playbackRequest.current);
+      if (ready === 'ohitettu' || request !== playbackRequest.current) return;
+      if (ready === 'virhe') {
+        pause();
+        setError('Toisto epäonnistui. Tarkista, että valitun version kaikki kolme MP3-raitaa ovat paikallaan.');
+        return;
+      }
+      // Aikakatkaisussa toisto aloitetaan silti kuten ennen korjausta, ja tahdistin korjaa eron vakiintumisen jälkeen.
+    }
     try {
-      // Kaikki käynnistyvät samalla käyttäjän painalluksella. Pois kytkettyä raitaa ei soiteta
-      // mykistettynä: iPhonen Safari ei vie mykistettyä raitaa eteenpäin, eikä se ala kuulua,
-      // kun mykistys poistetaan. Se käynnistetään vasta, kun raita kytketään päälle.
-      if (!guitarOn) guitar.pause();
-      if (!vocalsOn) vocals.pause();
-      const starters = [backing.play(), ...(guitarOn ? [guitar.play()] : []), ...(vocalsOn ? [vocals.play()] : [])];
-      await Promise.all(starters);
+      // Raidat käynnistetään peräkkäisillä kutsuilla. Korjauskelaukset pidätetään toiston alun ajan, jotta
+      // vakiintumaton kello ei laukaise yksittäistä kelausta, joka siirtäisi raidan kuuluvaa kohtaa.
+      aligner.current.hold(performance.now() + STARTUP_SETTLE_MS);
+      await Promise.all(active.map(element => element.play()));
       if (request !== playbackRequest.current) return;
+      aligner.current.hold(performance.now() + STARTUP_SETTLE_MS);
       syncStems();
       setPlaying(true);
       // Reititetty raita kuuluu vain, kun Web Audio on käynnissä. Jos se jää pysähdyksiin, kerrotaan siitä.
