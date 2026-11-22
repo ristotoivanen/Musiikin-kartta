@@ -15,8 +15,11 @@ assert pdf.PARTS == [f'osa-{n}' for n in range(1, 12)]
 assert pdf.APPENDICES == ['sanasto', 'h-savelnimen-alkupera']
 docs = [pdf.read_doc(slug) for slug in pdf.DOCS]
 assert len(docs) == 13, '11 kirjaosaa ja 2 liitettä'
-chapters = [(d['slug'], c['id']) for d in docs for c in d['chapters']]
-assert len(chapters) == 28, '28 kirjan lukua eivät enää vastaa lähdekoostetta'
+book_chapters = [(d['slug'], c['id']) for d in docs if d['slug'] in pdf.PARTS for c in d['chapters']]
+appendix_sections = [(d['slug'], c['id']) for d in docs if d['slug'] in pdf.APPENDICES for c in d['chapters']]
+assert len(book_chapters) == 28, '11 kirjaosan 28 lukua eivät enää vastaa lähdekoostetta'
+assert len(appendix_sections) == 4, 'kahden liitteen 4 chapter-rakenteista osiota puuttuu'
+chapters = book_chapters + appendix_sections
 html = pdf.build_html(docs, {})
 for slug in pdf.DOCS:
     assert f'<section class="part" id="{slug}">' in html, slug
