@@ -325,11 +325,20 @@
     const feedback = section.querySelector('[data-arvauspalaute]');
     const firstPrompt = feedback.textContent;
     const diagrams = section.querySelector('[data-arvaus-kaaviot]');
-    const chords = { E: diagrams.children[0], Em: diagrams.children[1] };
+    const originalD = section.querySelector('.chord-diagrams');
+    const chords = {
+      D: originalD.children[0].cloneNode(true),
+      Dm: originalD.children[1].cloneNode(true),
+      E: diagrams.children[0],
+      Em: diagrams.children[1],
+    };
+    const families = { D: ['D', 'Dm'], E: ['E', 'Em'] };
+    const pairButtons = [...section.querySelectorAll('[data-arvaus-pari]')];
+    let family = 'E';
     const comparison = section.querySelector('[data-otevertailu]');
     const tip = section.querySelector('.study-knoppi');
     const next = section.querySelector('[data-uusi-arvaus]');
-    const fullName = { E: 'E-duuri', Em: 'E-molli' };
+    const fullName = { D: 'D-duuri', Dm: 'D-molli', E: 'E-duuri', Em: 'E-molli' };
     // #115: D/Dm ensin. F4 on oikea Vel02:n kitaranäyte,
     // ei F♯4-näytteen äänenkorkeuden muutoksesta tehty korvike.
     const ddmStatus = section.querySelector('[data-ddm-tila]');
@@ -347,9 +356,41 @@
     let target;
     let answered = false;
 
-    for (const button of normal.querySelectorAll('button')) {
+    const normalButtons = [...normal.querySelectorAll('button')];
+    for (const button of normalButtons) {
       button.addEventListener('click', () => playExample(button, plans[button.dataset.ydinPlay]));
     }
+    // Molemmat sointuparit käyttävät täsmälleen samaa arvausmekanismia.
+    // E/Em on oletus, jotta jo hyväksytty kuuntelu ja sen näppäimistötoiminta säilyvät.
+    function chooseFamily(nextFamily) {
+      if (family === nextFamily) return;
+      stopExample();
+      family = nextFamily;
+      pair = null;
+      answered = false;
+      const names = families[family];
+      pairButtons.forEach(button =>
+        button.setAttribute('aria-pressed', String(button.dataset.arvausPari === family)));
+      normalButtons.forEach((button, index) => {
+        button.dataset.ydinPlay = names[index];
+        button.querySelector('.sointu-vaihtuva > span:first-child').textContent = names[index];
+      });
+      normal.hidden = false;
+      listening.hidden = answers.hidden = feedback.hidden = true;
+      question.classList.remove('is-active');
+      heading.textContent = `Kuuntele ensin ${names[0]} ja ${names[1]}`;
+      prompt.textContent = 'Kuuntele molemmat soinnut. Valitse sitten Arvaa.';
+      for (const chord of names) chords[chord].querySelector('figcaption').textContent = chord;
+      diagrams.replaceChildren(...names.map(name => chords[name]));
+      diagrams.hidden = false;
+      comparison.hidden = tip.hidden = family !== 'E';
+      next.querySelector('[data-uusi-arvaus-teksti]').textContent = 'Arvaa';
+      feedback.textContent = firstPrompt;
+      feedback.classList.remove('is-error');
+      showExerciseStatus(`Valittu ${names.join(' ja ')}. Kuuntele ja aloita arvaus.`);
+    }
+    pairButtons.forEach(button =>
+      button.addEventListener('click', () => chooseFamily(button.dataset.arvausPari)));
     for (const button of listenButtons) {
       button.addEventListener('click', () => playExample(button, plans[pair[Number(button.dataset.arvaaKuuntele)]]));
     }
@@ -365,8 +406,9 @@
     }
     next.addEventListener('click', () => {
       stopExample();
-      pair = Math.random() < 0.5 ? ['E', 'Em'] : ['Em', 'E'];
-      target = Math.random() < 0.5 ? 'Em' : 'E';
+      const selected = families[family];
+      pair = Math.random() < 0.5 ? [...selected] : [...selected].reverse();
+      target = Math.random() < 0.5 ? selected[1] : selected[0];
       answered = false;
       normal.hidden = comparison.hidden = diagrams.hidden = tip.hidden = true;
       listening.hidden = answers.hidden = feedback.hidden = false;
@@ -418,7 +460,8 @@
           diagrams.append(figure);
         });
         nameListening(true);
-        diagrams.hidden = tip.hidden = false;
+        diagrams.hidden = false;
+        tip.hidden = family !== 'E';
         showExerciseStatus('Voit kuunnella molemmat soinnut uudelleen nimineen.');
       });
     }
