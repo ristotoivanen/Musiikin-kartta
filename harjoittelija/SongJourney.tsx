@@ -5,7 +5,14 @@ import {
   START_ALIGN_TOLERANCE_SECONDS, START_READY_TIMEOUT_MS, STARTUP_SETTLE_MS, SongGainMixer, StemAligner, loadSongVolume, saveSongVolume, songVolumeMode,
   startLoading, trackLevel, tracksReady, waitForTracksReady, type SongTrack,
 } from './songAudio';
-import { DEFAULT_SONG_VERSION, isSongLink, songLink, versionFromSongLink, type SongVersion } from './songChart';
+import { DEFAULT_SONG_VERSION, chordAt, isSongLink, songLink, versionFromSongLink, type SongVersion } from './songChart';
+import { BufferSongPlayer, createPlaybackContext, type BufferPlayerState } from './bufferPlayer';
+
+/**
+ * KOKEILU (issue #9, D1-prototyyppi, ei julkaisuun): ?soitin=d1 soittaa raidat puretuista AudioBuffereista
+ * (bufferPlayer.ts). Oletuksena käytetään nykyistä mediaelementtisoitinta ja sen kylmäkäynnistystä (PR #155).
+ */
+const D1_MODE = typeof location !== 'undefined' && new URLSearchParams(location.search).get('soitin') === 'd1';
 
 // Käyttäjän itse valitsema versio säilyy, vaikka hän käy välillä oppimispoluissa.
 let chosenVersion: SongVersion | null = null;
@@ -65,6 +72,10 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   // Pitää kitaran ja laulun taustan tahdissa ja oppii laitteen kelausviiveen.
   const aligner = useRef(new StemAligner());
   const pendingSeek = useRef<number | null>(null);
+  // D1-kokeilu: puretut raidat ja oma AudioContext. Pyyntötunniste ohittaa vanhentuneen latauksen.
+  const d1 = useRef<{ context: AudioContext; player: BufferSongPlayer } | null>(null);
+  const d1Request = useRef(0);
+  const [d1State, setD1State] = useState<BufferPlayerState>('tyhja');
   const [version, setVersion] = useState<SongVersion>(initialVersion);
   const song = VERSIONS[version];
   const [playing, setPlaying] = useState(false);
@@ -101,6 +112,12 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
 
   /** Asettaa kaikkien raitojen tason. Ei koske toistoon, kelaukseen eikä synkronointiin. */
   function applyLevels(level = volume, audible?: Partial<Record<SongTrack, boolean>>) {
+    if (D1_MODE) {
+      // D1: taso ja raidan kytkentä ovat GainNode-tasoja. Soitto ei katkea.
+      const player = d1.current?.player;
+      if (player) for (const [track, , on] of tracks()) player.setLevel(track, trackLevel(track, level, audible?.[track] ?? on));
+      return;
+    }
     for (const [track, element, on] of tracks()) {
       if (!element) continue;
       const value = trackLevel(track, level, audible?.[track] ?? on);
@@ -120,6 +137,10 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   }
 
   function pause() {
+    if (D1_MODE) {
+      const player = d1.current?.player;
+      if (player?.playing) setPosition(player.pause());
+    }
     playbackRequest.current++;
     backingRef.current?.pause();
     guitarRef.current?.pause();
@@ -129,6 +150,11 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
 
   function changeVersion(next: SongVersion) {
     if (next === version) return;
+    if (D1_MODE) {
+      // Edellisen version puskurit ja lähteet vapautetaan ennen kuin uusi versio puretaan seuraavasta Soita-painalluksesta.
+      d1Request.current++;
+      d1.current?.player.release();
+    }
     // Toisto pysäytetään ja kelataan alkuun. Uuden version käynnistäminen
     // edellyttää aina käyttäjältä erillistä Soita-painallusta.
     pendingSeek.current = null;
@@ -145,6 +171,14 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   }
 
   function seek(seconds: number) {
+    if (D1_MODE) {
+      const player = d1.current?.player;
+      const at = Math.max(0, Math.min(seconds, duration > 0 ? duration : seconds));
+      setPosition(at);
+      if (player?.state === 'valmis') player.seek(at);
+      else pendingSeek.current = at;
+      return;
+    }
     const backing = backingRef.current;
     if (!backing || !Number.isFinite(seconds)) return;
     const at = Math.max(0, Math.min(seconds, Number.isFinite(backing.duration) ? backing.duration : seconds));
@@ -186,7 +220,69 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
     if (!backing.paused) syncStems();
   }
 
+  /** D1: AudioContext ja soitin luodaan ensimmäisestä Soita-painalluksesta (iOS vaatii käyttäjän eleen). */
+  function ensureD1() {
+    if (d1.current) return d1.current;
+    try {
+      const context = createPlaybackContext();
+      const player = new BufferSongPlayer(context);
+      player.onStateChange = setD1State;
+      player.onEnded = () => { setPlaying(false); setPosition(player.duration); };
+      // Lukitus tai muu keskeytys pysäyttää kontekstin: lähteet pysäytetään ja kohta tallennetaan, jotta jatko alkaa
+      // samasta kohdasta uusilla lähteillä (PR #92:n palautus kytkeytyy tähän).
+      context.onstatechange = () => {
+        if (context.state !== 'running' && player.playing) { setPosition(player.pause()); setPlaying(false); }
+      };
+      d1.current = { context, player };
+      // KOKEILU: mittausvaljas lukee soittimen tilan ja raitojen tulot.
+      (window as unknown as { __kappaleD1?: unknown }).__kappaleD1 = { context, player };
+      return d1.current;
+    } catch (cause) {
+      setError('Web Audio ei ole käytettävissä tässä selaimessa. ' + (cause instanceof Error ? cause.message : ''));
+      return null;
+    }
+  }
+
+  async function toggleD1() {
+    const created = ensureD1();
+    if (!created) return;
+    const { context, player } = created;
+    if (playing) { setPosition(player.pause()); setPlaying(false); return; }
+    if (player.state === 'ladataan' || player.state === 'puretaan') {
+      // Toinen painallus latauksen aikana peruu sen. Mitään ei jää soimaan.
+      d1Request.current++;
+      player.cancel();
+      return;
+    }
+    // resume() kutsutaan heti painalluksesta, ennen yhtään odotusta.
+    const resumed = context.state === 'running' ? Promise.resolve() : context.resume();
+    setError('');
+    const request = ++d1Request.current;
+    if (player.state !== 'valmis') {
+      const result = await player.load({ backing: song.backing, guitar: song.guitar, vocals: song.vocals });
+      if (request !== d1Request.current) return;
+      if (result === 'virhe') { setError('Kappaleen lataus epäonnistui. Tarkista yhteys ja paina Soita uudelleen.'); return; }
+      if (result !== 'valmis') return;
+      setDuration(player.duration);
+    }
+    try { await resumed; } catch { /* tila tarkistetaan alla */ }
+    if (request !== d1Request.current) return;
+    if (context.state !== 'running') {
+      setError(`Ääni ei käynnistynyt (Web Audio: ${context.state}). Paina Soita uudelleen.`);
+      return;
+    }
+    applyLevels();
+    player.setLoop(loopOn);
+    if (pendingSeek.current !== null) { player.seek(pendingSeek.current); pendingSeek.current = null; }
+    let at = player.position();
+    if (at >= player.duration - 0.05) at = 0;
+    if (!player.play(at)) { setError('Toisto epäonnistui. Paina Soita uudelleen.'); return; }
+    setPosition(at);
+    setPlaying(true);
+  }
+
   async function togglePlayback() {
+    if (D1_MODE) { await toggleD1(); return; }
     const backing = backingRef.current;
     const guitar = guitarRef.current;
     const vocals = vocalsRef.current;
@@ -289,11 +385,37 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
       guitarRef.current?.pause();
       vocalsRef.current?.pause();
       mixer.current?.close();
+      // D1: lataus perutaan, lähteet pysäytetään, puskurit ja konteksti vapautetaan.
+      d1Request.current++;
+      d1.current?.player.dispose();
+      void d1.current?.context.close().catch(() => {});
+      d1.current = null;
+      delete (window as unknown as { __kappaleD1?: unknown }).__kappaleD1;
     };
   }, []);
 
   // Versionvaihdossa syntyvät uudet audioelementit saavat saman tason heti.
   useEffect(() => { applyLevels(); }, [version]);
+  useEffect(() => { d1.current?.player.setLoop(loopOn); }, [loopOn]);
+  // D1: sointunäyttö seuraa kuuluvaa kohtaa ruudunpäivityksen tarkkuudella. Tila päivitetään iskun vaihtuessa
+  // (ja vähintään 4 kertaa sekunnissa ajan ja liukusäätimen vuoksi), ei jokaisella ruudulla.
+  useEffect(() => {
+    if (!D1_MODE || !playing) return;
+    let frame = 0, lastKey = '', lastSet = 0;
+    const tick = () => {
+      const player = d1.current?.player;
+      if (player?.playing) {
+        const at = player.audiblePosition();
+        const current = chordAt(at, version);
+        const key = `${current.sectionIndex}:${current.barIndex}:${current.beat}`;
+        const now = performance.now();
+        if (key !== lastKey || now - lastSet > 250) { lastKey = key; lastSet = now; setPosition(at); }
+      }
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [playing, version]);
 
   return <section className="song-journey" aria-labelledby="song-journey-title">
     <button type="button" className="back-link" onClick={onBack}>← Oppimispolut</button>
@@ -313,7 +435,7 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
       <div className="session-top"><h3>Kappaleen soitin</h3><span>{song.label} · {song.length} · kolme ääniraitaa</span></div>
       <div className="song-player-controls" role="group" aria-label="Kappaleen soitin">
         <button type="button" className="primary song-play" onClick={() => void togglePlayback()}>
-          {playing ? '■ Tauko' : '▶ Soita kappale'}
+          {playing ? '■ Tauko' : d1State === 'ladataan' || d1State === 'puretaan' ? '■ Peruuta lataus' : '▶ Soita kappale'}
         </button>
         <input type="range" aria-label="Siirry kappaleessa" min={0}
           max={duration > 0 ? duration : 1} step={0.1}
@@ -351,6 +473,9 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
         <span>{song.label}, koko kappale · {song.downloadSize}</span>
       </p>
       {error && <p className="backing-error" role="alert">{error}</p>}
+      {D1_MODE && (d1State === 'ladataan' || d1State === 'puretaan') && <p className="tools-note" role="status">
+        {d1State === 'ladataan' ? 'Ladataan kappaleen raitoja…' : 'Valmistellaan raitoja soittoa varten…'}</p>}
+      {!D1_MODE && <>
       <audio key={version + '-backing'} ref={backingRef} src={song.backing} preload="metadata" loop={loopOn}
         onLoadedMetadata={event => {
           if (event.currentTarget !== backingRef.current) return;
@@ -376,6 +501,7 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
       <audio key={version + '-vocals'} ref={vocalsRef} src={song.vocals} preload="metadata" muted={!vocalsOn} loop={loopOn}
         onLoadedMetadata={() => { if (backingRef.current?.paused) syncStems(true); }}
         onError={() => setError(song.label + ': lauluraita puuttuu tai ei lataudu.')} />
+      </>}
     </div>
 
     <details className="song-chart-collapse" open={chordPanelOpen}>
