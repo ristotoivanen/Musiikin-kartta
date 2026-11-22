@@ -46,7 +46,7 @@
     soita: 'Kuuntele, miltä kaikki kuusi kieltä kuulostavat yhdessä. Ääni on oikeasta kitaranäytteestä.',
     rakenna: 'Voit valita kolme säveltä haluamassasi järjestyksessä.',
     kokoa: 'Valitse esimerkki kuunneltavaksi.',
-    arvaa: 'Napauta E:tä tai Em:ää kuunnellaksesi.',
+    arvaa: 'Kuuntele ensin soinnut 1 ja 2.',
     paluu: 'Valitse ensin lopetus: G, C tai D.',
     asteet: 'Kuuntele neljä tahtia ja kokeile samaa kiertoa omalla kitaralla.',
     vihjeet: 'Valitse vihjeiden määrä ja aloita neljä neljän tahdin kierrosta.',
@@ -373,7 +373,7 @@
         button.setAttribute('aria-pressed', String(button.dataset.arvausPari === family)));
       normalButtons.forEach((button, index) => {
         button.dataset.ydinPlay = names[index];
-        button.querySelector('.sointu-vaihtuva > span:first-child').textContent = names[index];
+        button.querySelector('.sointu-vaihtuva > span:first-child').textContent = `Sointu ${index + 1} · ${names[index]}`;
       });
       normal.hidden = false;
       listening.hidden = answers.hidden = feedback.hidden = true;
