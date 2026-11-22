@@ -145,12 +145,15 @@ export function gridCell(task, loopStep) {
 }
 
 /** Toiston aikajana. Ei riipu selaimesta, joten ajastus ja versiovaihdot voidaan testata. */
-export function createTransport({ task, tempo, begin, mode = 'A' }) {
+export function createTransport({ task, tempo, begin, mode = 'A', drumGap = false }) {
   return {
     task, begin, mode, pending: null, step: 0, next: begin,
+    drumGap, pendingDrumGap: null,
     stepDuration: 60 / tempo / 2,
     // Tosiasiallisesti soivan version muutokset: [{ time, step, mode }]
-    switches: [{ time: begin, step: 0, mode }]
+    switches: [{ time: begin, step: 0, mode }],
+    // Rumpukatko vaihtuu vain kokonaisen kahden tahdin kierron rajalla.
+    drumSwitches: [{ time: begin, step: 0, drumGap }]
   };
 }
 
@@ -159,6 +162,14 @@ export function requestMode(transport, mode) {
   const current = transport.pending ?? transport.mode;
   if (mode === current) return false;
   transport.pending = mode === transport.mode ? null : mode;
+  return true;
+}
+
+/** Pyydä A/B-rumpuversiota katkaisematta toistoa. Vaihto tapahtuu seuraavalla kierroksella. */
+export function requestDrumGap(transport, drumGap) {
+  if (transport.task !== 'pulssi') return false;
+  if (drumGap === (transport.pendingDrumGap ?? transport.drumGap)) return false;
+  transport.pendingDrumGap = drumGap === transport.drumGap ? null : drumGap;
   return true;
 }
 
@@ -173,8 +184,16 @@ export function scheduleUntil(transport, horizon, options = {}) {
       transport.pending = null;
       transport.switches.push({ time: transport.next, step: transport.step, mode: transport.mode });
     }
+    // Vaihto ei saa muuttaa jo ajastetun tai kesken olevan kahden tahdin kierron rumpuja.
+    if (transport.task === 'pulssi' && transport.step % LOOP_STEPS === 0 &&
+        transport.pendingDrumGap !== null) {
+      transport.drumGap = transport.pendingDrumGap;
+      transport.pendingDrumGap = null;
+      transport.drumSwitches.push({ time: transport.next, step: transport.step, drumGap: transport.drumGap });
+    }
     const loopStep = transport.step % LOOP_STEPS;
-    for (const event of stepEvents(transport.task, loopStep, { ...options, mode: transport.mode })) {
+    const drumGap = transport.task === 'pulssi' ? transport.drumGap : options.drumGap;
+    for (const event of stepEvents(transport.task, loopStep, { ...options, mode: transport.mode, drumGap })) {
       scheduled.push({ ...event, time: transport.next, step: transport.step });
     }
     transport.step++;
@@ -192,7 +211,11 @@ export function positionAt(transport, time) {
   for (const change of transport.switches) {
     if (change.step <= step) mode = change.mode;
   }
-  return { step, loopStep: step % LOOP_STEPS, mode, cell: gridCell(transport.task, step % LOOP_STEPS) };
+  let drumGap = transport.drumSwitches[0].drumGap;
+  for (const change of transport.drumSwitches) {
+    if (change.step <= step) drumGap = change.drumGap;
+  }
+  return { step, loopStep: step % LOOP_STEPS, mode, drumGap, cell: gridCell(transport.task, step % LOOP_STEPS) };
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -386,6 +409,13 @@ function setupExercise(root) {
     });
   }
 
+  function setDrumCaption(drumGap) {
+    const caption = root.querySelector('[data-rummut-tahti]');
+    if (caption) caption.textContent = drumGap
+      ? 'Tahti 2 · Rummut vaikenevat, basso ja harmonia jatkavat'
+      : 'Tahti 2 · Rummut kuuluvat edelleen';
+  }
+
   function drawReveal() {
     [0, 1].forEach(bar => {
       cells(bar).forEach((element, index) => {
@@ -408,6 +438,13 @@ function setupExercise(root) {
       if (!target?.classList.contains('is-active')) {
         clearActive();
         target?.classList.add('is-active');
+      }
+      if (task === 'pulssi' && session.announcedDrumGap !== position.drumGap) {
+        session.announcedDrumGap = position.drumGap;
+        setDrumCaption(position.drumGap);
+        status.textContent = position.drumGap
+          ? 'Nyt soi B · Rummut tauolla.'
+          : 'Nyt soi A · Rummut koko ajan.';
       }
       if ((task === 'tuntuma' || isTransition) && session.announced !== position.mode) {
         session.announced = position.mode;
@@ -442,6 +479,7 @@ function setupExercise(root) {
     setButton(false);
     drawGroove(state.mode);
     drawTransition(state.mode);
+    if (task === 'pulssi') setDrumCaption(state.drumGap);
   }
 
   async function start() {
@@ -476,13 +514,15 @@ function setupExercise(root) {
     bus.gain.value = 0.8;
     bus.connect(context.destination);
     const transport = createTransport({
-      task, tempo: tempoFor(task, state.example), begin: context.currentTime + START_DELAY, mode: state.mode
+      task, tempo: tempoFor(task, state.example), begin: context.currentTime + START_DELAY,
+      mode: state.mode, drumGap: state.drumGap
     });
     const tick = () => {
       if (session?.transport !== transport) return;
       for (const event of scheduleUntil(transport, context.currentTime + LOOKAHEAD, state)) play(bus, event);
     };
-    session = { transport, bus, timer: setInterval(tick, 25), announced: state.mode };
+    session = { transport, bus, timer: setInterval(tick, 25),
+      announced: state.mode, announcedDrumGap: state.drumGap };
     tick();
     setButton(true);
     status.textContent = MESSAGES.playing;
@@ -510,12 +550,15 @@ function setupExercise(root) {
       if (drumGap === state.drumGap) return;
       state.drumGap = drumGap;
       setPressed(drumButtons, button => (button.dataset.rumpumalli === 'katko') === drumGap);
-      const caption = root.querySelector('[data-rummut-tahti]');
-      if (caption) caption.textContent = drumGap
-        ? 'Tahti 2 · Rummut vaikenevat, basso ja harmonia jatkavat'
-        : 'Tahti 2 · Rummut kuuluvat edelleen';
-      // A/B alkaa alusta samassa taustassa ja tempossa. Tämänhetkinen malli ei vaihdu keskellä tahtia.
-      if (session) { stop(); start(); }
+      if (!session) {
+        setDrumCaption(drumGap);
+        return;
+      }
+      requestDrumGap(session.transport, drumGap);
+      // Painike ilmaisee valinnan heti, mutta selitys seuraa tosiasiallisesti soivaa versiota.
+      status.textContent = session.transport.pendingDrumGap !== null
+        ? `Valittu ${drumGap ? 'B · Rummut tauolla' : 'A · Rummut koko ajan'}. Rummut vaihtuvat seuraavan kahden tahdin kierron alussa.`
+        : `Nyt soi ${session.announcedDrumGap ? 'B · Rummut tauolla' : 'A · Rummut koko ajan'}.`;
     });
   }
 
@@ -567,6 +610,7 @@ function setupExercise(root) {
 
   setButton(false);
   if (reveal) drawReveal();
+  if (task === 'pulssi') setDrumCaption(state.drumGap);
   drawGroove(state.mode);
   drawTransition(state.mode);
   drawSilence();
