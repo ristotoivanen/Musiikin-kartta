@@ -795,6 +795,24 @@ test('02:n kolmas A/Am-pari: aidot sävelet, kuuntelulukko, palaute ja vuorottel
   await expect(section.getByRole('button', { name: 'Tunnista', exact: true })).toBeHidden();
 });
 
+test('02:n kolme sointuparia pysyvät näkyvissä ja ilman vaakavierintää iPhone-zoomissa', async ({ page }) => {
+  for (const width of [390, 201]) {
+    await page.setViewportSize({ width, height: 760 });
+    await page.goto(ydinPath(1));
+    const section = page.locator('[data-sointuharjoitus="arvaa"]');
+    const choices = section.getByRole('group', { name: 'Valitse tunnistustehtävän sointupari' });
+    await expect(choices.locator('button')).toHaveText(['D / Dm', 'E / Em', 'A / Am']);
+    await expect(section.getByRole('button', { name: 'A / Am' })).toBeVisible();
+    await section.getByRole('button', { name: 'A / Am' }).click();
+    await section.getByRole('button', { name: 'Tunnista', exact: true }).click();
+    await expect(section.getByRole('button', { name: 'A / Am' })).toBeInViewport();
+    await expect(section.getByRole('button', { name: 'D / Dm' })).toBeInViewport();
+    await expect(section.getByRole('button', { name: 'E / Em' })).toBeInViewport();
+    await expect(section.locator('[data-kysymys]')).toHaveText('Kumpi on duuri?');
+    expect(await noHorizontalScroll(page), `width=${width}`).toBe(true);
+  }
+});
+
 test('04 sointukierto ja asteet: G–D–Em–C neljän tahdin kitaranäytteillä', async ({ page }) => {
   await recordAudio(page);
   await page.goto(ydinPath(3));
