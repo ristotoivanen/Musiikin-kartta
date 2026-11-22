@@ -36,7 +36,7 @@ jobs:
           npm run typecheck
           npm test
       - run: npx playwright install --with-deps chromium
-      - name: Otelaudan koko QA: desktop ja puhelinemulaatio
+      - name: "Otelaudan koko QA: desktop ja puhelinemulaatio"
         run: npx playwright test tests/e2e/kitaran-lahtosivu.spec.ts tests/e2e/kitaran-otelaudan-geometria-144.spec.ts --project=desktop --project=phone
       - name: Säilytä epäonnistuneiden selaintestien aineisto
         if: failure()
