@@ -80,15 +80,19 @@
 .sointu-parin-valinta {
   display: flex; flex-wrap: wrap; align-items: center; gap: .5rem;
   margin-block: 1rem .5rem;
+  /* iPhonen yläpalkki ja suurennettu teksti: pidä pari näkyvissä vierityksen jälkeen. */
+  scroll-margin-block-start: 3.5rem;
 }
 .sointu-parin-valinta strong { flex-basis: 100%; }
 .sointu-ydin .sointu-valinta { display: block; }
 .sointu-ydin .sointu-ohje.is-error { color: #ffd6b3; }
-/* Vain palautteen otsikkosana saa onnistumis-/virhevärin; selitys pysyy tavallisena. */
-.sointu-ydin [data-arvauspalaute],
-.sointu-ydin [data-arvauspalaute].is-error { color: var(--muted); }
-.sointu-ydin [data-arvauspalaute] > .sointu-arvaus-tulos { color: #9fe4c3; }
-.sointu-ydin [data-arvauspalaute].is-error > .sointu-arvaus-tulos { color: #ffd6b3; }
+/* Koko vastauksen palaute on vihreä (oikein) tai keltainen (väärin).
+ * Vain valittu vastauspainike väritetään; erillinen toimintaohje pysyy neutraalina. */
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvauspalaute] { color: var(--muted); }
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvauspalaute].is-answered { color: #9fe4c3; }
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvauspalaute].is-answered.is-error { color: #ffe08a; }
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvauspalaute] > .sointu-arvaus-tulos { color: inherit; }
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-sointu-tila] { color: var(--text); }
 .sointu-ydin [data-arvaus-vastaus] { align-items: baseline; }
 .sointu-ydin .chord-diagram { min-width: 0; max-width: 100%; }
 .sointu-ydin .chord-diagram svg { max-width: 100%; }
@@ -164,6 +168,37 @@
   flex: 1 1 6.5rem;
   min-inline-size: 0;
 }
+/* Tunnistustehtävän kuuntelupainike on neutraali ennen vastaamista:
+ * soitto ei saa näyttää oikeaa vastausta jo ennakkoon. Vastauksen jälkeen
+ * vasta PAINETTU kuuntelupainike saa vihreän/punaisen arviointivärin. */
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-kuuntelu] button[data-playing]:not(.is-correct):not(.is-wrong) {
+  background: #2d2444;
+}
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-kuuntelu] button.is-correct,
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-kuuntelu] button.is-correct:hover {
+  background: #16633f;
+  border-color: #a2efc1;
+  color: #f5fff9;
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-kuuntelu] button.is-wrong,
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-kuuntelu] button.is-wrong:hover {
+  background: #812c3d;
+  border-color: #ffacba;
+  border-style: dashed;
+  color: #fff3f3;
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+@media (forced-colors: active) {
+  .sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-kuuntelu] button.is-correct {
+    outline: 2px solid Highlight;
+    outline-offset: -3px;
+  }
+  .sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-kuuntelu] button.is-wrong {
+    outline: 2px dashed CanvasText;
+    outline-offset: -3px;
+  }
+}
 /* Arvauksen palaute näkyy siinä painikkeessa, jota oppija käytti.
  * Vaihdetaan vain värit ja reunaviivan piirtotapa: ei paddingia, kokoa eikä sijaintia. */
 .sointu-ydin [data-arvaus-vastaus] button.is-correct,
@@ -183,6 +218,10 @@
 }
 /* Lukitut neutraalit vaihtoehdot himmennetään kuten ennen, mutta
  * väärin/oikein-merkitty tulos pidetään riittävän kontrastisena. */
+.sointu-ydin [data-arvaus-vastaus] button[aria-disabled="true"] {
+  cursor: default;
+  opacity: 1;
+}
 .sointu-ydin [data-arvaus-vastaus] button:is(.is-correct, .is-wrong) {
   opacity: 1;
 }

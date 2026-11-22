@@ -43,6 +43,30 @@ V0.5:n kymmenen lisänäytettä. Jokainen on äänitetty samalla `Vel02`-dynamii
 
 E ja Em käyttävät kuuden kielen avoimia otteita. Niissä vaihtuu ainoastaan G-kielen G♯3/G3.
 
+**A / Am (#116, Draft-PR #158):** avoimet otteet `x02220` ja `x02210`.
+Yhteiset äänitetyt sävelet ovat A2 (avoin A), E3 (D-kielen 2. nauha),
+A3 (G-kielen 2. nauha) ja E4 (avoin ohut e). B-kielen 2. nauhan
+**C♯4** vaihtuu 1. nauhan **C4**:ksi. Kaikki viisi ääntä soitetaan
+alkuperäisistä Meta Steel Guitar Vel02 -näytteistä; mitään ei transponoida.
+
+Kaksi uutta äänitettyä näytettä:
+
+| Kieli / nauha | Sävel | Perusnimi (`.ogg` ja `.m4a`) |
+| --- | --- | --- |
+| A-kieli, avoin | A2 | `INSGuitarSteel_StringA_Vel02_A2_01` |
+| B-kieli, 2. nauha | C♯4 | `INSGuitarSteel_StringB_Vel02_Cs4_01` |
+
+OGG-lähde: Meta Open Sound, kiinnitetty commit `514c926efecdb3c7812bf00eedf8e5c8d61dd681`;
+julkaisijan `systems/instruments/meta-steel-guitar/SHA256SUMS`-tarkisteet:
+A2 `b60289b81de9f65d5c9c4653d9e76286413bcb0fd8283f62a25a05b574b24d23`,
+C♯4 `de860fe8ff370cf8161b7d43882fec955b67c8bb19d360d7f341c574217fd0a2`.
+AAC-LC tehdään saman lähteen v1.0.0-WAV-paketista, ZIP-CRC32 tarkistaen:
+48 kHz mono, 5,0 s, loppuun 0,4 s:n häivytys ja FFmpeg 96 kbit/s.
+Toistettava lataus ja muunnos: `python3 tools/aanet/tuo-soinnut-a-am.py`.
+Muiden sointujen äänitiedostot säilyvät koskemattomina.
+**Fyysinen iPhone/Safari-kuuntelu ja voimakkuusbalanssi ovat erillisiä hyväksyntäehtoja.**
+
+
 #116:n D/Dm-täydennys käyttää neljää kitaran kielinäytettä kummassakin soinnussa:
 D3 (vapaa D-kieli), A3 (G-kielen 2. nauha), D4 (B-kielen 3. nauha) sekä
 F♯4 (D-duuri, ohut e-kieli 2. nauha) tai **F4 (D-molli, ohut e-kieli 1. nauha)**.

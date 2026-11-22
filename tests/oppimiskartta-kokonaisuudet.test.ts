@@ -104,17 +104,42 @@ it('03 alkaa ilman valittua lopetusta ja kertoo G:n roolin vasta Mitä opit? -os
   }
   for (const html of [read('oppi/soinnut/yksi-savel-muuttaa-sointua.html'), topic]) {
     for (const number of [1, 2]) {
-      expect(html).toContain(`<span class="sointu-vaihtuva"><span data-arvaus-teksti>Sointu ${number}</span><span class="sointu-varaus" aria-hidden="true">Sointu ${number} · Em</span></span>`);
+      expect(html).toContain(`<span class="sointu-vaihtuva"><span data-arvaus-teksti>Sointu ${number}</span><span class="sointu-varaus" aria-hidden="true">Sointu ${number} · Em</span><span class="sointu-varaus" aria-hidden="true">Sointu ${number} · Dm</span><span class="sointu-varaus" aria-hidden="true">Sointu ${number} · Am</span></span>`);
     }
     // PR #141 (zoom): jokainen tunnistustilan vaihtuva teksti on myös näkymättömänä varauksena, jotta
     // kortin ja painikkeiden korkeus ei muutu tilanvaihdossa. JS:n teksti ja varaus pidetään samoina.
     const script = read('assets/sointuharjoitus.js');
-    const prompt = 'Kuuntele soinnut 1 ja 2. Valitse sitten vastaus.';
-    for (const text of ['Kumpi on duuri?', 'Kumpi on molli?', prompt, 'Uusi tehtävä']) expect(script).toContain(`'${text}'`);
-    for (const [heading, text] of [['Kuuntele ensin E ja Em', 'Kuuntele molemmat soinnut. Valitse sitten Tunnista.'], ['Kumpi on duuri?', prompt], ['Kumpi on molli?', prompt]]) {
+    const prompt = 'Kuuntele sointuja 1 ja 2. Valitse sitten vastaus.';
+    for (const text of ['Kumpi on duuri?', 'Kumpi on molli?', prompt]) expect(script).toContain(`'${text}'`);
+    for (const [heading, text] of [['Kumpi on duuri?', prompt], ['Kumpi on molli?', prompt]]) {
       expect(html).toContain(`<div class="sointu-varaus" aria-hidden="true"><span class="sointu-varaus-otsikko">${heading}</span><span>${text}</span></div>`);
     }
-    expect(html).toContain('<span data-uusi-arvaus-teksti>Tunnista</span><span class="sointu-varaus" aria-hidden="true">Uusi tehtävä</span>');
+    expect(html).toContain('<button type="button" data-uusi-arvaus>Tunnista</button>');
+    expect(html).not.toContain('Uusi tehtävä');
+    const recognitionCode = script.slice(script.indexOf('function setupGuess('), script.indexOf('function setupProgression('));
+    expect(recognitionCode).not.toContain('setTimeout(');
+    expect(recognitionCode).toContain('if (family === nextFamily && !started) return;');
+    expect(recognitionCode).toContain('if (answered) {');
+    expect(recognitionCode).toContain("choice.setAttribute('aria-disabled', 'true');");
+    expect(recognitionCode).toContain("button.removeAttribute('aria-disabled');");
+    const answerHandler = recognitionCode.slice(recognitionCode.indexOf('for (const button of choices)'));
+    expect(answerHandler).not.toContain('startRound(true)');
+    expect(html).toContain('Aloita uusi tehtävä valitsemalla sointupari ylhäältä.');
+    expect(html).not.toContain('Paina vastauspainiketta uudelleen');
+    expect(html).toContain('data-arvaus-kysymys hidden');
+    expect(html).toContain('data-arvaus-kuuntelu role="group" aria-label="Tunnistustehtävän ääniesimerkit" hidden');
+    expect(html).toContain('data-arvaus-pari="D" aria-pressed="true"');
+    expect(html).toContain('data-arvaus-pari="E" aria-pressed="false"');
+    expect(html).toContain('data-arvaus-pari="A" aria-pressed="false"');
+    expect(html).toContain('data-aam-kaaviot hidden');
+    expect(html).toContain('<figcaption>A</figcaption>');
+    expect(html).toContain('<figcaption>Am</figcaption>');
+    expect(html).toContain('<code>x02220</code>');
+    expect(html).toContain('<code>x02210</code>');
+    expect(script).toContain("A: ['A:A2', 'D:E3', 'G:A3', 'B:Cs4', 'HighE:E4']");
+    expect(script).toContain("Am: ['A:A2', 'D:E3', 'G:A3', 'B:C4', 'HighE:E4']");
+    expect(script).toContain("nextTargetByFamily = { D: 'D', E: 'E', A: 'A' }");
+    expect(html).not.toContain('data-suora-kuuntelu');
   }
 });
 
@@ -218,8 +243,12 @@ it('02:n D/Dm käyttää F♯4:n rinnalla aitoa F4-näytettä ja säilyttää E/
   expect(src).toContain('D–F–A');
   expect(src).toContain('data-ddm-play="D"');
   expect(src).toContain('data-ddm-play="Dm"');
-  expect(src).toContain('data-ydin-play="E"');
-  expect(src).toContain('data-ydin-play="Em"');
+  expect(src).toContain('data-eem-play="E"');
+  expect(src).toContain('data-eem-play="Em"');
+  expect(src).toContain('1 · Kuuntele D ja Dm');
+  expect(src).toContain('2 · Kuuntele E ja Em');
+  expect(src).toContain('3 · Tunnista duuri ja molli');
+  expect(src).toContain('data-eem-kaaviot');
   expect(src).toContain('data-uusi-arvaus');
   expect(audio).toContain("Dm: ['D:D3', 'G:A3', 'B:D4', 'HighE:F4']");
   expect(audio).toContain("D: ['D:D3', 'G:A3', 'B:D4', 'HighE:Fs4']");
