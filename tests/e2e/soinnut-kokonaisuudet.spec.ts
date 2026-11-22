@@ -852,36 +852,33 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     expect(await storage(page)).toBeNull();
   });
 
-  test('arvaustilan vaihto pitää kuuntelupainikkeet ja Arvaa-painikkeen samoissa kohdissa', async ({ page }) => {
+  test('tunnistus alkaa suoraan parin valinnasta ja kuuntelupainikkeet näkyvät vasta aloituksesta', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 760 });
     await page.goto(ydinPath(1));
     const section = page.locator('[data-sointuharjoitus="arvaa"]');
     const question = section.locator('[data-arvaus-kysymys]');
-    const normal = section.locator('[data-suora-kuuntelu] button');
     const guessing = section.locator('[data-arvaus-kuuntelu] button');
     const start = section.getByRole('button', { name: 'Tunnista', exact: true });
-    const layout = async (buttons: typeof normal) => Promise.all(
-      (await buttons.all()).map(button => button.evaluate(node => {
-        const b = node.getBoundingClientRect();
-        return { x: Math.round(b.left), y: Math.round(b.top + window.scrollY),
-          width: Math.round(b.width), height: Math.round(b.height) };
-      })),
-    );
-    await expect(question).toBeVisible();
-    await expect(question.locator('[data-kysymys]')).toHaveText('Kuuntele ensin E ja Em');
-    const startPosition = (await layout(start))[0];
-    const initial = await layout(normal);
-    expect(initial).toHaveLength(2);
-    expect(initial[1].y).toBeGreaterThan(initial[0].y);
+    const pos = (button: typeof start) => button.evaluate(node => {
+      const box = node.getBoundingClientRect();
+      return { x: Math.round(box.left), y: Math.round(box.top + window.scrollY),
+        width: Math.round(box.width), height: Math.round(box.height) };
+    });
+    await expect(section.getByRole('button', { name: 'D / Dm' })).toHaveAttribute('aria-pressed', 'true');
+    await expect(question).toBeHidden();
+    await expect(section.locator('[data-arvaus-kuuntelu]')).toBeHidden();
+    await expect(start).toBeVisible();
+    const startPosition = await pos(start);
 
     await start.click();
-    await expect(question.locator('[data-kysymys]')).toHaveText(/Kumpi on (duuri|molli)\?/);
+    await expect(question.locator('[data-kysymys]')).toHaveText(/Kumpi on (duuri|molli)\\?/);
     await expect(question).toHaveClass(/is-active/);
+    await expect(question).toBeVisible();
     await expect(section.getByRole('group', { name: 'Vastaa' })).toBeVisible();
-    const active = await layout(guessing);
-    expect(active).toEqual(initial);
-    expect((await layout(section.getByRole('button', { name: 'Uusi tehtävä' })))[0])
-      .toEqual(startPosition);
+    await expect(guessing).toHaveCount(2);
+    await expect(guessing).toHaveText(['Sointu 1Sointu 1 · Em', 'Sointu 2Sointu 2 · Em']);
+    await expect(section.getByRole('button', { name: 'Uusi tehtävä' })).toBeVisible();
+    expect(await pos(section.getByRole('button', { name: 'Uusi tehtävä' }))).toEqual(startPosition);
     await expect(question.locator('[data-kysymys]')).toBeInViewport();
   });
 
