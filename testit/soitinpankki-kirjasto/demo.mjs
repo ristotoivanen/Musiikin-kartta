@@ -23,6 +23,7 @@ function stop(message = 'Pysäytetty.', immediate = false) {
   if (prior?.backing) {
     try { prior.backing.stop(); } catch { /* Jo pysähtynyt. */ }
     prior.backing.disconnect();
+    prior.backingGain?.disconnect();
   }
   stopButton.disabled = true;
   if (message) status.textContent = message;
@@ -105,7 +106,11 @@ async function run(name) {
     if (backingBuffer) {
       request.backing = ctx.createBufferSource();
       request.backing.buffer = backingBuffer;
-      request.backing.connect(ctx.destination);
+      // Sama B-taustan taso kuin PR #130:n nykyisessä M2-esikatselussa.
+      request.backingGain = ctx.createGain();
+      request.backingGain.gain.value = 0.62;
+      request.backing.connect(request.backingGain);
+      request.backingGain.connect(ctx.destination);
       request.backing.start(startAt);
       request.backing.onended = () => {
         if (active === request) stop('Koe päättyi.');
