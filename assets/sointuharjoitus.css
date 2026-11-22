@@ -23,7 +23,7 @@
 .sointu-tila { min-height: 1.5em; margin: .35rem 0 0; color: #9fe4c3; font-size: .92rem; }
 .sointu-tila.is-error { color: #ffd6b3; }
 /* #164: onnistuneen arvauksen koko palaute on vihreä, mutta uusi kuunteluohje normaalivärinen. */
-.sointu-ydin [data-arvauspalaute]:not(.is-error) { color: #9fe4c3; }
+.sointu-ydin [data-arvauspalaute]:has(> strong) { color: #9fe4c3; }
 .sointu-ydin [data-arvauspalaute] > strong { font-weight: 800; }
 .sointu-ydin[data-sointuharjoitus="arvaa"] [data-sointu-tila]:not(.is-error) { color: var(--muted); }
 .sointu-ohje, .sointu-lahde { color: var(--muted); font-size: .9rem; }

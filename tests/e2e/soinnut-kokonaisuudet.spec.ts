@@ -844,6 +844,7 @@ test.describe('Ydinopinnot v0.5', () => {
     await expect(listen).toHaveAttribute('data-playing', '');
     expect(await sizeOf(listen)).toEqual(bounds);
     const ordinaryTextColor = await page.locator('[data-arvauspalaute]').evaluate(element => getComputedStyle(element).color);
+    expect(ordinaryTextColor).not.toBe('rgb(159, 228, 195)');
     const reply = page.getByRole('group', { name: 'Vastaa' });
     const choiceButtons = reply.locator('button');
     const choicePositions = () => choiceButtons.evaluateAll(nodes => nodes.map(node => {
