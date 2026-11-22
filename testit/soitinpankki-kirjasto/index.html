@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="fi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Meta Steel -kirjastopilotti · #132</title>
+  <style>
+    :root{font-family:system-ui,sans-serif;color-scheme:light dark;line-height:1.5}
+    body{max-width:680px;margin:1.5rem auto;padding:0 1rem}
+    .actions{display:flex;flex-wrap:wrap;gap:.6rem;margin:1rem 0}
+    button{padding:.75rem 1rem;min-height:44px;font:inherit;cursor:pointer}
+    input{max-width:100%;margin:.5rem 0}
+    section{padding:1rem 0;border-top:1px solid #9996}
+    small{opacity:.8}
+    #status{min-height:1.5em}
+  </style>
+</head>
+<body>
+<main>
+  <h1>Meta Steel -kirjastopilotti</h1>
+  <p><strong>#132 · Erillinen tekninen koe, ei beta- tai tuotantointegraatio.</strong> Meta Steel Guitar v1.0.0, CC0 1.0. Tässä versiossa vain kahdeksan Vel02-säveltä.</p>
+  <section>
+    <h2>Yhteisen sovittimen koe</h2>
+    <div class="actions">
+      <button data-score="e2">Neljä E2-iskua</button>
+      <button data-score="triad">G-duurikolmisointu</button>
+      <button data-score="strum">G-ote 320003</button>
+      <button data-score="melody">Melodia ja terssi</button>
+    </div>
+  </section>
+  <section>
+    <h2>M2:n erillinen integraatioesikatselu</h2>
+    <p>Valitse omalta laitteeltasi M3:n hyväksytty B-tausta WAV-tiedostona. Taustaa ei julkaista eikä kopioida tähän PR:ään. Säestyksen vahvistus on 0,62, sama kuin PR #130:n M2-esikatselussa. Mallikitara soittaa neljä E2-iskua neljästi 72 BPM:ssä ja on hiljaa taukotahdeissa.</p>
+    <label for="backing">Paikallinen M3 B -tausta (WAV)</label>
+    <input id="backing" type="file" accept="audio/wav,.wav">
+    <p><label for="model-gain">Mallikitaran suhteellinen voimakkuus</label> <output id="gain-value">1,0 ×</output></p>
+    <input id="model-gain" type="range" min="0.5" max="2.5" step="0.1" value="1">
+    <div class="actions"><button id="m2">Kuuntele M2:n mallikitara ja tausta</button></div>
+    <small>Odotettu rakenne: neljän iskun sisäänlasku + 32 iskua musiikkia, 72 BPM. Valitse vain hyväksytty versio.</small>
+  </section>
+  <section>
+    <button id="stop" disabled>Pysäytä</button>
+    <p role="status" id="status">Valitse harjoitus.</p>
+    <p id="details"><small>Ladatut tavut, purkuaika ja muistiosumat näytetään toiston alkaessa.</small></p>
+  </section>
+  <p><small>Huom: ei korvaa PR #130:n M2-ääntä. Fyysiset iPhone- ja Android-testit sekä pedagoginen kuunteluhyväksyntä ovat avoinna.</small></p>
+  <p><a href="../../assets/soitinpankki/meta-steel-v1.json">Äänipankin lähde- ja lisenssimanifesti</a></p>
+</main>
+<script type="module" src="./demo.mjs"></script>
+</body>
+</html>
