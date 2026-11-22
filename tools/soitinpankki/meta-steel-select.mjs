@@ -53,12 +53,19 @@ export function validateMetaSteelInventory(catalog) {
   let totalOggBytes = 0;
   for (const sample of catalog.samples) {
     const { string, midi, fret, layer, sourceWav, sourceOgg, oggBytes, oggSha256 } = sample;
-    if (!Object.hasOwn(openMidi, string) ||
+    const sourceMatch = /^INSGuitarSteel_String(LowE|A|D|G|B|HighE)_Vel(0[1-3])_([A-G])(s?)([2-6])_01\.wav$/.exec(sourceWav);
+    const stringNames = { LowE: 6, A: 5, D: 4, G: 3, B: 2, HighE: 1 };
+    const noteSteps = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+    const sourceMidi = sourceMatch
+      ? (Number(sourceMatch[5]) + 1) * 12 + noteSteps[sourceMatch[3]] + (sourceMatch[4] ? 1 : 0)
+      : null;
+    if (!Number.isInteger(string) || !Object.hasOwn(openMidi, string) ||
         !Number.isInteger(midi) || midi - openMidi[string] !== fret ||
         fret < 0 || fret > 20 ||
         !expectedLayers.includes(layer) ||
-        !/^INSGuitarSteel_String(LowE|A|D|G|B|HighE)_Vel0[1-3]_[A-G]s?[2-6]_01\\.wav$/.test(sourceWav) ||
-        sourceOgg !== sourceWav.replace(/\\.wav$/, '.ogg') ||
+        !sourceMatch || stringNames[sourceMatch[1]] !== string ||
+        `Vel${sourceMatch[2]}` !== layer || sourceMidi !== midi ||
+        sourceOgg !== sourceWav.replace(/\.wav$/, '.ogg') ||
         !Number.isInteger(oggBytes) || oggBytes <= 0 ||
         !/^[0-9a-f]{64}$/.test(oggSha256)) {
       throw new Error(`Katalogin näyterivi on virheellinen: ${string}:${midi}:${layer}`);
@@ -85,7 +92,7 @@ export function planMetaSteelSamples(catalog, events) {
   for (const event of events) {
     if (!event || !Number.isInteger(event.midi)) throw new TypeError('Tapahtumasta puuttuu MIDI-sävel.');
     const string = event.string ?? firstPositionString(event.midi);
-    if (!Object.hasOwn(openMidi, string)) throw new RangeError('Kitaran kielen on oltava kokonaisluku 1–6.');
+    if (!Number.isInteger(string) || !Object.hasOwn(openMidi, string)) throw new RangeError('Kitaran kielen on oltava kokonaisluku 1–6.');
     const layer = event.layer ?? (event.velocity === undefined ? 'Vel02' : velocityLayer(event.velocity));
     if (!expectedLayers.includes(layer)) throw new Error(`Tuntematon velocity-kerros: ${layer}`);
     if (event.velocity !== undefined && velocityLayer(event.velocity) !== layer) {
