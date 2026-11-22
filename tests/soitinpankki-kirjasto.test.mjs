@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { SteelSampleBank, sampleKey, resolveSamples, scheduleSteelNotes } from '../assets/soitinpankki/steel-sampler.mjs';
@@ -95,6 +95,33 @@ describe('#132 Meta Steel -kirjastopilotin rajapinta', () => {
     }
     // M3:n tausta jatkuu viimeisen malliäänen jälkeen viimeisen taukotahdin loppuun.
     expect(scores.m2.at(-1).releaseAt + .15).toBeLessThan(30);
+  });
+
+  it('käyttää selaimen Window.fetch-kutsussa oikeaa this-sidontaa myös ilman erikseen annettua fetcheriä', async () => {
+    const requested = [];
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(function (resource) {
+      // WebKit hylkää irrallaan kutsutun Window.fetchin tällä virheellä.
+      if (this !== globalThis) {
+        throw new TypeError('Can only call Window.fetch on instances of Window');
+      }
+      const url = String(resource);
+      requested.push(url);
+      return Promise.resolve(url.endsWith('.json')
+        ? { ok: true, json: async () => manifest }
+        : { ok: true, arrayBuffer: async () => new Uint8Array([1, 2, 3]).buffer });
+    });
+    try {
+      const bank = new SteelSampleBank(fakeContext(),
+        'https://example.invalid/assets/soitinpankki/meta-steel-v1.json',
+        { formats: ['ogg', 'm4a'] });
+      const result = await bank.prepare(scores.e2);
+      expect(result.samples.size).toBe(1);
+      expect(requested).toHaveLength(2);
+      expect(requested[0]).toMatch(/meta-steel-v1\\.json$/);
+      expect(requested[1]).toMatch(/steel-6-40\\.ogg$/);
+    } finally {
+      fetchSpy.mockRestore();
+    }
   });
 
   it('lataa vain tarvitun näytteen, välimuistittaa ja kunnioittaa peruutusta', async () => {
