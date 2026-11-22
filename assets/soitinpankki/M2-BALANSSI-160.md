@@ -51,6 +51,60 @@ todellisen äänireitin mittaus.
 - Säestyksen **hyväksyttyä alkuperäistä WAV:ia ei muutettu**.
   M3:n miksaukseen ei koskettu.
 
+## Toistettava A/B/C-vertailu toteutettu vain koesivulla
+
+`assets/soitinpankki/m2-koe.html` sisältää erillisen **M0/M2-balanssin
+A/B/C-kuuntelukokeen**, joka käyttää
+`assets/soitinpankki/balance-trial.mjs`-ohjainta. Koe toimii
+suoraan Web Audio -harjoituksessa, ei etukäteen normalisoiduilla
+äänirenderöinneillä. **Se ei ole automaattinen balanssin mittaus eikä
+äänenvoimakkuuden hyväksyntä.**
+
+Koe etenee kontrolloidusti kolmessa ryhmässä:
+
+| Koe | Kolme satunnaisesti nimettyä ehdokasta | Vakiot |
+| --- | --- | --- |
+| M0 kuiva kitara suhteessa klikkiin | 20 %, 30 %, 40 % | sama FreePats-näyte, klikin taso ja aloitus |
+| M2 Steel-kitaran erottuvuus | 1,8×, 2,4×, 3,0× | B-säestys 55 %, sama alku ja sama E2-näyte |
+| M2 B-säestyksen taso | 40 %, 55 %, 70 % | Steel 2,4×, sama B-WAV ja sama alku |
+
+**A/B/C on sokkoutettu vain tasojen nimien osalta:** vaihtoehtojen
+järjestys satunnaistetaan, numerot piilotetaan koetilassa ja paljastetaan
+vasta, kun kaikki kolme on kuunneltu ja valinta on kirjattu. Sama
+harjoitus käynnistyy **aina alusta**, myös säestys, jotta vertailuun ei
+sekoitu eri musiikkikohtaa. Tasoasetuksia ei tallenneta sivulle
+pysyvästi. Koetilan ulkopuolella alkuperäiset väliaikaiset liukusäätimet
+ovat edelleen käytettävissä.
+
+Valinnan voi tehdä vaihtoehdoista A, B, C tai *ei selvää eroa*.
+Vapaa havaintoteksti ja kolmen kokeen tulokset saa kopioitua
+JSON-muotoon leikepöydälle. **Tuloksia ei automaattisesti lähetetä
+GitHubiin, ChatGPT:hen eikä ulkoisiin palveluihin**, eikä valinta
+merkitse versiota valmiiksi. Jokaiseen tulokseen sisältyy
+`calibration: "NOT_APPROVED"` sekä oma kuunteluhavainto.
+
+Vertailu rajaa vain kyseessä olevan harjoituksen äänenvoimakkuutta:
+eri kuulokkeiden voimakkuutta, EQ-korostuksia, dynaamista
+taajuusmaskautumista tai yksilöllistä kuulohavaintoa se ei automatisoi.
+Kokeen on toimittava yhdellä fyysisellä toistolaitteella kerrallaan
+samoilla kuulokkeilla ja samalla käyttöjärjestelmän äänenvoimakkuudella.
+Ei sekoiteta M0:n suhteellista tasoa M2:n Steel-säätimen kertoimeen.
+
+## Jäljelle jäävät hyväksyntäehdot
+
+1. M0:n ja M2:n kukin kolmen vaihtoehdon kuuntelu samalla
+   toistoreitillä; tarvittaessa yksi lisäkierros lähimmillä tasoilla.
+2. Kirjatut tulokset arvioidaan myös pedagogisesti: kuuluvatko kaikki
+   neljä iskua, vaimennus ja pulssi oikea-aikaisesti, ja jääkö säestys
+   mielekkääksi.
+3. Todellisen selaimen audiopulssin tarkistus sekä mobiilin
+   keskeytys-/lukitustilanteet erikseen; teknisen testin läpäisy ei
+   tarkoita äänenlaadun hyväksymistä.
+4. Päätös mahdollisesta automaattisesta gain-normalisoinnista,
+   kompressiosta tai pysyvistä oletustasoista tehdään vasta
+   riippumattoman kuunteluarvion perusteella. Ei muutoksia #130:een
+   eikä beta- tai main-haaraan tämän kokeen perusteella.
+
 ## Tila ja uusi hyväksymismenettely
 
 **BALANSSI AVOIN.** Esikatselusivulle asetetut 30 %, 2,4× ja 55 %
