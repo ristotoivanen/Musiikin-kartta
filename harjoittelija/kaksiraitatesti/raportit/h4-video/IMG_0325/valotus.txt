@@ -1,0 +1,36 @@
+Kuvaväli 16.67 ms. Välähdysalue puskurin riveillä 0.255–0.714 (mediaani 0.630).
+Ensimmäinen kirkas kuva: osittainen 7, kokonainen 22. Osittaisten f (alueen mediaani) 0.67–0.92.
+Rullaava suljin: f:n kulmakerroin riviosuuden suhteen ρ = R/E = -3.54 (vaihtelu -3.85…-2.70).
+  → koko kuvan lukuaika R = -3.54 × E. Positiivinen: puskurin suuremmat rivit valottuvat myöhemmin.
+Valotusajan yläraja, jos näyttö 60 Hz: E ≤ 16,7 ms / max f = – (ei sovellu: vain yksi vaihe tai kuvaväli ei ole 33,3 ms) (max f 1.00).
+Alku edeltävässä kuvassa (n − 1): 0/29.
+  pts (1. kynnyksen ylittävä) | alkukuva | tyyppi | f mediaani (min…max) | kulmakerroin
+  0.1500 | n | osittainen | 0.67 (0.56…0.93) | -3.54
+  0.6333 | n | osittainen | 0.70 (0.58…0.96) | -3.64
+  1.1500 | n | osittainen | 0.74 (0.60…0.99) | -3.85
+  1.7833 | n | osittainen | 0.80 (0.64…1.00) | -3.82
+  2.3517 | n | osittainen | 0.85 (0.68…1.00) | -3.52
+  2.9517 | n | osittainen | 0.89 (0.70…1.00) | -3.23
+  3.5017 | n | osittainen | 0.92 (0.75…1.00) | -2.70
+  3.9183 | n | kokonainen | 0.97 (0.77…1.00) | 
+  4.3017 | n | kokonainen | 0.98 (0.80…1.00) | 
+  4.8683 | n | kokonainen | 0.99 (0.84…1.00) | 
+  5.4683 | n | kokonainen | 1.00 (0.90…1.00) | 
+  5.8850 | n | kokonainen | 1.00 (0.92…1.00) | 
+  6.5367 | n | kokonainen | 1.00 (0.96…1.00) | 
+  7.2533 | n | kokonainen | 1.00 (0.99…1.00) | 
+  7.9200 | n | kokonainen | 1.00 (0.99…1.00) | 
+  8.3367 | n | kokonainen | 1.00 (0.99…1.00) | 
+  8.8367 | n | kokonainen | 1.00 (1.00…1.00) | 
+  9.1867 | n | kokonainen | 1.00 (1.00…1.00) | 
+  9.6200 | n | kokonainen | 1.00 (0.99…1.00) | 
+  10.2050 | n | kokonainen | 1.00 (1.00…1.00) | 
+  10.7717 | n | kokonainen | 1.00 (1.00…1.00) | 
+  11.3717 | n | kokonainen | 1.00 (1.00…1.00) | 
+  12.0050 | n | kokonainen | 1.00 (1.00…1.00) | 
+  12.5217 | n | kokonainen | 1.00 (1.00…1.00) | 
+  13.0383 | n | kokonainen | 1.00 (0.96…1.00) | 
+  13.4550 | n | kokonainen | 1.00 (0.97…1.00) | 
+  14.0900 | n | kokonainen | 1.00 (0.95…1.00) | 
+  14.7233 | n | kokonainen | 0.99 (0.97…1.00) | 
+  15.3233 | n | kokonainen | 1.00 (0.94…1.00) | 

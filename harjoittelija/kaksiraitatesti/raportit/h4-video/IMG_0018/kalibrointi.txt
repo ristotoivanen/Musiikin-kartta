@@ -1,0 +1,64 @@
+Säädin d = 240 ms. Kuvaväli 33.33 ms. Välähdysalueen rivi 0.602, iskualueen rivi 0.130.
+Kuva-ajan malli: E ≤ 16.7 ms (60 Hz:n näytön oletuksella), ρ = R/E 0.28…1.18. Viitearvo E = 12 ms, ρ = 0.28.
+
+1. Iskusarjat (kameran ero C = kuva − ääni, viitemallilla)
+  alku: ehdokkaita 5, hyväksyttyjä 0, C ka – ms, SD – ms, vaihteluväli –…– ms
+  loppu: ehdokkaita 8, hyväksyttyjä 1, C ka -295.6 ms, SD – ms, vaihteluväli -295.6…-295.6 ms
+  hylätty (alku) 4.145 s: alle 2 lähestymiskuvaa (liike liian nopea tai ROI liian pieni)
+  hylätty (alku) 7.134 s: alle 2 lähestymiskuvaa (liike liian nopea tai ROI liian pieni)
+  hylätty (alku) 10.164 s: alle 2 lähestymiskuvaa (liike liian nopea tai ROI liian pieni)
+  hylätty (alku) 13.267 s: alle 2 lähestymiskuvaa (liike liian nopea tai ROI liian pieni)
+  hylätty (alku) 16.134 s: alle 2 lähestymiskuvaa (liike liian nopea tai ROI liian pieni)
+  hylätty (loppu) 80.613 s: heikko (<25 % sarjan voimakkaimmasta)
+  hylätty (loppu) 83.122 s: heikko (<25 % sarjan voimakkaimmasta); alle 2 lähestymiskuvaa (liike liian nopea tai ROI liian pieni)
+  hylätty (loppu) 86.106 s: heikko (<25 % sarjan voimakkaimmasta); alle 2 lähestymiskuvaa (liike liian nopea tai ROI liian pieni)
+  hylätty (loppu) 89.107 s: alle 2 lähestymiskuvaa (liike liian nopea tai ROI liian pieni)
+  hylätty (loppu) 92.280 s: alle 2 lähestymiskuvaa (liike liian nopea tai ROI liian pieni)
+  hylätty (loppu) 96.142 s: liike 0.8 px/kuva < 2; kosketusarvio ei osu viimeisen lähestymiskuvan ja ensimmäisen lepokuvan väliin
+  hylätty (loppu) 102.084 s: alle 2 lähestymiskuvaa (liike liian nopea tai ROI liian pieni)
+  Ajautuma loppu − alku: – ms
+
+2. H4-toisto: 73 välähdys–piippaus-paria (aikatauluindeksi j = 1), osittaisia 36
+  V − A mediaani viitemallilla +288.7 ms (bootstrap +287.2…+290.3); vanhalla interpoloinnilla +278.1 ms
+
+3. Erottelu E- ja ρ-ruudukolla (ms): E | ρ | V − A | C alku | C loppu | C | L = (V − A) − d − C
+  2 | 0.28 | +285.3 | – | -299.3 | -299.3 | +344.6
+  2 | 1.18 | +285.3 | – | -300.2 | -300.2 | +345.4
+  4 | 0.28 | +286.2 | – | -298.6 | -298.6 | +344.8
+  4 | 1.18 | +286.2 | – | -300.3 | -300.3 | +346.5
+  8 | 0.28 | +287.6 | – | -297.1 | -297.1 | +344.7
+  8 | 1.18 | +287.6 | – | -300.5 | -300.5 | +348.1
+  12 | 0.28 | +288.7 | – | -295.6 | -295.6 | +344.3
+  12 | 1.18 | +288.7 | – | -300.7 | -300.7 | +349.4
+  16 | 0.28 | +290.2 | – | -294.2 | -294.2 | +344.4
+  16 | 1.18 | +290.2 | – | -300.9 | -300.9 | +351.1
+  20 (rajan yli) | 0.28 | +291.6 | – | -292.7 | -292.7 | +344.3
+  20 (rajan yli) | 1.18 | +291.6 | – | -301.2 | -301.2 | +352.8
+  25 (rajan yli) | 0.28 | +293.3 | – | -290.8 | -290.8 | +344.2
+  25 (rajan yli) | 1.18 | +293.3 | – | -301.4 | -301.4 | +354.8
+  30 (rajan yli) | 0.28 | +295.0 | – | -289.0 | -289.0 | +344.0
+  30 (rajan yli) | 1.18 | +295.0 | – | -301.7 | -301.7 | +356.7
+  L sallitulla mallivälillä: +344.3…+351.1 ms
+
+4. Epävarmuuserät (ms)
+  Iskujen satunnaishajonta (1,96 × SD/√n): ei laskettavissa
+  Alku- ja loppusarjan ero (ajautuma) / 2: ei laskettavissa
+  V − A:n mediaanin bootstrap-väli / 2: ±1.5
+  Kuva-ajan malli (E- ja ρ-vaihteluväli) / 2: ±3.4
+  Iskun ekstrapolointi (lineaarinen − 2. aste, keskiarvo): ei laskettavissa
+  Yhdistetty (neliösumma): ±3.7 ms
+
+5. Ennalta kirjatut ehdot
+  EI täyty: E1 Kummassakin sarjassa vähintään 4/5 hyväksyttyä iskua
+  EI täyty: E2 Sarjan sisäinen SD ≤ 8 ms
+  EI täyty: E3 |loppu − alku| ≤ 10 ms
+  EI täyty: E4 L:n yhdistetty epävarmuus ≤ ±20 ms
+  → Kalibrointi EI onnistunut. L:ää ei raportoida kalibroituna arvona.
+
+6. P2-valmius
+  Välähdysten kohdistus: seuraavaksi paras / paras MAD = 13.0. Puolikkaat: n 37, V − A +286.0 ms (+283.1…+288.5) | n 36, V − A +292.3 ms (+290.0…+294.4)
+  EI täyty: V1 Paritus yksiselitteinen: kaikki välähdykset osuvat aikatauluun ja seuraavaksi paras kohdistus ≥ 3 × MAD
+  EI täyty: V2 Kameran ero pysyy: E3 täyttyy
+  täyttyy: V3 Puolikkaiden mediaanien 95 %:n välit ≤ ±10 ms
+  täyttyy: V4 Puolikkaat poikkeavat toisistaan ≤ 10 ms (sama käynnistys)
+  → P2 EI ole luotettava tällä järjestelyllä ennen korjauksia.

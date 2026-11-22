@@ -1,0 +1,23 @@
+1. Simulaatio: tunnettu viive (ms) → menetelmän arvio (ms). Harha = arvio − tunnettu.
+   malli | tunnettu K−T | 300 Hz suodin: tausta | 1500 Hz suodin: kitara | K−T suotimilla | xcorr tausta | xcorr kitara | K−T xcorr
+   ei suodinta | 0.0 | 100.0 (harha -0.0) | 99.9 (harha -0.1) | -0.1 | 100.0 (harha -0.0) | 100.0 (harha -0.0) | -0.0
+   ei suodinta | 16.0 | 100.1 (harha 0.1) | 115.9 (harha -0.1) | 15.8 | 100.0 (harha -0.0) | 116.0 (harha -0.0) | 16.0
+   ei suodinta | 33.0 | 100.0 (harha -0.0) | 132.9 (harha -0.1) | 32.9 | 100.0 (harha -0.0) | 133.0 (harha -0.0) | 33.0
+   ylipäästö 500 Hz | 0.0 | 100.6 (harha 0.6) | 100.0 (harha -0.0) | -0.6 | 100.0 (harha -0.0) | 100.0 (harha -0.0) | -0.0
+   ylipäästö 500 Hz | 16.0 | 100.6 (harha 0.6) | 115.9 (harha -0.1) | 15.3 | 100.0 (harha -0.0) | 116.0 (harha -0.0) | 16.0
+   ylipäästö 500 Hz | 33.0 | 100.5 (harha 0.5) | 132.9 (harha -0.1) | 32.4 | 100.0 (harha -0.0) | 133.0 (harha -0.0) | 33.0
+   pieni kaiutin (yp 800 Hz Q 1.5 + 2 × yp 300 Hz) | 0.0 | 101.8 (harha 1.8) | 100.1 (harha 0.1) | -1.7 | 100.0 (harha -0.0) | 100.0 (harha -0.0) | -0.0
+   pieni kaiutin (yp 800 Hz Q 1.5 + 2 × yp 300 Hz) | 16.0 | 101.7 (harha 1.7) | 116.0 (harha -0.0) | 14.3 | 100.0 (harha -0.0) | 116.0 (harha -0.0) | 16.0
+   pieni kaiutin (yp 800 Hz Q 1.5 + 2 × yp 300 Hz) | 33.0 | 101.6 (harha 1.6) | 133.0 (harha -0.0) | 31.4 | 100.0 (harha -0.0) | 133.0 (harha -0.0) | 33.0
+   pieni kaiutin + kaiku 12 ms | 0.0 | 101.0 (harha 1.0) | 102.2 (harha 2.2) | 1.1 | 100.0 (harha -0.0) | 100.5 (harha 0.5) | 0.6
+   pieni kaiutin + kaiku 12 ms | 16.0 | 101.0 (harha 1.0) | 118.1 (harha 2.1) | 17.0 | 100.0 (harha -0.0) | 116.6 (harha 0.6) | 16.6
+   pieni kaiutin + kaiku 12 ms | 33.0 | 100.9 (harha 0.9) | 135.1 (harha 2.1) | 34.2 | 100.0 (harha -0.0) | 133.0 (harha -0.0) | 33.0
+
+2. Kaistakohtainen ristikorrelaatio (sama suodin tallenteelle ja vertailuraidalle), mediaani 1 s:n paloista
+   kaista | tausta A ms (huippu) | kitara A ms (huippu) | kitara − tausta ms
+   laajakaista | 21556.80 (0.08) | 21572.47 (0.03) | 15.98 [-33.0…74.5]
+   200–600 Hz | 21563.20 (0.16) | 21575.07 (0.08) | 12.03 [-52.0…84.6]
+   600–1200 Hz | 21557.90 (0.07) | 21573.77 (0.06) | 15.92 [-47.7…86.2]
+   1–2 kHz | 21556.70 (0.05) | 21572.42 (0.05) | 15.98 [-44.3…85.2]
+   2–4 kHz | 21556.72 (0.06) | 21572.42 (0.06) | 15.98 [-43.9…82.5]
+   4–8 kHz | 21556.40 (0.04) | 21572.29 (0.04) | 15.98 [-52.6…78.2]

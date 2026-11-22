@@ -1,0 +1,24 @@
+{
+ "huom": "Ote IMG_0019:n kanssa toimitetusta sivuraportista (liitetty teksti 22.11.2026). Kentät kopioitu raportista; samples-taulukko jätetty pois. Alkuperäinen JSON tallennetaan erikseen, kun se on tiedostona.",
+ "meta": {"source":"synteettinen","engine":"uusi","loading":"muisti","bundle":"7fdb5dd65cc9","files_host":"919c9d30.musiikin-kartta.pages.dev","userAgent":"Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Mobile/15E148 Safari/604.1","contextSampleRate":48000,"audioOutput":{"baseLatency":0.0026666666666666666,"outputLatency":0.015354166666666667},"pageLoadId":"mwrjnadk31o3","trials":0},
+ "events": [
+  {"ms":99835,"event":"tuore-aloitus","phase":"käynnistys","request":1},
+  {"ms":99861,"event":"play-call","track":"tausta"},
+  {"ms":99957,"event":"play-call","track":"kitara"},
+  {"ms":100026,"event":"toisto-alkoi","request":1},
+  {"ms":142588,"event":"control","control":"tauko"},
+  {"ms":142658,"event":"pause","track":"tausta","time":41.82951198897557},
+  {"ms":142658,"event":"pause","track":"kitara","time":41.84024784700326}
+ ],
+ "measurements": [
+  {"phase":"käynnistys","ms":103105,"mediaDiffMs":10.639376623192032,"renderedDiffMs":10.66666598150423,"mrT":-16.347351806620836,"mrK":-16.374641164933035},
+  {"phase":"jatkuva","ms":108092,"mediaDiffMs":10.657332995559265,"renderedDiffMs":10.666666932255708,"mrT":-15.198196228858762,"mrK":-15.207530165555205},
+  {"phase":"jatkuva","ms":113092,"mediaDiffMs":10.643964658811456,"renderedDiffMs":10.666664016721228,"mrT":-14.743768808552105,"mrK":-14.766468166461877},
+  {"phase":"jatkuva","ms":118095,"mediaDiffMs":10.643623680046232,"renderedDiffMs":10.666666059297114,"mrT":-14.34627294176849,"mrK":-14.369315321019371},
+  {"phase":"jatkuva","ms":123098,"mediaDiffMs":10.63479733022632,"renderedDiffMs":10.666665423336497,"mrT":-14.781381650546876,"mrK":-14.813249743657053},
+  {"phase":"jatkuva","ms":128102,"mediaDiffMs":10.639836645456313,"renderedDiffMs":10.66667008480593,"mrT":-15.231196318897133,"mrK":-15.25802975824675},
+  {"phase":"jatkuva","ms":133103,"mediaDiffMs":10.6428383521191,"renderedDiffMs":10.666666166983418,"mrT":-15.832824611308638,"mrK":-15.856652426172957},
+  {"phase":"jatkuva","ms":138105,"mediaDiffMs":10.650465331181636,"renderedDiffMs":10.666666967452443,"mrT":-15.68562491701897,"mrK":-15.701826553289777}
+ ],
+ "pauseSample": {"ms":143000,"tausta":41.82951198897557,"kitara":41.84024784700326,"mediaDiffMs":10.735858027693723,"note":"sama arvo kaikissa myöhemmissä näytteissä"}
+}

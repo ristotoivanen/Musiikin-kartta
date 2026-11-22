@@ -1,0 +1,17 @@
+H4-jakso 21.05–63.75 s; ROI 0,800 280×280, puskurin rivit 0.000–0.258
+
+alku: 5 ääniehdokasta, hyväksyttyjä 2
+  ääni t10 s | t50−t10 ms | SNR dB | kuva: lähestymiskuvia, px/kuva, lepokuvia | kuva − ääni (ensisijainen; lin / 2. aste) ms | hylkäyssyyt
+  3.7843 | 0.31 | 72 | 3, 8.1, 4 | +134.8 (+134.8 / –) | kosketusarvio ei osu viimeisen lähestymiskuvan ja ensimmäisen lepokuvan väliin
+  6.9807 | 0.29 | 76 | 3, 2.0, 5 | -182.9 (-182.9 / –) | liike 2.0 px/kuva < 2
+  10.0567 | 0.29 | 76 | 3, 3.2, 4 | -140.6 (-135.1 / -140.6) | ok
+  13.1044 | 0.29 | 78 | 3, 24.2, 20 | -296.0 (-295.1 / -296.0) | ok
+  16.0583 | 0.65 | 77 | –, –, – | – (– / –) | alle 2 lähestymiskuvaa (liike liian nopea tai ROI liian pieni)
+
+loppu: 5 ääniehdokasta, hyväksyttyjä 2
+  ääni t10 s | t50−t10 ms | SNR dB | kuva: lähestymiskuvia, px/kuva, lepokuvia | kuva − ääni (ensisijainen; lin / 2. aste) ms | hylkäyssyyt
+  67.8688 | 0.40 | 61 | –, –, – | – (– / –) | heikko (<25 % sarjan voimakkaimmasta); alle 2 lähestymiskuvaa (liike liian nopea tai ROI liian pieni)
+  70.9994 | 0.33 | 76 | 3, 3.4, 16 | -350.6 (-347.8 / -350.6) | ok
+  74.2475 | 0.33 | 80 | 3, 2.2, 23 | -353.2 (-353.2 / –) | ok
+  78.0214 | 0.33 | 80 | –, –, – | – (– / –) | alle 2 lähestymiskuvaa (liike liian nopea tai ROI liian pieni)
+  81.3371 | 0.33 | 81 | 3, 0.2, 11 | +7252.7 (+7252.7 / –) | liike 0.2 px/kuva < 2; kosketusarvio ei osu viimeisen lähestymiskuvan ja ensimmäisen lepokuvan väliin

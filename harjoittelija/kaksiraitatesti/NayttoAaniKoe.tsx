@@ -14,6 +14,8 @@ interface Props {
   beeps: number[];
   segment: PlayingSegment | null;
   playing: boolean;
+  /** Toisto soi tai on alkamassa (painikkeen tila). */
+  active?: boolean;
   filesReady: boolean;
   measurements: AlignmentMeasurement[];
   pageLoadId: string;
@@ -178,7 +180,7 @@ export function NayttoAaniKoe(props: Props) {
     {saved && <p role="status" className="av-saved">{saved}</p>}
     <p className="hint">Siirrä välähdystä, kunnes se ja naksahdus tuntuvat tapahtuvan samaan aikaan. Pienempi arvo = välähdys aiemmin.</p>
     <p className="av-ops">
-      <button type="button" className="play" onClick={props.onToggle} disabled={!playing && !props.filesReady}>{playing ? '■ Tauko' : '▶ Soita'}</button>
+      <button type="button" className="play" onClick={props.onToggle} disabled={!(props.active ?? playing) && !props.filesReady}>{props.active ?? playing ? '■ Tauko' : '▶ Soita'}</button>
       <button type="button" onClick={() => props.onSeek(seekTarget(step.cycle))} disabled={!props.filesReady}>Siirry kohtaan {clock(seekTarget(step.cycle))}</button>
       <button type="button" onClick={() => window.location.reload()}>Lataa sivu uudelleen</button>
     </p>

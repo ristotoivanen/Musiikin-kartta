@@ -1,0 +1,34 @@
+suurin hajonta (10,25) sd 62.8 ka 166 (27,64) sd 62.7 ka 77 (26,64) sd 62.6 ka 78 (10,24) sd 62.6 ka 153 (27,63) sd 62.5 ka 78 (26,62) sd 62.5 ka 78 (26,63) sd 62.5 ka 78 (27,62) sd 62.5 ka 78 (27,61) sd 62.4 ka 79 (28,63) sd 62.3 ka 78
+alue x 4 – 30 y 24 – 68
+taso: pimeä p10 49.8 kirkas p99 223.4 kynnys 136.6
+välähdyksiä 29
+  0.1459 s  kuva 9  kuvia 6  edeltävä 51.9  huippu 223.9  osittainen ensimmäinen kuva
+  0.6290 s  kuva 38  kuvia 6  edeltävä 48.2  huippu 223.9  osittainen ensimmäinen kuva
+  1.1444 s  kuva 69  kuvia 6  edeltävä 55.6  huippu 223.4  osittainen ensimmäinen kuva
+  1.7769 s  kuva 107  kuvia 6  edeltävä 56.8  huippu 223.9  osittainen ensimmäinen kuva
+  2.3446 s  kuva 141  kuvia 6  edeltävä 56.3  huippu 223.7  osittainen ensimmäinen kuva
+  2.9442 s  kuva 177  kuvia 6  edeltävä 56.3  huippu 222.7
+  3.4939 s  kuva 210  kuvia 6  edeltävä 54.9  huippu 222.7
+  3.9103 s  kuva 235  kuvia 6  edeltävä 53.4  huippu 222.7
+  4.2935 s  kuva 258  kuvia 6  edeltävä 52.5  huippu 222.7
+  4.8599 s  kuva 292  kuvia 6  edeltävä 54.2  huippu 223.9
+  5.4599 s  kuva 328  kuvia 6  edeltävä 54.1  huippu 222.7
+  5.8766 s  kuva 353  kuvia 6  edeltävä 52.3  huippu 222.7
+  6.5282 s  kuva 392  kuvia 6  edeltävä 53.3  huippu 223.9
+  7.2449 s  kuva 435  kuvia 6  edeltävä 52.7  huippu 223.9
+  7.9117 s  kuva 475  kuvia 6  edeltävä 51.7  huippu 223.9
+  8.3284 s  kuva 500  kuvia 6  edeltävä 50.5  huippu 222.8
+  8.8284 s  kuva 530  kuvia 5  edeltävä 50.5  huippu 222.7
+  9.1784 s  kuva 551  kuvia 5  edeltävä 49.6  huippu 222.7
+  9.6118 s  kuva 577  kuvia 5  edeltävä 49.9  huippu 222.7
+  10.1967 s  kuva 612  kuvia 5  edeltävä 51  huippu 222.7
+  10.7634 s  kuva 646  kuvia 5  edeltävä 51.1  huippu 222.7
+  11.3633 s  kuva 682  kuvia 5  edeltävä 51.7  huippu 222.7
+  11.9966 s  kuva 720  kuvia 5  edeltävä 52  huippu 223.9
+  12.5134 s  kuva 751  kuvia 5  edeltävä 51.1  huippu 222.7
+  13.0300 s  kuva 782  kuvia 5  edeltävä 51.5  huippu 222.7
+  13.4467 s  kuva 807  kuvia 5  edeltävä 50.4  huippu 222.7
+  14.0816 s  kuva 845  kuvia 5  edeltävä 52.8  huippu 222.7
+  14.7149 s  kuva 883  kuvia 5  edeltävä 53.1  huippu 222.7
+  15.3149 s  kuva 919  kuvia 5  edeltävä 54.5  huippu 222.7
+välit 0.4831 0.5155 0.6324 0.5677 0.5996 0.5497 0.4163 0.3832 0.5664 0.6 0.4168 0.6516 0.7167 0.6667 0.4167 0.5 0.35 0.4333 0.5849 0.5667 0.6 0.6333 0.5167 0.5166 0.4167 0.6349 0.6333 0.5999

@@ -36,6 +36,12 @@ Tavoite on erottaa toisistaan neljä tekijää:
     aikaisia korjauskelauksia (koe B3).
   - `&moottori=uusi`: korjausehdokas.
   - `&mittausvali=2000`: renderöidyn kohdistuksen mittausväli millisekunteina (oletus 5000, vähintään 1000).
+- `&koe=kelaussarja` (aina uusi moottori, lähde `&lahde`-parametrilla): **Aja kelaussarjat (24)** tekee 24 nopeaa
+  kaksois- tai kolmoiskelaussarjaa vuorotellen soitosta ja kesken aloituksen, painallusvälit 0–400 ms
+  (`kelaussarja.ts`). Kukin sarja kirjaa `kelaussarja-tulos`-tapahtuman (ok, väärä kohta, aikakatkaisu tai ei toistoa)
+  ja pääsäikeen pisimmän jumin (`pisinJumiMs`). Kelaukset ovat ohjelmallisia, joten osa sarjoista tehdään myös käsin
+  painikkeilla; analyysityökalu tunnistaa käsin tehdyt sarjat tapahtumista.
+  Fyysisen iPhonen ohje: `KELAUSSARJA-OHJE.md`. Analyysityökalu listaa myös yli 2 s:n näytekatkokset (jumi tai piilossa olo).
 - **Aja vakiokoe** -painike tekee saman järjestyksen joka tilassa: Soita, 25 s, kelaus (1:00,
   synteettisessä 0:30), 15 s, Tauko 3 s, Soita, 15 s, Tauko. Ensimmäinen Soita on painallus, muut
   vaiheet ohjelmallisia. Painiketta käytetään simulaattorikokeissa, ei fyysisen iPhonen testeissä.
@@ -583,6 +589,8 @@ Toteutettu suunnitelman (`NAYTTO-AANI-MITTAUSSUUNNITELMA.md`) menetelmä M1. Lai
 - Tila: `?koe=nayttoaani`.
 - Toistomoottori, tuotantosoitin ja M − R -mittarin laskenta ovat ennallaan.
 
+> **Simulaattoriajo 18.–19.11.2026:** Macin iOS-simulaattorissa tallennetut 15 säätöarvoa ovat **vain käyttöliittymän testidataa**. Ne eivät ole havaintoja äänen ja kuvan ajoituksesta, koska simulaattorin ääni kulkee Macin äänilaitteeseen. Ajossa havaittu kolmoiskelauksen ongelma on analysoitu tiedostossa `KELAUS-JUURISYY.md`.
+
 ### Koeasetelma
 
 - **Aineisto:** synteettinen 240 s, 24 kHz, muistista. Molemmissa raidoissa on samoissa kohdissa 30 ms:n merkkiääni (300 Hz ja 1,5 kHz), 0,35–0,75 s:n välein. Raidoissa on ääntä alusta asti, joten M − R on mitattavissa myös käynnistyksessä.
@@ -704,6 +712,15 @@ Erot, jotka on kirjattu tähän tarkoituksella:
   - raporttianalyysin jaksotus: kilpatilanne, peräkkäinen kelaus, tauko kesken aloituksen, raportti v1 ilman tunnisteita, nykyinen moottori
   - H3-kriteerit, hylkäävät tapaukset ja raitakohtainen M − R
   - ulostulon viivearvio ja `outputSnapshot`.
+- `tests/e2e/kaksiraitatesti-kelauskilpa.spec.ts`: kelauksen kilpatilanteet (`KELAUS-JUURISYY.md`, korjaus K1–K3).
+  - T1–T3: viat V1 ja V2 ja hypoteesin H1 malli. Merkitty `test.fail()` ennen korjausta; nyt läpi sellaisinaan.
+  - T4: Tauko kesken aloituksen (ei toistoa, aikomus päättyy, ei aikakatkaisua, seuraava Soita kohteesta).
+  - T5: kelaus tauolla (`kelaus-tauolla`, sitten Soita kelauskohdasta).
+  - T6: peräkkäiset kelaukset aloituksen aikaikkunassa (`loadstart`-kuuntelija) soitosta ja kesken aloituksen.
+  - T7: latausvirhe kelauksessa (MP3, kitara 503) ja uusi onnistunut Soita. Reitti palvelee MP3:t Range-tuella, koska paikallinen palvelin ei tue Rangea ja reititys ohittaa välimuistin; ilman sitä verkosta soitettava MP3 ei ole kelattavissa.
+  - T8: kelaussarja-ajuri, 24 sarjaa (vain työpöytäprofiili).
+- `tests/kaksiraitatesti-kelaussarja.test.ts`: ajurin suunnitelma, sarjan luokittelu ja alkuperäinen simulaattoriraportti (`raportit/simulaattori-2026-11-19-1.json`: kolmoiskelaus luokittuu aikakatkaisuksi ja ~11 s:n näytetauoksi).
+- K1:n jälkeen painike näyttää ■ Tauko jo kesken aloituksen. Vanhat testit odottavat soimista painikkeen tilasta `data-tila="soi"` (sama merkitys kuin ennen K1:tä Tauko-painikkeen näkyminen).
 - `tests/e2e/kaksiraitatesti-raportti.spec.ts`: oikean testisivun raportti v2 analysoidaan H3:n järjestyksessä, mukaan lukien varma kilpatilanne. Ajetaan sarjassa (WAV-referenssit).
 - Mittaustestit ovat kuormaherkkiä: raskaassa rinnakkaisajossa mittaus voi valmistua vasta testin
   aikarajan jälkeen. Tämä näkyi jo pohjahaarassa ja commitilla 95622ef (53/54 samassa ajossa).
