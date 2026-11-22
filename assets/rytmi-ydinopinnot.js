@@ -23,6 +23,11 @@ export const LOOKAHEAD = 0.16; // ajastusikkuna sekunteina
 export const START_DELAY = 0.1;
 export const TASKS = Object.freeze(['pulssi', 'hiljaisuus', 'tuntuma', 'osanvaihto']);
 export const TRANSITIONS = Object.freeze({ A: 'A · D soi loppuun', B: 'B · Vaimenna D nelosella' });
+export const SILENCE_MODES = Object.freeze({
+  soi: 'A · Ääni jatkuu',
+  vaimenna: 'B · Vaimenna',
+  pois: 'C · Jätä isku pois'
+});
 export const GROOVES = Object.freeze({
   A: 'A · Painota 1 ja 3',
   B: 'B · Painota 2 ja 4',
@@ -145,15 +150,17 @@ export function gridCell(task, loopStep) {
 }
 
 /** Toiston aikajana. Ei riipu selaimesta, joten ajastus ja versiovaihdot voidaan testata. */
-export function createTransport({ task, tempo, begin, mode = 'A', drumGap = false }) {
+export function createTransport({ task, tempo, begin, mode = 'A', drumGap = false, taukoMode = 'soi' }) {
   return {
     task, begin, mode, pending: null, step: 0, next: begin,
     drumGap, pendingDrumGap: null,
+    taukoMode, pendingTaukoMode: null,
     stepDuration: 60 / tempo / 2,
     // Tosiasiallisesti soivan version muutokset: [{ time, step, mode }]
     switches: [{ time: begin, step: 0, mode }],
-    // Rumpukatko vaihtuu vain kokonaisen kahden tahdin kierron rajalla.
-    drumSwitches: [{ time: begin, step: 0, drumGap }]
+    // Rumpukatko ja soinnin vaimennus vaihtuvat vain kahden tahdin kierron rajalla.
+    drumSwitches: [{ time: begin, step: 0, drumGap }],
+    taukoSwitches: [{ time: begin, step: 0, taukoMode }]
   };
 }
 
@@ -170,6 +177,14 @@ export function requestDrumGap(transport, drumGap) {
   if (transport.task !== 'pulssi') return false;
   if (drumGap === (transport.pendingDrumGap ?? transport.drumGap)) return false;
   transport.pendingDrumGap = drumGap === transport.drumGap ? null : drumGap;
+  return true;
+}
+
+/** Valitse tauon A/B/C-äänimalli katkaisematta kuuntelua. */
+export function requestTaukoMode(transport, mode) {
+  if (transport.task !== 'hiljaisuus' || !Object.hasOwn(SILENCE_MODES, mode)) return false;
+  if (mode === (transport.pendingTaukoMode ?? transport.taukoMode)) return false;
+  transport.pendingTaukoMode = mode === transport.taukoMode ? null : mode;
   return true;
 }
 
@@ -191,9 +206,17 @@ export function scheduleUntil(transport, horizon, options = {}) {
       transport.pendingDrumGap = null;
       transport.drumSwitches.push({ time: transport.next, step: transport.step, drumGap: transport.drumGap });
     }
+    // Tauko A/B/C vaikuttaa pitkään soivaan sointuun: ei kesken tahdin tai kierron vaihtoa.
+    if (transport.task === 'hiljaisuus' && transport.step % LOOP_STEPS === 0 &&
+        transport.pendingTaukoMode !== null) {
+      transport.taukoMode = transport.pendingTaukoMode;
+      transport.pendingTaukoMode = null;
+      transport.taukoSwitches.push({ time: transport.next, step: transport.step, taukoMode: transport.taukoMode });
+    }
     const loopStep = transport.step % LOOP_STEPS;
     const drumGap = transport.task === 'pulssi' ? transport.drumGap : options.drumGap;
-    for (const event of stepEvents(transport.task, loopStep, { ...options, mode: transport.mode, drumGap })) {
+    const taukoMode = transport.task === 'hiljaisuus' ? transport.taukoMode : options.taukoMode;
+    for (const event of stepEvents(transport.task, loopStep, { ...options, mode: transport.mode, drumGap, taukoMode })) {
       scheduled.push({ ...event, time: transport.next, step: transport.step });
     }
     transport.step++;
@@ -215,7 +238,12 @@ export function positionAt(transport, time) {
   for (const change of transport.drumSwitches) {
     if (change.step <= step) drumGap = change.drumGap;
   }
-  return { step, loopStep: step % LOOP_STEPS, mode, drumGap, cell: gridCell(transport.task, step % LOOP_STEPS) };
+  let taukoMode = transport.taukoSwitches[0].taukoMode;
+  for (const change of transport.taukoSwitches) {
+    if (change.step <= step) taukoMode = change.taukoMode;
+  }
+  return { step, loopStep: step % LOOP_STEPS, mode, drumGap, taukoMode,
+    cell: gridCell(transport.task, step % LOOP_STEPS) };
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -397,10 +425,9 @@ function setupExercise(root) {
     });
   }
 
-  function drawSilence() {
+  function drawSilence(mode = state.taukoMode) {
     if (task !== 'hiljaisuus') return;
     const secondBar = cells(1);
-    const mode = state.taukoMode;
     const actions = ['Soita Em', 'Anna soida', mode === 'pois' ? 'Uusi isku' : 'Anna soida',
       mode === 'vaimenna' ? 'Vaimenna' : mode === 'pois' ? 'Ei uutta iskua' : 'Ääni jatkuu'];
     secondBar.forEach((cell, index) => {
@@ -438,6 +465,11 @@ function setupExercise(root) {
       if (!target?.classList.contains('is-active')) {
         clearActive();
         target?.classList.add('is-active');
+      }
+      if (task === 'hiljaisuus' && session.announcedTaukoMode !== position.taukoMode) {
+        session.announcedTaukoMode = position.taukoMode;
+        drawSilence(position.taukoMode);
+        status.textContent = `Nyt soi ${SILENCE_MODES[position.taukoMode]}.`;
       }
       if (task === 'pulssi' && session.announcedDrumGap !== position.drumGap) {
         session.announcedDrumGap = position.drumGap;
@@ -479,6 +511,7 @@ function setupExercise(root) {
     setButton(false);
     drawGroove(state.mode);
     drawTransition(state.mode);
+    drawSilence(state.taukoMode);
     if (task === 'pulssi') setDrumCaption(state.drumGap);
   }
 
@@ -515,14 +548,14 @@ function setupExercise(root) {
     bus.connect(context.destination);
     const transport = createTransport({
       task, tempo: tempoFor(task, state.example), begin: context.currentTime + START_DELAY,
-      mode: state.mode, drumGap: state.drumGap
+      mode: state.mode, drumGap: state.drumGap, taukoMode: state.taukoMode
     });
     const tick = () => {
       if (session?.transport !== transport) return;
       for (const event of scheduleUntil(transport, context.currentTime + LOOKAHEAD, state)) play(bus, event);
     };
     session = { transport, bus, timer: setInterval(tick, 25),
-      announced: state.mode, announcedDrumGap: state.drumGap };
+      announced: state.mode, announcedDrumGap: state.drumGap, announcedTaukoMode: state.taukoMode };
     tick();
     setButton(true);
     status.textContent = MESSAGES.playing;
@@ -568,8 +601,15 @@ function setupExercise(root) {
       if (mode === state.taukoMode) return;
       state.taukoMode = mode;
       setPressed(silenceButtons, button => button.dataset.taukoMode === mode);
-      drawSilence();
-      if (session) { stop(); start(); }
+      if (!session) {
+        drawSilence();
+        return;
+      }
+      requestTaukoMode(session.transport, mode);
+      // Valinta näkyy heti, mutta soiva esimerkki ja ruudukko vaihtuvat yhdessä.
+      status.textContent = session.transport.pendingTaukoMode !== null
+        ? `Valittu ${SILENCE_MODES[mode]}. Esimerkki vaihtuu seuraavan kahden tahdin kierron alussa.`
+        : `Nyt soi ${SILENCE_MODES[session.announcedTaukoMode]}.`;
     });
   }
 
