@@ -263,7 +263,7 @@ test('lisätiedon täytetty sulkuplektra palauttaa puhelimessa avauspaikan ja fo
   await open.click();
   await expect(tip).toHaveAttribute('open', '');
   await expect(close).toBeInViewport();
-  await expect(close.locator('use')).toHaveAttribute('href', /oppimisikonit\\.svg#extra-info$/);
+  await expect(close.locator('use')).toHaveAttribute('href', /oppimisikonit\.svg#extra-info$/);
   const box = await close.boundingBox();
   expect(box!.width).toBeGreaterThanOrEqual(44);
   expect(box!.height).toBeGreaterThanOrEqual(44);

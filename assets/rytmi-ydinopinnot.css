@@ -3,6 +3,33 @@
  * harmonia -pilotissa. ⓘ-lisävinkki käyttää yhteistä .study-knoppi-mallia (assets/oppi.css):
  * kuvake on kortin oikeassa yläkulmassa, mutta sisältö avautuu kohtien 1 ja 2 jälkeen, joten
  * kuuntelupainike ja ruudukot eivät siirry. */
+
+/* Avattavia oppitunteja ei tasata pisimmän avoimen kortin korkeuteen:
+ * yhteisen .study-choices-ruudukon 1fr/subgrid venyttää muuten suljetut kortit. */
+#ydinopinnot .study-inline-choices {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+#ydinopinnot .study-inline-choices > li { display: block; }
+#ydinopinnot .study-inline-choices .study-choice {
+  grid-row: auto;
+  grid-template-rows: auto auto;
+}
+/* Koristeellinen +/−; natiivi details/summary ilmoittaa avautumistilan. */
+#ydinopinnot .study-inline > summary .study-arrow::before {
+  content: "+"; content: "+" / "";
+  color: var(--accent);
+  font-size: 1.3rem;
+  line-height: 1;
+}
+#ydinopinnot .study-inline[open] > summary .study-arrow::before {
+  content: "−"; content: "−" / "";
+}
+@media print {
+  #ydinopinnot .study-inline > summary .study-arrow::before { content: none; }
+}
+
 .rytmi-harjoitus {
   margin: 1.1rem 0;
   padding: .85rem 1rem 1rem;

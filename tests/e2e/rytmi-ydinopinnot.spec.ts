@@ -51,6 +51,56 @@ test.describe('aihesivu', () => {
     expect(await noHorizontalScroll(page)).toBe(true);
   });
 
+
+  for (const { width, largeText } of [{ width: 390, largeText: false }, { width: 320, largeText: true }]) {
+    test('kolmen avattavan oppitunnin välit ja +/- eivät veny (' + width + ' px' + (largeText ? ', 200 %' : '') + ')', async ({ page }) => {
+      await page.setViewportSize({ width, height: 640 });
+      await page.goto(topicPath);
+      if (largeText) {
+        await page.addStyleTag({ content: 'html { font-size: 200% !important; } body { font-size: 200% !important; }' });
+      }
+      await core(page).locator(':scope > summary').click();
+      const cards = core(page).locator('.study-inline-choices > li > details.study-inline');
+      const summaries = cards.locator(':scope > summary');
+      await expect(cards).toHaveCount(3);
+      await expect(summaries.locator('.study-arrow').first()).toHaveAttribute('aria-hidden', 'true');
+
+      const verify = async (openIndex: number | null) => {
+        const measurements = await cards.evaluateAll(nodes => nodes.map(node => {
+          const detail = node as HTMLDetailsElement;
+          const summary = detail.querySelector(':scope > summary')!;
+          const arrow = summary.querySelector('.study-arrow')!;
+          return {
+            open: detail.open,
+            extraHeight: detail.getBoundingClientRect().height - summary.getBoundingClientRect().height,
+            mark: getComputedStyle(arrow, '::before').content,
+          };
+        }));
+        expect(measurements).toHaveLength(3);
+        measurements.forEach((value, index) => {
+          expect(value.open).toBe(index === openIndex);
+          expect(value.mark).toContain(index === openIndex ? '−' : '+');
+          // Suljettu kortti ei saa venyä avoimen sisarensa korkeuteen.
+          if (index !== openIndex) expect(value.extraHeight).toBeLessThanOrEqual(2);
+        });
+        const gaps = await core(page).locator('.study-inline-choices > li').evaluateAll(nodes =>
+          nodes.slice(1).map((node, index) =>
+            node.getBoundingClientRect().top - nodes[index].getBoundingClientRect().bottom));
+        expect(gaps.every(gap => gap >= 0 && gap <= 24)).toBe(true);
+      };
+
+      await verify(null);
+      for (const index of [0, 1, 2, 1]) {
+        await summaries.nth(index).click();
+        await expect(cards.nth(index)).toHaveAttribute('open', '');
+        await verify(index);
+      }
+      await summaries.nth(1).click();
+      await expect(cards.nth(1)).not.toHaveAttribute('open', '');
+      await verify(null);
+    });
+  }
+
   test('vanhat merkinnät säilyvät, uusi kokeilu tallentuu omalla tunnisteellaan', async ({ page }) => {
     await page.goto(topicPath);
     const old = ['pulssi-ja-komppi', 'harjoitus:kuuntele-pulssi', 'harmoninen-kentta'];
