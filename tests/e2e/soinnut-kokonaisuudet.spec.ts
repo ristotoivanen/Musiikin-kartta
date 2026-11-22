@@ -630,6 +630,40 @@ test('02:n D/Dm-tunnistus toimii oletuksena ja E/Em-vaihtoehto samassa tehtävä
   await expect(page.locator('.done-toggle')).toHaveAttribute('aria-pressed', 'false');
 });
 
+test('02:n duuri/molli-vuorottelu on parikohtainen ja Sointu 1/2 -järjestys arvotaan', async ({ page }) => {
+  await page.goto(ydinPath(1));
+  const section = page.locator('[data-sointuharjoitus="arvaa"]');
+  const pairD = section.getByRole('button', { name: 'D / Dm' });
+  const pairE = section.getByRole('button', { name: 'E / Em' });
+  const heading = section.locator('[data-arvaus-kysymys] [data-kysymys]');
+  const diagrams = section.locator('[data-arvaus-kaaviot] figcaption');
+  const answers = section.getByRole('group', { name: 'Vastaa' });
+
+  // Duuri kysytään aluksi, mutta Sointu 1/2:n sijainti arvotaan.
+  await page.evaluate(() => { Math.random = () => 0.9; });
+  await section.getByRole('button', { name: 'Tunnista', exact: true }).click();
+  await expect(heading).toHaveText('Kumpi on duuri?');
+  await answers.getByRole('button', { name: 'Sointu 2' }).click();
+  await expect(diagrams).toHaveText(['Sointu 1 = Dm', 'Sointu 2 = D']);
+
+  // Uusi painallus samaan pariinkin vaihtaa kysymyksen molliksi ilman vastausta.
+  await page.evaluate(() => { Math.random = () => 0.1; });
+  await pairD.click();
+  await expect(heading).toHaveText('Kumpi on molli?');
+  await answers.getByRole('button', { name: 'Sointu 2' }).click();
+  await expect(diagrams).toHaveText(['Sointu 1 = D', 'Sointu 2 = Dm']);
+  await expect(section.locator('[data-arvauspalaute]')).toContainText('Oikein!');
+
+  // Ensimmäinen E/Em on duuri, mutta D/Dm:n oma vuorottelu jatkuu.
+  await pairE.click();
+  await expect(heading).toHaveText('Kumpi on duuri?');
+  await pairD.click();
+  await expect(heading).toHaveText('Kumpi on duuri?');
+  await pairD.click();
+  await expect(heading).toHaveText('Kumpi on molli?');
+  await expect(section.getByRole('button', { name: 'Tunnista', exact: true })).toBeHidden();
+});
+
 test('04 sointukierto ja asteet: G–D–Em–C neljän tahdin kitaranäytteillä', async ({ page }) => {
   await recordAudio(page);
   await page.goto(ydinPath(3));
