@@ -223,7 +223,7 @@ test.describe('ilman JavaScriptiä', () => {
 
   test('kaikki sisältölinkit löytyvät ja osiot aukeavat', async ({ page }) => {
     await page.goto(topicPath);
-    await expect(page.locator('.study-choice')).toHaveCount(24);
+    await expect(page.locator('.study-choice')).toHaveCount(25);
     await earlier(page).locator('summary').click();
     await expect(earlier(page).getByRole('link', { name: /Septimisoinnut/ }).first()).toBeVisible();
   });
@@ -458,9 +458,9 @@ test.describe('aiempien sisältöjen tilateksti (progress_text)', () => {
     await page.goto(topicPath);
     await expect(earlier(page).locator('summary [data-study-total]')).toHaveText('✓ Aiemmat sisällöt tehty');
     await expect(earlier(page).locator('summary')).toHaveAccessibleName(/^Aiemmat oppitunnit ja harjoitukset.*✓ Aiemmat sisällöt tehty$/);
-    await expect(page.locator('#ydinopinnot').locator('summary [data-unit-progress]')).toHaveText('0/3 kokeiltu');
-    await expect(page.locator('#ydinopinnot > summary')).toHaveAccessibleName(/0\/3 kokeiltu$/);
-    await expect(page.locator('#ydinopinnot').locator('[data-study-attempt-status]')).toHaveText(['Kokeilematta', 'Kokeilematta', 'Kokeilematta']);
+    await expect(page.locator('#ydinopinnot').locator('summary [data-unit-progress]')).toHaveText('0/4 kokeiltu');
+    await expect(page.locator('#ydinopinnot > summary')).toHaveAccessibleName(/0\/4 kokeiltu$/);
+    await expect(page.locator('#ydinopinnot').locator('[data-study-attempt-status]')).toHaveText(['Kokeilematta', 'Kokeilematta', 'Kokeilematta', 'Kokeilematta']);
     await expect(page.getByText(notWhole)).toHaveCount(0);
 
     // Vanhan sarjan viimeinen sivu: ylä- ja alareunan tila samalla tekstillä, alareunan tila ilmoitetaan (aria-live).
@@ -506,7 +506,7 @@ test('04 sointukierto ja asteet: G–D–Em–C neljän tahdin kitaranäytteill�
   await expect(bars).toContainText(['G', 'D', 'Em', 'C']);
   await expect(page.locator('figure.chord-diagram figcaption')).toHaveText(['G', 'D', 'Em', 'C']);
   await expect(page.locator('[data-sointuharjoitus="asteet"]')).toContainText('I–V–vi–IV');
-  const play = page.getByRole('button', { name: '▶ Kuuntele neljä tahtia' });
+  const play = page.locator('[data-asteet-play]');
   await play.click();
   await expect(play).toHaveAttribute('data-playing', '');
   const notes = await starts(page);
