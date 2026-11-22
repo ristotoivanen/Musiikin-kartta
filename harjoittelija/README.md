@@ -310,16 +310,24 @@ perustuvat iPhonen Safarilla 12.11.2026 tehtyihin mittauksiin (iOS 18.7):
   Mittaukset ja jäljellä olevat riskit:
   `docs/qa/ios-kaynnistys-issue9-2026-11-22/raportti.md`.
 
-**Tunnettu rajoitus (simulaattori 22.11.2026, ei vielä todennettu laitteella):**
-tauon jälkeinen jatko ja kelaus kesken soiton voivat jättää raidan kuulumaan
-0,1–1 s väärästä kohdasta. Sama tapahtuu betassa, eikä aloituksen korjaus
-poista sitä.
+- **Jatko, kelaus ja raidan päälle kytkentä (issue #9 vaihe 2, kokeellinen F1, 22.11.2026).**
+  Kun raidat kulkevat Web Audion kautta (iOS), WebKit soittaa tauon, soiton
+  aikaisen kelauksen tai raidan uudelleenkäynnistyksen jälkeen ensin noin
+  sekunnin vanhaa ääntä ja jää sitten noin 1,0 s jälkeen `currentTime`-arvosta.
+  F1 vaihtaa soineille raidoille tuoreen mediasoittimen (`load()`) ja kelaa
+  kaikki raidat samaan kohtaan ennen toistoa (`freshTracksAt`, `songAudio.ts`):
+  tauolla heti, soiton aikaisessa kelauksessa 250 ms viimeisestä säätimen
+  siirrosta ja raidan päälle kytkennässä heti (ääni katkeaa hetkeksi).
+  Ensimmäinen käynnistys, versionvaihto ja työpöytäselaimet toimivat ennallaan.
+  Mittaukset ja avoimet ongelmat: `docs/qa/ios-jatko-kelaus-f1-2026-11-22/raportti.md`.
 
-**Tunnettu rajoitus:** kun raita kytketään iPhonella takaisin päälle kesken
-soiton, se voi nykäistä hetken ja asettua tahtiin vasta yhden korjauksen
-jälkeen. Jatkuva soitto ja tauolla tehty kytkentä toimivat. Rajoituksen
-poistaisi vain raitojen miksaaminen Web Audiossa puretuista puskureista,
-mikä vaatisi kaikkien raitojen lataamisen muistiin ennen soittoa.
+**Tunnetut rajoitukset (simulaattori 22.11.2026, ei todennettu laitteella):**
+
+- F1:n jälkeen raitojen `currentTime` on noin 0,28 s kuuluvan äänen jäljessä.
+  Sointunäyttö on siksi noin 0,4 s äänen jäljessä (kylmäkäynnistyksessä noin
+  0,15 s), ja jatko toistaa 0,1–0,35 s jo kuultua.
+- Jokainen `load()` lataa kaikki kolme MP3:a uudelleen (noin 15 Mt).
+- Loopin kierros jättää raidat noin 1,0 s jälkeen kuten ennenkin.
 
 ## Moduulit
 

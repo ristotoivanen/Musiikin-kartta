@@ -21,6 +21,9 @@ test.describe('Uudet oppimispolut', () => {
       const file = (el: HTMLMediaElement) => el.getAttribute('src')?.split('/').pop() ?? '';
       HTMLMediaElement.prototype.play = function () { w.__plays.push(file(this)); return Promise.resolve(); };
       HTMLMediaElement.prototype.pause = function () { w.__pauses.push(file(this)); };
+      // Raidoilla on dataa: testi koskee kytkimiä, ei kylmäkäynnistyksen valmiusporttia (PR #155), jonka
+      // lataus-play() ja -pause() kirjautuisivat muuten ajoituksesta riippuen ylimääräisiksi kutsuiksi.
+      Object.defineProperty(HTMLMediaElement.prototype, 'readyState', { configurable: true, get: () => 4 });
     });
     await page.goto('/kitaraharjoittelija.html');
     await page.getByRole('button', { name: /Kappaleharjoittelu/ }).click();
@@ -67,8 +70,9 @@ test.describe('Uudet oppimispolut', () => {
 
     await guitar.check();
     await expect(streams.nth(1)).toHaveJSProperty('muted', false);
-    // Päälle kytketty kitara käynnistetään uudelleen, laulu pysyy pysäytettynä.
-    expect(count(await plays(), 'kitara.mp3')).toBe(2);
+    // Päälle kytketty kitara käynnistetään uudelleen, laulu pysyy pysäytettynä. iOS-tyylisessä selaimessa (Web Audio)
+    // kaikki päällä olevat raidat käynnistetään tuoreina taustan kohdasta (issue #9, vaihe 2), joten odotetaan.
+    await expect.poll(async () => count(await plays(), 'kitara.mp3')).toBe(2);
     expect(count(await plays(), 'laulu.mp3')).toBe(1);
     await loop.check();
     for (let i = 0; i < 3; i++) await expect(streams.nth(i)).toHaveJSProperty('loop', true);

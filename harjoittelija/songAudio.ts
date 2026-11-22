@@ -134,15 +134,91 @@ export function startLoading(elements: readonly ReadyMedia[]): number {
  * Latausvirhe keskeyttää heti. 'ohitettu', jos uudempi painallus, tauko tai versionvaihto on ohittanut odotuksen.
  */
 export function waitForTracksReady(elements: readonly ReadyMedia[], timeoutMs: number, cancelled: () => boolean,
-  timers: { set: (fn: () => void, ms: number) => unknown; clear: (id: unknown) => void } = {
-    set: (fn, ms) => setTimeout(fn, ms), clear: id => clearTimeout(id as ReturnType<typeof setTimeout>) },
-): Promise<'valmis' | 'virhe' | 'aikakatkaisu' | 'ohitettu'> {
+  timers: Timers = defaultTimers,
+): Promise<ReadyResult> {
+  return waitForTracks(elements, tracksReady, ['loadeddata', 'canplay', 'canplaythrough', 'seeked', 'error'],
+    timeoutMs, cancelled, timers);
+}
+
+export type ReadyResult = 'valmis' | 'virhe' | 'aikakatkaisu' | 'ohitettu';
+export interface Timers { set: (fn: () => void, ms: number) => unknown; clear: (id: unknown) => void }
+const defaultTimers: Timers = { set: (fn, ms) => setTimeout(fn, ms), clear: id => clearTimeout(id as ReturnType<typeof setTimeout>) };
+
+/**
+ * Kuinka kauan load() odottaa raidan viimeisimmän play()-lupauksen täyttymisen jälkeen. iOS-simulaattorissa
+ * (19.11.2026, PR #126) sivun pääsäie jumittui noin 10,6 s, kun load() osui soivaan raitaan ≤ 40 ms
+ * play()-lupauksen täyttymisestä. Raita pysäytetään aina ennen load()-kutsua, ja tämä väli on lisäsuoja.
+ */
+export const FRESH_LOAD_GUARD_MS = 100;
+/** Liukusäätimen viimeisen siirron jälkeinen odotus, ennen kuin raidat valmistellaan uuteen kohtaan. */
+export const SEEK_SETTLE_MS = 250;
+
+/** Raita, jolle voidaan vaihtaa tuore mediasoitin (testattavissa ilman selainta). */
+export interface FreshMedia extends ReadyMedia {
+  currentTime: number;
+  readonly duration: number;
+  readonly paused: boolean;
+  load(): void;
+}
+
+export interface FreshOptions {
+  timeoutMs: number;
+  cancelled: () => boolean;
+  /** Onko raita soinut edellisen load()-kutsun jälkeen. Vain sellainen raita ladataan uudelleen. */
+  stale: (element: FreshMedia) => boolean;
+  /** Raidan viimeisimmän play()-lupauksen täyttymishetki (performance.now). */
+  playedAt?: (element: FreshMedia) => number | undefined;
+  /** Kutsutaan jokaisen load()-kutsun jälkeen. */
+  onLoad?: (element: FreshMedia) => void;
+  now?: () => number;
+  timers?: Timers;
+}
+
+/**
+ * Valmistelee raidat soimaan kohdasta at tuoreilla mediasoittimilla (issue #9, vaihe 2).
+ *
+ * iOS:n WebKit (simulaattori iOS 27.2, 22.11.2026) soittaa MediaElementSourcen kautta tauon tai soiton aikaisen
+ * kelauksen jälkeen ensin noin sekunnin vanhaa ääntä puskuristaan ja jää sitten noin 1,0 s jälkeen currentTime-arvosta.
+ * currentTime ei näe tätä, joten tahdistin ei voi korjata sitä, ja jokainen korjauskelaus toistaa ilmiön.
+ * load() luo raidalle uuden mediasoittimen, jonka puskurissa ei ole vanhaa ääntä. MediaElementSource-kytkentä ja
+ * GainNode säilyvät. Soinut raita ladataan uudelleen, ja kaikki raidat kelataan samaan kohtaan ennen kuin ne
+ * käynnistetään. Soivaan raitaan ei koskaan kutsuta load()-metodia.
+ */
+export async function freshTracksAt(elements: readonly FreshMedia[], at: number, options: FreshOptions): Promise<ReadyResult> {
+  const { timeoutMs, cancelled, stale, playedAt, onLoad, now = () => performance.now(), timers = defaultTimers } = options;
+  const started = now();
+  const remaining = () => Math.max(0, timeoutMs - (now() - started));
+  for (const element of elements) if (!element.paused) element.pause();
+  const reload = elements.filter(stale);
+  if (reload.length) {
+    const lastPlay = Math.max(-Infinity, ...reload.map(element => playedAt?.(element) ?? -Infinity));
+    const guard = lastPlay + FRESH_LOAD_GUARD_MS - now();
+    if (guard > 0) await new Promise<void>(resolve => { timers.set(resolve, guard); });
+    if (cancelled()) return 'ohitettu';
+    for (const element of reload) {
+      element.load();
+      onLoad?.(element);
+    }
+  }
+  const metadata = await waitForTracks(elements, list => list.every(element => element.readyState >= 1),
+    ['loadedmetadata', 'loadeddata', 'canplay', 'error'], remaining(), cancelled, timers);
+  if (metadata !== 'valmis') return metadata;
+  for (const element of elements) {
+    const target = Number.isFinite(element.duration) ? Math.min(at, Math.max(0, element.duration - 0.05)) : at;
+    // load() palauttaa raidan alkuun. Alusta soitettaessa kelausta ei tarvita.
+    if (Math.abs(element.currentTime - target) < ALIGN_EPSILON_SECONDS) continue;
+    try { element.currentTime = target; } catch { return 'virhe'; }
+  }
+  return waitForTracksReady(elements, remaining(), cancelled, timers);
+}
+
+function waitForTracks<T extends ReadyMedia>(elements: readonly T[], ready: (elements: readonly T[]) => boolean,
+  events: readonly string[], timeoutMs: number, cancelled: () => boolean, timers: Timers): Promise<ReadyResult> {
   return new Promise(resolve => {
-    const events = ['loadeddata', 'canplay', 'canplaythrough', 'seeked', 'error'];
     let settled = false;
     let poll: unknown = null;
     const deadline = timers.set(() => finish('aikakatkaisu'), timeoutMs);
-    function finish(result: 'valmis' | 'virhe' | 'aikakatkaisu' | 'ohitettu') {
+    function finish(result: ReadyResult) {
       if (settled) return;
       settled = true;
       timers.clear(deadline);
@@ -153,7 +229,7 @@ export function waitForTracksReady(elements: readonly ReadyMedia[], timeoutMs: n
     function check() {
       if (cancelled()) finish('ohitettu');
       else if (elements.some(element => element.error)) finish('virhe');
-      else if (tracksReady(elements)) finish('valmis');
+      else if (ready(elements)) finish('valmis');
     }
     // Peruutus ei tuota tapahtumaa, joten tilaa tarkistetaan myös lyhyin väliajoin.
     const tick = () => { check(); if (!settled) poll = timers.set(tick, 50); };

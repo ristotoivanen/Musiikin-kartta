@@ -126,7 +126,9 @@ test.describe('Kappaleharjoittelijan kylmäkäynnistys (issue #9)', () => {
     await expect.poll(async () => (await calls(page)).filter(call => call.kind === 'seek-write' && call.track === 'kitara').length).toBe(1);
   });
 
-  test('tauon jälkeen pientä eroa ei kelata, ja todellinen ero korjataan ennen kuin raidat käynnistetään', async ({ page }) => {
+  test('tauon jälkeen pientä eroa ei kelata, ja todellinen ero korjataan ennen kuin raidat käynnistetään', async ({ page, isMobile }) => {
+    // iOS-tyylisessä selaimessa (Web Audio -reititys) jatko tehdään tuoreilla mediasoittimilla: song-resume-seek.spec.ts.
+    test.skip(isMobile, 'Puhelinprojekti on iOS-tyylinen: jatkon kattaa song-resume-seek.spec.ts.');
     await controlPlayback(page);
     await page.addInitScript(() => {
       (window as unknown as { __readiness: Record<string, number> }).__readiness = { saestys: 4, kitara: 4, laulu: 4 };
