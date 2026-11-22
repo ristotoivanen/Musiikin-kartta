@@ -95,8 +95,8 @@ test('virheellisen ensimuodon jälkeen yritetään seuraavaa muotoa', async ({ p
   await expect(page.locator('#status')).toHaveText('Toistetaan Meta Steel -äänillä.');
   await expect(page.locator('#details')).toContainText('1 näytettä');
   expect(requests).toHaveLength(2);
-  expect(requests[0]).toMatch(oggFirst ? /\\.ogg$/ : /\\.m4a$/);
-  expect(requests[1]).toMatch(oggFirst ? /\\.m4a$/ : /\\.ogg$/);
+  expect(requests[0]).toMatch(oggFirst ? /\.ogg$/ : /\.m4a$/);
+  expect(requests[1]).toMatch(oggFirst ? /\.m4a$/ : /\.ogg$/);
 });
 
 test('M2 hyväksyy vain tarkistetun B-taustatiedoston', async ({ page }) => {
