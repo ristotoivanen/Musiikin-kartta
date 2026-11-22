@@ -177,7 +177,8 @@ describe('04 Valmistaudu seuraavaan osaan: D–G ja aktiivinen vaimennus', () =>
       .toBe(4 * 60 / tempo);
     requestMode(transport, 'B');
     const after = scheduleUntil(transport, 1 + 24 * oneEighth);
-    expect(transport.switches[1].step).toBe(8);
+    expect(transport.switches[1].step).toBe(16);
+    expect(after.find((event: Event) => event.role === 'osan-sointu' && event.step === 8)?.harmony).toBe('G');
     expect(after.find((event: Event) => event.role === 'osan-sointu' && event.step === 16)?.duration)
       .toBe(3 * 60 / tempo);
     expect(positionAt(transport, transport.switches[1].time - .001).mode).toBe('A');
