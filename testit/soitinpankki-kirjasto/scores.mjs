@@ -1,3 +1,4 @@
+import { createM2SteelEvents } from '../../assets/soitinpankki/m2-steel-model.mjs';
 const beat = 60 / 72;
 const note = (string, midi, at, releaseAt, fade = .15) =>
   ({ string, midi, layer: 'Vel02', at, releaseAt, fade });
@@ -14,9 +15,5 @@ export const scores = {
   }),
   // M2: neljän iskun sisäänlasku + 4 x (neljä iskua ja neljä taukoa).
   // Tausta ladataan käyttäjän omasta paikallisesta tiedostosta.
-  m2: Array.from({ length: 4 }, (_, cycle) =>
-    Array.from({ length: 4 }, (_, stroke) => {
-      const at = (4 + cycle * 8 + stroke) * beat;
-      return note(6, 40, at, at + beat);
-    })).flat(),
+  m2: createM2SteelEvents(),
 };
