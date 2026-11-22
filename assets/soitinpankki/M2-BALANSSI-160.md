@@ -1,10 +1,16 @@
-# #160 – M0/M2-äänitason objektiivinen tarkistus
+# #160 – M0/M2:n PCM-tasot, EI hyväksytty äänenvoimakkuusbalanssi
 
-Mittausten päiväys: 22.11.2026. Palaute ja lopullisessa kuvakaappauksessa käytetyt
-arvot: **M0 FreePats 30 %, M2 Meta Steel E2 2,4×, M2 B-säestys 55 %**.
+Mittausten päiväys: 22.11.2026. Viimeksi kokeillut, vielä epävarmat säädöt:
+**M0 FreePats 30 %, M2 Meta Steel E2 2,4×, M2 B-säestys 55 %**.
 
-Tämä on **QA-tasapainon vertailu**, ei päätös koko tulevan äänipankin
-yleisestä masteroinnista eikä tuotantoon viennistä.
+**Omistajan tarkennus: aiemmat äänitasot eivät olleet balanssissa, eikä näidenkään
+arvojen balanssia ole vahvistettu. BALANSSI AVOIN.** Aiemmat ilmaukset
+"hyväksytty", "lopulliset" tai "balanssi kunnossa" peruuntuvat siltä osin
+kuin ne koskivat M0/M2:n suhteellista äänenvoimakkuutta. Ääninäytteiden
+laadun A/B/C-valinta ja teknisten testien tulokset ovat eri asioita.
+
+Tämä on vain **digitaalisen signaalin mittausraportti**, ei miksauspäätös,
+ei luotettava kuuluvuuden arvio eikä päätös uuden pankin masteroinnista.
 
 ## Lähteet ja menetelmä
 
@@ -45,19 +51,48 @@ todellisen äänireitin mittaus.
 - Säestyksen **hyväksyttyä alkuperäistä WAV:ia ei muutettu**.
   M3:n miksaukseen ei koskettu.
 
-## Päätös tälle QA-esikatselulle
+## Tila ja uusi hyväksymismenettely
 
-**Säilytetään käyttäjän valitsemat M0 30 %, M2 Steel 2,4× ja
-M2:n B-säestys 55 % oletusarvoina vain PR #160:n erillisessä QA-sivussa.**
+**BALANSSI AVOIN.** Esikatselusivulle asetetut 30 %, 2,4× ja 55 %
+ovat *viimeisimmän koekuuntelun lähtöarvot*, eivät lukittuja
+tuotantoasetuksia eikä äänenvoimakkuuden hyväksyntää.
 
-Mitattua yliohjausta ei löytynyt, joten äänenvoimakkuuksia ei lasketa
-keinotekoisesti clippingin vuoksi. Automaattista loudness-normalisointia
-tai kompressoria ei lisätä tässä vaiheessa: se muuttaisi
-soittamisen dynamiikkaa ilman erillistä pedagogista kuunteluhyväksyntää.
+Tekninen mittaus kertoo vain sen, ettei tässä mallinnetussa
+näytehuippusummassa ollut 0 dBFS:n ylitystä. Se ei todista
+puhelimella toistuvan miksauksen kuuluvuutta, taajuuksien välistä
+peittymistä, eri kuulokkeiden tasoa, havaitun voimakkuuden
+yhtenäisyyttä tai M0:n ja M2:n pedagogista erottuvuutta.
+Ensimmäisen 0,5 sekunnin RMS ei ole LUFS-mittaus, ja koko
+harjoituksen eri aikapisteissä esiintyviä maksimeja ei voi verrata
+suoraan keskinäisen balanssin perusteeksi.
 
-Vielä auki: oikean iPhone/Safarin ja Android/Chromen
-käyttäytyminen, koettu äänenvoimakkuus eri kuulokkeilla sekä
-erillinen päätös #130:n varsinaisesta integraatiosta.
+Ennen hyväksyntää:
+
+1. **Vertailuvakiot:** sama laite, kuulokkeet, järjestelmän äänenvoimakkuus
+   ja toistopolku M0:n sekä M2:n testeissä. Äänen säädöt eivät saa
+   muuttua vahingossa ennen A/B-kierrosta.
+2. **M0:** kuunnellaan erikseen klikki vs kuiva E2, niin että isku
+   hahmottuu selkeästi mutta klikki ei huku. M0:aa ei tasata vain
+   numeerisesti M2:n mastertasoon.
+3. **M2:** verrataan ensin B-säestystä ilman mallikitaraa,
+   sitten samalla taustatasolla mallikitaran kanssa. Varmistetaan
+   jokaisen neljän iskun erottuminen sekä vaimennuksen selkeys
+   eri musiikkikohdissa, ei vain yhden iskun alussa.
+4. **Sokkoutettu tasokoe:** kuunnellaan vähintään kolme lähellä toisiaan
+   olevaa kitaratasoa muuttamatta taustaa, sekä tarvittaessa
+   kaksi taustatasoa. Valitaan taso, jolla oppija tunnistaa iskut
+   ilman että mallikitara peittää koko säestyksen.
+5. **Mittaus tukena:** mittaa koko M2:n todellinen selaimessa rakennettu
+   PCM, short-term/LUFS tarvittaessa ja true peak -vara. Varmista ettei
+   klippausta tapahdu, mutta älä hyväksy balanssia pelkän RMS:n perusteella.
+6. **Fyysiset laitteet:** iPhone/Safari ja Android/Chrome samalla
+   hyväksyttävällä koemenetelmällä. Lukituksen ja taustoituksen
+   toimivuus arvioidaan erillään miksauksesta.
+
+**Ei automaattista loudness-normalisointia, kompressoria tai uusien
+arvojen lukitsemista tässä vaiheessa.** Vain hyväksytyt erot ja
+yksiselitteiset arvot voidaan myöhemmin tuoda #130:n varsinaiseen M2:een.
+Beta/main ja alkuperäinen #130 ovat koskemattomia.
 
 Toteutunut CI-mittaus:
 https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/45040302180
