@@ -448,7 +448,9 @@
         const correctIndex = pair.indexOf(target);
         const correct = selectedIndex === correctIndex;
         choices.forEach((choice, index) => {
-          const isCorrect = index === correctIndex;
+          // Väritetään vain oppijan painama vaihtoehto. Oikea vastaus
+          // kerrotaan myös palautteessa ilman toisen painikkeen korostamista.
+          const isCorrect = index === selectedIndex && correct;
           const isWrong = index === selectedIndex && !correct;
           choice.classList.toggle('is-correct', isCorrect);
           choice.classList.toggle('is-wrong', isWrong);
