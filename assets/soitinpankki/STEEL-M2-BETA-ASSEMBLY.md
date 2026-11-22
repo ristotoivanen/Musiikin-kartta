@@ -53,6 +53,28 @@ on tuotu **identtisinä**. Samoin Meta Steel -manifestin, 8 Vel02-näytteen
 - Ei muuta alkuperäisen #130:n HTML-tiedostoa tai opetusmallia.
 - Ei korjaa aiemmin tunnettua iOS:n AudioSession-/Bluetooth-/lukitusbugia.
 
+## Alkuperäisen #130:n selainregression erillinen status
+
+Ensimmäisen koosteen CI:ssä [GitHub Actions #45058104149](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/45058104149)
+täysi `npm run check`, SHA-256-vertailut ja kaikki tämän koosteen
+**Steel-selaintestit** läpäisivät. Alkuperäisen #130:n erikseen kopioitu
+Playwright-sarja tuotti kuitenkin kuusi epäonnistumista, vaikka
+**alkuperäinen HTML ja testi ovat täsmälleen samat Git-blobit** kuin #130:ssa:
+
+- WAV-puskurin kestoa verrattiin `duration === 2` ilman dekooderin
+  sallimaa numeerista toleranssia (2 epäonnistumista).
+- 320/375 px:n puhelimen `showGuide`-vierityksen jälkeen
+  pysäytyspainike, vaiheotsikko ja aikajana eivät mahtuneet kaikki
+  vaaditusti näkyviin kolmen sekunnin aikana (4 epäonnistumista).
+
+**Ei kuitata näitä virheitä pois eikä muuteta alkuperäistä #130:ta
+ääni-integraation sivutuotteena.** Erillisessä #168:n CI-portissa
+testataan uusi Steel-integraatio Chromiumilla ja WebKitillä; #130:n
+täyden selainregression vihreys on **erillinen käyttöönoton este**,
+kunnes alkuperäisen harjoituksen omistaja on korjannut tai käsitellyt
+löydökset. Kuusi epäonnistumista on dokumentoitu #130:n ja #168:n
+PR-keskusteluihin.
+
 ## Hyväksyntäportit
 
 1. GitHub Actions: `npm run check`, kahden harjoituksen yksikkö- ja
