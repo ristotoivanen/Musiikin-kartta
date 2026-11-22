@@ -43,12 +43,15 @@ describe('#160 – M2 Steel -harjoitusvertailun rajaus', () => {
     }
   });
 
-  it('näyttää mitatut M0/M2-kuunteluasetukset oletuksina mutta jättää M3:n ennalleen', () => {
+  it('näyttää väliaikaiset M0/M2-koearvot ilman miksauksen hyväksyntäväitettä', () => {
     expect(qa).toMatch(/id="m0Gain"[^>]*value="0\.3"/);
     expect(qa).toMatch(/id="steelGain"[^>]*value="2\.4"/);
     expect(qa).toMatch(/id="m2BackingGain"[^>]*value="0\.55"/);
     expect(qa).toContain('id="m0GainLabel">30 %');
     expect(qa).toContain('id="steelGainLabel">2,4 ×');
+    expect(qa).toContain('id="balanceStatus"');
+    expect(qa).toContain('Balanssi avoin.');
+    expect(qa).toContain('Koearvot, ei hyväksytty miksaus.');
     expect(qa).toContain("if(mode==='M3'){src.loop=true");
     expect(original).not.toContain('m0GainControls');
   });
