@@ -114,8 +114,15 @@ test.describe('ilman JavaScriptiä', () => {
   test.use({ javaScriptEnabled: false });
   test('ankkurirajaus toimii myös 320 px / 200 %', async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 800 });
+    // With JavaScript disabled, inject the enlargement as HTML rather than page.addStyleTag:
+    // the latter waits for script evaluation and times out in this browser mode.
+    await page.route('**/musapelit.html', async route => {
+      const response = await route.fetch();
+      const html = (await response.text()).replace('</head>',
+        '<style>html { font-size: 200% !important; } body { font-size: 200%; }</style></head>');
+      await route.fulfill({ response, body: html });
+    });
     await page.goto('/musapelit.html#aihe-korva');
-    await page.addStyleTag({ content: 'html { font-size: 200% !important; } body { font-size: 200%; }' });
     await expect(page.locator('#aihe-korva .game-card:visible')).toHaveCount(4);
     expect((await measureReflow(page)).scrollWidth).toBeLessThanOrEqual(320);
     await page.locator('.game-filter a[href="#pelit"]').click();
