@@ -50,7 +50,7 @@ describe('01 Löydä pulssi ja ykkönen', () => {
 
 describe('#163: kahden tahdin pulssivihje', () => {
   for (const tempo of [96, 108]) {
-    it(`piilotettuna näyttää vain kummankin tahdin ykkösen lyhyen välähdyksen (${tempo} BPM)`, () => {
+    it(`piilotettuna vain soivan tahdin ensimmäinen ruutu välähtää kaikilla neljällä iskulla (${tempo} BPM)`, () => {
       const begin = 1;
       const transport = createTransport({ task: 'pulssi', tempo, begin });
       const eighth = transport.stepDuration;
@@ -58,11 +58,11 @@ describe('#163: kahden tahdin pulssivihje', () => {
       for (let bar = 0; bar < 4; bar++) {
         const barStart = begin + bar * STEPS_PER_BAR * eighth;
         const expectedBar = bar % 2;
-        expect(pulseCellAt(transport, barStart + .02, false)).toEqual({ bar: expectedBar, index: 0 });
-        expect(pulseCellAt(transport, barStart + .20, false)).toBeNull();
-        for (let beat = 1; beat < 4; beat++) {
-          expect(pulseCellAt(transport, barStart + beat * 2 * eighth, false)).toBeNull();
-          expect(pulseCellAt(transport, barStart + (beat * 2 + 1) * eighth, false)).toBeNull();
+        for (let beat = 0; beat < 4; beat++) {
+          const beatStart = barStart + beat * 2 * eighth;
+          expect(pulseCellAt(transport, beatStart + .02, false)).toEqual({ bar: expectedBar, index: 0 });
+          expect(pulseCellAt(transport, beatStart + .20, false)).toBeNull();
+          expect(pulseCellAt(transport, beatStart + eighth, false)).toBeNull();
         }
       }
     });
@@ -80,13 +80,16 @@ describe('#163: kahden tahdin pulssivihje', () => {
     });
   }
 
-  it('vähennetty liike pitää ykkösen näkyvänä ensimmäisen iskun ajan, ei muilla iskuilla', () => {
+  it('vähennetty liike näyttää ensimmäisen ruudun rauhallisesti koko iskun ajan kaikilla neljällä iskulla', () => {
     const transport = createTransport({ task: 'pulssi', tempo: 96, begin: 1 });
     const step = transport.stepDuration;
-    expect(pulseCellAt(transport, 1 + .2, false, true)).toEqual({ bar: 0, index: 0 });
-    expect(pulseCellAt(transport, 1 + step + .1, false, true)).toEqual({ bar: 0, index: 0 });
-    expect(pulseCellAt(transport, 1 + 2 * step, false, true)).toBeNull();
-    expect(pulseCellAt(transport, 1 + 8 * step + .3, false, true)).toEqual({ bar: 1, index: 0 });
+    for (let bar = 0; bar < 2; bar++) {
+      for (let beat = 0; beat < 4; beat++) {
+        const at = 1 + (bar * STEPS_PER_BAR + beat * 2) * step;
+        expect(pulseCellAt(transport, at + .2, false, true)).toEqual({ bar, index: 0 });
+        expect(pulseCellAt(transport, at + step + .1, false, true)).toEqual({ bar, index: 0 });
+      }
+    }
   });
 });
 

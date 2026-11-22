@@ -247,22 +247,22 @@ export function positionAt(transport, time) {
 }
 
 /**
- * #163: piilotetun pulssivihjeen ainoa välähdys on soivan tahdin ykkösellä.
- * Paljastettu tila seuraa jokaista neljää iskua kahdella tahtirivillä.
- * Aikaleima on sama ulostuloviiveellä korjattu AudioContext-kello kuin muissa ruudukoissa.
- * Liikkeen vähentäminen pidentää yhden välähdyksen koko ensimmäisen iskun mittaiseksi.
+ * #163: piilotettuna soivan tahdin ensimmäinen ruutu välähtää jokaisella
+ * neljäsosaiskulla (1, 2, 3, 4), mutta muut kolme ruutua pysyvät passiivisina.
+ * Paljastettuna korostus seuraa kaikkia neljää erillistä ruutua.
+ * Kello on sama ulostuloviiveellä korjattu AudioContext-aika kuin muissa ruudukoissa.
+ * Reduced motion: ei nopeaa välähdystä, ensimmäinen ruutu näkyy koko iskun ajan.
  */
 export function pulseCellAt(transport, time, revealed, reducedMotion = false) {
   const position = positionAt(transport, time);
   if (!position) return null;
   if (revealed) return position.cell;
-  if (position.cell.index !== 0) return null;
-  const barStartStep = position.step - position.step % STEPS_PER_BAR;
-  const elapsed = time - (transport.begin + barStartStep * transport.stepDuration);
+  const beatStartStep = position.step - position.step % 2;
+  const elapsed = time - (transport.begin + beatStartStep * transport.stepDuration);
   const visibleFor = reducedMotion
     ? 2 * transport.stepDuration
     : Math.min(0.18, transport.stepDuration);
-  return elapsed < visibleFor ? position.cell : null;
+  return elapsed < visibleFor ? { bar: position.cell.bar, index: 0 } : null;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -661,7 +661,7 @@ function setupExercise(root) {
     // Tilasta ilmoitetaan vain käyttäjän valinnalla, ei jokaisesta animaatioruudusta.
     pulseStatus.textContent = state.revealed
       ? 'Pulssi paljastettu. Iskut 1–4 korostuvat vuorollaan molemmissa tahdeissa.'
-      : 'Pulssi piilotettu. Vain kummankin tahdin ykkönen välähtää.';
+      : 'Pulssi piilotettu. Ensimmäinen ruutu välähtää jokaisella iskulla kulloinkin soivassa tahdissa.';
   });
 
   for (const choice of grooveButtons) {

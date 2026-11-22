@@ -326,23 +326,31 @@ test.describe('harjoitussivut', () => {
     await expect(page.locator('[data-rytmi-tila]')).toHaveText('Pysäytetty.');
   });
 
-  test('01: piilotettuna vain aktiivisen tahdin ykkösruutu välähtää oikealla rivillä', async ({ page }) => {
+  test('01: piilotettuna vain soivan tahdin ensimmäinen ruutu välähtää joka iskulla', async ({ page }) => {
     await page.goto('/oppi/rytmi/loyda-pulssi-ja-ykkonen.html');
     await playButton(page).click();
     await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
-    const observed = await page.evaluate(() => new Promise<string[]>(resolve => {
+    const observed = await page.evaluate(() => new Promise<{ cells: string[]; counts: Record<string, number> }>(resolve => {
       const found = new Set<string>();
+      const counts: Record<string, number> = { '0': 0, '1': 0 };
       const root = document.querySelector('[data-rytmiharjoitus="pulssi"]')!;
-      const sample = () => root.querySelectorAll<HTMLElement>('.rytmi-isku.is-active').forEach(cell => {
-        const index = [...cell.parentElement!.children].indexOf(cell);
-        found.add(`${cell.dataset.tahti}:${index}`);
+      const watcher = new MutationObserver(changes => {
+        for (const change of changes) {
+          const cell = change.target as HTMLElement;
+          if (!cell.matches('[data-rytmi-isku].is-active')) continue;
+          const index = [...cell.parentElement!.children].indexOf(cell);
+          const bar = cell.dataset.tahti!;
+          found.add(`${bar}:${index}`);
+          counts[bar] = (counts[bar] ?? 0) + 1;
+        }
       });
-      const watcher = new MutationObserver(sample);
       watcher.observe(root, { attributes: true, subtree: true, attributeFilter: ['class'] });
-      sample();
-      window.setTimeout(() => { watcher.disconnect(); resolve([...found]); }, 5500);
+      window.setTimeout(() => { watcher.disconnect(); resolve({ cells: [...found], counts }); }, 5500);
     }));
-    expect(observed.sort()).toEqual(['0:0', '1:0']);
+    expect(observed.cells.sort()).toEqual(['0:0', '1:0']);
+    // 96 BPM: neljä pulssi-iskua / tahti, havaitaan toistuvia välähdyksiä molemmilta riveiltä.
+    expect(observed.counts['0']).toBeGreaterThanOrEqual(3);
+    expect(observed.counts['1']).toBeGreaterThanOrEqual(3);
     await playButton(page).click();
     await expect(page.locator('.rytmi-isku.is-active')).toHaveCount(0);
   });
