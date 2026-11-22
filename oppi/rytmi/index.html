@@ -42,11 +42,15 @@
               <summary class="study-choice study-choice--unit" id="valinta-loyda-pulssi-ja-ykkonen"><span class="study-number" aria-hidden="true">01</span><strong class="study-title">Löydä pulssi ja ykkönen</strong><span class="study-choice-details"><span class="study-description">Kuuntele ja naputa</span><span data-study-attempt-status="oppitunti:loyda-pulssi-ja-ykkonen" class="study-status" hidden></span></span><span class="study-arrow" aria-hidden="true"></span></summary>
               <div class="study-inline-body">
                 <section class="rytmi-harjoitus study-knoppi-host" data-rytmiharjoitus="pulssi" aria-labelledby="rytmi-01-otsikko">
-                  <h2 id="rytmi-01-otsikko" class="rytmi-tunniste">01 · Kuuntele</h2>
-                  <p class="rytmi-ohje">Kuuntele ensin musiikkia. Yritä löytää sen tasainen pulssi.</p>
+                  <h2 id="rytmi-01-otsikko" class="rytmi-tunniste">01 · Pulssi jatkuu</h2>
+                  <p class="rytmi-ohje">Kuuntele kahta saman musiikkiesimerkin versiota. A:ssa rummut kuuluvat molemmat tahdit. B:ssä rummut vaikenevat yhden tahdin ajaksi ja palaavat, mutta basso, harmonia ja musiikin pulssi jatkavat. <strong>Tempo ei muutu A:n ja B:n välillä.</strong></p>
                   <div class="rytmi-valinnat" role="group" aria-label="Musiikkiesimerkki" data-rytmi-ohjaimet hidden>
                     <button type="button" data-esimerkki="rock" aria-pressed="true">Esimerkki 1 · 96 BPM</button>
                     <button type="button" data-esimerkki="soft" aria-pressed="false">Uusi esimerkki · 108 BPM</button>
+                  </div>
+                  <div class="rytmi-valinnat" role="group" aria-label="Rumpujen hiljeneminen" data-rytmi-ohjaimet hidden>
+                    <button type="button" data-rumpumalli="jatkuva" aria-pressed="true">A · Rummut koko ajan</button>
+                    <button type="button" data-rumpumalli="katko" aria-pressed="false">B · Rummut tauolla</button>
                   </div>
                   <div class="rytmi-soitin" data-rytmi-ohjaimet hidden>
                     <button type="button" class="rytmi-kuuntele" data-rytmi-toisto><span aria-hidden="true">▶</span> Kuuntele</button>
@@ -55,15 +59,23 @@
                   <div class="rytmi-valinnat" data-rytmi-ohjaimet hidden>
                     <button type="button" data-rytmi-vihje>Paljasta pulssi</button>
                   </div>
-                  <ol class="rytmi-ruudukko" aria-label="Tahdin neljä iskua">
+                  <p class="rytmi-tahti">Tahti 1 · Rummut kuuluvat</p>
+                  <ol class="rytmi-ruudukko" aria-label="Ensimmäisen tahdin neljä iskua">
                     <li class="rytmi-isku" data-rytmi-isku data-tahti="0"><span class="rytmi-isku-nimi">•</span> <span class="rytmi-isku-teko">Pulssi</span></li>
                     <li class="rytmi-isku" data-rytmi-isku data-tahti="0"><span class="rytmi-isku-nimi">•</span> <span class="rytmi-isku-teko">Pulssi</span></li>
                     <li class="rytmi-isku" data-rytmi-isku data-tahti="0"><span class="rytmi-isku-nimi">•</span> <span class="rytmi-isku-teko">Pulssi</span></li>
                     <li class="rytmi-isku" data-rytmi-isku data-tahti="0"><span class="rytmi-isku-nimi">•</span> <span class="rytmi-isku-teko">Pulssi</span></li>
                   </ol>
+                  <p class="rytmi-tahti" data-rummut-tahti>Tahti 2 · Rummut kuuluvat edelleen</p>
+                  <ol class="rytmi-ruudukko" aria-label="Toisen tahdin neljä iskua">
+                    <li class="rytmi-isku" data-rytmi-isku data-tahti="1"><span class="rytmi-isku-nimi">•</span> <span class="rytmi-isku-teko">Pulssi</span></li>
+                    <li class="rytmi-isku" data-rytmi-isku data-tahti="1"><span class="rytmi-isku-nimi">•</span> <span class="rytmi-isku-teko">Pulssi</span></li>
+                    <li class="rytmi-isku" data-rytmi-isku data-tahti="1"><span class="rytmi-isku-nimi">•</span> <span class="rytmi-isku-teko">Pulssi</span></li>
+                    <li class="rytmi-isku" data-rytmi-isku data-tahti="1"><span class="rytmi-isku-nimi">•</span> <span class="rytmi-isku-teko">Pulssi</span></li>
+                  </ol>
                   <div class="rytmi-kokeile">
                     <h3>2 · Kokeile itse</h3>
-                    <p>Naputa musiikin mukana jalalla tai sormella. Kun pulssi löytyi, laske neljään ja kuuntele, mistä tahdin kierros alkaa uudelleen. Voit paljastaa pulssivihjeen tarvittaessa.</p>
+                    <p>Naputa A-version mukana jalalla tai sormella. Siirry B-versioon ja jatka samaa neljään laskemista myös rumpujen hiljentyessä. Tule mukaan, kun rummut palaavat. Voit paljastaa pulssivihjeen tarvittaessa. Kokeile myös tutulla kitarakompilla.</p>
                   </div>
                   <details class="study-knoppi rytmi-lisa">
                     <summary title="Lisävinkki"><svg class="study-knoppi-merkki" aria-hidden="true" focusable="false"><use href="../../assets/oppimisikonit.svg#extra-info"/></svg><span class="study-sr">Lisävinkki: Kokeile myös itse</span></summary>
@@ -74,7 +86,7 @@
                     </div>
                   </details>
                   <div class="rytmi-opit">
-                    <p><strong>Mitä opit?</strong> Pulssi on musiikin tasainen eteneminen. Pulssin nopeutta kutsutaan tempoksi. Tässä esimerkissä ryhmittelemme neljä iskua tahdiksi.</p>
+                    <p><strong>Mitä opit?</strong> Musiikin pulssi ei katoa, vaikka tukirummut lakkaavat kuulumasta hetkeksi. Voit jatkaa tasaista liikettä tai laskemista myös silloin, kun ulkoinen rytmituki puuttuu. Tässä pulssi ryhmittyy neljän iskun tahdeiksi.</p>
                     <p class="rytmi-pieni">Tahdin ykkönen on tahdin ensimmäinen isku, ei välttämättä musiikin voimakkain ääni. Sen hahmottamista voivat auttaa esimerkiksi basson, harmonian tai melodian toistuvat aloituskohdat, vaikka ne eivät osu jokaiselle ykköselle.</p>
                   </div>
                 </section>
@@ -140,10 +152,10 @@
               <div class="study-inline-body">
                 <section class="rytmi-harjoitus study-knoppi-host" data-rytmiharjoitus="tuntuma" aria-labelledby="rytmi-03-otsikko">
                   <h2 id="rytmi-03-otsikko" class="rytmi-tunniste">03 · Kuule ero</h2>
-                  <p class="rytmi-ohje">Kuuntele ensin saman musiikin A- ja B-versiota. Tempo ja soinnut pysyvät samoina, mutta kitaran painotukset muuttuvat.</p>
+                  <p class="rytmi-ohje">Kuuntele ensin saman musiikin A- ja B-versiota. Tempo, rumpu- ja bassotausta, soinnut sekä kitaran iskujen paikat pysyvät samoina. Vain kitaran iskujen 1/3 ja 2/4 voimakkuuspainotukset muuttuvat.</p>
                   <p class="rytmi-tahti" id="rytmi-03-versiot" data-rytmi-ohjaimet hidden>Valitse musiikin versio</p>
                   <div class="rytmi-valinnat" role="group" aria-labelledby="rytmi-03-versiot" data-rytmi-ohjaimet hidden>
-                    <button type="button" data-versio="A" aria-pressed="true">A · Tasaiset vedot</button>
+                    <button type="button" data-versio="A" aria-pressed="true">A · Painota 1 ja 3</button>
                     <button type="button" data-versio="B" aria-pressed="false">B · Painota 2 ja 4</button>
                   </div>
                   <div class="rytmi-soitin" data-rytmi-ohjaimet hidden>
@@ -161,10 +173,10 @@
                     <li class="rytmi-isku" data-rytmi-isku data-tahti="0"><span class="rytmi-isku-nimi">4</span> <span class="rytmi-isku-teko">Soita</span></li>
                     <li class="rytmi-isku is-silent" data-rytmi-isku data-tahti="0"><span class="rytmi-isku-nimi">ja</span> <span class="rytmi-isku-teko">Hiljaa</span></li>
                   </ol>
-                  <p class="rytmi-pieni">Kummassa versiossa komppi tuntuu voimakkaammin iskuilla 2 ja 4? Vaihda versiota kuunnellessasi. Vaihto tehdään seuraavan tahdin alussa.</p>
+                  <p class="rytmi-pieni">Vertaa A:n 1/3-painotusta ja B:n 2/4-painotusta. B vahvistaa usein rumpukompin virvelin takaiskuja (backbeat). Vaihda versiota kuunnellessasi. Vaihto tehdään seuraavan tahdin alussa.</p>
                   <div class="rytmi-kokeile">
                     <h3>2 · Kokeile itse</h3>
-                    <p>Taputa ensin jokaisella iskulla, sitten kokeile korostaa kakkosta ja nelosta. Voit jatkaa saman musiikin mukana ilman, että vaihdat mitään soitintilaa.</p>
+                    <p>Soita tai taputa ensin A:ssa painavammin ykkönen ja kolmonen, sitten B:ssä kakkonen ja nelonen. Voit jatkaa saman musiikin mukana ilman, että vaihdat mitään soitintilaa.</p>
                   </div>
                   <details class="study-knoppi rytmi-lisa">
                     <summary title="Lisävinkki"><svg class="study-knoppi-merkki" aria-hidden="true" focusable="false"><use href="../../assets/oppimisikonit.svg#extra-info"/></svg><span class="study-sr">Lisävinkki: Kokeile myös äänten eri paikkoja ja kitaralla</span></summary>
@@ -178,14 +190,14 @@
                       <section class="rytmi-lisa-osa" aria-labelledby="rytmi-03-kitaralla">
                         <h3 id="rytmi-03-kitaralla">4 · Kokeile myös kitaralla</h3>
                         <p>Kuuntele ensin A- ja B-versiot. Vaimenna sitten kielet kevyesti otelaudan kädellä tai valitse tuttu sointu.</p>
-                        <p>Soita A:n mukana tasainen alasveto jokaisella iskulla. Vaihda B:hen ja korosta kakkosta ja nelosta. Pidä tempo ja iskujen paikat samoina, muuta vain voimakkuutta.</p>
+                        <p>Soita A:n mukana sama alasveto kaikilla neljällä iskulla, painota ykköstä ja kolmosta. Vaihda B:hen ja painota kakkosta ja nelosta. Pidä tempo ja iskujen paikat samoina, muuta vain voimakkuutta.</p>
                         <p><strong>Kuuntele eroa:</strong> Pulssi pysyy samana, mutta painotukset muuttavat musiikin tuntua.</p>
                         <p class="rytmi-pieni">Komppikäden alas–ylös-liikettä ja erilaisia komppikuvioita harjoitellaan myöhemmin syventävissä opinnoissa.</p>
                       </section>
                     </div>
                   </details>
                   <div class="rytmi-opit">
-                    <p><strong>Mitä opit?</strong> Tempo voi pysyä samana, vaikka musiikin tuntuma muuttuu. A- ja B-versioissa muuttuivat vain painotukset; C-versiossa myös äänten paikat.</p>
+                    <p><strong>Mitä opit?</strong> Tempo voi pysyä samana, vaikka musiikin tuntuma muuttuu. A- ja B-versioissa kitaran iskujen paikat ja rumpukomppi ovat samat, vain 1/3- ja 2/4-painotukset muuttuvat. C on vapaaehtoinen esimerkki äänten paikkojen vaihtumisesta.</p>
                   </div>
                 </section>
                 <p class="rytmi-huomautus">Harjoittelu on vapaaehtoista. Tämä sivu ei kuuntele tai mittaa omaa soittoasi. ”Kokeiltu” ei ole osaamistesti.</p>
@@ -278,6 +290,6 @@
   <script src="../../assets/edistyminen.js?v=39bccb10a6"></script>
   <script src="../../assets/oppimistapa.js"></script>
   <script src="../../assets/kokonaisuudet.js?v=326aed1a00"></script>
-  <script type="module" src="../../assets/rytmi-ydinopinnot.js?v=d29e6ecdd0"></script>
+  <script type="module" src="../../assets/rytmi-ydinopinnot.js?v=d5e4d1604d"></script>
 </body>
 </html>
