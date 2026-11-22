@@ -379,7 +379,7 @@
         const correctIndex = pair.indexOf(target);
         const correct = selectedIndex === correctIndex;
         choices.forEach((choice, index) => {
-          const isCorrect = index === correctIndex;
+          const isCorrect = correct && index === selectedIndex;
           const isWrong = index === selectedIndex && !correct;
           choice.setAttribute('aria-disabled', 'true');
           choice.classList.toggle('is-correct', isCorrect);
@@ -393,7 +393,14 @@
           }
         });
         feedback.classList.toggle('is-error', !correct);
-        feedback.textContent = `${correct ? 'Oikein!' : 'Tällä kertaa ei.'} Sointu 1 oli ${fullName[pair[0]]} ja sointu 2 oli ${fullName[pair[1]]}.`;
+        const explanation = `Sointu 1 oli ${fullName[pair[0]]} ja sointu 2 oli ${fullName[pair[1]]}.`;
+        if (correct) {
+          const lead = document.createElement('strong');
+          lead.textContent = 'Oikein!';
+          feedback.replaceChildren(lead, document.createTextNode(` ${explanation}`));
+        } else {
+          feedback.textContent = `Tällä kertaa ei. ${explanation}`;
+        }
         pair.forEach((chord, index) => {
           const figure = chords[chord];
           figure.querySelector('figcaption').textContent = `Sointu ${index + 1} = ${chord}`;
