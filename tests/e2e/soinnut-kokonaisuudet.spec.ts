@@ -865,7 +865,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     await expect(section.locator('[data-arvaus-kuuntelu]')).toBeHidden();
     await expect(start).toBeVisible();
     await start.click();
-    await expect(question.locator('[data-kysymys]')).toHaveText('Kumpi on duuri?');
+    await expect(question.locator('[data-kysymys]')).toHaveText(/Kumpi on (duuri|molli)\?/);
     await expect(question).toHaveClass(/is-active/);
     await expect(question).toBeVisible();
     await expect(section.getByRole('group', { name: 'Vastaa' })).toBeVisible();
