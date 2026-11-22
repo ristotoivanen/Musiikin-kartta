@@ -138,6 +138,15 @@
 .sointu-ydin[data-sointuharjoitus="arvaa"].study-knoppi-host > h2:first-child {
   padding-inline-end: calc(44px + .25rem - .625rem);
 }
+/* Äärimmäisen kapeassa, n. 201 CSS px:n 200 % Safari-näkymässä otsikolle
+ * jää muuten liian vähän leveyttä "Kuuntele"-sanalle. Siirretään otsikkoteksti
+ * 44 px:n Knoppitieto-kosketusalueen alle pienentämättä tekstiä tai osuma-aluetta. */
+@media (max-width: 220px) {
+  .sointu-ydin[data-sointuharjoitus="arvaa"].study-knoppi-host > h2:first-child {
+    padding-inline-end: 0;
+    padding-block-start: 1.25rem;
+  }
+}
 .sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-vastaus] > strong {
   flex: 0 0 100%;
 }

@@ -770,6 +770,20 @@ test.describe('Ydinopinnot v0.5', () => {
         expect(initial, testCase).toHaveLength(4);
         expect(await brokenWords(), testCase).toEqual([]);
 
+        // 201 px:ssa Knoppitiedon 44 px:n osuma-alue ja otsikkoteksti eivät saa peittää toisiaan.
+        if (width === 201) {
+          const titleBelowPick = await section.evaluate(root => {
+            const h = root.querySelector(':scope > h2')!;
+            const pick = root.querySelector('.study-knoppi > summary')!;
+            const first = h.firstChild as Text;
+            const range = document.createRange();
+            range.setStart(first, 0);
+            range.setEnd(first, 1);
+            return range.getBoundingClientRect().top >= pick.getBoundingClientRect().bottom - 1;
+          });
+          expect(titleBelowPick, `${testCase}: otsikko ei peitä plektraa`).toBe(true);
+        }
+
         await next.click();
         await expect(section.locator('[data-kysymys]')).toHaveText(/Kumpi on (duuri|molli)\?/);
         await expect(next).toHaveAccessibleName('Uusi arvaus');
