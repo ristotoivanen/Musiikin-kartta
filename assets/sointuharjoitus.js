@@ -370,8 +370,9 @@
     // Sointu 1:n ja Sointu 2:n keskinäinen järjestys arvotaan joka kierroksella.
     const nextTargetByFamily = { D: 'D', E: 'E' };
 
-    // Vertailut ovat erilliset kohdat 1 ja 2. Tunnistus alkaa vain ensimmäisellä
-    // Tunnista-painalluksella; sen jälkeen jatketaan vastauspainikkeilla.
+    // Vertailut ovat erilliset kohdat 1 ja 2. Tunnistus alkaa ensimmäisellä
+    // Tunnista-painalluksella. Vastauksen jälkeen vain yläpuolen parivalinta
+    // aloittaa seuraavan kierroksen; vastauksia ei voi enää muuttaa.
     function chooseFamily(nextFamily) {
       // Ennen aloitusta valitaan pari. Aloituksen jälkeen kumpi tahansa
       // paripainike aloittaa uuden kierroksen myös ilman aiempaa vastausta.
@@ -431,7 +432,7 @@
       });
       nameListening(false);
       showExerciseStatus('Kuuntele sointu 1 ja sointu 2 ennen vastaamista.');
-      // Ensimmäinen aloitus ja vastauspainikkeella pyydetty uusi kierros tuovat
+      // Ensimmäinen aloitus tuo
       // sointuparin valinnan JA kysymyksen samaan näkymään. Jos vierittäisimme
       // pelkkään kysymyskorttiin, D/Dm- ja E/Em-painikkeet jäisivät yläpuolelle.
       // Parin vaihto ei varasta fokusta.
@@ -444,9 +445,8 @@
     for (const button of choices) {
       button.addEventListener('click', () => {
         if (answered) {
-          // Vastaus jää näkyviin kunnes oppija pyytää uuden kysymyksen.
-          // Kumpikin vastauspainike toimii silloin seuraavan tehtävän aloituksena.
-          startRound(true);
+          // Vastauksen jälkeen molemmat vastauspainikkeet ovat lukittuja.
+          // Uusi kysymys alkaa vain valitsemalla ylhäältä sointupari.
           return;
         }
         answered = true;
@@ -463,10 +463,11 @@
           choice.classList.toggle('is-wrong', isWrong);
           // Painikkeen näkyvä teksti ei muutu eikä siirrä muita ohjaimia.
           // Tulos on luettavissa myös kohdistamalla ruudunlukija painikkeeseen.
+          choice.setAttribute('aria-disabled', 'true');
           if (isCorrect || isWrong) {
-            choice.setAttribute('aria-label', `Sointu ${index + 1}, ${isCorrect ? 'oikea vastaus' : 'väärä vastaus'}, aloita uusi tehtävä`);
+            choice.setAttribute('aria-label', `Sointu ${index + 1}, ${isCorrect ? 'oikea vastaus' : 'väärä vastaus'}`);
           } else {
-            choice.setAttribute('aria-label', `Sointu ${index + 1}, aloita uusi tehtävä`);
+            choice.setAttribute('aria-label', `Sointu ${index + 1}, vastaus annettu`);
           }
         });
         feedback.classList.toggle('is-error', !correct);
@@ -481,7 +482,7 @@
         });
         nameListening(true);
         diagrams.hidden = false;
-        showExerciseStatus('Palaute jää näkyviin. Valitse Sointu 1 tai Sointu 2 uudelleen aloittaaksesi uuden tehtävän.');
+        showExerciseStatus('Palaute jää näkyviin. Valitse ylhäältä D / Dm tai E / Em aloittaaksesi uuden tehtävän.');
       });
     }
   }
