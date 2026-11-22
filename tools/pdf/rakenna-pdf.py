@@ -35,6 +35,8 @@ SITE = 'https://rinnepelto.com'
 PARTS = [f'osa-{n}' for n in range(1, 12)]
 APPENDICES = ['sanasto', 'h-savelnimen-alkupera']
 DOCS = PARTS + APPENDICES
+# PDF:n kansikuvaus kuuluu teoriaoppaaseen, ei vaihtuvaan etusivun HTML-rakenteeseen.
+PDF_DESCRIPTION = 'Opi musiikin perusteet, ymmärrä soinnut ja löydä sävelet kitaralta.'
 
 
 # ---------------------------------------------------------------- HTML
@@ -137,8 +139,6 @@ def build_html(docs, pages):
     def page_of(target):
         return pages.get(target, '00')
 
-    index = (ROOT / 'index.html').read_text(encoding='utf-8')
-    tagline = plain(between(index, r'<p class="tagline">', r'</p>', 'index.html'))
     today = datetime.date.today()
 
     toc = []
@@ -170,7 +170,7 @@ def build_html(docs, pages):
 <section class="cover">
   <p class="kicker">Tulostettava versio</p>
   <h1>Musiikin <span>kartta</span></h1>
-  <p class="tagline">{tagline}</p>
+  <p class="tagline">{PDF_DESCRIPTION}</p>
   <div class="cover-meta">
     <p>Koottu verkko-oppaasta {today.day}.{today.month}.{today.year}.</p>
     <p>Ääniesimerkit, otelautaharjoittelija ja harjoitustaustat: <a href="{SITE}/">rinnepelto.com</a></p>
