@@ -347,6 +347,32 @@ test.describe('harjoitussivut', () => {
 });
 
 
+test.describe('03 Tauko ei aina tarkoita hiljaisuutta', () => {
+  test('kolme tilannetta voi vertailla vapaasti, eikä kuuntelu merkitse opituksi', async ({ page }) => {
+    await page.goto('/oppi/rytmi/hiljaisuus-kuuluu-rytmiin.html');
+    const sounds = page.locator('[data-tahti="1"] .rytmi-isku-teko');
+    const a = page.getByRole('button', { name: 'A · Ääni jatkuu' });
+    const b = page.getByRole('button', { name: 'B · Vaimenna' });
+    const c = page.getByRole('button', { name: 'C · Jätä isku pois' });
+    await expect(sounds).toHaveText(['Soita Em', 'Anna soida', 'Anna soida', 'Ääni jatkuu']);
+    await b.click();
+    await expect(b).toHaveAttribute('aria-pressed', 'true');
+    await expect(sounds).toHaveText(['Soita Em', 'Anna soida', 'Anna soida', 'Vaimenna']);
+    await playButton(page).click();
+    await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
+    await c.click();
+    await expect(c).toHaveAttribute('aria-pressed', 'true');
+    await expect(sounds).toHaveText(['Soita Em', 'Anna soida', 'Uusi isku', 'Ei uutta iskua']);
+    await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
+    await playButton(page).click();
+    await expect(playButton(page)).toHaveAccessibleName('Kuuntele');
+    await a.click();
+    await expect(a).toHaveAttribute('aria-pressed', 'true');
+    await expect(sounds).toHaveText(['Soita Em', 'Anna soida', 'Anna soida', 'Ääni jatkuu']);
+    await expect(page.locator('.done-toggle')).toHaveAttribute('aria-pressed', 'false');
+  });
+});
+
 test.describe('04 Valmistaudu seuraavaan osaan', () => {
   test('D→G: A antaa D:n soida, B vaimentaa nelosiskulla, molemmissa G alkaa ykkösellä', async ({ page }) => {
     await page.goto('/oppi/rytmi/valmistaudu-seuraavaan-osaan.html');
@@ -412,7 +438,8 @@ test.describe('toisto', () => {
     await page.goto('/oppi/rytmi/sama-musiikki-eri-tuntuma.html');
     const grid = page.locator('[data-rytmi-ruudukko="tuntuma"]');
     const status = page.locator('[data-rytmi-tila]');
-    // Ilman toistoa valinta päivittää ruudukon heti.
+    // Ilman toistoa A painottaa 1 ja 3, B painottaa 2 ja 4.
+    await expect(grid.locator('.rytmi-isku-teko')).toHaveText(['Korosta', 'Hiljaa', 'Soita', 'Hiljaa', 'Korosta', 'Hiljaa', 'Soita', 'Hiljaa']);
     await page.getByRole('button', { name: 'B · Painota 2 ja 4' }).click();
     await expect(grid).toHaveAttribute('data-versio', 'B');
     await expect(grid.locator('.rytmi-isku-teko')).toHaveText(['Soita', 'Hiljaa', 'Korosta', 'Hiljaa', 'Soita', 'Hiljaa', 'Korosta', 'Hiljaa']);
