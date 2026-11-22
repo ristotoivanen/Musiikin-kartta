@@ -1,0 +1,644 @@
+{
+  "schema": 1,
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "conversion": {
+    "tool": "FFmpeg 9.0",
+    "commonArguments": [
+      "-map_metadata",
+      "-1",
+      "-vn",
+      "-af",
+      "pan=mono|c0=0.5*c0+0.5*c1,atrim=end=5,afade=t=out:st=4.6:d=0.4",
+      "-ar",
+      "48000"
+    ],
+    "formatArguments": {
+      "ogg": [
+        "-c:a",
+        "libvorbis",
+        "-q:a",
+        "4"
+      ],
+      "m4a": [
+        "-c:a",
+        "aac",
+        "-b:a",
+        "96k",
+        "-movflags",
+        "+faststart"
+      ]
+    },
+    "start": "Original start preserved. No head trim, filtering, or gain normalization in the files.",
+    "onset": "First of two successive 1 ms blocks with RMS at least 4% of peak block RMS in the first second of decoded PCM. Playback starts early by this offset divided by playback rate.",
+    "gain": "Per-bank median RMS of the first 240 ms from attack over all samples and both formats. Common reduction bounds the sum of the six chord peaks measured in the first second. Individual notes are not normalized."
+  },
+  "banks": {
+    "steel": {
+      "origin": {
+        "publisher": "Meta Creative Audio / facebookincubator",
+        "version": "meta-steel-guitar-v1.0.0",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://raw.githubusercontent.com/facebookincubator/Meta-open-sound/514c926efecdb3c7812bf00eedf8e5c8d61dd681/systems/instruments/meta-steel-guitar/LICENSE",
+        "source": "https://github.com/facebookincubator/Meta-open-sound/releases/tag/meta-steel-guitar-v1.0.0",
+        "archive": "https://github.com/facebookincubator/Meta-open-sound/releases/download/meta-steel-guitar-v1.0.0/meta-open-sound-meta-steel-guitar-wav.zip",
+        "publishedArchiveSha256": "caaa8a9c07217f4a82d1dfd9f5657c286155464b66bf4dd27797811c2558a909",
+        "selection": "Vel02 / 01",
+        "localLicense": "LICENSE-CC0-1.0.txt"
+      },
+      "samples": [
+        {
+          "string": 6,
+          "midi": 40,
+          "pitch": "E2",
+          "originalMidi": 40,
+          "sourceFile": "INSGuitarSteel_StringLowE_Vel02_E2_01.wav",
+          "sha256": "31be9f8e68f541dca017ad0ef3ed3476112b9266f9db4e356c02d9d96a2f312d",
+          "playbackSemitones": 0,
+          "files": {
+            "ogg": {
+              "path": "audio/steel-6-40.ogg",
+              "bytes": 41556,
+              "sha256": "bd9e85786a17b1d6f40adebb2eff02b62425163dde6b8f0e8462a6eec52e8ec6",
+              "onsetMs": 5
+            },
+            "m4a": {
+              "path": "audio/steel-6-40.m4a",
+              "bytes": 62086,
+              "sha256": "4a1f8e61aa47c70027471f67a8326b441f6e62f08fddd325d77bc3ea392b7af2",
+              "onsetMs": 5
+            }
+          }
+        },
+        {
+          "string": 6,
+          "midi": 43,
+          "pitch": "G2",
+          "originalMidi": 43,
+          "sourceFile": "INSGuitarSteel_StringLowE_Vel02_G2_01.wav",
+          "sha256": "ca08e222c62b3c16624c14ff61007a9609a20bca0bbdb8111401dfe53ba3ba4a",
+          "playbackSemitones": 0,
+          "files": {
+            "ogg": {
+              "path": "audio/steel-6-43.ogg",
+              "bytes": 41600,
+              "sha256": "5959f803013bf57f7e6930d5a69faa5b56b2916d0813d3ba333e24cbeb29a0cf",
+              "onsetMs": 24
+            },
+            "m4a": {
+              "path": "audio/steel-6-43.m4a",
+              "bytes": 62084,
+              "sha256": "28147ff264dcfdd6c82a84b8447ce6ac662e4ee489eabc90371c8a8f4d231925",
+              "onsetMs": 24
+            }
+          }
+        },
+        {
+          "string": 5,
+          "midi": 45,
+          "pitch": "A2",
+          "originalMidi": 45,
+          "sourceFile": "INSGuitarSteel_StringA_Vel02_A2_01.wav",
+          "sha256": "275e3f7738d5cfe28b44d4e648d2cd50514a2aa8ea8a45284ffaea3e2d0535fc",
+          "playbackSemitones": 0,
+          "files": {
+            "ogg": {
+              "path": "audio/steel-5-45.ogg",
+              "bytes": 41940,
+              "sha256": "9f48119a155a95d66b45881a305e3d882747638cc842194fdb851150cc3a722f",
+              "onsetMs": 13
+            },
+            "m4a": {
+              "path": "audio/steel-5-45.m4a",
+              "bytes": 62085,
+              "sha256": "fe4db246b4015bab2c66c9dd3b216e902eee035318b6dfa6eb45eb7afb35ae04",
+              "onsetMs": 12
+            }
+          }
+        },
+        {
+          "string": 5,
+          "midi": 47,
+          "pitch": "B2",
+          "originalMidi": 47,
+          "sourceFile": "INSGuitarSteel_StringA_Vel02_B2_01.wav",
+          "sha256": "a055ae9c312749f4084756f33509f9a0f255e9d0806f30f4f72d7d8ea689f903",
+          "playbackSemitones": 0,
+          "files": {
+            "ogg": {
+              "path": "audio/steel-5-47.ogg",
+              "bytes": 42362,
+              "sha256": "dce1a12065d3f90103d85de54e920ba1794ef290fba274aa9ef0fd8374a9a7a5",
+              "onsetMs": 30
+            },
+            "m4a": {
+              "path": "audio/steel-5-47.m4a",
+              "bytes": 62108,
+              "sha256": "0bd1fb58c12474bd084bc13b58685d1fb49449e28f02b1a4f818e08a309db92c",
+              "onsetMs": 30
+            }
+          }
+        },
+        {
+          "string": 4,
+          "midi": 50,
+          "pitch": "D3",
+          "originalMidi": 50,
+          "sourceFile": "INSGuitarSteel_StringD_Vel02_D3_01.wav",
+          "sha256": "a45b53560d1c8d479df82ebc2f20b9c1e1f69103f14fb03c409a044d7855e925",
+          "playbackSemitones": 0,
+          "files": {
+            "ogg": {
+              "path": "audio/steel-4-50.ogg",
+              "bytes": 42594,
+              "sha256": "5083b3a9d077acc6b093fb5c325c49fa66d6cd4b10d536acbf6a624690beaeb5",
+              "onsetMs": 21
+            },
+            "m4a": {
+              "path": "audio/steel-4-50.m4a",
+              "bytes": 62083,
+              "sha256": "c15967b75a78cabaa1e5743a390b3d3bd8cc561fcec6f3369a3f0b6a11a104b6",
+              "onsetMs": 21
+            }
+          }
+        },
+        {
+          "string": 3,
+          "midi": 55,
+          "pitch": "G3",
+          "originalMidi": 55,
+          "sourceFile": "INSGuitarSteel_StringG_Vel02_G3_01.wav",
+          "sha256": "57542b61014c441cd5d19ae1c4b650a249d058d0eeb7464ecc30ac9b3e8888c7",
+          "playbackSemitones": 0,
+          "files": {
+            "ogg": {
+              "path": "audio/steel-3-55.ogg",
+              "bytes": 44424,
+              "sha256": "96c9ab8091e30714f1295393c7c3266bc825588c7f7fb4db969f0045cd16a8e8",
+              "onsetMs": 23
+            },
+            "m4a": {
+              "path": "audio/steel-3-55.m4a",
+              "bytes": 62150,
+              "sha256": "9f7e7fa2227183dcda84ca1cfc8ade9b3444446c5e61432be225a670e7ff6649",
+              "onsetMs": 12
+            }
+          }
+        },
+        {
+          "string": 2,
+          "midi": 59,
+          "pitch": "B3",
+          "originalMidi": 59,
+          "sourceFile": "INSGuitarSteel_StringB_Vel02_B3_01.wav",
+          "sha256": "30a02c88db3b6dad6dda228cda50c4492668baf7bb4710476ea9ec1542f44789",
+          "playbackSemitones": 0,
+          "files": {
+            "ogg": {
+              "path": "audio/steel-2-59.ogg",
+              "bytes": 44947,
+              "sha256": "e9597198597261f28e77c7488173ace7beb3b7f052a857dcd3ae94e176d56f15",
+              "onsetMs": 32
+            },
+            "m4a": {
+              "path": "audio/steel-2-59.m4a",
+              "bytes": 62108,
+              "sha256": "5fdcb342473f815f575a80b711087feed59c1d263ae5ee21ba9faca9e448d9e4",
+              "onsetMs": 30
+            }
+          }
+        },
+        {
+          "string": 1,
+          "midi": 67,
+          "pitch": "G4",
+          "originalMidi": 67,
+          "sourceFile": "INSGuitarSteel_StringHighE_Vel02_G4_01.wav",
+          "sha256": "359b4e50c74af184de5b95d9639a7f84eb69efd82be2ece0b762e4d49f57ef34",
+          "playbackSemitones": 0,
+          "files": {
+            "ogg": {
+              "path": "audio/steel-1-67.ogg",
+              "bytes": 44771,
+              "sha256": "b9727469ff94a63e5d9f172e67c42eb219d1a25fc4ee5c02f134b15c417d34a9",
+              "onsetMs": 4
+            },
+            "m4a": {
+              "path": "audio/steel-1-67.m4a",
+              "bytes": 62134,
+              "sha256": "169d443b76d7aea3b4f378ae0e5c73ba11c595057630bc870bd02919ca3a8b69",
+              "onsetMs": 4
+            }
+          }
+        }
+      ],
+      "gain": 0.76221
+    },
+    "nylon": {
+      "origin": {
+        "publisher": "Meta Creative Audio / facebookincubator",
+        "version": "meta-nylon-guitar-v1.0.0",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://raw.githubusercontent.com/facebookincubator/Meta-open-sound/514c926efecdb3c7812bf00eedf8e5c8d61dd681/systems/instruments/meta-nylon-guitar/LICENSE",
+        "source": "https://github.com/facebookincubator/Meta-open-sound/releases/tag/meta-nylon-guitar-v1.0.0",
+        "archive": "https://github.com/facebookincubator/Meta-open-sound/releases/download/meta-nylon-guitar-v1.0.0/meta-open-sound-meta-nylon-guitar-wav.zip",
+        "publishedArchiveSha256": "e7fa168b97a72ecc1257917f85cb524fe7c2e1f098dfdcaf8f5c0e29cabe768e",
+        "selection": "Vel02Pick / 01",
+        "localLicense": "LICENSE-CC0-1.0.txt"
+      },
+      "samples": [
+        {
+          "string": 6,
+          "midi": 40,
+          "pitch": "E2",
+          "originalMidi": 40,
+          "sourceFile": "INSGuitarNylon_StringLowE_Vel02Pick_E2_01.wav",
+          "sha256": "7b8232b5eaf8a31e53c6d0ca14477460f2aa7f5f708b12f422c013b828ea57bd",
+          "playbackSemitones": 0,
+          "files": {
+            "ogg": {
+              "path": "audio/nylon-6-40.ogg",
+              "bytes": 40812,
+              "sha256": "88aae848bb6f0fc758f62a7e09f5956197dfaf9c258ed672939a5617cc79c237",
+              "onsetMs": 3
+            },
+            "m4a": {
+              "path": "audio/nylon-6-40.m4a",
+              "bytes": 61988,
+              "sha256": "243a8d4df0194a473f5def28e8aa8f3cd510fe5544ae49a747d28037e740170b",
+              "onsetMs": 2
+            }
+          }
+        },
+        {
+          "string": 6,
+          "midi": 43,
+          "pitch": "G2",
+          "originalMidi": 43,
+          "sourceFile": "INSGuitarNylon_StringLowE_Vel02Pick_G2_01.wav",
+          "sha256": "9bb0099ded2bc218bf62e52ecc4b32ead5da927ca3bec8870bc3d91880e0c549",
+          "playbackSemitones": 0,
+          "files": {
+            "ogg": {
+              "path": "audio/nylon-6-43.ogg",
+              "bytes": 40661,
+              "sha256": "359053386908b4e81e6303b6ad4542037859b8ec7ab7d157b6837d75e1a22f47",
+              "onsetMs": 15
+            },
+            "m4a": {
+              "path": "audio/nylon-6-43.m4a",
+              "bytes": 61987,
+              "sha256": "4028f4e1f58917d3edf64eda242f45a694d648730d889d567cd9b0112059a56c",
+              "onsetMs": 15
+            }
+          }
+        },
+        {
+          "string": 5,
+          "midi": 45,
+          "pitch": "A2",
+          "originalMidi": 45,
+          "sourceFile": "INSGuitarNylon_StringA_Vel02Pick_A2_01.wav",
+          "sha256": "df00948888f20e60253004fd54e0694de6b59112cad40961ecef01a100a4f88b",
+          "playbackSemitones": 0,
+          "files": {
+            "ogg": {
+              "path": "audio/nylon-5-45.ogg",
+              "bytes": 40576,
+              "sha256": "231ad52bad36e9cdf1192f7da7a1fdef5105e6ad567079e8b132fdf1a0144e41",
+              "onsetMs": 8
+            },
+            "m4a": {
+              "path": "audio/nylon-5-45.m4a",
+              "bytes": 61995,
+              "sha256": "08749a12f41bbf82da21bf005c9ba8778306e9f85e4d0708697327a61351abc3",
+              "onsetMs": 8
+            }
+          }
+        },
+        {
+          "string": 5,
+          "midi": 47,
+          "pitch": "B2",
+          "originalMidi": 47,
+          "sourceFile": "INSGuitarNylon_StringA_Vel02Pick_B2_01.wav",
+          "sha256": "51b8637137a2cd847f0ca7e813fdbe281315b2bcc747deb93ed3d4810dd6e210",
+          "playbackSemitones": 0,
+          "files": {
+            "ogg": {
+              "path": "audio/nylon-5-47.ogg",
+              "bytes": 41525,
+              "sha256": "9a1f5baad5e0c2e1add3dc118a5962c4c5090a11f4f005787807af2e28b5d8ea",
+              "onsetMs": 10
+            },
+            "m4a": {
+              "path": "audio/nylon-5-47.m4a",
+              "bytes": 61965,
+              "sha256": "9a30398a3b4f96a8bf47f22a5a2cd0bd18ca4ada51087a7d5365541fd2867364",
+              "onsetMs": 10
+            }
+          }
+        },
+        {
+          "string": 4,
+          "midi": 50,
+          "pitch": "D3",
+          "originalMidi": 50,
+          "sourceFile": "INSGuitarNylon_StringD_Vel02Pick_D3_01.wav",
+          "sha256": "78adb264d0f319d66341d5ad59e5a6e3c5cbda3b2f561558108d33eb6b45550d",
+          "playbackSemitones": 0,
+          "files": {
+            "ogg": {
+              "path": "audio/nylon-4-50.ogg",
+              "bytes": 41700,
+              "sha256": "51feb7a17cf568205d24eb615e12d00b0e9e383b0cacf4ece5d67818f1f10119",
+              "onsetMs": 21
+            },
+            "m4a": {
+              "path": "audio/nylon-4-50.m4a",
+              "bytes": 61902,
+              "sha256": "7c7c047444ca60b33c284385d6435f91eb42b87e0a7950d5abc244aef27ea558",
+              "onsetMs": 21
+            }
+          }
+        },
+        {
+          "string": 3,
+          "midi": 55,
+          "pitch": "G3",
+          "originalMidi": 55,
+          "sourceFile": "INSGuitarNylon_StringG_Vel02Pick_G3_01.wav",
+          "sha256": "a66d58f601e7eb28ce603768061860c665cae5922cc288ddee8fe4af0225d0d2",
+          "playbackSemitones": 0,
+          "files": {
+            "ogg": {
+              "path": "audio/nylon-3-55.ogg",
+              "bytes": 41363,
+              "sha256": "3a3e0e6c0a7750ec45e6ad8d4b8d79bca969bb8b4d911f863ab7ac28f3b633bf",
+              "onsetMs": 0
+            },
+            "m4a": {
+              "path": "audio/nylon-3-55.m4a",
+              "bytes": 61917,
+              "sha256": "6d327f61bf02f61892d181b93c2272495d8a37f433ebe62c4db5a787d22bd8e8",
+              "onsetMs": 0
+            }
+          }
+        },
+        {
+          "string": 2,
+          "midi": 59,
+          "pitch": "B3",
+          "originalMidi": 59,
+          "sourceFile": "INSGuitarNylon_StringB_Vel02Pick_B3_01.wav",
+          "sha256": "248e45f460facc57374bd60e951d615901bcc78fda7c70f83da6770174aa8a33",
+          "playbackSemitones": 0,
+          "files": {
+            "ogg": {
+              "path": "audio/nylon-2-59.ogg",
+              "bytes": 37196,
+              "sha256": "15ab5352acb830276f49e0368758b450458303ee4a82d9b319fe029584def43c",
+              "onsetMs": 1
+            },
+            "m4a": {
+              "path": "audio/nylon-2-59.m4a",
+              "bytes": 55452,
+              "sha256": "3d5c6bd1ed4bc7260fa7fdcb4c0baba450ef7d796bc644784a71f8de6ea30d19",
+              "onsetMs": 1
+            }
+          }
+        },
+        {
+          "string": 1,
+          "midi": 67,
+          "pitch": "G4",
+          "originalMidi": 67,
+          "sourceFile": "INSGuitarNylon_StringHighE_Vel02Pick_G4_01.wav",
+          "sha256": "1e48533019c7f9c184e70093315cfadea4b7f58161b226c6a1672715cf2d6024",
+          "playbackSemitones": 0,
+          "files": {
+            "ogg": {
+              "path": "audio/nylon-1-67.ogg",
+              "bytes": 36288,
+              "sha256": "10a6c73938d3b7d6a2a9a2887112aeac488ee9c1bf2d21190b368c5d00a05c96",
+              "onsetMs": 1
+            },
+            "m4a": {
+              "path": "audio/nylon-1-67.m4a",
+              "bytes": 53762,
+              "sha256": "2ec7e9afceda8b44dc04d3af2b7fcf2f5b57520dcca39a2ee3b0ce009114dc63",
+              "onsetMs": 7
+            }
+          }
+        }
+      ],
+      "gain": 1.46423
+    },
+    "electric": {
+      "origin": {
+        "publisher": "FreePats",
+        "version": "2026-08-07",
+        "commit": "192cf0d9bf2c4ba6ead8e3524ba3f78818e4fe91",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://raw.githubusercontent.com/freepats/electric-guitar-FSBS-clean/192cf0d9bf2c4ba6ead8e3524ba3f78818e4fe91/LICENSE.txt",
+        "source": "https://github.com/freepats/electric-guitar-FSBS-clean/tree/192cf0d9bf2c4ba6ead8e3524ba3f78818e4fe91",
+        "selection": "bridge / 01",
+        "localLicense": "LICENSE-CC0-1.0.txt"
+      },
+      "samples": [
+        {
+          "string": 6,
+          "midi": 40,
+          "pitch": "E2",
+          "originalMidi": 40,
+          "sourceFile": "samples/bridge/E2_s1_01.flac",
+          "url": "https://raw.githubusercontent.com/freepats/electric-guitar-FSBS-clean/192cf0d9bf2c4ba6ead8e3524ba3f78818e4fe91/samples/bridge/E2_s1_01.flac",
+          "sha256": "0b354f559b0e8065830d2c5f02c4fed33edab67d928adf5e6bc458a9dc1d97cf",
+          "playbackSemitones": 0,
+          "files": {
+            "ogg": {
+              "path": "audio/electric-6-40.ogg",
+              "bytes": 21961,
+              "sha256": "fde2550990c1b5a324f963fc700a2ac64c64cc2a94b009f075b7f7f439b3f0be",
+              "onsetMs": 1
+            },
+            "m4a": {
+              "path": "audio/electric-6-40.m4a",
+              "bytes": 61822,
+              "sha256": "1d8b42ead0dd457fa59fe2e9e4d10dc81deed76a8eed579da17899232b6db051",
+              "onsetMs": 1
+            }
+          }
+        },
+        {
+          "string": 6,
+          "midi": 43,
+          "pitch": "G2",
+          "originalMidi": 41,
+          "sourceFile": "samples/bridge/F2_s1_01.flac",
+          "url": "https://raw.githubusercontent.com/freepats/electric-guitar-FSBS-clean/192cf0d9bf2c4ba6ead8e3524ba3f78818e4fe91/samples/bridge/F2_s1_01.flac",
+          "sha256": "b00fd39749f8b819ff2552f134925c26a2b8caa3302e62515afc5df37bb488cc",
+          "playbackSemitones": 2,
+          "files": {
+            "ogg": {
+              "path": "audio/electric-6-43.ogg",
+              "bytes": 22199,
+              "sha256": "0b13d8fd9f53cf04630843c5d546e82750d018dc75827b2c76fc7705be1cb7c7",
+              "onsetMs": 11
+            },
+            "m4a": {
+              "path": "audio/electric-6-43.m4a",
+              "bytes": 63220,
+              "sha256": "17f384c78af67f7d4305520a02e74e6bc144b366afd6b4884392b2dcbfa10488",
+              "onsetMs": 11
+            }
+          }
+        },
+        {
+          "string": 5,
+          "midi": 45,
+          "pitch": "A2",
+          "originalMidi": 45,
+          "sourceFile": "samples/bridge/A2_s2_01.flac",
+          "url": "https://raw.githubusercontent.com/freepats/electric-guitar-FSBS-clean/192cf0d9bf2c4ba6ead8e3524ba3f78818e4fe91/samples/bridge/A2_s2_01.flac",
+          "sha256": "c8daba82351b3ab772e76c9e22f9a980ac80ff599492790a7732245ccac7574e",
+          "playbackSemitones": 0,
+          "files": {
+            "ogg": {
+              "path": "audio/electric-5-45.ogg",
+              "bytes": 24619,
+              "sha256": "8add9e0e4f38ea3bb9cee0207ab7fb7a8496ddffef39a4fcf92ccde2df5d9664",
+              "onsetMs": 2
+            },
+            "m4a": {
+              "path": "audio/electric-5-45.m4a",
+              "bytes": 61612,
+              "sha256": "e48367919ebe725ba8e98e231042ae100e2de8ff0068233a15015daf9f53ac2a",
+              "onsetMs": 2
+            }
+          }
+        },
+        {
+          "string": 5,
+          "midi": 47,
+          "pitch": "B2",
+          "originalMidi": 48,
+          "sourceFile": "samples/bridge/C3_s2_01.flac",
+          "url": "https://raw.githubusercontent.com/freepats/electric-guitar-FSBS-clean/192cf0d9bf2c4ba6ead8e3524ba3f78818e4fe91/samples/bridge/C3_s2_01.flac",
+          "sha256": "24b1923cba7bc1d3905a0e486ea1143486a4325206c6e9aa90698b91c8df1b6f",
+          "playbackSemitones": -1,
+          "files": {
+            "ogg": {
+              "path": "audio/electric-5-47.ogg",
+              "bytes": 20864,
+              "sha256": "2681d9b85d798f208e73af1cb9a470fd9b05be2c43f4233a566ca5dac9ec66b7",
+              "onsetMs": 18
+            },
+            "m4a": {
+              "path": "audio/electric-5-47.m4a",
+              "bytes": 61475,
+              "sha256": "d36028fdff64d4ca0d461d3b479361d478b12117b0cd2db700acb61c061116e0",
+              "onsetMs": 18
+            }
+          }
+        },
+        {
+          "string": 4,
+          "midi": 50,
+          "pitch": "D3",
+          "originalMidi": 50,
+          "sourceFile": "samples/bridge/D3_s3_01.flac",
+          "url": "https://raw.githubusercontent.com/freepats/electric-guitar-FSBS-clean/192cf0d9bf2c4ba6ead8e3524ba3f78818e4fe91/samples/bridge/D3_s3_01.flac",
+          "sha256": "f0acdcabb29151675b13e75f7df6694a7353f423fed6a13c78e2b043bc4b4c3b",
+          "playbackSemitones": 0,
+          "files": {
+            "ogg": {
+              "path": "audio/electric-4-50.ogg",
+              "bytes": 27193,
+              "sha256": "51017742823b1c463409087ddd891e4da8911b867777196ecd338f8727393909",
+              "onsetMs": 15
+            },
+            "m4a": {
+              "path": "audio/electric-4-50.m4a",
+              "bytes": 61558,
+              "sha256": "daabf6b29fe99208ecffb1052adb6b68b5b45d5a5f20d9a17c70b1fad0e6cf5e",
+              "onsetMs": 15
+            }
+          }
+        },
+        {
+          "string": 3,
+          "midi": 55,
+          "pitch": "G3",
+          "originalMidi": 55,
+          "sourceFile": "samples/bridge/G3_s4_01.flac",
+          "url": "https://raw.githubusercontent.com/freepats/electric-guitar-FSBS-clean/192cf0d9bf2c4ba6ead8e3524ba3f78818e4fe91/samples/bridge/G3_s4_01.flac",
+          "sha256": "2d9f6edeb90387b2ada70009c7b83c04cd2c03b464d6e1a6826577891d1be4b3",
+          "playbackSemitones": 0,
+          "files": {
+            "ogg": {
+              "path": "audio/electric-3-55.ogg",
+              "bytes": 28711,
+              "sha256": "f819d2b34c10db0bdc5192466f40957c5ce0b2c0da14aacc283d93864ca3f92d",
+              "onsetMs": 18
+            },
+            "m4a": {
+              "path": "audio/electric-3-55.m4a",
+              "bytes": 61047,
+              "sha256": "750c60d21dfe86f4de0eeda28a4a7cc6268fc7efe0daae445adbba304ad22f74",
+              "onsetMs": 18
+            }
+          }
+        },
+        {
+          "string": 2,
+          "midi": 59,
+          "pitch": "B3",
+          "originalMidi": 59,
+          "sourceFile": "samples/bridge/B3_s5_01.flac",
+          "url": "https://raw.githubusercontent.com/freepats/electric-guitar-FSBS-clean/192cf0d9bf2c4ba6ead8e3524ba3f78818e4fe91/samples/bridge/B3_s5_01.flac",
+          "sha256": "047f86b03f6cdc6313299a77ac66ac3b36d41bcf89b6063203f86ae8dcef87da",
+          "playbackSemitones": 0,
+          "files": {
+            "ogg": {
+              "path": "audio/electric-2-59.ogg",
+              "bytes": 29820,
+              "sha256": "251b88927bc576f853c97ed0343def921713d292be3e3b54b78ec492b281c5ae",
+              "onsetMs": 23
+            },
+            "m4a": {
+              "path": "audio/electric-2-59.m4a",
+              "bytes": 59963,
+              "sha256": "e05d04fe32aec51a20cb390245874781ab5467942f8ab621073966797a58a240",
+              "onsetMs": 23
+            }
+          }
+        },
+        {
+          "string": 1,
+          "midi": 67,
+          "pitch": "G4",
+          "originalMidi": 67,
+          "sourceFile": "samples/bridge/G4_s6_01.flac",
+          "url": "https://raw.githubusercontent.com/freepats/electric-guitar-FSBS-clean/192cf0d9bf2c4ba6ead8e3524ba3f78818e4fe91/samples/bridge/G4_s6_01.flac",
+          "sha256": "a907b48090b4223b64f539b8a82d27940130a632705c72b4a548845a09fff946",
+          "playbackSemitones": 0,
+          "files": {
+            "ogg": {
+              "path": "audio/electric-1-67.ogg",
+              "bytes": 27890,
+              "sha256": "43e220ed8f92802f5c64864ce8b01a2d3e76f0d0c798713bca1f1ea10d195461",
+              "onsetMs": 6
+            },
+            "m4a": {
+              "path": "audio/electric-1-67.m4a",
+              "bytes": 57628,
+              "sha256": "350e975c4da7df042268ab842676a56a1747def2a030d45f8e929d71ca6ce1eb",
+              "onsetMs": 6
+            }
+          }
+        }
+      ],
+      "gain": 0.12748
+    }
+  }
+}

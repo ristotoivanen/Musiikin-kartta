@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="fi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Kitaran äänipankkikoe · Musiikin kartta</title>
+    <link rel="stylesheet" href="./style.css">
+    <script type="module" src="./app.mjs"></script>
+</head>
+<body>
+<main>
+    <header>
+        <p class="project">Musiikin kartta</p>
+        <h1>Kitaran äänipankkikoe</h1>
+        <p>Valitse yksi koe ja kuuntele se kaikilla kolmella pankilla. Pidä laitteen äänenvoimakkuus samana vertailun ajan.</p>
+    </header>
+
+    <fieldset id="banks">
+        <legend>Valitse äänipankki</legend>
+        <div class="banks">
+            <label><input type="radio" name="bank" value="steel" data-name="Meta Steel Guitar" checked>
+                <span><strong>A · Meta Steel Guitar</strong><small>Teräskielinen akustinen kitara</small></span></label>
+            <label><input type="radio" name="bank" value="nylon" data-name="Meta Nylon Guitar">
+                <span><strong>B · Meta Nylon Guitar</strong><small>Nylonkielinen akustinen kitara</small></span></label>
+            <label><input type="radio" name="bank" value="electric" data-name="FreePats FSBS Clean Electric Guitar">
+                <span><strong>C · FreePats FSBS</strong><small>Puhdas sähkökitara</small></span></label>
+        </div>
+    </fieldset>
+
+    <div class="transport">
+        <button type="button" id="stop" disabled>Pysäytä</button>
+        <p id="status" role="status">Valitse kuuntelukoe.</p>
+    </div>
+    <noscript><p>Kuuntelu vaatii JavaScriptin.</p></noscript>
+
+    <section aria-labelledby="e2">
+        <h2 id="e2">Neljä E2-iskua</h2>
+        <p>72 BPM. Jokainen uusi isku katkaisee edellisen. Neljännen iskun 150 ms:n vaimennus alkaa seuraavan tahdin ykkösellä.</p>
+        <button type="button" data-score="e2">Kuuntele neljä iskua</button>
+    </section>
+
+    <section aria-labelledby="g">
+        <h2 id="g">G-duurisointu</h2>
+        <p>G2–B2–D3 ensin erikseen ja yhdessä, sitten koko ote <strong>320003</strong> paksuimmasta kielestä ohuimpaan.</p>
+        <div class="buttons">
+            <button type="button" data-score="separate">Sävelet erikseen</button>
+            <button type="button" data-score="triad">Kolmisointu yhdessä</button>
+            <button type="button" data-score="strum">Kuusi kieltä</button>
+        </div>
+        <p class="timing">G2 · B2 · D3 · G3 · B3 · G4<br>Iskuhetket <span id="strum-timing"></span></p>
+    </section>
+
+    <section aria-labelledby="melody">
+        <h2 id="melody">Lyhyt melodia ja intervalli</h2>
+        <p>G2–A2–B2–D3, sitten G3–B3 (suuri terssi). Kuuntele sävelkorkeutta, äänten tasaisuutta ja sitä, peittääkö jälkisointi seuraavan sävelen.</p>
+        <button type="button" data-score="melody">Kuuntele melodia ja terssi</button>
+    </section>
+
+    <footer aria-labelledby="diagnostics">
+        <h2 id="diagnostics">Äänen lataus ja purku</h2>
+        <dl>
+            <div><dt>Ladatut äänitavut</dt><dd id="bytes">–</dd></div>
+            <div><dt>Purkausten kesto yhteensä</dt><dd id="decode">–</dd></div>
+            <div><dt>Näytteet</dt><dd id="samples">–</dd></div>
+            <div><dt>Tiedostomuoto</dt><dd id="codec">–</dd></div>
+            <div><dt>Äänikonteksti</dt><dd id="context">Ei luotu</dd></div>
+        </dl>
+        <p>Mittarit koskevat viimeisintä toistoa. Ladatut tavut ovat selaimen lukemien äänitiedostojen koko. Muistista käytettyjä näytteitä ei ladata tai pureta uudelleen.</p>
+        <p>Kaikki näytteet ovat CC0 1.0 -lisensoituja. <a href="./manifest.json">Näytteiden alkuperä ja tarkisteet</a> · <a href="./LICENSE-CC0-1.0.txt">Lisenssiteksti</a></p>
+    </footer>
+</main>
+</body>
+</html>

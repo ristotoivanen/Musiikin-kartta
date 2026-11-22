@@ -1,0 +1,75 @@
+:root {
+    color-scheme: light;
+    font-family: system-ui, sans-serif;
+    color: #202a38;
+    background: #edf2f7;
+    line-height: 1.55;
+    accent-color: #174e83;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { width: min(100% - 2rem, 52rem); margin: 0 auto; padding: 2rem 0; }
+header { margin-bottom: 1.5rem; }
+h1, h2, p { margin: 0 0 .6rem; }
+h1 { font-size: clamp(1.85rem, 5vw, 2.65rem); line-height: 1.16; }
+h2 { font-size: 1.2rem; line-height: 1.25; }
+.project { color: #244f70; font-weight: 700; }
+header p:last-child { max-width: 62ch; }
+
+fieldset, section, footer {
+    background: white;
+    border: 1px solid #c8d4df;
+    border-radius: .65rem;
+    margin: 0 0 1rem;
+    padding: clamp(.65rem, 3vw, 1rem);
+    min-width: 0;
+}
+
+fieldset { padding-top: .6rem; }
+legend { padding: 0 .3rem; font-weight: 700; }
+.banks { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: .5rem; }
+.banks label {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    min-height: 44px;
+    border: 1px solid #7b8b9b;
+    border-radius: .4rem;
+    padding: .45rem .6rem;
+    cursor: pointer;
+}
+.banks label:has(input:checked) { border-color: #285b8c; background: #e5effa; }
+input { margin: 0; flex-shrink: 0; }
+small { display: block; font-size: .875rem; }
+
+button {
+    border: 1px solid #123f6d;
+    border-radius: .4rem;
+    background: #174e83;
+    color: white;
+    min-height: 44px;
+    font: inherit;
+    font-weight: 650;
+    padding: .38rem .8rem;
+    cursor: pointer;
+}
+button:hover { background: #123c65; }
+button:disabled { opacity: .62; cursor: default; }
+:focus-visible { outline: 3px solid #a04505; outline-offset: 3px; }
+.transport, .buttons { display: flex; flex-wrap: wrap; align-items: center; gap: .55rem; }
+.transport { margin-bottom: 1rem; background: #edf2f7; }
+.transport:has(#stop:enabled) { position: sticky; top: 0; z-index: 1; padding-block: .4rem; }
+.transport p { margin: 0; font-size: .875rem; }
+section button { scroll-margin-top: 7rem; }
+#stop { background: #fff; border-color: #7b8b9b; color: #202a38; }
+
+.timing { margin: .6rem 0 0; font-variant-numeric: tabular-nums; }
+dl { display: flex; flex-wrap: wrap; gap: .8rem 1.4rem; margin: .75rem 0; }
+dt { font-size: .875rem; }
+dd { margin: 0; font-variant-numeric: tabular-nums; font-weight: 650; }
+footer p { font-size: .875rem; }
+footer p:last-child { margin-bottom: 0; }
+a { color: #174e83; }
