@@ -432,7 +432,7 @@
         if (answered) {
           // Vastaus jää näkyviin kunnes oppija pyytää uuden kysymyksen.
           // Kumpikin vastauspainike toimii silloin seuraavan tehtävän aloituksena.
-          startRound();
+          startRound(true);
           return;
         }
         answered = true;
