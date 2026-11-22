@@ -514,7 +514,7 @@ test('04 sointukierto ja asteet: G–D–Em–C neljän tahdin kitaranäytteill�
   for (let bar = 0; bar < 4; bar++) close(notes[bar * 4].when - notes[0].when, bar * 2.25);
   await expect(bars.first()).toHaveAttribute('aria-current', 'step');
   await page.getByRole('button', { name: '■ Pysäytä' }).click();
-  await expect(bars.locator('[aria-current]')).toHaveCount(0);
+  await expect(page.locator('[data-asteet-bar][aria-current]')).toHaveCount(0);
   await expect(page.getByRole('button', { name: '▶ Kuuntele neljä tahtia' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Merkitse kokeilluksi' })).toHaveAttribute('aria-pressed', 'false');
 });
