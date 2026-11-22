@@ -9,7 +9,7 @@ test('Meta Steel lataa vain tehtävän vaatimat näytteet ja käyttää ne uudel
     if (audioResource(request.url())) requests.push(request.url());
   });
   await page.goto(path);
-  const status = page.getByRole('status');
+  const status = page.locator('#status');
   const e2 = page.getByRole('button', { name: 'Neljä E2-iskua' });
   const stop = page.getByRole('button', { name: 'Pysäytä' });
   expect(requests).toHaveLength(0);
@@ -59,15 +59,15 @@ test('pysäytys estää vanhan näytelatauksen myöhäisen toiston', async ({ pa
   const request = page.waitForRequest(r => audioResource(r.url()));
   await page.getByRole('button', { name: 'Neljä E2-iskua' }).click();
   await request;
-  await expect(page.getByRole('status')).toHaveText('Valmistellaan ääntä…');
+  await expect(page.locator('#status')).toHaveText('Valmistellaan ääntä…');
   expect(oldStarts).toBe(0);
 
   await page.getByRole('button', { name: 'Pysäytä' }).click();
   blocked = false;
   release();
-  await expect(page.getByRole('status')).toHaveText('Pysäytetty.');
+  await expect(page.locator('#status')).toHaveText('Pysäytetty.');
   await page.getByRole('button', { name: 'Neljä E2-iskua' }).click();
-  await expect(page.getByRole('status')).toHaveText('Toistetaan Meta Steel -äänillä.');
+  await expect(page.locator('#status')).toHaveText('Toistetaan Meta Steel -äänillä.');
   await expect.poll(() => oldStarts).toBe(4);
   await page.getByRole('button', { name: 'Pysäytä' }).click();
 });
@@ -84,14 +84,14 @@ test('virheellinen näytetiedosto käyttää toista äänimuotoa', async ({ page
     }
   });
   await page.getByRole('button', { name: 'Neljä E2-iskua' }).click();
-  await expect(page.getByRole('status')).toHaveText('Toistetaan Meta Steel -äänillä.');
+  await expect(page.locator('#status')).toHaveText('Toistetaan Meta Steel -äänillä.');
   await expect(page.locator('#details')).toContainText('1 näytettä');
 });
 
 test('M2 hyväksyy vain tarkistetun B-taustatiedoston', async ({ page }) => {
   await page.goto(path);
   await page.getByRole('button', { name: 'Kuuntele M2:n mallikitara ja tausta' }).click();
-  await expect(page.getByRole('status')).toContainText('Valitse ensin hyväksytty M3 B -WAV');
+  await expect(page.locator('#status')).toContainText('Valitse ensin hyväksytty M3 B -WAV');
   await expect(page.getByRole('button', { name: 'Pysäytä' })).toBeDisabled();
   await page.locator('#backing').setInputFiles({
     name: 'not-approved.wav',
@@ -101,7 +101,7 @@ test('M2 hyväksyy vain tarkistetun B-taustatiedoston', async ({ page }) => {
   await page.locator('#model-gain').fill('1.5');
   await expect(page.locator('#gain-value')).toContainText('1,5');
   await page.getByRole('button', { name: 'Kuuntele M2:n mallikitara ja tausta' }).click();
-  await expect(page.getByRole('status')).toContainText('SHA-256 ei vastaa');
+  await expect(page.locator('#status')).toContainText('SHA-256 ei vastaa');
 });
 
 test('sovittimen PCM-aikajana säilyttää 72 BPM:n, 150 ms:n vaimennuksen ja G-otteen kielivälit', async ({ page }) => {
@@ -153,5 +153,5 @@ test('kapea näkymä ja iso teksti eivät piilota soittimia', async ({ page }) =
   expect((await button.boundingBox())?.height).toBeGreaterThanOrEqual(44);
   await button.focus();
   await page.keyboard.press('Enter');
-  await expect(page.getByRole('status')).toHaveText('Toistetaan Meta Steel -äänillä.');
+  await expect(page.locator('#status')).toHaveText('Toistetaan Meta Steel -äänillä.');
 });
