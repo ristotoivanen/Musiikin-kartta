@@ -109,9 +109,10 @@ export function stepEvents(task, loopStep, { example = 'rock', revealed = false,
   const onBeat = barStep % 2 === 0;
   const beat = Math.floor(barStep / 2);
   const harmony = harmonyAt(loopStep);
-  const events = backing(task, example, loopStep).filter(event =>
-    !(task === 'pulssi' && drumGap && loopStep >= STEPS_PER_BAR &&
-      ['hi-hat', 'virveli', 'bassorumpu'].includes(event.role)));
+  // B-versio: toinen tahti on aidosti hiljainen myös paljastetulla pulssilla.
+  // Historiallinen drumGap-muuttujanimi tarkoittaa tässä nyt koko musiikin katkoa.
+  if (task === 'pulssi' && drumGap && loopStep >= STEPS_PER_BAR) return [];
+  const events = backing(task, example, loopStep);
   if (task === 'pulssi') {
     if (onBeat && beat === 0) events.push({ type: 'chord', role: 'harmonia', harmony, level: 0.075 });
     if (onBeat && revealed) events.push({ type: 'click', role: 'pulssivihje', strong: beat === 0 });
@@ -253,9 +254,11 @@ export function positionAt(transport, time) {
  * Kello on sama ulostuloviiveellä korjattu AudioContext-aika kuin muissa ruudukoissa.
  * Reduced motion: ei nopeaa välähdystä, ensimmäinen ruutu näkyy koko iskun ajan.
  */
-export function pulseCellAt(transport, time, revealed, reducedMotion = false) {
+export function pulseCellAt(transport, time, revealed, reducedMotion = false, showSilenceCue = true) {
   const position = positionAt(transport, time);
   if (!position) return null;
+  // Ilman vihjettä ei korosteta kumpaakaan riviä B:n täysin hiljaisessa tahdissa.
+  if (position.drumGap && position.cell.bar === 1 && !showSilenceCue) return null;
   if (revealed) return position.cell;
   const beatStartStep = position.step - position.step % 2;
   const elapsed = time - (transport.begin + beatStartStep * transport.stepDuration);
@@ -387,6 +390,7 @@ function setupExercise(root) {
   const status = root.querySelector('[data-rytmi-tila]');
   const exampleButtons = [...root.querySelectorAll('[data-esimerkki]')];
   const drumButtons = [...root.querySelectorAll('[data-rumpumalli]')];
+  const silenceCueButtons = [...root.querySelectorAll('[data-hiljaisuusvihje]')];
   const silenceButtons = [...root.querySelectorAll('[data-tauko-mode]')];
   const grooveButtons = [...root.querySelectorAll('[data-versio]')];
   const reveal = root.querySelector('[data-rytmi-vihje]');
@@ -394,7 +398,7 @@ function setupExercise(root) {
   const isTransition = task === 'osanvaihto';
   const versionNames = isTransition ? TRANSITIONS : GROOVES;
   const reducedMotion = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)');
-  const state = { example: 'rock', revealed: false, mode: 'A', drumGap: false, taukoMode: 'soi' };
+  const state = { example: 'rock', revealed: false, mode: 'A', drumGap: false, taukoMode: 'soi', showSilenceCue: true };
   // Erillinen ruudunlukijan tilaviesti ei muuta soiton tilatekstin korkeutta eikä siirrä ruudukkoa.
   const pulseStatus = task === 'pulssi' ? document.createElement('span') : null;
   if (pulseStatus) {
@@ -467,8 +471,8 @@ function setupExercise(root) {
   function setDrumCaption(drumGap) {
     const caption = root.querySelector('[data-rummut-tahti]');
     if (caption) caption.textContent = drumGap
-      ? 'Tahti 2 · Rummut vaikenevat, basso ja harmonia jatkavat'
-      : 'Tahti 2 · Rummut kuuluvat edelleen';
+      ? 'Tahti 2 · Täysi hiljaisuus, pidä pulssi itse'
+      : 'Tahti 2 · Musiikki jatkuu';
   }
 
   function drawReveal() {
@@ -501,7 +505,7 @@ function setupExercise(root) {
       drawGroove(position.mode);
       drawTransition(position.mode);
       const visualCell = task === 'pulssi'
-        ? pulseCellAt(session.transport, now, state.revealed, Boolean(reducedMotion?.matches))
+        ? pulseCellAt(session.transport, now, state.revealed, Boolean(reducedMotion?.matches), state.showSilenceCue)
         : position.cell;
       const target = visualCell ? cells(visualCell.bar)[visualCell.index] : null;
       if (root.querySelector('.rytmi-isku.is-active') !== target) {
@@ -517,8 +521,8 @@ function setupExercise(root) {
         session.announcedDrumGap = position.drumGap;
         setDrumCaption(position.drumGap);
         status.textContent = position.drumGap
-          ? 'Nyt soi B · Rummut tauolla.'
-          : 'Nyt soi A · Rummut koko ajan.';
+          ? 'Nyt soi B · Toinen tahti hiljaa.'
+          : 'Nyt soi A · Musiikki koko ajan.';
       }
       if ((task === 'tuntuma' || isTransition) && session.announced !== position.mode) {
         session.announced = position.mode;
@@ -632,8 +636,20 @@ function setupExercise(root) {
       requestDrumGap(session.transport, drumGap);
       // Painike ilmaisee valinnan heti, mutta selitys seuraa tosiasiallisesti soivaa versiota.
       status.textContent = session.transport.pendingDrumGap !== null
-        ? `Valittu ${drumGap ? 'B · Rummut tauolla' : 'A · Rummut koko ajan'}. Rummut vaihtuvat seuraavan kahden tahdin kierron alussa.`
-        : `Nyt soi ${session.announcedDrumGap ? 'B · Rummut tauolla' : 'A · Rummut koko ajan'}.`;
+        ? `Valittu ${drumGap ? 'B · Toinen tahti hiljaa' : 'A · Musiikki koko ajan'}. Musiikin hiljaisuus vaihtuu seuraavan kahden tahdin kierron alussa.`
+        : `Nyt soi ${session.announcedDrumGap ? 'B · Toinen tahti hiljaa' : 'A · Musiikki koko ajan'}.`;
+    });
+  }
+
+  for (const choice of silenceCueButtons) {
+    choice.addEventListener('click', () => {
+      const enabled = choice.dataset.hiljaisuusvihje === 'paalla';
+      if (enabled === state.showSilenceCue) return;
+      state.showSilenceCue = enabled;
+      setPressed(silenceCueButtons, button => (button.dataset.hiljaisuusvihje === 'paalla') === enabled);
+      pulseStatus.textContent = enabled
+        ? 'Hiljaisen tahdin aikana visuaalinen pulssi näkyy.'
+        : 'Hiljaisen tahdin aikana ei näytetä visuaalista pulssia.';
     });
   }
 

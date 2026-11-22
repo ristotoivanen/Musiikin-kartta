@@ -1,13 +1,17 @@
 <section class="rytmi-harjoitus study-knoppi-host" data-rytmiharjoitus="pulssi" aria-labelledby="rytmi-01-otsikko">
   <h2 id="rytmi-01-otsikko" class="rytmi-tunniste">01 · Pulssi jatkuu</h2>
-  <p class="rytmi-ohje">Kuuntele kahta saman musiikkiesimerkin versiota. A:ssa rummut kuuluvat molemmat tahdit. B:ssä rummut vaikenevat yhden tahdin ajaksi ja palaavat, mutta basso, harmonia ja musiikin pulssi jatkavat. <strong>Tempo ei muutu A:n ja B:n välillä.</strong></p>
+  <p class="rytmi-ohje">Kuuntele kahta saman musiikkiesimerkin versiota. A:ssa musiikki soi molemmissa tahdeissa. B:ssä koko toinen tahti on hiljainen: rummut, basso, soinnut, melodia ja naksahdukset vaikenevat. Pidä neljä iskua itse ja yritä osua mukaan, kun musiikki palaa seuraavan tahdin ykköselle. <strong>Tempo ei muutu A:n ja B:n välillä.</strong></p>
   <div class="rytmi-valinnat" role="group" aria-label="Musiikkiesimerkki" data-rytmi-ohjaimet hidden>
     <button type="button" data-esimerkki="rock" aria-pressed="true">Esimerkki 1 · 96 BPM</button>
     <button type="button" data-esimerkki="soft" aria-pressed="false">Uusi esimerkki · 108 BPM</button>
   </div>
-  <div class="rytmi-valinnat" role="group" aria-label="Rumpujen hiljeneminen" data-rytmi-ohjaimet hidden>
-    <button type="button" data-rumpumalli="jatkuva" aria-pressed="true">A · Rummut koko ajan</button>
-    <button type="button" data-rumpumalli="katko" aria-pressed="false">B · Rummut tauolla</button>
+  <div class="rytmi-valinnat" role="group" aria-label="Musiikin hiljeneminen" data-rytmi-ohjaimet hidden>
+    <button type="button" data-rumpumalli="jatkuva" aria-pressed="true">A · Musiikki koko ajan</button>
+    <button type="button" data-rumpumalli="katko" aria-pressed="false">B · Toinen tahti hiljaa</button>
+  </div>
+  <div class="rytmi-valinnat" role="group" aria-label="Visuaalinen tuki B-version hiljaisessa tahdissa" data-rytmi-ohjaimet hidden>
+    <button type="button" data-hiljaisuusvihje="paalla" aria-pressed="true">Vihje hiljaisuudessa</button>
+    <button type="button" data-hiljaisuusvihje="pois" aria-pressed="false">Ilman vihjettä</button>
   </div>
   <div class="rytmi-soitin" data-rytmi-ohjaimet hidden>
     <button type="button" class="rytmi-kuuntele" data-rytmi-toisto><span aria-hidden="true">▶</span> Kuuntele</button>
@@ -16,14 +20,14 @@
   <div class="rytmi-valinnat" data-rytmi-ohjaimet hidden>
     <button type="button" data-rytmi-vihje>Paljasta pulssi</button>
   </div>
-  <p class="rytmi-tahti">Tahti 1 · Rummut kuuluvat</p>
+  <p class="rytmi-tahti">Tahti 1 · Musiikki kuuluu</p>
   <ol class="rytmi-ruudukko" aria-label="Ensimmäisen tahdin neljä iskua">
     <li class="rytmi-isku" data-rytmi-isku data-tahti="0"><span class="rytmi-isku-nimi">•</span> <span class="rytmi-isku-teko">Pulssi</span></li>
     <li class="rytmi-isku" data-rytmi-isku data-tahti="0"><span class="rytmi-isku-nimi">•</span> <span class="rytmi-isku-teko">Pulssi</span></li>
     <li class="rytmi-isku" data-rytmi-isku data-tahti="0"><span class="rytmi-isku-nimi">•</span> <span class="rytmi-isku-teko">Pulssi</span></li>
     <li class="rytmi-isku" data-rytmi-isku data-tahti="0"><span class="rytmi-isku-nimi">•</span> <span class="rytmi-isku-teko">Pulssi</span></li>
   </ol>
-  <p class="rytmi-tahti" data-rummut-tahti>Tahti 2 · Rummut kuuluvat edelleen</p>
+  <p class="rytmi-tahti" data-rummut-tahti>Tahti 2 · Musiikki jatkuu</p>
   <ol class="rytmi-ruudukko" aria-label="Toisen tahdin neljä iskua">
     <li class="rytmi-isku" data-rytmi-isku data-tahti="1"><span class="rytmi-isku-nimi">•</span> <span class="rytmi-isku-teko">Pulssi</span></li>
     <li class="rytmi-isku" data-rytmi-isku data-tahti="1"><span class="rytmi-isku-nimi">•</span> <span class="rytmi-isku-teko">Pulssi</span></li>
@@ -32,7 +36,7 @@
   </ol>
   <div class="rytmi-kokeile">
     <h3>2 · Kokeile itse</h3>
-    <p>Naputa A-version mukana jalalla tai sormella. Siirry B-versioon ja jatka samaa neljään laskemista myös rumpujen hiljentyessä. Tule mukaan, kun rummut palaavat. Voit paljastaa pulssivihjeen tarvittaessa. Kokeile myös tutulla kitarakompilla.</p>
+    <p>Naputa A-version mukana jalalla tai sormella. Siirry B-versioon ja jatka itse neljään laskemista täydellisen hiljaisuuden aikana. Musiikki palaa seuraavalle ykköselle: osuiko oma pulssisi kohdalleen? Aloita valinnalla ”Vihje hiljaisuudessa” ja kokeile sitten ”Ilman vihjettä”, jolloin hiljaisessa tahdissa mikään ruutu ei välähdä. ”Paljasta pulssi” näyttää numerot 1–4 harjoittelun tueksi.</p>
   </div>
   <details class="study-knoppi rytmi-lisa">
     <summary title="Lisävinkki"><svg class="study-knoppi-merkki" aria-hidden="true" focusable="false"><use href="../../../../assets/oppimisikonit.svg#extra-info"/></svg><span class="study-sr">Lisävinkki: Kokeile myös itse</span></summary>
@@ -43,8 +47,8 @@
     </div>
   </details>
   <div class="rytmi-opit">
-    <p><strong>Mitä opit?</strong> Musiikin pulssi ei katoa, vaikka tukirummut lakkaavat kuulumasta hetkeksi. Voit jatkaa tasaista liikettä tai laskemista myös silloin, kun ulkoinen rytmituki puuttuu. Tässä pulssi ryhmittyy neljän iskun tahdeiksi.</p>
-    <p class="rytmi-pieni">Tahdin ykkönen on tahdin ensimmäinen isku, ei välttämättä musiikin voimakkain ääni. Sen hahmottamista voivat auttaa esimerkiksi basson, harmonian tai melodian toistuvat aloituskohdat, vaikka ne eivät osu jokaiselle ykköselle.</p>
+    <p><strong>Mitä opit?</strong> Musiikin pulssi jatkuu mielessäsi, vaikka koko tausta vaikenee hetkeksi. Yksi tahti sisältää neljä iskua. Tavoite on jatkaa tasaista laskemista ja osua takaisin musiikkiin, kun se alkaa uudelleen.</p>
+    <p class="rytmi-pieni">Täydessä hiljaisuudessa oma laskeminen ja liike pitävät aikaa. Äänet palaavat seuraavan tahdin ykkösellä, vaikka hiljaisessa tahdissa ei kuulu mitään. Voit ensin käyttää visuaalista vihjettä ja sitten piilottaa sen.</p>
   </div>
 </section>
 <p class="rytmi-huomautus">Harjoittelu on vapaaehtoista. Tämä sivu ei kuuntele tai mittaa omaa soittoasi. ”Kokeiltu” ei ole osaamistesti.</p>

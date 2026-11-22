@@ -79,6 +79,20 @@ describe('#163: kahden tahdin pulssivihje', () => {
     });
   }
 
+  it('B:n hiljaisessa tahdissa voi poistaa kaiken visuaalisen korostuksen, paljastettunakin', () => {
+    const transport = createTransport({ task: 'pulssi', tempo: 96, begin: 1, drumGap: true });
+    const eighth = transport.stepDuration;
+    for (let beat = 0; beat < 4; beat++) {
+      const firstBar = 1 + (beat * 2 + .02) * eighth;
+      const silentBar = 1 + (STEPS_PER_BAR + beat * 2 + .02) * eighth;
+      expect(pulseCellAt(transport, firstBar, false, false, false)).toEqual({ bar: 0, index: 0 });
+      expect(pulseCellAt(transport, silentBar, false, false, false)).toBeNull();
+      expect(pulseCellAt(transport, silentBar, true, false, false)).toBeNull();
+      expect(pulseCellAt(transport, silentBar, false, false, true)).toEqual({ bar: 0, index: 0 });
+      expect(pulseCellAt(transport, silentBar, true, false, true)).toEqual({ bar: 1, index: beat });
+    }
+  });
+
   it('vähennetty liike näyttää vain ylemmän rivin ensimmäisen ruudun koko iskun ajan', () => {
     const transport = createTransport({ task: 'pulssi', tempo: 96, begin: 1 });
     const step = transport.stepDuration;
@@ -92,21 +106,27 @@ describe('#163: kahden tahdin pulssivihje', () => {
   });
 });
 
-describe('01 hyväksytty rumpukatko', () => {
-  it('A:ssa rummut jatkavat molemmissa tahdeissa; B:ssä rummuilla on yhden tahdin tauko mutta basso jää', () => {
-    const isDrum = (role: string) => ['hi-hat', 'virveli', 'bassorumpu'].includes(role);
-    const a = loop('pulssi', { drumGap: false });
-    const b = loop('pulssi', { drumGap: true });
-    expect(a.slice(STEPS_PER_BAR).flat().some(isDrum)).toBe(true);
-    expect(b.slice(STEPS_PER_BAR).flat().some(isDrum)).toBe(false);
-    for (let i = 0; i < STEPS_PER_BAR; i++) expect(b[i]).toEqual(a[i]);
-    expect(b.slice(STEPS_PER_BAR).flat()).toContain('basso');
-    expect(b.slice(STEPS_PER_BAR).flat()).toContain('harmonia');
-    expect(gridCell('pulssi', STEPS_PER_BAR)).toEqual({ bar: 1, index: 0 });
+describe('01 hyväksytty täysi hiljaisuus', () => {
+  it('A soi normaalisti; B:n toinen tahti on äänetön kaikilla iskulla, myös paljastetulla pulssilla', () => {
     for (const example of ['rock', 'soft']) {
-      expect(tempoFor('pulssi', example)).toBe(tempoFor('pulssi', example));
-      expect(stepEvents('pulssi', 14, { drumGap: true, example }).some((event: Event) => isDrum(event.role))).toBe(false);
+      for (const revealed of [false, true]) {
+        const options = { example, revealed };
+        const a = loop('pulssi', { ...options, drumGap: false });
+        const b = loop('pulssi', { ...options, drumGap: true });
+        expect(a.slice(STEPS_PER_BAR).flat()).toContain('harmonia');
+        expect(b.slice(0, STEPS_PER_BAR)).toEqual(a.slice(0, STEPS_PER_BAR));
+        expect(b.slice(STEPS_PER_BAR)).toEqual(Array.from({ length: STEPS_PER_BAR }, () => []));
+        expect(a.slice(STEPS_PER_BAR).flat().length).toBeGreaterThan(0);
+      }
     }
+    expect(gridCell('pulssi', STEPS_PER_BAR)).toEqual({ bar: 1, index: 0 });
+  });
+
+  it('B:n hiljainen tahti ei ajasta bassoa, sointua, rumpuja eikä pulssiklikkiä', () => {
+    const transport = createTransport({ task: 'pulssi', tempo: 96, begin: 1, drumGap: true });
+    const events = scheduleUntil(transport, 1 + 2 * LOOP_STEPS * transport.stepDuration, { revealed: true });
+    expect(events.filter((event: Event) => event.step % LOOP_STEPS >= STEPS_PER_BAR)).toEqual([]);
+    expect(events.some((event: Event) => event.step === LOOP_STEPS)).toBe(true);
   });
 });
 
@@ -126,13 +146,11 @@ describe('01 rumpuversion vaihto kesken toiston', () => {
       { time: begin, step: 0, drumGap: false },
       { time: begin + 16 * eighth, step: 16, drumGap: true },
     ]);
-    // Keskeneräisen kierron rumpuja ei katkaista: myös toisen tahdin rummut kuuluvat.
+    // Keskeneräistä kiertoa ei katkaista: vanhan A-kierron toinen tahti kuuluu loppuun.
     expect(at(events, 8).some(event => drums.includes(event.role))).toBe(true);
     expect(at(events, 16).some(event => drums.includes(event.role))).toBe(true);
-    // Uuden kierron toisessa tahdissa rummut puuttuvat, mutta basso ja harmonia pysyvät.
-    expect(at(events, 24).some(event => drums.includes(event.role))).toBe(false);
-    expect(at(events, 24).map(event => event.role)).toContain('basso');
-    expect(at(events, 24).map(event => event.role)).toContain('harmonia');
+    // Uuden B-kierron toisessa tahdissa on täydellinen hiljaisuus.
+    expect(at(events, 24)).toEqual([]);
     expect(positionAt(transport, begin + 16 * eighth - 0.001).drumGap).toBe(false);
     expect(positionAt(transport, begin + 16 * eighth).drumGap).toBe(true);
     expect(positionAt(transport, begin + 16 * eighth).cell).toEqual({ bar: 0, index: 0 });

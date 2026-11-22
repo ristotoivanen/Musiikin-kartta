@@ -7,7 +7,7 @@ import { expect, test, type Page } from '@playwright/test';
 const topicPath = '/oppi/rytmi/index.html';
 const readingKey = 'musiikin-kartta:luvut';
 const lessons = [
-  ['loyda-pulssi-ja-ykkonen', 'Pulssi ei katoa, vaikka rummut vaikenevat', 'Kokeile myös itse'],
+  ['loyda-pulssi-ja-ykkonen', 'Pulssi jatkuu, vaikka musiikki vaikenee', 'Kokeile myös itse'],
   ['sama-musiikki-eri-tuntuma', 'Samat iskut, eri fiilis', 'Kokeile myös äänten eri paikkoja'],
   ['hiljaisuus-kuuluu-rytmiin', 'Tauko ei aina tarkoita hiljaisuutta', 'Kokeile myös kitaralla'],
   ['valmistaudu-seuraavaan-osaan', 'Valmistaudu seuraavaan osaan', 'Vaimennustapa on vapaa'],
@@ -355,6 +355,24 @@ test.describe('harjoitussivut', () => {
     await expect(page.locator('.rytmi-isku.is-active')).toHaveCount(0);
   });
 
+  test('01: B:n hiljainen tahti tarjoaa kaksi visuaalisen tuen tasoa', async ({ page }) => {
+    await page.goto('/oppi/rytmi/loyda-pulssi-ja-ykkonen.html');
+    const b = page.getByRole('button', { name: 'B · Toinen tahti hiljaa' });
+    const withCue = page.getByRole('button', { name: 'Vihje hiljaisuudessa' });
+    const withoutCue = page.getByRole('button', { name: 'Ilman vihjettä' });
+    await b.click();
+    await expect(page.locator('[data-rummut-tahti]')).toContainText('Täysi hiljaisuus');
+    await expect(withCue).toHaveAttribute('aria-pressed', 'true');
+    await withoutCue.click();
+    await expect(withoutCue).toHaveAttribute('aria-pressed', 'true');
+    await expect(withCue).toHaveAttribute('aria-pressed', 'false');
+    await expect(page.locator('.rytmi-pulssi-status')).toContainText('ei näytetä visuaalista pulssia');
+    await page.getByRole('button', { name: 'Paljasta pulssi' }).click();
+    await expect(page.locator('.rytmi-isku-nimi')).toHaveText(['1','2','3','4','1','2','3','4']);
+    await withCue.click();
+    await expect(withCue).toHaveAttribute('aria-pressed', 'true');
+  });
+
   test('01: pulssivihje näyttää iskujen numerot ja piilottaa ne', async ({ page }) => {
     await page.goto(`/oppi/rytmi/${lessons[0][0]}.html`);
     const names = page.locator('.rytmi-isku-nimi');
@@ -376,14 +394,14 @@ test.describe('harjoitussivut', () => {
     await expect(page.locator('[data-rytmiharjoitus="pulssi"] .rytmi-ruudukko').first()).toHaveAttribute('aria-hidden', 'false');
     expect(await placements()).toEqual(initial);
     // Rumpukatkon vertailu ei muuta tempoa, mutta kertoo toisen tahdin rummuttomuuden.
-    const gap = page.getByRole('button', { name: 'B · Rummut tauolla' });
-    const continuous = page.getByRole('button', { name: 'A · Rummut koko ajan' });
+    const gap = page.getByRole('button', { name: 'B · Toinen tahti hiljaa' });
+    const continuous = page.getByRole('button', { name: 'A · Musiikki koko ajan' });
     await gap.click();
     await expect(gap).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.locator('[data-rummut-tahti]')).toContainText('Rummut vaikenevat');
+    await expect(page.locator('[data-rummut-tahti]')).toContainText('Täysi hiljaisuus');
     await continuous.click();
     await expect(continuous).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.locator('[data-rummut-tahti]')).toContainText('Rummut kuuluvat edelleen');
+    await expect(page.locator('[data-rummut-tahti]')).toContainText('Musiikki jatkuu');
     await page.getByRole('button', { name: 'Piilota pulssivihje' }).click();
     await expect(names).toHaveText(Array(8).fill('•'));
     await expect(names.first()).toBeHidden();
@@ -526,12 +544,12 @@ test.describe('toisto', () => {
     await playButton(page).click();
   });
 
-  test('01: A/B-rumpuversion vaihto jatkaa samaa soittoa ja näkyy vasta kierron alussa', async ({ page }) => {
+  test('01: A/B-musiikkiversion vaihto jatkaa samaa soittoa ja näkyy vasta kierron alussa', async ({ page }) => {
     await page.goto('/oppi/rytmi/loyda-pulssi-ja-ykkonen.html');
     const status = page.locator('[data-rytmi-tila]');
     const caption = page.locator('[data-rummut-tahti]');
-    const a = page.getByRole('button', { name: 'A · Rummut koko ajan' });
-    const b = page.getByRole('button', { name: 'B · Rummut tauolla' });
+    const a = page.getByRole('button', { name: 'A · Musiikki koko ajan' });
+    const b = page.getByRole('button', { name: 'B · Toinen tahti hiljaa' });
 
     await page.getByRole('button', { name: 'Paljasta pulssi' }).click();
     await playButton(page).click();
@@ -539,18 +557,18 @@ test.describe('toisto', () => {
     await expect(page.locator('.rytmi-isku.is-active')).toHaveCount(1);
     await b.click();
     await expect(b).toHaveAttribute('aria-pressed', 'true');
-    await expect(status).toContainText('Rummut vaihtuvat seuraavan kahden tahdin kierron alussa.');
-    await expect(caption).toContainText('Rummut kuuluvat edelleen');
+    await expect(status).toContainText('Musiikin hiljaisuus vaihtuu seuraavan kahden tahdin kierron alussa.');
+    await expect(caption).toContainText('Musiikki jatkuu');
     await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
 
     // Soiva versio ja ruudukon kuvaus vaihtuvat yhdessä, toisto ei käynnisty uudelleen.
-    await expect(caption).toContainText('Rummut vaikenevat', { timeout: 10000 });
-    await expect(status).toHaveText('Nyt soi B · Rummut tauolla.');
+    await expect(caption).toContainText('Täysi hiljaisuus', { timeout: 10000 });
+    await expect(status).toHaveText('Nyt soi B · Toinen tahti hiljaa.');
     await a.click();
     await expect(a).toHaveAttribute('aria-pressed', 'true');
     await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
-    await expect(caption).toContainText('Rummut kuuluvat edelleen', { timeout: 10000 });
-    await expect(status).toHaveText('Nyt soi A · Rummut koko ajan.');
+    await expect(caption).toContainText('Musiikki jatkuu', { timeout: 10000 });
+    await expect(status).toHaveText('Nyt soi A · Musiikki koko ajan.');
     await playButton(page).click();
     await expect(playButton(page)).toHaveAccessibleName('Kuuntele');
   });

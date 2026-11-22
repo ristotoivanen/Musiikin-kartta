@@ -63,8 +63,8 @@
           "lessons": [
             {
               "standalone": "loyda-pulssi-ja-ykkonen",
-              "title": "Pulssi ei katoa, vaikka rummut vaikenevat",
-              "goal": "Pulssi jatkuu ilman tukirumpuja"
+              "title": "Pulssi jatkuu, vaikka musiikki vaikenee",
+              "goal": "Pidä pulssi, kun musiikki vaikenee"
             },
             {
               "standalone": "sama-musiikki-eri-tuntuma",
