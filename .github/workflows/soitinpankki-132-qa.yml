@@ -22,6 +22,9 @@ concurrency:
 
 jobs:
   quality:
+    outputs:
+      first_failure: ${{ steps.browser.outputs.first_failure }}
+      first_error: ${{ steps.browser.outputs.first_error }}
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
@@ -59,7 +62,20 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
       - name: Browser regression tests, desktop and phone emulation
-        run: npx playwright test tests/e2e/soitinpankki-kirjasto.spec.ts --project=desktop --project=phone --workers=2
+        id: browser
+        shell: bash
+        run: |
+          set +e
+          npx playwright test tests/e2e/soitinpankki-kirjasto.spec.ts --project=desktop --project=phone --workers=2 > playwright.log 2>&1
+          code=$?
+          cat playwright.log
+          failed=$(grep -m1 -E '^[[:space:]]*[0-9]+\) \[' playwright.log || true)
+          error=$(grep -m1 -E 'Error:|TimeoutError:' playwright.log || true)
+          failed=${failed:0:230}
+          error=${error:0:230}
+          echo "first_failure=${failed:-PASS}" >> "$GITHUB_OUTPUT"
+          echo "first_error=${error:-Not available}" >> "$GITHUB_OUTPUT"
+          exit "$code"
       - name: Upload browser failure traces
         if: failure()
         uses: actions/upload-artifact@v4
@@ -67,3 +83,19 @@ jobs:
           name: soitinpankki-132-test-results
           path: test-results/
           if-no-files-found: ignore
+
+  browser_report:
+    if: always()
+    needs: quality
+    name: "First failing test: ${{ needs.quality.outputs.first_failure }}"
+    runs-on: ubuntu-24.04
+    steps:
+      - run: echo 'First failing test is displayed in this check name.'
+
+  browser_error:
+    if: always()
+    needs: quality
+    name: "First Playwright error: ${{ needs.quality.outputs.first_error }}"
+    runs-on: ubuntu-24.04
+    steps:
+      - run: echo 'First Playwright error is displayed in this check name.'
