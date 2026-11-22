@@ -101,6 +101,7 @@ function setGroup(next) {
 
 function begin() {
   active = true;
+  document.documentElement.dataset.balanceTrialActive = 'true';
   $('trialSetup').hidden = true;
   $('trialActive').hidden = false;
   $('trialResultNote').value = '';
@@ -117,6 +118,7 @@ function stopTrial() {
   if (!active) return;
   $('stop').click();
   active = false;
+  delete document.documentElement.dataset.balanceTrialActive;
   $('trialSetup').hidden = false;
   $('trialActive').hidden = true;
   hideManualGains(false);
