@@ -26,13 +26,15 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
+      - name: Import the missing original CC0 F4 sample (one-time)
+        run: python3 tools/aanet/tuo-soinnut-f4.py
       - name: Regenerate Oppimiskartta from the canonical sources
         run: |
           python3 tools/oppimiskartta/rakenna.py
           python3 tools/oppimiskartta/rakenna.py --tarkista
       - name: Persist generated pages only to this #116 branch
         run: |
-          git add -- index.html oppi/ assets/oppimiskartta.js
+          git add -- index.html oppi/ assets/oppimiskartta.js assets/audio/soinnut/INSGuitarSteel_StringHighE_Vel02_F4_01.ogg assets/audio/soinnut/INSGuitarSteel_StringHighE_Vel02_F4_01.m4a
           if ! git diff --cached --quiet; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
