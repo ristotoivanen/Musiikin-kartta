@@ -72,8 +72,10 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Check generated pages
-        run: python3 tools/oppimiskartta/rakenna.py --tarkista
+      - name: Generate and verify pages in test checkout
+        run: |
+          python3 tools/oppimiskartta/rakenna.py
+          python3 tools/oppimiskartta/rakenna.py --tarkista
       - name: Install WebKit
         run: npx playwright install --with-deps webkit
       - name: WebKit desktop and iPhone emulation scroll and focus
