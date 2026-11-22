@@ -1,5 +1,6 @@
 import { SteelSampleBank, scheduleSteelNotes } from '../../assets/soitinpankki/steel-sampler.mjs';
 import { scores } from './scores.mjs';
+import { scheduleM2SteelModel, M2_BACKING_SHA256, M2_BACKING_GAIN } from '../../assets/soitinpankki/m2-steel-model.mjs';
 
 const status = document.querySelector('#status');
 const stopButton = document.querySelector('#stop');
@@ -12,7 +13,7 @@ let context;
 let bank;
 let active;
 let generation = 0;
-const expectedBackingSha = 'd93a4373f956354ce63eb62a682125bd85710f938d70714e3abc25a28a2c8897';
+const expectedBackingSha = M2_BACKING_SHA256;
 
 function stop(message = 'Pysäytetty.', immediate = false) {
   generation++;
@@ -96,19 +97,22 @@ async function run(name) {
       if (token !== generation) return;
     }
     const startAt = ctx.currentTime + .15;
-    request.player = scheduleSteelNotes(ctx, scores[name], prepared.samples, {
-      gain: prepared.manifest.referenceGain * (name === 'm2' ? Number(gainInput.value) : 1),
-      startAt,
-      onEnd: () => {
-        if (name !== 'm2' && active === request) stop('Koe päättyi.');
-      },
-    });
+    request.player = name === 'm2'
+      ? scheduleM2SteelModel(ctx, prepared, {
+          gainMultiplier: Number(gainInput.value), startAt,
+        })
+      : scheduleSteelNotes(ctx, scores[name], prepared.samples, {
+          gain: prepared.manifest.referenceGain, startAt,
+          onEnd: () => {
+            if (active === request) stop('Koe päättyi.');
+          },
+        });
     if (backingBuffer) {
       request.backing = ctx.createBufferSource();
       request.backing.buffer = backingBuffer;
       // Sama B-taustan taso kuin PR #130:n nykyisessä M2-esikatselussa.
       request.backingGain = ctx.createGain();
-      request.backingGain.gain.value = 0.62;
+      request.backingGain.gain.value = M2_BACKING_GAIN;
       request.backing.connect(request.backingGain);
       request.backingGain.connect(ctx.destination);
       request.backing.start(startAt);

@@ -1,0 +1,41 @@
+name: M2 Steel 158 QA
+
+on:
+  push:
+    branches:
+      - chatgpt/158-m2-steel-adapter
+
+permissions:
+  contents: read
+
+concurrency:
+  group: m2-steel-158-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install pinned project dependencies
+        run: npm ci
+      - name: Run project checks, all unit tests and build
+        run: npm run check
+      - name: Verify M2 precise beat schedule and shared Web Audio clock
+        run: npx vitest run tests/m2-steel-integraatio.test.ts
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Regress existing Meta Steel listening page with M2 adapter
+        run: npx playwright test tests/e2e/soitinpankki-kirjasto.spec.ts --project=desktop --project=phone --workers=2
+      - name: Save browser failures
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m2-steel-158-failure-traces
+          path: test-results/
+          if-no-files-found: ignore
