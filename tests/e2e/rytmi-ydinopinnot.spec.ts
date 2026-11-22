@@ -24,7 +24,6 @@ const info = (page: Page) => page.locator('details.rytmi-lisa');
 const playButton = (page: Page) => page.locator('[data-rytmi-toisto]');
 const noHorizontalScroll = (page: Page) =>
   page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
-const box = async (page: Page, selector: string) => (await page.locator(selector).first().boundingBox())!;
 
 test.describe('aihesivu', () => {
   test('Ydinopinnot ensin, aiemmat neljä sisältöä entisillä osoitteilla, molemmat oletuksena suljettuina', async ({ page }) => {
