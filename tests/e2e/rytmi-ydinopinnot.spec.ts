@@ -10,6 +10,7 @@ const lessons = [
   ['loyda-pulssi-ja-ykkonen', 'Löydä pulssi ja ykkönen', 'Kokeile myös itse'],
   ['hiljaisuus-kuuluu-rytmiin', 'Hiljaisuus kuuluu rytmiin', 'Kokeile myös kitaralla'],
   ['sama-musiikki-eri-tuntuma', 'Sama musiikki, eri tuntuma', 'Kokeile myös äänten eri paikkoja'],
+  ['valmistaudu-seuraavaan-osaan', 'Valmistaudu seuraavaan osaan', 'Vaimennustapa on vapaa'],
 ] as const;
 const legacy = [
   ['pulssi-ja-komppi', 'pulssi-ja-komppi'], ['kuuntele-pulssi', 'harjoitus:kuuntele-pulssi'],
@@ -34,7 +35,7 @@ test.describe('aihesivu', () => {
     await core(page).locator(':scope > summary').click();
     await expect(core(page)).toHaveAttribute('open', '');
     await expect(core(page).locator(':scope > summary')).toContainText('Ydinopinnot');
-    await expect(core(page).locator(':scope > summary')).toContainText('3 sisältöä');
+    await expect(core(page).locator(':scope > summary')).toContainText('4 sisältöä');
     for (const [slug, title] of lessons) {
       const summary = page.locator(`#valinta-${slug}`);
       await expect(summary).toContainText(title);
@@ -52,7 +53,7 @@ test.describe('aihesivu', () => {
 
 
   for (const { width, largeText } of [{ width: 390, largeText: false }, { width: 320, largeText: true }]) {
-    test('kolmen avattavan oppitunnin välit ja +/- eivät veny (' + width + ' px' + (largeText ? ', 200 %' : '') + ')', async ({ page }) => {
+    test('neljän avattavan oppitunnin välit ja +/- eivät veny (' + width + ' px' + (largeText ? ', 200 %' : '') + ')', async ({ page }) => {
       await page.setViewportSize({ width, height: 640 });
       await page.goto(topicPath);
       if (largeText) {
@@ -61,7 +62,7 @@ test.describe('aihesivu', () => {
       await core(page).locator(':scope > summary').click();
       const cards = core(page).locator('.study-inline-choices > li > details.study-inline');
       const summaries = cards.locator(':scope > summary');
-      await expect(cards).toHaveCount(3);
+      await expect(cards).toHaveCount(4);
       await expect(summaries.locator('.study-arrow').first()).toHaveAttribute('aria-hidden', 'true');
 
       const verify = async (openIndex: number | null) => {
@@ -75,7 +76,7 @@ test.describe('aihesivu', () => {
             mark: getComputedStyle(arrow, '::before').content,
           };
         }));
-        expect(measurements).toHaveLength(3);
+        expect(measurements).toHaveLength(4);
         measurements.forEach((value, index) => {
           expect(value.open).toBe(index === openIndex);
           expect(value.mark).toContain(index === openIndex ? '−' : '+');
@@ -89,7 +90,7 @@ test.describe('aihesivu', () => {
       };
 
       await verify(null);
-      for (const index of [0, 1, 2, 1]) {
+      for (const index of [0, 1, 2, 3, 1]) {
         await summaries.nth(index).click();
         await expect(cards.nth(index)).toHaveAttribute('open', '');
         await verify(index);
@@ -115,7 +116,7 @@ test.describe('aihesivu', () => {
     expect(saved).toEqual([...old, 'oppitunti:hiljaisuus-kuuluu-rytmiin']);
 
     await page.goto(topicPath);
-    await expect(core(page).locator('[data-unit-progress]')).toHaveText('1/3 kokeiltu');
+    await expect(core(page).locator('[data-unit-progress]')).toHaveText('1/4 kokeiltu');
     await expect(core(page).locator('#valinta-hiljaisuus-kuuluu-rytmiin [data-study-attempt-status]')).toHaveText('✓ Kokeiltu');
     // Aiempien laskuri: kaksi neljästä kuten ennenkin; uutta kokeilua ei lasketa aiempiin.
     await expect(earlier(page).locator('[data-study-total]')).toHaveText('2/4 aiemmista sisällöistä tehty');
@@ -138,7 +139,7 @@ test.describe('aiempien sisältöjen laskuri (progress_text, sama kuin Soinnuiss
     await page.evaluate(([key, value]) => localStorage.setItem(key, value), [readingKey, JSON.stringify(allOld)]);
     await page.reload();
     await expect(earlier(page).locator('[data-study-total]')).toHaveText('✓ Aiemmat sisällöt tehty');
-    await expect(core(page).locator('[data-unit-progress]')).toHaveText('0/3 kokeiltu');
+    await expect(core(page).locator('[data-unit-progress]')).toHaveText('0/4 kokeiltu');
     for (const [slug] of lessons) {
       await expect(core(page).locator(`#valinta-${slug} [data-study-attempt-status]`)).toHaveText('Kokeilematta');
     }
@@ -155,22 +156,22 @@ test.describe('aiempien sisältöjen laskuri (progress_text, sama kuin Soinnuiss
     await page.goto(topicPath);
     await page.evaluate(([key, value]) => localStorage.setItem(key, value), [readingKey, JSON.stringify(saved)]);
     await page.reload();
-    await expect(core(page).locator('[data-unit-progress]')).toHaveText('1/3 kokeiltu');
-    await expect(core(page).locator('[data-study-attempt-status]')).toHaveText(['✓ Kokeiltu', 'Kokeilematta', 'Kokeilematta']);
+    await expect(core(page).locator('[data-unit-progress]')).toHaveText('1/4 kokeiltu');
+    await expect(core(page).locator('[data-study-attempt-status]')).toHaveText(['✓ Kokeiltu', 'Kokeilematta', 'Kokeilematta', 'Kokeilematta']);
     await expect(earlier(page).locator('[data-study-total]')).toHaveText('✓ Aiemmat sisällöt tehty');
 
     await page.goto(`/oppi/rytmi/${lessons[2][0]}.html`);
     await page.getByRole('button', { name: 'Merkitse kokeilluksi' }).click();
     await page.goto(topicPath);
-    await expect(core(page).locator('[data-unit-progress]')).toHaveText('2/3 kokeiltu');
-    await expect(core(page).locator('[data-study-attempt-status]')).toHaveText(['✓ Kokeiltu', 'Kokeilematta', '✓ Kokeiltu']);
+    await expect(core(page).locator('[data-unit-progress]')).toHaveText('2/4 kokeiltu');
+    await expect(core(page).locator('[data-study-attempt-status]')).toHaveText(['✓ Kokeiltu', 'Kokeilematta', '✓ Kokeiltu', 'Kokeilematta']);
     expect(JSON.parse((await page.evaluate(key => localStorage.getItem(key), readingKey))!))
       .toEqual([...saved, 'oppitunti:sama-musiikki-eri-tuntuma']);
 
     await page.goto(`/oppi/rytmi/${lessons[2][0]}.html`);
     await page.getByRole('button', { name: '✓ Kokeiltu' }).click();
     await page.goto(topicPath);
-    await expect(core(page).locator('[data-unit-progress]')).toHaveText('1/3 kokeiltu');
+    await expect(core(page).locator('[data-unit-progress]')).toHaveText('1/4 kokeiltu');
     expect(JSON.parse((await page.evaluate(key => localStorage.getItem(key), readingKey))!)).toEqual(saved);
     // Sointujen etenemistieto (harmoninen-kentta) ja Rytmin aiemmat merkinnät pysyvät ennallaan.
     await page.goto('/oppi/soinnut/index.html');
@@ -203,11 +204,11 @@ test.describe('suljettu Ydinopinnot ja paluu', () => {
   });
 
   test('viimeisen harjoituksen ”Palaa aihesivulle” avaa Ydinopinnot', async ({ page }) => {
-    await page.goto(`/oppi/rytmi/${lessons[2][0]}.html`);
+    await page.goto(`/oppi/rytmi/${lessons[3][0]}.html`);
     await page.locator('.study-up .study-back').click();
-    await expect(page).toHaveURL(/index\.html#valinta-sama-musiikki-eri-tuntuma$/);
+    await expect(page).toHaveURL(/index\.html#valinta-valmistaudu-seuraavaan-osaan$/);
     await expect(core(page)).toHaveAttribute('open', '');
-    await expect(page.locator('#valinta-sama-musiikki-eri-tuntuma')).toBeVisible();
+    await expect(page.locator('#valinta-valmistaudu-seuraavaan-osaan')).toBeVisible();
   });
 });
 
@@ -333,6 +334,32 @@ test.describe('harjoitussivut', () => {
     await expect(names).toHaveText(['1', '2', '3', '4']);
     await page.getByRole('button', { name: 'Piilota pulssivihje' }).click();
     await expect(names).toHaveText(['•', '•', '•', '•']);
+  });
+});
+
+
+test.describe('04 Valmistaudu seuraavaan osaan', () => {
+  test('D→G: A antaa D:n soida, B vaimentaa nelosiskulla, molemmissa G alkaa ykkösellä', async ({ page }) => {
+    await page.goto('/oppi/rytmi/valmistaudu-seuraavaan-osaan.html');
+    const first = page.locator('[data-tahti="0"] .rytmi-isku-teko');
+    const second = page.locator('[data-tahti="1"] .rytmi-isku-teko');
+    await expect(first).toHaveText(['Soita D', 'Anna soida', 'Anna soida', 'Anna soida']);
+    await expect(second).toHaveText(['Soita G', 'Anna soida', 'Anna soida', 'Anna soida']);
+    const a = page.getByRole('button', { name: 'A · D soi loppuun' });
+    const b = page.getByRole('button', { name: 'B · Vaimenna D nelosella' });
+    await expect(a).toHaveAttribute('aria-pressed', 'true');
+    await b.click();
+    await expect(b).toHaveAttribute('aria-pressed', 'true');
+    await expect(first).toHaveText(['Soita D', 'Anna soida', 'Anna soida', 'Vaimenna']);
+    await expect(second).toHaveText(['Soita G', 'Anna soida', 'Anna soida', 'Anna soida']);
+    await playButton(page).click();
+    await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
+    await expect(page.locator('.rytmi-isku.is-active')).toHaveCount(1);
+    await playButton(page).click();
+    await expect(playButton(page)).toHaveAccessibleName('Kuuntele');
+    await a.click();
+    await expect(first).toHaveText(['Soita D', 'Anna soida', 'Anna soida', 'Anna soida']);
+    await expect(page.locator('.done-toggle')).toHaveAttribute('aria-pressed', 'false');
   });
 });
 
