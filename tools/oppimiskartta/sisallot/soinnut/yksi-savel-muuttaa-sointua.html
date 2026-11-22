@@ -24,34 +24,31 @@
   </div>
   <p class="sointu-ohje" data-otevertailu>E-duuri: E–G♯–B. E-molli: E–G–B. E-otteessa G-kielen ensimmäinen nauha muuttuu Em-otteessa vapaaksi kieleksi.</p>
   <h3>3 · Tunnista duuri ja molli kuuntelemalla</h3>
-  <p>Olet nyt kuullut molemmat sointuparit. Valitse tunnistustehtävään <strong>D / Dm</strong> tai <strong>E / Em</strong>, kuuntele nimetyt esimerkit ja paina <strong>Tunnista</strong>. Kuuntele sitten soinnut ilman nimiä ja tunnista kysytty duuri tai molli. Voit harjoitella kumpaakin paria vapaasti. Duuri ei automaattisesti tarkoita iloista eikä molli surullista.</p>
+  <p>Olet nyt kuullut molemmat sointuparit. Valitse <strong>D / Dm</strong> tai <strong>E / Em</strong> ja paina <strong>Tunnista</strong>. Kuuntele nimettömät soinnut 1 ja 2 ja tunnista kysytty duuri tai molli. Voit harjoitella kumpaakin paria vapaasti. Duuri ei automaattisesti tarkoita iloista eikä molli surullista.</p>
   <div data-sointu-ohjaimet hidden>
     <div class="sointu-parin-valinta" role="group" aria-label="Valitse tunnistustehtävän sointupari">
       <strong>Harjoiteltava sointupari</strong>
-      <button type="button" data-arvaus-pari="D" aria-pressed="false">D / Dm</button>
-      <button type="button" data-arvaus-pari="E" aria-pressed="true">E / Em</button>
+      <button type="button" data-arvaus-pari="D" aria-pressed="true">D / Dm</button>
+      <button type="button" data-arvaus-pari="E" aria-pressed="false">E / Em</button>
     </div>
-    <div class="sointu-tehtava" data-arvaus-kysymys>
+    <div class="sointu-toiminnot">
+      <button type="button" data-uusi-arvaus><span class="sointu-vaihtuva sointu-vaihtuva--keski"><span data-uusi-arvaus-teksti>Tunnista</span><span class="sointu-varaus" aria-hidden="true">Uusi tehtävä</span></span></button>
+    </div>
+    <div class="sointu-tehtava" data-arvaus-kysymys hidden>
       <div class="sointu-pino">
         <div>
-          <h3 tabindex="-1" data-kysymys>Kuuntele ensin E ja Em</h3>
-          <p data-kysymys-ohje>Kuuntele molemmat soinnut. Valitse sitten Tunnista.</p>
+          <h3 tabindex="-1" data-kysymys>Kumpi on duuri?</h3>
+          <p data-kysymys-ohje>Kuuntele soinnut 1 ja 2. Valitse sitten vastaus.</p>
         </div>
-        <div class="sointu-varaus" aria-hidden="true"><span class="sointu-varaus-otsikko">Kuuntele ensin E ja Em</span><span>Kuuntele molemmat soinnut. Valitse sitten Tunnista.</span></div>
         <div class="sointu-varaus" aria-hidden="true"><span class="sointu-varaus-otsikko">Kumpi on duuri?</span><span>Kuuntele soinnut 1 ja 2. Valitse sitten vastaus.</span></div>
         <div class="sointu-varaus" aria-hidden="true"><span class="sointu-varaus-otsikko">Kumpi on molli?</span><span>Kuuntele soinnut 1 ja 2. Valitse sitten vastaus.</span></div>
       </div>
     </div>
     <div class="sointu-toiminnot">
-      <div class="sointu-rivi" data-suora-kuuntelu role="group" aria-label="Kuuntele soinnut">
-        <button type="button" data-ydin-play="E"><svg class="sointu-kuvake" aria-hidden="true" focusable="false"><use href="../../../../assets/oppimisikonit.svg#action-listen"/></svg><span class="sointu-vaihtuva"><span>Sointu 1 · E</span><span class="sointu-varaus" aria-hidden="true">Sointu 1 · Em</span></span></button>
-        <button type="button" data-ydin-play="Em"><svg class="sointu-kuvake" aria-hidden="true" focusable="false"><use href="../../../../assets/oppimisikonit.svg#action-listen"/></svg><span class="sointu-vaihtuva"><span>Sointu 2 · Em</span><span class="sointu-varaus" aria-hidden="true">Sointu 2 · Em</span></span></button>
-      </div>
       <div class="sointu-rivi" data-arvaus-kuuntelu role="group" aria-label="Tunnistustehtävän ääniesimerkit" hidden>
         <button type="button" data-arvaa-kuuntele="0" aria-label="Kuuntele sointu 1"><svg class="sointu-kuvake" aria-hidden="true" focusable="false"><use href="../../../../assets/oppimisikonit.svg#action-listen"/></svg><span class="sointu-vaihtuva"><span data-arvaus-teksti>Sointu 1</span><span class="sointu-varaus" aria-hidden="true">Sointu 1 · Em</span></span></button>
         <button type="button" data-arvaa-kuuntele="1" aria-label="Kuuntele sointu 2"><svg class="sointu-kuvake" aria-hidden="true" focusable="false"><use href="../../../../assets/oppimisikonit.svg#action-listen"/></svg><span class="sointu-vaihtuva"><span data-arvaus-teksti>Sointu 2</span><span class="sointu-varaus" aria-hidden="true">Sointu 2 · Em</span></span></button>
       </div>
-      <button type="button" data-uusi-arvaus><span class="sointu-vaihtuva sointu-vaihtuva--keski"><span data-uusi-arvaus-teksti>Tunnista</span><span class="sointu-varaus" aria-hidden="true">Uusi tehtävä</span></span></button>
     </div>
     <div class="sointu-toiminnot" data-arvaus-vastaus role="group" aria-label="Vastaa" hidden>
       <strong>Vastaa</strong>
