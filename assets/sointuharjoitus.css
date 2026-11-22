@@ -80,6 +80,8 @@
 .sointu-parin-valinta {
   display: flex; flex-wrap: wrap; align-items: center; gap: .5rem;
   margin-block: 1rem .5rem;
+  /* iPhonen yläpalkki ja suurennettu teksti: pidä pari näkyvissä vierityksen jälkeen. */
+  scroll-margin-block-start: 3.5rem;
 }
 .sointu-parin-valinta strong { flex-basis: 100%; }
 .sointu-ydin .sointu-valinta { display: block; }
