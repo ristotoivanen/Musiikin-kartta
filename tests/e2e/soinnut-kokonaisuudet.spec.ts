@@ -1051,7 +1051,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
       Math.random = () => values.shift() ?? 0;
     });
     await page.getByRole('button', { name: 'Tunnista' }).click();
-    await expect(page.getByRole('heading', { name: 'Kumpi on molli?' })).toBeFocused();
+    await expect(page.getByRole('heading', { name: 'Kumpi on duuri?' })).toBeFocused();
     await expect(charts).toBeHidden();
     await expect(tip).toBeVisible();
     await expect(eComparison).toBeVisible();
