@@ -4,7 +4,7 @@ import {
   IOS_SEEK_LATENCY_SECONDS, StemAligner, elementVolumeWorks, initialSeekLatency, isIOSDevice, parseSongVolume, songVolumeMode,
   resetSharedSeekLatency, shouldCorrectDrift, trackLevel,
   HAVE_FUTURE_DATA, START_ALIGN_TOLERANCE_SECONDS, STARTUP_SETTLE_MS, startLoading, tracksReady, waitForTracksReady, type ReadyMedia,
-  FRESH_LOAD_GUARD_MS, freshTracksAt, type FreshMedia,
+  FRESH_LOAD_GUARD_MS, freshTracksAt, loadTrackBlobs, type FreshMedia,
 } from '../harjoittelija/songAudio';
 
 describe('Kappaleharjoittelijan yhteinen äänenvoimakkuus', () => {
@@ -477,6 +477,63 @@ describe('tuore mediasoitin jatkossa ja kelauksessa (issue #9, vaihe 2)', () => 
       const timeout = freshTracksAt([slow], 10, options(new Set([slow]), { now: () => clock }));
       clock = 4000; await vi.advanceTimersByTimeAsync(4000);
       await expect(timeout).resolves.toBe('aikakatkaisu');
+    } finally { vi.useRealTimers(); }
+  });
+});
+
+describe('raidat muistista (issue #9, vaihe 2 B)', () => {
+  it('lataa raidat kerran Blob-URL:iksi samassa järjestyksessä ja vapauttaa ne kerran', async () => {
+    const created: string[] = [], revoked: string[] = [];
+    const set = await loadTrackBlobs(['a.mp3', 'b.mp3'], {
+      fetch: async url => new Response(new Blob([url.repeat(10)], { type: 'audio/mpeg' })),
+      createUrl: blob => { const url = 'blob:' + created.length + ':' + blob.size; created.push(url); return url; },
+      revokeUrl: url => { revoked.push(url); },
+    });
+    expect(set.urls).toEqual(['blob:0:50', 'blob:1:50']);
+    expect(set.bytes).toBe(100);
+    set.release(); set.release();
+    expect(revoked).toEqual(['blob:0:50', 'blob:1:50']);
+  });
+
+  it('latausvirhe hylätään eikä jätä Blob-URL:eja vapauttamatta', async () => {
+    const created: string[] = [];
+    await expect(loadTrackBlobs(['a.mp3', 'puuttuu.mp3'], {
+      fetch: async url => url === 'a.mp3' ? new Response(new Blob(['x'])) : new Response('', { status: 404 }),
+      createUrl: () => { created.push('x'); return 'blob:x'; },
+    })).rejects.toThrow('HTTP 404');
+    expect(created).toEqual([]);
+  });
+
+  it('tuore mediasoitin vaihtaa raidan muistilähteeseen ilman erillistä load()-kutsua ja kelaa sen pysäytyskohtaan', async () => {
+    vi.useFakeTimers();
+    try {
+      const listeners = new Map<string, Set<() => void>>();
+      let current = 12;
+      const media = {
+        log: [] as string[], paused: true, seeking: false, readyState: 4, duration: 212, error: null as unknown, src: 'https://x/saestys.mp3',
+        get currentTime() { return current; },
+        set currentTime(value: number) { media.log.push('kelaus ' + value); current = value; media.seeking = true; },
+        load() { media.log.push('load'); },
+        play() { return Promise.resolve(); }, pause() { media.paused = true; },
+        addEventListener(type: string, fn: () => void) { if (!listeners.has(type)) listeners.set(type, new Set()); listeners.get(type)!.add(fn); },
+        removeEventListener(type: string, fn: () => void) { listeners.get(type)?.delete(fn); },
+        emit(type: string) { for (const fn of [...(listeners.get(type) ?? [])]) fn(); },
+      };
+      const srcSetter = Object.getOwnPropertyDescriptor(media, 'src')!;
+      let src = srcSetter.value as string;
+      Object.defineProperty(media, 'src', { get: () => src, set: (value: string) => { media.log.push('src ' + value); src = value; current = 0; media.readyState = 0; } });
+      // Raita ei ole soinut tuoreen soittimen jälkeen, mutta sen lähde on vielä verkossa.
+      const result = freshTracksAt([media], 12, { timeoutMs: 4000, cancelled: () => false, stale: () => false, now: () => 0, source: () => 'blob:saestys' });
+      await vi.advanceTimersByTimeAsync(0);
+      expect(media.log).toEqual(['src blob:saestys']);
+      media.readyState = 1; media.emit('loadedmetadata'); await vi.advanceTimersByTimeAsync(60);
+      expect(media.log).toEqual(['src blob:saestys', 'kelaus 12']);
+      media.seeking = false; media.readyState = 4; media.emit('seeked');
+      await expect(result).resolves.toBe('valmis');
+      // Kun lähde on jo muistissa, uusi valmistelu ei vaihda sitä uudelleen.
+      const again = freshTracksAt([media], 12, { timeoutMs: 4000, cancelled: () => false, stale: () => false, now: () => 0, source: () => 'blob:saestys' });
+      await expect(again).resolves.toBe('valmis');
+      expect(media.log.filter(entry => entry.startsWith('src'))).toHaveLength(1);
     } finally { vi.useRealTimers(); }
   });
 });
