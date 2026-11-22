@@ -1,0 +1,37 @@
+name: 'Musapelit #142 isolated QA'
+on:
+  push:
+    branches: [chatgpt/musapelit-reflow-a11y-142]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  targeted:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Static checks, unit tests and build
+        run: npm run check
+      - name: Generated lessons and links
+        run: |
+          python3 tools/oppimiskartta/rakenna.py --tarkista
+          node tools/versioi-tyylit.mjs --tarkista
+          python3 tools/linkit/tarkista-linkit.py
+      - run: npx playwright install --with-deps chromium
+      - name: Musapelit #142 reflow, accessibility and existing section tests
+        run: npx playwright test tests/e2e/musapelit-142.spec.ts tests/e2e/osiot.spec.ts --workers=4 --reporter=line
+      - name: Musapelit existing game navigation
+        run: npx playwright test tests/e2e/betapelien-navigointi.spec.ts --workers=4 --reporter=line
+      - name: Upload failure traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: musapelit-142-failure
+          path: test-results/
+          if-no-files-found: ignore
