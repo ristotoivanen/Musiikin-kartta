@@ -396,7 +396,21 @@
     pairButtons.forEach(button =>
       button.addEventListener('click', () => chooseFamily(button.dataset.arvausPari)));
     for (const button of listenButtons) {
-      button.addEventListener('click', () => playExample(button, plans[pair[Number(button.dataset.arvaaKuuntele)]]));
+      button.addEventListener('click', () => {
+        const index = Number(button.dataset.arvaaKuuntele);
+        const chord = pair[index];
+        if (answered) {
+          // Vasta kuuntelutehtävään vastaamisen jälkeen painettu kuuntelupainike
+          // näyttää, oliko kyseessä kysytty sointu. Toinen painike pysyy neutraalina.
+          listenButtons.forEach(choice => choice.classList.remove('is-correct', 'is-wrong'));
+          nameListening(true);
+          const correct = chord === target;
+          button.classList.add(correct ? 'is-correct' : 'is-wrong');
+          button.setAttribute('aria-label',
+            `Kuuntele sointu ${index + 1}, ${fullName[chord]}, ${correct ? 'oikea vastaus' : 'väärä vastaus'}`);
+        }
+        playExample(button, plans[chord]);
+      });
     }
     // Vastauksen jälkeen nimet näkyvät samoissa painikkeissa arvotussa järjestyksessä. Varattu
     // leveys (.sointu-varaus) pitää painikkeen koon samana nimettynä ja nimettömänä.
@@ -430,6 +444,7 @@
         button.removeAttribute('aria-label');
         button.classList.remove('is-correct', 'is-wrong');
       });
+      listenButtons.forEach(button => button.classList.remove('is-correct', 'is-wrong'));
       nameListening(false);
       showExerciseStatus('Kuuntele sointu 1 ja sointu 2 ennen vastaamista.');
       // Ensimmäinen aloitus tuo
