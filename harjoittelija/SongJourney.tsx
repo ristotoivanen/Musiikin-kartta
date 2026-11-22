@@ -3,8 +3,8 @@ import { SongChordChart } from './SongChordChart';
 import { SongScales } from './SongScales';
 import {
   SEEK_SETTLE_MS, START_ALIGN_TOLERANCE_SECONDS, START_READY_TIMEOUT_MS, STARTUP_SETTLE_MS, SongGainMixer, StemAligner, freshTracksAt,
-  loadSongVolume, saveSongVolume, songVolumeMode, startLoading, trackLevel, tracksReady, waitForTracksReady,
-  type ReadyResult, type SongTrack,
+  loadSongVolume, loadTrackBlobs, saveSongVolume, songVolumeMode, startLoading, trackLevel, tracksReady, waitForTracksReady,
+  type ReadyResult, type SongTrack, type TrackBlobSet,
 } from './songAudio';
 import { DEFAULT_SONG_VERSION, isSongLink, songLink, versionFromSongLink, type SongVersion } from './songChart';
 
@@ -46,6 +46,17 @@ const VERSIONS = {
 
 const SEEK_PRECISION_SECONDS = 0.001;
 
+/**
+ * KOKEILU (issue #9, vaihe 2 B, ei julkaisuun): muistiin ladattujen raitojen käyttötapa mittauksia varten.
+ * tausta = ensimmäinen käynnistys verkosta kuten PR #155, MP3:t ladataan muistiin ensimmäisestä Soita-painalluksesta
+ * ja ensimmäinen tauko tai kelaus vaihtaa raidat muistiin. heti = ensimmäinen käynnistys odottaa muistilatauksen.
+ * pois (oletus) = F1 ilman muistia kuten PR #161. Valitaan osoitteen parametrilla ?muistilahde=.
+ */
+const MEMORY_MODE: 'tausta' | 'heti' | 'pois' = (() => {
+  const value = typeof location === 'undefined' ? null : new URLSearchParams(location.search).get('muistilahde');
+  return value === 'heti' || value === 'tausta' ? value : 'pois';
+})();
+
 function setBackingTime(backing: HTMLAudioElement, seconds: number) {
   try { backing.currentTime = seconds; } catch { /* Media ei ehkä ole vielä kelattavissa. */ }
 }
@@ -82,6 +93,8 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   const restarting = useRef(false);
   // Kytkimien ajantasainen tila ajastetulle uudelleenkäynnistykselle (React-tila päivittyy vasta seuraavassa piirrossa).
   const trackOn = useRef({ guitar: true, vocals: true });
+  // Muistiin ladatut raidat (vaihe 2 B). Vapautetaan versionvaihdossa ja soittimen sulkeutuessa.
+  const memory = useRef<{ version: SongVersion; set: TrackBlobSet | null; controller: AbortController; done: Promise<TrackBlobSet | null> } | null>(null);
   const [version, setVersion] = useState<SongVersion>(initialVersion);
   const song = VERSIONS[version];
   const [playing, setPlaying] = useState(false);
@@ -156,6 +169,39 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   const freshPlayers = () => volumeMode === 'webaudio';
   const isStale = (element: HTMLMediaElement) => playedAt.current.has(element);
 
+  /** Käynnistää raitojen muistilatauksen (kerran versiota kohden) ja palauttaa sen lupauksen. */
+  function memorySources(): Promise<TrackBlobSet | null> | null {
+    if (!freshPlayers() || MEMORY_MODE === 'pois') return null;
+    if (memory.current?.version === version) return memory.current.done;
+    releaseMemory();
+    const controller = new AbortController();
+    const entry = { version, set: null as TrackBlobSet | null, controller, done: Promise.resolve<TrackBlobSet | null>(null) };
+    entry.done = loadTrackBlobs([song.backing, song.guitar, song.vocals], { signal: controller.signal })
+      .then(set => {
+        if (memory.current !== entry) { set.release(); return null; }
+        entry.set = set;
+        return set;
+      })
+      .catch(() => null); // Muistilatauksen virhe ei estä soittoa: raidat luetaan silloin verkosta kuten F1:ssä.
+    memory.current = entry;
+    return entry.done;
+  }
+
+  function releaseMemory() {
+    const current = memory.current;
+    memory.current = null;
+    if (!current) return;
+    current.controller.abort();
+    current.set?.release();
+  }
+
+  /** Raidan muistilähde (Blob-URL), jos lataus on valmis. */
+  function memoryUrl(element: HTMLMediaElement): string | undefined {
+    const set = memory.current?.version === version ? memory.current.set : null;
+    const index = [backingRef.current, guitarRef.current, vocalsRef.current].indexOf(element as HTMLAudioElement);
+    return set && index >= 0 ? set.urls[index] : undefined;
+  }
+
   /** Valmistelee raidat tuoreilla mediasoittimilla kohtaan at. Uudempi valmistelu ohittaa vanhemman. */
   function prepareAt(at: number, elements: HTMLAudioElement[]): Promise<ReadyResult> {
     const id = ++prepareSeq.current;
@@ -166,6 +212,7 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
       stale: element => playedAt.current.has(element as HTMLAudioElement),
       playedAt: element => playedAt.current.get(element as HTMLAudioElement),
       onLoad: element => { playedAt.current.delete(element as HTMLAudioElement); },
+      source: element => memoryUrl(element as HTMLMediaElement),
     }).finally(() => { preparing.current--; });
     preparation.current = { at, elements, done };
     return done;
@@ -216,6 +263,8 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
     // edellyttää aina käyttäjältä erillistä Soita-painallusta.
     pendingSeek.current = null;
     pause(false);
+    // Edellisen version muistiraidat vapautetaan. Uuden version raidat ladataan muistiin seuraavasta Soita-painalluksesta.
+    releaseMemory();
     for (const stem of [backingRef.current, guitarRef.current, vocalsRef.current]) {
       if (!stem) continue;
       try { stem.currentTime = 0; } catch { /* metadata ei vielä latautunut */ }
@@ -305,8 +354,10 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
     }
     const active = activeTracks(on);
     // Kun raidat ovat kerran soineet, jokainen jatko ja kelaus tehdään tuoreilla mediasoittimilla (issue #9, vaihe 2).
-    // Ensimmäinen käynnistys ja versionvaihdon jälkeinen käynnistys kulkevat ennallaan (PR #155, todennettu laitteella).
-    const fresh = freshPlayers() && active.some(element => everPlayed.current.has(element));
+    // Ensimmäinen käynnistys ja versionvaihdon jälkeinen käynnistys kulkevat ennallaan (PR #155, todennettu laitteella),
+    // paitsi kokeilutilassa heti, jossa ensimmäinenkin käynnistys odottaa muistilatauksen.
+    const loadingMemory = memorySources();
+    const fresh = freshPlayers() && (active.some(element => everPlayed.current.has(element)) || (MEMORY_MODE === 'heti' && loadingMemory !== null));
     if (!fresh) retryPendingSeek(backing);
     if (volumeMode === 'webaudio') {
       // AudioContext käynnistyy käyttäjän painalluksesta. Jokainen elementti kytketään vain kerran.
@@ -328,6 +379,10 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
     if (fresh) {
       // Raita, joka ei ole vielä soinut (esim. kytketty päälle tauolla), saa soittoluvan tästä painalluksesta.
       startLoading(active.filter(element => !everPlayed.current.has(element)));
+      if (MEMORY_MODE === 'heti' && loadingMemory) {
+        await loadingMemory;
+        if (request !== playbackRequest.current) return;
+      }
       // Tauon alussa aloitettu valmistelu kelpaa, jos se on samaan kohtaan ja kattaa soitettavat raidat.
       const prepared = preparation.current;
       const result = await (prepared && prepared.at === startAt && active.every(element => prepared.elements.includes(element))
@@ -430,6 +485,7 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
       playbackRequest.current++;
       prepareSeq.current++;
       if (seekTimer.current !== null) clearTimeout(seekTimer.current);
+      releaseMemory();
       backingRef.current?.pause();
       guitarRef.current?.pause();
       vocalsRef.current?.pause();

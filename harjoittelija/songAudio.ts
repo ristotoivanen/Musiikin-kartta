@@ -156,6 +156,7 @@ export const SEEK_SETTLE_MS = 250;
 /** Raita, jolle voidaan vaihtaa tuore mediasoitin (testattavissa ilman selainta). */
 export interface FreshMedia extends ReadyMedia {
   currentTime: number;
+  src?: string;
   readonly duration: number;
   readonly paused: boolean;
   load(): void;
@@ -170,6 +171,11 @@ export interface FreshOptions {
   playedAt?: (element: FreshMedia) => number | undefined;
   /** Kutsutaan jokaisen load()-kutsun jälkeen. */
   onLoad?: (element: FreshMedia) => void;
+  /**
+   * Lähde, josta tuore mediasoitin luetaan (esim. muistissa oleva Blob-URL). Jos se eroaa raidan nykyisestä
+   * lähteestä, raita vaihtaa lähteen ja saa samalla tuoreen mediasoittimen, vaikka se ei olisi soinut.
+   */
+  source?: (element: FreshMedia) => string | undefined;
   now?: () => number;
   timers?: Timers;
 }
@@ -185,18 +191,22 @@ export interface FreshOptions {
  * käynnistetään. Soivaan raitaan ei koskaan kutsuta load()-metodia.
  */
 export async function freshTracksAt(elements: readonly FreshMedia[], at: number, options: FreshOptions): Promise<ReadyResult> {
-  const { timeoutMs, cancelled, stale, playedAt, onLoad, now = () => performance.now(), timers = defaultTimers } = options;
+  const { timeoutMs, cancelled, stale, playedAt, onLoad, source, now = () => performance.now(), timers = defaultTimers } = options;
   const started = now();
   const remaining = () => Math.max(0, timeoutMs - (now() - started));
   for (const element of elements) if (!element.paused) element.pause();
-  const reload = elements.filter(stale);
+  const sourceChange = (element: FreshMedia) => { const next = source?.(element); return next !== undefined && next !== element.src ? next : undefined; };
+  const reload = elements.filter(element => stale(element) || sourceChange(element) !== undefined);
   if (reload.length) {
     const lastPlay = Math.max(-Infinity, ...reload.map(element => playedAt?.(element) ?? -Infinity));
     const guard = lastPlay + FRESH_LOAD_GUARD_MS - now();
     if (guard > 0) await new Promise<void>(resolve => { timers.set(resolve, guard); });
     if (cancelled()) return 'ohitettu';
     for (const element of reload) {
-      element.load();
+      // Lähteen vaihto käynnistää selaimen latausalgoritmin itse, joten erillistä load()-kutsua ei tarvita.
+      const next = sourceChange(element);
+      if (next !== undefined) element.src = next;
+      else element.load();
       onLoad?.(element);
     }
   }
@@ -210,6 +220,41 @@ export async function freshTracksAt(elements: readonly FreshMedia[], at: number,
     try { element.currentTime = target; } catch { return 'virhe'; }
   }
   return waitForTracksReady(elements, remaining(), cancelled, timers);
+}
+
+/** Muistiin ladatut raidat: Blob-URL:t samassa järjestyksessä kuin lähteet. release() vapauttaa ne. */
+export interface TrackBlobSet {
+  readonly urls: readonly string[];
+  readonly bytes: number;
+  release(): void;
+}
+
+/**
+ * Lataa raitojen MP3-tiedostot kerran muistiin (issue #9, vaihe 2 B). Tuoreen mediasoittimen load() lukee
+ * silloin Blob-URL:sta eikä lataa kolmea MP3:a verkosta jokaisessa tauossa ja kelauksessa uudelleen
+ * (simulaattorissa F1 latasi noin 15 Mt jokaista valmistelua kohden). Epäonnistuessa jo luodut URL:t vapautetaan.
+ */
+export async function loadTrackBlobs(sources: readonly string[], options: {
+  fetch?: (url: string, init?: RequestInit) => Promise<Response>;
+  signal?: AbortSignal;
+  createUrl?: (blob: Blob) => string;
+  revokeUrl?: (url: string) => void;
+} = {}): Promise<TrackBlobSet> {
+  const doFetch = options.fetch ?? ((url, init) => fetch(url, init));
+  const createUrl = options.createUrl ?? (blob => URL.createObjectURL(blob));
+  const revokeUrl = options.revokeUrl ?? (url => URL.revokeObjectURL(url));
+  const blobs = await Promise.all(sources.map(async source => {
+    const response = await doFetch(source, { signal: options.signal });
+    if (!response.ok) throw new Error(`${source}: HTTP ${response.status}`);
+    const blob = await response.blob();
+    return blob.type.startsWith('audio/') ? blob : new Blob([blob], { type: 'audio/mpeg' });
+  }));
+  const urls = blobs.map(blob => createUrl(blob));
+  let released = false;
+  return {
+    urls, bytes: blobs.reduce((sum, blob) => sum + blob.size, 0),
+    release() { if (released) return; released = true; for (const url of urls) revokeUrl(url); },
+  };
 }
 
 function waitForTracks<T extends ReadyMedia>(elements: readonly T[], ready: (elements: readonly T[]) => boolean,
