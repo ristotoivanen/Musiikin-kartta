@@ -9,6 +9,9 @@ for (const { topic, index } of [
     await page.setViewportSize({ width: 390, height: 640 });
     await page.goto(`/oppi/${topic}/index.html`);
     await page.locator('#ydinopinnot > summary').click();
+    // Suljetun Rytmin alareuna estää kolmatta otsikkoa siirtymästä 48 px:iin.
+    // Jatketaan vain testin dokumenttia: ei muutosta sovelluksen CSS:ään.
+    await page.addStyleTag({ content: 'body { padding-bottom: 1200px !important; }' });
     const item = page.locator('#ydinopinnot details.study-inline').nth(index);
     const summary = item.locator(':scope > summary');
     await summary.scrollIntoViewIfNeeded();
