@@ -71,10 +71,15 @@ describe('#163: kahden tahdin pulssivihje', () => {
       const transport = createTransport({ task: 'pulssi', tempo, begin, drumGap: true });
       for (let step = 0; step < 2 * LOOP_STEPS; step++) {
         const at = begin + (step + .1) * transport.stepDuration;
-        expect(pulseCellAt(transport, at, true)).toEqual({
-          bar: Math.floor((step % LOOP_STEPS) / STEPS_PER_BAR),
-          index: Math.floor((step % STEPS_PER_BAR) / 2),
-        });
+        // Testataan alkupuolen välähdystä myös kahdeksasosien jälkimmäisillä puolikkailla.
+        if (step % 2 === 0) {
+          expect(pulseCellAt(transport, at, true)).toEqual({
+            bar: Math.floor((step % LOOP_STEPS) / STEPS_PER_BAR),
+            index: Math.floor((step % STEPS_PER_BAR) / 2),
+          });
+        } else {
+          expect(pulseCellAt(transport, at, true)).toBeNull();
+        }
       }
     });
   }
@@ -93,15 +98,31 @@ describe('#163: kahden tahdin pulssivihje', () => {
     }
   });
 
-  it('vähennetty liike näyttää vain ylemmän rivin ensimmäisen ruudun koko iskun ajan', () => {
-    const transport = createTransport({ task: 'pulssi', tempo: 96, begin: 1 });
-    const step = transport.stepDuration;
-    for (let bar = 0; bar < 2; bar++) {
-      for (let beat = 0; beat < 4; beat++) {
-        const at = 1 + (bar * STEPS_PER_BAR + beat * 2) * step;
-        expect(pulseCellAt(transport, at + .2, false, true)).toEqual({ bar: 0, index: 0 });
-        expect(pulseCellAt(transport, at + step + .1, false, true)).toEqual({ bar: 0, index: 0 });
+  it('vähennetty liike ei enää jätä ensimmäistä ruutua pysyvästi vihreäksi', () => {
+    for (const tempo of [96, 108]) {
+      const transport = createTransport({ task: 'pulssi', tempo, begin: 1 });
+      const step = transport.stepDuration;
+      for (let bar = 0; bar < 2; bar++) {
+        for (let beat = 0; beat < 4; beat++) {
+          const at = 1 + (bar * STEPS_PER_BAR + beat * 2) * step;
+          expect(pulseCellAt(transport, at + .02, false, true)).toEqual({ bar: 0, index: 0 });
+          expect(pulseCellAt(transport, at + .22, false, true)).toBeNull();
+          expect(pulseCellAt(transport, at + step, false, true)).toBeNull();
+          expect(pulseCellAt(transport, at + .02, true, true)).toEqual({ bar, index: beat });
+          expect(pulseCellAt(transport, at + .22, true, true)).toBeNull();
+        }
       }
+    }
+  });
+
+  it('normaalitilassa myös paljastetun iskun korostus sammuu ennen seuraavaa iskua', () => {
+    for (const tempo of [96, 108]) {
+      const transport = createTransport({ task: 'pulssi', tempo, begin: 1 });
+      const beat = 2 * transport.stepDuration;
+      expect(pulseCellAt(transport, 1 + .03, true)).toEqual({ bar: 0, index: 0 });
+      expect(pulseCellAt(transport, 1 + .15, true)).toBeNull();
+      expect(pulseCellAt(transport, 1 + beat + .03, true)).toEqual({ bar: 0, index: 1 });
+      expect(pulseCellAt(transport, 1 + beat + .15, true)).toBeNull();
     }
   });
 });

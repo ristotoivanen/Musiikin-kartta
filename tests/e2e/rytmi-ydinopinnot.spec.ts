@@ -355,6 +355,44 @@ test.describe('harjoitussivut', () => {
     await expect(page.locator('.rytmi-isku.is-active')).toHaveCount(0);
   });
 
+  test('01: vihreä välähdys sammuu iskujen välillä myös vähennetyllä liikkeellä iPhonessa', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/oppi/rytmi/loyda-pulssi-ja-ykkonen.html');
+    const sampleFlashes = () => page.evaluate(() => new Promise<{ on: number; off: number; lengths: number[] }>(resolve => {
+      const root = document.querySelector('[data-rytmiharjoitus="pulssi"]')!;
+      let started: number | null = null;
+      let on = 0;
+      let off = 0;
+      const lengths: number[] = [];
+      const observe = () => {
+        const green = Boolean(root.querySelector('.rytmi-isku.is-active'));
+        if (green && started === null) { started = performance.now(); on++; }
+        if (!green && started !== null) {
+          lengths.push(performance.now() - started);
+          started = null;
+          off++;
+        }
+      };
+      const watcher = new MutationObserver(observe);
+      watcher.observe(root, { subtree: true, attributes: true, attributeFilter: ['class'] });
+      observe();
+      window.setTimeout(() => { watcher.disconnect(); resolve({ on, off, lengths }); }, 3200);
+    }));
+    await playButton(page).click();
+    await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
+    const hidden = await sampleFlashes();
+    expect(hidden.on).toBeGreaterThanOrEqual(3);
+    expect(hidden.off).toBeGreaterThanOrEqual(3);
+    expect(Math.max(...hidden.lengths)).toBeLessThan(400);
+    await page.getByRole('button', { name: 'Paljasta pulssi' }).click();
+    const revealed = await sampleFlashes();
+    expect(revealed.on).toBeGreaterThanOrEqual(3);
+    expect(revealed.off).toBeGreaterThanOrEqual(3);
+    expect(Math.max(...revealed.lengths)).toBeLessThan(400);
+    await playButton(page).click();
+    await expect(page.locator('.rytmi-isku.is-active')).toHaveCount(0);
+  });
+
   test('01: B:n hiljainen tahti tarjoaa kaksi visuaalisen tuen tasoa', async ({ page }) => {
     await page.goto('/oppi/rytmi/loyda-pulssi-ja-ykkonen.html');
     const b = page.getByRole('button', { name: 'B · Toinen tahti hiljaa' });

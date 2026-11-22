@@ -252,20 +252,23 @@ export function positionAt(transport, time) {
  * jokaisella neljäsosaiskulla (1, 2, 3, 4). Alempi rivi ei välähdä lainkaan.
  * Paljastettuna korostus seuraa kaikkia neljää erillistä ruutua.
  * Kello on sama ulostuloviiveellä korjattu AudioContext-aika kuin muissa ruudukoissa.
- * Reduced motion: ei nopeaa välähdystä, ensimmäinen ruutu näkyy koko iskun ajan.
+ * Jokaisella iskulla korostus näkyy vain lyhyesti, välissä aina selvä tauko.
+ * Vähennetty liike: ei liikkuvaa animaatiota, lyhyt rauhallisempi värimuutos
+ * mutta ei koskaan koko iskun kestävää jatkuvaa vihreää korostusta.
  */
 export function pulseCellAt(transport, time, revealed, reducedMotion = false, showSilenceCue = true) {
   const position = positionAt(transport, time);
   if (!position) return null;
   // Ilman vihjettä ei korosteta kumpaakaan riviä B:n täysin hiljaisessa tahdissa.
   if (position.drumGap && position.cell.bar === 1 && !showSilenceCue) return null;
-  if (revealed) return position.cell;
   const beatStartStep = position.step - position.step % 2;
   const elapsed = time - (transport.begin + beatStartStep * transport.stepDuration);
-  const visibleFor = reducedMotion
-    ? 2 * transport.stepDuration
-    : Math.min(0.18, transport.stepDuration);
-  return elapsed < visibleFor ? { bar: 0, index: 0 } : null;
+  // Äänikellon neljäsosaisku kestää 2 * stepDuration. Korostus kestää
+  // vain 140 ms (vähennetty liike 200 ms), joten jokaisella iskulla on
+  // selvästi pidempi normaali/violetti osuus. Tämä koskee myös paljastettua tilaa.
+  const visibleFor = Math.min(reducedMotion ? 0.20 : 0.14, transport.stepDuration);
+  if (elapsed < 0 || elapsed >= visibleFor) return null;
+  return revealed ? position.cell : { bar: 0, index: 0 };
 }
 
 // ---------------------------------------------------------------------------------------------
