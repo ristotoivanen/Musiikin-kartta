@@ -15,6 +15,7 @@
     G: ['LowE:G2', 'G:G3', 'B:B3', 'D:D4'],
     C: ['A:C3', 'G:G3', 'B:C4', 'HighE:E4'],
     D: ['D:D3', 'G:A3', 'B:D4', 'HighE:Fs4'],
+    Dm: ['D:D3', 'G:A3', 'B:D4', 'HighE:F4'],
     Em: ['LowE:E2', 'D:E3', 'G:G3', 'B:B3'],
   };
   const TRIAD = [SCALE.G, SCALE.B, SCALE.D];
@@ -30,6 +31,8 @@
     ote: notes(OPEN_G, 3.60, 0.19, 0.045),
     yksitellen: notes(TRIAD, 1.2, 0.48, 0.52),
     ydinYhdessa: notes(TRIAD, 1.9, 0.33),
+    D: notes(HARMONY.D, 2.15, 0.23, 0.022),
+    Dm: notes(HARMONY.Dm, 2.15, 0.23, 0.022),
     E: notes(OPEN_E, 2.15, 0.19, 0.023),
     Em: notes(OPEN_EM, 2.15, 0.19, 0.023),
   };
@@ -327,6 +330,18 @@
     const tip = section.querySelector('.study-knoppi');
     const next = section.querySelector('[data-uusi-arvaus]');
     const fullName = { E: 'E-duuri', Em: 'E-molli' };
+    // #115: D/Dm ensin. F4 on oikea Vel02:n kitaranäyte,
+    // ei F♯4-näytteen äänenkorkeuden muutoksesta tehty korvike.
+    const ddmStatus = section.querySelector('[data-ddm-tila]');
+    showStatus(ddmStatus, 'Valitse D-duuri tai D-molli kuunneltavaksi.');
+    for (const button of section.querySelectorAll('[data-ddm-play]')) {
+      button.addEventListener('click', () => {
+        const chord = button.dataset.ddmPlay;
+        play(button, ddmStatus, plans[chord], {
+          label: `Kuulit ${chord === 'D' ? 'D-duurin' : 'D-mollin'}. Vertaa toiseen sointuun.`,
+        });
+      });
+    }
     const listenButtons = [...listening.querySelectorAll('button')];
     let pair;
     let target;
