@@ -379,15 +379,15 @@
       listening.hidden = answers.hidden = feedback.hidden = true;
       question.classList.remove('is-active');
       heading.textContent = `Kuuntele ensin ${names[0]} ja ${names[1]}`;
-      prompt.textContent = 'Kuuntele molemmat soinnut. Valitse sitten Arvaa.';
+      prompt.textContent = 'Kuuntele molemmat soinnut. Valitse sitten Tunnista.';
       for (const chord of names) chords[chord].querySelector('figcaption').textContent = chord;
       diagrams.replaceChildren(...names.map(name => chords[name]));
       diagrams.hidden = false;
       comparison.hidden = tip.hidden = family !== 'E';
-      next.querySelector('[data-uusi-arvaus-teksti]').textContent = 'Arvaa';
+      next.querySelector('[data-uusi-arvaus-teksti]').textContent = 'Tunnista';
       feedback.textContent = firstPrompt;
       feedback.classList.remove('is-error');
-      showExerciseStatus(`Valittu ${names.join(' ja ')}. Kuuntele ja aloita arvaus.`);
+      showExerciseStatus(`Valittu ${names.join(' ja ')}. Kuuntele ja aloita tunnistus.`);
     }
     pairButtons.forEach(button =>
       button.addEventListener('click', () => chooseFamily(button.dataset.arvausPari)));
@@ -423,7 +423,7 @@
         button.classList.remove('is-correct', 'is-wrong');
       });
       nameListening(false);
-      next.querySelector('[data-uusi-arvaus-teksti]').textContent = 'Uusi arvaus';
+      next.querySelector('[data-uusi-arvaus-teksti]').textContent = 'Uusi tehtävä';
       showExerciseStatus('Kuuntele sointu 1 ja sointu 2 ennen vastaamista.');
       // Sama kysymyskortti on olemassa jo alussa, joten fokus ei työnnä kaikkia
       // painikkeita eri paikkaan. Vieritä vain, jos kysymys ei ole näkyvissä.
