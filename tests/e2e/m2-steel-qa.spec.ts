@@ -98,3 +98,104 @@ test('M0:n erillinen kitarasäätö toimii toiston aikana ilman vaikutusta M2-s�
   await expect(page.locator('#m2GainControls')).toBeHidden();
   await page.locator('#stop').click();
 });
+
+test('sokkoutettu M2 Steel A/B/C käynnistyy aina samalla säestyksellä ja paljastaa tasot vasta kuuntelun jälkeen', async ({page}) => {
+  const sourceRequests:string[] = [];
+  page.on('request', request => {
+    if (request.url().includes('em-komppi-b-m3-hillitty-basso.wav')) sourceRequests.push(request.url());
+  });
+  await page.goto(url);
+  await expect(page.locator('#balanceStatus')).toContainText('Balanssi avoin');
+  await page.locator('#trialBegin').click();
+  await expect(page.locator('#trialActive')).toBeVisible();
+  await expect(page.locator('#m2GainControls')).toBeHidden();
+  await expect(page.locator('#trialRevealResult')).toBeHidden();
+  await expect(page.locator('button[data-mode="M2"]')).toHaveAttribute('aria-pressed','true');
+  for (const letter of ['A','B','C']) {
+    await page.locator('[data-trial-option="'+letter+'"]').click();
+    await expect(page.locator('#message')).toContainText('Musiikki soi: kuuntele mallikitaraa.', {timeout:15000});
+    await expect(page.locator('#trialStatus')).toContainText('Kuuntelet '+letter+':ää');
+    await expect(page.locator('#trialRevealResult')).toBeHidden();
+  }
+  expect(sourceRequests).toHaveLength(1); // Samaa paikallista B-WAV:ia käytetään uudelleen.
+  await page.locator('#trialSelect').selectOption('B');
+  await page.locator('#trialResultNote').fill('A, B ja C kuunneltu samasta alusta.');
+  await page.locator('#trialReveal').click();
+  await expect(page.locator('#trialRevealResult')).toContainText('Valinta: B');
+  const revealed = await page.locator('#trialRevealResult').innerText();
+  expect(revealed).toContain('1,8 ×');
+  expect(revealed).toContain('2,4 ×');
+  expect(revealed).toContain('3,0 ×');
+  expect(revealed).toContain('Tämä tallentuu vain tähän avoimeen sivuun');
+  await page.locator('#trialEnd').click();
+  await expect(page.locator('#trialActive')).toBeHidden();
+  await expect(page.locator('#m2GainControls')).toBeVisible();
+  await expect(page.locator('#steelGainLabel')).toHaveText('2,4 ×');
+});
+
+test('sokkoutettu M0 vertaa kitaran tasoa ja kopioi vain pyydettäessä selkeän ei-hyväksytty-raportin', async ({page}) => {
+  await page.addInitScript(() => {
+    const saved: string[] = [];
+    Object.defineProperty(window, '__copiedTrial', {value:saved,configurable:true});
+    Object.defineProperty(navigator,'clipboard',{value:{
+      writeText:async (value:string)=> {saved.push(value);}
+    },configurable:true});
+  });
+  await page.goto(url);
+  await page.locator('input[name="trialGroup"][value="m0"]').check();
+  await page.locator('#trialBegin').click();
+  await expect(page.locator('button[data-mode="M0"]')).toHaveAttribute('aria-pressed','true');
+  await page.locator('#trialSelect').selectOption('none');
+  await page.locator('#trialReveal').click();
+  await expect(page.locator('#trialStatus')).toContainText('Kuuntele ensin kaikki kolme');
+  for (const letter of ['C','A','B']) {
+    await page.locator('[data-trial-option="'+letter+'"]').click();
+    await expect(page.locator('#message')).toContainText('Esimerkki soi:', {timeout:15000});
+  }
+  await page.locator('#trialReveal').click();
+  const label = await page.locator('#trialRevealResult').innerText();
+  expect(label).toContain('20 %');
+  expect(label).toContain('30 %');
+  expect(label).toContain('40 %');
+  expect(label).toContain('ei selvää eroa');
+  await page.locator('#trialCopy').click();
+  const copied = await page.evaluate(() => (window as Window & {__copiedTrial?:string[]}).__copiedTrial ?? []);
+  expect(copied).toHaveLength(1);
+  const report = JSON.parse(copied[0]);
+  expect(report.calibration).toBe('NOT_APPROVED');
+  expect(report.tests).toHaveLength(1);
+  expect(report.tests[0].selected).toBe('none');
+  expect(report.tests[0].listened).toEqual(['A','B','C']);
+  expect(Object.values(report.tests[0].options).sort()).toEqual([.2,.3,.4]);
+});
+
+test('balanssikoe ei väitä miksauksen hyväksyntää ja pitää A/B/C-säätimet oikeilla rajoilla', async ({page}) => {
+  await page.goto(url);
+  await expect(page.locator('#balanceStatus')).toContainText('Balanssi avoin');
+  const bounds = await page.evaluate(() => {
+    const ids = ['m0Gain','steelGain','m2BackingGain'];
+    return Object.fromEntries(ids.map(id=>{
+      const el=document.getElementById(id) as HTMLInputElement;
+      return [id,{min:Number(el.min),max:Number(el.max),step:Number(el.step)}];
+    }));
+  });
+  expect(bounds).toEqual({
+    m0Gain:{min:.1,max:1,step:.05},
+    steelGain:{min:.5,max:3,step:.1},
+    m2BackingGain:{min:.2,max:.8,step:.05}
+  });
+  await page.locator('input[name="trialGroup"][value="backing"]').check();
+  await page.locator('#trialBegin').click();
+  await page.locator('[data-trial-option="A"]').click();
+  await expect(page.locator('#message')).toContainText('Musiikki soi:', {timeout:15000});
+  await page.locator('[data-trial-option="B"]').click();
+  await expect(page.locator('#message')).toContainText('Musiikki soi:', {timeout:15000});
+  await page.locator('[data-trial-option="C"]').click();
+  await expect(page.locator('#message')).toContainText('Musiikki soi:', {timeout:15000});
+  await page.locator('#trialSelect').selectOption('A');
+  await page.locator('#trialReveal').click();
+  const label = await page.locator('#trialRevealResult').innerText();
+  expect(label).toContain('40 %');
+  expect(label).toContain('55 %');
+  expect(label).toContain('70 %');
+});
