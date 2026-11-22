@@ -3,11 +3,11 @@ import { test, expect } from '@playwright/test';
 // Yhteinen käyttöliittymä: nämä polut varmistetaan sekä Rytmille että Soinnuille.
 // Äänen laatua, iOS:n lukituskäyttäytymistä tai pedagogista hyötyä ei todisteta emulaatiossa.
 const cases = [
-  { topic: 'rytmi', slug: 'loyda-pulssi-ja-ykkonen', id: 'oppitunti:loyda-pulssi-ja-ykkonen', old: 4 },
-  { topic: 'soinnut', slug: 'kuule-ja-kokoa-sointu', id: 'harjoitus:kuule-ja-kokoa-sointu', old: 18 },
+  { topic: 'rytmi', slug: 'loyda-pulssi-ja-ykkonen', id: 'oppitunti:loyda-pulssi-ja-ykkonen', old: 4, core: 3 },
+  { topic: 'soinnut', slug: 'kuule-ja-kokoa-sointu', id: 'harjoitus:kuule-ja-kokoa-sointu', old: 18, core: 6 },
 ] as const;
 
-for (const { topic, slug, id, old } of cases) {
+for (const { topic, slug, id, old, core } of cases) {
   test.describe(`${topic}: sama inline- ja keskittymistila`, () => {
     const home = `/oppi/${topic}/index.html`;
 
@@ -17,7 +17,7 @@ for (const { topic, slug, id, old } of cases) {
       await expect(unit).not.toHaveAttribute('open');
       await unit.locator(':scope > summary').click();
       const inline = unit.locator('details.study-inline');
-      await expect(inline).toHaveCount(3);
+      await expect(inline).toHaveCount(core);
       await inline.nth(0).locator(':scope > summary').click();
       await expect(inline.nth(0)).toHaveAttribute('open');
       await inline.nth(1).locator(':scope > summary').click();
