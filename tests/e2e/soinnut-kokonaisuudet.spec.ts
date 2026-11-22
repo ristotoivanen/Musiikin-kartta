@@ -871,12 +871,12 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     const startPosition = await pos(start);
 
     await start.click();
-    await expect(question.locator('[data-kysymys]')).toHaveText(/Kumpi on (duuri|molli)\\?/);
+    await expect(question.locator('[data-kysymys]')).toHaveText('Kumpi on duuri?');
     await expect(question).toHaveClass(/is-active/);
     await expect(question).toBeVisible();
     await expect(section.getByRole('group', { name: 'Vastaa' })).toBeVisible();
     await expect(guessing).toHaveCount(2);
-    await expect(guessing).toHaveText(['Sointu 1Sointu 1 · Em', 'Sointu 2Sointu 2 · Em']);
+    await expect(section.locator('[data-arvaus-teksti]')).toHaveText(['Sointu 1', 'Sointu 2']);
     await expect(section.getByRole('button', { name: 'Uusi tehtävä' })).toBeVisible();
     expect(await pos(section.getByRole('button', { name: 'Uusi tehtävä' }))).toEqual(startPosition);
     await expect(question.locator('[data-kysymys]')).toBeInViewport();
@@ -898,10 +898,10 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
         await page.goto(url);
         const section = page.locator('.sointuharjoitus[data-sointuharjoitus="arvaa"]:visible');
         const next = section.locator('[data-uusi-arvaus]');
-        // Näkyvien ohjainten dokumenttisijainnit: kysymyskortti, kaksi kuuntelupainiketta, Arvaa.
+        // Tunnista-painike pysyy paikallaan; kysymyskortti ja nimetön kuuntelu ilmestyvät vasta tehtävän alussa.
         const controls = () => section.evaluate(root => {
           const shown = [...root.querySelectorAll<HTMLElement>(
-            '[data-arvaus-kysymys], [data-suora-kuuntelu] button, [data-arvaus-kuuntelu] button, [data-uusi-arvaus]',
+            '[data-arvaus-kysymys], [data-arvaus-kuuntelu] button, [data-uusi-arvaus]',
           )].filter(element => element.offsetParent);
           return shown.map(element => {
             const box = element.getBoundingClientRect();
@@ -935,7 +935,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
           return { top: Math.round(box.top), height: Math.round(box.height), clipped: button.scrollWidth > button.clientWidth + 1 };
         }));
 
-        // Arvaa/Uusi arvaus -nimi on painikkeen keskellä, vaikka painike varaa pidemmän nimen tilan.
+        // Tunnista/Uusi tehtävä -nimi pysyy keskellä vaihtuvasta painiketekstistä huolimatta.
         const labelOffCenter = () => next.evaluate(button => {
           const box = button.getBoundingClientRect();
           const label = button.querySelector('[data-uusi-arvaus-teksti]')!.getBoundingClientRect();
@@ -943,7 +943,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
         });
         // Kuuntelupainikkeen nimi on kuvakkeen tasalla, vaikka painike varaa kaksirivisen nimen tilan.
         const labelsBesideIcons = () => section.evaluate(root => [...root.querySelectorAll<HTMLElement>(
-          '[data-suora-kuuntelu] button, [data-arvaus-kuuntelu] button',
+          '[data-arvaus-kuuntelu] button',
         )].filter(button => button.offsetParent).every(button => {
           const icon = button.querySelector('svg')!.getBoundingClientRect();
           const text = document.createRange();
@@ -955,15 +955,17 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
         expect(await labelOffCenter(), testCase).toBeLessThan(2);
         expect(await labelsBesideIcons(), testCase).toBe(true);
         const initial = await controls();
-        expect(initial, testCase).toHaveLength(4);
+        expect(initial, testCase).toHaveLength(1);
         expect(await brokenWords(), testCase).toEqual([]);
 
         await next.click();
         await expect(section.locator('[data-kysymys]')).toHaveText(/Kumpi on (duuri|molli)\?/);
         await expect(next).toHaveAccessibleName('Uusi tehtävä');
+        const active = await controls();
+        expect(active, testCase).toHaveLength(4);
         expect(await labelOffCenter(), testCase).toBeLessThan(2);
         expect(await labelsBesideIcons(), `${testCase}: Arvaa`).toBe(true);
-        expect(await controls(), `${testCase}: Arvaa`).toEqual(initial);
+        expect(await controls(), `${testCase}: Tunnista`).toEqual(active);
         expect(await brokenWords(), `${testCase}: Arvaa`).toEqual([]);
         const [first, second] = await answers();
         expect([first.clipped, second.clipped], testCase).toEqual([false, false]);
@@ -974,12 +976,12 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
 
         await section.getByRole('group', { name: 'Vastaa' }).getByRole('button', { name: 'Sointu 1' }).click();
         await expect(section.locator('[data-arvaus-teksti]').first()).toContainText(' · ');
-        expect(await controls(), `${testCase}: vastattu`).toEqual(initial);
+        expect(await controls(), `${testCase}: vastattu`).toEqual(active);
         expect(await brokenWords(), `${testCase}: vastattu`).toEqual([]);
 
         await next.click();
         await expect(section.locator('[data-arvaus-teksti]').first()).not.toContainText(' · ');
-        expect(await controls(), `${testCase}: Uusi arvaus`).toEqual(initial);
+        expect(await controls(), `${testCase}: Uusi tehtävä`).toEqual(active);
         expect(await noHorizontalScroll(page), testCase).toBe(true);
       }
     });
