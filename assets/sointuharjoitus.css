@@ -86,13 +86,12 @@
 .sointu-parin-valinta strong { flex-basis: 100%; }
 .sointu-ydin .sointu-valinta { display: block; }
 .sointu-ydin .sointu-ohje.is-error { color: #ffd6b3; }
-/* Tunnistuksessa vain painettu vastaus väritetään. Oikein!-sana on vihreä,
- * muu palaute ja ohjeteksti pysyvät tavallisen tekstin värisinä. */
-.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvauspalaute],
-.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvauspalaute].is-error,
+/* Koko vastauksen palaute on vihreä (oikein) tai keltainen (väärin).
+ * Vain valittu vastauspainike väritetään; erillinen toimintaohje pysyy neutraalina. */
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvauspalaute] { color: #9fe4c3; }
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvauspalaute].is-error { color: #ffe08a; }
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvauspalaute] > .sointu-arvaus-tulos { color: inherit; }
 .sointu-ydin[data-sointuharjoitus="arvaa"] [data-sointu-tila] { color: var(--text); }
-.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvauspalaute] > .sointu-arvaus-tulos { color: #9fe4c3; }
-.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvauspalaute].is-error > .sointu-arvaus-tulos { color: var(--text); }
 .sointu-ydin [data-arvaus-vastaus] { align-items: baseline; }
 .sointu-ydin .chord-diagram { min-width: 0; max-width: 100%; }
 .sointu-ydin .chord-diagram svg { max-width: 100%; }
