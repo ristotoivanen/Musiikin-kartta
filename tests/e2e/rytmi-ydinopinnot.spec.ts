@@ -231,26 +231,51 @@ test.describe('harjoitussivut', () => {
       await expect(info(page)).not.toHaveAttribute('open', '');
 
       const fixed = ['[data-rytmi-toisto]', '.rytmi-ruudukko', '.rytmi-kokeile'];
-      const beforeScroll = await page.evaluate(() => window.scrollY);
-      const before = await Promise.all(fixed.map(selector => box(page, selector)));
+      // Lue jokaisen elementin sijainti JA vieritysarvo samassa selaimen
+      // JavaScript-kutsussa. Eri Playwright-kutsujen välissä sivu voi vierittyä.
+      const documentBoxes = () => page.evaluate(selectors => {
+        const scrollY = window.scrollY;
+        return selectors.map(selector => {
+          const element = document.querySelector(selector);
+          if (!element) throw new Error(`Puuttuva vertailuelementti: ${selector}`);
+          const rect = element.getBoundingClientRect();
+          return { x: rect.x, y: rect.y + scrollY, height: rect.height };
+        });
+      }, fixed);
       await summary.scrollIntoViewIfNeeded();
       const openingTop = (await summary.boundingBox())!.y;
+      // Lähtömittaus vasta avauspainikkeeseen vierittämisen jälkeen.
+      const before = await documentBoxes();
       await summary.click();
       await expect(info(page)).toHaveAttribute('open', '');
       const content = info(page).locator('.study-knoppi-sisalto');
       await expect(content).toBeVisible();
       await expect(content.locator('h3').first()).toBeInViewport();
-      const afterScroll = await page.evaluate(() => window.scrollY);
-      const after = await Promise.all(fixed.map(selector => box(page, selector)));
-      // Vieritys muuttuu tarkoituksella, mutta harjoituksen aiemmat kohdat
-      // pysyvät samalla absoluuttisella paikalla dokumentissa.
+      // Pelkkä näkyvyys ei takaa, että kahden rAF-kehyksen kohdistus on valmis.
+      await expect.poll(() => page.evaluate(() => new Promise<number>(resolve => {
+        const firstY = window.scrollY;
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          resolve(Math.abs(window.scrollY - firstY));
+        }));
+      }))).toBeLessThanOrEqual(1);
+      const after = await documentBoxes();
+      // Vieritys saa muuttua, mutta nämä jo ennen Knoppitietoa sijainneet
+      // elementit eivät saa liikkua dokumentissa. Tarkkuutta ei löysennetä.
       after.forEach((rect, index) => {
-        expect(rect.y + afterScroll, fixed[index]).toBeCloseTo(before[index].y + beforeScroll, 0);
+        expect(rect.y, fixed[index]).toBeCloseTo(before[index].y, 0);
         expect(rect.x, fixed[index]).toBeCloseTo(before[index].x, 0);
       });
-      const tryIt = await box(page, '.rytmi-kokeile');
-      expect((await content.boundingBox())!.y + afterScroll)
-        .toBeGreaterThan(tryIt.y + afterScroll + tryIt.height - 1);
+      const placement = await page.evaluate(() => {
+        const tip = document.querySelector('.rytmi-lisa .study-knoppi-sisalto');
+        const practice = document.querySelector('.rytmi-kokeile');
+        if (!tip || !practice) throw new Error('Knoppitiedon vertailuelementti puuttuu');
+        const scrollY = window.scrollY;
+        return {
+          tipTop: tip.getBoundingClientRect().top + scrollY,
+          practiceBottom: practice.getBoundingClientRect().bottom + scrollY,
+        };
+      });
+      expect(placement.tipTop).toBeGreaterThan(placement.practiceBottom - 1);
 
       // Avaaminen ei käynnistä ääntä eikä muuta merkintää.
       await expect(playButton(page)).toHaveAccessibleName('Kuuntele');
