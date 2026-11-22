@@ -78,7 +78,10 @@ function setTrialStatus(message) {
 
 function setGroup(next) {
   if (!Object.hasOwn(trials, next)) throw new Error('Tuntematon koe');
+  $('stop').click();
   group = next;
+  results.delete(group);
+  $('trialResultNote').value = '';
   heard = new Set();
   chosen = '';
   revealed = false;
@@ -147,6 +150,10 @@ function reveal() {
   chosen = $('trialSelect').value;
   if (!chosen) {
     setTrialStatus('Valitse A/B/C tai "ei selvää eroa" ennen paljastamista.');
+    return;
+  }
+  if (heard.size !== 3) {
+    setTrialStatus('Kuuntele ensin kaikki kolme vaihtoehtoa A, B ja C.');
     return;
   }
   revealed = true;
