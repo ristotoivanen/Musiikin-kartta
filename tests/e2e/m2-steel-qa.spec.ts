@@ -245,13 +245,19 @@ test('balanssikoe ei väitä miksauksen hyväksyntää ja pitää A/B/C-säätim
 
 test('M2 ja M3 käyttävät samaa B-WAV:ia mutta omia bassotaajuuksien koesäätöjä', async ({page}) => {
   await page.addInitScript(() => {
-    const win = window as Window & { __shelves?: BiquadFilterNode[] };
-    win.__shelves = [];
+    const win = window as Window & { __shelves?: BiquadFilterNode[], __gains?: GainNode[] };
+    win.__shelves = []; win.__gains = [];
     const original = AudioContext.prototype.createBiquadFilter;
     AudioContext.prototype.createBiquadFilter = function() {
       const filter = original.call(this);
       win.__shelves?.push(filter);
       return filter;
+    };
+    const createGain = AudioContext.prototype.createGain;
+    AudioContext.prototype.createGain = function() {
+      const gain = createGain.call(this);
+      win.__gains?.push(gain);
+      return gain;
     };
   });
   const requests: string[] = [];
@@ -284,6 +290,11 @@ test('M2 ja M3 käyttävät samaa B-WAV:ia mutta omia bassotaajuuksien koesäät
   await expect.poll(state).toEqual({type:'lowshelf',frequency:90,gain:0});
   await page.locator('#bassBoost').fill('2');
   await expect.poll(async () => (await state())?.gain).toBeCloseTo(2, 1);
+  await expect(page.locator('#bassHeadroomLabel')).toContainText('-1,0 dB');
+  await expect.poll(() => page.evaluate(() => {
+    const gains=(window as Window & {__gains?:GainNode[]}).__gains ?? [];
+    return gains.some(g => Math.abs(g.gain.value - Math.pow(10,-2/40)) < 0.001);
+  })).toBe(true);
   await page.locator('#stop').click();
   expect(requests).toHaveLength(1);
 });
@@ -319,7 +330,11 @@ test('basson 0/+2/+4 dB korostus ei yliohjaa oikeaa B-WAV:ia myöskään M3:n t�
       filter.type = 'lowshelf';
       filter.frequency.value = 90;
       filter.gain.value = boost;
-      src.connect(filter).connect(offline.destination);
+      const headroom = offline.createGain();
+      // Vastaa sivun m3HeadroomGain(db) = 10^(-boost / 40):
+      // +4 dB low shelf -> -2 dB master, bassosuhde kasvaa mutta peak ei leikkaa.
+      headroom.gain.value = Math.pow(10, -boost / 40);
+      src.connect(filter).connect(headroom).connect(offline.destination);
       src.start(0);
       const result = await offline.startRendering();
       let peak = 0, sum = 0, samples = 0;
@@ -342,6 +357,8 @@ test('basson 0/+2/+4 dB korostus ei yliohjaa oikeaa B-WAV:ia myöskään M3:n t�
   for (const output of levels) {
     expect(output.peak, 'M3:n +'+output.boost+' dB leikkaa ääntä').toBeLessThan(1);
   }
-  expect(levels[1].rms).toBeGreaterThan(levels[0].rms);
-  expect(levels[2].rms).toBeGreaterThan(levels[1].rms);
+  // Kompensoidussa miksauksessa kokonais-RMS ei välttämättä kasva, koska
+  // keskitaajuudet vaimenevat. Ei väitetä tätä absoluuttiseksi basson nostoksi.
+  expect(levels.every(x => x.peak > 0 && x.rms > 0)).toBe(true);
+  expect(levels[0].peak).toBeLessThan(1);
 });
