@@ -537,7 +537,7 @@ test('02 D/Dm: aito F4, oikea terssiero ja ennallaan toimiva E/Em-arvaus', async
   await expect(minor).not.toHaveAttribute('data-playing');
 
   // Uusi D/Dm-kuuntelu ei syrjäytä vanhaa E/Em-sokkoarvausta eikä kuittaa tehtävää.
-  await section.getByRole('button', { name: 'Arvaa' }).click();
+  await section.getByRole('button', { name: 'Tunnista' }).click();
   await expect(section.locator('[data-arvaus-kuuntelu]')).toBeVisible();
   await section.getByRole('button', { name: 'Kuuntele sointu 1' }).click();
   await expect(section.locator('[data-arvaus-vastaus]')).toBeVisible();
@@ -565,7 +565,7 @@ test('02 D/Dm: valittu pari toimii samassa sokkoarvauksessa ja E/Em palautuu enn
 
   // Käänteinen järjestys Dm, D; kysytään duuria, joten toinen vaihtoehto on oikein.
   await page.evaluate(() => { Math.random = () => 0.9; });
-  await section.getByRole('button', { name: 'Arvaa', exact: true }).click();
+  await section.getByRole('button', { name: 'Tunnista', exact: true }).click();
   await expect(section.locator('[data-arvaus-kysymys] [data-kysymys]'))
     .toHaveText('Kumpi on duuri?');
   await expect(section.locator('[data-suora-kuuntelu]')).toBeHidden();
@@ -591,7 +591,7 @@ test('02 D/Dm: valittu pari toimii samassa sokkoarvauksessa ja E/Em palautuu enn
     .toHaveText('Kuuntele ensin E ja Em');
   await expect(section.locator('[data-arvaus-kaaviot] figcaption')).toHaveText(['E', 'Em']);
   await expect(section.locator('[data-arvauspalaute]')).toBeHidden();
-  await expect(section.getByRole('button', { name: 'Arvaa', exact: true })).toBeVisible();
+  await expect(section.getByRole('button', { name: 'Tunnista', exact: true })).toBeVisible();
   await expect(page.locator('.done-toggle')).toHaveAttribute('aria-pressed', 'false');
 });
 
@@ -752,7 +752,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     await expect(cards.nth(0).locator('[data-playing]')).toHaveCount(0);
     expect(await page.evaluate(() => window.__audioLog.some(entry => entry.type === 'stop' && entry.when <= entry.at + 0.026))).toBe(true);
 
-    await cards.nth(1).getByRole('button', { name: 'Arvaa' }).click();
+    await cards.nth(1).getByRole('button', { name: 'Tunnista' }).click();
     await cards.nth(1).getByRole('button', { name: 'Kuuntele sointu 1' }).click();
     await expect(cards.nth(1).locator('[data-playing]')).toHaveCount(1);
     await cards.nth(1).getByRole('group', { name: 'Vastaa' }).getByRole('button', { name: 'Sointu 1' }).click();
@@ -840,7 +840,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     const question = section.locator('[data-arvaus-kysymys]');
     const normal = section.locator('[data-suora-kuuntelu] button');
     const guessing = section.locator('[data-arvaus-kuuntelu] button');
-    const start = section.getByRole('button', { name: 'Arvaa', exact: true });
+    const start = section.getByRole('button', { name: 'Tunnista', exact: true });
     const layout = async (buttons: typeof normal) => Promise.all(
       (await buttons.all()).map(button => button.evaluate(node => {
         const b = node.getBoundingClientRect();
@@ -861,7 +861,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     await expect(section.getByRole('group', { name: 'Vastaa' })).toBeVisible();
     const active = await layout(guessing);
     expect(active).toEqual(initial);
-    expect((await layout(section.getByRole('button', { name: 'Uusi arvaus' })))[0])
+    expect((await layout(section.getByRole('button', { name: 'Uusi tehtävä' })))[0])
       .toEqual(startPosition);
     await expect(question.locator('[data-kysymys]')).toBeInViewport();
   });
@@ -944,7 +944,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
 
         await next.click();
         await expect(section.locator('[data-kysymys]')).toHaveText(/Kumpi on (duuri|molli)\?/);
-        await expect(next).toHaveAccessibleName('Uusi arvaus');
+        await expect(next).toHaveAccessibleName('Uusi tehtävä');
         expect(await labelOffCenter(), testCase).toBeLessThan(2);
         expect(await labelsBesideIcons(), `${testCase}: Arvaa`).toBe(true);
         expect(await controls(), `${testCase}: Arvaa`).toEqual(initial);
@@ -983,7 +983,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
       const values = [0.9, 0.1, 0.1, 0.9];
       Math.random = () => values.shift() ?? 0;
     });
-    await page.getByRole('button', { name: 'Arvaa' }).click();
+    await page.getByRole('button', { name: 'Tunnista' }).click();
     await expect(page.getByRole('heading', { name: 'Kumpi on molli?' })).toBeFocused();
     await expect(charts).toBeHidden();
     await expect(tip).toBeHidden();
@@ -1024,7 +1024,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
 
     // Vastauksen jälkeen nimet näkyvät samoissa kuuntelupainikkeissa arvotussa järjestyksessä,
     // painikkeiden koko ei muutu ja molempia voi kuunnella uudelleen. Paluuvalikkoa ei ole.
-    const listenRow = page.getByRole('group', { name: 'Arvaustehtävän ääniesimerkit' });
+    const listenRow = page.getByRole('group', { name: 'Tunnistustehtävän ääniesimerkit' });
     const listenButtons = listenRow.getByRole('button');
     const labels = listenRow.locator('[data-arvaus-teksti]');
     const listenSizes = async () => Promise.all((await listenButtons.all()).map(sizeOf));
@@ -1049,7 +1049,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     await expect(answered).toBeFocused();
     await expect(page.locator('[data-arvauspalaute]')).toHaveText('Oikein! Sointu 1 oli E-molli ja sointu 2 oli E-duuri.');
 
-    await page.getByRole('button', { name: 'Uusi arvaus' }).click();
+    await page.getByRole('button', { name: 'Uusi tehtävä' }).click();
     for (const [index, name] of ['Sointu 1', 'Sointu 2'].entries()) {
       await expect(choiceButtons.nth(index)).not.toHaveClass(/is-(correct|wrong)/);
       await expect(choiceButtons.nth(index)).toHaveAccessibleName(name);
@@ -1215,7 +1215,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
             };
           });
           const testCase = `${where} ${width}px ${size}`;
-          await section.getByRole('button', { name: 'Arvaa' }).click();
+          await section.getByRole('button', { name: 'Tunnista' }).click();
           const before = await measure();
           await section.getByRole('group', { name: 'Vastaa' }).getByRole('button', { name: 'Sointu 1' }).click();
           await expect(section.locator('[data-arvaus-teksti]').first()).toContainText(' · ');
