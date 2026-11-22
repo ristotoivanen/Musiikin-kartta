@@ -187,6 +187,7 @@ Tiedot ovat **selaimen ja originin** (skeema + host + portti) paikallisia. `rinn
 
 | Vakavuus | Riski | Regressiosuoja / päätös |
 |---|---|---|
+| **P0 / todettu #151** | Nykyinen PDF-koostaja odottaa `index.html`n poistunutta `<p class="tagline">`-rakennetta ja keskeytyy ennen PDF:n tuottamista. | [Erillinen korjausissue #151](https://github.com/ristotoivanen/Musiikin-kartta/issues/151), korjaus yhteisten lähteiden omistavassa PR:ssä; todellinen PDF-ajo sekä PDF-linkit/sivut ennen GO-päätöstä. |
 | **P0** | Poistettu `book/osa-*.html` katkaisee oppituntien generoinnin ja PDF:n. | Älä poista book-lähteitä; rakenna aihelähde-pilotti ja todista molemmat rakennuspolut ennen irrotusta. |
 | **P0** | Legacy-osoitteet ja fragmentit rikkoutuvat, jos otsikko/slug muuttuu, tai vanhat osat katoavat. | Kiinteä URL/ID/ankkuribaseline, alias-/redirect-suunnitelma, suorat HTTP- ja JS-on/off-selainkokeet. |
 | **P0** | `Tehty` muuttuu `Kokeiltu`ksi tai uuden taidon hallinnaksi. | Uudet vakaat ID:t; ei automaattista vanha→Ydinopinto-merkintämigraatiota; erillinen semanttinen näyttö. |
@@ -202,9 +203,21 @@ Tiedot ovat **selaimen ja originin** (skeema + host + portti) paikallisia. `rinn
 
 **Lähtötilan olemassa olevat testit:** `tests/site.test.ts` jäädyttää 70 aikaisempaa reittiä, 28 teoriaoppaan lukua, 41 harjoituspoimintaa, 73 sivun yksilö-ID:t, aiheankkurit, lähdetiedostot, linkit ja generaattorin `--tarkista`n; `tests/e2e/lukumerkinnat.spec.ts` käy läpi 73 sisältösivun merkintä-, peruutus-, reload- ja aihesivu-/kirjasynkronoinnin. `tests/osiot.test.ts` suojaa Musapeli- ja Kitaratreeni-parametreja ja sisällön rekisteriä. `tools/linkit/tarkista-linkit.py` tarkistaa staattiset paikalliset URLit/ankkurit ja PARTS/MOVED-taulukon. Näiden testien **olemassaolo ei tarkoita, että ne olisi ajettu tässä auditoinnissa**.
 
-**#117:n uudet itsenäiset testit:** `tests/yhteensopivuus-117.test.ts` lukee jäädytetyn JSON-fixturen ja tarkistaa jokaisen 73 vanhan URL:n, ID:n, lajin, 28 lukukytkentää, 11 osan ankkurit sekä 8 aihepolkua. Lisäksi se ajaa `assets/edistyminen.js`n eristetyssä VM-ympäristössä oikean vanha→uusi-fallbackin, nykyisen avaimen etusijan, vanhan tunnisteen säilymisen ja uuden Ydinopinnon merkitsemättömyyden. `tests/issue-117-pdf-sources.py` rakentaa PDF:n väli-HTML:n oikealla nykyisellä Python-koostajalla ilman PDF-binäärin tulostamista tai tiedostomuutoksia. Erillinen `.github/workflows/issue-117-compat.yml` ajaa kohdennetut tarkistukset PR:llä.
+**#117:n uudet itsenäiset testit:** `tests/yhteensopivuus-117.test.ts` lukee jäädytetyn JSON-fixturen ja tarkistaa jokaisen 73 vanhan URL:n, ID:n, lajin, 28 lukukytkentää, 11 osan ankkurit sekä 8 aihepolkua. Lisäksi se ajaa `assets/edistyminen.js`n eristetyssä VM-ympäristössä oikean vanha→uusi-fallbackin, nykyisen avaimen etusijan, vanhan tunnisteen säilymisen ja uuden Ydinopinnon merkitsemättömyyden. `tests/e2e/yhteensopivuus-117.spec.ts` mittaa oikeassa Chromium-selaimessa vanhan book-ankkurin JS-ohjauksen sekä historiallisen tallennuksen säilymisen desktop-/puhelinemulaatioissa. `tests/issue-117-pdf-sources.py` kutsuu PDF:n todellista Python-koostajaa ilman PDF-binäärin tulostamista tai tiedostomuutoksia. Erillinen `.github/workflows/issue-117-compat.yml` ajaa täyden lint-/tyyppi-/Vitest-kokonaisuuden, selaimen historialliset testit ja PDF:n **oman estävän tarkistuksen** rinnakkaisina töinä.
 
 **Automaattiset tarkistukset jatkossa:** Vitest, nykyinen linkki- ja generaattoritarkistus, PDF:n väli-HTML, PR #141:n uuden ja vanhan ID-avaruuden integraatiotestit, Playwright JS-päällä/pois (11 osaa, historialliset ankkurit), 73 merkintäpolkua, tallennusskenaarioiden siirto ja Cloudflare-esikatselun HTTP-linkit. **Fyysiset kokeet:** Safari/iPhone + Android, ruudunlukijan ankkuripaluut, paikallishistorian säilyminen päivityksen yli, PDF:n tulostus ja musiikillinen sisältöarvio. Näitä ei korvata staattisella tarkistuksella.
+
+### Tähän auditointiin jo mitattu CI-näyttö ja löydetty estävä vika
+
+[PR #150:n ensimmäinen Actions-ajo](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/44993438834): **11/11 uutta Vitest-testiä läpi**, generaattorin `--tarkista` läpi, **104 sivun / 2 629 viittauksen** staattinen linkkitarkistus **0 ongelmaa**. Ensimmäinen PDF-koosteen testi odotti virheellisesti vain 28 `chapter`-osiota kaikkiaan 13 dokumentista; todellisuudessa varsinaisissa kirjaosissa on 28 lukua ja kahdessa liitteessä yhteensä 4 `chapter`-muotoista osiota. Testin oletus korjattiin ja sen jälkeen [toinen CI-ajo](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/44993522102) löysi **todellisen tuotantokoodin PDF-eston**:
+
+```text
+index.html: ei löytynyt kohtaa <p class="tagline">
+```
+
+`tools/pdf/rakenna-pdf.py`n `build_html()` vaatii `index.html`-sivulta `<p class="tagline">…</p>`, mutta nykyinen `beta`n `index.html` ei sisällä sitä. Koko PDF:ää **ei pystytä nykyisellä koodilla tuottamaan**. Tätä ei korjata tämän keskustelun yhteisiä tiedostoja koskevien muutosrajausten takia; toteutusvaatimus kirjattu [issueen #151](https://github.com/ristotoivanen/Musiikin-kartta/issues/151). Tämä on testillä havaittu nykytilan P0-bugi, ei hypoteettinen riski.
+
+**Testinäyttöä ei pidä ylitulkita:** 11 Vitest-testiä ja linkki-/generaattoritarkistus olivat onnistuneita; PDF-tuotanto epäonnistui. Myöhemmin lisättyjen koko testisuiten ja Playwright-kokeiden tulos riippuu uuden QA-työnkulun ajosta. Varsinaista PDF-tulostusta, iPhonen tai Androidin fyysistä testausta ja todellisen käyttäjän tallennushistoriaa ei ole tässä tarkistettu.
 
 ## 9. Myöhempi turvallinen lähdesiirron järjestys (ei toteuteta nyt)
 
