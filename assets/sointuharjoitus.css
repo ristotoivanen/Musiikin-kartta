@@ -167,6 +167,37 @@
   flex: 1 1 6.5rem;
   min-inline-size: 0;
 }
+/* Tunnistustehtävän kuuntelupainike on neutraali ennen vastaamista:
+ * soitto ei saa näyttää oikeaa vastausta jo ennakkoon. Vastauksen jälkeen
+ * vasta PAINETTU kuuntelupainike saa vihreän/punaisen arviointivärin. */
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-kuuntelu] button[data-playing]:not(.is-correct):not(.is-wrong) {
+  background: #2d2444;
+}
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-kuuntelu] button.is-correct,
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-kuuntelu] button.is-correct:hover {
+  background: #16633f;
+  border-color: #a2efc1;
+  color: #f5fff9;
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-kuuntelu] button.is-wrong,
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-kuuntelu] button.is-wrong:hover {
+  background: #812c3d;
+  border-color: #ffacba;
+  border-style: dashed;
+  color: #fff3f3;
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+@media (forced-colors: active) {
+  .sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-kuuntelu] button.is-correct {
+    outline: 2px solid Highlight;
+    outline-offset: -3px;
+  }
+  .sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-kuuntelu] button.is-wrong {
+    outline: 2px dashed CanvasText;
+    outline-offset: -3px;
+  }
+}
 /* Arvauksen palaute näkyy siinä painikkeessa, jota oppija käytti.
  * Vaihdetaan vain värit ja reunaviivan piirtotapa: ei paddingia, kokoa eikä sijaintia. */
 .sointu-ydin [data-arvaus-vastaus] button.is-correct,
