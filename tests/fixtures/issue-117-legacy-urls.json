@@ -1,0 +1,882 @@
+{
+  "baseline": {
+    "branch": "beta",
+    "sha": "5a8905694e0b29b306e473173ea8d3dde72eab53",
+    "source": "PR #146 / #115; assets/edistyminen.js; tools/oppimiskartta/aiheet.json"
+  },
+  "topics": [
+    {
+      "slug": "kitara",
+      "anchor": "aihe-kitara",
+      "url": "/oppi/kitara/index.html"
+    },
+    {
+      "slug": "rytmi",
+      "anchor": "aihe-rytmi",
+      "url": "/oppi/rytmi/index.html"
+    },
+    {
+      "slug": "savelnimet",
+      "anchor": "aihe-nuotit",
+      "url": "/oppi/savelnimet/index.html"
+    },
+    {
+      "slug": "korva",
+      "anchor": "aihe-korva",
+      "url": "/oppi/korva/index.html"
+    },
+    {
+      "slug": "otelauta",
+      "anchor": "aihe-otelauta",
+      "url": "/oppi/otelauta/index.html"
+    },
+    {
+      "slug": "soinnut",
+      "anchor": "aihe-soinnut",
+      "url": "/oppi/soinnut/index.html"
+    },
+    {
+      "slug": "asteikot",
+      "anchor": "aihe-asteikot",
+      "url": "/oppi/asteikot/index.html"
+    },
+    {
+      "slug": "kappaleet",
+      "anchor": "aihe-kappaleet",
+      "url": "/oppi/kappaleet/index.html"
+    }
+  ],
+  "pages": [
+    {
+      "url": "/oppi/kitara/savelesta-sointuun.html",
+      "id": "oppitunti:savelesta-sointuun",
+      "kind": "oppitunti",
+      "source": "tools/oppimiskartta/sisallot/kitara/savelesta-sointuun.html"
+    },
+    {
+      "url": "/oppi/kitara/vaihto-ja-sointukartta.html",
+      "id": "oppitunti:vaihto-ja-sointukartta",
+      "kind": "oppitunti",
+      "source": "tools/oppimiskartta/sisallot/kitara/vaihto-ja-sointukartta.html"
+    },
+    {
+      "url": "/oppi/kitara/sointukierrot.html",
+      "id": "sointukierrot",
+      "kind": "luku",
+      "source": "book/osa-1.html#sointukierrot"
+    },
+    {
+      "url": "/oppi/kitara/soita-ensin-basso.html",
+      "id": "harjoitus:soita-ensin-basso",
+      "kind": "harjoitus",
+      "source": "book/osa-1.html#sointukierrot [data-oppisisalto=soita-ensin-basso]"
+    },
+    {
+      "url": "/oppi/kitara/mihin-kierto-paattyy.html",
+      "id": "oppitunti:mihin-kierto-paattyy",
+      "kind": "oppitunti",
+      "source": "tools/oppimiskartta/sisallot/kitara/mihin-kierto-paattyy.html"
+    },
+    {
+      "url": "/oppi/rytmi/pulssi-ja-komppi.html",
+      "id": "pulssi-ja-komppi",
+      "kind": "luku",
+      "source": "book/osa-1.html#pulssi-ja-komppi"
+    },
+    {
+      "url": "/oppi/rytmi/kuuntele-pulssi.html",
+      "id": "harjoitus:kuuntele-pulssi",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/rytmi/alas-ylos-yhdella-soinnulla.html",
+      "id": "harjoitus:alas-ylos-yhdella-soinnulla",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/rytmi/kaksi-sointua-yhdessa-tahdissa.html",
+      "id": "harjoitus:kaksi-sointua-yhdessa-tahdissa",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/savelnimet/kitaran-kielet-ja-sointumerkinnat.html",
+      "id": "oppitunti:kitaran-kielet-ja-sointumerkinnat",
+      "kind": "oppitunti",
+      "source": "book/osa-1.html, erillinen poiminta"
+    },
+    {
+      "url": "/oppi/savelnimet/savelet-ja-intervallit.html",
+      "id": "savelet-ja-intervallit",
+      "kind": "luku",
+      "source": "book/osa-2.html#savelet-ja-intervallit"
+    },
+    {
+      "url": "/oppi/savelnimet/siirra-yhta-sormea.html",
+      "id": "harjoitus:siirra-yhta-sormea",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/korva/musiikki-on-kieli.html",
+      "id": "musiikki-on-kieli",
+      "kind": "luku",
+      "source": "book/osa-2.html#musiikki-on-kieli"
+    },
+    {
+      "url": "/oppi/korva/taydenna-fraasi.html",
+      "id": "harjoitus:taydenna-fraasi",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/korva/savellajin-tunnistaminen.html",
+      "id": "savellajin-tunnistaminen",
+      "kind": "luku",
+      "source": "book/osa-4.html#savellajin-tunnistaminen"
+    },
+    {
+      "url": "/oppi/korva/vaihda-kotisavelta.html",
+      "id": "harjoitus:vaihda-kotisavelta",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/korva/intervallit.html",
+      "id": "intervallit",
+      "kind": "luku",
+      "source": "book/osa-7.html#intervallit"
+    },
+    {
+      "url": "/oppi/korva/mika-aste-soi.html",
+      "id": "harjoitus:mika-aste-soi",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/korva/etsi-jalkimmainen-savel.html",
+      "id": "harjoitus:etsi-jalkimmainen-savel",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/korva/basso.html",
+      "id": "basso",
+      "kind": "luku",
+      "source": "book/osa-7.html#basso"
+    },
+    {
+      "url": "/oppi/korva/kuuntele-bassolinja.html",
+      "id": "harjoitus:kuuntele-bassolinja",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/korva/soinnut.html",
+      "id": "soinnut",
+      "kind": "luku",
+      "source": "book/osa-7.html#soinnut"
+    },
+    {
+      "url": "/oppi/korva/kumpi-on-molli.html",
+      "id": "harjoitus:kumpi-on-molli",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/korva/tunnista-sointutyyppi.html",
+      "id": "harjoitus:tunnista-sointutyyppi",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/korva/septimi-korvalla.html",
+      "id": "septimi-korvalla",
+      "kind": "luku",
+      "source": "book/osa-10.html#septimi-korvalla"
+    },
+    {
+      "url": "/oppi/korva/kolme-c-sointua.html",
+      "id": "harjoitus:kolme-c-sointua",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/otelauta/otelauta.html",
+      "id": "otelauta",
+      "kind": "luku",
+      "source": "book/osa-5.html#otelauta"
+    },
+    {
+      "url": "/oppi/otelauta/etsi-a-ilman-asteikkokuviota.html",
+      "id": "harjoitus:etsi-a-ilman-asteikkokuviota",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/otelauta/etsi-sama-savel.html",
+      "id": "harjoitus:etsi-sama-savel",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/otelauta/perussavel.html",
+      "id": "perussavel",
+      "kind": "luku",
+      "source": "book/osa-5.html#perussavel"
+    },
+    {
+      "url": "/oppi/otelauta/etsi-savel-kahdelta-kielelta.html",
+      "id": "harjoitus:etsi-savel-kahdelta-kielelta",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/otelauta/nimea-savel.html",
+      "id": "harjoitus:nimea-savel",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/otelauta/caged.html",
+      "id": "caged",
+      "kind": "luku",
+      "source": "book/osa-6.html#caged"
+    },
+    {
+      "url": "/oppi/otelauta/soita-c-kahdesta-kohdasta.html",
+      "id": "harjoitus:soita-c-kahdesta-kohdasta",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/soinnut/harmoninen-kentta.html",
+      "id": "harmoninen-kentta",
+      "kind": "luku",
+      "source": "book/osa-3.html#harmoninen-kentta"
+    },
+    {
+      "url": "/oppi/soinnut/kolme-sointua-g-duurista.html",
+      "id": "harjoitus:kolme-sointua-g-duurista",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/soinnut/kaikuluotain.html",
+      "id": "harjoitus:kaikuluotain",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/soinnut/roomalaiset-numerot.html",
+      "id": "roomalaiset-numerot",
+      "kind": "luku",
+      "source": "book/osa-3.html#roomalaiset-numerot"
+    },
+    {
+      "url": "/oppi/soinnut/siirra-kierto-d-duuriin.html",
+      "id": "harjoitus:siirra-kierto-d-duuriin",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/soinnut/sointujen-tehtavat.html",
+      "id": "sointujen-tehtavat",
+      "kind": "luku",
+      "source": "book/osa-3.html#sointujen-tehtavat"
+    },
+    {
+      "url": "/oppi/soinnut/laula-paluu.html",
+      "id": "harjoitus:laula-paluu",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/soinnut/kvinttiympyra.html",
+      "id": "kvinttiympyra",
+      "kind": "luku",
+      "source": "book/osa-4.html#kvinttiympyra"
+    },
+    {
+      "url": "/oppi/soinnut/siirra-keskelle-d.html",
+      "id": "harjoitus:siirra-keskelle-d",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/soinnut/barre.html",
+      "id": "barre",
+      "kind": "luku",
+      "source": "book/osa-6.html#barre"
+    },
+    {
+      "url": "/oppi/soinnut/etsi-barresointu.html",
+      "id": "harjoitus:etsi-barresointu",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/soinnut/rakenna-barre.html",
+      "id": "harjoitus:rakenna-barre",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/soinnut/siirra-kierto-c-duuriin.html",
+      "id": "harjoitus:siirra-kierto-c-duuriin",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/soinnut/septimisoinnut.html",
+      "id": "septimisoinnut",
+      "kind": "luku",
+      "source": "book/osa-10.html#septimisoinnut"
+    },
+    {
+      "url": "/oppi/soinnut/lisaa-septimi.html",
+      "id": "harjoitus:lisaa-septimi",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/soinnut/soita-septimisoinnut.html",
+      "id": "harjoitus:soita-septimisoinnut",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/soinnut/ii-v-i.html",
+      "id": "ii-v-i",
+      "kind": "luku",
+      "source": "book/osa-10.html#ii-v-i"
+    },
+    {
+      "url": "/oppi/soinnut/ii-v-i-kahdessa-savellajissa.html",
+      "id": "harjoitus:ii-v-i-kahdessa-savellajissa",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/asteikot/asteikot.html",
+      "id": "asteikot",
+      "kind": "luku",
+      "source": "book/osa-2.html#asteikot"
+    },
+    {
+      "url": "/oppi/asteikot/etsi-puoliaskeleet.html",
+      "id": "harjoitus:etsi-puoliaskeleet",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/asteikot/pentatoniikka.html",
+      "id": "pentatoniikka",
+      "kind": "luku",
+      "source": "book/osa-8.html#pentatoniikka"
+    },
+    {
+      "url": "/oppi/asteikot/tee-kolmesta-savelesta-melodia.html",
+      "id": "harjoitus:tee-kolmesta-savelesta-melodia",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/asteikot/kysymys-ja-vastaus-koko-boksilla.html",
+      "id": "harjoitus:kysymys-ja-vastaus-koko-boksilla",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/asteikot/moodit.html",
+      "id": "moodit",
+      "kind": "luku",
+      "source": "book/osa-11.html#moodit"
+    },
+    {
+      "url": "/oppi/asteikot/vaihda-f-nauhaa-ylemmas.html",
+      "id": "harjoitus:vaihda-f-nauhaa-ylemmas",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/kappaleet/kappale-asteina.html",
+      "id": "kappale-asteina",
+      "kind": "luku",
+      "source": "book/osa-3.html#kappale-asteina"
+    },
+    {
+      "url": "/oppi/kappaleet/sama-kappale-c-duurissa.html",
+      "id": "harjoitus:sama-kappale-c-duurissa",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/kappaleet/transponointi.html",
+      "id": "transponointi",
+      "kind": "luku",
+      "source": "book/osa-4.html#transponointi"
+    },
+    {
+      "url": "/oppi/kappaleet/sovita-savellaji-laulajalle.html",
+      "id": "harjoitus:sovita-savellaji-laulajalle",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/kappaleet/kappale.html",
+      "id": "kappale",
+      "kind": "luku",
+      "source": "book/osa-7.html#kappale"
+    },
+    {
+      "url": "/oppi/kappaleet/mika-sointu-tulee.html",
+      "id": "harjoitus:mika-sointu-tulee",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/kappaleet/tee-sointukartta.html",
+      "id": "harjoitus:tee-sointukartta",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/kappaleet/etsi-ensimmainen-melodiasavel.html",
+      "id": "harjoitus:etsi-ensimmainen-melodiasavel",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/kappaleet/improvisointi.html",
+      "id": "improvisointi",
+      "kind": "luku",
+      "source": "book/osa-8.html#improvisointi"
+    },
+    {
+      "url": "/oppi/kappaleet/soita-kysymys-ja-vastaus.html",
+      "id": "harjoitus:soita-kysymys-ja-vastaus",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/kappaleet/sovittaminen.html",
+      "id": "sovittaminen",
+      "kind": "luku",
+      "source": "book/osa-9.html#sovittaminen"
+    },
+    {
+      "url": "/oppi/kappaleet/vaihda-saestysta.html",
+      "id": "harjoitus:vaihda-saestysta",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    },
+    {
+      "url": "/oppi/kappaleet/oma-kappale.html",
+      "id": "oma-kappale",
+      "kind": "luku",
+      "source": "book/osa-9.html#oma-kappale"
+    },
+    {
+      "url": "/oppi/kappaleet/aanita-kahdeksan-tahtia.html",
+      "id": "harjoitus:aanita-kahdeksan-tahtia",
+      "kind": "harjoitus",
+      "source": "kirjan luvusta irrotettu tehtävä"
+    }
+  ],
+  "bookParts": [
+    {
+      "url": "/book/osa-1.html",
+      "chapterIds": [
+        {
+          "id": "pulssi-ja-komppi",
+          "number": 1,
+          "title": "Pulssi ja komppi"
+        },
+        {
+          "id": "sointukierrot",
+          "number": 2,
+          "title": "Neljä otetta ja ensimmäinen kappale"
+        }
+      ],
+      "anchors": [
+        "pulssi-aanite",
+        "kahdeksasosat",
+        "kitaran-merkinnat",
+        "alas-ylos-komppi",
+        "vaihto-kolmosella",
+        "kolme-cowboyta"
+      ]
+    },
+    {
+      "url": "/book/osa-2.html",
+      "chapterIds": [
+        {
+          "id": "musiikki-on-kieli",
+          "number": 3,
+          "title": "Musiikki on kieli"
+        },
+        {
+          "id": "savelet-ja-intervallit",
+          "number": 4,
+          "title": "Sävelet ja intervallit"
+        },
+        {
+          "id": "asteikot",
+          "number": 5,
+          "title": "Asteikot"
+        }
+      ],
+      "anchors": [
+        "ensikeikan-teoria",
+        "ensikeikan-teoria-otsikko",
+        "h-savelnimi"
+      ]
+    },
+    {
+      "url": "/book/osa-3.html",
+      "chapterIds": [
+        {
+          "id": "harmoninen-kentta",
+          "number": 6,
+          "title": "Harmoninen kenttä"
+        },
+        {
+          "id": "roomalaiset-numerot",
+          "number": 7,
+          "title": "Roomalaiset numerot"
+        },
+        {
+          "id": "sointujen-tehtavat",
+          "number": 8,
+          "title": "Sointujen tehtävät"
+        },
+        {
+          "id": "kappale-asteina",
+          "number": 9,
+          "title": "Kolme cowboyta roomalaisin numeroin"
+        }
+      ],
+      "anchors": [
+        "kaikuluotain",
+        "neljas-savel",
+        "asteiden-varit"
+      ]
+    },
+    {
+      "url": "/book/osa-4.html",
+      "chapterIds": [
+        {
+          "id": "savellajin-tunnistaminen",
+          "number": 10,
+          "title": "Sävellajin tunnistaminen"
+        },
+        {
+          "id": "kvinttiympyra",
+          "number": 11,
+          "title": "Kvinttiympyrä"
+        },
+        {
+          "id": "transponointi",
+          "number": 12,
+          "title": "Transponointi"
+        }
+      ],
+      "anchors": [
+        "ympyra-otsikko"
+      ]
+    },
+    {
+      "url": "/book/osa-5.html",
+      "chapterIds": [
+        {
+          "id": "otelauta",
+          "number": 13,
+          "title": "Otelauta ja oktaavimuodot"
+        },
+        {
+          "id": "perussavel",
+          "number": 14,
+          "title": "Sävelet E- ja A-kielellä"
+        }
+      ],
+      "anchors": [
+        "oktaaviharjoitus",
+        "oktaavimuodot",
+        "e-ja-a-kielen-nauhat"
+      ]
+    },
+    {
+      "url": "/book/osa-6.html",
+      "chapterIds": [
+        {
+          "id": "barre",
+          "number": 15,
+          "title": "Barré-soinnut ja numerokartta"
+        },
+        {
+          "id": "caged",
+          "number": 16,
+          "title": "CAGED"
+        }
+      ],
+      "anchors": [
+        "numerokartta"
+      ]
+    },
+    {
+      "url": "/book/osa-7.html",
+      "chapterIds": [
+        {
+          "id": "intervallit",
+          "number": 17,
+          "title": "Asteet ja intervallit korvalla"
+        },
+        {
+          "id": "basso",
+          "number": 18,
+          "title": "Bassolinjan kuuleminen"
+        },
+        {
+          "id": "soinnut",
+          "number": 19,
+          "title": "Sointujen tunnistaminen"
+        },
+        {
+          "id": "kappale",
+          "number": 20,
+          "title": "Kappaleen purkaminen ilman nuotteja"
+        }
+      ],
+      "anchors": [
+        "aste-korvalla",
+        "aste-harjoitus",
+        "sointu-harjoitus",
+        "tehtava-harjoitus"
+      ]
+    },
+    {
+      "url": "/book/osa-8.html",
+      "chapterIds": [
+        {
+          "id": "improvisointi",
+          "number": 21,
+          "title": "Improvisointi"
+        },
+        {
+          "id": "pentatoniikka",
+          "number": 22,
+          "title": "Pentatoniikka"
+        }
+      ],
+      "anchors": [
+        "em-c-tausta",
+        "am-tausta",
+        "boksi-e-mollissa"
+      ]
+    },
+    {
+      "url": "/book/osa-9.html",
+      "chapterIds": [
+        {
+          "id": "sovittaminen",
+          "number": 23,
+          "title": "Sovittaminen"
+        },
+        {
+          "id": "oma-kappale",
+          "number": 24,
+          "title": "Oman kappaleen tekeminen ja oma ilmaisu"
+        }
+      ],
+      "anchors": [
+        "kokoa-yhteen",
+        "esimerkkikappale",
+        "kappale-1-luonnos",
+        "kappale-2-b-osa",
+        "kappale-3-septimit",
+        "kappale-4-sovitus"
+      ]
+    },
+    {
+      "url": "/book/osa-10.html",
+      "chapterIds": [
+        {
+          "id": "septimisoinnut",
+          "number": 25,
+          "title": "Septimisoinnut"
+        },
+        {
+          "id": "septimi-korvalla",
+          "number": 26,
+          "title": "Kuule septimi"
+        },
+        {
+          "id": "ii-v-i",
+          "number": 27,
+          "title": "ii–V–I ja äänenkuljetus"
+        }
+      ],
+      "anchors": [
+        "c-duurin-septimisoinnut"
+      ]
+    },
+    {
+      "url": "/book/osa-11.html",
+      "chapterIds": [
+        {
+          "id": "moodit",
+          "number": 28,
+          "title": "Moodit käytännössä"
+        }
+      ],
+      "anchors": []
+    }
+  ],
+  "moved": [
+    {
+      "from": "osa-1#musiikki-on-kieli",
+      "to": [
+        "musiikki-on-kieli"
+      ]
+    },
+    {
+      "from": "osa-1#savelet-ja-intervallit",
+      "to": [
+        "savelet-ja-intervallit"
+      ]
+    },
+    {
+      "from": "osa-1#asteikot",
+      "to": [
+        "asteikot"
+      ]
+    },
+    {
+      "from": "osa-1#harmoninen-kentta",
+      "to": [
+        "harmoninen-kentta"
+      ]
+    },
+    {
+      "from": "osa-1#roomalaiset-numerot",
+      "to": [
+        "roomalaiset-numerot"
+      ]
+    },
+    {
+      "from": "osa-1#sointujen-tehtavat",
+      "to": [
+        "sointujen-tehtavat"
+      ]
+    },
+    {
+      "from": "osa-2#sointukierrot",
+      "to": [
+        "sointukierrot",
+        "kappale-asteina"
+      ]
+    },
+    {
+      "from": "osa-2#kvinttiympyra",
+      "to": [
+        "kvinttiympyra"
+      ]
+    },
+    {
+      "from": "osa-2#savellajin-tunnistaminen",
+      "to": [
+        "savellajin-tunnistaminen"
+      ]
+    },
+    {
+      "from": "osa-2#transponointi",
+      "to": [
+        "transponointi"
+      ]
+    },
+    {
+      "from": "osa-3#otelauta",
+      "to": [
+        "otelauta"
+      ]
+    },
+    {
+      "from": "osa-3#barre",
+      "to": [
+        "perussavel",
+        "barre"
+      ]
+    },
+    {
+      "from": "osa-3#caged",
+      "to": [
+        "caged"
+      ]
+    },
+    {
+      "from": "osa-3#septimisoinnut",
+      "to": [
+        "septimisoinnut",
+        "ii-v-i"
+      ]
+    },
+    {
+      "from": "osa-3#pentatoniikka",
+      "to": [
+        "pentatoniikka"
+      ]
+    },
+    {
+      "from": "osa-3#moodit",
+      "to": [
+        "moodit"
+      ]
+    },
+    {
+      "from": "osa-4#intervallit",
+      "to": [
+        "intervallit"
+      ]
+    },
+    {
+      "from": "osa-4#basso",
+      "to": [
+        "basso"
+      ]
+    },
+    {
+      "from": "osa-4#soinnut",
+      "to": [
+        "soinnut",
+        "septimi-korvalla"
+      ]
+    },
+    {
+      "from": "osa-4#kappale",
+      "to": [
+        "kappale"
+      ]
+    },
+    {
+      "from": "osa-5#improvisointi",
+      "to": [
+        "improvisointi"
+      ]
+    },
+    {
+      "from": "osa-5#sovittaminen",
+      "to": [
+        "sovittaminen"
+      ]
+    },
+    {
+      "from": "osa-5#oma-kappale",
+      "to": [
+        "oma-kappale"
+      ]
+    }
+  ]
+}
