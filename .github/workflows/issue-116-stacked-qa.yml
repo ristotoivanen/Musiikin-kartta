@@ -26,6 +26,10 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
+      - name: Install audio conversion tools for original WAV samples
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
       - name: Verify original F4 and A/Am samples and existing licensed audio bank
         run: |
           python3 tools/aanet/tuo-soinnut-f4.py
