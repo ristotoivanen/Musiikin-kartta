@@ -7,6 +7,10 @@ on:
       - 'tools/pdf/rakenna-pdf.py'
       - 'tests/issue-151-pdf.py'
       - '.github/workflows/issue-151-pdf.yml'
+      # PDF:n lähteet ja etusivu, josta rakentaja aiemmin riippui (#151): regressio
+      # havaitaan myös silloin, kun vain lähdesisältö muuttuu.
+      - 'book/**'
+      - 'index.html'
   workflow_dispatch:
 
 permissions:
