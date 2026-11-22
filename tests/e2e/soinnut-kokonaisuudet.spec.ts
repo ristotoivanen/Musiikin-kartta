@@ -1197,7 +1197,16 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
             if (await tip.evaluate(element => (element as HTMLDetailsElement).open)) await summary.click();
             await expect(tip).not.toHaveAttribute('open', '');
             const before = await mainControls();
-            expect(before.length, testCase).toBeGreaterThan(1);
+            if (await active.getAttribute('data-sointuharjoitus')) {
+              expect(before.length, testCase).toBeGreaterThan(1);
+            } else {
+              // 05 Siirrä sama rakenne käyttää olemassa olevia sointukaavioita ja
+              // oppijan omaa kitaraa, ei äänisoitinta. Tarkista varsinainen
+              // opetusmateriaalin sisältö, älä keksi sille turhia painikkeita.
+              expect(before, testCase).toHaveLength(0);
+              await expect(active.locator('.sointu-kierto > li')).toHaveCount(8);
+              await expect(active.locator('.chord-diagrams svg')).toHaveCount(4);
+            }
             await summary.click();
             await expect(tip).toHaveAttribute('open', '');
             expect(await mainControls(), testCase).toEqual(before);
