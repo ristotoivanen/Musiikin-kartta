@@ -492,7 +492,7 @@ test.describe('ilman JavaScriptiä', () => {
     await expect(playButton(page)).toBeHidden();
     await expect(page.getByRole('button', { name: 'A · Painota 1 ja 3' })).toBeHidden();
     await expect(page.locator('[data-rytmi-tila]')).toHaveText('Ääniesimerkki tarvitsee JavaScriptin ja selaimen äänituen.');
-    await expect(page.getByText('Tempo ja soinnut pysyvät samoina')).toBeVisible();
+    await expect(page.getByText(/Tempo, rumpu- ja bassotausta, soinnut sekä kitaran iskujen paikat pysyvät samoina/)).toBeVisible();
     await expect(page.locator('.rytmi-isku')).toHaveCount(8);
   });
 });
