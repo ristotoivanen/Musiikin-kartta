@@ -500,6 +500,50 @@ const ydinPages = [
 ] as const;
 const ydinPath = (index: number) => `/oppi/soinnut/${ydinPages[index][0]}.html`;
 
+test('02 D/Dm: aito F4, oikea terssiero ja ennallaan toimiva E/Em-arvaus', async ({ page }) => {
+  await recordAudio(page);
+  const files = new Set<string>();
+  page.on('response', response => {
+    if (response.ok() && response.url().includes('/assets/audio/soinnut/')) {
+      files.add(response.url().split('/').pop() ?? '');
+    }
+  });
+  await page.goto(ydinPath(1));
+  const section = page.locator('[data-sointuharjoitus="arvaa"]');
+  const [major, minor] = [
+    section.getByRole('button', { name: 'Kuuntele D-duuri' }),
+    section.getByRole('button', { name: 'Kuuntele D-molli' }),
+  ];
+  await expect(section.getByRole('group', { name: 'Vertaa D- ja Dm-sointuja' })).toBeVisible();
+  const diagrams = section.locator('.chord-diagrams').first();
+  await expect(diagrams.locator('figcaption')).toHaveText(['D', 'Dm']);
+  await expect(diagrams.locator('code')).toHaveText(['xx0232', 'xx0231']);
+  await expect(section).toContainText('D–F♯–A');
+  await expect(section).toContainText('D–F–A');
+
+  await major.click();
+  await expect(major).toHaveAttribute('data-playing', '');
+  await expect.poll(async () => (await starts(page)).length).toBe(4);
+  expect([...files].some(name => /INSGuitarSteel_StringHighE_Vel02_Fs4_01\.(m4a|ogg)$/.test(name))).toBe(true);
+
+  await minor.click();
+  await expect(minor).toHaveAttribute('data-playing', '');
+  await expect(major).not.toHaveAttribute('data-playing');
+  await expect.poll(async () => (await starts(page)).length).toBe(8);
+  expect([...files].some(name => /INSGuitarSteel_StringHighE_Vel02_F4_01\.(m4a|ogg)$/.test(name))).toBe(true);
+  const log = await starts(page);
+  close(log[4].when, log[5].when - 0.022);
+  await minor.click();
+  await expect(minor).not.toHaveAttribute('data-playing');
+
+  // Uusi D/Dm-kuuntelu ei syrjäytä vanhaa E/Em-sokkoarvausta eikä kuittaa tehtävää.
+  await section.getByRole('button', { name: 'Arvaa' }).click();
+  await expect(section.locator('[data-arvaus-kuuntelu]')).toBeVisible();
+  await section.getByRole('button', { name: 'Kuuntele sointu 1' }).click();
+  await expect(section.locator('[data-arvaus-vastaus]')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Merkitse kokeilluksi' })).toHaveAttribute('aria-pressed', 'false');
+});
+
 test('04 sointukierto ja asteet: G–D–Em–C neljän tahdin kitaranäytteillä', async ({ page }) => {
   await recordAudio(page);
   await page.goto(ydinPath(3));
