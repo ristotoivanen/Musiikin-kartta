@@ -115,7 +115,8 @@ test('sovittimen PCM-aikajana säilyttää 72 BPM:n, 150 ms:n vaimennuksen ja G-
     const lead = 0.12;
     const onset = 0.005;
     const duration = 6;
-    async function render(events: typeof scores.e2) {
+    type NoteEvent = { string: number; midi: number; layer: string; at: number; releaseAt: number; fade: number };
+    async function render(events: NoteEvent[]) {
       const context = new OfflineAudioContext(1, rate * duration, rate);
       const buffer = context.createBuffer(1, rate * duration, rate);
       buffer.getChannelData(0).fill(1, Math.round(onset * rate));
@@ -136,11 +137,11 @@ test('sovittimen PCM-aikajana säilyttää 72 BPM:n, 150 ms:n vaimennuksen ja G-
       beforeStrum: Array.from({ length: 6 }, (_, i) => strum(i * .045 - .002)),
     };
   });
-  output.attack.forEach(x => expect(x).toBeCloseTo(.1, 4));
+  output.attack.forEach((x: number) => expect(x).toBeCloseTo(.1, 4));
   expect(output.muted).toBe(0);
   expect(output.fadeMid).toBeCloseTo(.05, 3);
-  output.strum.forEach((level, i) => expect(level).toBeCloseTo(.1 * (i + 1), 4));
-  output.beforeStrum.forEach((level, i) => expect(level).toBeCloseTo(.1 * i, 4));
+  output.strum.forEach((level: number, i: number) => expect(level).toBeCloseTo(.1 * (i + 1), 4));
+  output.beforeStrum.forEach((level: number, i: number) => expect(level).toBeCloseTo(.1 * i, 4));
 });
 
 test('kapea näkymä ja iso teksti eivät piilota soittimia', async ({ page }) => {
