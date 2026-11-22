@@ -554,7 +554,7 @@ test('02 D/Dm: valittu pari toimii samassa sokkoarvauksessa ja E/Em palautuu enn
   await expect(pairD).toHaveAttribute('aria-pressed', 'true');
   await expect(pairE).toHaveAttribute('aria-pressed', 'false');
   await expect(section.locator('[data-suora-kuuntelu] .sointu-vaihtuva > span:first-child'))
-    .toHaveText(['D', 'Dm']);
+    .toHaveText(['Sointu 1 · D', 'Sointu 2 · Dm']);
   await expect(section.locator('[data-arvaus-kysymys] [data-kysymys]'))
     .toHaveText('Kuuntele ensin D ja Dm');
 
@@ -586,7 +586,7 @@ test('02 D/Dm: valittu pari toimii samassa sokkoarvauksessa ja E/Em palautuu enn
   await expect(pairE).toHaveAttribute('aria-pressed', 'true');
   await expect(pairD).toHaveAttribute('aria-pressed', 'false');
   await expect(section.locator('[data-suora-kuuntelu] .sointu-vaihtuva > span:first-child'))
-    .toHaveText(['E', 'Em']);
+    .toHaveText(['Sointu 1 · E', 'Sointu 2 · Em']);
   await expect(section.locator('[data-arvaus-kysymys] [data-kysymys]'))
     .toHaveText('Kuuntele ensin E ja Em');
   await expect(section.locator('[data-arvaus-kaaviot] figcaption')).toHaveText(['E', 'Em']);
@@ -976,8 +976,8 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     const tip = page.locator('details.study-knoppi');
     await expect(charts.getByRole('img')).toHaveCount(2);
     const normal = page.getByRole('group', { name: 'Kuuntele soinnut' });
-    await normal.getByRole('button', { name: 'E', exact: true }).click();
-    await expect(normal.getByRole('button', { name: 'E', exact: true })).toHaveAttribute('data-playing', '');
+    await normal.getByRole('button', { name: 'Sointu 1 · E' }).click();
+    await expect(normal.getByRole('button', { name: 'Sointu 1 · E' })).toHaveAttribute('data-playing', '');
     await tip.locator('summary').click();
     await page.evaluate(() => {
       const values = [0.9, 0.1, 0.1, 0.9];
