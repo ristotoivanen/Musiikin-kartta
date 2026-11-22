@@ -259,9 +259,9 @@ export function positionAt(transport, time) {
 export function pulseCellAt(transport, time, revealed, reducedMotion = false) {
   const position = positionAt(transport, time);
   if (!position) return null;
-  // B-version toinen tahti on kokonaan hiljainen myös visuaalisesti.
-  // Ylärivin ensimmäinen ruutu ei välähdä, eikä paljastetun tilan alarivi korostu.
-  if (position.drumGap && position.cell.bar === 1) return null;
+  // B-version toinen tahti on äänetön. Piilotettuna vihreä korostuskin
+  // katoaa; paljastettuna näytetään iskut 1–4 hiljaisessa tahdissa.
+  if (position.drumGap && position.cell.bar === 1 && !revealed) return null;
   const beatStartStep = position.step - position.step % 2;
   const elapsed = time - (transport.begin + beatStartStep * transport.stepDuration);
   // Äänikellon neljäsosaisku kestää 2 * stepDuration. Korostus kestää
@@ -667,7 +667,7 @@ function setupExercise(root) {
     drawReveal();
     // Tilasta ilmoitetaan vain käyttäjän valinnalla, ei jokaisesta animaatioruudusta.
     pulseStatus.textContent = state.revealed
-      ? 'Pulssi paljastettu. Iskut 1–4 näkyvät, mutta B-version hiljaisessa tahdissa ei ole korostusta.'
+      ? 'Pulssi paljastettu. Vihreä korostus näyttää iskut 1–4 myös hiljaisessa tahdissa, mutta ääniä ei soiteta.'
       : 'Pulssi piilotettu. Vain ylemmän rivin ensimmäinen ruutu välähtää jokaisella iskulla.';
   });
 

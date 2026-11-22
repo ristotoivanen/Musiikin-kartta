@@ -83,7 +83,7 @@ describe('#163: kahden tahdin pulssivihje', () => {
     });
   }
 
-  it('B:n hiljaisessa toisessa tahdissa mikään ruutu ei välähdä kummassakaan tilassa', () => {
+  it('B:n hiljainen toinen tahti on piilotettuna ilman välähdyksiä, mutta paljastettuna iskut 1–4 korostuvat', () => {
     for (const tempo of [96, 108]) {
       const transport = createTransport({ task: 'pulssi', tempo, begin: 1, drumGap: true });
       const eighth = transport.stepDuration;
@@ -96,7 +96,8 @@ describe('#163: kahden tahdin pulssivihje', () => {
           expect(pulseCellAt(transport, firstBar, true)).toEqual({ bar: 0, index: beat });
           for (const reduced of [false, true]) {
             expect(pulseCellAt(transport, silentBar, false, reduced)).toBeNull();
-            expect(pulseCellAt(transport, silentBar, true, reduced)).toBeNull();
+            expect(pulseCellAt(transport, silentBar, true, reduced)).toEqual({ bar: 1, index: beat });
+            expect(pulseCellAt(transport, silentBar + .23, true, reduced)).toBeNull();
           }
         }
       }

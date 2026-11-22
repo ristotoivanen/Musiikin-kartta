@@ -403,7 +403,32 @@ test.describe('harjoitussivut', () => {
     await expect(page.locator('[data-rummut-tahti]')).toContainText('Täysi hiljaisuus');
     await page.getByRole('button', { name: 'Paljasta pulssi' }).click();
     await expect(page.locator('.rytmi-isku-nimi')).toHaveText(['1','2','3','4','1','2','3','4']);
-    await expect(page.locator('.rytmi-pulssi-status')).toContainText('hiljaisessa tahdissa ei ole korostusta');
+    await expect(page.locator('.rytmi-pulssi-status')).toContainText('myös hiljaisessa tahdissa');
+  });
+
+  test('01: B:n paljastettu pulssi korostaa myös hiljaisen tahdin iskut ilman ääniä', async ({ page }) => {
+    await page.goto('/oppi/rytmi/loyda-pulssi-ja-ykkonen.html');
+    await page.getByRole('button', { name: 'B · Toinen tahti hiljaa' }).click();
+    await page.getByRole('button', { name: 'Uusi esimerkki · 108 BPM' }).click();
+    await page.getByRole('button', { name: 'Paljasta pulssi' }).click();
+    await playButton(page).click();
+    await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
+    const observed = await page.evaluate(() => new Promise<string[]>(resolve => {
+      const root = document.querySelector('[data-rytmiharjoitus="pulssi"]')!;
+      const seen = new Set<string>();
+      const watcher = new MutationObserver(changes => {
+        for (const change of changes) {
+          const cell = change.target as HTMLElement;
+          if (!cell.matches('[data-rytmi-isku].is-active')) continue;
+          seen.add(`${cell.dataset.tahti}:${[...cell.parentElement!.children].indexOf(cell)}`);
+        }
+      });
+      watcher.observe(root, { subtree: true, attributes: true, attributeFilter: ['class'] });
+      window.setTimeout(() => { watcher.disconnect(); resolve([...seen].sort()); }, 5300);
+    }));
+    expect(observed).toEqual(['0:0', '0:1', '0:2', '0:3', '1:0', '1:1', '1:2', '1:3']);
+    await playButton(page).click();
+    await expect(page.locator('.rytmi-isku.is-active')).toHaveCount(0);
   });
 
   test('01: pulssivihje näyttää iskujen numerot ja piilottaa ne', async ({ page }) => {
