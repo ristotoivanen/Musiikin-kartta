@@ -75,6 +75,11 @@
               "standalone": "sama-musiikki-eri-tuntuma",
               "title": "Sama musiikki, eri tuntuma",
               "goal": "Kuule ja vertaile"
+            },
+            {
+              "standalone": "valmistaudu-seuraavaan-osaan",
+              "title": "Valmistaudu seuraavaan osaan",
+              "goal": "Vaimenna D nelosella, aloita G ykkösellä"
             }
           ],
           "inline": true,
