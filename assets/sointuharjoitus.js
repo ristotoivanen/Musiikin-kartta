@@ -46,7 +46,7 @@
     soita: 'Kuuntele, miltä kaikki kuusi kieltä kuulostavat yhdessä. Ääni on oikeasta kitaranäytteestä.',
     rakenna: 'Voit valita kolme säveltä haluamassasi järjestyksessä.',
     kokoa: 'Valitse esimerkki kuunneltavaksi.',
-    arvaa: 'Kuuntele ensin soinnut 1 ja 2.',
+    arvaa: 'Valitse sointupari ja paina Tunnista.'
     paluu: 'Valitse ensin lopetus: G, C tai D.',
     asteet: 'Kuuntele neljä tahtia ja kokeile samaa kiertoa omalla kitaralla.',
     vihjeet: 'Valitse vihjeiden määrä ja aloita neljä neljän tahdin kierrosta.',
@@ -315,7 +315,6 @@
   }
 
   function setupGuess(section, playExample, stopExample, showExerciseStatus) {
-    const normal = section.querySelector('[data-suora-kuuntelu]');
     const listening = section.querySelector('[data-arvaus-kuuntelu]');
     const question = section.querySelector('[data-arvaus-kysymys]');
     const heading = question.querySelector('[data-kysymys]');
@@ -335,7 +334,7 @@
     };
     const families = { D: ['D', 'Dm'], E: ['E', 'Em'] };
     const pairButtons = [...section.querySelectorAll('[data-arvaus-pari]')];
-    let family = 'E';
+    let family = 'D';
     const next = section.querySelector('[data-uusi-arvaus]');
     const fullName = { D: 'D-duuri', Dm: 'D-molli', E: 'E-duuri', Em: 'E-molli' };
     // #115: D/Dm ensin. F4 on oikea Vel02:n kitaranäyte,
@@ -366,12 +365,8 @@
     let target;
     let answered = false;
 
-    const normalButtons = [...normal.querySelectorAll('button')];
-    for (const button of normalButtons) {
-      button.addEventListener('click', () => playExample(button, plans[button.dataset.ydinPlay]));
-    }
-    // Molemmat sointuparit käyttävät täsmälleen samaa arvausmekanismia.
-    // E/Em on oletus, jotta jo hyväksytty kuuntelu ja sen näppäimistötoiminta säilyvät.
+    // Vertailut ovat erilliset kohdat 1 ja 2. Tunnistus aloitetaan suoraan parin
+    // valinnasta; nimetyt soinnut eivät näy tässä kolmannessa vaiheessa.
     function chooseFamily(nextFamily) {
       if (family === nextFamily) return;
       stop();
@@ -381,22 +376,13 @@
       const names = families[family];
       pairButtons.forEach(button =>
         button.setAttribute('aria-pressed', String(button.dataset.arvausPari === family)));
-      normalButtons.forEach((button, index) => {
-        button.dataset.ydinPlay = names[index];
-        button.querySelector('.sointu-vaihtuva > span:first-child').textContent = `Sointu ${index + 1} · ${names[index]}`;
-      });
-      normal.hidden = false;
-      listening.hidden = answers.hidden = feedback.hidden = diagrams.hidden = true;
+      question.hidden = listening.hidden = answers.hidden = feedback.hidden = diagrams.hidden = true;
       question.classList.remove('is-active');
-      heading.textContent = `Kuuntele ensin ${names[0]} ja ${names[1]}`;
-      prompt.textContent = 'Kuuntele molemmat soinnut. Valitse sitten Tunnista.';
-      for (const chord of names) chords[chord].querySelector('figcaption').textContent = chord;
-      // Vastauksen kaaviot ovat eri alueella kuin aina näkyvät D/Dm- ja E/Em-vertailut.
       diagrams.replaceChildren();
       next.querySelector('[data-uusi-arvaus-teksti]').textContent = 'Tunnista';
       feedback.textContent = firstPrompt;
       feedback.classList.remove('is-error');
-      showExerciseStatus(`Valittu ${names.join(' ja ')}. Kuuntele ja aloita tunnistus.`);
+      showExerciseStatus(`Valittu ${names.join(' ja ')}. Paina Tunnista.`);
     }
     pairButtons.forEach(button =>
       button.addEventListener('click', () => chooseFamily(button.dataset.arvausPari)));
@@ -419,9 +405,9 @@
       pair = Math.random() < 0.5 ? [...selected] : [...selected].reverse();
       target = Math.random() < 0.5 ? selected[1] : selected[0];
       answered = false;
-      normal.hidden = diagrams.hidden = true;
+      diagrams.hidden = true;
       diagrams.replaceChildren();
-      listening.hidden = answers.hidden = feedback.hidden = false;
+      question.hidden = listening.hidden = answers.hidden = feedback.hidden = false;
       question.classList.add('is-active');
       heading.textContent = target === selected[0] ? 'Kumpi on duuri?' : 'Kumpi on molli?';
       prompt.textContent = 'Kuuntele soinnut 1 ja 2. Valitse sitten vastaus.';
