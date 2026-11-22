@@ -242,3 +242,58 @@ test('balanssikoe ei väitä miksauksen hyväksyntää ja pitää A/B/C-säätim
   expect(label).toContain('55 %');
   expect(label).toContain('70 %');
 });
+
+test('M2 ja M3 käyttävät samaa B-WAV:ia mutta omia bassotaajuuksien koesäätöjä', async ({page}) => {
+  await page.addInitScript(() => {
+    const win = window as Window & { __shelves?: BiquadFilterNode[] };
+    win.__shelves = [];
+    const original = AudioContext.prototype.createBiquadFilter;
+    AudioContext.prototype.createBiquadFilter = function() {
+      const filter = original.call(this);
+      win.__shelves?.push(filter);
+      return filter;
+    };
+  });
+  const requests: string[] = [];
+  page.on('request', req => { if(req.url().endsWith('em-komppi-b-m3-hillitty-basso.wav'))requests.push(req.url()); });
+  await page.goto(url);
+  await expect(page.locator('#bassControls')).toBeHidden();
+  await page.locator('button[data-mode="M2"]').click();
+  await expect(page.locator('#bassControls')).toBeVisible();
+  await page.locator('#start').click();
+  await expect(page.locator('#message')).toContainText('Musiikki soi:', {timeout:15000});
+  const state = () => page.evaluate(() => {
+    const filters=(window as Window & {__shelves?:BiquadFilterNode[]}).__shelves ?? [];
+    const f=filters.at(-1);
+    return f ? {type:f.type,frequency:f.frequency.value,gain:f.gain.value} : null;
+  });
+  await expect.poll(state).toEqual({type:'lowshelf',frequency:90,gain:0});
+  await page.locator('#bassBoost').fill('2');
+  await expect(page.locator('#bassBoostLabel')).toHaveText('+2 dB');
+  await expect.poll(async () => (await state())?.gain).toBeCloseTo(2, 1);
+  await page.locator('#bassBoost').fill('4');
+  await expect(page.locator('#bassBoostLabel')).toHaveText('+4 dB');
+  await expect.poll(async () => (await state())?.gain).toBeCloseTo(4, 1);
+  await page.locator('#stop').click();
+  await page.locator('button[data-mode="M3"]').click();
+  await expect(page.locator('#bassControls')).toBeVisible();
+  await expect(page.locator('#m2GainControls')).toBeHidden();
+  await page.locator('#bassBoost').fill('0');
+  await page.locator('#start').click();
+  await expect(page.locator('#message')).toContainText('Musiikki soi:', {timeout:15000});
+  await expect.poll(state).toEqual({type:'lowshelf',frequency:90,gain:0});
+  await page.locator('#bassBoost').fill('2');
+  await expect.poll(async () => (await state())?.gain).toBeCloseTo(2, 1);
+  await page.locator('#stop').click();
+  expect(requests).toHaveLength(1);
+});
+
+test('bassotaajuuksien säätö pysyy piilossa sokkoutetun A/B/C-kuuntelun aikana', async ({page}) => {
+  await page.goto(url);
+  await page.locator('button[data-mode="M2"]').click();
+  await expect(page.locator('#bassControls')).toBeVisible();
+  await page.locator('#trialBegin').click();
+  await expect(page.locator('#bassControls')).toBeHidden();
+  await page.locator('#trialEnd').click();
+  await expect(page.locator('#bassControls')).toBeVisible();
+});
