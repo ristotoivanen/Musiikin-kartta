@@ -417,7 +417,7 @@
             if (answered) return;
             // Vähintään yhden tämän kierroksen ääniesimerkin käynnistyminen riittää.
             choices.forEach(choice => { choice.disabled = false; });
-            feedback.textContent = 'Voit nyt vastata tai kuunnella myös toisen soinnun.';
+            feedback.textContent = 'Voit nyt vastata.';
           },
         });
       });
@@ -446,7 +446,7 @@
       question.hidden = listening.hidden = answers.hidden = feedback.hidden = false;
       question.classList.add('is-active');
       heading.textContent = target === selected[0] ? 'Kumpi on duuri?' : 'Kumpi on molli?';
-      prompt.textContent = 'Kuuntele vähintään yksi sointu ennen vastaamista.';
+      prompt.textContent = 'Kuuntele sointuja 1 ja 2. Valitse sitten vastaus.';
       feedback.textContent = firstPrompt;
       feedback.classList.remove('is-error', 'is-answered');
       choices.forEach(button => {
@@ -457,7 +457,7 @@
       });
       listenButtons.forEach(button => button.classList.remove('is-correct', 'is-wrong'));
       nameListening(false);
-      showExerciseStatus('Kuuntele vähintään yksi sointu ennen vastaamista.');
+      showExerciseStatus('Kuuntele sointuja ja valitse vastaus.');
       // Ensimmäinen aloitus tuo
       // sointuparin valinnan JA kysymyksen samaan näkymään. Jos vierittäisimme
       // pelkkään kysymyskorttiin, D/Dm- ja E/Em-painikkeet jäisivät yläpuolelle.
