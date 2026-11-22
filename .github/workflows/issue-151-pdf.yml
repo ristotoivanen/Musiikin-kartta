@@ -1,0 +1,76 @@
+name: "#151 PDF generation and verification"
+
+on:
+  pull_request:
+    branches: [beta]
+    paths:
+      - 'tools/pdf/rakenna-pdf.py'
+      - 'tests/issue-151-pdf.py'
+      - '.github/workflows/issue-151-pdf.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Lint, typecheck, unit tests
+        run: npm run lint && npm run typecheck && npm test
+      - name: Generated site consistency
+        run: python3 tools/oppimiskartta/rakenna.py --tarkista
+      - name: Site link integrity
+        run: python3 tools/linkit/tarkista-linkit.py
+
+  fresh-pdf:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install Playwright Chromium
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Install PDF inspector
+        run: python3 -m pip install --disable-pip-version-check 'PyMuPDF==1.26.6'
+      - name: Source-assembly and homepage independence regression
+        run: python3 tests/issue-151-pdf.py --source-only
+      - name: Validate against PR #150 original regression, without copying its tests into this PR
+        run: |
+          git fetch --no-tags --depth=1 origin b7441d363ec766d477dbcc12962fe89d7e37fceb
+          git show FETCH_HEAD:tests/issue-117-pdf-sources.py > tests/issue-117-pdf-sources.py
+          python3 tests/issue-117-pdf-sources.py
+      - name: Build a new PDF from the checked-out source tree
+        env:
+          OUTPUT_DIR: ${{ runner.temp }}/issue-151-pdf
+        run: |
+          set -euo pipefail
+          mkdir -p "$OUTPUT_DIR"
+          test ! -e "$OUTPUT_DIR/musiikin-kartta.pdf"
+          CHROME="$(node -p "require('playwright').chromium.executablePath()")" \
+            python3 tools/pdf/rakenna-pdf.py \
+              --out "$OUTPUT_DIR/musiikin-kartta.pdf" \
+              --html "$OUTPUT_DIR/musiikin-kartta.html"
+          python3 tests/issue-151-pdf.py \
+            --pdf "$OUTPUT_DIR/musiikin-kartta.pdf" \
+            --html "$OUTPUT_DIR/musiikin-kartta.html"
+      - name: Upload exact PDF and visual inspection samples
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue-151-fresh-pdf
+          path: ${{ runner.temp }}/issue-151-pdf/
+          if-no-files-found: warn
+          retention-days: 14
