@@ -718,6 +718,83 @@ test('02:n duuri/molli-vuorottelu on parikohtainen ja Sointu 1/2 -järjestys arv
   await expect(section.getByRole('button', { name: 'Tunnista', exact: true })).toBeHidden();
 });
 
+test('02:n kolmas A/Am-pari: aidot sävelet, kuuntelulukko, palaute ja vuorottelu', async ({ page }) => {
+  await recordAudio(page);
+  const sounds = new Set<string>();
+  page.on('response', response => {
+    if (response.ok() && response.url().includes('/assets/audio/soinnut/'))
+      sounds.add(decodeURIComponent(response.url().split('/').pop() ?? ''));
+  });
+  await page.goto(ydinPath(1));
+  const section = page.locator('[data-sointuharjoitus="arvaa"]');
+  const a = section.getByRole('button', { name: 'A / Am' });
+  const d = section.getByRole('button', { name: 'D / Dm' });
+  const e = section.getByRole('button', { name: 'E / Em' });
+  const heading = section.locator('[data-kysymys]');
+  const listening = section.locator('[data-arvaus-kuuntelu]');
+  const answers = section.locator('[data-arvaus-vastaus] button');
+  const charts = section.locator('[data-arvaus-kaaviot]');
+
+  await expect(a).toHaveAttribute('aria-pressed', 'false');
+  await a.click();
+  await expect(a).toHaveAttribute('aria-pressed', 'true');
+  await expect(d).toHaveAttribute('aria-pressed', 'false');
+  await expect(section.locator('[data-arvaus-kysymys]')).toBeHidden();
+  await page.evaluate(() => { Math.random = () => 0.1; });
+  await section.getByRole('button', { name: 'Tunnista', exact: true }).click();
+  await expect(heading).toHaveText('Kumpi on duuri?');
+  await expect(answers.nth(0)).toBeDisabled();
+  await expect(answers.nth(1)).toBeDisabled();
+  await expect(section.locator('[data-aam-kaaviot]')).toBeHidden();
+
+  await listening.getByRole('button', { name: 'Kuuntele sointu 1' }).click();
+  await expect(answers.nth(0)).toBeEnabled();
+  await expect(answers.nth(1)).toBeEnabled();
+  await expect.poll(async () => (await starts(page)).length).toBe(5);
+  expect([...sounds].some(name => /^INSGuitarSteel_StringA_Vel02_A2_01\\.(m4a|ogg)$/.test(name))).toBe(true);
+  expect([...sounds].some(name => /^INSGuitarSteel_StringB_Vel02_Cs4_01\\.(m4a|ogg)$/.test(name))).toBe(true);
+  await answers.nth(1).click();
+  await expect(section.locator('[data-arvauspalaute]'))
+    .toHaveText('Tällä kertaa ei. Sointu 1 oli A-duuri ja sointu 2 oli A-molli.');
+  await expect(section.locator('[data-arvauspalaute]')).toHaveCSS('color', 'rgb(255, 224, 138)');
+  await expect(answers.nth(1)).toHaveClass(/is-wrong/);
+  await expect(answers.nth(0)).not.toHaveClass(/is-(correct|wrong)/);
+  await expect(answers.nth(0)).toHaveAttribute('aria-disabled', 'true');
+  await expect(answers.nth(1)).toHaveAttribute('aria-disabled', 'true');
+  await expect(charts.locator('figcaption')).toHaveText(['Sointu 1 = A', 'Sointu 2 = Am']);
+  await expect(charts.locator('code')).toHaveText(['x02220', 'x02210']);
+  await listening.getByRole('button', { name: 'Kuuntele sointu 2, A-molli' }).click();
+  await expect(listening.locator('button').nth(1)).toHaveClass(/is-wrong/);
+  await listening.getByRole('button', { name: 'Kuuntele sointu 1, A-duuri' }).click();
+  await expect(listening.locator('button').first()).toHaveClass(/is-correct/);
+  await expect(listening.locator('button').nth(1)).not.toHaveClass(/is-(correct|wrong)/);
+
+  // Sama pari avaa mollikysymyksen, aloituspainike ei palaudu.
+  await page.evaluate(() => { Math.random = () => 0.9; });
+  await a.click();
+  await expect(heading).toHaveText('Kumpi on molli?');
+  await expect(answers.nth(0)).toBeDisabled();
+  await expect(charts).toBeHidden();
+  await expect(listening.locator('button').first()).not.toHaveClass(/is-(correct|wrong)/);
+  await listening.getByRole('button', { name: 'Kuuntele sointu 2' }).click();
+  await expect(answers.nth(0)).toBeEnabled();
+  await answers.nth(0).click();
+  await expect(section.locator('[data-arvauspalaute]'))
+    .toHaveText('Oikein! Sointu 1 oli A-molli ja sointu 2 oli A-duuri.');
+  await expect(charts.locator('code')).toHaveText(['x02210', 'x02220']);
+  await expect(section.locator('[data-arvauspalaute]')).toHaveCSS('color', 'rgb(159, 228, 195)');
+
+  // Kysymyksen vuorottelu on parikohtainen eikä muuta E/D-tehtävien painikkeita.
+  await e.click();
+  await expect(heading).toHaveText('Kumpi on duuri?');
+  await d.click();
+  await expect(heading).toHaveText('Kumpi on duuri?');
+  await a.click();
+  await expect(heading).toHaveText('Kumpi on duuri?');
+  await expect(answers.nth(1)).toBeDisabled();
+  await expect(section.getByRole('button', { name: 'Tunnista', exact: true })).toBeHidden();
+});
+
 test('04 sointukierto ja asteet: G–D–Em–C neljän tahdin kitaranäytteillä', async ({ page }) => {
   await recordAudio(page);
   await page.goto(ydinPath(3));
