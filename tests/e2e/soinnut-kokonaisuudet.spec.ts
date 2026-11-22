@@ -602,7 +602,7 @@ test('02:n D/Dm-tunnistus toimii oletuksena ja E/Em-vaihtoehto samassa tehtävä
   await expect(question).toBeVisible();
   await expect(section.locator('[data-arvaus-kuuntelu]')).toBeVisible();
   await expect(charts).toBeHidden();
-  await expect(section.locator('[data-arvauspalaute]')).toContainText('Valitse sointu 1 tai 2.');
+  await expect(section.locator('[data-arvauspalaute]')).toHaveText('Saat palautteen heti. Aloita uusi tehtävä valitsemalla sointupari ylhäältä.');
   await expect(section.locator('[data-eem-kaaviot] figcaption')).toHaveText(['E', 'Em']);
   await expect(section.getByRole('button', { name: 'Tunnista', exact: true })).toBeHidden();
   await expect(question.locator('[data-kysymys]')).toHaveText('Kumpi on duuri?');
@@ -616,7 +616,7 @@ test('02:n D/Dm-tunnistus toimii oletuksena ja E/Em-vaihtoehto samassa tehtävä
   // Vastauksen jälkeen valittu sama pari aloittaa uuden tehtävän ilman Tunnista-painiketta.
   await pairE.click();
   await expect(question.locator('[data-kysymys]')).toHaveText('Kumpi on molli?');
-  await expect(section.locator('[data-arvauspalaute]')).toContainText('Valitse sointu 1 tai 2.');
+  await expect(section.locator('[data-arvauspalaute]')).toHaveText('Saat palautteen heti. Aloita uusi tehtävä valitsemalla sointupari ylhäältä.');
   await expect(charts).toBeHidden();
   await expect(section.locator('[data-arvaus-teksti]')).toHaveText(['Sointu 1', 'Sointu 2']);
   await expect(section.getByRole('button', { name: 'Tunnista', exact: true })).toBeHidden();
@@ -626,7 +626,7 @@ test('02:n D/Dm-tunnistus toimii oletuksena ja E/Em-vaihtoehto samassa tehtävä
   await expect(question).toBeVisible();
   await expect(question.locator('[data-kysymys]')).toHaveText('Kumpi on molli?');
   await expect(section.locator('[data-arvaus-teksti]')).toHaveText(['Sointu 1', 'Sointu 2']);
-  await expect(section.locator('[data-arvauspalaute]')).toContainText('Valitse sointu 1 tai 2.');
+  await expect(section.locator('[data-arvauspalaute]')).toHaveText('Saat palautteen heti. Aloita uusi tehtävä valitsemalla sointupari ylhäältä.');
   // Jo valitun D/Dm-parin uusi painallus palauttaa duurikysymyksen.
   await pairD.click();
   await expect(question.locator('[data-kysymys]')).toHaveText('Kumpi on duuri?');
