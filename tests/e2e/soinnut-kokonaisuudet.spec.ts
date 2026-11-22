@@ -983,7 +983,9 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
         // Tunnista/Uusi tehtävä -nimi pysyy keskellä vaihtuvasta painiketekstistä huolimatta.
         const labelOffCenter = () => next.evaluate(button => {
           const box = button.getBoundingClientRect();
-          const label = button.querySelector('[data-uusi-arvaus-teksti]')!.getBoundingClientRect();
+          const range = document.createRange();
+          range.selectNodeContents(button);
+          const label = range.getBoundingClientRect();
           return Math.abs((label.left + label.right) / 2 - (box.left + box.right) / 2);
         });
         // Kuuntelupainikkeen nimi on kuvakkeen tasalla, vaikka painike varaa kaksirivisen nimen tilan.
