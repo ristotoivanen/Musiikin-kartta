@@ -46,6 +46,7 @@
     arvaa: 'Napauta E:tä tai Em:ää kuunnellaksesi.',
     paluu: 'Valitse ensin lopetus: G, C tai D.',
     asteet: 'Kuuntele neljä tahtia ja kokeile samaa kiertoa omalla kitaralla.',
+    vihjeet: 'Valitse vihjeiden määrä ja aloita neljä neljän tahdin kierrosta.',
   };
 
   // AAC ensin, jos selain ilmoittaa tukevansa sitä. Verkkovirhe tai purkuvirhe kokeilee toista muotoa.
@@ -498,6 +499,71 @@
     });
   }
 
+
+  function setupHints(section, playExample, stopExample, showExerciseStatus) {
+    const buttons = [...section.querySelectorAll('[data-vihje-mode]')];
+    const area = section.querySelector('[data-vihje-kartta]');
+    const main = [...section.querySelectorAll('[data-vihje-teksti]')];
+    const sub = [...section.querySelectorAll('[data-vihje-ala]')];
+    const bars = [...section.querySelectorAll('[data-vihje-tahti]')];
+    const hint = section.querySelector('[data-vihje-ohje]');
+    const playButton = section.querySelector('[data-vihje-play]');
+    const sequence = ['G', 'D', 'Em', 'C'];
+    const degrees = ['I', 'V', 'vi', 'IV'];
+    const modes = {
+      soinnut: 'Soitettava sointu ja tahdin numero näkyvät.',
+      asteet: 'Soinnun aste ja tahdin numero näkyvät.',
+      tahdit: 'Vain tahdin numero näkyy. Muista soinnut itse.',
+      ilman: 'Sointuvihjeet ja tahtikartta on piilotettu. Soita muistista.',
+    };
+    let mode = 'soinnut';
+    let active = -1;
+
+    function draw(position) {
+      active = position;
+      bars.forEach((bar, index) => {
+        if (mode !== 'ilman' && index === position) bar.setAttribute('aria-current', 'step');
+        else bar.removeAttribute('aria-current');
+      });
+    }
+
+    function setMode(nextMode) {
+      mode = nextMode;
+      buttons.forEach(button =>
+        button.setAttribute('aria-pressed', String(button.dataset.vihjeMode === mode)));
+      area.hidden = mode === 'ilman';
+      hint.textContent = modes[mode];
+      main.forEach((item, index) => {
+        item.textContent = mode === 'soinnut' ? sequence[index] :
+          mode === 'asteet' ? degrees[index] : String(index + 1);
+        sub[index].textContent = mode === 'tahdit' ? 'Tahti' : `Tahti ${index + 1}`;
+      });
+      draw(active);
+    }
+
+    buttons.forEach(button =>
+      button.addEventListener('click', () => setMode(button.dataset.vihjeMode)));
+    playButton.addEventListener('click', () => {
+      if (session?.trigger === playButton) {
+        stopExample('Pysäytetty. Voit kokeilla uudelleen.');
+        return;
+      }
+      // Neljä itsenäistä kierrosta, sama 4/4-pulssi. Ei ylimääräistä
+      // "tunnistettu oikein" -arviota tai pakollista etenemisjärjestystä.
+      const plan = Array.from({ length: 4 }, (_, cycle) =>
+        sequence.flatMap((chord, index) =>
+          notes(HARMONY[chord], 2.15, 0.23, 0.022, (cycle * 4 + index) * BAR)),
+      ).flat();
+      playButton.textContent = '■ Pysäytä harjoitus';
+      playExample(playButton, plan, {
+        label: 'Harjoitus soi. Vaihda vihjeitä vapaasti.',
+        onPosition: elapsed => draw(elapsed < 0 ? -1 : Math.min(3, Math.floor(elapsed / BAR) % 4)),
+        onStop: () => { playButton.textContent = '▶ Aloita soittoharjoitus'; },
+      });
+    });
+    setMode(mode);
+  }
+
   for (const section of sections) {
     const kind = section.dataset.sointuharjoitus;
     const status = section.querySelector('[data-sointu-tila]');
@@ -517,5 +583,6 @@
     if (kind === 'arvaa') setupGuess(section, playExample, stopExample, showExerciseStatus);
     if (kind === 'paluu') setupProgression(section, playExample, stopExample, showExerciseStatus);
     if (kind === 'asteet') setupDegrees(section, playExample, stopExample);
+    if (kind === 'vihjeet') setupHints(section, playExample, stopExample, showExerciseStatus);
   }
 })();
