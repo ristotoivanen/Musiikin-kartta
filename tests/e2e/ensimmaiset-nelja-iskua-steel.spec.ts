@@ -4,7 +4,6 @@ const url = '/testit/ensimmaiset-nelja-iskua-steel.html';
 
 test('M2 käyttää beta-koosteessa Steel E2:ta, B-taustaa ja samaa neljän iskun mallia', async ({page}) => {
   const requests:string[]=[];
-  const starts:{duration:number;when:number;loop:boolean;loopStart:number;loopEnd:number}[]=[];
   await page.addInitScript(() => {
     const win = window as Window & {
       __starts?:{duration:number;when:number;loop:boolean;loopStart:number;loopEnd:number}[];
