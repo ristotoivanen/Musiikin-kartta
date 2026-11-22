@@ -226,7 +226,7 @@
    sävelten kirjasinkoko sekä nauhojen ja kielten yhteinen geometria säilyvät. */
 @media (max-width: 430px) {
   .recap-neck-section {
-    margin-inline: -.5rem;
+    margin-inline: -.625rem;
     padding-inline: 8px;
   }
 }
