@@ -8,7 +8,7 @@ const $ = id => document.getElementById(id);
 
 const baseline = Object.freeze({ m0: .30, steel: 2.4, backing: .55 });
 const trials = Object.freeze({
-  m0: Object.freeze({ mode: 'M0', control: 'm0Gain', values: Object.freeze([.18, .30, .42]), unit: '%',
+  m0: Object.freeze({ mode: 'M0', control: 'm0Gain', values: Object.freeze([.20, .30, .40]), unit: '%',
     title: 'M0: E2-mallikitara suhteessa klikkiin',
     instruction: 'Vertaile kuivan E2:n iskua ja klikkiä. Sama lähtölasku ja sama soittokuvio jokaisella vaihtoehdolla.' }),
   steel: Object.freeze({ mode: 'M2', control: 'steelGain', values: Object.freeze([1.8, 2.4, 3.0]), unit: '×',
