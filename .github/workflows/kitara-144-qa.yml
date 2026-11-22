@@ -1,0 +1,47 @@
+name: Kitaran otelauta 144 QA
+
+on:
+  push:
+    branches:
+      - codex/kitara-144-otelaudan-luettavuus
+    paths:
+      - assets/kitara-kertaus.css
+      - oppi/kitara/index.html
+      - tests/e2e/kitaran-otelaudan-geometria-144.spec.ts
+      - tests/e2e/kitaran-lahtosivu.spec.ts
+      - .github/workflows/kitara-144-qa.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  otelauta:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Tarkista generaattorin toistettavuus
+        run: |
+          npm run build:oppimiskartta
+          git diff --exit-code -- oppi/kitara/index.html
+      - name: Yksikkötestit ja staattiset tarkistukset
+        run: |
+          npm run lint
+          npm run typecheck
+          npm test
+      - run: npx playwright install --with-deps chromium
+      - name: "Otelaudan koko QA: desktop ja puhelinemulaatio"
+        run: npx playwright test tests/e2e/kitaran-lahtosivu.spec.ts tests/e2e/kitaran-otelaudan-geometria-144.spec.ts --project=desktop --project=phone
+      - name: Säilytä epäonnistuneiden selaintestien aineisto
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kitara-144-playwright
+          path: test-results
+          if-no-files-found: ignore

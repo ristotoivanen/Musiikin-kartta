@@ -56,7 +56,7 @@
 .game-filter a {
   display: inline-flex; align-items: center; gap: .375rem; min-height: 44px; padding: .25rem .75rem;
   border: 1px solid #453854; border-radius: 999px; color: var(--text); text-decoration: none;
-  font-size: .9375rem; line-height: 1.25;
+  font-size: .9375rem; line-height: 1.25; overflow-wrap: anywhere;
 }
 .game-filter a:hover { border-color: var(--lavender); }
 /* Valittu rajaus erottuu reunalla, taustalla ja lihavoinnilla, ei pelkällä värillä (assets/osiot.js). */
