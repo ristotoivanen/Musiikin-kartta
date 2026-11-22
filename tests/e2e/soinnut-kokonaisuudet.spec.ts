@@ -992,11 +992,14 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     await page.goto(ydinPath(1));
     const charts = page.locator('[data-arvaus-kaaviot]');
     const tip = page.locator('details.study-knoppi');
-    await expect(charts.getByRole('img')).toHaveCount(2);
-    const normal = page.getByRole('group', { name: 'Kuuntele soinnut' });
-    await normal.getByRole('button', { name: 'Sointu 1 · E' }).click();
-    await expect(normal.getByRole('button', { name: 'Sointu 1 · E' })).toHaveAttribute('data-playing', '');
+    await expect(charts.getByRole('img')).toHaveCount(0);
+    await expect(charts).toBeHidden();
+    const eComparison = page.getByRole('group', { name: 'Vertaa E- ja Em-sointuja' });
+    await eComparison.getByRole('button', { name: 'Kuuntele E-duuri' }).click();
+    await expect(eComparison.getByRole('button', { name: 'Kuuntele E-duuri' })).toHaveAttribute('data-playing', '');
     await tip.locator('summary').click();
+    await page.getByRole('button', { name: 'E / Em' }).click();
+    await expect(page.getByRole('button', { name: 'E / Em' })).toHaveAttribute('aria-pressed', 'true');
     await page.evaluate(() => {
       const values = [0.9, 0.1, 0.1, 0.9];
       Math.random = () => values.shift() ?? 0;
@@ -1004,8 +1007,8 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     await page.getByRole('button', { name: 'Tunnista' }).click();
     await expect(page.getByRole('heading', { name: 'Kumpi on molli?' })).toBeFocused();
     await expect(charts).toBeHidden();
-    await expect(tip).toBeHidden();
-    await expect(normal).toBeHidden();
+    await expect(tip).toBeVisible();
+    await expect(eComparison).toBeVisible();
     const listen = page.getByRole('button', { name: 'Kuuntele sointu 1' });
     const bounds = await sizeOf(listen);
     if (isMobile) await listen.click();
@@ -1052,7 +1055,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     expect(await sizeOf(listen)).toEqual(bounds);
     const revealedSizes = await listenSizes();
     await expect(page.locator('[data-sointu-tila]')).toHaveText('Voit kuunnella molemmat soinnut uudelleen nimineen.');
-    await expect(normal).toBeHidden();
+    await expect(eComparison).toBeVisible();
     const played = (await starts(page)).length;
     await listenButtons.nth(1).click();
     await expect(listenButtons.nth(1)).toHaveAttribute('data-playing', '');
