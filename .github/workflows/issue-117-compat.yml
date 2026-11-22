@@ -1,0 +1,35 @@
+name: "#117 compatibility contract"
+
+on:
+  pull_request:
+    branches: [beta]
+    paths:
+      - 'docs/oppiminen/yhteensopivuus-117-2026-11-22.md'
+      - 'tests/fixtures/issue-117-legacy-urls.json'
+      - 'tests/yhteensopivuus-117.test.ts'
+      - 'tests/issue-117-pdf-sources.py'
+      - '.github/workflows/issue-117-compat.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compatibility:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Historical URL, ID, localStorage regression (Vitest)
+        run: npx vitest run tests/yhteensopivuus-117.test.ts
+      - name: Generator check without rewriting pages
+        run: python3 tools/oppimiskartta/rakenna.py --tarkista
+      - name: Static links and historical book-anchor cross-check
+        run: python3 tools/linkit/tarkista-linkit.py
+      - name: PDF HTML source assembly without Chrome/PDF changes
+        run: python3 tests/issue-117-pdf-sources.py
