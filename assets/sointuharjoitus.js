@@ -448,7 +448,7 @@
       heading.textContent = target === selected[0] ? 'Kumpi on duuri?' : 'Kumpi on molli?';
       prompt.textContent = 'Kuuntele vähintään yksi sointu ennen vastaamista.';
       feedback.textContent = firstPrompt;
-      feedback.classList.remove('is-error');
+      feedback.classList.remove('is-error', 'is-answered');
       choices.forEach(button => {
         button.disabled = true;
         button.removeAttribute('aria-disabled');
@@ -497,6 +497,7 @@
           }
         });
         feedback.classList.toggle('is-error', !correct);
+        feedback.classList.add('is-answered');
         const result = document.createElement('strong');
         result.className = 'sointu-arvaus-tulos';
         result.textContent = correct ? 'Oikein!' : 'Tällä kertaa ei.';
