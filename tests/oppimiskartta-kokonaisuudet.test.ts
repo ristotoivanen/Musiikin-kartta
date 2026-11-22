@@ -109,7 +109,7 @@ it('03 alkaa ilman valittua lopetusta ja kertoo G:n roolin vasta Mitä opit? -os
     // PR #141 (zoom): jokainen tunnistustilan vaihtuva teksti on myös näkymättömänä varauksena, jotta
     // kortin ja painikkeiden korkeus ei muutu tilanvaihdossa. JS:n teksti ja varaus pidetään samoina.
     const script = read('assets/sointuharjoitus.js');
-    const prompt = 'Kuuntele soinnut 1 ja 2. Valitse sitten vastaus.';
+    const prompt = 'Kuuntele sointuja 1 ja 2. Valitse sitten vastaus.';
     for (const text of ['Kumpi on duuri?', 'Kumpi on molli?', prompt]) expect(script).toContain(`'${text}'`);
     for (const [heading, text] of [['Kumpi on duuri?', prompt], ['Kumpi on molli?', prompt]]) {
       expect(html).toContain(`<div class="sointu-varaus" aria-hidden="true"><span class="sointu-varaus-otsikko">${heading}</span><span>${text}</span></div>`);
