@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 // Yhteinen käyttöliittymä: nämä polut varmistetaan sekä Rytmille että Soinnuille.
 // Äänen laatua, iOS:n lukituskäyttäytymistä tai pedagogista hyötyä ei todisteta emulaatiossa.
 const cases = [
-  { topic: 'rytmi', slug: 'loyda-pulssi-ja-ykkonen', id: 'oppitunti:loyda-pulssi-ja-ykkonen', old: 4, core: 3 },
+  { topic: 'rytmi', slug: 'loyda-pulssi-ja-ykkonen', id: 'oppitunti:loyda-pulssi-ja-ykkonen', old: 4, core: 4 },
   { topic: 'soinnut', slug: 'kuule-ja-kokoa-sointu', id: 'harjoitus:kuule-ja-kokoa-sointu', old: 18, core: 6 },
 ] as const;
 
@@ -333,7 +333,7 @@ test('Rytmin ja Sointujen vanhat merkinnät eivät kasvata Kokeiltu-laskureita',
     ]));
   });
   await page.reload();
-  await expect(page.locator('#ydinopinnot [data-unit-progress]')).toHaveText('0/3 kokeiltu');
+  await expect(page.locator('#ydinopinnot [data-unit-progress]')).toHaveText('0/4 kokeiltu');
   await expect(page.locator('#aiemmat [data-study-total]')).toHaveText('✓ Aiemmat sisällöt tehty');
   await page.goto('/oppi/soinnut/index.html');
   await expect(page.locator('#ydinopinnot [data-unit-progress]')).toHaveText('0/6 kokeiltu');
