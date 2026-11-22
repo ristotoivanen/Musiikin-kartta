@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { readFileSync } from 'node:fs';
 
 const path = '/testit/soitinpankki-kirjasto/';
 const audioResource = (url: string) => url.includes('/assets/soitinpankki/audio/');
@@ -30,7 +31,8 @@ test('Meta Steel lataa vain tehtävän vaatimat näytteet ja käyttää ne uudel
   await page.getByRole('button', { name: 'G-ote 320003' }).click();
   await expect(status).toHaveText('Toistetaan Meta Steel -äänillä.');
   await expect(page.locator('#details')).toContainText('6 näytettä');
-  expect(requests).toHaveLength(6);
+  // Yksi E2-näyte ladattiin jo aiemmassa tehtävässä, G-ote lisää kuusi uutta.
+  expect(requests).toHaveLength(7);
   await stop.click();
   await expect(status).toHaveText('Pysäytetty.');
   await expect(stop).toBeDisabled();
@@ -72,20 +74,29 @@ test('pysäytys estää vanhan näytelatauksen myöhäisen toiston', async ({ pa
   await page.getByRole('button', { name: 'Pysäytä' }).click();
 });
 
-test('virheellinen näytetiedosto käyttää toista äänimuotoa', async ({ page }) => {
+test('virheellisen ensimuodon jälkeen yritetään seuraavaa muotoa', async ({ page }) => {
   await page.goto(path);
   const oggFirst = await page.evaluate(() =>
     !!document.createElement('audio').canPlayType('audio/ogg; codecs="vorbis"'));
+  const requests: string[] = [];
+  // CI:n Linux-Chromiumissa AAC-purku ei välttämättä toimi. Käytämme toisessa
+  // HTTP-vastauksessa kelvollista OGG-äänidataa varmistaaksemme nimenomaan
+  // varamuotoon siirtymisen. Tämä ei väitä AAC-koodekin toimivuutta.
+  const playableOgg = readFileSync('assets/soitinpankki/audio/steel-6-40.ogg');
   await page.route('**/assets/soitinpankki/audio/steel-6-40.*', async route => {
+    requests.push(route.request().url());
     if (route.request().url().endsWith(oggFirst ? '.ogg' : '.m4a')) {
       await route.fulfill({ status: 200, body: 'not audio' });
     } else {
-      await route.continue();
+      await route.fulfill({ status: 200, contentType: 'audio/ogg', body: playableOgg });
     }
   });
   await page.getByRole('button', { name: 'Neljä E2-iskua' }).click();
   await expect(page.locator('#status')).toHaveText('Toistetaan Meta Steel -äänillä.');
   await expect(page.locator('#details')).toContainText('1 näytettä');
+  expect(requests).toHaveLength(2);
+  expect(requests[0]).toMatch(oggFirst ? /\\.ogg$/ : /\\.m4a$/);
+  expect(requests[1]).toMatch(oggFirst ? /\\.m4a$/ : /\\.ogg$/);
 });
 
 test('M2 hyväksyy vain tarkistetun B-taustatiedoston', async ({ page }) => {
