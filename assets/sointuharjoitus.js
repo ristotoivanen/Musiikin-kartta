@@ -155,7 +155,7 @@
     source.stop(end);
   }
 
-  async function play(trigger, status, plan, { label = 'Kuuntelu käynnissä.', onPosition, onStop } = {}) {
+  async function play(trigger, status, plan, { label = 'Kuuntelu käynnissä.', onPosition, onStop, onStart } = {}) {
     stop();
     const own = { trigger, status, onPosition, onStop, abort: new AbortController(), sources: new Set() };
     session = own;
@@ -197,6 +197,9 @@
       for (const event of plan) schedule(own, loadedByPitch.get(event.pitch), event);
       trigger.dataset.playing = '';
       showStatus(status, label);
+      // Kutsu vasta kun Web Audio -lähteet on ladattu ja käynnistys ajastettu.
+      // Epäonnistunut lataus tai keskeytynyt toisto ei avaa tunnistuksen vastaamista.
+      onStart?.();
       function followClock() {
         if (session !== own) return;
         const elapsed = ctx.currentTime - own.start;
@@ -409,7 +412,14 @@
           button.setAttribute('aria-label',
             `Kuuntele sointu ${index + 1}, ${fullName[chord]}, ${correct ? 'oikea vastaus' : 'väärä vastaus'}`);
         }
-        playExample(button, plans[chord]);
+        playExample(button, plans[chord], {
+          onStart: () => {
+            if (answered) return;
+            // Vähintään yhden tämän kierroksen ääniesimerkin käynnistyminen riittää.
+            choices.forEach(choice => { choice.disabled = false; });
+            feedback.textContent = 'Voit nyt vastata tai kuunnella myös toisen soinnun.';
+          },
+        });
       });
     }
     // Vastauksen jälkeen nimet näkyvät samoissa painikkeissa arvotussa järjestyksessä. Varattu
@@ -436,17 +446,18 @@
       question.hidden = listening.hidden = answers.hidden = feedback.hidden = false;
       question.classList.add('is-active');
       heading.textContent = target === selected[0] ? 'Kumpi on duuri?' : 'Kumpi on molli?';
-      prompt.textContent = 'Kuuntele soinnut 1 ja 2. Valitse sitten vastaus.';
+      prompt.textContent = 'Kuuntele vähintään yksi sointu ennen vastaamista.';
       feedback.textContent = firstPrompt;
       feedback.classList.remove('is-error');
       choices.forEach(button => {
+        button.disabled = true;
         button.removeAttribute('aria-disabled');
         button.removeAttribute('aria-label');
         button.classList.remove('is-correct', 'is-wrong');
       });
       listenButtons.forEach(button => button.classList.remove('is-correct', 'is-wrong'));
       nameListening(false);
-      showExerciseStatus('Kuuntele sointu 1 ja sointu 2 ennen vastaamista.');
+      showExerciseStatus('Kuuntele vähintään yksi sointu ennen vastaamista.');
       // Ensimmäinen aloitus tuo
       // sointuparin valinnan JA kysymyksen samaan näkymään. Jos vierittäisimme
       // pelkkään kysymyskorttiin, D/Dm- ja E/Em-painikkeet jäisivät yläpuolelle.
