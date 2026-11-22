@@ -56,6 +56,7 @@ function resetControls() {
 function hideManualGains(value) {
   $('m0GainControls').style.display = value ? 'none' : '';
   $('m2GainControls').style.display = value ? 'none' : '';
+  $('bassControls').style.display = value ? 'none' : '';
 }
 
 function setTrialMode(mode) {
