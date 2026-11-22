@@ -634,6 +634,49 @@ test('02:n D/Dm-tunnistus toimii oletuksena ja E/Em-vaihtoehto samassa tehtävä
   await expect(page.locator('.done-toggle')).toHaveAttribute('aria-pressed', 'false');
 });
 
+test('02:n vastaus ei avaudu ennen käynnistynyttä sointua eikä epäonnistuneella latauksella', async ({ page }) => {
+  await recordAudio(page);
+  await page.goto(ydinPath(1));
+  const section = page.locator('[data-sointuharjoitus="arvaa"]');
+  const pairD = section.getByRole('button', { name: 'D / Dm' });
+  const answers = section.locator('[data-arvaus-vastaus] button');
+  const firstSound = section.getByRole('button', { name: 'Kuuntele sointu 1' });
+  await section.getByRole('button', { name: 'Tunnista', exact: true }).click();
+
+  await expect(answers.nth(0)).toBeDisabled();
+  await expect(answers.nth(1)).toBeDisabled();
+  await expect(section.locator('[data-arvaus-kaaviot]')).toBeHidden();
+
+  // Myös epäonnistunut lataus jättää vastaamisen kiinni.
+  await page.route('**/assets/audio/soinnut/*', route => route.fulfill({ status: 503, body: '' }));
+  await firstSound.click();
+  await expect(section.locator('[data-sointu-tila]')).toHaveText('Ääniä ei voitu ladata. Kokeile uudelleen.');
+  await expect(answers.nth(0)).toBeDisabled();
+  await expect(answers.nth(1)).toBeDisabled();
+  await expect(section.locator('[data-arvaus-kaaviot]')).toBeHidden();
+
+  // Kun ääni käynnistyy, kumpikin vastaus avautuu. Sen päätyttyä vastaaminen
+  // pysyy mahdollisena, kunnes annetaan vastaus tai vaihdetaan sointuparia.
+  await page.unrouteAll({ behavior: 'wait' });
+  await firstSound.click();
+  await expect(firstSound).toHaveAttribute('data-playing', '');
+  await expect(answers.nth(0)).toBeEnabled();
+  await expect(answers.nth(1)).toBeEnabled();
+  await expect.poll(async () => (await starts(page)).length).toBeGreaterThan(0);
+
+  // Uusi kierros vaatii jälleen uuden kuuntelun.
+  await pairD.click();
+  await expect(answers.nth(0)).toBeDisabled();
+  await expect(answers.nth(1)).toBeDisabled();
+  await expect(section.locator('[data-arvaus-kaaviot]')).toBeHidden();
+  await section.getByRole('button', { name: 'Kuuntele sointu 2' }).click();
+  await expect(answers.nth(0)).toBeEnabled();
+  await expect(answers.nth(1)).toBeEnabled();
+  await answers.nth(0).click();
+  await expect(answers.nth(0)).toHaveAttribute('aria-disabled', 'true');
+  await expect(answers.nth(1)).toHaveAttribute('aria-disabled', 'true');
+});
+
 test('02:n duuri/molli-vuorottelu on parikohtainen ja Sointu 1/2 -järjestys arvotaan', async ({ page }) => {
   await recordAudio(page);
   await page.goto(ydinPath(1));
