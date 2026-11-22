@@ -997,7 +997,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     });
   }
 
-  test('arvauksessa kuuntelu ja vastaus ovat erillisiä, järjestys ja kysymys arvotaan', async ({ page, isMobile }) => {
+  test('tunnistuksen paikat arvotaan mutta kysymykset vuorottelevat ja vain valittu vastaus värittyy', async ({ page, isMobile }) => {
     await recordAudio(page);
     await page.goto(ydinPath(1));
     const charts = page.locator('[data-arvaus-kaaviot]');
@@ -1011,7 +1011,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     await page.getByRole('button', { name: 'E / Em' }).click();
     await expect(page.getByRole('button', { name: 'E / Em' })).toHaveAttribute('aria-pressed', 'true');
     await page.evaluate(() => {
-      const values = [0.9, 0.1, 0.1, 0.9];
+      const values = [0.1, 0.9, 0.1, 0.9];
       Math.random = () => values.shift() ?? 0;
     });
     await page.getByRole('button', { name: 'Tunnista' }).click();
@@ -1045,11 +1045,11 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     await expect(choiceButtons.nth(0)).toHaveCSS('opacity', '1');
     await expect(choiceButtons.nth(1)).not.toHaveClass(/is-(correct|wrong)/);
     expect(await choicePositions()).toEqual(beforeChoicePositions);
-    await expect(page.locator('[data-arvauspalaute]')).toHaveText('Oikein! Sointu 1 oli E-molli ja sointu 2 oli E-duuri.');
+    await expect(page.locator('[data-arvauspalaute]')).toHaveText('Oikein! Sointu 1 oli E-duuri ja sointu 2 oli E-molli.');
     await expect(page.locator('[data-arvauspalaute] > .sointu-arvaus-tulos')).toHaveText('Oikein!');
     await expect(page.locator('[data-arvauspalaute] > .sointu-arvaus-tulos')).toHaveCSS('color', 'rgb(159, 228, 195)');
     await expect(page.locator('[data-arvauspalaute]')).not.toHaveCSS('color', 'rgb(159, 228, 195)');
-    await expect(charts.locator('figcaption')).toHaveText(['Sointu 1 = Em', 'Sointu 2 = E']);
+    await expect(charts.locator('figcaption')).toHaveText(['Sointu 1 = E', 'Sointu 2 = Em']);
     await expect(reply.getByRole('button', { name: 'Sointu 1' })).not.toHaveAttribute('aria-disabled', 'true');
     expect(await storage(page)).toBeNull();
 
@@ -1059,9 +1059,9 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     const listenButtons = listenRow.getByRole('button');
     const labels = listenRow.locator('[data-arvaus-teksti]');
     const listenSizes = async () => Promise.all((await listenButtons.all()).map(sizeOf));
-    await expect(labels).toHaveText(['Sointu 1 · Em', 'Sointu 2 · E']);
-    await expect(listenButtons.nth(0)).toHaveAccessibleName('Kuuntele sointu 1, E-molli');
-    await expect(listenButtons.nth(1)).toHaveAccessibleName('Kuuntele sointu 2, E-duuri');
+    await expect(labels).toHaveText(['Sointu 1 · E', 'Sointu 2 · Em']);
+    await expect(listenButtons.nth(0)).toHaveAccessibleName('Kuuntele sointu 1, E-duuri');
+    await expect(listenButtons.nth(1)).toHaveAccessibleName('Kuuntele sointu 2, E-molli');
     expect(await sizeOf(listen)).toEqual(bounds);
     const revealedSizes = await listenSizes();
     await expect(page.locator('[data-sointu-tila]')).toHaveText('Palaute jää näkyviin. Valitse Sointu 1 tai Sointu 2 uudelleen aloittaaksesi uuden tehtävän.');
@@ -1073,20 +1073,20 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     await listenButtons.nth(0).click();
     await expect(listenButtons.nth(0)).toHaveAttribute('data-playing', '');
     // Palaute ei katoa itsekseen. Seuraava vastauspainallus käynnistää uuden tehtävän.
-    await expect(page.locator('[data-arvauspalaute]')).toHaveText('Oikein! Sointu 1 oli E-molli ja sointu 2 oli E-duuri.');
+    await expect(page.locator('[data-arvauspalaute]')).toHaveText('Oikein! Sointu 1 oli E-duuri ja sointu 2 oli E-molli.');
     await expect(page.getByRole('button', { name: 'Uusi tehtävä' })).toHaveCount(0);
     const answered = reply.getByRole('button', { name: 'Sointu 2' });
     await answered.focus();
     await expect(answered).toBeFocused();
     await page.keyboard.press('Enter');
-    await expect(page.getByRole('heading', { name: 'Kumpi on duuri?' })).toBeFocused();
+    await expect(page.getByRole('heading', { name: 'Kumpi on molli?' })).toBeFocused();
     for (const [index, name] of ['Sointu 1', 'Sointu 2'].entries()) {
       await expect(choiceButtons.nth(index)).not.toHaveClass(/is-(correct|wrong)/);
       await expect(choiceButtons.nth(index)).toHaveAccessibleName(name);
       await expect(choiceButtons.nth(index)).not.toHaveAttribute('aria-disabled', 'true');
     }
     expect(await choicePositions()).toEqual(beforeChoicePositions);
-    await expect(page.getByRole('heading', { name: 'Kumpi on duuri?' })).toBeFocused();
+    await expect(page.getByRole('heading', { name: 'Kumpi on molli?' })).toBeFocused();
     await expect(charts).toBeHidden();
     await expect(labels).toHaveText(['Sointu 1', 'Sointu 2']);
     await expect(listenButtons.nth(0)).toHaveAccessibleName('Kuuntele sointu 1');
@@ -1094,20 +1094,19 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     expect(await listenSizes()).toEqual(revealedSizes);
     await expect(reply.getByRole('button', { name: 'Sointu 1' })).not.toHaveAttribute('aria-disabled', 'true');
     await reply.getByRole('button', { name: 'Sointu 2' }).click();
-    await expect(choiceButtons.nth(0)).toHaveClass(/is-correct/);
-    await expect(choiceButtons.nth(0)).toHaveAccessibleName('Sointu 1, oikea vastaus, aloita uusi tehtävä');
-    await expect(choiceButtons.nth(0)).toHaveCSS('background-color', 'rgb(22, 99, 63)');
+    await expect(choiceButtons.nth(0)).not.toHaveClass(/is-(correct|wrong)/);
+    await expect(choiceButtons.nth(0)).toHaveAccessibleName('Sointu 1, aloita uusi tehtävä');
     await expect(choiceButtons.nth(1)).toHaveClass(/is-wrong/);
     await expect(choiceButtons.nth(1)).toHaveAccessibleName('Sointu 2, väärä vastaus, aloita uusi tehtävä');
     await expect(choiceButtons.nth(1)).toHaveCSS('background-color', 'rgb(129, 44, 61)');
     await expect(choiceButtons.nth(1)).toHaveCSS('opacity', '1');
     expect(await choicePositions()).toEqual(beforeChoicePositions);
-    await expect(page.locator('[data-arvauspalaute]')).toHaveText('Tällä kertaa ei. Sointu 1 oli E-duuri ja sointu 2 oli E-molli.');
+    await expect(page.locator('[data-arvauspalaute]')).toHaveText('Tällä kertaa ei. Sointu 1 oli E-molli ja sointu 2 oli E-duuri.');
     await expect(page.locator('[data-arvauspalaute] > .sointu-arvaus-tulos')).toHaveText('Tällä kertaa ei.');
-    await expect(page.locator('[data-arvauspalaute] > .sointu-arvaus-tulos')).toHaveCSS('color', 'rgb(255, 214, 179)');
+    await expect(page.locator('[data-arvauspalaute] > .sointu-arvaus-tulos')).toHaveCSS('color', await page.locator('[data-arvauspalaute]').evaluate(el => getComputedStyle(el).color));
     await expect(page.locator('[data-arvauspalaute]')).not.toHaveCSS('color', 'rgb(255, 214, 179)');
-    await expect(charts.locator('figcaption')).toHaveText(['Sointu 1 = E', 'Sointu 2 = Em']);
-    await expect(labels).toHaveText(['Sointu 1 · E', 'Sointu 2 · Em']);
+    await expect(charts.locator('figcaption')).toHaveText(['Sointu 1 = Em', 'Sointu 2 = E']);
+    await expect(labels).toHaveText(['Sointu 1 · Em', 'Sointu 2 · E']);
     expect(await listenSizes()).toEqual(revealedSizes);
     expect(await storage(page)).toBeNull();
   });
