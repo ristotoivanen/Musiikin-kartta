@@ -297,3 +297,51 @@ test('bassotaajuuksien säätö pysyy piilossa sokkoutetun A/B/C-kuuntelun aikan
   await page.locator('#trialEnd').click();
   await expect(page.locator('#bassControls')).toBeVisible();
 });
+
+test('basson 0/+2/+4 dB korostus ei yliohjaa oikeaa B-WAV:ia myöskään M3:n täydellä tasolla', async ({page}) => {
+  await page.goto(url);
+  const levels = await page.evaluate(async () => {
+    const response = await fetch('../audio/ensimmaiset-nelja-iskua/em-komppi-b-m3-hillitty-basso.wav');
+    if (!response.ok) throw new Error('Alkuperäinen B-WAV puuttuu');
+    const blob = await response.arrayBuffer();
+    const context = new AudioContext();
+    const decoded = await context.decodeAudioData(blob);
+    await context.close();
+    const outputs = [];
+    for (const boost of [0, 2, 4]) {
+      // Sama Web Audio BiquadFilter (lowshelf @ 90 Hz) kuin soivalla sivulla.
+      const rate = decoded.sampleRate;
+      const offline = new OfflineAudioContext(decoded.numberOfChannels,
+        decoded.length, rate);
+      const src = offline.createBufferSource();
+      src.buffer = decoded;
+      const filter = offline.createBiquadFilter();
+      filter.type = 'lowshelf';
+      filter.frequency.value = 90;
+      filter.gain.value = boost;
+      src.connect(filter).connect(offline.destination);
+      src.start(0);
+      const result = await offline.startRendering();
+      let peak = 0, sum = 0, samples = 0;
+      for (let channel = 0; channel < result.numberOfChannels; channel++) {
+        const data = result.getChannelData(channel);
+        for (let i=0; i<data.length; i++) {
+          const sample = data[i];
+          peak = Math.max(peak, Math.abs(sample));
+          sum += sample * sample;
+        }
+        samples += data.length;
+      }
+      outputs.push({ boost, peak, rms: Math.sqrt(sum/samples) });
+    }
+    return outputs;
+  });
+  expect(levels.map(x => x.boost)).toEqual([0,2,4]);
+  // M3 käyttää B-taustan alkuperäistä 1,0x-gainia, toisin kuin M2 0,55x.
+  // Tarkistetaan koko 30,4 sekunnin PCM eikä yhden bassonuotin huippua.
+  for (const output of levels) {
+    expect(output.peak, 'M3:n +'+output.boost+' dB leikkaa ääntä').toBeLessThan(1);
+  }
+  expect(levels[1].rms).toBeGreaterThan(levels[0].rms);
+  expect(levels[2].rms).toBeGreaterThan(levels[1].rms);
+});
