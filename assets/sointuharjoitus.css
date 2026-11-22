@@ -144,7 +144,7 @@
 @media (max-width: 220px) {
   .sointu-ydin[data-sointuharjoitus="arvaa"].study-knoppi-host > h2:first-child {
     padding-inline-end: 0;
-    padding-block-start: 1.25rem;
+    padding-block-start: calc(44px + .25rem);
   }
 }
 .sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-vastaus] > strong {
