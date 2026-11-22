@@ -500,7 +500,7 @@ const ydinPages = [
 ] as const;
 const ydinPath = (index: number) => `/oppi/soinnut/${ydinPages[index][0]}.html`;
 
-test('02 D/Dm: aito F4, oikea terssiero ja ennallaan toimiva E/Em-arvaus', async ({ page }) => {
+test('02:n kahdessa erillisessä vertailussa D/Dm ja E/Em soivat oikeilla näytteillä', async ({ page }) => {
   await recordAudio(page);
   const files = new Set<string>();
   page.on('response', response => {
@@ -510,68 +510,80 @@ test('02 D/Dm: aito F4, oikea terssiero ja ennallaan toimiva E/Em-arvaus', async
   });
   await page.goto(ydinPath(1));
   const section = page.locator('[data-sointuharjoitus="arvaa"]');
-  const [major, minor] = [
-    section.getByRole('button', { name: 'Kuuntele D-duuri' }),
-    section.getByRole('button', { name: 'Kuuntele D-molli' }),
-  ];
+  const d = section.getByRole('button', { name: 'Kuuntele D-duuri' });
+  const dm = section.getByRole('button', { name: 'Kuuntele D-molli' });
+  const e = section.getByRole('button', { name: 'Kuuntele E-duuri' });
+  const em = section.getByRole('button', { name: 'Kuuntele E-molli' });
+  await expect(section.getByRole('heading', { name: '1 · Kuuntele D ja Dm' })).toBeVisible();
+  await expect(section.getByRole('heading', { name: '2 · Kuuntele E ja Em' })).toBeVisible();
+  await expect(section.getByRole('heading', { name: '3 · Tunnista duuri ja molli kuuntelemalla' })).toBeVisible();
+  await expect(section.locator('.chord-diagrams').first().locator('figcaption')).toHaveText(['D', 'Dm']);
+  await expect(section.locator('[data-eem-kaaviot] figcaption')).toHaveText(['E', 'Em']);
+  await expect(section.locator('[data-eem-kaaviot]')).toBeVisible();
   await expect(section.getByRole('group', { name: 'Vertaa D- ja Dm-sointuja' })).toBeVisible();
-  const diagrams = section.locator('.chord-diagrams').first();
-  await expect(diagrams.locator('figcaption')).toHaveText(['D', 'Dm']);
-  await expect(diagrams.locator('code')).toHaveText(['xx0232', 'xx0231']);
+  await expect(section.getByRole('group', { name: 'Vertaa E- ja Em-sointuja' })).toBeVisible();
+  await expect(section.locator('.chord-diagrams').first().locator('code')).toHaveText(['xx0232', 'xx0231']);
   await expect(section).toContainText('D–F♯–A');
   await expect(section).toContainText('D–F–A');
 
-  await major.click();
-  await expect(major).toHaveAttribute('data-playing', '');
+  await d.click();
+  await expect(d).toHaveAttribute('data-playing', '');
   await expect.poll(async () => (await starts(page)).length).toBe(4);
-  expect([...files].some(name => /INSGuitarSteel_StringHighE_Vel02_Fs4_01\.(m4a|ogg)$/.test(name))).toBe(true);
+  expect([...files].some(name => /INSGuitarSteel_StringHighE_Vel02_Fs4_01\\.(m4a|ogg)$/.test(name))).toBe(true);
 
-  await minor.click();
-  await expect(minor).toHaveAttribute('data-playing', '');
-  await expect(major).not.toHaveAttribute('data-playing');
+  await dm.click();
+  await expect(dm).toHaveAttribute('data-playing', '');
+  await expect(d).not.toHaveAttribute('data-playing');
   await expect.poll(async () => (await starts(page)).length).toBe(8);
-  expect([...files].some(name => /INSGuitarSteel_StringHighE_Vel02_F4_01\.(m4a|ogg)$/.test(name))).toBe(true);
+  expect([...files].some(name => /INSGuitarSteel_StringHighE_Vel02_F4_01\\.(m4a|ogg)$/.test(name))).toBe(true);
   const log = await starts(page);
   close(log[4].when, log[5].when - 0.022);
-  await minor.click();
-  await expect(minor).not.toHaveAttribute('data-playing');
 
-  // Uusi D/Dm-kuuntelu ei syrjäytä vanhaa E/Em-sokkoarvausta eikä kuittaa tehtävää.
-  await section.getByRole('button', { name: 'Tunnista' }).click();
-  await expect(section.locator('[data-arvaus-kuuntelu]')).toBeVisible();
-  await section.getByRole('button', { name: 'Kuuntele sointu 1' }).click();
-  await expect(section.locator('[data-arvaus-vastaus]')).toBeVisible();
+  await e.click();
+  await expect(e).toHaveAttribute('data-playing', '');
+  await expect(dm).not.toHaveAttribute('data-playing');
+  await expect.poll(async () => (await starts(page)).length).toBe(14);
+  await em.click();
+  await expect(em).toHaveAttribute('data-playing', '');
+  await expect.poll(async () => (await starts(page)).length).toBe(20);
+
+  // Kolmas vaihe ei toista nimettyjä sointuja tai paljasta tehtävän sisältöä ennakkoon.
+  await expect(section.locator('[data-suora-kuuntelu]')).toHaveCount(0);
+  await expect(section.locator('[data-arvaus-kysymys]')).toBeHidden();
+  await expect(section.locator('[data-arvaus-kuuntelu]')).toBeHidden();
+  await expect(section.locator('[data-arvaus-kaaviot]')).toBeHidden();
+  await expect(section.getByRole('button', { name: 'D / Dm' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(section.getByRole('button', { name: 'E / Em' })).toHaveAttribute('aria-pressed', 'false');
+  await expect(section.getByRole('button', { name: 'Tunnista', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Merkitse kokeilluksi' })).toHaveAttribute('aria-pressed', 'false');
 });
 
-test('02 D/Dm: valittu pari toimii samassa sokkoarvauksessa ja E/Em palautuu ennalleen', async ({ page }) => {
+test('02:n D/Dm-tunnistus toimii oletuksena ja E/Em-vaihtoehto samassa tehtävässä', async ({ page }) => {
   await recordAudio(page);
   await page.goto(ydinPath(1));
   const section = page.locator('[data-sointuharjoitus="arvaa"]');
   const pairD = section.getByRole('button', { name: 'D / Dm' });
   const pairE = section.getByRole('button', { name: 'E / Em' });
-  await pairD.click();
+  const question = section.locator('[data-arvaus-kysymys]');
+  const charts = section.locator('[data-arvaus-kaaviot]');
+  const answers = section.getByRole('group', { name: 'Vastaa' });
+
   await expect(pairD).toHaveAttribute('aria-pressed', 'true');
   await expect(pairE).toHaveAttribute('aria-pressed', 'false');
-  await expect(section.locator('[data-suora-kuuntelu] .sointu-vaihtuva > span:first-child'))
-    .toHaveText(['Sointu 1 · D', 'Sointu 2 · Dm']);
-  await expect(section.locator('[data-arvaus-kysymys] [data-kysymys]'))
-    .toHaveText('Kuuntele ensin D ja Dm');
+  await expect(question).toBeHidden();
+  await expect(section.locator('[data-arvaus-kuuntelu]')).toBeHidden();
+  await expect(charts).toBeHidden();
 
-  await section.locator('[data-suora-kuuntelu] button').nth(0).click();
-  await expect.poll(async () => (await starts(page)).length).toBe(4);
-  await section.locator('[data-suora-kuuntelu] button').nth(1).click();
-  await expect.poll(async () => (await starts(page)).length).toBe(8);
-
-  // Käänteinen järjestys Dm, D; kysytään duuria, joten toinen vaihtoehto on oikein.
+  // Käänteinen järjestys Dm, D; tunnistetaan duuria, joten toinen vastaus on oikein.
   await page.evaluate(() => { Math.random = () => 0.9; });
   await section.getByRole('button', { name: 'Tunnista', exact: true }).click();
-  await expect(section.locator('[data-arvaus-kysymys] [data-kysymys]'))
-    .toHaveText('Kumpi on duuri?');
-  await expect(section.locator('[data-suora-kuuntelu]')).toBeHidden();
+  await expect(question).toBeVisible();
+  await expect(question.locator('[data-kysymys]')).toHaveText('Kumpi on duuri?');
+  await expect(section.locator('[data-arvaus-kuuntelu]')).toBeVisible();
+  await expect(section.locator('[data-eem-kaaviot]')).toBeVisible();
   await section.getByRole('button', { name: 'Kuuntele sointu 1' }).click();
   await expect(section.locator('[data-arvaus-kuuntelu] [data-playing]')).toHaveCount(1);
-  const answers = section.getByRole('group', { name: 'Vastaa' });
+  await expect.poll(async () => (await starts(page)).length).toBe(4);
   await answers.getByRole('button', { name: 'Sointu 2' }).click();
   await expect(section.locator('[data-arvauspalaute]'))
     .toHaveText('Oikein! Sointu 1 oli D-molli ja sointu 2 oli D-duuri.');
@@ -579,19 +591,26 @@ test('02 D/Dm: valittu pari toimii samassa sokkoarvauksessa ja E/Em palautuu enn
     .toHaveCSS('color', 'rgb(159, 228, 195)');
   await expect(section.locator('[data-arvauspalaute]'))
     .not.toHaveCSS('color', 'rgb(159, 228, 195)');
-  await expect(section.locator('[data-arvaus-kaaviot] figcaption'))
-    .toHaveText(['Sointu 1 = Dm', 'Sointu 2 = D']);
+  await expect(charts.locator('figcaption')).toHaveText(['Sointu 1 = Dm', 'Sointu 2 = D']);
 
+  // Vaihto E-pariin palauttaa aloitustilan eikä muuta erillisiä vertailuja.
   await pairE.click();
   await expect(pairE).toHaveAttribute('aria-pressed', 'true');
   await expect(pairD).toHaveAttribute('aria-pressed', 'false');
-  await expect(section.locator('[data-suora-kuuntelu] .sointu-vaihtuva > span:first-child'))
-    .toHaveText(['Sointu 1 · E', 'Sointu 2 · Em']);
-  await expect(section.locator('[data-arvaus-kysymys] [data-kysymys]'))
-    .toHaveText('Kuuntele ensin E ja Em');
-  await expect(section.locator('[data-arvaus-kaaviot] figcaption')).toHaveText(['E', 'Em']);
+  await expect(question).toBeHidden();
+  await expect(section.locator('[data-arvaus-kuuntelu]')).toBeHidden();
+  await expect(charts).toBeHidden();
   await expect(section.locator('[data-arvauspalaute]')).toBeHidden();
+  await expect(section.locator('[data-eem-kaaviot] figcaption')).toHaveText(['E', 'Em']);
   await expect(section.getByRole('button', { name: 'Tunnista', exact: true })).toBeVisible();
+
+  await page.evaluate(() => { Math.random = () => 0.1; });
+  await section.getByRole('button', { name: 'Tunnista', exact: true }).click();
+  await expect(question.locator('[data-kysymys]')).toHaveText('Kumpi on molli?');
+  await answers.getByRole('button', { name: 'Sointu 2' }).click();
+  await expect(section.locator('[data-arvauspalaute]'))
+    .toHaveText('Oikein! Sointu 1 oli E-duuri ja sointu 2 oli E-molli.');
+  await expect(charts.locator('figcaption')).toHaveText(['Sointu 1 = E', 'Sointu 2 = Em']);
   await expect(page.locator('.done-toggle')).toHaveAttribute('aria-pressed', 'false');
 });
 
