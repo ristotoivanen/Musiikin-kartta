@@ -143,6 +143,40 @@ describe('#117: 73 ennen uudistusta julkaistua sisältöosoitetta', () => {
     }
   });
 
+  it('jokaisella 73 sisältöosoitteella on oikea ja yksilöitävä lähdekirjan kohta tai itsenäinen lähde', () => {
+    for (const page of contract.pages) {
+      if (page.source.startsWith('tools/')) {
+        expect(existsSync(new URL(page.source, root)), page.url).toBe(true);
+        continue;
+      }
+      const source = page.source.match(/^(book\/osa-\d+\.html)#([a-z0-9-]+)(?: \[(data-oppisisalto|excerpt)=([a-z0-9-]+)\])?$/);
+      expect(source, page.url + ': lähteen pitäisi olla kirja + fragmentti + poimintatunniste').not.toBeNull();
+      if (!source) continue;
+      const [, bookPath, chapter, kind, slug] = source;
+      const html = read(bookPath);
+      if (kind === 'excerpt') {
+        expect(html, page.url).toContain('id="' + chapter + '"');
+        expect(html, page.url).toContain('<!-- oppisisalto:' + slug + ' -->');
+        expect(html, page.url).toContain('<!-- /oppisisalto:' + slug + ' -->');
+      } else {
+        const anchors = [...html.matchAll(/<section class="chapter" id="([^"]+)"/g)]
+          .map(match => ({ id: match[1], offset: match.index }));
+        const found = anchors.find(anchor => anchor.id === chapter);
+        expect(found, page.url + ': lähdeluku puuttuu').toBeDefined();
+        if (kind === 'data-oppisisalto') {
+          const mark = 'data-oppisisalto="' + slug + '"';
+          const index = html.indexOf(mark);
+          expect(index, page.url + ': kirjasta irrotettu harjoitus puuttuu').toBeGreaterThan(0);
+          expect(html.lastIndexOf(mark), page.url + ': tunniste ei saa toistua').toBe(index);
+          expect(anchors.filter(anchor => anchor.offset < index).at(-1)?.id, page.url).toBe(chapter);
+        } else {
+          expect(page.kind, page.url).toBe('luku');
+          expect(page.id, page.url).toBe(chapter);
+        }
+      }
+    }
+  });
+
   it('julkaistun auditoidun matriisin pitää luetella kaikki jäädytetyt URLit ja tunnisteet', () => {
     const doc = read('docs/oppiminen/yhteensopivuus-117-2026-11-22.md');
     for (const page of contract.pages) {
