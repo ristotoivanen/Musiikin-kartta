@@ -69,7 +69,15 @@ test('Musapelien aiherajaukset ja saavutettavat nimet säilyvät', async ({ page
   const filter = page.getByRole('navigation', { name: 'Rajaa pelit aiheen mukaan' });
   await expect(filter).toBeVisible();
   await expect(filter.locator('a')).toHaveCount(5);
-  await expect(filter.locator('a[href="#aihe-korva"]')).toHaveAccessibleName(/04 Sävelkorva ja melodia.*4 peliä/);
+  for (const [anchor, accessibleName] of [
+    ['#pelit', /Kaikki pelit.*7 peliä/],
+    ['#aihe-korva', /04 Sävelkorva ja melodia.*4 peliä/],
+    ['#aihe-otelauta', /05 Otelauta.*1 peli/],
+    ['#aihe-soinnut', /06 Soinnut ja harmonia.*2 peliä/],
+    ['#aihe-kappaleet', /08 Kappaleet ja oma musiikki.*1 peli/],
+  ] as const) {
+    await expect(filter.locator(`a[href="${anchor}"]`)).toHaveAccessibleName(accessibleName);
+  }
   await expect(page.locator('#pelit .game-card')).toHaveCount(7);
   await filter.locator('a[href="#aihe-korva"]').click();
   await expect(page).toHaveURL(/#aihe-korva$/);
@@ -91,6 +99,19 @@ test('Kosketuskohteet säilyvät vähintään 44 px korkuisina', async ({ page }
     expect(box?.x, selector).toBeGreaterThanOrEqual(0);
     expect((box?.x ?? 0) + (box?.width ?? 0), selector).toBeLessThanOrEqual(320.5);
   }
+});
+
+test('Aiherajausta voi napauttaa mobiilin kosketusemuloinnilla', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'Kosketustapahtuma testataan phone-projektissa.');
+  await page.setViewportSize({ width: 320, height: 800 });
+  await page.goto('/musapelit.html');
+  await page.addStyleTag({ content: 'html { font-size: 200% !important; } body { font-size: 200%; }' });
+  await page.locator('.game-filter a[href="#aihe-korva"]').tap();
+  await expect(page.locator('#aihe-korva .game-card:visible')).toHaveCount(4);
+  await expect(page.locator('.game-filter a[href="#aihe-korva"]')).toHaveAttribute('aria-current', 'true');
+  expect((await measureReflow(page)).scrollWidth).toBeLessThanOrEqual(320);
+  await page.locator('.game-filter a[href="#pelit"]').tap();
+  await expect(page.locator('#pelit .game-card:visible')).toHaveCount(7);
 });
 
 test('Aiherajaus toimii Enterillä ja fokuksen näkyvyys säilyy', async ({ page, isMobile }) => {
