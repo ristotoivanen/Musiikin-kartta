@@ -266,6 +266,11 @@
               "standalone": "mihin-kappale-haluaa-palata",
               "title": "Mihin kappale haluaa palata?",
               "goal": "Sointujen suhde"
+            },
+            {
+              "standalone": "sointukierto-ja-asteet",
+              "title": "Sointukierto ja sointuasteet",
+              "goal": "G–D–Em–C: I–V–vi–IV"
             }
           ]
         },
