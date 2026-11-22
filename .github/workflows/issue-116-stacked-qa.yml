@@ -26,12 +26,10 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Install audio encoder for the one-time F4 import
+      - name: Verify original F4 sample and existing licensed audio bank
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y ffmpeg
-      - name: Import the missing original CC0 F4 sample (one-time)
-        run: python3 tools/aanet/tuo-soinnut-f4.py
+          python3 tools/aanet/tuo-soinnut-f4.py
+          python3 tools/aanet/soinnut-naytteet.py tarkista
       - name: Regenerate Oppimiskartta from the canonical sources
         run: |
           python3 tools/oppimiskartta/rakenna.py
