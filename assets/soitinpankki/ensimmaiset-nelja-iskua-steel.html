@@ -46,7 +46,7 @@ function tick(my){if(my!==session||!ac)return;const now=ac.currentTime;
  if(mode==='M1'){while(nextPulseTime<now+.32){const t=nextPulseTime;click(t,nextStep%4===0);nextStep++;nextPulseTime+=beatLength;}}
  updateUI(heard());
 }
-function showGuide(){if(!matchMedia('(max-width:520px)').matches)return;const r=$('phase').parentElement.getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)$('start').parentElement.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})}
+function showGuide(){if(!matchMedia('(max-width:520px)').matches)return;const top=$('stop').getBoundingClientRect(),bottom=$('timeline').getBoundingClientRect();if(top.top<0||bottom.bottom>innerHeight)$('start').parentElement.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})}
 $('start').onclick=async()=>{stop(false);const my=session;$('start').disabled=true;showGuide();
  try{await audio();if(my!==session)return;
  let b=null,model=null;m2UsedFallback=false;
