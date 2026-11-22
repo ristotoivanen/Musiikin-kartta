@@ -356,7 +356,7 @@ test.describe('harjoitussivut', () => {
     await expect(boxes).toHaveCount(8);
     const placements = () => boxes.evaluateAll(nodes => nodes.map(node => {
       const rect = node.getBoundingClientRect();
-      return [Math.round(rect.x), Math.round(rect.y), Math.round(rect.width), Math.round(rect.height)];
+      return [Math.round(rect.x + window.scrollX), Math.round(rect.y + window.scrollY), Math.round(rect.width), Math.round(rect.height)];
     }));
     const initial = await placements();
     await expect(page.locator('[data-rytmiharjoitus="pulssi"] .rytmi-ruudukko').first()).toHaveAttribute('aria-hidden', 'true');
