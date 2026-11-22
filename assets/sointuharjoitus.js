@@ -334,6 +334,7 @@
     };
     const families = { D: ['D', 'Dm'], E: ['E', 'Em'] };
     const pairButtons = [...section.querySelectorAll('[data-arvaus-pari]')];
+    const pairSelection = section.querySelector('.sointu-parin-valinta');
     const startButton = section.querySelector('[data-uusi-arvaus]');
     let family = 'D';
     let started = false;
@@ -430,11 +431,13 @@
       });
       nameListening(false);
       showExerciseStatus('Kuuntele sointu 1 ja sointu 2 ennen vastaamista.');
-      // Ainoastaan käyttäjän aloittama kierros siirtää näkymän kysymykseen.
-      // Sointuparin vaihtaminen ei varasta fokusta.
+      // Ensimmäinen aloitus ja vastauspainikkeella pyydetty uusi kierros tuovat
+      // sointuparin valinnan JA kysymyksen samaan näkymään. Jos vierittäisimme
+      // pelkkään kysymyskorttiin, D/Dm- ja E/Em-painikkeet jäisivät yläpuolelle.
+      // Parin vaihto ei varasta fokusta.
       if (initiatedByUser) {
         heading.focus({ preventScroll: true });
-        question.scrollIntoView({ block: 'start', behavior: 'instant' });
+        pairSelection.scrollIntoView({ block: 'start', behavior: 'instant' });
       }
     }
     startButton.addEventListener('click', () => startRound(true));
