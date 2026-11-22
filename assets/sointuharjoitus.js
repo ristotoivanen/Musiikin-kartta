@@ -365,6 +365,9 @@
     let pair;
     let target;
     let answered = false;
+    // Kumpikin pari vuorottelee omassa järjestyksessään: duuri → molli → duuri.
+    // Sointu 1:n ja Sointu 2:n keskinäinen järjestys arvotaan joka kierroksella.
+    const nextTargetByFamily = { D: 'D', E: 'E' };
 
     // Vertailut ovat erilliset kohdat 1 ja 2. Tunnistus alkaa vain ensimmäisellä
     // Tunnista-painalluksella; sen jälkeen jatketaan vastauspainikkeilla.
@@ -409,7 +412,8 @@
       startButton.hidden = true;
       const selected = families[family];
       pair = Math.random() < 0.5 ? [...selected] : [...selected].reverse();
-      target = Math.random() < 0.5 ? selected[1] : selected[0];
+      target = nextTargetByFamily[family];
+      nextTargetByFamily[family] = target === selected[0] ? selected[1] : selected[0];
       answered = false;
       diagrams.hidden = true;
       diagrams.replaceChildren();
