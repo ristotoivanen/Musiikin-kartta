@@ -35,6 +35,7 @@ for (const javaScriptEnabled of [true, false] as const) {
             return {
               scrollWidth: document.documentElement.scrollWidth,
               boardLeft: board.left,
+              boardWidth: board.width,
               boardRight: board.right,
               noteCount: notes.length,
               notePositions: notes.map(note => {
@@ -77,6 +78,42 @@ for (const javaScriptEnabled of [true, false] as const) {
           }
           for (const error of geometry.stringErrors) expect(error).toBeLessThan(1);
           for (const error of geometry.fretEdges) expect(error).toBeLessThan(1);
+
+          if (zoom === 200) {
+            // Mitataan myös kokonaisella sivulla lähtötilaa vastaava geometria.
+            // Tilapäinen CSS kumoaa vain #144-mobiilisäännön; ei tuotantokoodin muutosta.
+            const before = await page.evaluate(() => {
+              const legacy = document.createElement('style');
+              legacy.textContent = '.recap-neck-section { margin-inline: 0 !important; padding-inline: clamp(12px, 4vw, 1.4rem) !important; }';
+              document.head.append(legacy);
+              const board = document.querySelector<HTMLElement>('.recap-board')!.getBoundingClientRect();
+              const headers = Array.from(document.querySelectorAll<HTMLElement>('.recap-fret-numbers li'));
+              const clearances = Array.from(document.querySelectorAll<HTMLElement>('.recap-fret-notes li'))
+                .map(note => {
+                  const rect = note.getBoundingClientRect();
+                  const fret = Number(getComputedStyle(note).gridColumnStart) - 1;
+                  const header = headers[fret].getBoundingClientRect();
+                  return Math.min(rect.left - header.left, header.right - rect.right);
+                });
+              const result = {
+                boardWidth: board.width,
+                minClearance: Math.min(...clearances),
+                scrollWidth: document.documentElement.scrollWidth,
+              };
+              legacy.remove();
+              return result;
+            });
+            const after = {
+              boardWidth: geometry.boardWidth,
+              minClearance: Math.min(...geometry.notePositions.flatMap(note =>
+                [note.leftClearance, note.rightClearance])),
+              scrollWidth: geometry.scrollWidth,
+            };
+            console.log(`#144 FULL-SITE ${width}px / 200% / JS=${javaScriptEnabled}: ${JSON.stringify({ before, after })}`);
+            expect(after.boardWidth).toBeGreaterThan(before.boardWidth);
+            expect(after.minClearance).toBeGreaterThan(before.minClearance);
+          }
+
         }
       });
     }
