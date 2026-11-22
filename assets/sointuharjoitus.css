@@ -84,6 +84,11 @@
 .sointu-parin-valinta strong { flex-basis: 100%; }
 .sointu-ydin .sointu-valinta { display: block; }
 .sointu-ydin .sointu-ohje.is-error { color: #ffd6b3; }
+/* Vain palautteen otsikkosana saa onnistumis-/virhevärin; selitys pysyy tavallisena. */
+.sointu-ydin [data-arvauspalaute],
+.sointu-ydin [data-arvauspalaute].is-error { color: var(--muted); }
+.sointu-ydin [data-arvauspalaute] > .sointu-arvaus-tulos { color: #9fe4c3; }
+.sointu-ydin [data-arvauspalaute].is-error > .sointu-arvaus-tulos { color: #ffd6b3; }
 .sointu-ydin [data-arvaus-vastaus] { align-items: baseline; }
 .sointu-ydin .chord-diagram { min-width: 0; max-width: 100%; }
 .sointu-ydin .chord-diagram svg { max-width: 100%; }
