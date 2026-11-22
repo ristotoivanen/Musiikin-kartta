@@ -544,6 +544,57 @@ test('02 D/Dm: aito F4, oikea terssiero ja ennallaan toimiva E/Em-arvaus', async
   await expect(page.getByRole('button', { name: 'Merkitse kokeilluksi' })).toHaveAttribute('aria-pressed', 'false');
 });
 
+test('02 D/Dm: valittu pari toimii samassa sokkoarvauksessa ja E/Em palautuu ennalleen', async ({ page }) => {
+  await recordAudio(page);
+  await page.goto(ydinPath(1));
+  const section = page.locator('[data-sointuharjoitus="arvaa"]');
+  const pairD = section.getByRole('button', { name: 'D / Dm' });
+  const pairE = section.getByRole('button', { name: 'E / Em' });
+  await pairD.click();
+  await expect(pairD).toHaveAttribute('aria-pressed', 'true');
+  await expect(pairE).toHaveAttribute('aria-pressed', 'false');
+  await expect(section.locator('[data-suora-kuuntelu] .sointu-vaihtuva > span:first-child'))
+    .toHaveText(['D', 'Dm']);
+  await expect(section.locator('[data-arvaus-kysymys] [data-kysymys]'))
+    .toHaveText('Kuuntele ensin D ja Dm');
+
+  await section.locator('[data-suora-kuuntelu] button').nth(0).click();
+  await expect.poll(async () => (await starts(page)).length).toBe(4);
+  await section.locator('[data-suora-kuuntelu] button').nth(1).click();
+  await expect.poll(async () => (await starts(page)).length).toBe(8);
+
+  // Käänteinen järjestys Dm, D; kysytään duuria, joten toinen vaihtoehto on oikein.
+  await page.evaluate(() => { Math.random = () => 0.9; });
+  await section.getByRole('button', { name: 'Arvaa', exact: true }).click();
+  await expect(section.locator('[data-arvaus-kysymys] [data-kysymys]'))
+    .toHaveText('Kumpi on duuri?');
+  await expect(section.locator('[data-suora-kuuntelu]')).toBeHidden();
+  await section.getByRole('button', { name: 'Kuuntele sointu 1' }).click();
+  await expect(section.locator('[data-arvaus-kuuntelu] [data-playing]')).toHaveCount(1);
+  const answers = section.getByRole('group', { name: 'Vastaa' });
+  await answers.getByRole('button', { name: 'Sointu 2' }).click();
+  await expect(section.locator('[data-arvauspalaute]'))
+    .toHaveText('Oikein! Sointu 1 oli D-molli ja sointu 2 oli D-duuri.');
+  await expect(section.locator('[data-arvauspalaute] > .sointu-arvaus-tulos'))
+    .toHaveCSS('color', 'rgb(159, 228, 195)');
+  await expect(section.locator('[data-arvauspalaute]'))
+    .not.toHaveCSS('color', 'rgb(159, 228, 195)');
+  await expect(section.locator('[data-arvaus-kaaviot] figcaption'))
+    .toHaveText(['Sointu 1 = Dm', 'Sointu 2 = D']);
+
+  await pairE.click();
+  await expect(pairE).toHaveAttribute('aria-pressed', 'true');
+  await expect(pairD).toHaveAttribute('aria-pressed', 'false');
+  await expect(section.locator('[data-suora-kuuntelu] .sointu-vaihtuva > span:first-child'))
+    .toHaveText(['E', 'Em']);
+  await expect(section.locator('[data-arvaus-kysymys] [data-kysymys]'))
+    .toHaveText('Kuuntele ensin E ja Em');
+  await expect(section.locator('[data-arvaus-kaaviot] figcaption')).toHaveText(['E', 'Em']);
+  await expect(section.locator('[data-arvauspalaute]')).toBeHidden();
+  await expect(section.getByRole('button', { name: 'Arvaa', exact: true })).toBeVisible();
+  await expect(page.locator('.done-toggle')).toHaveAttribute('aria-pressed', 'false');
+});
+
 test('04 sointukierto ja asteet: G–D–Em–C neljän tahdin kitaranäytteillä', async ({ page }) => {
   await recordAudio(page);
   await page.goto(ydinPath(3));
