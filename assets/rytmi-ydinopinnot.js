@@ -395,6 +395,14 @@ function setupExercise(root) {
   const versionNames = isTransition ? TRANSITIONS : GROOVES;
   const reducedMotion = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)');
   const state = { example: 'rock', revealed: false, mode: 'A', drumGap: false, taukoMode: 'soi' };
+  // Erillinen ruudunlukijan tilaviesti ei muuta soiton tilatekstin korkeutta eikä siirrä ruudukkoa.
+  const pulseStatus = task === 'pulssi' ? document.createElement('span') : null;
+  if (pulseStatus) {
+    pulseStatus.className = 'rytmi-pulssi-status';
+    pulseStatus.setAttribute('role', 'status');
+    pulseStatus.setAttribute('aria-live', 'polite');
+    root.append(pulseStatus);
+  }
   let session = null;
   let starting = false;
   let token = 0;
@@ -651,7 +659,7 @@ function setupExercise(root) {
     state.revealed = !state.revealed;
     drawReveal();
     // Tilasta ilmoitetaan vain käyttäjän valinnalla, ei jokaisesta animaatioruudusta.
-    status.textContent = state.revealed
+    pulseStatus.textContent = state.revealed
       ? 'Pulssi paljastettu. Iskut 1–4 korostuvat vuorollaan molemmissa tahdeissa.'
       : 'Pulssi piilotettu. Vain kummankin tahdin ykkönen välähtää.';
   });

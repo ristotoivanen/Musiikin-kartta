@@ -363,7 +363,8 @@ test.describe('harjoitussivut', () => {
     await page.getByRole('button', { name: 'Paljasta pulssi' }).click();
     await expect(names).toHaveText(['1', '2', '3', '4', '1', '2', '3', '4']);
     await expect(names.first()).toBeVisible();
-    await expect(page.locator('[data-rytmi-tila]')).toContainText('Pulssi paljastettu');
+    await expect(page.locator('.rytmi-pulssi-status')).toContainText('Pulssi paljastettu');
+    await expect(page.locator('.rytmi-pulssi-status')).toHaveAttribute('role', 'status');
     await expect(page.locator('[data-rytmiharjoitus="pulssi"] .rytmi-ruudukko').first()).toHaveAttribute('aria-hidden', 'false');
     expect(await placements()).toEqual(initial);
     // Rumpukatkon vertailu ei muuta tempoa, mutta kertoo toisen tahdin rummuttomuuden.
@@ -378,7 +379,7 @@ test.describe('harjoitussivut', () => {
     await page.getByRole('button', { name: 'Piilota pulssivihje' }).click();
     await expect(names).toHaveText(Array(8).fill('•'));
     await expect(names.first()).toBeHidden();
-    await expect(page.locator('[data-rytmi-tila]')).toContainText('Pulssi piilotettu');
+    await expect(page.locator('.rytmi-pulssi-status')).toContainText('Pulssi piilotettu');
     expect(await placements()).toEqual(initial);
   });
 });
