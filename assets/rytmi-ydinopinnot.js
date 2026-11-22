@@ -24,7 +24,7 @@ export const START_DELAY = 0.1;
 export const TASKS = Object.freeze(['pulssi', 'hiljaisuus', 'tuntuma', 'osanvaihto']);
 export const TRANSITIONS = Object.freeze({ A: 'A · D soi loppuun', B: 'B · Vaimenna D nelosella' });
 export const GROOVES = Object.freeze({
-  A: 'A · Tasaiset vedot',
+  A: 'A · Painota 1 ja 3',
   B: 'B · Painota 2 ja 4',
   C: 'C · Iskujen välissä'
 });
@@ -52,6 +52,7 @@ export function compLevel(mode, barStep) {
   const played = mode === 'C' ? C_STEPS.includes(barStep) : onBeat;
   if (!played) return 0;
   if (mode === 'B') return beat === 1 || beat === 3 ? 0.18 : 0.065;
+  if (mode === 'A') return beat === 0 || beat === 2 ? 0.18 : 0.065;
   return 0.12;
 }
 
@@ -60,7 +61,7 @@ export function grooveCells(mode) {
     const onBeat = step % 2 === 0;
     const beat = Math.floor(step / 2) + 1;
     const played = compLevel(mode, step) > 0;
-    const emphasis = mode === 'B' && onBeat && (beat === 2 || beat === 4);
+    const emphasis = onBeat && ((mode === 'A' && (beat === 1 || beat === 3)) || (mode === 'B' && (beat === 2 || beat === 4)));
     return {
       label: onBeat ? String(beat) : 'ja',
       action: played ? (emphasis ? 'Korosta' : 'Soita') : 'Hiljaa',
