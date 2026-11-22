@@ -68,10 +68,9 @@ describe('#163: kahden tahdin pulssivihje', () => {
 
     it(`paljastettuna näyttää kaksi neljän iskun riviä kellon mukaan (${tempo} BPM)`, () => {
       const begin = 1;
-      const transport = createTransport({ task: 'pulssi', tempo, begin, drumGap: true });
+      const transport = createTransport({ task: 'pulssi', tempo, begin });
       for (let step = 0; step < 2 * LOOP_STEPS; step++) {
         const at = begin + (step + .1) * transport.stepDuration;
-        // Testataan alkupuolen välähdystä myös kahdeksasosien jälkimmäisillä puolikkailla.
         if (step % 2 === 0) {
           expect(pulseCellAt(transport, at, true)).toEqual({
             bar: Math.floor((step % LOOP_STEPS) / STEPS_PER_BAR),
@@ -84,17 +83,23 @@ describe('#163: kahden tahdin pulssivihje', () => {
     });
   }
 
-  it('B:n hiljaisessa tahdissa voi poistaa kaiken visuaalisen korostuksen, paljastettunakin', () => {
-    const transport = createTransport({ task: 'pulssi', tempo: 96, begin: 1, drumGap: true });
-    const eighth = transport.stepDuration;
-    for (let beat = 0; beat < 4; beat++) {
-      const firstBar = 1 + (beat * 2 + .02) * eighth;
-      const silentBar = 1 + (STEPS_PER_BAR + beat * 2 + .02) * eighth;
-      expect(pulseCellAt(transport, firstBar, false, false, false)).toEqual({ bar: 0, index: 0 });
-      expect(pulseCellAt(transport, silentBar, false, false, false)).toBeNull();
-      expect(pulseCellAt(transport, silentBar, true, false, false)).toBeNull();
-      expect(pulseCellAt(transport, silentBar, false, false, true)).toEqual({ bar: 0, index: 0 });
-      expect(pulseCellAt(transport, silentBar, true, false, true)).toEqual({ bar: 1, index: beat });
+  it('B:n hiljaisessa toisessa tahdissa mikään ruutu ei välähdä kummassakaan tilassa', () => {
+    for (const tempo of [96, 108]) {
+      const transport = createTransport({ task: 'pulssi', tempo, begin: 1, drumGap: true });
+      const eighth = transport.stepDuration;
+      for (let cycle = 0; cycle < 2; cycle++) {
+        const start = 1 + cycle * LOOP_STEPS * eighth;
+        for (let beat = 0; beat < 4; beat++) {
+          const firstBar = start + (beat * 2 + .02) * eighth;
+          const silentBar = start + (STEPS_PER_BAR + beat * 2 + .02) * eighth;
+          expect(pulseCellAt(transport, firstBar, false)).toEqual({ bar: 0, index: 0 });
+          expect(pulseCellAt(transport, firstBar, true)).toEqual({ bar: 0, index: beat });
+          for (const reduced of [false, true]) {
+            expect(pulseCellAt(transport, silentBar, false, reduced)).toBeNull();
+            expect(pulseCellAt(transport, silentBar, true, reduced)).toBeNull();
+          }
+        }
+      }
     }
   });
 

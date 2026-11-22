@@ -256,11 +256,12 @@ export function positionAt(transport, time) {
  * Vähennetty liike: ei liikkuvaa animaatiota, lyhyt rauhallisempi värimuutos
  * mutta ei koskaan koko iskun kestävää jatkuvaa vihreää korostusta.
  */
-export function pulseCellAt(transport, time, revealed, reducedMotion = false, showSilenceCue = true) {
+export function pulseCellAt(transport, time, revealed, reducedMotion = false) {
   const position = positionAt(transport, time);
   if (!position) return null;
-  // Ilman vihjettä ei korosteta kumpaakaan riviä B:n täysin hiljaisessa tahdissa.
-  if (position.drumGap && position.cell.bar === 1 && !showSilenceCue) return null;
+  // B-version toinen tahti on kokonaan hiljainen myös visuaalisesti.
+  // Ylärivin ensimmäinen ruutu ei välähdä, eikä paljastetun tilan alarivi korostu.
+  if (position.drumGap && position.cell.bar === 1) return null;
   const beatStartStep = position.step - position.step % 2;
   const elapsed = time - (transport.begin + beatStartStep * transport.stepDuration);
   // Äänikellon neljäsosaisku kestää 2 * stepDuration. Korostus kestää
@@ -393,7 +394,6 @@ function setupExercise(root) {
   const status = root.querySelector('[data-rytmi-tila]');
   const exampleButtons = [...root.querySelectorAll('[data-esimerkki]')];
   const drumButtons = [...root.querySelectorAll('[data-rumpumalli]')];
-  const silenceCueButtons = [...root.querySelectorAll('[data-hiljaisuusvihje]')];
   const silenceButtons = [...root.querySelectorAll('[data-tauko-mode]')];
   const grooveButtons = [...root.querySelectorAll('[data-versio]')];
   const reveal = root.querySelector('[data-rytmi-vihje]');
@@ -401,7 +401,7 @@ function setupExercise(root) {
   const isTransition = task === 'osanvaihto';
   const versionNames = isTransition ? TRANSITIONS : GROOVES;
   const reducedMotion = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)');
-  const state = { example: 'rock', revealed: false, mode: 'A', drumGap: false, taukoMode: 'soi', showSilenceCue: true };
+  const state = { example: 'rock', revealed: false, mode: 'A', drumGap: false, taukoMode: 'soi' };
   // Erillinen ruudunlukijan tilaviesti ei muuta soiton tilatekstin korkeutta eikä siirrä ruudukkoa.
   const pulseStatus = task === 'pulssi' ? document.createElement('span') : null;
   if (pulseStatus) {
@@ -508,7 +508,7 @@ function setupExercise(root) {
       drawGroove(position.mode);
       drawTransition(position.mode);
       const visualCell = task === 'pulssi'
-        ? pulseCellAt(session.transport, now, state.revealed, Boolean(reducedMotion?.matches), state.showSilenceCue)
+        ? pulseCellAt(session.transport, now, state.revealed, Boolean(reducedMotion?.matches))
         : position.cell;
       const target = visualCell ? cells(visualCell.bar)[visualCell.index] : null;
       if (root.querySelector('.rytmi-isku.is-active') !== target) {
@@ -644,18 +644,6 @@ function setupExercise(root) {
     });
   }
 
-  for (const choice of silenceCueButtons) {
-    choice.addEventListener('click', () => {
-      const enabled = choice.dataset.hiljaisuusvihje === 'paalla';
-      if (enabled === state.showSilenceCue) return;
-      state.showSilenceCue = enabled;
-      setPressed(silenceCueButtons, button => (button.dataset.hiljaisuusvihje === 'paalla') === enabled);
-      pulseStatus.textContent = enabled
-        ? 'Hiljaisen tahdin aikana visuaalinen pulssi näkyy.'
-        : 'Hiljaisen tahdin aikana ei näytetä visuaalista pulssia.';
-    });
-  }
-
   for (const choice of silenceButtons) {
     choice.addEventListener('click', () => {
       const mode = choice.dataset.taukoMode;
@@ -679,7 +667,7 @@ function setupExercise(root) {
     drawReveal();
     // Tilasta ilmoitetaan vain käyttäjän valinnalla, ei jokaisesta animaatioruudusta.
     pulseStatus.textContent = state.revealed
-      ? 'Pulssi paljastettu. Iskut 1–4 korostuvat vuorollaan molemmissa tahdeissa.'
+      ? 'Pulssi paljastettu. Iskut 1–4 näkyvät, mutta B-version hiljaisessa tahdissa ei ole korostusta.'
       : 'Pulssi piilotettu. Vain ylemmän rivin ensimmäinen ruutu välähtää jokaisella iskulla.';
   });
 

@@ -393,22 +393,17 @@ test.describe('harjoitussivut', () => {
     await expect(page.locator('.rytmi-isku.is-active')).toHaveCount(0);
   });
 
-  test('01: B:n hiljainen tahti tarjoaa kaksi visuaalisen tuen tasoa', async ({ page }) => {
+  test('01: B:n toinen tahti on ilman visuaalista tukea eikä ylimääräisiä valintanappeja näy', async ({ page }) => {
     await page.goto('/oppi/rytmi/loyda-pulssi-ja-ykkonen.html');
     const b = page.getByRole('button', { name: 'B · Toinen tahti hiljaa' });
-    const withCue = page.getByRole('button', { name: 'Vihje hiljaisuudessa' });
-    const withoutCue = page.getByRole('button', { name: 'Ilman vihjettä' });
+    await expect(page.getByRole('button', { name: 'Vihje hiljaisuudessa' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Ilman vihjettä' })).toHaveCount(0);
+    await expect(page.locator('[data-hiljaisuusvihje]')).toHaveCount(0);
     await b.click();
     await expect(page.locator('[data-rummut-tahti]')).toContainText('Täysi hiljaisuus');
-    await expect(withCue).toHaveAttribute('aria-pressed', 'true');
-    await withoutCue.click();
-    await expect(withoutCue).toHaveAttribute('aria-pressed', 'true');
-    await expect(withCue).toHaveAttribute('aria-pressed', 'false');
-    await expect(page.locator('.rytmi-pulssi-status')).toContainText('ei näytetä visuaalista pulssia');
     await page.getByRole('button', { name: 'Paljasta pulssi' }).click();
     await expect(page.locator('.rytmi-isku-nimi')).toHaveText(['1','2','3','4','1','2','3','4']);
-    await withCue.click();
-    await expect(withCue).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('.rytmi-pulssi-status')).toContainText('hiljaisessa tahdissa ei ole korostusta');
   });
 
   test('01: pulssivihje näyttää iskujen numerot ja piilottaa ne', async ({ page }) => {
