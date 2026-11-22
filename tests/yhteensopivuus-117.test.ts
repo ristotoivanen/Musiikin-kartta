@@ -5,7 +5,7 @@
  * vain siksi, että uusi generaattori tai navigaatio ei enää käytä niitä.
  * Vanhat Tehty-kuittaukset eivät koskaan väitä Ydinopintojen osaamista.
  */
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { Script, createContext } from 'node:vm';
 import { describe, expect, it } from 'vitest';
 
@@ -31,6 +31,8 @@ function boot(data: Map<string, string>, id: string, kind: Page['kind'] = 'luku'
   const handlers = new Map<string, () => void>();
   const button = {
     textContent: '', disabled: true,
+    // PR #141: Ydinopintojen painike etsii data-study-mark-esivanhempaa; vanhalla sivulla sitä ei ole.
+    closest() { return null; },
     setAttribute(name: string, value: string) { attributes.set(name, value); },
     addEventListener(name: string, fn: () => void) { handlers.set(name, fn); },
   };
@@ -229,5 +231,24 @@ describe('#117: tallennusmigraatio ja Ydinopintojen merkitys', () => {
     const old = boot(data, 'barre');
     expect(old.pressed()).toBe('true');
     expect(data.get(key)).toBe('{rikki');
+  });
+});
+
+describe('#117: Ydinopintojen Kokeiltu-tunnisteet pysyvät erillään vanhoista', () => {
+  it('yksikään Kokeiltu-merkitty tai -laskettu tunniste ei käytä vanhaa suoritus-ID:tä', () => {
+    const legacy = new Set(contract.pages.map(page => page.id));
+    const files = (readdirSync(new URL('oppi/', root), { recursive: true }) as string[])
+      .filter(name => name.endsWith('.html'));
+    const attempts: string[] = [];
+    for (const name of files) {
+      const html = read('oppi/' + name);
+      for (const m of html.matchAll(/data-study-attempt-status="([^"]+)"/g)) attempts.push(m[1]);
+      for (const m of html.matchAll(/<(?:main|details)\b[^>]*>/g)) {
+        if (!m[0].includes('data-study-mark="kokeiltu"')) continue;
+        const id = m[0].match(/data-study-item="([^"]+)"/)?.[1];
+        if (id) attempts.push(id);
+      }
+    }
+    for (const id of attempts) expect(legacy.has(id), id + ' on vanha Tehty-tunniste').toBe(false);
   });
 });

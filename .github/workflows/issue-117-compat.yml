@@ -10,6 +10,13 @@ on:
       - 'tests/e2e/yhteensopivuus-117.spec.ts'
       - 'tests/issue-117-pdf-sources.py'
       - '.github/workflows/issue-117-compat.yml'
+      # Suojattavat tuotantolähteet: ilman näitä sopimus ei aja muutoksille, joita se valvoo.
+      - 'assets/edistyminen.js'
+      - 'index.html'
+      - 'book/**'
+      - 'oppi/**'
+      - 'tools/oppimiskartta/**'
+      - 'tools/pdf/**'
   workflow_dispatch:
 
 permissions:
