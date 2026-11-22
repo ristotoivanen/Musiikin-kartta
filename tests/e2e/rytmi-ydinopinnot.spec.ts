@@ -281,7 +281,12 @@ test.describe('harjoitussivut', () => {
       await expect(page.locator('.done-toggle')).toHaveAttribute('aria-pressed', 'false');
       const close = info(page).getByRole('button', { name: 'Sulje lisätieto ja palaa avauskohtaan' });
       await expect(close).toBeInViewport();
-      await expect(close.locator('.study-knoppi-merkki')).not.toHaveCSS('fill', 'none');
+      const openIcon = summary.locator('.study-knoppi-merkki');
+      const closeIcon = close.locator('.study-knoppi-merkki');
+      const openColor = await openIcon.evaluate(icon => getComputedStyle(icon).color);
+      await expect(closeIcon).toHaveCSS('color', openColor);
+      await expect(closeIcon).toHaveCSS('fill', await openIcon.evaluate(icon => getComputedStyle(icon).fill));
+      await expect(closeIcon).not.toHaveCSS('fill', 'none');
       await close.click();
       await expect(info(page)).not.toHaveAttribute('open', '');
       await expect(summary).toBeFocused();

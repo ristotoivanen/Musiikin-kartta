@@ -78,6 +78,9 @@
 .rytmi-harjoitus .rytmi-kuuntele { min-width: 9rem; border-color: #d6c7ff; background: var(--accent); color: #170f28; }
 .rytmi-harjoitus .rytmi-kuuntele:hover { background: #d5c6ff; }
 .rytmi-harjoitus .rytmi-kuuntele[data-tila="soi"] { border-color: #9b89b5; background: #42344f; color: var(--text); }
+/* Yleinen .rytmi-harjoitus button -väri ei saa peittää avatun
+ * Knoppitiedon sisäisen sulkuplektran teemaväriä. */
+.rytmi-harjoitus .study-knoppi-close { color: var(--accent); }
 .rytmi-tila { min-height: 1.5em; margin: .35rem 0 .5rem; color: #9fe4c3; font-size: .92rem; }
 
 /* Iskuruudukko: harjoituksissa 01–02 tahdin neljä iskua, harjoituksessa 03 kahdeksasosat. */
