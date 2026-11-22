@@ -1,7 +1,7 @@
 // Rytmi · Ydinopinnot (#116, hyväksytty suunnitteluprototyyppi v0.9)
 //
-// Kolmen harjoituksen sivukohtainen toiminta: 01 Löydä pulssi ja ykkönen, 02 Hiljaisuus kuuluu
-// rytmiin ja 03 Sama musiikki, eri tuntuma. Sivut muodostaa tools/oppimiskartta/rakenna.py, joka
+// Neljän harjoituksen sivukohtainen toiminta: 01 Löydä pulssi ja ykkönen, 02 Hiljaisuus kuuluu
+// rytmiin, 03 Sama musiikki, eri tuntuma ja 04 Valmistaudu seuraavaan osaan. Sivut muodostaa tools/oppimiskartta/rakenna.py, joka
 // lataa tämän moduulin vain, kun sivulla on [data-rytmiharjoitus].
 //
 // Äänet ovat selaimessa Web Audiolla tuotettuja yksinkertaisia demoääniä (oskillaattorit ja kohina).
@@ -21,7 +21,8 @@ export const STEPS_PER_BAR = 8; // kahdeksasosat 4/4-tahdissa
 export const LOOP_STEPS = 16; // kahden tahdin kierto (G-tahti, Em-tahti)
 export const LOOKAHEAD = 0.16; // ajastusikkuna sekunteina
 export const START_DELAY = 0.1;
-export const TASKS = Object.freeze(['pulssi', 'hiljaisuus', 'tuntuma']);
+export const TASKS = Object.freeze(['pulssi', 'hiljaisuus', 'tuntuma', 'osanvaihto']);
+export const TRANSITIONS = Object.freeze({ A: 'A · D soi loppuun', B: 'B · Vaimenna D nelosella' });
 export const GROOVES = Object.freeze({
   A: 'A · Tasaiset vedot',
   B: 'B · Painota 2 ja 4',
@@ -37,6 +38,11 @@ export function tempoFor(task, example = 'rock') {
 
 export function harmonyAt(loopStep) {
   return loopStep < STEPS_PER_BAR ? 'G' : 'Em';
+}
+
+/** D:n soinnin päättymiskohta B-versiossa on nelosiskun alku, ei uusi isku. */
+export function transitionCells(mode) {
+  return ['Soita D', 'Anna soida', 'Anna soida', mode === 'B' ? 'Vaimenna' : 'Anna soida'];
 }
 
 /** Harjoituksen 03 kitaran rytmi kahdeksasosina: soitetaanko, korostetaanko ja millä voimakkuudella. */
@@ -69,7 +75,9 @@ function backing(task, example, loopStep) {
   const barStep = loopStep % STEPS_PER_BAR;
   if (barStep % 2) return [{ type: 'noise', role: 'hi-hat', duration: 0.045, level: 0.025, highpass: 6000 }];
   const beat = barStep / 2;
-  const bassFrequency = loopStep < STEPS_PER_BAR ? 98 : 82.4; // G2, E2
+  const bassFrequency = task === 'osanvaihto'
+    ? (loopStep < STEPS_PER_BAR ? 73.42 : 98) // D2, G2: sama tausta molemmissa versioissa
+    : (loopStep < STEPS_PER_BAR ? 98 : 82.4); // G2, E2
   const events = [];
   if (task === 'pulssi' && example === 'soft') {
     if (beat === 0 || beat === 2) events.push({ type: 'bass', role: 'basso', frequency: bassFrequency, level: 0.095 });
@@ -106,6 +114,12 @@ export function stepEvents(task, loopStep, { example = 'rock', revealed = false,
     if (onBeat && beat === 0) events.push({ type: 'chord', role: 'harmonia', harmony, level: 0.045 });
     const level = compLevel(mode, barStep);
     if (level) events.push({ type: 'chord', role: 'komppi', harmony, level });
+  } else if (task === 'osanvaihto' && loopStep % STEPS_PER_BAR === 0) {
+    // D jatkuu A:ssa nelosiskun yli, B:ssä värähtely katkeaa juuri nelosella.
+    // G alkaa seuraavan tahdin ykkösellä molemmissa. Taustaan ei puututa.
+    const duration = (60 / tempoFor(task)) * (loopStep === 0 && mode === 'B' ? 3 : 4);
+    events.push({ type: 'held-chord', role: 'osan-sointu', harmony: loopStep === 0 ? 'D' : 'G',
+      duration, level: 0.09 });
   }
   return events;
 }
@@ -114,7 +128,7 @@ export function stepEvents(task, loopStep, { example = 'rock', revealed = false,
 export function gridCell(task, loopStep) {
   const barStep = loopStep % STEPS_PER_BAR;
   if (task === 'tuntuma') return { bar: 0, index: barStep };
-  return { bar: task === 'hiljaisuus' ? Math.floor(loopStep / STEPS_PER_BAR) : 0, index: Math.floor(barStep / 2) };
+  return { bar: task === 'hiljaisuus' || task === 'osanvaihto' ? Math.floor(loopStep / STEPS_PER_BAR) : 0, index: Math.floor(barStep / 2) };
 }
 
 /** Toiston aikajana. Ei riipu selaimesta, joten ajastus ja versiovaihdot voidaan testata. */
@@ -217,7 +231,27 @@ function tone(bus, time, frequency, duration, level, wave = 'sine') {
   oscillator.stop(time + duration + 0.02);
 }
 
-const CHORDS = { G: [196, 246.94, 293.66], Em: [164.81, 196, 246.94] };
+const CHORDS = { G: [196, 246.94, 293.66], Em: [164.81, 196, 246.94], D: [146.83, 185, 220] };
+
+function heldChord(bus, time, frequencies, duration, level) {
+  // Tasaisesti soiva sointu: A:n loppu ja B:n nelosiskulle ajoitettu vaimennus
+  // kuuluvat oikeasti, eivät ole vain vaihtuvaa tekstiä.
+  frequencies.forEach((frequency, index) => {
+    const oscillator = audio.createOscillator();
+    oscillator.type = 'triangle';
+    oscillator.frequency.setValueAtTime(frequency, time);
+    const gain = audio.createGain();
+    const amplitude = level / (index === 0 ? 3 : 4);
+    gain.gain.setValueAtTime(0.0001, time);
+    gain.gain.linearRampToValueAtTime(amplitude, time + 0.02);
+    gain.gain.setValueAtTime(amplitude, time + duration - 0.04);
+    gain.gain.linearRampToValueAtTime(0.0001, time + duration);
+    oscillator.connect(gain);
+    gain.connect(bus);
+    oscillator.start(time);
+    oscillator.stop(time + duration + 0.01);
+  });
+}
 
 function play(bus, event) {
   const { time } = event;
@@ -245,6 +279,7 @@ function play(bus, event) {
       break;
     }
     case 'bass': tone(bus, time, event.frequency, 0.33, event.level, 'triangle'); break;
+    case 'held-chord': heldChord(bus, time, CHORDS[event.harmony], event.duration, event.level); break;
     case 'tone': tone(bus, time, event.frequency, event.duration, event.level, event.wave); break;
     case 'click': tone(bus, time, event.strong ? 950 : 730, 0.065, event.strong ? 0.09 : 0.05); break;
     case 'chord':
@@ -269,6 +304,8 @@ function setupExercise(root) {
   const grooveButtons = [...root.querySelectorAll('[data-versio]')];
   const reveal = root.querySelector('[data-rytmi-vihje]');
   const grooveGrid = root.querySelector('[data-rytmi-ruudukko="tuntuma"]');
+  const isTransition = task === 'osanvaihto';
+  const versionNames = isTransition ? TRANSITIONS : GROOVES;
   const state = { example: 'rock', revealed: false, mode: 'A' };
   let session = null;
   let starting = false;
@@ -310,6 +347,16 @@ function setupExercise(root) {
     grooveGrid.dataset.versio = mode;
   }
 
+  function drawTransition(mode) {
+    if (!isTransition || mode === shownMode) return;
+    shownMode = mode;
+    transitionCells(mode).forEach((action, index) => {
+      const cell = cells(0)[index];
+      cell.querySelector('.rytmi-isku-teko').textContent = action;
+      cell.classList.toggle('is-silent', index === 3 && mode === 'B');
+    });
+  }
+
   function drawReveal() {
     cells(0).forEach((element, index) => {
       element.querySelector('.rytmi-isku-nimi').textContent = state.revealed ? String(index + 1) : '•';
@@ -325,14 +372,15 @@ function setupExercise(root) {
     const position = positionAt(session.transport, now);
     if (position) {
       drawGroove(position.mode);
+      drawTransition(position.mode);
       const target = cells(position.cell.bar)[position.cell.index];
       if (!target?.classList.contains('is-active')) {
         clearActive();
         target?.classList.add('is-active');
       }
-      if (task === 'tuntuma' && session.announced !== position.mode) {
+      if ((task === 'tuntuma' || isTransition) && session.announced !== position.mode) {
         session.announced = position.mode;
-        status.textContent = `Nyt soi ${GROOVES[position.mode]}.`;
+        status.textContent = `Nyt soi ${versionNames[position.mode]}.`;
       }
     }
     frame = requestAnimationFrame(draw);
@@ -362,6 +410,7 @@ function setupExercise(root) {
     button.removeAttribute('aria-busy');
     setButton(false);
     drawGroove(state.mode);
+    drawTransition(state.mode);
   }
 
   async function start() {
@@ -436,13 +485,14 @@ function setupExercise(root) {
       setPressed(grooveButtons, other => other.dataset.versio === mode);
       if (!session) {
         drawGroove(mode);
+        drawTransition(mode);
         return;
       }
       requestMode(session.transport, mode);
       // Valittu versio ei vielä soi: ruudukko ja ilmoitus "Nyt soi" vaihtuvat vasta tahdin rajalla.
       status.textContent = session.transport.pending
-        ? `Valittu ${GROOVES[mode]}. Versio vaihtuu seuraavan tahdin alussa.`
-        : `Nyt soi ${GROOVES[session.announced]}.`;
+        ? `Valittu ${versionNames[mode]}. Versio vaihtuu seuraavan tahdin alussa.`
+        : `Nyt soi ${versionNames[session.announced]}.`;
     });
   }
 
@@ -461,6 +511,7 @@ function setupExercise(root) {
   setButton(false);
   if (reveal) drawReveal();
   drawGroove(state.mode);
+  drawTransition(state.mode);
 }
 
 if (typeof document !== 'undefined') {
