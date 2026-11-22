@@ -35,7 +35,7 @@ export function preferredAudioFormats(audioElement) {
  * selaimen ääni-istuntoa eikä sulje kontekstia. Polkujen on oltava paikallisia.
  */
 export class SteelSampleBank {
-  constructor(context, manifestUrl, { fetcher = globalThis.fetch,
+  constructor(context, manifestUrl, { fetcher = (...args) => globalThis.fetch(...args),
     formats = preferredAudioFormats(typeof document === 'undefined' ? null : document.createElement('audio')) } = {}) {
     if (!context || typeof context.decodeAudioData !== 'function') throw new Error('AudioContext puuttuu.');
     this.context = context;
