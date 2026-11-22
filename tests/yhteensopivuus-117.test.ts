@@ -40,13 +40,13 @@ function boot(data: Map<string, string>, id: string, kind: Page['kind'] = 'luku'
   };
   const document = {
     querySelector(name: string) { return name === 'main[data-study-item]' ? main : null; },
-    getElementById(_name: string) { return null; },
+    getElementById() { return null; },
   };
   const localStorage = {
     getItem(name: string) { return data.get(name) ?? null; },
     setItem(name: string, value: string) { data.set(name, value); },
   };
-  const window = { addEventListener(_name: string, _fn: unknown) { /* harjoitukselle ei tarvita eventtejä */ } };
+  const window = { addEventListener() { /* harjoitukselle ei tarvita eventtejä */ } };
   const context = createContext({ document, window, localStorage, location: {
     pathname: '/oppi/soinnut/harmoninen-kentta.html', search: '', hash: '',
   } });
