@@ -843,6 +843,7 @@ test.describe('Ydinopinnot v0.5', () => {
     }
     await expect(listen).toHaveAttribute('data-playing', '');
     expect(await sizeOf(listen)).toEqual(bounds);
+    const ordinaryTextColor = await page.locator('[data-arvauspalaute]').evaluate(element => getComputedStyle(element).color);
     const reply = page.getByRole('group', { name: 'Vastaa' });
     const choiceButtons = reply.locator('button');
     const choicePositions = () => choiceButtons.evaluateAll(nodes => nodes.map(node => {
@@ -861,6 +862,7 @@ test.describe('Ydinopinnot v0.5', () => {
     const feedback = page.locator('[data-arvauspalaute]');
     await expect(feedback).toHaveAttribute('role', 'status');
     await expect(feedback).toHaveText('Oikein! Sointu 1 oli E-molli ja sointu 2 oli E-duuri.');
+    await expect(feedback).toHaveCSS('color', 'rgb(159, 228, 195)');
     await expect(feedback.locator('strong')).toHaveText('Oikein!');
     await expect(feedback.locator('strong')).toHaveCSS('color', 'rgb(159, 228, 195)');
     await expect(feedback.locator('strong')).toHaveCSS('font-weight', '800');
@@ -880,6 +882,7 @@ test.describe('Ydinopinnot v0.5', () => {
     expect(await sizeOf(listen)).toEqual(bounds);
     const revealedSizes = await listenSizes();
     await expect(page.locator('[data-sointu-tila]')).toHaveText('Voit kuunnella molemmat soinnut uudelleen nimineen.');
+    await expect(page.locator('[data-sointu-tila]')).toHaveCSS('color', ordinaryTextColor);
     await expect(normal).toBeHidden();
     const played = (await starts(page)).length;
     await listenButtons.nth(1).click();
@@ -920,6 +923,7 @@ test.describe('Ydinopinnot v0.5', () => {
     expect(await choicePositions()).toEqual(beforeChoicePositions);
     await expect(feedback).toHaveText('Tällä kertaa ei. Sointu 1 oli E-duuri ja sointu 2 oli E-molli.');
     await expect(feedback).toHaveCSS('color', 'rgb(255, 214, 179)');
+    await expect(page.locator('[data-sointu-tila]')).toHaveCSS('color', ordinaryTextColor);
     await expect(feedback.locator('strong')).toHaveCount(0);
     await expect(feedback).toHaveAttribute('role', 'status');
     await expect(charts.locator('figcaption')).toHaveText(['Sointu 1 = E', 'Sointu 2 = Em']);
