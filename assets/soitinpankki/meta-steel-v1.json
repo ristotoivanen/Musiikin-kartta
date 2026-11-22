@@ -1,0 +1,247 @@
+{
+  "schema": "musiikin-kartta-instrument-bank-v1",
+  "id": "meta-steel-guitar",
+  "instrument": "steel-acoustic-guitar",
+  "status": "pilot-only",
+  "complete": false,
+  "availableLayers": [
+    "Vel02"
+  ],
+  "origin": {
+    "publisher": "Meta Creative Audio / facebookincubator",
+    "version": "meta-steel-guitar-v1.0.0",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://raw.githubusercontent.com/facebookincubator/Meta-open-sound/514c926efecdb3c7812bf00eedf8e5c8d61dd681/systems/instruments/meta-steel-guitar/LICENSE",
+    "source": "https://github.com/facebookincubator/Meta-open-sound/releases/tag/meta-steel-guitar-v1.0.0",
+    "archive": "https://github.com/facebookincubator/Meta-open-sound/releases/download/meta-steel-guitar-v1.0.0/meta-open-sound-meta-steel-guitar-wav.zip",
+    "publishedArchiveSha256": "caaa8a9c07217f4a82d1dfd9f5657c286155464b66bf4dd27797811c2558a909",
+    "selection": "Vel02 / 01",
+    "localLicense": "LICENSE-CC0-1.0.txt"
+  },
+  "referenceGain": 0.76221,
+  "conversion": {
+    "tool": "FFmpeg 9.0",
+    "commonArguments": [
+      "-map_metadata",
+      "-1",
+      "-vn",
+      "-af",
+      "pan=mono|c0=0.5*c0+0.5*c1,atrim=end=5,afade=t=out:st=4.6:d=0.4",
+      "-ar",
+      "48000"
+    ],
+    "formatArguments": {
+      "ogg": [
+        "-c:a",
+        "libvorbis",
+        "-q:a",
+        "4"
+      ],
+      "m4a": [
+        "-c:a",
+        "aac",
+        "-b:a",
+        "96k",
+        "-movflags",
+        "+faststart"
+      ]
+    },
+    "start": "Original start preserved. No head trim, filtering, or gain normalization in the files.",
+    "onset": "First of two successive 1 ms blocks with RMS at least 4% of peak block RMS in the first second of decoded PCM. Playback starts early by this offset divided by playback rate.",
+    "gain": "Per-bank median RMS of the first 240 ms from attack over all samples and both formats. Common reduction bounds the sum of the six chord peaks measured in the first second. Individual notes are not normalized."
+  },
+  "samples": [
+    {
+      "string": 6,
+      "midi": 40,
+      "layer": "Vel02",
+      "pitch": "E2",
+      "originalMidi": 40,
+      "sourceFile": "INSGuitarSteel_StringLowE_Vel02_E2_01.wav",
+      "sourceSha256": "31be9f8e68f541dca017ad0ef3ed3476112b9266f9db4e356c02d9d96a2f312d",
+      "playbackSemitones": 0,
+      "files": {
+        "ogg": {
+          "path": "audio/steel-6-40.ogg",
+          "bytes": 41556,
+          "sha256": "bd9e85786a17b1d6f40adebb2eff02b62425163dde6b8f0e8462a6eec52e8ec6",
+          "onsetMs": 5
+        },
+        "m4a": {
+          "path": "audio/steel-6-40.m4a",
+          "bytes": 62086,
+          "sha256": "4a1f8e61aa47c70027471f67a8326b441f6e62f08fddd325d77bc3ea392b7af2",
+          "onsetMs": 5
+        }
+      }
+    },
+    {
+      "string": 6,
+      "midi": 43,
+      "layer": "Vel02",
+      "pitch": "G2",
+      "originalMidi": 43,
+      "sourceFile": "INSGuitarSteel_StringLowE_Vel02_G2_01.wav",
+      "sourceSha256": "ca08e222c62b3c16624c14ff61007a9609a20bca0bbdb8111401dfe53ba3ba4a",
+      "playbackSemitones": 0,
+      "files": {
+        "ogg": {
+          "path": "audio/steel-6-43.ogg",
+          "bytes": 41600,
+          "sha256": "5959f803013bf57f7e6930d5a69faa5b56b2916d0813d3ba333e24cbeb29a0cf",
+          "onsetMs": 24
+        },
+        "m4a": {
+          "path": "audio/steel-6-43.m4a",
+          "bytes": 62084,
+          "sha256": "28147ff264dcfdd6c82a84b8447ce6ac662e4ee489eabc90371c8a8f4d231925",
+          "onsetMs": 24
+        }
+      }
+    },
+    {
+      "string": 5,
+      "midi": 45,
+      "layer": "Vel02",
+      "pitch": "A2",
+      "originalMidi": 45,
+      "sourceFile": "INSGuitarSteel_StringA_Vel02_A2_01.wav",
+      "sourceSha256": "275e3f7738d5cfe28b44d4e648d2cd50514a2aa8ea8a45284ffaea3e2d0535fc",
+      "playbackSemitones": 0,
+      "files": {
+        "ogg": {
+          "path": "audio/steel-5-45.ogg",
+          "bytes": 41940,
+          "sha256": "9f48119a155a95d66b45881a305e3d882747638cc842194fdb851150cc3a722f",
+          "onsetMs": 13
+        },
+        "m4a": {
+          "path": "audio/steel-5-45.m4a",
+          "bytes": 62085,
+          "sha256": "fe4db246b4015bab2c66c9dd3b216e902eee035318b6dfa6eb45eb7afb35ae04",
+          "onsetMs": 12
+        }
+      }
+    },
+    {
+      "string": 5,
+      "midi": 47,
+      "layer": "Vel02",
+      "pitch": "B2",
+      "originalMidi": 47,
+      "sourceFile": "INSGuitarSteel_StringA_Vel02_B2_01.wav",
+      "sourceSha256": "a055ae9c312749f4084756f33509f9a0f255e9d0806f30f4f72d7d8ea689f903",
+      "playbackSemitones": 0,
+      "files": {
+        "ogg": {
+          "path": "audio/steel-5-47.ogg",
+          "bytes": 42362,
+          "sha256": "dce1a12065d3f90103d85de54e920ba1794ef290fba274aa9ef0fd8374a9a7a5",
+          "onsetMs": 30
+        },
+        "m4a": {
+          "path": "audio/steel-5-47.m4a",
+          "bytes": 62108,
+          "sha256": "0bd1fb58c12474bd084bc13b58685d1fb49449e28f02b1a4f818e08a309db92c",
+          "onsetMs": 30
+        }
+      }
+    },
+    {
+      "string": 4,
+      "midi": 50,
+      "layer": "Vel02",
+      "pitch": "D3",
+      "originalMidi": 50,
+      "sourceFile": "INSGuitarSteel_StringD_Vel02_D3_01.wav",
+      "sourceSha256": "a45b53560d1c8d479df82ebc2f20b9c1e1f69103f14fb03c409a044d7855e925",
+      "playbackSemitones": 0,
+      "files": {
+        "ogg": {
+          "path": "audio/steel-4-50.ogg",
+          "bytes": 42594,
+          "sha256": "5083b3a9d077acc6b093fb5c325c49fa66d6cd4b10d536acbf6a624690beaeb5",
+          "onsetMs": 21
+        },
+        "m4a": {
+          "path": "audio/steel-4-50.m4a",
+          "bytes": 62083,
+          "sha256": "c15967b75a78cabaa1e5743a390b3d3bd8cc561fcec6f3369a3f0b6a11a104b6",
+          "onsetMs": 21
+        }
+      }
+    },
+    {
+      "string": 3,
+      "midi": 55,
+      "layer": "Vel02",
+      "pitch": "G3",
+      "originalMidi": 55,
+      "sourceFile": "INSGuitarSteel_StringG_Vel02_G3_01.wav",
+      "sourceSha256": "57542b61014c441cd5d19ae1c4b650a249d058d0eeb7464ecc30ac9b3e8888c7",
+      "playbackSemitones": 0,
+      "files": {
+        "ogg": {
+          "path": "audio/steel-3-55.ogg",
+          "bytes": 44424,
+          "sha256": "96c9ab8091e30714f1295393c7c3266bc825588c7f7fb4db969f0045cd16a8e8",
+          "onsetMs": 23
+        },
+        "m4a": {
+          "path": "audio/steel-3-55.m4a",
+          "bytes": 62150,
+          "sha256": "9f7e7fa2227183dcda84ca1cfc8ade9b3444446c5e61432be225a670e7ff6649",
+          "onsetMs": 12
+        }
+      }
+    },
+    {
+      "string": 2,
+      "midi": 59,
+      "layer": "Vel02",
+      "pitch": "B3",
+      "originalMidi": 59,
+      "sourceFile": "INSGuitarSteel_StringB_Vel02_B3_01.wav",
+      "sourceSha256": "30a02c88db3b6dad6dda228cda50c4492668baf7bb4710476ea9ec1542f44789",
+      "playbackSemitones": 0,
+      "files": {
+        "ogg": {
+          "path": "audio/steel-2-59.ogg",
+          "bytes": 44947,
+          "sha256": "e9597198597261f28e77c7488173ace7beb3b7f052a857dcd3ae94e176d56f15",
+          "onsetMs": 32
+        },
+        "m4a": {
+          "path": "audio/steel-2-59.m4a",
+          "bytes": 62108,
+          "sha256": "5fdcb342473f815f575a80b711087feed59c1d263ae5ee21ba9faca9e448d9e4",
+          "onsetMs": 30
+        }
+      }
+    },
+    {
+      "string": 1,
+      "midi": 67,
+      "layer": "Vel02",
+      "pitch": "G4",
+      "originalMidi": 67,
+      "sourceFile": "INSGuitarSteel_StringHighE_Vel02_G4_01.wav",
+      "sourceSha256": "359b4e50c74af184de5b95d9639a7f84eb69efd82be2ece0b762e4d49f57ef34",
+      "playbackSemitones": 0,
+      "files": {
+        "ogg": {
+          "path": "audio/steel-1-67.ogg",
+          "bytes": 44771,
+          "sha256": "b9727469ff94a63e5d9f172e67c42eb219d1a25fc4ee5c02f134b15c417d34a9",
+          "onsetMs": 4
+        },
+        "m4a": {
+          "path": "audio/steel-1-67.m4a",
+          "bytes": 62134,
+          "sha256": "169d443b76d7aea3b4f378ae0e5c73ba11c595057630bc870bd02919ca3a8b69",
+          "onsetMs": 4
+        }
+      }
+    }
+  ]
+}
