@@ -326,17 +326,16 @@
     const firstPrompt = feedback.textContent;
     const diagrams = section.querySelector('[data-arvaus-kaaviot]');
     const originalD = section.querySelector('.chord-diagrams');
+    const originalE = section.querySelector('[data-eem-kaaviot]');
     const chords = {
       D: originalD.children[0].cloneNode(true),
       Dm: originalD.children[1].cloneNode(true),
-      E: diagrams.children[0],
-      Em: diagrams.children[1],
+      E: originalE.children[0].cloneNode(true),
+      Em: originalE.children[1].cloneNode(true),
     };
     const families = { D: ['D', 'Dm'], E: ['E', 'Em'] };
     const pairButtons = [...section.querySelectorAll('[data-arvaus-pari]')];
     let family = 'E';
-    const comparison = section.querySelector('[data-otevertailu]');
-    const tip = section.querySelector('.study-knoppi');
     const next = section.querySelector('[data-uusi-arvaus]');
     const fullName = { D: 'D-duuri', Dm: 'D-molli', E: 'E-duuri', Em: 'E-molli' };
     // #115: D/Dm ensin. F4 on oikea Vel02:n kitaranäyte,
@@ -348,6 +347,17 @@
         const chord = button.dataset.ddmPlay;
         play(button, ddmStatus, plans[chord], {
           label: `Kuulit ${chord === 'D' ? 'D-duurin' : 'D-mollin'}. Vertaa toiseen sointuun.`,
+        });
+      });
+    }
+    // Toinen kuunteluvaihe on itsenäinen: tunnistustehtävän vaihtelu ei piilota sitä.
+    const eemStatus = section.querySelector('[data-eem-tila]');
+    showStatus(eemStatus, 'Valitse E-duuri tai E-molli kuunneltavaksi.');
+    for (const button of section.querySelectorAll('[data-eem-play]')) {
+      button.addEventListener('click', () => {
+        const chord = button.dataset.eemPlay;
+        play(button, eemStatus, plans[chord], {
+          label: `Kuulit ${chord === 'E' ? 'E-duurin' : 'E-mollin'}. Vertaa toiseen sointuun.`,
         });
       });
     }
@@ -376,14 +386,13 @@
         button.querySelector('.sointu-vaihtuva > span:first-child').textContent = `Sointu ${index + 1} · ${names[index]}`;
       });
       normal.hidden = false;
-      listening.hidden = answers.hidden = feedback.hidden = true;
+      listening.hidden = answers.hidden = feedback.hidden = diagrams.hidden = true;
       question.classList.remove('is-active');
       heading.textContent = `Kuuntele ensin ${names[0]} ja ${names[1]}`;
       prompt.textContent = 'Kuuntele molemmat soinnut. Valitse sitten Tunnista.';
       for (const chord of names) chords[chord].querySelector('figcaption').textContent = chord;
-      diagrams.replaceChildren(...names.map(name => chords[name]));
-      diagrams.hidden = false;
-      comparison.hidden = tip.hidden = family !== 'E';
+      // Vastauksen kaaviot ovat eri alueella kuin aina näkyvät D/Dm- ja E/Em-vertailut.
+      diagrams.replaceChildren();
       next.querySelector('[data-uusi-arvaus-teksti]').textContent = 'Tunnista';
       feedback.textContent = firstPrompt;
       feedback.classList.remove('is-error');
@@ -410,10 +419,11 @@
       pair = Math.random() < 0.5 ? [...selected] : [...selected].reverse();
       target = Math.random() < 0.5 ? selected[1] : selected[0];
       answered = false;
-      normal.hidden = comparison.hidden = diagrams.hidden = tip.hidden = true;
+      normal.hidden = diagrams.hidden = true;
+      diagrams.replaceChildren();
       listening.hidden = answers.hidden = feedback.hidden = false;
       question.classList.add('is-active');
-      heading.textContent = target === 'E' ? 'Kumpi on duuri?' : 'Kumpi on molli?';
+      heading.textContent = target === selected[0] ? 'Kumpi on duuri?' : 'Kumpi on molli?';
       prompt.textContent = 'Kuuntele soinnut 1 ja 2. Valitse sitten vastaus.';
       feedback.textContent = firstPrompt;
       feedback.classList.remove('is-error');
@@ -464,7 +474,6 @@
         });
         nameListening(true);
         diagrams.hidden = false;
-        tip.hidden = family !== 'E';
         showExerciseStatus('Voit kuunnella molemmat soinnut uudelleen nimineen.');
       });
     }
