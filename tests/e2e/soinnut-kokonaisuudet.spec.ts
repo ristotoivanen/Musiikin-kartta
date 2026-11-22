@@ -1276,7 +1276,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     await expect(listenButtons.nth(1)).toHaveAccessibleName('Kuuntele sointu 2, E-molli');
     expect(await sizeOf(listen)).toEqual(bounds);
     const revealedSizes = await listenSizes();
-    await expect(page.locator('[data-sointu-tila]')).toHaveText('Palaute jää näkyviin. Valitse ylhäältä D / Dm tai E / Em aloittaaksesi uuden tehtävän.');
+    await expect(page.locator('[data-sointu-tila]')).toHaveText('Palaute jää näkyviin. Valitse ylhäältä sointupari aloittaaksesi uuden tehtävän.');
     await expect(page.locator('[data-sointu-tila]')).not.toHaveCSS('color', 'rgb(159, 228, 195)');
     await expect(page.locator('[data-sointu-tila]')).not.toHaveCSS('color', 'rgb(255, 224, 138)');
     await expect(eComparison).toBeVisible();
