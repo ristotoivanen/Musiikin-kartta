@@ -69,7 +69,7 @@ describe('Soinnut ja harmonia: oma oppimiskokonaisuus', () => {
 
 it('Ydinopinnot on ensimmäinen ja kokeilut eivät sekoitu G-pilotin tai aiempien tunnisteisiin', () => {
   const topic = read('oppi/soinnut/index.html');
-  const slugs = ['kuule-ja-kokoa-sointu', 'yksi-savel-muuttaa-sointua', 'mihin-kappale-haluaa-palata', 'sointukierto-ja-asteet'];
+  const slugs = ['kuule-ja-kokoa-sointu', 'yksi-savel-muuttaa-sointua', 'mihin-kappale-haluaa-palata', 'sointukierto-ja-asteet', 'sama-kierto-vahemmilla-vihjeilla'];
   const attempts = slugs.map(slug => 'harjoitus:' + slug);
   expect(topic).toMatch(/<div class="study-units">\s+<details class="study-unit" id="ydinopinnot">/);
   expect([...topic.matchAll(/data-study-attempt-status="([^"]+)"/g)].map(([, id]) => id)).toEqual(attempts);
@@ -168,4 +168,23 @@ it('04 G–D–Em–C säilyttää hyväksytyn yhden soinnun 4/4-tahdissa ja oik
     expect(section).toContain('G-duurin seitsemän kolmisointua');
     expect(section).toContain('F♯dim');
   }
+});
+
+it('06 sointukierto säilyttää neljä vapaasti vaihdettavaa, ei-lukittua vihjenäkymää', () => {
+  const source = read('tools/oppimiskartta/sisallot/soinnut/sama-kierto-vahemmilla-vihjeilla.html');
+  const page = read('oppi/soinnut/sama-kierto-vahemmilla-vihjeilla.html');
+  const topic = read('oppi/soinnut/index.html');
+  for (const markup of [source, page, topic]) {
+    const section = markup.slice(markup.indexOf('data-sointuharjoitus="vihjeet"'));
+    for (const mode of ['soinnut', 'asteet', 'tahdit', 'ilman']) {
+      expect(section).toContain('data-vihje-mode="' + mode + '"');
+    }
+    expect(section).toContain('data-vihje-play');
+    expect(section).toContain('data-vihje-kartta');
+    expect(section).toContain('voit palata helpompaan näkymään milloin vain');
+    expect(section).not.toContain('data-requires-completed');
+  }
+  expect(page).toContain('data-study-item="harjoitus:sama-kierto-vahemmilla-vihjeilla"');
+  expect(topic).toContain('data-study-attempt-status="harjoitus:sama-kierto-vahemmilla-vihjeilla"');
+  expect(page).toContain('G–D–Em–C');
 });
