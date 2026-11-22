@@ -1,0 +1,99 @@
+name: Meta Steel 156 16-sample QA
+
+on:
+  push:
+    branches:
+      - chatgpt/156-meta-steel-inventory
+    paths:
+      - '.github/workflows/meta-steel-156-16samples.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: meta-steel-156-real-wave-qa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  prepare-real-samples:
+    name: Build 16 source-verified OGG/AAC QA assets
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - name: Checkout pinned pilot and catalog
+        uses: actions/checkout@v4
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify available FFmpeg codecs
+        run: |
+          if ! command -v ffmpeg >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y ffmpeg
+          fi
+          ffmpeg -version | head -n 1
+          ffmpeg -hide_banner -encoders | grep -E 'libvorbis|aac '
+      - name: Plan exact 8 note keys x 2 new layers
+        run: |
+          node tools/soitinpankki/plan-pilot-velocity.mjs > "$RUNNER_TEMP/meta-steel-16-plan.json"
+          python3 tools/soitinpankki/valmistele_meta_steel.py --plan "$RUNNER_TEMP/meta-steel-16-plan.json" --dry-run > "$RUNNER_TEMP/meta-steel-16-selection.json"
+          python3 - <<'PY'
+          import json,os
+          with open(os.environ["RUNNER_TEMP"]+"/meta-steel-16-plan.json") as f:
+              plan=json.load(f)
+          assert plan["uniqueSamples"]==16
+          assert set(s["layer"] for s in plan["samples"])=={"Vel01","Vel03"}
+          print("Validated 16 distinct pilot string/midi/layer sources")
+          PY
+      - name: Download pinned Meta v1.0.0 original WAV archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 --retry-delay 4 --connect-timeout 30 --max-time 1100 \
+            -o "$RUNNER_TEMP/meta-original-wav.zip" \
+            https://github.com/facebookincubator/Meta-open-sound/releases/download/meta-steel-guitar-v1.0.0/meta-open-sound-meta-steel-guitar-wav.zip
+          echo 'caaa8a9c07217f4a82d1dfd9f5657c286155464b66bf4dd27797811c2558a909  '"$RUNNER_TEMP/meta-original-wav.zip" | sha256sum --check
+      - name: Convert only 16 pinned WAVs into isolated QA staging
+        run: |
+          python3 tools/soitinpankki/valmistele_meta_steel.py \
+            --plan "$RUNNER_TEMP/meta-steel-16-plan.json" \
+            --archive "$RUNNER_TEMP/meta-original-wav.zip" \
+            --out "$RUNNER_TEMP/meta-steel-16-qa"
+      - name: Verify complete 16 x 2 asset output and record provenance
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,os,pathlib
+          base=pathlib.Path(os.environ["RUNNER_TEMP"])/"meta-steel-16-qa"
+          manifest=json.loads((base/"manifest.json").read_text())
+          assert manifest["status"]=="staging-only"
+          assert len(manifest["samples"])==16
+          assert set(s["layer"] for s in manifest["samples"])=={"Vel01","Vel03"}
+          assert manifest["origin"]["archiveSha256"]=="caaa8a9c07217f4a82d1dfd9f5657c286155464b66bf4dd27797811c2558a909"
+          files=set()
+          for sample in manifest["samples"]:
+              for fmt in ("ogg","m4a"):
+                  info=sample["files"][fmt]
+                  file=base/info["path"]
+                  assert file.is_file()
+                  assert len(file.read_bytes())==info["bytes"]
+                  assert hashlib.sha256(file.read_bytes()).hexdigest()==info["sha256"]
+                  assert 0<=info["onsetMs"]<200
+                  files.add(str(file.relative_to(base)))
+          assert len(files)==32
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as report:
+              report.write("## Meta Steel 16 genuine source samples – QA only\n\n")
+              report.write(f"- {len(manifest['samples'])} samples, 32 OGG/AAC assets verified by SHA-256\n")
+              report.write(f"- Source version: {manifest['origin']['version']} / {manifest['origin']['commit']}\n")
+              report.write("- Original WAV archive SHA-256: MATCH\n")
+              report.write("- Not integrated into beta, #130, or the #136 pilot\n")
+              report.write("- **Audio quality, velocity balance, and mobile decode still need approval**\n")
+          PY
+      - name: Upload QA-only audio artifact (not site deployment)
+        uses: actions/upload-artifact@v4
+        with:
+          name: meta-steel-16-qa-ogg-aac
+          path: ${{ runner.temp }}/meta-steel-16-qa/
+          if-no-files-found: error
+          retention-days: 14
