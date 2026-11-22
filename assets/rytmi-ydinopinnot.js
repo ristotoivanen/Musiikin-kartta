@@ -99,7 +99,7 @@ function backing(task, example, loopStep) {
  * @param {number} loopStep 0–15 kahden tahdin kierrossa
  * @param {{example?: string, revealed?: boolean, mode?: string}} options
  */
-export function stepEvents(task, loopStep, { example = 'rock', revealed = false, mode = 'A', drumGap = false } = {}) {
+export function stepEvents(task, loopStep, { example = 'rock', revealed = false, mode = 'A', drumGap = false, taukoMode = 'soi' } = {}) {
   const barStep = loopStep % STEPS_PER_BAR;
   const onBeat = barStep % 2 === 0;
   const beat = Math.floor(barStep / 2);
@@ -111,8 +111,18 @@ export function stepEvents(task, loopStep, { example = 'rock', revealed = false,
     if (onBeat && beat === 0) events.push({ type: 'chord', role: 'harmonia', harmony, level: 0.075 });
     if (onBeat && revealed) events.push({ type: 'click', role: 'pulssivihje', strong: beat === 0 });
   } else if (task === 'hiljaisuus') {
-    // Ensimmäisessä tahdissa taputukset kuuluvat, toisessa ne vaikenevat. Tausta jatkuu molemmissa.
+    // Taputukset lakkaavat toisessa tahdissa, mutta musiikkitausta jatkuu.
+    // A: sointi jatkuu; B: aktiivinen vaimennus nelosiskulla;
+    // C: kolmosiskun jälkeen uutta ääntä ei lyödä nelosella, sointi silti jatkuu.
     if (onBeat && loopStep < STEPS_PER_BAR) events.push({ type: 'noise', role: 'taputus', duration: 0.095, level: 0.19, highpass: 1300 });
+    const beatDuration = 60 / tempoFor('hiljaisuus');
+    if (loopStep === STEPS_PER_BAR) {
+      events.push({ type: 'held-chord', role: 'tauon-sointu', harmony: 'Em',
+        duration: beatDuration * (taukoMode === 'vaimenna' ? 3 : taukoMode === 'pois' ? 2 : 4),
+        level: 0.09 });
+    } else if (taukoMode === 'pois' && loopStep === STEPS_PER_BAR + 4) {
+      events.push({ type: 'held-chord', role: 'tauon-sointu', harmony: 'Em', duration: 2 * beatDuration, level: 0.09 });
+    }
   } else if (task === 'tuntuma') {
     if (onBeat && beat === 0) events.push({ type: 'chord', role: 'harmonia', harmony, level: 0.045 });
     const level = compLevel(mode, barStep);
@@ -305,12 +315,13 @@ function setupExercise(root) {
   const status = root.querySelector('[data-rytmi-tila]');
   const exampleButtons = [...root.querySelectorAll('[data-esimerkki]')];
   const drumButtons = [...root.querySelectorAll('[data-rumpumalli]')];
+  const silenceButtons = [...root.querySelectorAll('[data-tauko-mode]')];
   const grooveButtons = [...root.querySelectorAll('[data-versio]')];
   const reveal = root.querySelector('[data-rytmi-vihje]');
   const grooveGrid = root.querySelector('[data-rytmi-ruudukko="tuntuma"]');
   const isTransition = task === 'osanvaihto';
   const versionNames = isTransition ? TRANSITIONS : GROOVES;
-  const state = { example: 'rock', revealed: false, mode: 'A', drumGap: false };
+  const state = { example: 'rock', revealed: false, mode: 'A', drumGap: false, taukoMode: 'soi' };
   let session = null;
   let starting = false;
   let token = 0;
@@ -358,6 +369,18 @@ function setupExercise(root) {
       const cell = cells(0)[index];
       cell.querySelector('.rytmi-isku-teko').textContent = action;
       cell.classList.toggle('is-silent', index === 3 && mode === 'B');
+    });
+  }
+
+  function drawSilence() {
+    if (task !== 'hiljaisuus') return;
+    const secondBar = cells(1);
+    const mode = state.taukoMode;
+    const actions = ['Soita Em', 'Anna soida', mode === 'pois' ? 'Uusi isku' : 'Anna soida',
+      mode === 'vaimenna' ? 'Vaimenna' : mode === 'pois' ? 'Ei uutta iskua' : 'Ääni jatkuu'];
+    secondBar.forEach((cell, index) => {
+      cell.querySelector('.rytmi-isku-teko').textContent = actions[index];
+      cell.classList.toggle('is-silent', index === 3 && mode === 'vaimenna');
     });
   }
 
@@ -494,6 +517,17 @@ function setupExercise(root) {
     });
   }
 
+  for (const choice of silenceButtons) {
+    choice.addEventListener('click', () => {
+      const mode = choice.dataset.taukoMode;
+      if (mode === state.taukoMode) return;
+      state.taukoMode = mode;
+      setPressed(silenceButtons, button => button.dataset.taukoMode === mode);
+      drawSilence();
+      if (session) { stop(); start(); }
+    });
+  }
+
   reveal?.addEventListener('click', () => {
     state.revealed = !state.revealed;
     drawReveal();
@@ -533,6 +567,7 @@ function setupExercise(root) {
   if (reveal) drawReveal();
   drawGroove(state.mode);
   drawTransition(state.mode);
+  drawSilence();
 }
 
 if (typeof document !== 'undefined') {
