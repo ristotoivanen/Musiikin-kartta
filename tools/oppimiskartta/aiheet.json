@@ -273,6 +273,11 @@
               "goal": "G–D–Em–C: I–V–vi–IV"
             },
             {
+              "standalone": "siirra-sama-rakenne",
+              "title": "Siirrä sama rakenne",
+              "goal": "C–G–Am–F: sama I–V–vi–IV"
+            },
+            {
               "standalone": "sama-kierto-vahemmilla-vihjeilla",
               "title": "Sama kierto, vähemmän apua",
               "goal": "Neljä vaihdettavaa vihjenäkymää"
