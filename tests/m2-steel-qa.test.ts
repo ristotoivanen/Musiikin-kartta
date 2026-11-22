@@ -43,6 +43,16 @@ describe('#160 – M2 Steel -harjoitusvertailun rajaus', () => {
     }
   });
 
+  it('näyttää mitatut M0/M2-kuunteluasetukset oletuksina mutta jättää M3:n ennalleen', () => {
+    expect(qa).toMatch(/id="m0Gain"[^>]*value="0\.3"/);
+    expect(qa).toMatch(/id="steelGain"[^>]*value="2\.4"/);
+    expect(qa).toMatch(/id="m2BackingGain"[^>]*value="0\.55"/);
+    expect(qa).toContain('id="m0GainLabel">30 %');
+    expect(qa).toContain('id="steelGainLabel">2,4 ×');
+    expect(qa).toContain("if(mode==='M3'){src.loop=true");
+    expect(original).not.toContain('m0GainControls');
+  });
+
   it('M0 ja M2 käyttävät erillisiä, toiston aikana säädettäviä Web Audio -vahvistimia', () => {
     expect(qa).toContain("node.gain.setTargetAtTime(value,now,0.02)");
     expect(qa).toContain("smoothLevel(m0GuitarBus,value)");
