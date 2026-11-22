@@ -111,10 +111,14 @@ it('03 alkaa ilman valittua lopetusta ja kertoo G:n roolin vasta Mitä opit? -os
     const script = read('assets/sointuharjoitus.js');
     const prompt = 'Kuuntele soinnut 1 ja 2. Valitse sitten vastaus.';
     for (const text of ['Kumpi on duuri?', 'Kumpi on molli?', prompt, 'Uusi tehtävä']) expect(script).toContain(`'${text}'`);
-    for (const [heading, text] of [['Kuuntele ensin E ja Em', 'Kuuntele molemmat soinnut. Valitse sitten Tunnista.'], ['Kumpi on duuri?', prompt], ['Kumpi on molli?', prompt]]) {
+    for (const [heading, text] of [['Kumpi on duuri?', prompt], ['Kumpi on molli?', prompt]]) {
       expect(html).toContain(`<div class="sointu-varaus" aria-hidden="true"><span class="sointu-varaus-otsikko">${heading}</span><span>${text}</span></div>`);
     }
     expect(html).toContain('<span data-uusi-arvaus-teksti>Tunnista</span><span class="sointu-varaus" aria-hidden="true">Uusi tehtävä</span>');
+    expect(html).toContain('data-arvaus-kysymys hidden');
+    expect(html).toContain('data-arvaus-pari="D" aria-pressed="true"');
+    expect(html).toContain('data-arvaus-pari="E" aria-pressed="false"');
+    expect(html).not.toContain('data-suora-kuuntelu');
   }
 });
 
@@ -218,8 +222,12 @@ it('02:n D/Dm käyttää F♯4:n rinnalla aitoa F4-näytettä ja säilyttää E/
   expect(src).toContain('D–F–A');
   expect(src).toContain('data-ddm-play="D"');
   expect(src).toContain('data-ddm-play="Dm"');
-  expect(src).toContain('data-ydin-play="E"');
-  expect(src).toContain('data-ydin-play="Em"');
+  expect(src).toContain('data-eem-play="E"');
+  expect(src).toContain('data-eem-play="Em"');
+  expect(src).toContain('1 · Kuuntele D ja Dm');
+  expect(src).toContain('2 · Kuuntele E ja Em');
+  expect(src).toContain('3 · Tunnista duuri ja molli');
+  expect(src).toContain('data-eem-kaaviot');
   expect(src).toContain('data-uusi-arvaus');
   expect(audio).toContain("Dm: ['D:D3', 'G:A3', 'B:D4', 'HighE:F4']");
   expect(audio).toContain("D: ['D:D3', 'G:A3', 'B:D4', 'HighE:Fs4']");
