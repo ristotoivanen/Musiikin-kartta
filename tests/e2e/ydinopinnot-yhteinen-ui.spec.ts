@@ -336,6 +336,6 @@ test('Rytmin ja Sointujen vanhat merkinnät eivät kasvata Kokeiltu-laskureita',
   await expect(page.locator('#ydinopinnot [data-unit-progress]')).toHaveText('0/3 kokeiltu');
   await expect(page.locator('#aiemmat [data-study-total]')).toHaveText('✓ Aiemmat sisällöt tehty');
   await page.goto('/oppi/soinnut/index.html');
-  await expect(page.locator('#ydinopinnot [data-unit-progress]')).toHaveText('0/3 kokeiltu');
+  await expect(page.locator('#ydinopinnot [data-unit-progress]')).toHaveText('0/4 kokeiltu');
   await expect(page.locator('#aiemmat [data-study-total]')).toHaveText('1/18 aiemmista sisällöistä tehty');
 });
