@@ -334,7 +334,9 @@
     };
     const families = { D: ['D', 'Dm'], E: ['E', 'Em'] };
     const pairButtons = [...section.querySelectorAll('[data-arvaus-pari]')];
+    const startButton = section.querySelector('[data-uusi-arvaus]');
     let family = 'D';
+    let started = false;
     const fullName = { D: 'D-duuri', Dm: 'D-molli', E: 'E-duuri', Em: 'E-molli' };
     // #115: D/Dm ensin. F4 on oikea Vel02:n kitaranäyte,
     // ei F♯4-näytteen äänenkorkeuden muutoksesta tehty korvike.
@@ -364,8 +366,8 @@
     let target;
     let answered = false;
 
-    // Vertailut ovat erilliset kohdat 1 ja 2. Tunnistus aloitetaan suoraan parin
-    // valinnasta; nimetyt soinnut eivät näy tässä kolmannessa vaiheessa.
+    // Vertailut ovat erilliset kohdat 1 ja 2. Tunnistus alkaa vain ensimmäisellä
+    // Tunnista-painalluksella; sen jälkeen jatketaan vastauspainikkeilla.
     function chooseFamily(nextFamily) {
       if (family === nextFamily) return;
       stop();
@@ -375,8 +377,13 @@
       const names = families[family];
       pairButtons.forEach(button =>
         button.setAttribute('aria-pressed', String(button.dataset.arvausPari === family)));
-      startRound();
-      showExerciseStatus(`Valittu ${names.join(' ja ')}. Kuuntele soinnut ja vastaa.`);
+      if (started) {
+        // Sointuparin vaihto avaa uuden kierroksen, mutta ei palauta aloituspainiketta.
+        startRound();
+        showExerciseStatus(`Valittu ${names.join(' ja ')}. Kuuntele soinnut ja vastaa.`);
+      } else {
+        showExerciseStatus(`Valittu ${names.join(' ja ')}. Paina Tunnista.`);
+      }
     }
     pairButtons.forEach(button =>
       button.addEventListener('click', () => chooseFamily(button.dataset.arvausPari)));
@@ -395,6 +402,8 @@
     }
     function startRound(initiatedByUser = false) {
       stop();
+      started = true;
+      startButton.hidden = true;
       const selected = families[family];
       pair = Math.random() < 0.5 ? [...selected] : [...selected].reverse();
       target = Math.random() < 0.5 ? selected[1] : selected[0];
@@ -414,15 +423,14 @@
       });
       nameListening(false);
       showExerciseStatus('Kuuntele sointu 1 ja sointu 2 ennen vastaamista.');
-      // Alustuksessa ei vieritetä pois D/Dm- ja E/Em-vertailuista.
-      // Vasta käyttäjän vastauspainalluksesta syntyvä uusi kierros saa fokusoinnin.
+      // Ainoastaan käyttäjän aloittama kierros siirtää näkymän kysymykseen.
+      // Sointuparin vaihtaminen ei varasta fokusta.
       if (initiatedByUser) {
         heading.focus({ preventScroll: true });
         question.scrollIntoView({ block: 'start', behavior: 'instant' });
       }
     }
-    // Ensimmäinen kysymys on näkyvissä heti, ilman erillistä aloituspainiketta.
-    startRound();
+    startButton.addEventListener('click', () => startRound(true));
     for (const button of choices) {
       button.addEventListener('click', () => {
         if (answered) {
