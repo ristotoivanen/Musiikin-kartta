@@ -271,6 +271,11 @@
               "standalone": "sointukierto-ja-asteet",
               "title": "Sointukierto ja sointuasteet",
               "goal": "G–D–Em–C: I–V–vi–IV"
+            },
+            {
+              "standalone": "sama-kierto-vahemmilla-vihjeilla",
+              "title": "Sama kierto, vähemmän apua",
+              "goal": "Neljä vaihdettavaa vihjenäkymää"
             }
           ]
         },
