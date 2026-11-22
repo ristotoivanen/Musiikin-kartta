@@ -118,8 +118,14 @@ it('03 alkaa ilman valittua lopetusta ja kertoo G:n roolin vasta Mitä opit? -os
     expect(html).not.toContain('Uusi tehtävä');
     const recognitionCode = script.slice(script.indexOf('function setupGuess('), script.indexOf('function setupProgression('));
     expect(recognitionCode).not.toContain('setTimeout(');
+    expect(recognitionCode).toContain('if (family === nextFamily && !started) return;');
     expect(recognitionCode).toContain('if (answered) {');
-    expect(recognitionCode).toContain('startRound(true);');
+    expect(recognitionCode).toContain("choice.setAttribute('aria-disabled', 'true');");
+    expect(recognitionCode).toContain("button.removeAttribute('aria-disabled');");
+    const answerHandler = recognitionCode.slice(recognitionCode.indexOf('for (const button of choices)'));
+    expect(answerHandler).not.toContain('startRound(true)');
+    expect(html).toContain('Aloita uusi tehtävä valitsemalla sointupari ylhäältä.');
+    expect(html).not.toContain('Paina vastauspainiketta uudelleen');
     expect(html).toContain('data-arvaus-kysymys hidden');
     expect(html).toContain('data-arvaus-kuuntelu role="group" aria-label="Tunnistustehtävän ääniesimerkit" hidden');
     expect(html).toContain('data-arvaus-pari="D" aria-pressed="true"');
