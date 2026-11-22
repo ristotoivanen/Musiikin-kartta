@@ -2,7 +2,7 @@
 
 > **Lukittu PR-pisteauditointi, ei operatiivinen tehtävälista.** Tämä dokumentti täydentää [#54:n](https://github.com/ristotoivanen/Musiikin-kartta/issues/54) ja [PR #88:n auditoinnin](https://github.com/ristotoivanen/Musiikin-kartta/pull/88) PR-tasolla; prioriteetit ja hyväksymisportit pysyvät #54:ssä, pedagogiset päätökset #115:ssä ja UX-rakenne #116:ssa. Ei sulkemisia, mergejä, uudelleenkohdistuksia tai sovelluskoodin muutoksia tämän raportin perusteella.
 
-**Tarkistuspiste:** `main` [68b8a772ac22](https://github.com/ristotoivanen/Musiikin-kartta/commit/68b8a772ac22); `beta` [5a8905694e0b](https://github.com/ristotoivanen/Musiikin-kartta/commit/5a8905694e0b); **57 avointa PR:ää** (21.11. raportissa 54, uudet #145, #146 ja #147). Kaikki 57 avointa PR:ää näkyvät alla; yhdistetty #128 esitetään vain vertailukohtana. Kaikkien avoimien PR:ien nykytilat ja muuttuneet tiedostopolut haettiin GitHubista; syvälliset blob/patch-vertailut painottuvat ensisijaisiin kohteisiin. **Avoin PR tai historiassa erillinen commit ei yksin tarkoita puuttuvaa toiminnallisuutta; yhteinen tiedostopolku ei yksin osoita saman sisältöistä toteutusta.**
+**Tarkistuspiste:** `main` [68b8a772ac22](https://github.com/ristotoivanen/Musiikin-kartta/commit/68b8a772ac22); `beta` [5a8905694e0b](https://github.com/ristotoivanen/Musiikin-kartta/commit/5a8905694e0b); **59 avointa PR:ää raportin lopputarkistuksessa, oma Draft-PR #149 mukaan lukien** (21.11. raportissa 54, uudet #145, #146, #147, #148 ja tämä #149). **Kaikki 58 muuta avointa PR:ää** näkyvät alla; yhdistetty #128 esitetään vain vertailukohtana. Kaikkien avoimien PR:ien nykytilat ja muuttuneet tiedostopolut haettiin GitHubista; syvälliset blob/patch-vertailut painottuvat ensisijaisiin kohteisiin. **Avoin PR tai historiassa erillinen commit ei yksin tarkoita puuttuvaa toiminnallisuutta; yhteinen tiedostopolku ei yksin osoita saman sisältöistä toteutusta.**
 
 **Luokat:** (A) *Jo sisältyy betaan* = HEAD on betan Git-esi-isä; sisältöä on voitu myöhemmin muuttaa. (B) *Korvattu toisella PR:llä* = uusi integraatio sisältää tai uusii toteutuksen, mutta voi edelleen odottaa hyväksyntää. (C) *Sisältää edelleen tarpeellisen muutoksen* = beta ei sisällä erillistä deltatoteutusta tai päätösaineistoa tarvitaan. (D) *Vaatii sisältöeron tarkistusta* = riittämätön näyttö turvalliseen arkistointiin. (E) *Suositellaan suljettavaksi ilman yhdistämistä* = vanhentunut tai historiallinen, ei nykyinen integraatiolähde. Luokat B/D/E eivät itsessään valtuuta sulkemista.
 
@@ -29,6 +29,8 @@
 | [#145](https://github.com/ristotoivanen/Musiikin-kartta/pull/145) · [35b9a389966e](https://github.com/ristotoivanen/Musiikin-kartta/commit/35b9a389966e) | C · avoin Draft, EI betassa | Beta→HEAD +6/−0; `assets/intervallimuisti.css`, kaksi HTML-sivua, kohdetestit ja QA-workflow | #143:n mobiili-/kosketuskorjaus arvioitava; ei vanha duplikaatti | #143, #109/#128 | **Säilytä; ei kosketa työhaaraan** |
 | [#146](https://github.com/ristotoivanen/Musiikin-kartta/pull/146) · [a1eae1b615e1](https://github.com/ristotoivanen/Musiikin-kartta/commit/a1eae1b615e1) | C · avoin Draft, EI betassa | Beta→HEAD +1/−0; `docs/oppiminen/sisaltoinventaario-115-2026-11-21.md` | Täydentää #115:n vanha→uusi-aineistoa; ei osoitettu #138:n suoraksi korvaajaksi | #115, #138 | **Säilytä; ei kosketa työhaaraan** |
 | [#147](https://github.com/ristotoivanen/Musiikin-kartta/pull/147) · [bcc6abea6f59](https://github.com/ristotoivanen/Musiikin-kartta/commit/bcc6abea6f59) | C · avoin Draft, EI betassa | Beta→HEAD +4/−0; `assets/osiot.css`, `tests/e2e/musapelit-142.spec.ts` ja QA-workflow | #142:n korjauksen hyväksyntä kesken | #142, #141 | **Säilytä; ei kosketa työhaaraan** |
+
+| [#148](https://github.com/ristotoivanen/Musiikin-kartta/pull/148) · [320cb617f6f6](https://github.com/ristotoivanen/Musiikin-kartta/commit/320cb617f6f6) | C · avoin Draft, EI betassa | Beta→HEAD +8/−0; `assets/kitara-kertaus.css`, `oppi/kitara/index.html`, `tests/e2e/kitaran-otelaudan-geometria-144.spec.ts`, `docs/qa/kitara-144/raportti.md` ja QA-workflow | #144:n otelaudan luettavuuskorjauksen katselmointi ja QA kesken | #144, #83, #141 | **Säilytä; ei kosketa työhaaraan** |
 
 ## 2. Muut avoimet PR:t, rajattu turvallisuusluokitus
 
@@ -85,7 +87,7 @@ Nämä rivit perustuvat nykyiseen PR-tilaan, HEAD-commitin kuvaukseen ja muutett
 
 **#111.** Patch todistaa, että uusi `oppi/rytmi/ensimmaiset-nelja-iskua.html`-polku olisi vain paikkamerkki. Generaattoriin lisätään `intro_page`, suoritustunniste ja laskurin ulkopuolinen kortti. Nykyisen 1–2 vuotta soittaneen kohderyhmän hyväksytyn rakenteen kannalta tämä muuttaisi aloituksen takaisin liian alkeelliseksi. `#130`-testisivu ja `#115`:n Perustaidot-valinnainen sisältö eivät tarvitse tätä keskeneräistä sivua automaattisesti.
 
-**#145 / #146 / #147.** Nämä ovat #88:n 21.11. snapshotin jälkeen avattuja, erillisiä PR:iä. Ne ovat kaikki beta-pohjaisia ja vielä betasta erillisiä (beta→HEAD: vastaavasti +6, +1 ja +4 committia). Niiden työhaarat ja hyväksyntäportit eivät kuulu tähän siivoukseen. Myös #141:n HEAD ja sen QA-tila tulee tarkistaa uudelleen silloin, kun mahdollisesta integraatiosta päätetään.
+**#145 / #146 / #147 / #148.** Nämä ovat #88:n 21.11. snapshotin jälkeen avattuja, erillisiä PR:iä. Ne ovat kaikki beta-pohjaisia ja vielä betasta erillisiä (beta→HEAD: vastaavasti +6, +1, +4 ja +8 committia). Niiden työhaarat ja hyväksyntäportit eivät kuulu tähän siivoukseen. Myös #141:n HEAD ja sen QA-tila tulee tarkistaa uudelleen silloin, kun mahdollisesta integraatiosta päätetään.
 
 ## 4. Valmiiksi muotoillut PR-kommentit (ehdotuksia, EI julkaistu)
 
@@ -167,6 +169,10 @@ Alla olevat kommentit ovat tarkoituksella PR-kohtaisia, jotta sulkemismerkinnäs
 
 > #147 on uusi #142:n Musapelit-reflow/saavutettavuuskorjaus (HEAD bcc6abea), ei betassa. Ei kuulu vanhojen PR:ien sulkemisiin.
 
+### PR #148
+
+> #148 on uusi #144:n Kitaran perusteiden otelaudan luettavuuskorjaus (HEAD 320cb617), ei betassa. Muutokset sisältävät otelautatyylin ja sen erilliset selain-/QA-testit. Ei kuulu vanhojen PR:ien sulkemisiin.
+
 
 ## 5. Turvallinen käsittelyjärjestys
 
@@ -176,7 +182,7 @@ Alla olevat kommentit ovat tarkoituksella PR-kohtaisia, jotta sulkemismerkinnäs
 4. **#62/#63 ja #117:** tarkista 8 aiheen, 28 luvun ja 85 ankkurin vanhan prototyypin todellinen reittitarve. Kirjaa jokainen tarvittava URL-siirtymä nykyiseen generaattoriin omassa toteutustehtävässään, **ei** tätä siivoushaaraa muuttaen. Vasta sitten sulje prototyypit korvattuina ilman mergeä.
 5. **#141:n oma hyväksymisprosessi ensin:** #133/#137 voidaan sulkea korvattuina sen jälkeen, kun #141:n hyväksytty kokonaisuus on integroitu. #134 tarvitsee erityisesti Rytmi-toiston regressiokuittauksen ja sisällön hyväksynnän. Siihen asti kaikki kolme pysyvät avoimina historiatodisteina.
 6. **Vanhojen dokumenttien erillinen arkistointipäätös:** #34/#40/#73/#74 ovat vahvoja sulkemisehdokkaita ilman runtime-deltaa. #53/#67/#70/#77/#85/#91/#93/#140 sisältävät ainutkertaista katselmointiaineistoa, joten niitä ei pidä massakäsitellä ennen #115/#116/#69/#118:n päätösten yksilöintiä. Älä muuta PR #88:n raporttia tämän vuoksi.
-7. **Ei siivousta aktiivisiin korjaus- ja tutkimusketjuihin:** #37→#38→#39, #46, #75→#81, #76→#80→#86, #90/#92→#100→#101→#106→#121→#122→#126→#129, #130/#135/#136 sekä #145/#146/#147. Nämä eivät ole osoitetusti pelkkää päällekkäistä historiaa.
+7. **Ei siivousta aktiivisiin korjaus- ja tutkimusketjuihin:** #37→#38→#39, #46, #75→#81, #76→#80→#86, #90/#92→#100→#101→#106→#121→#122→#126→#129, #130/#135/#136 sekä #145/#146/#147/#148. Nämä eivät ole osoitetusti pelkkää päällekkäistä historiaa.
 
 ## 6. Turva- ja näyttörajoitukset
 
