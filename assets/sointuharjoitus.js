@@ -453,7 +453,10 @@
           }
         });
         feedback.classList.toggle('is-error', !correct);
-        feedback.textContent = `${correct ? 'Oikein!' : 'Tällä kertaa ei.'} Sointu 1 oli ${fullName[pair[0]]} ja sointu 2 oli ${fullName[pair[1]]}.`;
+        const result = document.createElement('strong');
+        result.className = 'sointu-arvaus-tulos';
+        result.textContent = correct ? 'Oikein!' : 'Tällä kertaa ei.';
+        feedback.replaceChildren(result, document.createTextNode(` Sointu 1 oli ${fullName[pair[0]]} ja sointu 2 oli ${fullName[pair[1]]}.`));
         pair.forEach((chord, index) => {
           const figure = chords[chord];
           figure.querySelector('figcaption').textContent = `Sointu ${index + 1} = ${chord}`;
