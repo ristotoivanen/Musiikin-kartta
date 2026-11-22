@@ -529,13 +529,13 @@ test('02:n kahdessa erillisessä vertailussa D/Dm ja E/Em soivat oikeilla näytt
   await d.click();
   await expect(d).toHaveAttribute('data-playing', '');
   await expect.poll(async () => (await starts(page)).length).toBe(4);
-  expect([...files].some(name => /INSGuitarSteel_StringHighE_Vel02_Fs4_01\\.(m4a|ogg)$/.test(name))).toBe(true);
+  expect([...files].some(name => /INSGuitarSteel_StringHighE_Vel02_Fs4_01\.(m4a|ogg)$/.test(name))).toBe(true);
 
   await dm.click();
   await expect(dm).toHaveAttribute('data-playing', '');
   await expect(d).not.toHaveAttribute('data-playing');
   await expect.poll(async () => (await starts(page)).length).toBe(8);
-  expect([...files].some(name => /INSGuitarSteel_StringHighE_Vel02_F4_01\\.(m4a|ogg)$/.test(name))).toBe(true);
+  expect([...files].some(name => /INSGuitarSteel_StringHighE_Vel02_F4_01\.(m4a|ogg)$/.test(name))).toBe(true);
   const log = await starts(page);
   close(log[4].when, log[5].when - 0.022);
 
