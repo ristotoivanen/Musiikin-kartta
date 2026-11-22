@@ -16,6 +16,9 @@
     C: ['A:C3', 'G:G3', 'B:C4', 'HighE:E4'],
     D: ['D:D3', 'G:A3', 'B:D4', 'HighE:Fs4'],
     Dm: ['D:D3', 'G:A3', 'B:D4', 'HighE:F4'],
+    // A / Am: viisi samaa avointa kieltä, vain B-kielen C♯4 → C4.
+    A: ['A:A2', 'D:E3', 'G:A3', 'B:Cs4', 'HighE:E4'],
+    Am: ['A:A2', 'D:E3', 'G:A3', 'B:C4', 'HighE:E4'],
     Em: ['LowE:E2', 'D:E3', 'G:G3', 'B:B3'],
   };
   const TRIAD = [SCALE.G, SCALE.B, SCALE.D];
@@ -33,6 +36,8 @@
     ydinYhdessa: notes(TRIAD, 1.9, 0.33),
     D: notes(HARMONY.D, 2.15, 0.23, 0.022),
     Dm: notes(HARMONY.Dm, 2.15, 0.23, 0.022),
+    A: notes(HARMONY.A, 2.15, 0.21, 0.023),
+    Am: notes(HARMONY.Am, 2.15, 0.21, 0.023),
     E: notes(OPEN_E, 2.15, 0.19, 0.023),
     Em: notes(OPEN_EM, 2.15, 0.19, 0.023),
   };
@@ -329,19 +334,22 @@
     const diagrams = section.querySelector('[data-arvaus-kaaviot]');
     const originalD = section.querySelector('.chord-diagrams');
     const originalE = section.querySelector('[data-eem-kaaviot]');
+    const originalA = section.querySelector('[data-aam-kaaviot]');
     const chords = {
       D: originalD.children[0].cloneNode(true),
       Dm: originalD.children[1].cloneNode(true),
       E: originalE.children[0].cloneNode(true),
       Em: originalE.children[1].cloneNode(true),
+      A: originalA.children[0].cloneNode(true),
+      Am: originalA.children[1].cloneNode(true),
     };
-    const families = { D: ['D', 'Dm'], E: ['E', 'Em'] };
+    const families = { D: ['D', 'Dm'], E: ['E', 'Em'], A: ['A', 'Am'] };
     const pairButtons = [...section.querySelectorAll('[data-arvaus-pari]')];
     const pairSelection = section.querySelector('.sointu-parin-valinta');
     const startButton = section.querySelector('[data-uusi-arvaus]');
     let family = 'D';
     let started = false;
-    const fullName = { D: 'D-duuri', Dm: 'D-molli', E: 'E-duuri', Em: 'E-molli' };
+    const fullName = { D: 'D-duuri', Dm: 'D-molli', E: 'E-duuri', Em: 'E-molli', A: 'A-duuri', Am: 'A-molli' };
     // #115: D/Dm ensin. F4 on oikea Vel02:n kitaranäyte,
     // ei F♯4-näytteen äänenkorkeuden muutoksesta tehty korvike.
     const ddmStatus = section.querySelector('[data-ddm-tila]');
@@ -369,9 +377,9 @@
     let pair;
     let target;
     let answered = false;
-    // Kumpikin pari vuorottelee omassa järjestyksessään: duuri → molli → duuri.
+    // Kukin pari vuorottelee itsenäisesti: duuri → molli → duuri.
     // Sointu 1:n ja Sointu 2:n keskinäinen järjestys arvotaan joka kierroksella.
-    const nextTargetByFamily = { D: 'D', E: 'E' };
+    const nextTargetByFamily = { D: 'D', E: 'E', A: 'A' };
 
     // Vertailut ovat erilliset kohdat 1 ja 2. Tunnistus alkaa ensimmäisellä
     // Tunnista-painalluksella. Vastauksen jälkeen vain yläpuolen parivalinta
@@ -509,7 +517,7 @@
         });
         nameListening(true);
         diagrams.hidden = false;
-        showExerciseStatus('Palaute jää näkyviin. Valitse ylhäältä D / Dm tai E / Em aloittaaksesi uuden tehtävän.');
+        showExerciseStatus('Palaute jää näkyviin. Valitse ylhäältä sointupari aloittaaksesi uuden tehtävän.');
       });
     }
   }
