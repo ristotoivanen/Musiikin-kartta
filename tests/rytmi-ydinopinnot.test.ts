@@ -6,7 +6,7 @@ import {
 // @ts-expect-error Testattu selainmoduuli palvellaan suoraan JavaScriptinä.
 } from '../assets/rytmi-ydinopinnot.js';
 
-type Event = { type: string; role: string; level?: number; harmony?: string; strong?: boolean; time: number; step: number };
+type Event = { type: string; role: string; level?: number; harmony?: string; duration?: number; strong?: boolean; time: number; step: number };
 type Switch = { time: number; step: number; mode: string };
 
 const roles = (task: string, step: number, options = {}): string[] => stepEvents(task, step, options).map((event: Event) => event.role);
@@ -47,6 +47,25 @@ describe('01 Löydä pulssi ja ykkönen', () => {
   });
 });
 
+
+describe('01 hyväksytty rumpukatko', () => {
+  it('A:ssa rummut jatkavat molemmissa tahdeissa; B:ssä rummuilla on yhden tahdin tauko mutta basso jää', () => {
+    const isDrum = (role: string) => ['hi-hat', 'virveli', 'bassorumpu'].includes(role);
+    const a = loop('pulssi', { drumGap: false });
+    const b = loop('pulssi', { drumGap: true });
+    expect(a.slice(STEPS_PER_BAR).flat().some(isDrum)).toBe(true);
+    expect(b.slice(STEPS_PER_BAR).flat().some(isDrum)).toBe(false);
+    for (let i = 0; i < STEPS_PER_BAR; i++) expect(b[i]).toEqual(a[i]);
+    expect(b.slice(STEPS_PER_BAR).flat()).toContain('basso');
+    expect(b.slice(STEPS_PER_BAR).flat()).toContain('harmonia');
+    expect(gridCell('pulssi', STEPS_PER_BAR)).toEqual({ bar: 1, index: 0 });
+    for (const example of ['rock', 'soft']) {
+      expect(tempoFor('pulssi', example)).toBe(tempoFor('pulssi', example));
+      expect(stepEvents('pulssi', 14, { drumGap: true, example }).some((event: Event) => isDrum(event.role))).toBe(false);
+    }
+  });
+});
+
 describe('02 Hiljaisuus kuuluu rytmiin', () => {
   it('taputukset kuuluvat ensimmäisen tahdin iskuilla ja vaikenevat toisessa, tausta jatkuu', () => {
     const steps = loop('hiljaisuus');
@@ -73,6 +92,24 @@ describe('02 Hiljaisuus kuuluu rytmiin', () => {
   });
 });
 
+
+describe('03 hyväksytty sointi / vaimennus / pois jätetty isku', () => {
+  const chord = (mode: string) => Array.from({ length: LOOP_STEPS }, (_, step) =>
+    stepEvents('hiljaisuus', step, { taukoMode: mode })
+      .filter((event: Event) => event.role === 'tauon-sointu')
+      .map((event: Event) => ({ step, duration: event.duration }))).flat();
+  it('A soi nelosiskun yli, B vaimenee nelosen alussa, C jättää uuden iskun tekemättä', () => {
+    const beat = 60 / tempoFor('hiljaisuus');
+    expect(chord('soi')).toEqual([{ step: 8, duration: 4 * beat }]);
+    expect(chord('vaimenna')).toEqual([{ step: 8, duration: 3 * beat }]);
+    expect(chord('pois')).toEqual([{ step: 8, duration: 2 * beat }, { step: 12, duration: 2 * beat }]);
+    for (const mode of ['soi', 'vaimenna', 'pois']) {
+      expect(stepEvents('hiljaisuus', 14, { taukoMode: mode })
+        .some((event: Event) => event.role === 'tauon-sointu')).toBe(false);
+    }
+  });
+});
+
 describe('03 Sama musiikki, eri tuntuma: ruudukko ja ääni vastaavat toisiaan', () => {
   for (const mode of ['A', 'B', 'C']) {
     it(`versio ${mode}: soitetut ruudut = komppiäänet ja korostus = voimakkain ääni`, () => {
@@ -95,7 +132,7 @@ describe('03 Sama musiikki, eri tuntuma: ruudukko ja ääni vastaavat toisiaan',
     expect(played('C')).toEqual([true, false, false, true, true, false, false, true]);
     expect(grooveCells('B').map((cell: { action: string }) => cell.action))
       .toEqual(['Soita', 'Hiljaa', 'Korosta', 'Hiljaa', 'Soita', 'Hiljaa', 'Korosta', 'Hiljaa']);
-    expect(compLevel('A', 2)).toBe(compLevel('A', 0));
+    expect(compLevel('A', 0)).toBeGreaterThan(compLevel('A', 2));
     expect(compLevel('B', 2)).toBeGreaterThan(compLevel('B', 0));
   });
 });
@@ -224,7 +261,7 @@ describe('Versiovaihto tahdin rajalla', () => {
 
 describe('Rytmin aihesivu ja muodostetut sivut', () => {
   const read = (path: string) => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
-  const lessons = ['loyda-pulssi-ja-ykkonen', 'hiljaisuus-kuuluu-rytmiin', 'sama-musiikki-eri-tuntuma', 'valmistaudu-seuraavaan-osaan'];
+  const lessons = ['loyda-pulssi-ja-ykkonen', 'sama-musiikki-eri-tuntuma', 'hiljaisuus-kuuluu-rytmiin', 'valmistaudu-seuraavaan-osaan'];
   const legacy = ['pulssi-ja-komppi', 'kuuntele-pulssi', 'alas-ylos-yhdella-soinnulla', 'kaksi-sointua-yhdessa-tahdissa'];
 
   it('Ydinopinnot on ensimmäinen avattava kokonaisuus ja aiemmat neljä sisältöä sen jälkeen, molemmat suljettuina', () => {
