@@ -859,17 +859,11 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     const question = section.locator('[data-arvaus-kysymys]');
     const guessing = section.locator('[data-arvaus-kuuntelu] button');
     const start = section.getByRole('button', { name: 'Tunnista', exact: true });
-    const pos = (button: typeof start) => button.evaluate(node => {
-      const box = node.getBoundingClientRect();
-      return { x: Math.round(box.left), y: Math.round(box.top + window.scrollY),
-        width: Math.round(box.width), height: Math.round(box.height) };
-    });
+    // Kysymykseen siirtymistä mitataan fokuksella ja näkyvyydellä.
     await expect(section.getByRole('button', { name: 'D / Dm' })).toHaveAttribute('aria-pressed', 'true');
     await expect(question).toBeHidden();
     await expect(section.locator('[data-arvaus-kuuntelu]')).toBeHidden();
     await expect(start).toBeVisible();
-    const startPosition = await pos(start);
-
     await start.click();
     await expect(question.locator('[data-kysymys]')).toHaveText('Kumpi on duuri?');
     await expect(question).toHaveClass(/is-active/);
@@ -877,8 +871,9 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     await expect(section.getByRole('group', { name: 'Vastaa' })).toBeVisible();
     await expect(guessing).toHaveCount(2);
     await expect(section.locator('[data-arvaus-teksti]')).toHaveText(['Sointu 1', 'Sointu 2']);
-    await expect(section.getByRole('button', { name: 'Uusi tehtävä' })).toBeVisible();
-    expect(await pos(section.getByRole('button', { name: 'Uusi tehtävä' }))).toEqual(startPosition);
+    await expect(start).toBeHidden();
+    await expect(section.getByRole('button', { name: 'Uusi tehtävä' })).toHaveCount(0);
+    await expect(question.locator('[data-kysymys]')).toBeFocused();
     await expect(question.locator('[data-kysymys]')).toBeInViewport();
   });
 
@@ -960,10 +955,9 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
 
         await next.click();
         await expect(section.locator('[data-kysymys]')).toHaveText(/Kumpi on (duuri|molli)\?/);
-        await expect(next).toHaveAccessibleName('Uusi tehtävä');
+        await expect(next).toBeHidden();
         const active = await controls();
-        expect(active, testCase).toHaveLength(4);
-        expect(await labelOffCenter(), testCase).toBeLessThan(2);
+        expect(active, testCase).toHaveLength(3);
         expect(await labelsBesideIcons(), `${testCase}: Arvaa`).toBe(true);
         expect(await controls(), `${testCase}: Tunnista`).toEqual(active);
         expect(await brokenWords(), `${testCase}: Arvaa`).toEqual([]);
@@ -979,9 +973,9 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
         expect(await controls(), `${testCase}: vastattu`).toEqual(active);
         expect(await brokenWords(), `${testCase}: vastattu`).toEqual([]);
 
-        await next.click();
+        await section.getByRole('group', { name: 'Vastaa' }).getByRole('button', { name: 'Sointu 1' }).click();
         await expect(section.locator('[data-arvaus-teksti]').first()).not.toContainText(' · ');
-        expect(await controls(), `${testCase}: Uusi tehtävä`).toEqual(active);
+        expect(await controls(), `${testCase}: vastauspainikkeella uusi kysymys`).toEqual(active);
         expect(await noHorizontalScroll(page), testCase).toBe(true);
       }
     });
