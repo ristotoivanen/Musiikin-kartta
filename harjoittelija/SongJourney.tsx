@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { SongChordChart } from './SongChordChart';
 import { SongScales } from './SongScales';
 import {
-  START_ALIGN_TOLERANCE_SECONDS, START_READY_TIMEOUT_MS, STARTUP_SETTLE_MS, SongGainMixer, StemAligner, loadSongVolume, saveSongVolume, songVolumeMode,
-  startLoading, trackLevel, tracksReady, waitForTracksReady, type SongTrack,
+  SEEK_SETTLE_MS, START_ALIGN_TOLERANCE_SECONDS, START_READY_TIMEOUT_MS, STARTUP_SETTLE_MS, SongGainMixer, StemAligner, freshTracksAt,
+  loadSongVolume, saveSongVolume, songVolumeMode, startLoading, trackLevel, tracksReady, waitForTracksReady,
+  type ReadyResult, type SongTrack,
 } from './songAudio';
 import { DEFAULT_SONG_VERSION, isSongLink, songLink, versionFromSongLink, type SongVersion } from './songChart';
 
@@ -65,6 +66,22 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   // Pitää kitaran ja laulun taustan tahdissa ja oppii laitteen kelausviiveen.
   const aligner = useRef(new StemAligner());
   const pendingSeek = useRef<number | null>(null);
+  // Tuoreet mediasoittimet (issue #9, vaihe 2): iOS:n WebKit soittaa tauon tai soiton aikaisen kelauksen jälkeen
+  // MediaElementSourcen puskurista noin sekunnin vanhaa ääntä. Soinutta raitaa ei siksi käynnistetä uudelleen
+  // samalla mediasoittimella, vaan sille tehdään load() ja kaikki raidat kelataan samaan kohtaan (freshTracksAt).
+  // Avain = raita on soinut edellisen load()-kutsun jälkeen, arvo = play()-lupauksen täyttymishetki.
+  const playedAt = useRef(new WeakMap<HTMLMediaElement, number>());
+  // Raita on soinut ainakin kerran käyttäjän painalluksesta, joten sen saa käynnistää myöhemmin ilman uutta painallusta.
+  const everPlayed = useRef(new WeakSet<HTMLMediaElement>());
+  const preparation = useRef<{ at: number; elements: HTMLAudioElement[]; done: Promise<ReadyResult> } | null>(null);
+  const prepareSeq = useRef(0);
+  // Valmistelun aikana load() tuottaa tapahtumia (timeupdate kohdassa 0, loadedmetadata), joihin ei reagoida.
+  const preparing = useRef(0);
+  const seekTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Soiton aikainen kelaus tai raidan päälle kytkentä käynnistää raidat uudelleen. Tauko-painike pysyy näkyvissä.
+  const restarting = useRef(false);
+  // Kytkimien ajantasainen tila ajastetulle uudelleenkäynnistykselle (React-tila päivittyy vasta seuraavassa piirrossa).
+  const trackOn = useRef({ guitar: true, vocals: true });
   const [version, setVersion] = useState<SongVersion>(initialVersion);
   const song = VERSIONS[version];
   const [playing, setPlaying] = useState(false);
@@ -75,6 +92,8 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   const [chordPanelOpen, setChordPanelOpen] = useState(false);
   const [scalePanelOpen, setScalePanelOpen] = useState(false);
   const [volume, setVolume] = useState(loadSongVolume);
+  // Ajantasainen taso ajastetulle uudelleenkäynnistykselle (vanha piirto näkisi vanhan tilan).
+  const volumeNow = useRef(volume);
   // Työpöytäselaimissa käytetään elementin volume-arvoa. iOS:llä se ei vaikuta ääneen, joten
   // raidat ohjataan Web Audion GainNodeihin ensimmäisestä Soita-painalluksesta alkaen.
   const [volumeMode] = useState<'element' | 'webaudio'>(() => songVolumeMode());
@@ -95,12 +114,15 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   }
 
   function tracks(): [SongTrack, HTMLAudioElement | null, boolean][] {
-    return [['backing', backingRef.current, true], ['guitar', guitarRef.current, guitarOn],
-      ['vocals', vocalsRef.current, vocalsOn]];
+    // Kytkimien tila luetaan refistä: ajastettu uudelleenkäynnistys (kelaus, raidan päälle kytkentä) ajetaan
+    // vanhan piirron funktiolla, ja React-tilan mukaan päälle kytketty raita jäisi hiljaiseksi.
+    const on = trackOn.current;
+    return [['backing', backingRef.current, true], ['guitar', guitarRef.current, on.guitar],
+      ['vocals', vocalsRef.current, on.vocals]];
   }
 
   /** Asettaa kaikkien raitojen tason. Ei koske toistoon, kelaukseen eikä synkronointiin. */
-  function applyLevels(level = volume, audible?: Partial<Record<SongTrack, boolean>>) {
+  function applyLevels(level = volumeNow.current, audible?: Partial<Record<SongTrack, boolean>>) {
     for (const [track, element, on] of tracks()) {
       if (!element) continue;
       const value = trackLevel(track, level, audible?.[track] ?? on);
@@ -114,17 +136,78 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   }
 
   function changeVolume(next: number) {
+    volumeNow.current = next;
     setVolume(next);
     saveSongVolume(next);
     applyLevels(next);
   }
 
-  function pause() {
+  /** Raidat, jotka soitetaan: säestys ja päälle kytketyt. */
+  function activeTracks(on = trackOn.current): HTMLAudioElement[] {
+    const backing = backingRef.current, guitar = guitarRef.current, vocals = vocalsRef.current;
+    if (!backing || !guitar || !vocals) return [];
+    return [backing, ...(on.guitar ? [guitar] : []), ...(on.vocals ? [vocals] : [])];
+  }
+
+  /**
+   * Tuoreita mediasoittimia tarvitaan vain, kun raidat kulkevat MediaElementSourcen kautta (iOS). Muualla
+   * elementit soivat suoraan, eikä vanhan äänen puskuria ole.
+   */
+  const freshPlayers = () => volumeMode === 'webaudio';
+  const isStale = (element: HTMLMediaElement) => playedAt.current.has(element);
+
+  /** Valmistelee raidat tuoreilla mediasoittimilla kohtaan at. Uudempi valmistelu ohittaa vanhemman. */
+  function prepareAt(at: number, elements: HTMLAudioElement[]): Promise<ReadyResult> {
+    const id = ++prepareSeq.current;
+    preparing.current++;
+    const done = freshTracksAt(elements, at, {
+      timeoutMs: START_READY_TIMEOUT_MS,
+      cancelled: () => id !== prepareSeq.current,
+      stale: element => playedAt.current.has(element as HTMLAudioElement),
+      playedAt: element => playedAt.current.get(element as HTMLAudioElement),
+      onLoad: element => { playedAt.current.delete(element as HTMLAudioElement); },
+    }).finally(() => { preparing.current--; });
+    preparation.current = { at, elements, done };
+    return done;
+  }
+
+  function cancelPreparation() {
+    prepareSeq.current++;
+    preparation.current = null;
+    if (seekTimer.current !== null) { clearTimeout(seekTimer.current); seekTimer.current = null; }
+  }
+
+  /**
+   * Pysäyttää toiston. prepare: soineet raidat valmistellaan heti tuoreiksi pysäytyskohtaan, jotta jatko alkaa
+   * viipymättä. Piilotettu sivu, versionvaihto ja virhetilanne eivät valmistele.
+   */
+  function pause(prepare = true) {
     playbackRequest.current++;
+    cancelPreparation();
+    restarting.current = false;
     backingRef.current?.pause();
     guitarRef.current?.pause();
     vocalsRef.current?.pause();
     setPlaying(false);
+    const backing = backingRef.current;
+    const active = activeTracks();
+    if (prepare && freshPlayers() && backing && active.some(isStale)) void prepareAt(pendingSeek.current ?? backing.currentTime, active);
+  }
+
+  /**
+   * Käynnistää raidat uudelleen kohdasta at tuoreilla mediasoittimilla (soiton aikainen kelaus tai raidan päälle
+   * kytkentä). Raidat vaikenevat heti. delay: liukusäätimen veto ehtii asettua, ja vain viimeisin kohta valmistellaan.
+   */
+  function restartAt(at: number, delay: number) {
+    playbackRequest.current++;
+    cancelPreparation();
+    restarting.current = true;
+    backingRef.current?.pause();
+    guitarRef.current?.pause();
+    vocalsRef.current?.pause();
+    pendingSeek.current = at;
+    setPosition(at);
+    seekTimer.current = setTimeout(() => { seekTimer.current = null; void start(); }, delay);
   }
 
   function changeVersion(next: SongVersion) {
@@ -132,7 +215,7 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
     // Toisto pysäytetään ja kelataan alkuun. Uuden version käynnistäminen
     // edellyttää aina käyttäjältä erillistä Soita-painallusta.
     pendingSeek.current = null;
-    pause();
+    pause(false);
     for (const stem of [backingRef.current, guitarRef.current, vocalsRef.current]) {
       if (!stem) continue;
       try { stem.currentTime = 0; } catch { /* metadata ei vielä latautunut */ }
@@ -148,12 +231,25 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
     const backing = backingRef.current;
     if (!backing || !Number.isFinite(seconds)) return;
     const at = Math.max(0, Math.min(seconds, Number.isFinite(backing.duration) ? backing.duration : seconds));
+    if (freshPlayers() && (playing || restarting.current)) {
+      // Soiton aikana kelattu raita soisi iOS:llä ensin noin sekunnin vanhaa ääntä ja jäisi sen verran jälkeen.
+      restartAt(at, SEEK_SETTLE_MS);
+      return;
+    }
     pendingSeek.current = at;
     setPosition(at);
+    if (freshPlayers() && (activeTracks().some(isStale) || preparation.current)) {
+      // Tauolla soineet raidat valmistellaan uuteen kohtaan, kun säädin on asettunut. Soita aloittaa siitä.
+      cancelPreparation();
+      seekTimer.current = setTimeout(() => { seekTimer.current = null; void prepareAt(at, activeTracks()); }, SEEK_SETTLE_MS);
+      return;
+    }
     setBackingTime(backing, at);
   }
 
   function retryPendingSeek(backing: HTMLAudioElement) {
+    // Valmistelu (freshTracksAt) kelaa raidat itse.
+    if (preparing.current > 0) return;
     const target = pendingSeek.current;
     if (target === null || backing !== backingRef.current || backing.seeking) return;
     const at = Number.isFinite(backing.duration) ? Math.min(target, backing.duration) : target;
@@ -172,7 +268,8 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   }
 
   function followBacking(backing: HTMLAudioElement) {
-    if (backing !== backingRef.current) return;
+    // load() ilmoittaa valmistelun aikana kohdan 0, eikä sijaintia saa siirtää sen mukaan.
+    if (backing !== backingRef.current || preparing.current > 0) return;
     const target = pendingSeek.current;
     if (target === null) {
       setPosition(backing.currentTime);
@@ -187,15 +284,30 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   }
 
   async function togglePlayback() {
+    if (!backingRef.current || !guitarRef.current || !vocalsRef.current) return;
+    if (playing || restarting.current) { pause(); return; }
+    await start();
+  }
+
+  async function start() {
     const backing = backingRef.current;
     const guitar = guitarRef.current;
     const vocals = vocalsRef.current;
     if (!backing || !guitar || !vocals) return;
-    if (playing) { pause(); return; }
+    if (seekTimer.current !== null) { clearTimeout(seekTimer.current); seekTimer.current = null; }
+    const on = trackOn.current;
     setError('');
-    const startAt = pendingSeek.current ?? backing.currentTime;
-    if (Number.isFinite(backing.duration) && startAt >= backing.duration - 0.05) seek(0);
-    retryPendingSeek(backing);
+    let startAt = pendingSeek.current ?? preparation.current?.at ?? backing.currentTime;
+    if (Number.isFinite(backing.duration) && startAt >= backing.duration - 0.05) {
+      startAt = 0;
+      pendingSeek.current = 0;
+      setPosition(0);
+    }
+    const active = activeTracks(on);
+    // Kun raidat ovat kerran soineet, jokainen jatko ja kelaus tehdään tuoreilla mediasoittimilla (issue #9, vaihe 2).
+    // Ensimmäinen käynnistys ja versionvaihdon jälkeinen käynnistys kulkevat ennallaan (PR #155, todennettu laitteella).
+    const fresh = freshPlayers() && active.some(element => everPlayed.current.has(element));
+    if (!fresh) retryPendingSeek(backing);
     if (volumeMode === 'webaudio') {
       // AudioContext käynnistyy käyttäjän painalluksesta. Jokainen elementti kytketään vain kerran.
       const gains = mixer.current ??= new SongGainMixer();
@@ -203,17 +315,35 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
       setVolumeNote(routed ? '' : 'Äänenvoimakkuutta ei voi säätää tässä selaimessa. Käytä laitteen äänenvoimakkuuspainikkeita. ' + gains.lastError);
     }
     applyLevels();
-    guitar.muted = !guitarOn;
-    vocals.muted = !vocalsOn;
+    guitar.muted = !on.guitar;
+    vocals.muted = !on.vocals;
     // Raitaa kelataan Soita-painalluksesta vain, jos se on selvästi eri kohdassa (ks. START_ALIGN_TOLERANCE_SECONDS):
     // iPhonen WebKitissä kelattu raita pysähtelee toiston alussa, joten pieni korjaus tauon jälkeen loi suuren eron.
-    syncStems(true, undefined, START_ALIGN_TOLERANCE_SECONDS);
+    if (!fresh) syncStems(true, undefined, START_ALIGN_TOLERANCE_SECONDS);
     const request = ++playbackRequest.current;
     // Pois kytkettyä raitaa ei soiteta mykistettynä: iPhonen Safari ei vie mykistettyä raitaa eteenpäin,
     // eikä se ala kuulua, kun mykistys poistetaan. Se käynnistetään vasta, kun raita kytketään päälle.
-    if (!guitarOn) guitar.pause();
-    if (!vocalsOn) vocals.pause();
-    const active = [backing, ...(guitarOn ? [guitar] : []), ...(vocalsOn ? [vocals] : [])];
+    if (!on.guitar) guitar.pause();
+    if (!on.vocals) vocals.pause();
+    if (fresh) {
+      // Raita, joka ei ole vielä soinut (esim. kytketty päälle tauolla), saa soittoluvan tästä painalluksesta.
+      startLoading(active.filter(element => !everPlayed.current.has(element)));
+      // Tauon alussa aloitettu valmistelu kelpaa, jos se on samaan kohtaan ja kattaa soitettavat raidat.
+      const prepared = preparation.current;
+      const result = await (prepared && prepared.at === startAt && active.every(element => prepared.elements.includes(element))
+        ? prepared.done : prepareAt(startAt, active));
+      if (request !== playbackRequest.current) return;
+      if (result === 'ohitettu') { restarting.current = false; setPlaying(false); return; }
+      if (result === 'virhe') {
+        pause(false);
+        setError('Toisto epäonnistui. Tarkista, että valitun version kaikki kolme MP3-raitaa ovat paikallaan.');
+        return;
+      }
+      preparation.current = null;
+      pendingSeek.current = null;
+      setPosition(startAt);
+      // Aikakatkaisussa toisto aloitetaan silti: alla oleva valmiusportti odottaa vielä dataa.
+    }
     if (!tracksReady(active)) {
       // Kylmäkäynnistys (issue #9): preload="metadata"-raidat lataavat dataa vasta play()-kutsusta, ja
       // ensin dataa saanut raita lähti muita aiemmin. Lataus käynnistetään kaikille samasta painalluksesta,
@@ -223,7 +353,7 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
       const ready = await waitForTracksReady(active, START_READY_TIMEOUT_MS, () => request !== playbackRequest.current);
       if (ready === 'ohitettu' || request !== playbackRequest.current) return;
       if (ready === 'virhe') {
-        pause();
+        pause(false);
         setError('Toisto epäonnistui. Tarkista, että valitun version kaikki kolme MP3-raitaa ovat paikallaan.');
         return;
       }
@@ -233,8 +363,13 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
       // Raidat käynnistetään peräkkäisillä kutsuilla. Korjauskelaukset pidätetään toiston alun ajan, jotta
       // vakiintumaton kello ei laukaise yksittäistä kelausta, joka siirtäisi raidan kuuluvaa kohtaa.
       aligner.current.hold(performance.now() + STARTUP_SETTLE_MS);
-      await Promise.all(active.map(element => element.play()));
+      // Soinut raita merkitään heti, jotta seuraava jatko tai kelaus vaihtaa sille tuoreen mediasoittimen.
+      await Promise.all(active.map(element => element.play().then(() => {
+        playedAt.current.set(element, performance.now());
+        everPlayed.current.add(element);
+      })));
       if (request !== playbackRequest.current) return;
+      restarting.current = false;
       aligner.current.hold(performance.now() + STARTUP_SETTLE_MS);
       syncStems();
       setPlaying(true);
@@ -248,7 +383,7 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
       }
     } catch {
       if (request !== playbackRequest.current) return;
-      pause();
+      pause(false);
       setError('Toisto epäonnistui. Tarkista, että valitun version kaikki kolme MP3-raitaa ovat paikallaan.');
     }
   }
@@ -259,18 +394,26 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
     stem.muted = !enabled;
     if (!enabled) { stem.pause(); return; }
     const backing = backingRef.current;
-    if (!backing || !playing) return;
+    if (!backing || !(playing || restarting.current)) return;
+    if (freshPlayers()) {
+      // Pysäytetty raita soisi iOS:llä samalla mediasoittimella noin sekunnin vanhaa ääntä. Kaikki raidat
+      // käynnistetään tuoreina taustan kohdasta, joten päälle kytkentä katkaisee äänen hetkeksi.
+      restartAt(pendingSeek.current ?? backing.currentTime, 0);
+      return;
+    }
     syncStems(true, stem);
     void stem.play().catch(() => setError(label + ' ei käynnistynyt. Pysäytä ja soita uudelleen.'));
   }
 
   function changeGuitar(enabled: boolean) {
+    trackOn.current = { ...trackOn.current, guitar: enabled };
     setGuitarOn(enabled);
     applyLevels(volume, { guitar: enabled });
     switchStem(guitarRef.current, enabled, 'Kitararaita');
   }
 
   function changeVocals(enabled: boolean) {
+    trackOn.current = { ...trackOn.current, vocals: enabled };
     setVocalsOn(enabled);
     applyLevels(volume, { vocals: enabled });
     switchStem(vocalsRef.current, enabled, 'Lauluraita');
@@ -279,12 +422,14 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   useEffect(() => {
     const hide = () => {
       if (!document.hidden) return;
-      pause();
+      pause(false);
     };
     document.addEventListener('visibilitychange', hide);
     return () => {
       document.removeEventListener('visibilitychange', hide);
       playbackRequest.current++;
+      prepareSeq.current++;
+      if (seekTimer.current !== null) clearTimeout(seekTimer.current);
       backingRef.current?.pause();
       guitarRef.current?.pause();
       vocalsRef.current?.pause();
@@ -367,14 +512,15 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
           setPlaying(false); setPosition(event.currentTarget.duration);
         }}
         onPause={event => {
-          if (event.currentTarget === backingRef.current) setPlaying(false);
+          // Uudelleenkäynnistyksen (kelaus soiton aikana) pysäytys ei vaihda painiketta Soita-tilaan.
+          if (event.currentTarget === backingRef.current && !restarting.current) setPlaying(false);
         }}
         onError={() => setError(song.label + ': säestysraita puuttuu. Pura kyseisen version ZIP-paketti projektin juureen.')} />
       <audio key={version + '-guitar'} ref={guitarRef} src={song.guitar} preload="metadata" muted={!guitarOn} loop={loopOn}
-        onLoadedMetadata={() => { if (backingRef.current?.paused) syncStems(true); }}
+        onLoadedMetadata={() => { if (backingRef.current?.paused && preparing.current === 0) syncStems(true); }}
         onError={() => setError(song.label + ': kitararaita puuttuu tai ei lataudu.')} />
       <audio key={version + '-vocals'} ref={vocalsRef} src={song.vocals} preload="metadata" muted={!vocalsOn} loop={loopOn}
-        onLoadedMetadata={() => { if (backingRef.current?.paused) syncStems(true); }}
+        onLoadedMetadata={() => { if (backingRef.current?.paused && preparing.current === 0) syncStems(true); }}
         onError={() => setError(song.label + ': lauluraita puuttuu tai ei lataudu.')} />
     </div>
 

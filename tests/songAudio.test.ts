@@ -4,6 +4,7 @@ import {
   IOS_SEEK_LATENCY_SECONDS, StemAligner, elementVolumeWorks, initialSeekLatency, isIOSDevice, parseSongVolume, songVolumeMode,
   resetSharedSeekLatency, shouldCorrectDrift, trackLevel,
   HAVE_FUTURE_DATA, START_ALIGN_TOLERANCE_SECONDS, STARTUP_SETTLE_MS, startLoading, tracksReady, waitForTracksReady, type ReadyMedia,
+  FRESH_LOAD_GUARD_MS, freshTracksAt, type FreshMedia,
 } from '../harjoittelija/songAudio';
 
 describe('Kappaleharjoittelijan yhteinen äänenvoimakkuus', () => {
@@ -370,3 +371,112 @@ describe('kolmen raidan käynnistys (issue #9)', () => {
   });
 });
 
+
+describe('tuore mediasoitin jatkossa ja kelauksessa (issue #9, vaihe 2)', () => {
+  /** Raita, joka kirjaa load()-, pause()- ja currentTime-kutsujen järjestyksen. load() palauttaa sen alkuun ilman dataa. */
+  const freshable = (time: number, extra: Partial<{ paused: boolean; readyState: number; duration: number }> = {}) => {
+    const listeners = new Map<string, Set<() => void>>();
+    let current = time;
+    const media = {
+      log: [] as string[], paused: true, seeking: false, readyState: 4, duration: 212, error: null as unknown, ...extra,
+      get currentTime() { return current; },
+      set currentTime(value: number) { media.log.push('kelaus ' + value); current = value; media.seeking = true; },
+      load() { media.log.push('load'); current = 0; media.readyState = 0; media.seeking = false; },
+      play() { media.log.push('play'); media.paused = false; return Promise.resolve(); },
+      pause() { media.log.push('pause'); media.paused = true; },
+      addEventListener(type: string, fn: () => void) { if (!listeners.has(type)) listeners.set(type, new Set()); listeners.get(type)!.add(fn); },
+      removeEventListener(type: string, fn: () => void) { listeners.get(type)?.delete(fn); },
+      emit(type: string) { for (const fn of [...(listeners.get(type) ?? [])]) fn(); },
+      metadata() { media.readyState = 1; media.emit('loadedmetadata'); },
+      seeked() { media.seeking = false; media.readyState = 4; media.emit('seeked'); },
+    };
+    return media;
+  };
+  const options = (stale: Set<unknown>, extra: Record<string, unknown> = {}) => ({
+    timeoutMs: 4000, cancelled: () => false, stale: (element: FreshMedia) => stale.has(element), now: () => 0, ...extra,
+  });
+
+  it('soinut raita ladataan kerran ennen kelausta, ja kaikki raidat kelataan samaan kohtaan vasta metadatan jälkeen', async () => {
+    vi.useFakeTimers();
+    try {
+      // Tauko kohdassa 42,5 s: säestys ja kitara ovat soineet, laulu oli pois päältä eikä ole soinut.
+      const backing = freshable(42.5), guitar = freshable(42.48), vocals = freshable(0);
+      const result = freshTracksAt([backing, guitar, vocals], 42.5, options(new Set([backing, guitar])));
+      await vi.advanceTimersByTimeAsync(0);
+      expect([backing.log, guitar.log, vocals.log]).toEqual([['load'], ['load'], []]);
+      backing.metadata(); await vi.advanceTimersByTimeAsync(60);
+      expect(vocals.log).toEqual([]); // Mitään ei kelata, ennen kuin jokaisella raidalla on metadata.
+      guitar.metadata(); await vi.advanceTimersByTimeAsync(60);
+      expect([backing.log, guitar.log, vocals.log]).toEqual([['load', 'kelaus 42.5'], ['load', 'kelaus 42.5'], ['kelaus 42.5']]);
+      backing.seeked(); guitar.seeked();
+      await vi.advanceTimersByTimeAsync(60);
+      vocals.seeked();
+      await expect(result).resolves.toBe('valmis');
+    } finally { vi.useRealTimers(); }
+  });
+
+  it('alusta soitettaessa load() riittää eikä raitaa kelata', async () => {
+    vi.useFakeTimers();
+    try {
+      const tracks = [freshable(212), freshable(212), freshable(212)];
+      const result = freshTracksAt(tracks, 0, options(new Set(tracks)));
+      for (const track of tracks) { track.metadata(); track.readyState = 4; track.emit('canplay'); }
+      await expect(result).resolves.toBe('valmis');
+      expect(tracks.map(track => track.log)).toEqual([['load'], ['load'], ['load']]);
+    } finally { vi.useRealTimers(); }
+  });
+
+  it('soivaan raitaan ei kutsuta load()-metodia: raita pysäytetään ensin, ja load() odottaa play()-lupauksen täyttymisestä (H7)', async () => {
+    vi.useFakeTimers();
+    try {
+      let now = 1000;
+      // Käyttäjä painoi Taukoa 20 ms sen jälkeen, kun play()-lupaus täyttyi.
+      const backing = freshable(3.2, { paused: false });
+      const result = freshTracksAt([backing], 3.2, options(new Set([backing]), { now: () => now, playedAt: () => 980 }));
+      expect(backing.log).toEqual(['pause']);
+      now += FRESH_LOAD_GUARD_MS - 21; await vi.advanceTimersByTimeAsync(FRESH_LOAD_GUARD_MS - 21);
+      expect(backing.log).toEqual(['pause']);
+      now += 1; await vi.advanceTimersByTimeAsync(1);
+      expect(backing.log).toEqual(['pause', 'load']);
+      backing.metadata(); await vi.advanceTimersByTimeAsync(60);
+      backing.seeked();
+      await expect(result).resolves.toBe('valmis');
+    } finally { vi.useRealTimers(); }
+  });
+
+  it('uudempi tauko, kelaus tai versionvaihto peruu valmistelun ennen load()-kutsua', async () => {
+    vi.useFakeTimers();
+    try {
+      let superseded = false;
+      const backing = freshable(8);
+      const result = freshTracksAt([backing], 8, options(new Set([backing]), { now: () => 0, playedAt: () => 0, cancelled: () => superseded }));
+      superseded = true;
+      await vi.advanceTimersByTimeAsync(FRESH_LOAD_GUARD_MS);
+      await expect(result).resolves.toBe('ohitettu');
+      expect(backing.log).toEqual([]);
+    } finally { vi.useRealTimers(); }
+  });
+
+  it('kohde rajataan raidan kestoon, ja latausvirhe tai aikakatkaisu palautetaan', async () => {
+    vi.useFakeTimers();
+    try {
+      const end = freshable(10);
+      const clamped = freshTracksAt([end], 500, options(new Set([end])));
+      end.metadata(); await vi.advanceTimersByTimeAsync(60);
+      expect(end.log).toEqual(['load', 'kelaus 211.95']);
+      end.seeked();
+      await expect(clamped).resolves.toBe('valmis');
+
+      const broken = freshable(10);
+      const failure = freshTracksAt([broken], 10, options(new Set([broken])));
+      broken.error = { code: 2 }; broken.emit('error');
+      await expect(failure).resolves.toBe('virhe');
+
+      let clock = 0;
+      const slow = freshable(10);
+      const timeout = freshTracksAt([slow], 10, options(new Set([slow]), { now: () => clock }));
+      clock = 4000; await vi.advanceTimersByTimeAsync(4000);
+      await expect(timeout).resolves.toBe('aikakatkaisu');
+    } finally { vi.useRealTimers(); }
+  });
+});
