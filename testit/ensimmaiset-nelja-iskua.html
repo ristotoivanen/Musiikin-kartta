@@ -44,7 +44,7 @@ $('start').onclick=async()=>{stop(false);const my=session;$('start').disabled=tr
    const src=ac.createBufferSource();src.buffer=b;if(mode==='M2'){const backingGain=ac.createGain();backingGain.gain.value=.62;src.connect(backingGain).connect(ac.destination)}else src.connect(ac.destination);
    if(mode==='M3'){src.loop=true;src.loopStart=countin;src.loopEnd=countin+musicLength;}
    src.start(base);playSource=src;
-   if(mode==='M2'){for(let round=0;round<4;round++)for(let beat=0;beat<4;beat++){const t=base+countin+(round*8+beat)*beatLength;sample(t,t+beatLength,model,.150,.91)}}
+   if(mode==='M2'){for(let round=0;round<4;round++)for(let beat=0;beat<4;beat++){const t=base+countin+(round*8+beat)*beatLength;sample(t,t+beatLength,model,.150,.72)}}
  }
  interval=setInterval(()=>tick(my),25);tick(my);msg(mode==='M0'?'Esimerkki soi: kuuntele.':mode==='M1'?'Pulssi käy: soita itse. Muuta ääniraitaa ei ole.':mode==='M2'?'Musiikki soi: kuuntele mallikitaraa.':'Musiikki soi: soita mukana. Pysäytä, kun haluat.');
  }catch(e){stop(false);msg('Toisto ei käynnistynyt: '+e.message+'. Tarkista verkkoyhteys ja paina Käynnistä uudelleen. Jos ääni ei silti käynnisty, lataa sivu uudelleen.',true)}
