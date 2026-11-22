@@ -46,7 +46,7 @@
     soita: 'Kuuntele, miltä kaikki kuusi kieltä kuulostavat yhdessä. Ääni on oikeasta kitaranäytteestä.',
     rakenna: 'Voit valita kolme säveltä haluamassasi järjestyksessä.',
     kokoa: 'Valitse esimerkki kuunneltavaksi.',
-    arvaa: 'Valitse sointupari ja paina Tunnista.'
+    arvaa: 'Valitse sointupari ja paina Tunnista.',
     paluu: 'Valitse ensin lopetus: G, C tai D.',
     asteet: 'Kuuntele neljä tahtia ja kokeile samaa kiertoa omalla kitaralla.',
     vihjeet: 'Valitse vihjeiden määrä ja aloita neljä neljän tahdin kierrosta.',
