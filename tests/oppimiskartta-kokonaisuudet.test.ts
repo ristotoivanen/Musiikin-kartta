@@ -114,13 +114,14 @@ it('03 alkaa ilman valittua lopetusta ja kertoo G:n roolin vasta Mitä opit? -os
     for (const [heading, text] of [['Kumpi on duuri?', prompt], ['Kumpi on molli?', prompt]]) {
       expect(html).toContain(`<div class="sointu-varaus" aria-hidden="true"><span class="sointu-varaus-otsikko">${heading}</span><span>${text}</span></div>`);
     }
-    expect(html).toContain('<span data-uusi-arvaus-teksti>Tunnista</span>');
+    expect(html).toContain('<button type="button" data-uusi-arvaus>Tunnista</button>');
     expect(html).not.toContain('Uusi tehtävä');
     const recognitionCode = script.slice(script.indexOf('function setupGuess('), script.indexOf('function setupProgression('));
     expect(recognitionCode).not.toContain('setTimeout(');
     expect(recognitionCode).toContain('if (answered) {');
     expect(recognitionCode).toContain('startRound(true);');
     expect(html).toContain('data-arvaus-kysymys hidden');
+    expect(html).toContain('data-arvaus-kuuntelu role="group" aria-label="Tunnistustehtävän ääniesimerkit" hidden');
     expect(html).toContain('data-arvaus-pari="D" aria-pressed="true"');
     expect(html).toContain('data-arvaus-pari="E" aria-pressed="false"');
     expect(html).not.toContain('data-suora-kuuntelu');
