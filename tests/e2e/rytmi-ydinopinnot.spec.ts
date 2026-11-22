@@ -362,13 +362,24 @@ test.describe('03 Tauko ei aina tarkoita hiljaisuutta', () => {
     await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
     await c.click();
     await expect(c).toHaveAttribute('aria-pressed', 'true');
-    await expect(sounds).toHaveText(['Soita Em', 'Anna soida', 'Uusi isku', 'Ei uutta iskua']);
+    await expect(page.locator('[data-rytmi-tila]')).toContainText(
+      'Esimerkki vaihtuu seuraavan kahden tahdin kierron alussa.');
+    // Jo soiva B-kierto jatkuu loppuun, eikä ruudukko esitä ennenaikaisesti C:tä.
+    await expect(sounds).toHaveText(['Soita Em', 'Anna soida', 'Anna soida', 'Vaimenna']);
     await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
-    await playButton(page).click();
-    await expect(playButton(page)).toHaveAccessibleName('Kuuntele');
+    await expect(sounds).toHaveText(['Soita Em', 'Anna soida', 'Uusi isku', 'Ei uutta iskua'],
+      { timeout: 10000 });
+    await expect(page.locator('[data-rytmi-tila]')).toHaveText('Nyt soi C · Jätä isku pois.');
+
     await a.click();
     await expect(a).toHaveAttribute('aria-pressed', 'true');
-    await expect(sounds).toHaveText(['Soita Em', 'Anna soida', 'Anna soida', 'Ääni jatkuu']);
+    await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
+    await expect(sounds).toHaveText(['Soita Em', 'Anna soida', 'Uusi isku', 'Ei uutta iskua']);
+    await expect(sounds).toHaveText(['Soita Em', 'Anna soida', 'Anna soida', 'Ääni jatkuu'],
+      { timeout: 10000 });
+    await expect(page.locator('[data-rytmi-tila]')).toHaveText('Nyt soi A · Ääni jatkuu.');
+    await playButton(page).click();
+    await expect(playButton(page)).toHaveAccessibleName('Kuuntele');
     await expect(page.locator('.done-toggle')).toHaveAttribute('aria-pressed', 'false');
   });
 });
