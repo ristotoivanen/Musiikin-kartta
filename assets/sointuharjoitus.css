@@ -186,6 +186,10 @@
 }
 /* Lukitut neutraalit vaihtoehdot himmennetään kuten ennen, mutta
  * väärin/oikein-merkitty tulos pidetään riittävän kontrastisena. */
+.sointu-ydin [data-arvaus-vastaus] button[aria-disabled="true"] {
+  cursor: default;
+  opacity: 1;
+}
 .sointu-ydin [data-arvaus-vastaus] button:is(.is-correct, .is-wrong) {
   opacity: 1;
 }
