@@ -7,9 +7,9 @@ import { expect, test, type Page } from '@playwright/test';
 const topicPath = '/oppi/rytmi/index.html';
 const readingKey = 'musiikin-kartta:luvut';
 const lessons = [
-  ['loyda-pulssi-ja-ykkonen', 'Löydä pulssi ja ykkönen', 'Kokeile myös itse'],
-  ['hiljaisuus-kuuluu-rytmiin', 'Hiljaisuus kuuluu rytmiin', 'Kokeile myös kitaralla'],
-  ['sama-musiikki-eri-tuntuma', 'Sama musiikki, eri tuntuma', 'Kokeile myös äänten eri paikkoja'],
+  ['loyda-pulssi-ja-ykkonen', 'Pulssi ei katoa, vaikka rummut vaikenevat', 'Kokeile myös itse'],
+  ['sama-musiikki-eri-tuntuma', 'Samat iskut, eri fiilis', 'Kokeile myös äänten eri paikkoja'],
+  ['hiljaisuus-kuuluu-rytmiin', 'Tauko ei aina tarkoita hiljaisuutta', 'Kokeile myös kitaralla'],
   ['valmistaudu-seuraavaan-osaan', 'Valmistaudu seuraavaan osaan', 'Vaimennustapa on vapaa'],
 ] as const;
 const legacy = [
@@ -105,7 +105,7 @@ test.describe('aihesivu', () => {
     await page.goto(topicPath);
     const old = ['pulssi-ja-komppi', 'harjoitus:kuuntele-pulssi', 'harmoninen-kentta'];
     await page.evaluate(([key, value]) => localStorage.setItem(key, value), [readingKey, JSON.stringify(old)]);
-    await page.goto(`/oppi/rytmi/${lessons[1][0]}.html`);
+    await page.goto('/oppi/rytmi/hiljaisuus-kuuluu-rytmiin.html');
     const mark = page.locator('.done-toggle');
     await expect(mark).toHaveText('Merkitse kokeilluksi');
     await expect(mark).toHaveAttribute('aria-pressed', 'false');
@@ -124,7 +124,7 @@ test.describe('aihesivu', () => {
     await expect(page.locator('#valinta-kuuntele-pulssi [data-study-status]')).toHaveText('✓ Tehty');
 
     // Merkinnän voi perua.
-    await page.goto(`/oppi/rytmi/${lessons[1][0]}.html`);
+    await page.goto('/oppi/rytmi/hiljaisuus-kuuluu-rytmiin.html');
     await page.locator('.done-toggle').click();
     await expect(page.locator('.done-toggle')).toHaveText('Merkitse kokeilluksi');
     expect(JSON.parse((await page.evaluate(key => localStorage.getItem(key), readingKey))!)).toEqual(old);
@@ -160,15 +160,15 @@ test.describe('aiempien sisältöjen laskuri (progress_text, sama kuin Soinnuiss
     await expect(core(page).locator('[data-study-attempt-status]')).toHaveText(['✓ Kokeiltu', 'Kokeilematta', 'Kokeilematta', 'Kokeilematta']);
     await expect(earlier(page).locator('[data-study-total]')).toHaveText('✓ Aiemmat sisällöt tehty');
 
-    await page.goto(`/oppi/rytmi/${lessons[2][0]}.html`);
+    await page.goto('/oppi/rytmi/sama-musiikki-eri-tuntuma.html');
     await page.getByRole('button', { name: 'Merkitse kokeilluksi' }).click();
     await page.goto(topicPath);
     await expect(core(page).locator('[data-unit-progress]')).toHaveText('2/4 kokeiltu');
-    await expect(core(page).locator('[data-study-attempt-status]')).toHaveText(['✓ Kokeiltu', 'Kokeilematta', '✓ Kokeiltu', 'Kokeilematta']);
+    await expect(core(page).locator('[data-study-attempt-status]')).toHaveText(['✓ Kokeiltu', '✓ Kokeiltu', 'Kokeilematta', 'Kokeilematta']);
     expect(JSON.parse((await page.evaluate(key => localStorage.getItem(key), readingKey))!))
       .toEqual([...saved, 'oppitunti:sama-musiikki-eri-tuntuma']);
 
-    await page.goto(`/oppi/rytmi/${lessons[2][0]}.html`);
+    await page.goto('/oppi/rytmi/sama-musiikki-eri-tuntuma.html');
     await page.getByRole('button', { name: '✓ Kokeiltu' }).click();
     await page.goto(topicPath);
     await expect(core(page).locator('[data-unit-progress]')).toHaveText('1/4 kokeiltu');
@@ -299,7 +299,7 @@ test.describe('harjoitussivut', () => {
   }
 
   test('03: avautuvat kohdat 3 ja 4 tässä järjestyksessä', async ({ page }) => {
-    await page.goto(`/oppi/rytmi/${lessons[2][0]}.html`);
+    await page.goto('/oppi/rytmi/sama-musiikki-eri-tuntuma.html');
     await info(page).locator('summary').click();
     await expect(info(page).locator('h3')).toHaveText(['3 · Kokeile myös äänten eri paikkoja', '4 · Kokeile myös kitaralla']);
     await expect(info(page).getByRole('button', { name: 'C · Iskujen välissä' })).toBeVisible();
@@ -329,11 +329,20 @@ test.describe('harjoitussivut', () => {
   test('01: pulssivihje näyttää iskujen numerot ja piilottaa ne', async ({ page }) => {
     await page.goto(`/oppi/rytmi/${lessons[0][0]}.html`);
     const names = page.locator('.rytmi-isku-nimi');
-    await expect(names).toHaveText(['•', '•', '•', '•']);
+    await expect(names).toHaveText(Array(8).fill('•'));
     await page.getByRole('button', { name: 'Paljasta pulssi' }).click();
-    await expect(names).toHaveText(['1', '2', '3', '4']);
+    await expect(names).toHaveText(['1', '2', '3', '4', '1', '2', '3', '4']);
+    // Rumpukatkon vertailu ei muuta tempoa, mutta kertoo toisen tahdin rummuttomuuden.
+    const gap = page.getByRole('button', { name: 'B · Rummut tauolla' });
+    const continuous = page.getByRole('button', { name: 'A · Rummut koko ajan' });
+    await gap.click();
+    await expect(gap).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('[data-rummut-tahti]')).toContainText('Rummut vaikenevat');
+    await continuous.click();
+    await expect(continuous).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('[data-rummut-tahti]')).toContainText('Rummut kuuluvat edelleen');
     await page.getByRole('button', { name: 'Piilota pulssivihje' }).click();
-    await expect(names).toHaveText(['•', '•', '•', '•']);
+    await expect(names).toHaveText(Array(8).fill('•'));
   });
 });
 
@@ -365,7 +374,7 @@ test.describe('04 Valmistaudu seuraavaan osaan', () => {
 
 test.describe('toisto', () => {
   test('yksi tilan mukaan vaihtuva painike, nopeat painallukset eivät jätä toistoa päälle', async ({ page }) => {
-    await page.goto(`/oppi/rytmi/${lessons[1][0]}.html`);
+    await page.goto('/oppi/rytmi/hiljaisuus-kuuluu-rytmiin.html');
     const button = playButton(page);
     await expect(page.locator('[data-rytmi-toisto]')).toHaveCount(1);
     await expect(button).not.toHaveAttribute('aria-pressed', /.*/);
@@ -387,7 +396,7 @@ test.describe('toisto', () => {
   });
 
   test('02: korostus kulkee tahdin 1 iskuilta tahdin 2 iskuille', async ({ page }) => {
-    await page.goto(`/oppi/rytmi/${lessons[1][0]}.html`);
+    await page.goto('/oppi/rytmi/hiljaisuus-kuuluu-rytmiin.html');
     await playButton(page).click();
     const bars = new Set<string>();
     for (let i = 0; i < 40 && bars.size < 2; i++) {
@@ -400,14 +409,14 @@ test.describe('toisto', () => {
   });
 
   test('03: kesken tahdin valittu versio näkyy valittuna, ruudukko vaihtuu vasta tahdin rajalla', async ({ page }) => {
-    await page.goto(`/oppi/rytmi/${lessons[2][0]}.html`);
+    await page.goto('/oppi/rytmi/sama-musiikki-eri-tuntuma.html');
     const grid = page.locator('[data-rytmi-ruudukko="tuntuma"]');
     const status = page.locator('[data-rytmi-tila]');
     // Ilman toistoa valinta päivittää ruudukon heti.
     await page.getByRole('button', { name: 'B · Painota 2 ja 4' }).click();
     await expect(grid).toHaveAttribute('data-versio', 'B');
     await expect(grid.locator('.rytmi-isku-teko')).toHaveText(['Soita', 'Hiljaa', 'Korosta', 'Hiljaa', 'Soita', 'Hiljaa', 'Korosta', 'Hiljaa']);
-    await page.getByRole('button', { name: 'A · Tasaiset vedot' }).click();
+    await page.getByRole('button', { name: 'A · Painota 1 ja 3' }).click();
     await expect(grid).toHaveAttribute('data-versio', 'A');
 
     await playButton(page).click();
@@ -452,9 +461,9 @@ test.describe('ilman JavaScriptiä', () => {
     await expect(first.locator('xpath=..').getByRole('link', { name: 'Avaa omalla sivullaan' })).toBeVisible();
     await earlier(page).locator('summary').click();
     await expect(earlier(page).getByRole('link', { name: /Pulssi ja komppi/ })).toBeVisible();
-    await page.goto(`/oppi/rytmi/${lessons[2][0]}.html`);
+    await page.goto('/oppi/rytmi/sama-musiikki-eri-tuntuma.html');
     await expect(playButton(page)).toBeHidden();
-    await expect(page.getByRole('button', { name: 'A · Tasaiset vedot' })).toBeHidden();
+    await expect(page.getByRole('button', { name: 'A · Painota 1 ja 3' })).toBeHidden();
     await expect(page.locator('[data-rytmi-tila]')).toHaveText('Ääniesimerkki tarvitsee JavaScriptin ja selaimen äänituen.');
     await expect(page.getByText('Tempo ja soinnut pysyvät samoina')).toBeVisible();
     await expect(page.locator('.rytmi-isku')).toHaveCount(8);
