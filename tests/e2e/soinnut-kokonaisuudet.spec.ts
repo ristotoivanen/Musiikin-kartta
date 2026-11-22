@@ -925,6 +925,32 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     await expect(section.getByRole('button', { name: 'Uusi tehtävä' })).toHaveCount(0);
     await expect(question.locator('[data-kysymys]')).toBeFocused();
     await expect(question.locator('[data-kysymys]')).toBeInViewport();
+    // Vieritys ei saa piilottaa sointuparin valintaa kysymyskortin yläpuolelle.
+    const pairSelection = section.getByRole('group', { name: 'Valitse tunnistustehtävän sointupari' });
+    await expect(pairSelection).toBeInViewport({ ratio: 0.95 });
+    const pairBox = await pairSelection.boundingBox();
+    const questionBox = await question.boundingBox();
+    expect(pairBox).not.toBeNull();
+    expect(questionBox).not.toBeNull();
+    expect(questionBox!.y).toBeGreaterThan(pairBox!.y);
+
+    const answer = section.getByRole('group', { name: 'Vastaa' }).getByRole('button', { name: 'Sointu 1' });
+    await answer.click();
+    await answer.click();
+    await expect(pairSelection).toBeInViewport({ ratio: 0.95 });
+    await expect(question.locator('[data-kysymys]')).toBeInViewport();
+  });
+
+  test('200 % iPhone-zoomissa Tunnista näyttää myös sointuparin valinnan', async ({ page }) => {
+    await page.setViewportSize({ width: 201, height: 760 });
+    await page.goto(ydinPath(1));
+    const section = page.locator('[data-sointuharjoitus="arvaa"]');
+    const selection = section.getByRole('group', { name: 'Valitse tunnistustehtävän sointupari' });
+    await section.getByRole('button', { name: 'Tunnista', exact: true }).click();
+    await expect(selection).toBeInViewport({ ratio: 0.95 });
+    await expect(section.locator('[data-arvaus-kysymys]')).toBeInViewport({ ratio: 0.1 });
+    await expect(section.getByRole('button', { name: 'D / Dm' })).toBeInViewport();
+    await expect(section.getByRole('button', { name: 'E / Em' })).toBeInViewport();
   });
 
   // PR #141, iOS Simulator -auditointi 22.11.2026: Safarin sivuzoomaus kaventaa CSS-näkymää
