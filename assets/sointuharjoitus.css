@@ -22,6 +22,8 @@
 
 .sointu-tila { min-height: 1.5em; margin: .35rem 0 0; color: #9fe4c3; font-size: .92rem; }
 .sointu-tila.is-error { color: #ffd6b3; }
+/* #164: vain onnistumispalautteen alkusana korostuu. Selitys säilyy normaalivärisenä. */
+.sointu-ydin [data-arvauspalaute] > strong { color: #9fe4c3; font-weight: 800; }
 .sointu-ohje, .sointu-lahde { color: var(--muted); font-size: .9rem; }
 
 /* Rakenna G-duurisointu: seitsemän asteikkosäveltä, puhelimessa neljä riviin. */
