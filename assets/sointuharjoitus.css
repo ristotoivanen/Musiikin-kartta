@@ -88,8 +88,9 @@
 .sointu-ydin .sointu-ohje.is-error { color: #ffd6b3; }
 /* Koko vastauksen palaute on vihreä (oikein) tai keltainen (väärin).
  * Vain valittu vastauspainike väritetään; erillinen toimintaohje pysyy neutraalina. */
-.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvauspalaute] { color: #9fe4c3; }
-.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvauspalaute].is-error { color: #ffe08a; }
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvauspalaute] { color: var(--muted); }
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvauspalaute].is-answered { color: #9fe4c3; }
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvauspalaute].is-answered.is-error { color: #ffe08a; }
 .sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvauspalaute] > .sointu-arvaus-tulos { color: inherit; }
 .sointu-ydin[data-sointuharjoitus="arvaa"] [data-sointu-tila] { color: var(--text); }
 .sointu-ydin [data-arvaus-vastaus] { align-items: baseline; }
