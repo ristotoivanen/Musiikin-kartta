@@ -246,6 +246,25 @@ export function positionAt(transport, time) {
     cell: gridCell(transport.task, step % LOOP_STEPS) };
 }
 
+/**
+ * #163: piilotetun pulssivihjeen ainoa välähdys on soivan tahdin ykkösellä.
+ * Paljastettu tila seuraa jokaista neljää iskua kahdella tahtirivillä.
+ * Aikaleima on sama ulostuloviiveellä korjattu AudioContext-kello kuin muissa ruudukoissa.
+ * Liikkeen vähentäminen pidentää yhden välähdyksen koko ensimmäisen iskun mittaiseksi.
+ */
+export function pulseCellAt(transport, time, revealed, reducedMotion = false) {
+  const position = positionAt(transport, time);
+  if (!position) return null;
+  if (revealed) return position.cell;
+  if (position.cell.index !== 0) return null;
+  const barStartStep = position.step - position.step % STEPS_PER_BAR;
+  const elapsed = time - (transport.begin + barStartStep * transport.stepDuration);
+  const visibleFor = reducedMotion
+    ? 2 * transport.stepDuration
+    : Math.min(0.18, transport.stepDuration);
+  return elapsed < visibleFor ? position.cell : null;
+}
+
 // ---------------------------------------------------------------------------------------------
 // Selainosa
 // ---------------------------------------------------------------------------------------------
@@ -374,6 +393,7 @@ function setupExercise(root) {
   const grooveGrid = root.querySelector('[data-rytmi-ruudukko="tuntuma"]');
   const isTransition = task === 'osanvaihto';
   const versionNames = isTransition ? TRANSITIONS : GROOVES;
+  const reducedMotion = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)');
   const state = { example: 'rock', revealed: false, mode: 'A', drumGap: false, taukoMode: 'soi' };
   let session = null;
   let starting = false;
@@ -444,11 +464,22 @@ function setupExercise(root) {
   }
 
   function drawReveal() {
+    if (task !== 'pulssi') return;
     [0, 1].forEach(bar => {
       cells(bar).forEach((element, index) => {
-        element.querySelector('.rytmi-isku-nimi').textContent = state.revealed ? String(index + 1) : '•';
+        const name = element.querySelector('.rytmi-isku-nimi');
+        const action = element.querySelector('.rytmi-isku-teko');
+        // visibility ei poista elementtejä asettelusta: kaikki 4 ruutua pysyvät saman kokoisina.
+        name.textContent = state.revealed ? String(index + 1) : '•';
+        name.style.visibility = state.revealed ? 'visible' : 'hidden';
+        action.style.visibility = state.revealed ? 'visible' : 'hidden';
       });
     });
+    // Tyhjät ruudut eivät ole ruudunlukijalle kahdeksan nimetöntä listakohtaa.
+    for (const grid of root.querySelectorAll('.rytmi-ruudukko')) {
+      grid.setAttribute('aria-hidden', String(!state.revealed));
+    }
+    clearActive();
     reveal.textContent = state.revealed ? 'Piilota pulssivihje' : 'Paljasta pulssi';
   }
 
@@ -461,8 +492,11 @@ function setupExercise(root) {
     if (position) {
       drawGroove(position.mode);
       drawTransition(position.mode);
-      const target = cells(position.cell.bar)[position.cell.index];
-      if (!target?.classList.contains('is-active')) {
+      const visualCell = task === 'pulssi'
+        ? pulseCellAt(session.transport, now, state.revealed, Boolean(reducedMotion?.matches))
+        : position.cell;
+      const target = visualCell ? cells(visualCell.bar)[visualCell.index] : null;
+      if (root.querySelector('.rytmi-isku.is-active') !== target) {
         clearActive();
         target?.classList.add('is-active');
       }
@@ -616,6 +650,10 @@ function setupExercise(root) {
   reveal?.addEventListener('click', () => {
     state.revealed = !state.revealed;
     drawReveal();
+    // Tilasta ilmoitetaan vain käyttäjän valinnalla, ei jokaisesta animaatioruudusta.
+    status.textContent = state.revealed
+      ? 'Pulssi paljastettu. Iskut 1–4 korostuvat vuorollaan molemmissa tahdeissa.'
+      : 'Pulssi piilotettu. Vain kummankin tahdin ykkönen välähtää.';
   });
 
   for (const choice of grooveButtons) {

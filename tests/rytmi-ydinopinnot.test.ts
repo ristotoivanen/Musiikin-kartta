@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
-  compLevel, createTransport, grooveCells, gridCell, LOOP_STEPS, positionAt, requestDrumGap, requestMode, requestTaukoMode, scheduleUntil, STEPS_PER_BAR, transitionCells,
+  compLevel, createTransport, grooveCells, gridCell, LOOP_STEPS, positionAt, pulseCellAt, requestDrumGap, requestMode, requestTaukoMode, scheduleUntil, STEPS_PER_BAR, transitionCells,
   stepEvents, tempoFor,
 // @ts-expect-error Testattu selainmoduuli palvellaan suoraan JavaScriptinä.
 } from '../assets/rytmi-ydinopinnot.js';
@@ -47,6 +47,48 @@ describe('01 Löydä pulssi ja ykkönen', () => {
   });
 });
 
+
+describe('#163: kahden tahdin pulssivihje', () => {
+  for (const tempo of [96, 108]) {
+    it(`piilotettuna näyttää vain kummankin tahdin ykkösen lyhyen välähdyksen (${tempo} BPM)`, () => {
+      const begin = 1;
+      const transport = createTransport({ task: 'pulssi', tempo, begin });
+      const eighth = transport.stepDuration;
+      expect(pulseCellAt(transport, begin - .001, false)).toBeNull();
+      for (let bar = 0; bar < 4; bar++) {
+        const barStart = begin + bar * STEPS_PER_BAR * eighth;
+        const expectedBar = bar % 2;
+        expect(pulseCellAt(transport, barStart + .02, false)).toEqual({ bar: expectedBar, index: 0 });
+        expect(pulseCellAt(transport, barStart + .20, false)).toBeNull();
+        for (let beat = 1; beat < 4; beat++) {
+          expect(pulseCellAt(transport, barStart + beat * 2 * eighth, false)).toBeNull();
+          expect(pulseCellAt(transport, barStart + (beat * 2 + 1) * eighth, false)).toBeNull();
+        }
+      }
+    });
+
+    it(`paljastettuna näyttää kaksi neljän iskun riviä kellon mukaan (${tempo} BPM)`, () => {
+      const begin = 1;
+      const transport = createTransport({ task: 'pulssi', tempo, begin, drumGap: true });
+      for (let step = 0; step < 2 * LOOP_STEPS; step++) {
+        const at = begin + (step + .1) * transport.stepDuration;
+        expect(pulseCellAt(transport, at, true)).toEqual({
+          bar: Math.floor((step % LOOP_STEPS) / STEPS_PER_BAR),
+          index: Math.floor((step % STEPS_PER_BAR) / 2),
+        });
+      }
+    });
+  }
+
+  it('vähennetty liike pitää ykkösen näkyvänä ensimmäisen iskun ajan, ei muilla iskuilla', () => {
+    const transport = createTransport({ task: 'pulssi', tempo: 96, begin: 1 });
+    const step = transport.stepDuration;
+    expect(pulseCellAt(transport, 1 + .2, false, true)).toEqual({ bar: 0, index: 0 });
+    expect(pulseCellAt(transport, 1 + step + .1, false, true)).toEqual({ bar: 0, index: 0 });
+    expect(pulseCellAt(transport, 1 + 2 * step, false, true)).toBeNull();
+    expect(pulseCellAt(transport, 1 + 8 * step + .3, false, true)).toEqual({ bar: 1, index: 0 });
+  });
+});
 
 describe('01 hyväksytty rumpukatko', () => {
   it('A:ssa rummut jatkavat molemmissa tahdeissa; B:ssä rummuilla on yhden tahdin tauko mutta basso jää', () => {

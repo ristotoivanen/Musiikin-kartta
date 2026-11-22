@@ -326,12 +326,46 @@ test.describe('harjoitussivut', () => {
     await expect(page.locator('[data-rytmi-tila]')).toHaveText('Pysäytetty.');
   });
 
+  test('01: piilotettuna vain aktiivisen tahdin ykkösruutu välähtää oikealla rivillä', async ({ page }) => {
+    await page.goto('/oppi/rytmi/loyda-pulssi-ja-ykkonen.html');
+    await playButton(page).click();
+    await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
+    const observed = await page.evaluate(() => new Promise<string[]>(resolve => {
+      const found = new Set<string>();
+      const root = document.querySelector('[data-rytmiharjoitus="pulssi"]')!;
+      const sample = () => root.querySelectorAll<HTMLElement>('.rytmi-isku.is-active').forEach(cell => {
+        const index = [...cell.parentElement!.children].indexOf(cell);
+        found.add(`${cell.dataset.tahti}:${index}`);
+      });
+      const watcher = new MutationObserver(sample);
+      watcher.observe(root, { attributes: true, subtree: true, attributeFilter: ['class'] });
+      sample();
+      window.setTimeout(() => { watcher.disconnect(); resolve([...found]); }, 5500);
+    }));
+    expect(observed.sort()).toEqual(['0:0', '1:0']);
+    await playButton(page).click();
+    await expect(page.locator('.rytmi-isku.is-active')).toHaveCount(0);
+  });
+
   test('01: pulssivihje näyttää iskujen numerot ja piilottaa ne', async ({ page }) => {
     await page.goto(`/oppi/rytmi/${lessons[0][0]}.html`);
     const names = page.locator('.rytmi-isku-nimi');
     await expect(names).toHaveText(Array(8).fill('•'));
+    await expect(names.first()).toBeHidden();
+    const boxes = page.locator('[data-rytmiharjoitus="pulssi"] [data-rytmi-isku]');
+    await expect(boxes).toHaveCount(8);
+    const placements = () => boxes.evaluateAll(nodes => nodes.map(node => {
+      const rect = node.getBoundingClientRect();
+      return [Math.round(rect.x), Math.round(rect.y), Math.round(rect.width), Math.round(rect.height)];
+    }));
+    const initial = await placements();
+    await expect(page.locator('[data-rytmiharjoitus="pulssi"] .rytmi-ruudukko').first()).toHaveAttribute('aria-hidden', 'true');
     await page.getByRole('button', { name: 'Paljasta pulssi' }).click();
     await expect(names).toHaveText(['1', '2', '3', '4', '1', '2', '3', '4']);
+    await expect(names.first()).toBeVisible();
+    await expect(page.locator('[data-rytmi-tila]')).toContainText('Pulssi paljastettu');
+    await expect(page.locator('[data-rytmiharjoitus="pulssi"] .rytmi-ruudukko').first()).toHaveAttribute('aria-hidden', 'false');
+    expect(await placements()).toEqual(initial);
     // Rumpukatkon vertailu ei muuta tempoa, mutta kertoo toisen tahdin rummuttomuuden.
     const gap = page.getByRole('button', { name: 'B · Rummut tauolla' });
     const continuous = page.getByRole('button', { name: 'A · Rummut koko ajan' });
@@ -343,6 +377,9 @@ test.describe('harjoitussivut', () => {
     await expect(page.locator('[data-rummut-tahti]')).toContainText('Rummut kuuluvat edelleen');
     await page.getByRole('button', { name: 'Piilota pulssivihje' }).click();
     await expect(names).toHaveText(Array(8).fill('•'));
+    await expect(names.first()).toBeHidden();
+    await expect(page.locator('[data-rytmi-tila]')).toContainText('Pulssi piilotettu');
+    expect(await placements()).toEqual(initial);
   });
 });
 
@@ -487,6 +524,7 @@ test.describe('toisto', () => {
     const a = page.getByRole('button', { name: 'A · Rummut koko ajan' });
     const b = page.getByRole('button', { name: 'B · Rummut tauolla' });
 
+    await page.getByRole('button', { name: 'Paljasta pulssi' }).click();
     await playButton(page).click();
     await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
     await expect(page.locator('.rytmi-isku.is-active')).toHaveCount(1);
