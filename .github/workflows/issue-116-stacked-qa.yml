@@ -44,7 +44,7 @@ jobs:
             git push origin HEAD:codex/issue-116-kahdeksan-aihesivua
           fi
       - name: Check #116 structure and legacy progress
-        run: npx vitest run tests/issue-116-aihesivut.test.ts tests/oppimiskartta-kokonaisuudet.test.ts
+        run: npx vitest run tests/issue-116-aihesivut.test.ts tests/oppimiskartta-kokonaisuudet.test.ts tests/rytmi-ydinopinnot.test.ts
       - name: Check full project
         run: npm run check
       - name: Verify generated pages and links
@@ -53,7 +53,7 @@ jobs:
           python3 tools/linkit/tarkista-linkit.py
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
-      - name: Targeted #116 Soinnut browser regression
-        run: npx playwright test tests/e2e/soinnut-kokonaisuudet.spec.ts --workers=2
+      - name: Targeted #116 Soinnut and Rytmi browser regression
+        run: npx playwright test tests/e2e/soinnut-kokonaisuudet.spec.ts tests/e2e/rytmi-ydinopinnot.spec.ts tests/e2e/ydinopinnot-yhteinen-ui.spec.ts --workers=2
       - name: Full Playwright browser regression
         run: npx playwright test --workers=3 --max-failures=20
