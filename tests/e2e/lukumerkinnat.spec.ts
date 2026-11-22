@@ -21,6 +21,14 @@ const labels = {
 } as const;
 type Kind = keyof typeof labels;
 
+// #116: Sointujen kolme erillistä Lisäopinnot-pilottisivua ovat yhä `Tehty`-merkittäviä,
+// mutta eivät kuulu `#aiemmat`-osion 18 sisältöön eikä sen laskuriin.
+// Oma soinnut-kokonaisuudet.spec.ts testaa niiden merkinnät, navigaation ja tallennuksen.
+const soinnutExtra = new Set([
+  'kuule-mika-on-sointu', 'rakenna-g-duurisointu', 'kokeile-g-sointua-kitaralla',
+]);
+
+
 const topics = readdirSync(new URL('oppi/', site), { withFileTypes: true })
   .filter(entry => entry.isDirectory())
   .map(({ name }) => {
@@ -34,7 +42,11 @@ const topics = readdirSync(new URL('oppi/', site), { withFileTypes: true })
         const kind: Kind = chapter ? 'luku' : read(path).includes('data-oppisisalto=') ? 'harjoitus' : 'oppitunti';
         return { path: `/${path}`, slug, kind, id: chapter ?? `${kind}:${slug}` };
       });
-    return { path: `/${directory}index.html`, name, pages };
+    // Tämä vanhan Tehty-laskurin regressiojoukko rajautuu aiempiin sisältöihin.
+    // Sekä Kokeiltu-ydinopinnot että 3 erillistä Sointujen Lisäopinnot-sivua testataan muissa sviiteissä.
+    return { path: `/${directory}index.html`, name, pages: pages.filter(({ path, slug }) =>
+      !read(path.slice(1)).includes('data-study-mark="kokeiltu"') &&
+      !(name === 'soinnut' && soinnutExtra.has(slug))) };
   });
 type Topic = typeof topics[number];
 type Item = Topic['pages'][number];
@@ -57,10 +69,16 @@ async function expectTopicMark(page: Page, topic: Topic, item: Item, done: boole
     return;
   }
   const marker = page.locator(`#valinta-${item.slug} [data-study-status]`);
+  // Aiemmat sisällöt ovat avattavan osion alla (#116); käyttäjä avaa osion nähdäkseen merkinnän.
+  const unit = page.locator('details.study-unit', { has: page.locator(`#valinta-${item.slug}`) });
+  if (await unit.count() && !(await unit.evaluate(details => (details as HTMLDetailsElement).open))) {
+    await unit.locator('summary').click();
+  }
   await expect(marker).toBeVisible();
   await expect(marker).toHaveText(done ? '✓ Tehty' : 'Tekemättä');
   await expect(page.locator('[data-study-total]')).toHaveText(
-    `${done ? 1 : 0}/${topic.pages.length} sisältöä tehty`,
+    // Rytmi: laskuri kattaa vain aiemmat sisällöt kuten Soinnuissa (#116, progress_text).
+    `${done ? 1 : 0}/${topic.pages.length} ${['rytmi', 'soinnut'].includes(topic.name) ? 'aiemmista sisällöistä' : 'sisältöä'} tehty`,
   );
 }
 

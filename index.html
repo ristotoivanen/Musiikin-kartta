@@ -26,7 +26,7 @@
     gap: .875rem;
   }
   .topic-card {
-    --number-size: 2.8125rem;
+    --number-size: 4rem;
     display: grid;
     grid-template-columns: var(--number-size) minmax(0, 1fr) 1.6rem;
     grid-template-rows: auto 1fr;
@@ -85,9 +85,19 @@
     .topic-number { font-size: .9375rem; }
     .topic-description { font-size: .875rem; }
   }
+
+  /* Kahdeksan aiheen SVG-symboli on erillään numerosta ja otsikosta (#125). */
+  .topic-card .topic-icon-box { grid-column:1; grid-row:1 / -1; align-self:center; }
+  .topic-card .topic-heading { grid-column:2; grid-row:1; display:grid; grid-template-columns:1.6rem minmax(0,1fr); column-gap:.6rem; align-items:start; }
+  .topic-card .topic-number { grid-area:auto; align-self:start; min-block-size:0; display:inline; background:none; border-radius:0; font-size:.88rem; color:var(--muted); }
+  .topic-card .topic-title { grid-area:auto; }
+  .topic-card .topic-details { grid-column:2; grid-row:2; padding-inline-start:calc(1.6rem + .6rem); }
+  .topic-card .topic-arrow { grid-row:1 / -1; }
+  @media (max-width:470px) { .topic-card { --number-size:3.75rem; gap:.25rem .75rem; } .topic-card .topic-heading { column-gap:.4rem; } .topic-card .topic-details { padding-inline-start:calc(1.6rem + .4rem); } }
 </style>
 <link rel="stylesheet" href="assets/paavalikko.css?v=4e5c7fbf95">
 <script defer src="assets/oppimiskartta.js"></script>
+<link rel="stylesheet" href="assets/oppimisikonit.css?v=edb55767ea">
 </head>
 <body>
 
@@ -119,25 +129,25 @@
   <nav class="topic-grid" id="oppimisaihelista" aria-label="Oppimisen aiheet">
   <!-- oppimiskartta:kortit -->
     <a class="topic-card" id="aihe-kitara" href="oppi/kitara/index.html">
-      <span class="topic-number" aria-hidden="true">01</span>
-      <strong class="topic-title">Kitaran perusteet</strong>
+      <span class="topic-icon-box" data-topic="kitara" aria-hidden="true"><svg class="topic-icon"><use href="assets/oppimisikonit.svg#topic-kitara"></use></svg></span>
+      <span class="topic-heading"><span class="topic-number" aria-hidden="true">01</span> <strong class="topic-title">Kitaran perusteet</strong></span>
       <span class="topic-details">
         <span class="topic-description">Kertaa kielet, soinnut ja rytmin perusteet 2–5 minuutissa.</span>
       </span>
       <span class="topic-arrow" aria-hidden="true">→</span>
     </a>
     <a class="topic-card" id="aihe-rytmi" href="oppi/rytmi/index.html" data-study-items="pulssi-ja-komppi harjoitus:kuuntele-pulssi harjoitus:alas-ylos-yhdella-soinnulla harjoitus:kaksi-sointua-yhdessa-tahdissa">
-      <span class="topic-number" aria-hidden="true">02</span>
-      <strong class="topic-title">Rytmi</strong>
+      <span class="topic-icon-box" data-topic="rytmi" aria-hidden="true"><svg class="topic-icon"><use href="assets/oppimisikonit.svg#topic-rytmi"></use></svg></span>
+      <span class="topic-heading"><span class="topic-number" aria-hidden="true">02</span> <strong class="topic-title">Rytmi</strong></span>
       <span class="topic-details">
         <span class="topic-description">Pulssi, neljään laskeminen ja komppi.</span>
-        <span class="topic-status" hidden></span>
+        <span class="topic-status" data-progress-count="aiemmista sisällöistä tehty" data-progress-done="✓ Aiemmat sisällöt tehty" hidden></span>
       </span>
       <span class="topic-arrow" aria-hidden="true">→</span>
     </a>
     <a class="topic-card" id="aihe-nuotit" href="oppi/savelnimet/index.html" data-study-items="oppitunti:kitaran-kielet-ja-sointumerkinnat savelet-ja-intervallit harjoitus:siirra-yhta-sormea">
-      <span class="topic-number" aria-hidden="true">03</span>
-      <strong class="topic-title">Sävelnimet ja sointumerkinnät</strong>
+      <span class="topic-icon-box" data-topic="savelnimet" aria-hidden="true"><svg class="topic-icon"><use href="assets/oppimisikonit.svg#topic-savelnimet"></use></svg></span>
+      <span class="topic-heading"><span class="topic-number" aria-hidden="true">03</span> <strong class="topic-title">Sävelnimet ja sointumerkinnät</strong></span>
       <span class="topic-details">
         <span class="topic-description">Kielten nimet, intervallit ja sointukaaviot.</span>
         <span class="topic-status" hidden></span>
@@ -145,8 +155,8 @@
       <span class="topic-arrow" aria-hidden="true">→</span>
     </a>
     <a class="topic-card" id="aihe-korva" href="oppi/korva/index.html" data-study-items="musiikki-on-kieli harjoitus:taydenna-fraasi savellajin-tunnistaminen harjoitus:vaihda-kotisavelta intervallit harjoitus:mika-aste-soi harjoitus:etsi-jalkimmainen-savel basso harjoitus:kuuntele-bassolinja soinnut harjoitus:kumpi-on-molli harjoitus:tunnista-sointutyyppi septimi-korvalla harjoitus:kolme-c-sointua">
-      <span class="topic-number" aria-hidden="true">04</span>
-      <strong class="topic-title">Sävelkorva ja melodia</strong>
+      <span class="topic-icon-box" data-topic="korva" aria-hidden="true"><svg class="topic-icon"><use href="assets/oppimisikonit.svg#topic-korva"></use></svg></span>
+      <span class="topic-heading"><span class="topic-number" aria-hidden="true">04</span> <strong class="topic-title">Sävelkorva ja melodia</strong></span>
       <span class="topic-details">
         <span class="topic-description">Kotisävel, melodia ja sointujen kuuntelu.</span>
         <span class="topic-status" hidden></span>
@@ -154,8 +164,8 @@
       <span class="topic-arrow" aria-hidden="true">→</span>
     </a>
     <a class="topic-card" id="aihe-otelauta" href="oppi/otelauta/index.html" data-study-items="otelauta harjoitus:etsi-a-ilman-asteikkokuviota harjoitus:etsi-sama-savel perussavel harjoitus:etsi-savel-kahdelta-kielelta harjoitus:nimea-savel caged harjoitus:soita-c-kahdesta-kohdasta">
-      <span class="topic-number" aria-hidden="true">05</span>
-      <strong class="topic-title">Otelauta</strong>
+      <span class="topic-icon-box" data-topic="otelauta" aria-hidden="true"><svg class="topic-icon"><use href="assets/oppimisikonit.svg#topic-otelauta"></use></svg></span>
+      <span class="topic-heading"><span class="topic-number" aria-hidden="true">05</span> <strong class="topic-title">Otelauta</strong></span>
       <span class="topic-details">
         <span class="topic-description">Sävelten sijainnit, oktaavit ja CAGED.</span>
         <span class="topic-status" hidden></span>
@@ -163,17 +173,17 @@
       <span class="topic-arrow" aria-hidden="true">→</span>
     </a>
     <a class="topic-card" id="aihe-soinnut" href="oppi/soinnut/index.html" data-study-items="harmoninen-kentta harjoitus:kolme-sointua-g-duurista harjoitus:kaikuluotain roomalaiset-numerot harjoitus:siirra-kierto-d-duuriin sointujen-tehtavat harjoitus:laula-paluu kvinttiympyra harjoitus:siirra-keskelle-d barre harjoitus:etsi-barresointu harjoitus:rakenna-barre harjoitus:siirra-kierto-c-duuriin septimisoinnut harjoitus:lisaa-septimi harjoitus:soita-septimisoinnut ii-v-i harjoitus:ii-v-i-kahdessa-savellajissa">
-      <span class="topic-number" aria-hidden="true">06</span>
-      <strong class="topic-title">Soinnut ja harmonia</strong>
+      <span class="topic-icon-box" data-topic="soinnut" aria-hidden="true"><svg class="topic-icon"><use href="assets/oppimisikonit.svg#topic-soinnut"></use></svg></span>
+      <span class="topic-heading"><span class="topic-number" aria-hidden="true">06</span> <strong class="topic-title">Soinnut ja harmonia</strong></span>
       <span class="topic-details">
         <span class="topic-description">Sointujen rakenne, tehtävät ja otteet.</span>
-        <span class="topic-status" hidden></span>
+        <span class="topic-status" data-progress-count="aiemmista sisällöistä tehty" data-progress-done="✓ Aiemmat sisällöt tehty" hidden></span>
       </span>
       <span class="topic-arrow" aria-hidden="true">→</span>
     </a>
     <a class="topic-card" id="aihe-asteikot" href="oppi/asteikot/index.html" data-study-items="asteikot harjoitus:etsi-puoliaskeleet pentatoniikka harjoitus:tee-kolmesta-savelesta-melodia harjoitus:kysymys-ja-vastaus-koko-boksilla moodit harjoitus:vaihda-f-nauhaa-ylemmas">
-      <span class="topic-number" aria-hidden="true">07</span>
-      <strong class="topic-title">Asteikot ja moodit</strong>
+      <span class="topic-icon-box" data-topic="asteikot" aria-hidden="true"><svg class="topic-icon"><use href="assets/oppimisikonit.svg#topic-asteikot"></use></svg></span>
+      <span class="topic-heading"><span class="topic-number" aria-hidden="true">07</span> <strong class="topic-title">Asteikot ja moodit</strong></span>
       <span class="topic-details">
         <span class="topic-description">Duuri, molli, pentatoniikka ja moodit.</span>
         <span class="topic-status" hidden></span>
@@ -181,8 +191,8 @@
       <span class="topic-arrow" aria-hidden="true">→</span>
     </a>
     <a class="topic-card" id="aihe-kappaleet" href="oppi/kappaleet/index.html" data-study-items="kappale-asteina harjoitus:sama-kappale-c-duurissa transponointi harjoitus:sovita-savellaji-laulajalle kappale harjoitus:mika-sointu-tulee harjoitus:tee-sointukartta harjoitus:etsi-ensimmainen-melodiasavel improvisointi harjoitus:soita-kysymys-ja-vastaus sovittaminen harjoitus:vaihda-saestysta oma-kappale harjoitus:aanita-kahdeksan-tahtia">
-      <span class="topic-number" aria-hidden="true">08</span>
-      <strong class="topic-title">Kappaleet ja oma musiikki</strong>
+      <span class="topic-icon-box" data-topic="kappaleet" aria-hidden="true"><svg class="topic-icon"><use href="assets/oppimisikonit.svg#topic-kappaleet"></use></svg></span>
+      <span class="topic-heading"><span class="topic-number" aria-hidden="true">08</span> <strong class="topic-title">Kappaleet ja oma musiikki</strong></span>
       <span class="topic-details">
         <span class="topic-description">Soita mukana, improvisoi ja tee oma kappale.</span>
         <span class="topic-status" hidden></span>
@@ -215,6 +225,6 @@
 <!-- oppimiskartta:reitit -->
 <script type="application/json" id="oppimisreitit">{"sointukierrot": "oppi/kitara/sointukierrot.html", "pulssi-ja-komppi": "oppi/rytmi/pulssi-ja-komppi.html", "savelet-ja-intervallit": "oppi/savelnimet/savelet-ja-intervallit.html", "musiikki-on-kieli": "oppi/korva/musiikki-on-kieli.html", "savellajin-tunnistaminen": "oppi/korva/savellajin-tunnistaminen.html", "intervallit": "oppi/korva/intervallit.html", "basso": "oppi/korva/basso.html", "soinnut": "oppi/korva/soinnut.html", "septimi-korvalla": "oppi/korva/septimi-korvalla.html", "otelauta": "oppi/otelauta/otelauta.html", "perussavel": "oppi/otelauta/perussavel.html", "caged": "oppi/otelauta/caged.html", "harmoninen-kentta": "oppi/soinnut/harmoninen-kentta.html", "roomalaiset-numerot": "oppi/soinnut/roomalaiset-numerot.html", "sointujen-tehtavat": "oppi/soinnut/sointujen-tehtavat.html", "kvinttiympyra": "oppi/soinnut/kvinttiympyra.html", "barre": "oppi/soinnut/barre.html", "septimisoinnut": "oppi/soinnut/septimisoinnut.html", "ii-v-i": "oppi/soinnut/ii-v-i.html", "asteikot": "oppi/asteikot/asteikot.html", "pentatoniikka": "oppi/asteikot/pentatoniikka.html", "moodit": "oppi/asteikot/moodit.html", "kappale-asteina": "oppi/kappaleet/kappale-asteina.html", "transponointi": "oppi/kappaleet/transponointi.html", "kappale": "oppi/kappaleet/kappale.html", "improvisointi": "oppi/kappaleet/improvisointi.html", "sovittaminen": "oppi/kappaleet/sovittaminen.html", "oma-kappale": "oppi/kappaleet/oma-kappale.html"}</script>
 <!-- /oppimiskartta:reitit -->
-<script src="assets/edistyminen.js?v=b570bd71cc"></script>
+<script src="assets/edistyminen.js?v=39bccb10a6"></script>
 </body>
 </html>

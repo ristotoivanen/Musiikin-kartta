@@ -164,6 +164,7 @@ test.describe('Oppimiskartan navigointi ja paluu', () => {
   test('opetussivun päävalikosta pääsee koko Oppimiskarttaan', async ({ page }) => {
     await page.goto('/index.html#aihe-soinnut');
     await page.locator('#aihe-soinnut').click();
+    await page.locator('#aiemmat > summary').click();
     await page.locator('#valinta-septimisoinnut').click();
     await expect(page).toHaveURL('/oppi/soinnut/septimisoinnut.html');
     await mainNav(page).getByRole('link', { name: 'Opi & oivalla' }).click();
@@ -224,13 +225,15 @@ test.describe('Oppimiskartan navigointi ja paluu', () => {
     const rhythm = page.locator('#aihe-rytmi');
     await rhythm.click();
     const lesson = page.locator('#valinta-pulssi-ja-komppi');
+    // Aiemmat sisällöt ovat oletuksena suljetun osion alla (#116, Rytmin Ydinopinnot).
+    await page.locator('details#aiemmat > summary').click();
     await lesson.click();
     await page.getByRole('button', { name: 'Merkitse luku tehdyksi' }).click();
     await page.goBack();
     await expect(page).toHaveURL('/oppi/rytmi/index.html');
     await expect(lesson).toBeFocused();
     await expect(lesson.locator('[data-study-status]')).toHaveText('✓ Tehty');
-    await expect(page.locator('[data-study-total]')).toHaveText('1/4 sisältöä tehty');
+    await expect(page.locator('[data-study-total]')).toHaveText('1/4 aiemmista sisällöistä tehty');
     await page.goBack();
     await expect(rhythm).toBeFocused();
     await expect(page.locator('#home-continue')).toContainText('Jatka oppimista · Neljä otetta ja ensimmäinen kappale');
@@ -328,7 +331,7 @@ test.describe('Oppimiskartan navigointi ja paluu', () => {
               const box = part.getBoundingClientRect();
               return [box.left - rect.left, box.top - rect.top];
             }),
-            numberBackground: getComputedStyle(number).backgroundColor,
+            iconBoxBackground: getComputedStyle(card.querySelector('.topic-icon-box')!).backgroundColor,
             textFits: rows.every(Boolean),
           };
         }));
@@ -340,7 +343,7 @@ test.describe('Oppimiskartan navigointi ja paluu', () => {
           expect(box.left).toBeCloseTo(boxes[0].left, 0);
           if (index > 0) expect(box.top).toBeGreaterThanOrEqual(boxes[index - 1].bottom);
           box.offsets.forEach((value, position) => expect(value).toBeCloseTo(boxes[0].offsets[position], 0));
-          expect(box.numberBackground).not.toBe('rgba(0, 0, 0, 0)');
+          expect(box.iconBoxBackground).not.toBe('rgba(0, 0, 0, 0)');
           expect(box.textFits).toBe(true);
         }
       }
