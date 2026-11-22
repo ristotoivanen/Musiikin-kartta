@@ -351,6 +351,9 @@ test.describe('03 Tauko ei aina tarkoita hiljaisuutta', () => {
   test('kolme tilannetta voi vertailla vapaasti, eikä kuuntelu merkitse opituksi', async ({ page }) => {
     await page.goto('/oppi/rytmi/hiljaisuus-kuuluu-rytmiin.html');
     const sounds = page.locator('[data-tahti="1"] .rytmi-isku-teko');
+    await expect(page.locator('#rytmi-02-tahti-1')).toHaveText('Tahti 1 · Pidä pulssi');
+    await expect(page.locator('[data-tahti="0"] .rytmi-isku-teko')).toHaveText(Array(4).fill('Laske mielessä'));
+    await expect(page.locator('.rytmi-ohje')).toContainText('pidä liike käynnissä myös tauon aikana');
     const a = page.getByRole('button', { name: 'A · Ääni jatkuu' });
     const b = page.getByRole('button', { name: 'B · Vaimenna' });
     const c = page.getByRole('button', { name: 'C · Jätä isku pois' });
