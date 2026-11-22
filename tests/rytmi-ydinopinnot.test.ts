@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
-  compLevel, createTransport, grooveCells, gridCell, LOOP_STEPS, positionAt, requestDrumGap, requestMode, scheduleUntil, STEPS_PER_BAR, transitionCells,
+  compLevel, createTransport, grooveCells, gridCell, LOOP_STEPS, positionAt, requestDrumGap, requestMode, requestTaukoMode, scheduleUntil, STEPS_PER_BAR, transitionCells,
   stepEvents, tempoFor,
 // @ts-expect-error Testattu selainmoduuli palvellaan suoraan JavaScriptinä.
 } from '../assets/rytmi-ydinopinnot.js';
@@ -157,6 +157,49 @@ describe('03 hyväksytty sointi / vaimennus / pois jätetty isku', () => {
       expect(stepEvents('hiljaisuus', 14, { taukoMode: mode })
         .some((event: Event) => event.role === 'tauon-sointu')).toBe(false);
     }
+  });
+});
+
+describe('03 taukomallin A/B/C vaihto kesken soiton', () => {
+  const tempo = 72;
+  const begin = 1;
+  const eighth = 60 / tempo / 2;
+  const heldAt = (events: Event[], step: number) => events.filter(event =>
+    event.step === step && event.role === 'tauon-sointu');
+
+  it('säilyttää jo alkaneen Em:n soinnin ja vaihtaa vasta seuraavan kahden tahdin kierroksen alussa', () => {
+    const transport = createTransport({ task: 'hiljaisuus', tempo, begin, taukoMode: 'soi' });
+    const events = scheduleUntil(transport, begin + 11 * eighth);
+    expect(heldAt(events, 8)[0].duration).toBeCloseTo(4 * 60 / tempo);
+    expect(requestTaukoMode(transport, 'vaimenna')).toBe(true);
+    events.push(...scheduleUntil(transport, begin + 29 * eighth));
+    expect(transport.taukoSwitches.map((item: { step: number }) => item.step)).toEqual([0, 16]);
+    expect(heldAt(events, 8)[0].duration).toBeCloseTo(4 * 60 / tempo);
+    expect(heldAt(events, 24)[0].duration).toBeCloseTo(3 * 60 / tempo);
+    expect(positionAt(transport, begin + 16 * eighth - 0.001).taukoMode).toBe('soi');
+    expect(positionAt(transport, begin + 16 * eighth).taukoMode).toBe('vaimenna');
+    expect(positionAt(transport, begin + 16 * eighth).cell).toEqual({ bar: 0, index: 0 });
+    expect(transport.next).toBeCloseTo(begin + 29 * eighth);
+
+    expect(requestTaukoMode(transport, 'pois')).toBe(true);
+    events.push(...scheduleUntil(transport, begin + 49 * eighth));
+    expect(transport.taukoSwitches.map((item: { step: number }) => item.step)).toEqual([0, 16, 32]);
+    expect(heldAt(events, 40)[0].duration).toBeCloseTo(2 * 60 / tempo);
+    expect(heldAt(events, 44)[0].duration).toBeCloseTo(2 * 60 / tempo);
+    expect(positionAt(transport, begin + 32 * eighth).taukoMode).toBe('pois');
+  });
+
+  it('nopea A → B → C → A peruu odottavan vaihdon kokonaan', () => {
+    const transport = createTransport({ task: 'hiljaisuus', tempo, begin, taukoMode: 'soi' });
+    scheduleUntil(transport, begin + 3 * eighth);
+    expect(requestTaukoMode(transport, 'vaimenna')).toBe(true);
+    expect(requestTaukoMode(transport, 'pois')).toBe(true);
+    expect(requestTaukoMode(transport, 'soi')).toBe(true);
+    expect(transport.pendingTaukoMode).toBe(null);
+    expect(requestTaukoMode(transport, 'soi')).toBe(false);
+    const events = scheduleUntil(transport, begin + 32 * eighth);
+    expect(transport.taukoSwitches).toHaveLength(1);
+    expect(heldAt(events, 24)[0].duration).toBeCloseTo(4 * 60 / tempo);
   });
 });
 
