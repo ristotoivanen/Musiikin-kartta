@@ -247,8 +247,8 @@ export function positionAt(transport, time) {
 }
 
 /**
- * #163: piilotettuna soivan tahdin ensimmäinen ruutu välähtää jokaisella
- * neljäsosaiskulla (1, 2, 3, 4), mutta muut kolme ruutua pysyvät passiivisina.
+ * #163: piilotettuna vain ylemmän tahtirivin ensimmäinen ruutu välähtää
+ * jokaisella neljäsosaiskulla (1, 2, 3, 4). Alempi rivi ei välähdä lainkaan.
  * Paljastettuna korostus seuraa kaikkia neljää erillistä ruutua.
  * Kello on sama ulostuloviiveellä korjattu AudioContext-aika kuin muissa ruudukoissa.
  * Reduced motion: ei nopeaa välähdystä, ensimmäinen ruutu näkyy koko iskun ajan.
@@ -262,7 +262,7 @@ export function pulseCellAt(transport, time, revealed, reducedMotion = false) {
   const visibleFor = reducedMotion
     ? 2 * transport.stepDuration
     : Math.min(0.18, transport.stepDuration);
-  return elapsed < visibleFor ? { bar: position.cell.bar, index: 0 } : null;
+  return elapsed < visibleFor ? { bar: 0, index: 0 } : null;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -661,7 +661,7 @@ function setupExercise(root) {
     // Tilasta ilmoitetaan vain käyttäjän valinnalla, ei jokaisesta animaatioruudusta.
     pulseStatus.textContent = state.revealed
       ? 'Pulssi paljastettu. Iskut 1–4 korostuvat vuorollaan molemmissa tahdeissa.'
-      : 'Pulssi piilotettu. Ensimmäinen ruutu välähtää jokaisella iskulla kulloinkin soivassa tahdissa.';
+      : 'Pulssi piilotettu. Vain ylemmän rivin ensimmäinen ruutu välähtää jokaisella iskulla.';
   });
 
   for (const choice of grooveButtons) {

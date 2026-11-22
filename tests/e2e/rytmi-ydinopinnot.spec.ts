@@ -326,7 +326,7 @@ test.describe('harjoitussivut', () => {
     await expect(page.locator('[data-rytmi-tila]')).toHaveText('Pysäytetty.');
   });
 
-  test('01: piilotettuna vain soivan tahdin ensimmäinen ruutu välähtää joka iskulla', async ({ page }) => {
+  test('01: piilotettuna vain ylemmän rivin ensimmäinen ruutu välähtää myös toisen tahdin aikana', async ({ page }) => {
     await page.goto('/oppi/rytmi/loyda-pulssi-ja-ykkonen.html');
     await playButton(page).click();
     await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
@@ -347,10 +347,10 @@ test.describe('harjoitussivut', () => {
       watcher.observe(root, { attributes: true, subtree: true, attributeFilter: ['class'] });
       window.setTimeout(() => { watcher.disconnect(); resolve({ cells: [...found], counts }); }, 5500);
     }));
-    expect(observed.cells.sort()).toEqual(['0:0', '1:0']);
-    // 96 BPM: neljä pulssi-iskua / tahti, havaitaan toistuvia välähdyksiä molemmilta riveiltä.
-    expect(observed.counts['0']).toBeGreaterThanOrEqual(3);
-    expect(observed.counts['1']).toBeGreaterThanOrEqual(3);
+    expect(observed.cells.sort()).toEqual(['0:0']);
+    // 96 BPM: 5,5 sekunnissa kahdeksan iskua; välähdyksiä vain ylärivillä.
+    expect(observed.counts['0']).toBeGreaterThanOrEqual(6);
+    expect(observed.counts['1']).toBe(0);
     await playButton(page).click();
     await expect(page.locator('.rytmi-isku.is-active')).toHaveCount(0);
   });
