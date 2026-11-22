@@ -23,7 +23,7 @@ jobs:
           python3 tools/oppimiskartta/rakenna.py --tarkista
           node tools/versioi-tyylit.mjs --tarkista
           python3 tools/linkit/tarkista-linkit.py
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --with-deps chromium webkit
       # The one historical scroll-restoration test fails on beta by 4 px in Chromium;
       # keep it unmodified in PR #141's ownership, but do not mix its result with #142.
       # The unfiltered run and its precise failure are recorded in this PR.
@@ -31,6 +31,12 @@ jobs:
         run: npx playwright test tests/e2e/musapelit-142.spec.ts tests/e2e/osiot.spec.ts --grep-invert "selaimen Takaisin palauttaa lähtösivun vierityskohdan" --workers=4 --reporter=line
       - name: Musapelit existing game navigation
         run: npx playwright test tests/e2e/betapelien-navigointi.spec.ts --workers=4 --reporter=line
+      # Safari/WebKit uses its own project configuration so Chromium settings and
+      # the shared Playwright config remain unchanged.
+      - name: Musapelit #142 WebKit desktop and iPhone emulation
+        run: npx playwright test tests/e2e/musapelit-142.spec.ts tests/e2e/osiot.spec.ts --config=playwright.musapelit-142-webkit.config.ts --grep-invert "selaimen Takaisin palauttaa lähtösivun vierityskohdan" --workers=4 --reporter=line
+      - name: Existing game navigation on WebKit
+        run: npx playwright test tests/e2e/betapelien-navigointi.spec.ts --config=playwright.musapelit-142-webkit.config.ts --workers=4 --reporter=line
       - name: Upload failure traces
         if: failure()
         uses: actions/upload-artifact@v4
