@@ -369,7 +369,9 @@
     // Vertailut ovat erilliset kohdat 1 ja 2. Tunnistus alkaa vain ensimmäisellä
     // Tunnista-painalluksella; sen jälkeen jatketaan vastauspainikkeilla.
     function chooseFamily(nextFamily) {
-      if (family === nextFamily) return;
+      // Ennen aloitusta valitaan pari. Aloituksen jälkeen kumpi tahansa
+      // paripainike aloittaa uuden kierroksen myös ilman aiempaa vastausta.
+      if (family === nextFamily && !started) return;
       stop();
       family = nextFamily;
       pair = null;
@@ -378,7 +380,8 @@
       pairButtons.forEach(button =>
         button.setAttribute('aria-pressed', String(button.dataset.arvausPari === family)));
       if (started) {
-        // Sointuparin vaihto avaa uuden kierroksen, mutta ei palauta aloituspainiketta.
+        // Kumpi tahansa parivalinta aloittaa uuden kierroksen,
+        // mutta ei palauta ensimmäistä Tunnista-painiketta.
         startRound();
         showExerciseStatus(`Valittu ${names.join(' ja ')}. Kuuntele soinnut ja vastaa.`);
       } else {
