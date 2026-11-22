@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: issue-116-stacked-${{ github.ref }}
@@ -15,20 +15,41 @@ concurrency:
 jobs:
   structure:
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    timeout-minutes: 55
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
       - name: Install dependencies
         run: npm ci
+      - name: Regenerate Oppimiskartta from the canonical sources
+        run: |
+          python3 tools/oppimiskartta/rakenna.py
+          python3 tools/oppimiskartta/rakenna.py --tarkista
+      - name: Persist generated pages only to this #116 branch
+        run: |
+          git add -- index.html oppi/ assets/oppimiskartta.js
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "build(#116): regenerate stacked Ydinopinnot pages"
+            git push origin HEAD:codex/issue-116-kahdeksan-aihesivua
+          fi
       - name: Check #116 structure and legacy progress
-        run: npx vitest run tests/issue-116-aihesivut.test.ts
+        run: npx vitest run tests/issue-116-aihesivut.test.ts tests/oppimiskartta-kokonaisuudet.test.ts
       - name: Check full project
         run: npm run check
       - name: Verify generated pages and links
         run: |
           python3 tools/oppimiskartta/rakenna.py --tarkista
           python3 tools/linkit/tarkista-linkit.py
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Targeted #116 Soinnut browser regression
+        run: npx playwright test tests/e2e/soinnut-kokonaisuudet.spec.ts --workers=2
+      - name: Full Playwright browser regression
+        run: npx playwright test --workers=3 --max-failures=20
