@@ -147,7 +147,9 @@ test('M2 toistaa B-säestyksen ja 16 E2-malli-iskua, M3 saman taustan ilman mall
   let buffers = (await events(page)).filter(e => e.kind === 'buffer');
   expect(buffers).toHaveLength(17);
   expect(buffers[0].loop).toBe(false);
-  expect(buffers.slice(1).every(b => b.dur === 2)).toBe(true);
+  // decodeAudioData saa resamplata WAV:n audiokontekstin näytetaajuuteen:
+  // kesto säilyy käytännössä kahdessa sekunnissa, mutta float-arvo ei aina ole täsmälleen 2.
+  for (const b of buffers.slice(1)) expect(b.dur).toBeCloseTo(2, 3);
   const baseM2=buffers[0].when;
   buffers.slice(1).forEach((b,i)=>expect(near(b.when,baseM2+(4+Math.floor(i/4)*8+i%4)*beat)).toBe(true));
   expect(buffers[0].dur).toBeCloseTo(30.4, 3);
