@@ -13,6 +13,13 @@ import { BufferSongPlayer, createPlaybackContext, type BufferPlayerState } from 
  * (bufferPlayer.ts). Oletuksena käytetään nykyistä mediaelementtisoitinta ja sen kylmäkäynnistystä (PR #155).
  */
 const D1_MODE = typeof location !== 'undefined' && new URLSearchParams(location.search).get('soitin') === 'd1';
+/**
+ * KOKEILU M1 (issue #9, ei julkaisuun): ?soitin=d1&vaihto=sivu. Versionvaihto ja paluu oppimispolkuihin avaavat
+ * uuden sivun, jolloin vanhan sivun JavaScript-ympäristö ja puretut puskurit päättyvät sen mukana eivätkä jää
+ * roskienkeruun varaan. Ilman parametria D1 vaihtaa version sivun sisällä kuten ennen.
+ */
+const D1_PAGE_SWITCH = D1_MODE && new URLSearchParams(location.search).get('vaihto') === 'sivu';
+const SCROLL_KEY = 'musiikin-kartta:kappale-vieritys';
 
 // Käyttäjän itse valitsema versio säilyy, vaikka hän käy välillä oppimispoluissa.
 let chosenVersion: SongVersion | null = null;
@@ -148,8 +155,40 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
     setPlaying(false);
   }
 
+  /** D1: lataus perutaan, lähteet pysäytetään, puskurit vapautetaan ja konteksti suljetaan. */
+  function releaseD1() {
+    d1Request.current++;
+    d1.current?.player.dispose();
+    void d1.current?.context.close().catch(() => {});
+    d1.current = null;
+    delete (window as unknown as { __kappaleD1?: unknown }).__kappaleD1;
+  }
+
+  /** M1: siirtyminen uudelle sivulle. replace() ei jätä vanhaa sivua historiaan eikä sivuvälimuistiin. */
+  function navigateFresh(url: URL) {
+    releaseD1();
+    try { sessionStorage.setItem(SCROLL_KEY, String(window.scrollY)); } catch { /* vieritys palautuu vain, jos tallennus onnistuu */ }
+    location.replace(url.pathname + url.search + url.hash);
+  }
+
+  function leavePlayer() {
+    if (!D1_PAGE_SWITCH) { onBack(); return; }
+    const url = new URL(location.href);
+    url.searchParams.delete('kappale');
+    url.searchParams.delete('polku');
+    navigateFresh(url);
+  }
+
   function changeVersion(next: SongVersion) {
     if (next === version) return;
+    if (D1_PAGE_SWITCH) {
+      // Uusi versio avataan uudelle sivulle samaan kohtaan. Soitto alkaa vasta käyttäjän Soita-painalluksesta.
+      chosenVersion = next;
+      const url = new URL(location.href);
+      url.searchParams.set('kappale', songLink(next));
+      navigateFresh(url);
+      return;
+    }
     if (D1_MODE) {
       // Edellisen version puskurit ja lähteet vapautetaan ennen kuin uusi versio puretaan seuraavasta Soita-painalluksesta.
       d1Request.current++;
@@ -385,13 +424,21 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
       guitarRef.current?.pause();
       vocalsRef.current?.pause();
       mixer.current?.close();
-      // D1: lataus perutaan, lähteet pysäytetään, puskurit ja konteksti vapautetaan.
-      d1Request.current++;
-      d1.current?.player.dispose();
-      void d1.current?.context.close().catch(() => {});
-      d1.current = null;
-      delete (window as unknown as { __kappaleD1?: unknown }).__kappaleD1;
+      releaseD1();
+      window.removeEventListener('pagehide', releaseD1);
     };
+  }, []);
+  // M1: sivulta poistuttaessa (versionvaihto, paluu, välilehden sulku) lataukset perutaan ja konteksti suljetaan,
+  // koska React ei pura komponenttia sivun vaihtuessa. Uudella sivulla vieritys palautetaan soittimen kohdalle.
+  useEffect(() => {
+    if (!D1_PAGE_SWITCH) return;
+    window.addEventListener('pagehide', releaseD1);
+    try {
+      const y = Number(sessionStorage.getItem(SCROLL_KEY));
+      sessionStorage.removeItem(SCROLL_KEY);
+      if (y > 0) window.scrollTo(0, y);
+    } catch { /* ei tallennettua kohtaa */ }
+    return () => window.removeEventListener('pagehide', releaseD1);
   }, []);
 
   // Versionvaihdossa syntyvät uudet audioelementit saavat saman tason heti.
@@ -418,7 +465,7 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   }, [playing, version]);
 
   return <section className="song-journey" aria-labelledby="song-journey-title">
-    <button type="button" className="back-link" onClick={onBack}>← Oppimispolut</button>
+    <button type="button" className="back-link" onClick={leavePlayer}>← Oppimispolut</button>
     <p className="eyebrow">KAPPALEHARJOITTELU · MALLIKAPPALE 01</p>
     <h2 id="song-journey-title">Yksi sointu, kaksi askelta</h2>
     <p className="learning-lead song-lead">Avaa sointukartta nähdäksesi soinnut ja sanat tai harjoitellaksesi sointuja muistista. Voit myös mykistää mallikitaran tai laulun ja toistaa kappaletta looppina.</p>
