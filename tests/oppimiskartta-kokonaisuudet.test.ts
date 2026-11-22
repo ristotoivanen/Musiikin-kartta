@@ -69,7 +69,7 @@ describe('Soinnut ja harmonia: oma oppimiskokonaisuus', () => {
 
 it('Ydinopinnot on ensimmäinen ja kokeilut eivät sekoitu G-pilotin tai aiempien tunnisteisiin', () => {
   const topic = read('oppi/soinnut/index.html');
-  const slugs = ['kuule-ja-kokoa-sointu', 'yksi-savel-muuttaa-sointua', 'mihin-kappale-haluaa-palata'];
+  const slugs = ['kuule-ja-kokoa-sointu', 'yksi-savel-muuttaa-sointua', 'mihin-kappale-haluaa-palata', 'sointukierto-ja-asteet'];
   const attempts = slugs.map(slug => 'harjoitus:' + slug);
   expect(topic).toMatch(/<div class="study-units">\s+<details class="study-unit" id="ydinopinnot">/);
   expect([...topic.matchAll(/data-study-attempt-status="([^"]+)"/g)].map(([, id]) => id)).toEqual(attempts);
@@ -149,4 +149,23 @@ print(json.dumps({'id': page.study_id, 'kind': page.study_kind, 'mark': rakenna.
       expect(() => describePage(group)).toThrow(/voi olla vain/);
     }
   });
+});
+
+
+test('04 G–D–Em–C säilyttää hyväksytyn yhden soinnun 4/4-tahdissa ja oikean kaaviosarjan', () => {
+  const markup = read('tools/oppimiskartta/sisallot/soinnut/sointukierto-ja-asteet.html');
+  const standalone = read('oppi/soinnut/sointukierto-ja-asteet.html');
+  const topic = read('oppi/soinnut/index.html');
+  expect(markup).toContain('data-sointuharjoitus="asteet"');
+  expect(markup).toContain('I–V–vi–IV');
+  expect(markup).toContain('Jokainen sointu kestää yhden 4/4-tahdin');
+  for (const html of [standalone, topic]) {
+    expect(html).toContain('data-sointuharjoitus="asteet"');
+    const section = html.slice(html.indexOf('data-sointuharjoitus="asteet"'));
+    const diagrams = [...section.matchAll(/<figure class="chord-diagram"><figcaption>(G|D|Em|C)<\\/figcaption>/g)]
+      .map(([, name]) => name);
+    expect(diagrams.slice(0, 4)).toEqual(['G', 'D', 'Em', 'C']);
+    expect(section).toContain('G-duurin seitsemän kolmisointua');
+    expect(section).toContain('F♯dim');
+  }
 });
