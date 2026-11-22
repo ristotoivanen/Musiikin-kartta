@@ -37,7 +37,19 @@ jobs:
       - name: Lint
         run: npm run lint
       - name: Typecheck
-        run: npm run typecheck
+        shell: bash
+        run: |
+          set +e
+          npm run typecheck > typecheck.log 2>&1
+          result=$?
+          cat typecheck.log
+          {
+            echo '### TypeScript-diagnostiikka'
+            echo '\`\`\`'
+            sed -n '1,120p' typecheck.log
+            echo '\`\`\`'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit "$result"
       - name: Unit tests
         run: npm test
       - name: Build
