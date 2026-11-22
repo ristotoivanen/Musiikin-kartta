@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
-  compLevel, createTransport, grooveCells, gridCell, LOOP_STEPS, positionAt, requestMode, scheduleUntil, STEPS_PER_BAR, transitionCells,
+  compLevel, createTransport, grooveCells, gridCell, LOOP_STEPS, positionAt, requestDrumGap, requestMode, scheduleUntil, STEPS_PER_BAR, transitionCells,
   stepEvents, tempoFor,
 // @ts-expect-error Testattu selainmoduuli palvellaan suoraan JavaScriptinä.
 } from '../assets/rytmi-ydinopinnot.js';
@@ -63,6 +63,56 @@ describe('01 hyväksytty rumpukatko', () => {
       expect(tempoFor('pulssi', example)).toBe(tempoFor('pulssi', example));
       expect(stepEvents('pulssi', 14, { drumGap: true, example }).some((event: Event) => isDrum(event.role))).toBe(false);
     }
+  });
+});
+
+describe('01 rumpuversion vaihto kesken toiston', () => {
+  const tempo = 96;
+  const begin = 1;
+  const eighth = 60 / tempo / 2;
+  const drums = ['hi-hat', 'virveli', 'bassorumpu'];
+  const at = (events: Event[], step: number) => events.filter(event => event.step === step);
+
+  it('vaihtaa A:n B:hen ja takaisin vain kahden tahdin alussa ilman ajan nollaamista', () => {
+    const transport = createTransport({ task: 'pulssi', tempo, begin, drumGap: false });
+    const events = scheduleUntil(transport, begin + 5 * eighth);
+    expect(requestDrumGap(transport, true)).toBe(true);
+    events.push(...scheduleUntil(transport, begin + 28 * eighth));
+    expect(transport.drumSwitches).toEqual([
+      { time: begin, step: 0, drumGap: false },
+      { time: begin + 16 * eighth, step: 16, drumGap: true },
+    ]);
+    // Keskeneräisen kierron rumpuja ei katkaista: myös toisen tahdin rummut kuuluvat.
+    expect(at(events, 8).some(event => drums.includes(event.role))).toBe(true);
+    expect(at(events, 16).some(event => drums.includes(event.role))).toBe(true);
+    // Uuden kierron toisessa tahdissa rummut puuttuvat, mutta basso ja harmonia pysyvät.
+    expect(at(events, 24).some(event => drums.includes(event.role))).toBe(false);
+    expect(at(events, 24).map(event => event.role)).toContain('basso');
+    expect(at(events, 24).map(event => event.role)).toContain('harmonia');
+    expect(positionAt(transport, begin + 16 * eighth - 0.001).drumGap).toBe(false);
+    expect(positionAt(transport, begin + 16 * eighth).drumGap).toBe(true);
+    expect(positionAt(transport, begin + 16 * eighth).cell).toEqual({ bar: 0, index: 0 });
+
+    expect(requestDrumGap(transport, false)).toBe(true);
+    events.push(...scheduleUntil(transport, begin + 48 * eighth));
+    expect(transport.drumSwitches.map((item: { step: number }) => item.step)).toEqual([0, 16, 32]);
+    expect(at(events, 40).some(event => drums.includes(event.role))).toBe(true);
+    expect(positionAt(transport, begin + 32 * eighth).drumGap).toBe(false);
+    expect(transport.step).toBe(48);
+    expect(transport.next).toBeCloseTo(begin + 48 * eighth);
+  });
+
+  it('nopea A → B → A peruu odottavan vaihdon ilman ajastetun toiston muutosta', () => {
+    const transport = createTransport({ task: 'pulssi', tempo, begin });
+    scheduleUntil(transport, begin + 3 * eighth);
+    expect(requestDrumGap(transport, true)).toBe(true);
+    expect(transport.pendingDrumGap).toBe(true);
+    expect(requestDrumGap(transport, false)).toBe(true);
+    expect(transport.pendingDrumGap).toBe(null);
+    const later = scheduleUntil(transport, begin + 32 * eighth);
+    expect(transport.drumSwitches).toHaveLength(1);
+    expect(at(later, 24).some(event => drums.includes(event.role))).toBe(true);
+    expect(requestDrumGap(transport, false)).toBe(false);
   });
 });
 
