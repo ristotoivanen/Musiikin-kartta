@@ -406,6 +406,36 @@ test.describe('harjoitussivut', () => {
     await expect(page.locator('.rytmi-pulssi-status')).toContainText('myös hiljaisessa tahdissa');
   });
 
+  test('01: B piilotettuna katkaisee kaikki välähdykset toisen tahdin ajaksi', async ({ page }) => {
+    await page.goto('/oppi/rytmi/loyda-pulssi-ja-ykkonen.html');
+    await page.getByRole('button', { name: 'B · Toinen tahti hiljaa' }).click();
+    await page.getByRole('button', { name: 'Uusi esimerkki · 108 BPM' }).click();
+    await playButton(page).click();
+    await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
+    const observed = await page.evaluate(() => new Promise<{ times: number[]; cells: string[] }>(resolve => {
+      const root = document.querySelector('[data-rytmiharjoitus="pulssi"]')!;
+      const times: number[] = [];
+      const cells = new Set<string>();
+      const watcher = new MutationObserver(changes => {
+        for (const change of changes) {
+          const cell = change.target as HTMLElement;
+          if (!cell.matches('[data-rytmi-isku].is-active')) continue;
+          times.push(performance.now());
+          cells.add(`${cell.dataset.tahti}:${[...cell.parentElement!.children].indexOf(cell)}`);
+        }
+      });
+      watcher.observe(root, { subtree: true, attributes: true, attributeFilter: ['class'] });
+      window.setTimeout(() => { watcher.disconnect(); resolve({ times, cells: [...cells].sort() }); }, 5900);
+    }));
+    expect(observed.cells).toEqual(['0:0']);
+    expect(observed.times.length).toBeGreaterThanOrEqual(5);
+    const gaps = observed.times.slice(1).map((time, i) => time - observed.times[i]);
+    // 108 BPM: neljä peräkkäistä iskua ja sitten yksi 4 iskun mittainen hiljainen tahti.
+    // Vihreiden välähdysten väli kasvaa hiljaisen tahdin yli noin 2,8 sekuntiin.
+    expect(Math.max(...gaps)).toBeGreaterThan(1600);
+    await playButton(page).click();
+  });
+
   test('01: B:n paljastettu pulssi korostaa myös hiljaisen tahdin iskut ilman ääniä', async ({ page }) => {
     await page.goto('/oppi/rytmi/loyda-pulssi-ja-ykkonen.html');
     await page.getByRole('button', { name: 'B · Toinen tahti hiljaa' }).click();
