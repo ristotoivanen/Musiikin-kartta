@@ -87,25 +87,25 @@
       "url": "/oppi/rytmi/kuuntele-pulssi.html",
       "id": "harjoitus:kuuntele-pulssi",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-1.html#pulssi-ja-komppi [data-oppisisalto=kuuntele-pulssi]"
     },
     {
       "url": "/oppi/rytmi/alas-ylos-yhdella-soinnulla.html",
       "id": "harjoitus:alas-ylos-yhdella-soinnulla",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-1.html#pulssi-ja-komppi [data-oppisisalto=alas-ylos-yhdella-soinnulla]"
     },
     {
       "url": "/oppi/rytmi/kaksi-sointua-yhdessa-tahdissa.html",
       "id": "harjoitus:kaksi-sointua-yhdessa-tahdissa",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-1.html#pulssi-ja-komppi [data-oppisisalto=kaksi-sointua-yhdessa-tahdissa]"
     },
     {
       "url": "/oppi/savelnimet/kitaran-kielet-ja-sointumerkinnat.html",
       "id": "oppitunti:kitaran-kielet-ja-sointumerkinnat",
       "kind": "oppitunti",
-      "source": "book/osa-1.html, erillinen poiminta"
+      "source": "book/osa-1.html#kitaran-merkinnat [excerpt=kitaran-kielet-ja-sointumerkinnat]"
     },
     {
       "url": "/oppi/savelnimet/savelet-ja-intervallit.html",
@@ -117,7 +117,7 @@
       "url": "/oppi/savelnimet/siirra-yhta-sormea.html",
       "id": "harjoitus:siirra-yhta-sormea",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-2.html#savelet-ja-intervallit [data-oppisisalto=siirra-yhta-sormea]"
     },
     {
       "url": "/oppi/korva/musiikki-on-kieli.html",
@@ -129,7 +129,7 @@
       "url": "/oppi/korva/taydenna-fraasi.html",
       "id": "harjoitus:taydenna-fraasi",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-2.html#musiikki-on-kieli [data-oppisisalto=taydenna-fraasi]"
     },
     {
       "url": "/oppi/korva/savellajin-tunnistaminen.html",
@@ -141,7 +141,7 @@
       "url": "/oppi/korva/vaihda-kotisavelta.html",
       "id": "harjoitus:vaihda-kotisavelta",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-4.html#savellajin-tunnistaminen [data-oppisisalto=vaihda-kotisavelta]"
     },
     {
       "url": "/oppi/korva/intervallit.html",
@@ -153,13 +153,13 @@
       "url": "/oppi/korva/mika-aste-soi.html",
       "id": "harjoitus:mika-aste-soi",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-7.html#intervallit [data-oppisisalto=mika-aste-soi]"
     },
     {
       "url": "/oppi/korva/etsi-jalkimmainen-savel.html",
       "id": "harjoitus:etsi-jalkimmainen-savel",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-7.html#intervallit [data-oppisisalto=etsi-jalkimmainen-savel]"
     },
     {
       "url": "/oppi/korva/basso.html",
@@ -171,7 +171,7 @@
       "url": "/oppi/korva/kuuntele-bassolinja.html",
       "id": "harjoitus:kuuntele-bassolinja",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-7.html#basso [data-oppisisalto=kuuntele-bassolinja]"
     },
     {
       "url": "/oppi/korva/soinnut.html",
@@ -183,13 +183,13 @@
       "url": "/oppi/korva/kumpi-on-molli.html",
       "id": "harjoitus:kumpi-on-molli",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-7.html#soinnut [data-oppisisalto=kumpi-on-molli]"
     },
     {
       "url": "/oppi/korva/tunnista-sointutyyppi.html",
       "id": "harjoitus:tunnista-sointutyyppi",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-7.html#soinnut [data-oppisisalto=tunnista-sointutyyppi]"
     },
     {
       "url": "/oppi/korva/septimi-korvalla.html",
@@ -201,7 +201,7 @@
       "url": "/oppi/korva/kolme-c-sointua.html",
       "id": "harjoitus:kolme-c-sointua",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-10.html#septimi-korvalla [data-oppisisalto=kolme-c-sointua]"
     },
     {
       "url": "/oppi/otelauta/otelauta.html",
@@ -213,13 +213,13 @@
       "url": "/oppi/otelauta/etsi-a-ilman-asteikkokuviota.html",
       "id": "harjoitus:etsi-a-ilman-asteikkokuviota",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-5.html#otelauta [data-oppisisalto=etsi-a-ilman-asteikkokuviota]"
     },
     {
       "url": "/oppi/otelauta/etsi-sama-savel.html",
       "id": "harjoitus:etsi-sama-savel",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-5.html#otelauta [data-oppisisalto=etsi-sama-savel]"
     },
     {
       "url": "/oppi/otelauta/perussavel.html",
@@ -231,13 +231,13 @@
       "url": "/oppi/otelauta/etsi-savel-kahdelta-kielelta.html",
       "id": "harjoitus:etsi-savel-kahdelta-kielelta",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-5.html#perussavel [data-oppisisalto=etsi-savel-kahdelta-kielelta]"
     },
     {
       "url": "/oppi/otelauta/nimea-savel.html",
       "id": "harjoitus:nimea-savel",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-5.html#perussavel [data-oppisisalto=nimea-savel]"
     },
     {
       "url": "/oppi/otelauta/caged.html",
@@ -249,7 +249,7 @@
       "url": "/oppi/otelauta/soita-c-kahdesta-kohdasta.html",
       "id": "harjoitus:soita-c-kahdesta-kohdasta",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-6.html#caged [data-oppisisalto=soita-c-kahdesta-kohdasta]"
     },
     {
       "url": "/oppi/soinnut/harmoninen-kentta.html",
@@ -261,13 +261,13 @@
       "url": "/oppi/soinnut/kolme-sointua-g-duurista.html",
       "id": "harjoitus:kolme-sointua-g-duurista",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-3.html#harmoninen-kentta [data-oppisisalto=kolme-sointua-g-duurista]"
     },
     {
       "url": "/oppi/soinnut/kaikuluotain.html",
       "id": "harjoitus:kaikuluotain",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-3.html#harmoninen-kentta [data-oppisisalto=kaikuluotain]"
     },
     {
       "url": "/oppi/soinnut/roomalaiset-numerot.html",
@@ -279,7 +279,7 @@
       "url": "/oppi/soinnut/siirra-kierto-d-duuriin.html",
       "id": "harjoitus:siirra-kierto-d-duuriin",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-3.html#roomalaiset-numerot [data-oppisisalto=siirra-kierto-d-duuriin]"
     },
     {
       "url": "/oppi/soinnut/sointujen-tehtavat.html",
@@ -291,7 +291,7 @@
       "url": "/oppi/soinnut/laula-paluu.html",
       "id": "harjoitus:laula-paluu",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-3.html#sointujen-tehtavat [data-oppisisalto=laula-paluu]"
     },
     {
       "url": "/oppi/soinnut/kvinttiympyra.html",
@@ -303,7 +303,7 @@
       "url": "/oppi/soinnut/siirra-keskelle-d.html",
       "id": "harjoitus:siirra-keskelle-d",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-4.html#kvinttiympyra [data-oppisisalto=siirra-keskelle-d]"
     },
     {
       "url": "/oppi/soinnut/barre.html",
@@ -315,19 +315,19 @@
       "url": "/oppi/soinnut/etsi-barresointu.html",
       "id": "harjoitus:etsi-barresointu",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-6.html#barre [data-oppisisalto=etsi-barresointu]"
     },
     {
       "url": "/oppi/soinnut/rakenna-barre.html",
       "id": "harjoitus:rakenna-barre",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-6.html#barre [data-oppisisalto=rakenna-barre]"
     },
     {
       "url": "/oppi/soinnut/siirra-kierto-c-duuriin.html",
       "id": "harjoitus:siirra-kierto-c-duuriin",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-6.html#barre [data-oppisisalto=siirra-kierto-c-duuriin]"
     },
     {
       "url": "/oppi/soinnut/septimisoinnut.html",
@@ -339,13 +339,13 @@
       "url": "/oppi/soinnut/lisaa-septimi.html",
       "id": "harjoitus:lisaa-septimi",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-10.html#septimisoinnut [data-oppisisalto=lisaa-septimi]"
     },
     {
       "url": "/oppi/soinnut/soita-septimisoinnut.html",
       "id": "harjoitus:soita-septimisoinnut",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-10.html#septimisoinnut [data-oppisisalto=soita-septimisoinnut]"
     },
     {
       "url": "/oppi/soinnut/ii-v-i.html",
@@ -357,7 +357,7 @@
       "url": "/oppi/soinnut/ii-v-i-kahdessa-savellajissa.html",
       "id": "harjoitus:ii-v-i-kahdessa-savellajissa",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-10.html#ii-v-i [data-oppisisalto=ii-v-i-kahdessa-savellajissa]"
     },
     {
       "url": "/oppi/asteikot/asteikot.html",
@@ -369,7 +369,7 @@
       "url": "/oppi/asteikot/etsi-puoliaskeleet.html",
       "id": "harjoitus:etsi-puoliaskeleet",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-2.html#asteikot [data-oppisisalto=etsi-puoliaskeleet]"
     },
     {
       "url": "/oppi/asteikot/pentatoniikka.html",
@@ -381,13 +381,13 @@
       "url": "/oppi/asteikot/tee-kolmesta-savelesta-melodia.html",
       "id": "harjoitus:tee-kolmesta-savelesta-melodia",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-8.html#pentatoniikka [data-oppisisalto=tee-kolmesta-savelesta-melodia]"
     },
     {
       "url": "/oppi/asteikot/kysymys-ja-vastaus-koko-boksilla.html",
       "id": "harjoitus:kysymys-ja-vastaus-koko-boksilla",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-8.html#pentatoniikka [data-oppisisalto=kysymys-ja-vastaus-koko-boksilla]"
     },
     {
       "url": "/oppi/asteikot/moodit.html",
@@ -399,7 +399,7 @@
       "url": "/oppi/asteikot/vaihda-f-nauhaa-ylemmas.html",
       "id": "harjoitus:vaihda-f-nauhaa-ylemmas",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-11.html#moodit [data-oppisisalto=vaihda-f-nauhaa-ylemmas]"
     },
     {
       "url": "/oppi/kappaleet/kappale-asteina.html",
@@ -411,7 +411,7 @@
       "url": "/oppi/kappaleet/sama-kappale-c-duurissa.html",
       "id": "harjoitus:sama-kappale-c-duurissa",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-3.html#kappale-asteina [data-oppisisalto=sama-kappale-c-duurissa]"
     },
     {
       "url": "/oppi/kappaleet/transponointi.html",
@@ -423,7 +423,7 @@
       "url": "/oppi/kappaleet/sovita-savellaji-laulajalle.html",
       "id": "harjoitus:sovita-savellaji-laulajalle",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-4.html#transponointi [data-oppisisalto=sovita-savellaji-laulajalle]"
     },
     {
       "url": "/oppi/kappaleet/kappale.html",
@@ -435,19 +435,19 @@
       "url": "/oppi/kappaleet/mika-sointu-tulee.html",
       "id": "harjoitus:mika-sointu-tulee",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-7.html#kappale [data-oppisisalto=mika-sointu-tulee]"
     },
     {
       "url": "/oppi/kappaleet/tee-sointukartta.html",
       "id": "harjoitus:tee-sointukartta",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-7.html#kappale [data-oppisisalto=tee-sointukartta]"
     },
     {
       "url": "/oppi/kappaleet/etsi-ensimmainen-melodiasavel.html",
       "id": "harjoitus:etsi-ensimmainen-melodiasavel",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-7.html#kappale [data-oppisisalto=etsi-ensimmainen-melodiasavel]"
     },
     {
       "url": "/oppi/kappaleet/improvisointi.html",
@@ -459,7 +459,7 @@
       "url": "/oppi/kappaleet/soita-kysymys-ja-vastaus.html",
       "id": "harjoitus:soita-kysymys-ja-vastaus",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-8.html#improvisointi [data-oppisisalto=soita-kysymys-ja-vastaus]"
     },
     {
       "url": "/oppi/kappaleet/sovittaminen.html",
@@ -471,7 +471,7 @@
       "url": "/oppi/kappaleet/vaihda-saestysta.html",
       "id": "harjoitus:vaihda-saestysta",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-9.html#sovittaminen [data-oppisisalto=vaihda-saestysta]"
     },
     {
       "url": "/oppi/kappaleet/oma-kappale.html",
@@ -483,7 +483,7 @@
       "url": "/oppi/kappaleet/aanita-kahdeksan-tahtia.html",
       "id": "harjoitus:aanita-kahdeksan-tahtia",
       "kind": "harjoitus",
-      "source": "kirjan luvusta irrotettu tehtävä"
+      "source": "book/osa-9.html#oma-kappale [data-oppisisalto=aanita-kahdeksan-tahtia]"
     }
   ],
   "bookParts": [
