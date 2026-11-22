@@ -75,6 +75,10 @@ M2-kokeessa valitaan **käyttäjän omalta laitteelta** PR #130:n hyväksytty
 Tiedosto sisältää neljän iskun sisäänlaskun, 32 musiikki-iskua, ja 0,4 sekunnin
 loppuosan. Mallikitara soittaa 4 x 4 E2-iskua ja lepää joka toisella tahdilla.
 **Tausta jatkuu myös viimeisen taukotahdin loppuun**, vaikka mallikitara jo loppui.
+M3 B -taustan vahvistus pidetään samana kuin PR #130:ssa (0,62),
+kun taas Steelin suhteellista mallikitaratasoa voi säätää erikseen.
+Taustan ja mallikitaran osat käyttävät samaa `AudioContext`-aikaorigonaa.
+
 M3:n WAV:ia ei lisätä tähän PR:ään, koska lähde- ja edelleenjakeluoikeuksien
 selvitys on vielä erikseen avoin #130:ssä.
 
