@@ -43,6 +43,17 @@ describe('#160 – M2 Steel -harjoitusvertailun rajaus', () => {
     }
   });
 
+  it('M0 ja M2 käyttävät erillisiä, toiston aikana säädettäviä Web Audio -vahvistimia', () => {
+    expect(qa).toContain("node.gain.setTargetAtTime(value,now,0.02)");
+    expect(qa).toContain("smoothLevel(m0GuitarBus,value)");
+    expect(qa).toContain("smoothLevel(steelM2Bus,value)");
+    expect(qa).toContain("smoothLevel(m2BackingBus,value)");
+    expect(qa).toContain("if(mode==='M0'){m0GuitarBus=ac.createGain()");
+    expect(qa).toContain("gainMultiplier:1,output:steelM2Bus");
+    expect(qa).toContain("m2BackingBus=ac.createGain()");
+    expect(qa).toContain("src.loop=true;src.loopStart=countin;src.loopEnd=countin+musicLength;");
+  });
+
   it('testisivua ei yhdistetä varsinaiseen navigaatioon tai #130:n alkuperäiseen sivuun', () => {
     expect(qa).toContain('<meta name="robots" content="noindex,nofollow">');
     expect(original).not.toContain('m2-steel-model.mjs');
