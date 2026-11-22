@@ -335,7 +335,6 @@
     const families = { D: ['D', 'Dm'], E: ['E', 'Em'] };
     const pairButtons = [...section.querySelectorAll('[data-arvaus-pari]')];
     let family = 'D';
-    const next = section.querySelector('[data-uusi-arvaus]');
     const fullName = { D: 'D-duuri', Dm: 'D-molli', E: 'E-duuri', Em: 'E-molli' };
     // #115: D/Dm ensin. F4 on oikea Vel02:n kitaranäyte,
     // ei F♯4-näytteen äänenkorkeuden muutoksesta tehty korvike.
@@ -376,13 +375,8 @@
       const names = families[family];
       pairButtons.forEach(button =>
         button.setAttribute('aria-pressed', String(button.dataset.arvausPari === family)));
-      question.hidden = listening.hidden = answers.hidden = feedback.hidden = diagrams.hidden = true;
-      question.classList.remove('is-active');
-      diagrams.replaceChildren();
-      next.hidden = false;
-      feedback.textContent = firstPrompt;
-      feedback.classList.remove('is-error');
-      showExerciseStatus(`Valittu ${names.join(' ja ')}. Paina Tunnista.`);
+      startRound();
+      showExerciseStatus(`Valittu ${names.join(' ja ')}. Kuuntele soinnut ja vastaa.`);
     }
     pairButtons.forEach(button =>
       button.addEventListener('click', () => chooseFamily(button.dataset.arvausPari)));
@@ -419,14 +413,16 @@
         button.classList.remove('is-correct', 'is-wrong');
       });
       nameListening(false);
-      next.hidden = true;
       showExerciseStatus('Kuuntele sointu 1 ja sointu 2 ennen vastaamista.');
-      // Ensimmäinen käynnistys vie suoraan kysymykseen. Automaattinen uusi kierros
-      // ei vie näppäimistöfokusta kesken käyttäjän toiminnan.
-      if (initiatedByUser) heading.focus({ preventScroll: true });
-      question.scrollIntoView({ block: 'start', behavior: 'instant' });
+      // Alustuksessa ei vieritetä pois D/Dm- ja E/Em-vertailuista.
+      // Vasta käyttäjän vastauspainalluksesta syntyvä uusi kierros saa fokusoinnin.
+      if (initiatedByUser) {
+        heading.focus({ preventScroll: true });
+        question.scrollIntoView({ block: 'start', behavior: 'instant' });
+      }
     }
-    next.addEventListener('click', () => startRound(true));
+    // Ensimmäinen kysymys on näkyvissä heti, ilman erillistä aloituspainiketta.
+    startRound();
     for (const button of choices) {
       button.addEventListener('click', () => {
         if (answered) {
