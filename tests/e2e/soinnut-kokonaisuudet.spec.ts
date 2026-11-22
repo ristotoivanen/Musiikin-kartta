@@ -1213,6 +1213,9 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     await expect(listenButtons.nth(0)).toHaveAccessibleName('Kuuntele sointu 1');
     await expect(listenButtons.nth(1)).toHaveAccessibleName('Kuuntele sointu 2');
     expect(await listenSizes()).toEqual(revealedSizes);
+    await expect(reply.getByRole('button', { name: 'Sointu 2' })).toBeDisabled();
+    await listenButtons.nth(1).click();
+    await expect(reply.getByRole('button', { name: 'Sointu 2' })).toBeEnabled();
     await reply.getByRole('button', { name: 'Sointu 2' }).click();
     await expect(choiceButtons.nth(0)).not.toHaveClass(/is-(correct|wrong)/);
     await expect(choiceButtons.nth(0)).toHaveAccessibleName('Sointu 1, vastaus annettu');
