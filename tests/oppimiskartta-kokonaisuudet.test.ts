@@ -104,7 +104,7 @@ it('03 alkaa ilman valittua lopetusta ja kertoo G:n roolin vasta Mitä opit? -os
   }
   for (const html of [read('oppi/soinnut/yksi-savel-muuttaa-sointua.html'), topic]) {
     for (const number of [1, 2]) {
-      expect(html).toContain(`<span class="sointu-vaihtuva"><span data-arvaus-teksti>Sointu ${number}</span><span class="sointu-varaus" aria-hidden="true">Sointu ${number} · Em</span><span class="sointu-varaus" aria-hidden="true">Sointu ${number} · Dm</span></span>`);
+      expect(html).toContain(`<span class="sointu-vaihtuva"><span data-arvaus-teksti>Sointu ${number}</span><span class="sointu-varaus" aria-hidden="true">Sointu ${number} · Em</span><span class="sointu-varaus" aria-hidden="true">Sointu ${number} · Dm</span><span class="sointu-varaus" aria-hidden="true">Sointu ${number} · Am</span></span>`);
     }
     // PR #141 (zoom): jokainen tunnistustilan vaihtuva teksti on myös näkymättömänä varauksena, jotta
     // kortin ja painikkeiden korkeus ei muutu tilanvaihdossa. JS:n teksti ja varaus pidetään samoina.
@@ -130,6 +130,15 @@ it('03 alkaa ilman valittua lopetusta ja kertoo G:n roolin vasta Mitä opit? -os
     expect(html).toContain('data-arvaus-kuuntelu role="group" aria-label="Tunnistustehtävän ääniesimerkit" hidden');
     expect(html).toContain('data-arvaus-pari="D" aria-pressed="true"');
     expect(html).toContain('data-arvaus-pari="E" aria-pressed="false"');
+    expect(html).toContain('data-arvaus-pari="A" aria-pressed="false"');
+    expect(html).toContain('data-aam-kaaviot hidden');
+    expect(html).toContain('<figcaption>A</figcaption>');
+    expect(html).toContain('<figcaption>Am</figcaption>');
+    expect(html).toContain('<code>x02220</code>');
+    expect(html).toContain('<code>x02210</code>');
+    expect(script).toContain("A: ['A:A2', 'D:E3', 'G:A3', 'B:Cs4', 'HighE:E4']");
+    expect(script).toContain("Am: ['A:A2', 'D:E3', 'G:A3', 'B:C4', 'HighE:E4']");
+    expect(script).toContain("nextTargetByFamily = { D: 'D', E: 'E', A: 'A' }");
     expect(html).not.toContain('data-suora-kuuntelu');
   }
 });
