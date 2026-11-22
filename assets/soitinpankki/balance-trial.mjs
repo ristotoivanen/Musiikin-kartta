@@ -98,6 +98,7 @@ function setGroup(next) {
   setTrialStatus('Vertaa A, B ja C. Jokainen käynnistyy samasta lähtölaskusta.');
   resetControls();
   setTrialMode(trials[group].mode);
+  if (trials[group].mode === 'M2') setControl('bassBoost', 2);
 }
 
 function begin() {
