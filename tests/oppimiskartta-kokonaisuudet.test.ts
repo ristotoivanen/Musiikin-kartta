@@ -1,11 +1,12 @@
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 // #116: Soinnut ja harmonia -aiheen oma oppimiskokonaisuus 01 · Miten sointu muodostuu?
 // Uudet oppitunnit ovat erillinen kokonaisuus: oma numerointi ja Edellinen/Seuraava, eivät aiheen
 // etenemisjärjestyksessä, aihesivun tai etusivun laskurissa eivätkä oppimispolun lopussa.
 const read = (path: string) => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
+const exists = (path: string) => existsSync(new URL('../' + path, import.meta.url));
 const unitPages = ['kuule-mika-on-sointu', 'rakenna-g-duurisointu', 'kokeile-g-sointua-kitaralla'];
 const unitIds = unitPages.map(slug => 'oppitunti:' + slug);
 const main = (html: string) => html.match(/<main\b[^>]+>/)![0];
