@@ -94,7 +94,7 @@ test('Kosketuskohteet säilyvät vähintään 44 px korkuisina', async ({ page }
   await page.goto('/musapelit.html#aihe-korva');
   await page.addStyleTag({ content: 'html { font-size: 200% !important; } body { font-size: 200%; }' });
   for (const selector of ['.game-filter a[href="#aihe-korva"]', '#aihe-korva .game-card:first-child']) {
-    const box = await page.locator(selector).boundingBox();
+    const box = await page.locator(selector).first().boundingBox();
     expect(box?.height, selector).toBeGreaterThanOrEqual(44);
     expect(box?.x, selector).toBeGreaterThanOrEqual(0);
     expect((box?.x ?? 0) + (box?.width ?? 0), selector).toBeLessThanOrEqual(320.5);
