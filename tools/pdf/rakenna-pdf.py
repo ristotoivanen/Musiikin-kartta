@@ -7,6 +7,8 @@ Käyttö repon juuresta:
 
 PDF tallentuu tiedostoon pdf/musiikin-kartta.pdf. Skripti tarvitsee
 Chromen tai Chromiumin. Polun voi antaa CHROME-ympäristömuuttujalla.
+Eristetyssä CI-ympäristössä CHROME_NO_SANDBOX=1 sallii tulostuksen ilman
+Chromiumin sandboxia, jos käyttöjärjestelmä estää sen käynnistymisen.
 
 Lähteenä ovat book-kansion HTML-sivut sellaisinaan. Skripti
   * kokoaa kannen, sisällysluettelon, osat 1–11 ja liitteet,
@@ -210,11 +212,14 @@ def find_chrome():
 
 
 def print_pdf(chrome, html_path, pdf_path, profile):
+    # Linux-CI voi estää Chromiumin hiekkalaatikon. Poista se vain erillisellä
+    # asetuksella luotetussa eristetyssä tulostusympäristössä.
+    sandbox_flags = ['--no-sandbox'] if os.environ.get('CHROME_NO_SANDBOX') == '1' else []
     try:
         subprocess.run([chrome, '--headless=new', '--disable-gpu', '--no-first-run',
                         '--no-default-browser-check', f'--user-data-dir={profile}',
                         '--no-pdf-header-footer', '--generate-pdf-document-outline',
-                        f'--print-to-pdf={pdf_path}', html_path.as_uri()],
+                        *sandbox_flags, f'--print-to-pdf={pdf_path}', html_path.as_uri()],
                        check=True, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
     except subprocess.CalledProcessError as err:
         # Älä piilota tulostimen todellista virhettä CI:ssä.
