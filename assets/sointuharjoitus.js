@@ -15,6 +15,7 @@
     G: ['LowE:G2', 'G:G3', 'B:B3', 'D:D4'],
     C: ['A:C3', 'G:G3', 'B:C4', 'HighE:E4'],
     D: ['D:D3', 'G:A3', 'B:D4', 'HighE:Fs4'],
+    Em: ['LowE:E2', 'D:E3', 'G:G3', 'B:B3'],
   };
   const TRIAD = [SCALE.G, SCALE.B, SCALE.D];
   const BAR = 2.25;
@@ -44,6 +45,7 @@
     kokoa: 'Valitse esimerkki kuunneltavaksi.',
     arvaa: 'Napauta E:tä tai Em:ää kuunnellaksesi.',
     paluu: 'Valitse ensin lopetus: G, C tai D.',
+    asteet: 'Kuuntele neljä tahtia ja kokeile samaa kiertoa omalla kitaralla.',
   };
 
   // AAC ensin, jos selain ilmoittaa tukevansa sitä. Verkkovirhe tai purkuvirhe kokeilee toista muotoa.
@@ -463,6 +465,39 @@
     });
   }
 
+
+  function setupDegrees(section, playExample, stopExample) {
+    const playButton = section.querySelector('[data-asteet-play]');
+    const bars = [...section.querySelectorAll('[data-asteet-bar]')];
+    const sequence = ['G', 'D', 'Em', 'C'];
+    let active = -1;
+
+    function draw(index) {
+      if (index === active) return;
+      active = index;
+      bars.forEach((bar, position) => {
+        if (position === index) bar.setAttribute('aria-current', 'step');
+        else bar.removeAttribute('aria-current');
+      });
+    }
+
+    playButton.addEventListener('click', () => {
+      if (session?.trigger === playButton) {
+        stopExample('Pysäytetty. Voit kuunnella uudelleen.');
+        return;
+      }
+      const plan = sequence.flatMap((chord, index) =>
+        notes(HARMONY[chord], 2.15, 0.23, 0.022, index * BAR));
+      draw(-1);
+      playButton.textContent = '■ Pysäytä';
+      playExample(playButton, plan, {
+        label: 'Kuuntele G–D–Em–C. Yksi sointu neljän iskun tahdissa.',
+        onPosition: elapsed => draw(elapsed < 0 ? -1 : Math.min(3, Math.floor(elapsed / BAR))),
+        onStop: () => { playButton.textContent = '▶ Kuuntele neljä tahtia'; },
+      });
+    });
+  }
+
   for (const section of sections) {
     const kind = section.dataset.sointuharjoitus;
     const status = section.querySelector('[data-sointu-tila]');
@@ -481,5 +516,6 @@
     if (kind === 'kokoa') setupTriad(section, playExample, stopExample);
     if (kind === 'arvaa') setupGuess(section, playExample, stopExample, showExerciseStatus);
     if (kind === 'paluu') setupProgression(section, playExample, stopExample, showExerciseStatus);
+    if (kind === 'asteet') setupDegrees(section, playExample, stopExample);
   }
 })();
