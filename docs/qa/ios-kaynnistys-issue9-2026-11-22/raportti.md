@@ -1,6 +1,6 @@
 # Issue #9: kolmen raidan käynnistys iOS:llä, korjausehdokas (22.11.2026)
 
-**Tila:** korjausehdokas, Draft-PR. **Issue #9 pysyy NO-GO-tilassa.** Fyysisen iPhonen testi on tekemättä.
+**Tila:** korjausehdokas, Draft-PR. **Issue #9 pysyy NO-GO-tilassa.** Fyysisellä iPhonella on testattu vain kylmäkäynnistys (luku 6, PASS käyttäjän vahvistamana).
 Hyväksymiskriteereitä ei ole muutettu. ±25 ms on alustava tavoite, ei jälkikäteen muutettava raja.
 
 Haara `fix/ios-kaynnistys-tahdistus` (pohja `origin/beta` b659b85). Lopullinen bundle `459c8267b455`.
@@ -163,9 +163,27 @@ Sama sarja kaikissa ajoissa:
 - M4 poistaa tauon jälkeisen tarpeettoman kelauksen. Se pienentää välitöntä eroa (−454…−780 ms → −96…−192 ms), mutta ei korjaa jatkoa.
 - Jatkon ja soiton aikaisen kelauksen korjaus vaatisi erillisen tutkimuksen ja päätöksen. Sitä ei tehty tässä muutoksessa.
 
-## 6. Jäljellä olevat riskit
+## 6. Fyysinen iPhone-testi (22.11.2026, käyttäjän vahvistama)
 
-1. **Jatko tauon jälkeen ja kelaus soiton aikana** (luku 5). Ongelma on olemassa jo betassa. Fyysisen iPhonen testi todennäköisesti hylkää nämä vaiheet.
+Käyttäjä testasi esikatselun (bundle `459c8267b455`) fyysisellä iPhonella ja raportoi:
+
+| versio | kylmäkäynnistys |
+|---|---|
+| normaali | **PASS** |
+| akustinen | **PASS** |
+
+- Molemmat versiot käynnistyivät ilman aiemmin havaittua ensimmäisten sävelten pätkäisyä.
+- Raidat kuulostivat olevan tahdissa.
+
+**Rajaus.**
+
+- Tulos on käyttäjän kuulonvarainen toimintatesti. Laitteelta ei kerätty lokia eikä renderöidyn kohdan mittausta, joten ±25 ms:n tavoitetta ei ole todennettu laitteella.
+- Ei tiedetä, odottiko toisto valmiusportissa vai olivatko raidat jo valmiita. Käyttäjäelerajoituksen riski (luku 7, kohta 3) on siksi pienentynyt mutta ei poistunut.
+- Muita toimintoja (tauon jälkeinen jatko, kelaus soiton aikana, versionvaihto, lukitus) ei testattu laitteella eikä niitä ole hyväksytty.
+
+## 7. Jäljellä olevat riskit
+
+1. **Jatko tauon jälkeen ja kelaus soiton aikana** (luku 5). Ongelma on olemassa jo betassa. Niitä ei ole testattu laitteella.
 2. **Laulun jäännösero** −15…−48 ms ylittää alustavan ±25 ms tavoitteen 6/14 kylmäkäynnistyksessä. Kuuluvuutta ei ole arvioitu laitteella.
 3. **iOS:n käyttäjäelerajoitus.**
    - Valmiusportin jälkeinen `play()` kutsutaan painalluksen ulkopuolella. Simulaattori ei valvo rajoitusta.
@@ -179,7 +197,7 @@ Sama sarja kaikissa ajoissa:
 7. **Mittauksen epävarmuus toistuvissa kohdissa.** Renderöidyn kohdan ”hyppyjä” näkyi säestyksessä ja kitarassa noin 18,7, 19,2, 21,7, 22,2 ja 24,2 s kohdalla sekä ennen että jälkeen ilman kelauksia. Ne ovat mittausartefakteja, eivät toiston virheitä.
 8. **Soita-toleranssi 0,12 s.** Alle 0,12 s:n ero säilyy tauon yli kuten jatkuvassa toistossa. Ero ei ole aiempaa piilotetumpi, mutta sitä ei myöskään korjata Soita-painalluksella.
 
-## 7. Aineisto
+## 8. Aineisto
 
 - **Paikallinen aineisto (ei versionhallinnassa):** `test-results/kappaleharjoittelija-ios-2026-11-22/`
   - Aiemmat raportit `simulaattori/`, `laite/` ja `valjas/` on säilytetty ennallaan.
