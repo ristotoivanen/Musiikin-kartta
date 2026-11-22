@@ -751,8 +751,8 @@ test('02:n kolmas A/Am-pari: aidot sävelet, kuuntelulukko, palaute ja vuorottel
   await expect(answers.nth(0)).toBeEnabled();
   await expect(answers.nth(1)).toBeEnabled();
   await expect.poll(async () => (await starts(page)).length).toBe(5);
-  expect([...sounds].some(name => /^INSGuitarSteel_StringA_Vel02_A2_01\\.(m4a|ogg)$/.test(name))).toBe(true);
-  expect([...sounds].some(name => /^INSGuitarSteel_StringB_Vel02_Cs4_01\\.(m4a|ogg)$/.test(name))).toBe(true);
+  expect([...sounds].some(name => /^INSGuitarSteel_StringA_Vel02_A2_01\.(m4a|ogg)$/.test(name))).toBe(true);
+  expect([...sounds].some(name => /^INSGuitarSteel_StringB_Vel02_Cs4_01\.(m4a|ogg)$/.test(name))).toBe(true);
   await answers.nth(1).click();
   await expect(section.locator('[data-arvauspalaute]'))
     .toHaveText('Tällä kertaa ei. Sointu 1 oli A-duuri ja sointu 2 oli A-molli.');
