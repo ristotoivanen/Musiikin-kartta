@@ -67,6 +67,17 @@ describe('#160 – M2 Steel -harjoitusvertailun rajaus', () => {
     expect(qa).toContain("src.loop=true;src.loopStart=countin;src.loopEnd=countin+musicLength;");
   });
 
+  it('pitää pulssin graafisen ohjauksen näkyvillä ja estää automaattisen vierityksen A/B/C-kuuntelun aikana', () => {
+    const trial = text('assets/soitinpankki/balance-trial.mjs');
+    expect(qa.indexOf('id="phase"')).toBeLessThan(qa.indexOf('id="trialPanel"'));
+    expect(qa).toContain("if(document.documentElement.dataset.balanceTrialActive==='true')return;");
+    expect(trial).toContain("document.documentElement.dataset.balanceTrialActive = 'true'");
+    expect(trial).toContain("delete document.documentElement.dataset.balanceTrialActive");
+    expect(trial).toContain("crypto.getRandomValues");
+    expect(trial).toContain("calibration: 'NOT_APPROVED'");
+    expect(trial).toContain("await navigator.clipboard.writeText(text)");
+  });
+
   it('testisivua ei yhdistetä varsinaiseen navigaatioon tai #130:n alkuperäiseen sivuun', () => {
     expect(qa).toContain('<meta name="robots" content="noindex,nofollow">');
     expect(original).not.toContain('m2-steel-model.mjs');
