@@ -137,6 +137,10 @@ describe('02 Hiljaisuus kuuluu rytmiin', () => {
     const page = readFileSync(new URL('../tools/oppimiskartta/sisallot/rytmi/hiljaisuus-kuuluu-rytmiin.html', import.meta.url), 'utf8');
     expect(page).toContain('taputukset vaikenevat');
     expect(page).toContain('Musiikkitausta ja pulssi jatkuvat');
+    expect(page).toContain('Tahti 1 · Pidä pulssi');
+    expect(page.match(/>Laske mielessä<\/span>/g)).toHaveLength(4);
+    expect(page).toContain('pidä liike käynnissä myös tauon aikana');
+    expect(page).toContain('komppikättä tasaisesti osumatta kieliin');
     expect(page).not.toContain('seuraavat neljä ovat hiljaisia');
     expect(page).not.toContain('github.com');
   });
