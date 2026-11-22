@@ -6,7 +6,7 @@
 
 ## 1. Menetelmä ja näyttörajat
 
-Tämän dokumentin 68-rivinen luettelo on poimittu PR #146:n **todellisen HTML:n** inventaariosta ja verrattu `beta`n rekisteriin sekä nykyisten reittien luetteloon. Kitaran perusteiden viiden sivun `data-study-item` ja `data-study-kind` tarkistettiin erikseen suoraan `beta`n HTML-tiedostoista. 11 kirjan osan luvut ja historiallisten ankkurien siirtotaulukko on poimittu `assets/edistyminen.js`n lähdekoodista. Nämä ovat **lähdeanalyysin** tuloksia, eivät väitteitä onnistuneesta nykyisen haaran koko automaattisten testien ajosta.
+Tämän dokumentin 68-rivinen luettelo on poimittu PR #146:n **todellisen HTML:n** inventaariosta ja verrattu `beta`n rekisteriin sekä nykyisten reittien luetteloon. Kaikkien 41 kirjan harjoituksesta poimitun sivun täsmällinen lähtöosa, luvun ID ja `data-oppisisalto`-tunniste tarkistettiin 11 `book/osa-*.html`-lähteestä; yksi erillinen poiminta tunnistettiin `<!-- oppisisalto:… -->` -rajoista. Kitaran perusteiden viiden sivun `data-study-item` ja `data-study-kind` tarkistettiin erikseen suoraan `beta`n HTML-tiedostoista. 11 kirjan osan luvut ja historiallisten ankkurien siirtotaulukko on poimittu `assets/edistyminen.js`n lähdekoodista. Nämä ovat **lähdeanalyysin** tuloksia, eivät väitteitä onnistuneesta nykyisen haaran koko automaattisten testien ajosta.
 
 Pysyvä regressiosopimus on [`tests/fixtures/issue-117-legacy-urls.json`](../../tests/fixtures/issue-117-legacy-urls.json). Sitä ei saa päivittää automaattisesti generaattorin nykyarvojen mukaiseksi: sopimus suojaa juuri **aiemmin julkaistuja** osoitteita ja merkityksiä. Muutoksen yhteydessä uusi vastinreitti/alias on lisättävä, ei vanhaa poistettava. Ei vielä tuotantoympäristön HTTP-/Cloudflare-404/301-mittausta, mobiili-/VoiceOver-kokeita, todellista paikallistallennushistorian otosta, soittotestiä eikä PDF-tulosteen Chrome-renderöintiä.
 
@@ -14,7 +14,7 @@ Pysyvä regressiosopimus on [`tests/fixtures/issue-117-legacy-urls.json`](../../
 
 ## 2. Pysyvä URL- ja suoritustunnistematriisi
 
-Suhteelliset URL:t on esitetty sivuston juuresta; saman polun `.html`-päätteen mahdollinen poistaminen palvelimen avulla **ei** korvaa historiallisen `.html`-osoitteen suojausta. Merkintä on vanha itse kuitattu **Tehty**, ei uuden Ydinopinnon osaamisnäyttö. `source` on tämänhetkinen ensisijainen lähderiippuvuus tai #115:ssä tunnistettu kirjasta irrotettu harjoitus; täsmällinen harjoituksen sisältävä luku tarkistetaan generaattoritestissä.
+Suhteelliset URL:t on esitetty sivuston juuresta; saman polun `.html`-päätteen mahdollinen poistaminen palvelimen avulla **ei** korvaa historiallisen `.html`-osoitteen suojausta. Merkintä on vanha itse kuitattu **Tehty**, ei uuden Ydinopinnon osaamisnäyttö. `source` on nykyinen täsmällinen lähderiippuvuus: 28 kirjalukua, 41 `data-oppisisalto`-poimintaa, yksi `oppisisalto`-rajojen poiminta sekä kolme itsenäistä lähdettä. Näiden oikean aloitusluvun, poimintatunnisteen ja olemassaolon suojaa myös erillinen lähdesidontatesti.
 
 | Nykyinen / säilytettävä URL | Suoritustunniste | Laji | Lähderiippuvuus |
 |---|---|---|---|
@@ -24,73 +24,73 @@ Suhteelliset URL:t on esitetty sivuston juuresta; saman polun `.html`-päätteen
 | `/oppi/kitara/soita-ensin-basso.html` | `harjoitus:soita-ensin-basso` | harjoitus | `book/osa-1.html#sointukierrot [data-oppisisalto=soita-ensin-basso]` |
 | `/oppi/kitara/mihin-kierto-paattyy.html` | `oppitunti:mihin-kierto-paattyy` | oppitunti | `tools/oppimiskartta/sisallot/kitara/mihin-kierto-paattyy.html` |
 | `/oppi/rytmi/pulssi-ja-komppi.html` | `pulssi-ja-komppi` | luku | `book/osa-1.html#pulssi-ja-komppi` |
-| `/oppi/rytmi/kuuntele-pulssi.html` | `harjoitus:kuuntele-pulssi` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
-| `/oppi/rytmi/alas-ylos-yhdella-soinnulla.html` | `harjoitus:alas-ylos-yhdella-soinnulla` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
-| `/oppi/rytmi/kaksi-sointua-yhdessa-tahdissa.html` | `harjoitus:kaksi-sointua-yhdessa-tahdissa` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
-| `/oppi/savelnimet/kitaran-kielet-ja-sointumerkinnat.html` | `oppitunti:kitaran-kielet-ja-sointumerkinnat` | oppitunti | `book/osa-1.html, erillinen poiminta` |
+| `/oppi/rytmi/kuuntele-pulssi.html` | `harjoitus:kuuntele-pulssi` | harjoitus | `book/osa-1.html#pulssi-ja-komppi [data-oppisisalto=kuuntele-pulssi]` |
+| `/oppi/rytmi/alas-ylos-yhdella-soinnulla.html` | `harjoitus:alas-ylos-yhdella-soinnulla` | harjoitus | `book/osa-1.html#pulssi-ja-komppi [data-oppisisalto=alas-ylos-yhdella-soinnulla]` |
+| `/oppi/rytmi/kaksi-sointua-yhdessa-tahdissa.html` | `harjoitus:kaksi-sointua-yhdessa-tahdissa` | harjoitus | `book/osa-1.html#pulssi-ja-komppi [data-oppisisalto=kaksi-sointua-yhdessa-tahdissa]` |
+| `/oppi/savelnimet/kitaran-kielet-ja-sointumerkinnat.html` | `oppitunti:kitaran-kielet-ja-sointumerkinnat` | oppitunti | `book/osa-1.html#kitaran-merkinnat [excerpt=kitaran-kielet-ja-sointumerkinnat]` |
 | `/oppi/savelnimet/savelet-ja-intervallit.html` | `savelet-ja-intervallit` | luku | `book/osa-2.html#savelet-ja-intervallit` |
-| `/oppi/savelnimet/siirra-yhta-sormea.html` | `harjoitus:siirra-yhta-sormea` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
+| `/oppi/savelnimet/siirra-yhta-sormea.html` | `harjoitus:siirra-yhta-sormea` | harjoitus | `book/osa-2.html#savelet-ja-intervallit [data-oppisisalto=siirra-yhta-sormea]` |
 | `/oppi/korva/musiikki-on-kieli.html` | `musiikki-on-kieli` | luku | `book/osa-2.html#musiikki-on-kieli` |
-| `/oppi/korva/taydenna-fraasi.html` | `harjoitus:taydenna-fraasi` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
+| `/oppi/korva/taydenna-fraasi.html` | `harjoitus:taydenna-fraasi` | harjoitus | `book/osa-2.html#musiikki-on-kieli [data-oppisisalto=taydenna-fraasi]` |
 | `/oppi/korva/savellajin-tunnistaminen.html` | `savellajin-tunnistaminen` | luku | `book/osa-4.html#savellajin-tunnistaminen` |
-| `/oppi/korva/vaihda-kotisavelta.html` | `harjoitus:vaihda-kotisavelta` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
+| `/oppi/korva/vaihda-kotisavelta.html` | `harjoitus:vaihda-kotisavelta` | harjoitus | `book/osa-4.html#savellajin-tunnistaminen [data-oppisisalto=vaihda-kotisavelta]` |
 | `/oppi/korva/intervallit.html` | `intervallit` | luku | `book/osa-7.html#intervallit` |
-| `/oppi/korva/mika-aste-soi.html` | `harjoitus:mika-aste-soi` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
-| `/oppi/korva/etsi-jalkimmainen-savel.html` | `harjoitus:etsi-jalkimmainen-savel` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
+| `/oppi/korva/mika-aste-soi.html` | `harjoitus:mika-aste-soi` | harjoitus | `book/osa-7.html#intervallit [data-oppisisalto=mika-aste-soi]` |
+| `/oppi/korva/etsi-jalkimmainen-savel.html` | `harjoitus:etsi-jalkimmainen-savel` | harjoitus | `book/osa-7.html#intervallit [data-oppisisalto=etsi-jalkimmainen-savel]` |
 | `/oppi/korva/basso.html` | `basso` | luku | `book/osa-7.html#basso` |
-| `/oppi/korva/kuuntele-bassolinja.html` | `harjoitus:kuuntele-bassolinja` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
+| `/oppi/korva/kuuntele-bassolinja.html` | `harjoitus:kuuntele-bassolinja` | harjoitus | `book/osa-7.html#basso [data-oppisisalto=kuuntele-bassolinja]` |
 | `/oppi/korva/soinnut.html` | `soinnut` | luku | `book/osa-7.html#soinnut` |
-| `/oppi/korva/kumpi-on-molli.html` | `harjoitus:kumpi-on-molli` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
-| `/oppi/korva/tunnista-sointutyyppi.html` | `harjoitus:tunnista-sointutyyppi` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
+| `/oppi/korva/kumpi-on-molli.html` | `harjoitus:kumpi-on-molli` | harjoitus | `book/osa-7.html#soinnut [data-oppisisalto=kumpi-on-molli]` |
+| `/oppi/korva/tunnista-sointutyyppi.html` | `harjoitus:tunnista-sointutyyppi` | harjoitus | `book/osa-7.html#soinnut [data-oppisisalto=tunnista-sointutyyppi]` |
 | `/oppi/korva/septimi-korvalla.html` | `septimi-korvalla` | luku | `book/osa-10.html#septimi-korvalla` |
-| `/oppi/korva/kolme-c-sointua.html` | `harjoitus:kolme-c-sointua` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
+| `/oppi/korva/kolme-c-sointua.html` | `harjoitus:kolme-c-sointua` | harjoitus | `book/osa-10.html#septimi-korvalla [data-oppisisalto=kolme-c-sointua]` |
 | `/oppi/otelauta/otelauta.html` | `otelauta` | luku | `book/osa-5.html#otelauta` |
-| `/oppi/otelauta/etsi-a-ilman-asteikkokuviota.html` | `harjoitus:etsi-a-ilman-asteikkokuviota` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
-| `/oppi/otelauta/etsi-sama-savel.html` | `harjoitus:etsi-sama-savel` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
+| `/oppi/otelauta/etsi-a-ilman-asteikkokuviota.html` | `harjoitus:etsi-a-ilman-asteikkokuviota` | harjoitus | `book/osa-5.html#otelauta [data-oppisisalto=etsi-a-ilman-asteikkokuviota]` |
+| `/oppi/otelauta/etsi-sama-savel.html` | `harjoitus:etsi-sama-savel` | harjoitus | `book/osa-5.html#otelauta [data-oppisisalto=etsi-sama-savel]` |
 | `/oppi/otelauta/perussavel.html` | `perussavel` | luku | `book/osa-5.html#perussavel` |
-| `/oppi/otelauta/etsi-savel-kahdelta-kielelta.html` | `harjoitus:etsi-savel-kahdelta-kielelta` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
-| `/oppi/otelauta/nimea-savel.html` | `harjoitus:nimea-savel` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
+| `/oppi/otelauta/etsi-savel-kahdelta-kielelta.html` | `harjoitus:etsi-savel-kahdelta-kielelta` | harjoitus | `book/osa-5.html#perussavel [data-oppisisalto=etsi-savel-kahdelta-kielelta]` |
+| `/oppi/otelauta/nimea-savel.html` | `harjoitus:nimea-savel` | harjoitus | `book/osa-5.html#perussavel [data-oppisisalto=nimea-savel]` |
 | `/oppi/otelauta/caged.html` | `caged` | luku | `book/osa-6.html#caged` |
-| `/oppi/otelauta/soita-c-kahdesta-kohdasta.html` | `harjoitus:soita-c-kahdesta-kohdasta` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
+| `/oppi/otelauta/soita-c-kahdesta-kohdasta.html` | `harjoitus:soita-c-kahdesta-kohdasta` | harjoitus | `book/osa-6.html#caged [data-oppisisalto=soita-c-kahdesta-kohdasta]` |
 | `/oppi/soinnut/harmoninen-kentta.html` | `harmoninen-kentta` | luku | `book/osa-3.html#harmoninen-kentta` |
-| `/oppi/soinnut/kolme-sointua-g-duurista.html` | `harjoitus:kolme-sointua-g-duurista` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
-| `/oppi/soinnut/kaikuluotain.html` | `harjoitus:kaikuluotain` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
+| `/oppi/soinnut/kolme-sointua-g-duurista.html` | `harjoitus:kolme-sointua-g-duurista` | harjoitus | `book/osa-3.html#harmoninen-kentta [data-oppisisalto=kolme-sointua-g-duurista]` |
+| `/oppi/soinnut/kaikuluotain.html` | `harjoitus:kaikuluotain` | harjoitus | `book/osa-3.html#harmoninen-kentta [data-oppisisalto=kaikuluotain]` |
 | `/oppi/soinnut/roomalaiset-numerot.html` | `roomalaiset-numerot` | luku | `book/osa-3.html#roomalaiset-numerot` |
-| `/oppi/soinnut/siirra-kierto-d-duuriin.html` | `harjoitus:siirra-kierto-d-duuriin` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
+| `/oppi/soinnut/siirra-kierto-d-duuriin.html` | `harjoitus:siirra-kierto-d-duuriin` | harjoitus | `book/osa-3.html#roomalaiset-numerot [data-oppisisalto=siirra-kierto-d-duuriin]` |
 | `/oppi/soinnut/sointujen-tehtavat.html` | `sointujen-tehtavat` | luku | `book/osa-3.html#sointujen-tehtavat` |
-| `/oppi/soinnut/laula-paluu.html` | `harjoitus:laula-paluu` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
+| `/oppi/soinnut/laula-paluu.html` | `harjoitus:laula-paluu` | harjoitus | `book/osa-3.html#sointujen-tehtavat [data-oppisisalto=laula-paluu]` |
 | `/oppi/soinnut/kvinttiympyra.html` | `kvinttiympyra` | luku | `book/osa-4.html#kvinttiympyra` |
-| `/oppi/soinnut/siirra-keskelle-d.html` | `harjoitus:siirra-keskelle-d` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
+| `/oppi/soinnut/siirra-keskelle-d.html` | `harjoitus:siirra-keskelle-d` | harjoitus | `book/osa-4.html#kvinttiympyra [data-oppisisalto=siirra-keskelle-d]` |
 | `/oppi/soinnut/barre.html` | `barre` | luku | `book/osa-6.html#barre` |
-| `/oppi/soinnut/etsi-barresointu.html` | `harjoitus:etsi-barresointu` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
-| `/oppi/soinnut/rakenna-barre.html` | `harjoitus:rakenna-barre` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
-| `/oppi/soinnut/siirra-kierto-c-duuriin.html` | `harjoitus:siirra-kierto-c-duuriin` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
+| `/oppi/soinnut/etsi-barresointu.html` | `harjoitus:etsi-barresointu` | harjoitus | `book/osa-6.html#barre [data-oppisisalto=etsi-barresointu]` |
+| `/oppi/soinnut/rakenna-barre.html` | `harjoitus:rakenna-barre` | harjoitus | `book/osa-6.html#barre [data-oppisisalto=rakenna-barre]` |
+| `/oppi/soinnut/siirra-kierto-c-duuriin.html` | `harjoitus:siirra-kierto-c-duuriin` | harjoitus | `book/osa-6.html#barre [data-oppisisalto=siirra-kierto-c-duuriin]` |
 | `/oppi/soinnut/septimisoinnut.html` | `septimisoinnut` | luku | `book/osa-10.html#septimisoinnut` |
-| `/oppi/soinnut/lisaa-septimi.html` | `harjoitus:lisaa-septimi` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
-| `/oppi/soinnut/soita-septimisoinnut.html` | `harjoitus:soita-septimisoinnut` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
+| `/oppi/soinnut/lisaa-septimi.html` | `harjoitus:lisaa-septimi` | harjoitus | `book/osa-10.html#septimisoinnut [data-oppisisalto=lisaa-septimi]` |
+| `/oppi/soinnut/soita-septimisoinnut.html` | `harjoitus:soita-septimisoinnut` | harjoitus | `book/osa-10.html#septimisoinnut [data-oppisisalto=soita-septimisoinnut]` |
 | `/oppi/soinnut/ii-v-i.html` | `ii-v-i` | luku | `book/osa-10.html#ii-v-i` |
-| `/oppi/soinnut/ii-v-i-kahdessa-savellajissa.html` | `harjoitus:ii-v-i-kahdessa-savellajissa` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
+| `/oppi/soinnut/ii-v-i-kahdessa-savellajissa.html` | `harjoitus:ii-v-i-kahdessa-savellajissa` | harjoitus | `book/osa-10.html#ii-v-i [data-oppisisalto=ii-v-i-kahdessa-savellajissa]` |
 | `/oppi/asteikot/asteikot.html` | `asteikot` | luku | `book/osa-2.html#asteikot` |
-| `/oppi/asteikot/etsi-puoliaskeleet.html` | `harjoitus:etsi-puoliaskeleet` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
+| `/oppi/asteikot/etsi-puoliaskeleet.html` | `harjoitus:etsi-puoliaskeleet` | harjoitus | `book/osa-2.html#asteikot [data-oppisisalto=etsi-puoliaskeleet]` |
 | `/oppi/asteikot/pentatoniikka.html` | `pentatoniikka` | luku | `book/osa-8.html#pentatoniikka` |
-| `/oppi/asteikot/tee-kolmesta-savelesta-melodia.html` | `harjoitus:tee-kolmesta-savelesta-melodia` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
-| `/oppi/asteikot/kysymys-ja-vastaus-koko-boksilla.html` | `harjoitus:kysymys-ja-vastaus-koko-boksilla` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
+| `/oppi/asteikot/tee-kolmesta-savelesta-melodia.html` | `harjoitus:tee-kolmesta-savelesta-melodia` | harjoitus | `book/osa-8.html#pentatoniikka [data-oppisisalto=tee-kolmesta-savelesta-melodia]` |
+| `/oppi/asteikot/kysymys-ja-vastaus-koko-boksilla.html` | `harjoitus:kysymys-ja-vastaus-koko-boksilla` | harjoitus | `book/osa-8.html#pentatoniikka [data-oppisisalto=kysymys-ja-vastaus-koko-boksilla]` |
 | `/oppi/asteikot/moodit.html` | `moodit` | luku | `book/osa-11.html#moodit` |
-| `/oppi/asteikot/vaihda-f-nauhaa-ylemmas.html` | `harjoitus:vaihda-f-nauhaa-ylemmas` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
+| `/oppi/asteikot/vaihda-f-nauhaa-ylemmas.html` | `harjoitus:vaihda-f-nauhaa-ylemmas` | harjoitus | `book/osa-11.html#moodit [data-oppisisalto=vaihda-f-nauhaa-ylemmas]` |
 | `/oppi/kappaleet/kappale-asteina.html` | `kappale-asteina` | luku | `book/osa-3.html#kappale-asteina` |
-| `/oppi/kappaleet/sama-kappale-c-duurissa.html` | `harjoitus:sama-kappale-c-duurissa` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
+| `/oppi/kappaleet/sama-kappale-c-duurissa.html` | `harjoitus:sama-kappale-c-duurissa` | harjoitus | `book/osa-3.html#kappale-asteina [data-oppisisalto=sama-kappale-c-duurissa]` |
 | `/oppi/kappaleet/transponointi.html` | `transponointi` | luku | `book/osa-4.html#transponointi` |
-| `/oppi/kappaleet/sovita-savellaji-laulajalle.html` | `harjoitus:sovita-savellaji-laulajalle` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
+| `/oppi/kappaleet/sovita-savellaji-laulajalle.html` | `harjoitus:sovita-savellaji-laulajalle` | harjoitus | `book/osa-4.html#transponointi [data-oppisisalto=sovita-savellaji-laulajalle]` |
 | `/oppi/kappaleet/kappale.html` | `kappale` | luku | `book/osa-7.html#kappale` |
-| `/oppi/kappaleet/mika-sointu-tulee.html` | `harjoitus:mika-sointu-tulee` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
-| `/oppi/kappaleet/tee-sointukartta.html` | `harjoitus:tee-sointukartta` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
-| `/oppi/kappaleet/etsi-ensimmainen-melodiasavel.html` | `harjoitus:etsi-ensimmainen-melodiasavel` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
+| `/oppi/kappaleet/mika-sointu-tulee.html` | `harjoitus:mika-sointu-tulee` | harjoitus | `book/osa-7.html#kappale [data-oppisisalto=mika-sointu-tulee]` |
+| `/oppi/kappaleet/tee-sointukartta.html` | `harjoitus:tee-sointukartta` | harjoitus | `book/osa-7.html#kappale [data-oppisisalto=tee-sointukartta]` |
+| `/oppi/kappaleet/etsi-ensimmainen-melodiasavel.html` | `harjoitus:etsi-ensimmainen-melodiasavel` | harjoitus | `book/osa-7.html#kappale [data-oppisisalto=etsi-ensimmainen-melodiasavel]` |
 | `/oppi/kappaleet/improvisointi.html` | `improvisointi` | luku | `book/osa-8.html#improvisointi` |
-| `/oppi/kappaleet/soita-kysymys-ja-vastaus.html` | `harjoitus:soita-kysymys-ja-vastaus` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
+| `/oppi/kappaleet/soita-kysymys-ja-vastaus.html` | `harjoitus:soita-kysymys-ja-vastaus` | harjoitus | `book/osa-8.html#improvisointi [data-oppisisalto=soita-kysymys-ja-vastaus]` |
 | `/oppi/kappaleet/sovittaminen.html` | `sovittaminen` | luku | `book/osa-9.html#sovittaminen` |
-| `/oppi/kappaleet/vaihda-saestysta.html` | `harjoitus:vaihda-saestysta` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
+| `/oppi/kappaleet/vaihda-saestysta.html` | `harjoitus:vaihda-saestysta` | harjoitus | `book/osa-9.html#sovittaminen [data-oppisisalto=vaihda-saestysta]` |
 | `/oppi/kappaleet/oma-kappale.html` | `oma-kappale` | luku | `book/osa-9.html#oma-kappale` |
-| `/oppi/kappaleet/aanita-kahdeksan-tahtia.html` | `harjoitus:aanita-kahdeksan-tahtia` | harjoitus | `kirjan luvusta irrotettu tehtävä` |
+| `/oppi/kappaleet/aanita-kahdeksan-tahtia.html` | `harjoitus:aanita-kahdeksan-tahtia` | harjoitus | `book/osa-9.html#oma-kappale [data-oppisisalto=aanita-kahdeksan-tahtia]` |
 
 ## 3. Oppimiskartan pysyvät aiheankkurit ja suorat linkit
 
@@ -203,7 +203,7 @@ Tiedot ovat **selaimen ja originin** (skeema + host + portti) paikallisia. `rinn
 
 **Lähtötilan olemassa olevat testit:** `tests/site.test.ts` jäädyttää 70 aikaisempaa reittiä, 28 teoriaoppaan lukua, 41 harjoituspoimintaa, 73 sivun yksilö-ID:t, aiheankkurit, lähdetiedostot, linkit ja generaattorin `--tarkista`n; `tests/e2e/lukumerkinnat.spec.ts` käy läpi 73 sisältösivun merkintä-, peruutus-, reload- ja aihesivu-/kirjasynkronoinnin. `tests/osiot.test.ts` suojaa Musapeli- ja Kitaratreeni-parametreja ja sisällön rekisteriä. `tools/linkit/tarkista-linkit.py` tarkistaa staattiset paikalliset URLit/ankkurit ja PARTS/MOVED-taulukon. Näiden testien **olemassaolo ei tarkoita, että ne olisi ajettu tässä auditoinnissa**.
 
-**#117:n uudet itsenäiset testit:** `tests/yhteensopivuus-117.test.ts` lukee jäädytetyn JSON-fixturen ja tarkistaa jokaisen 73 vanhan URL:n, ID:n, lajin, 28 lukukytkentää, 11 osan ankkurit sekä 8 aihepolkua. Lisäksi se ajaa `assets/edistyminen.js`n eristetyssä VM-ympäristössä oikean vanha→uusi-fallbackin, nykyisen avaimen etusijan, vanhan tunnisteen säilymisen ja uuden Ydinopinnon merkitsemättömyyden. `tests/e2e/yhteensopivuus-117.spec.ts` mittaa oikeassa Chromium-selaimessa vanhan book-ankkurin JS-ohjauksen sekä historiallisen tallennuksen säilymisen desktop-/puhelinemulaatioissa. `tests/issue-117-pdf-sources.py` kutsuu PDF:n todellista Python-koostajaa ilman PDF-binäärin tulostamista tai tiedostomuutoksia. Erillinen `.github/workflows/issue-117-compat.yml` ajaa täyden lint-/tyyppi-/Vitest-kokonaisuuden, selaimen historialliset testit ja PDF:n **oman estävän tarkistuksen** rinnakkaisina töinä.
+**#117:n uudet itsenäiset testit:** `tests/yhteensopivuus-117.test.ts` lukee jäädytetyn JSON-fixturen ja tarkistaa jokaisen 73 vanhan URL:n, ID:n, lajin, 28 lukukytkentää, 41 harjoituspoiminnan lähdesidontaa, 11 osan ankkurit sekä 8 aihepolkua. Lisäksi se ajaa `assets/edistyminen.js`n eristetyssä VM-ympäristössä oikean vanha→uusi-fallbackin, nykyisen avaimen etusijan, vanhan tunnisteen säilymisen ja uuden Ydinopinnon merkitsemättömyyden. `tests/e2e/yhteensopivuus-117.spec.ts` mittaa oikeassa Chromium-selaimessa vanhan book-ankkurin JS-ohjauksen sekä historiallisen tallennuksen säilymisen desktop-/puhelinemulaatioissa. `tests/issue-117-pdf-sources.py` kutsuu PDF:n todellista Python-koostajaa ilman PDF-binäärin tulostamista tai tiedostomuutoksia. Erillinen `.github/workflows/issue-117-compat.yml` ajaa täyden lint-/tyyppi-/Vitest-kokonaisuuden, selaimen historialliset testit ja PDF:n **oman estävän tarkistuksen** rinnakkaisina töinä.
 
 **Automaattiset tarkistukset jatkossa:** Vitest, nykyinen linkki- ja generaattoritarkistus, PDF:n väli-HTML, PR #141:n uuden ja vanhan ID-avaruuden integraatiotestit, Playwright JS-päällä/pois (11 osaa, historialliset ankkurit), 73 merkintäpolkua, tallennusskenaarioiden siirto ja Cloudflare-esikatselun HTTP-linkit. **Fyysiset kokeet:** Safari/iPhone + Android, ruudunlukijan ankkuripaluut, paikallishistorian säilyminen päivityksen yli, PDF:n tulostus ja musiikillinen sisältöarvio. Näitä ei korvata staattisella tarkistuksella.
 
