@@ -117,8 +117,8 @@ describe('#132 Meta Steel -kirjastopilotin rajapinta', () => {
       const result = await bank.prepare(scores.e2);
       expect(result.samples.size).toBe(1);
       expect(requested).toHaveLength(2);
-      expect(requested[0]).toMatch(/meta-steel-v1\\.json$/);
-      expect(requested[1]).toMatch(/steel-6-40\\.ogg$/);
+      expect(requested[0]).toMatch(/meta-steel-v1\.json$/);
+      expect(requested[1]).toMatch(/steel-6-40\.ogg$/);
     } finally {
       fetchSpy.mockRestore();
     }
