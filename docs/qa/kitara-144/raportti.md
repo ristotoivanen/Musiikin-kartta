@@ -30,9 +30,9 @@ Testin rakenne on otelaudan HTML:n ja relevanttien lähtö-CSS-sääntöjen kopi
 
 | Näyttö | Otelauta ennen | Otelauta jälkeen | Pienin nimilapun reunavara ennen | Jälkeen |
 | --- | ---: | ---: | ---: | ---: |
-| 320 px | 138,97 | 180,56 | 0,80 | 4,55 |
-| 360 px | 175,78 | 220,56 | 4,11 | 8,12 |
-| 390 px | 203,38 | 250,56 | 6,58 | 10,84 |
+| 320 px | 138,97 | 188,56 | 0,80 | 5,25 |
+| 360 px | 175,78 | 228,56 | 4,11 | 8,86 |
+| 390 px | 203,38 | 258,56 | 6,58 | 11,55 |
 
 - 100 %:n tekstikoolla sävelnimet 12 CSS px; 200 %:lla 24 CSS px ennen ja jälkeen
 - 320 px: sivun `scrollWidth` pysyi 320 px kaikissa paikallisissa mallimittauksissa
@@ -46,7 +46,7 @@ Testin rakenne on otelaudan HTML:n ja relevanttien lähtö-CSS-sääntöjen kopi
 
 Erillisessä workflow'ssa `.github/workflows/kitara-144-qa.yml` ajetaan generaattorin determinismi, lint, typecheck, Vitest sekä olemassa oleva Kitaran perusteiden koko E2E ja uusi geometriaregressio molemmissa Chromium-projekteissa.
 
-Työnkulun ensimmäinen ajo [#44992906950](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/44992906950) epäonnistui YAML:n lainausmerkkivirheeseen **ennen yhtään testisuoritusta**; korjattu komitissa `7f1d481`. Varsinainen uusinta-ajo: [#44992979265](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/44992979265). **Tulosta ei ole vielä kirjattu tähän raportin versioon.**
+Työnkulun ensimmäinen ajo [#44992906950](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/44992906950) epäonnistui YAML:n lainausmerkkivirheeseen **ennen yhtään testisuoritusta**; korjattu komitissa `7f1d481`. Varsinainen uusinta-ajo: [#44992979265](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/44992979265). Tässä ajossa generaattori, lint, typecheck ja kaikki 621 Vitest-testiä läpäisivät. Selaimen asennus pysähtyi tuettomalle Ubuntu 26.04 -ympäristölle; työnkulku lukittiin Ubuntu 24.04:ään.
 
 
 **Tarkennus 22.11.:** Tiukempi koko sivun regressioajokerta [#44993102472](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/44993102472) raportoi 24 läpäistyä ja 4 epäonnistunutta selaintestiä: kaikissa 320 px / 200 % -tapauksissa mitattu minimi oli 2,90625 px, kun regressioraja oli 3 px. CSS:n negatiivinen marginaali kasvatettiin arvosta `-.5rem` arvoon `-.625rem` mittausvaran lisäämiseksi, ei testin höllentämiseksi. Uudessa testiversiossa alkuperäistä layoutia vastaava mobiilisääntö palautetaan hetkeksi *vain mittausta varten*, jotta koko sivun ennen/jälkeen-leveydet ja reunavarat tulevat CI-lokiin. [Uusin tarkistus](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/44993384082) on vielä vahvistamatta.
