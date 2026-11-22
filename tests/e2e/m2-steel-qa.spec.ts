@@ -46,3 +46,55 @@ test('mallikitaran toisto pysähtyy heti myös taustalle siirryttäessä', async
   await expect(page.locator('#message')).toContainText('sivu siirtyi taustalle');
   await expect(page.locator('#start')).toBeEnabled();
 });
+
+test('M2:n kitaran ja säestyksen voimakkuus muuttuu kesken toiston ilman uudelleenkäynnistystä', async ({page}) => {
+  await page.addInitScript(() => {
+    const w = window as Window & { __audioGainChanges?: number[] };
+    w.__audioGainChanges = [];
+    const original = AudioParam.prototype.setTargetAtTime;
+    AudioParam.prototype.setTargetAtTime = function(value, startTime, timeConstant) {
+      w.__audioGainChanges?.push(value);
+      return original.call(this, value, startTime, timeConstant);
+    };
+  });
+  await page.goto(url);
+  await expect(page.locator('#m0GainControls')).toBeVisible();
+  await expect(page.locator('#m2GainControls')).toBeHidden();
+  await page.locator('button[data-mode="M2"]').click();
+  await expect(page.locator('#m2GainControls')).toBeVisible();
+  await expect(page.locator('#m0GainControls')).toBeHidden();
+  await page.locator('#start').click();
+  await expect(page.locator('#message')).toContainText('Musiikki soi: kuuntele mallikitaraa.', {timeout:15000});
+  await page.locator('#steelGain').fill('2.0');
+  await expect(page.locator('#steelGainLabel')).toHaveText('2,0 ×');
+  await page.locator('#m2BackingGain').fill('0.35');
+  await expect(page.locator('#m2BackingGainLabel')).toHaveText('35 %');
+  await expect.poll(() => page.evaluate(() =>
+    (window as Window & {__audioGainChanges?: number[]}).__audioGainChanges ?? [])
+  ).toEqual(expect.arrayContaining([2,0.35]));
+  await expect(page.locator('#message')).toContainText('Musiikki soi:');
+  await page.locator('#stop').click();
+});
+
+test('M0:n erillinen kitarasäätö toimii toiston aikana ilman vaikutusta M2-säätöön', async ({page}) => {
+  await page.addInitScript(() => {
+    const w = window as Window & { __audioGainChanges?: number[] };
+    w.__audioGainChanges = [];
+    const original = AudioParam.prototype.setTargetAtTime;
+    AudioParam.prototype.setTargetAtTime = function(value, startTime, timeConstant) {
+      w.__audioGainChanges?.push(value);
+      return original.call(this,value,startTime,timeConstant);
+    };
+  });
+  await page.goto(url);
+  await page.locator('#start').click();
+  await expect(page.locator('#message')).toContainText('Esimerkki soi:', {timeout:15000});
+  await page.locator('#m0Gain').fill('0.5');
+  await expect(page.locator('#m0GainLabel')).toHaveText('50 %');
+  await expect.poll(() => page.evaluate(() =>
+    (window as Window & {__audioGainChanges?: number[]}).__audioGainChanges ?? [])
+  ).toContain(0.5);
+  await expect(page.locator('#message')).toContainText('Esimerkki soi:');
+  await expect(page.locator('#m2GainControls')).toBeHidden();
+  await page.locator('#stop').click();
+});
