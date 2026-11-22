@@ -466,6 +466,34 @@ test.describe('toisto', () => {
     await playButton(page).click();
   });
 
+  test('01: A/B-rumpuversion vaihto jatkaa samaa soittoa ja näkyy vasta kierron alussa', async ({ page }) => {
+    await page.goto('/oppi/rytmi/loyda-pulssi-ja-ykkonen.html');
+    const status = page.locator('[data-rytmi-tila]');
+    const caption = page.locator('[data-rummut-tahti]');
+    const a = page.getByRole('button', { name: 'A · Rummut koko ajan' });
+    const b = page.getByRole('button', { name: 'B · Rummut tauolla' });
+
+    await playButton(page).click();
+    await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
+    await expect(page.locator('.rytmi-isku.is-active')).toHaveCount(1);
+    await b.click();
+    await expect(b).toHaveAttribute('aria-pressed', 'true');
+    await expect(status).toContainText('Rummut vaihtuvat seuraavan kahden tahdin kierron alussa.');
+    await expect(caption).toContainText('Rummut kuuluvat edelleen');
+    await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
+
+    // Soiva versio ja ruudukon kuvaus vaihtuvat yhdessä, toisto ei käynnisty uudelleen.
+    await expect(caption).toContainText('Rummut vaikenevat', { timeout: 10000 });
+    await expect(status).toHaveText('Nyt soi B · Rummut tauolla.');
+    await a.click();
+    await expect(a).toHaveAttribute('aria-pressed', 'true');
+    await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
+    await expect(caption).toContainText('Rummut kuuluvat edelleen', { timeout: 10000 });
+    await expect(status).toHaveText('Nyt soi A · Rummut koko ajan.');
+    await playButton(page).click();
+    await expect(playButton(page)).toHaveAccessibleName('Kuuntele');
+  });
+
   test('ilman Web Audiota painike on pois käytöstä ja tila kerrotaan', async ({ page }) => {
     await page.addInitScript(() => {
       Object.defineProperty(window, 'AudioContext', { value: undefined });
