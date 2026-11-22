@@ -19,6 +19,12 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
+      - name: Ensure generated pages are committed (show diff on mismatch)
+        run: |
+          python3 tools/oppimiskartta/rakenna.py
+          git diff --stat
+          git diff -- oppi/rytmi/index.html oppi/rytmi/loyda-pulssi-ja-ykkonen.html
+          test -z "$(git status --porcelain)"
       - name: Lint, typecheck, Vitest and build
         run: npm run lint && npm run typecheck && npm test && npm run build
       - name: Generated HTML, links and compatibility (#117)
