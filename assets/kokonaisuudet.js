@@ -10,6 +10,17 @@
   // merkitty sulkupainike, koska avauskohta jää puhelimessa usein näkyvistä.
   // Sulkeminen palauttaa sekä vierityskohdan että näppäimistöfokuksen avausplektraan.
   const pickUrl = new URL('oppimisikonit.svg#extra-info', document.currentScript.src).href;
+  const OPEN_TOP = 16;
+
+  // Yhteinen vieritysapuri myös erillisille oppituntisivuille. Niillä ei ole
+  // study-unit-elementtiä, joten apurin on alustuttava ennen varhaista returnia.
+  function alignHeading(heading, desiredTop) {
+    const delta = heading.getBoundingClientRect().top - desiredTop;
+    if (Math.abs(delta) > 2) {
+      window.scrollTo({ top: Math.max(0, window.scrollY + delta), behavior: 'instant' });
+    }
+  }
+
   for (const tip of document.querySelectorAll('details.study-knoppi')) {
     const summary = tip.querySelector(':scope > summary');
     const content = tip.querySelector('.study-knoppi-sisalto');
@@ -119,15 +130,6 @@
   // Ohitetaan hash- ja printtitilanteiden ohjelmalliset toggle-tapahtumat.
   const openingPositions = new WeakMap();
   const pendingMoves = new WeakMap();
-  const OPEN_TOP = 16;
-
-  function alignHeading(heading, desiredTop) {
-    const delta = heading.getBoundingClientRect().top - desiredTop;
-    if (Math.abs(delta) > 2) {
-      window.scrollTo({ top: Math.max(0, window.scrollY + delta), behavior: 'instant' });
-    }
-  }
-
   // Sama navigointimalli myös pääkokonaisuuksien välille: Ydinopinnot,
   // Lisäopinnot ja Aiemmat sisällöt ovat vaihtoehtoisia, eivät päällekkäisiä
   // pitkiä näkymiä. Muistetaan pääotsikon alkuperäinen paikka sulkemista varten.

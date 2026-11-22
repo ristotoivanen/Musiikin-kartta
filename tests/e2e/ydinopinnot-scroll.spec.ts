@@ -65,3 +65,34 @@ for (const { topic, index } of [
     await expect.poll(() => content.evaluate(n => n.getBoundingClientRect().top)).toBeLessThanOrEqual(32);
   });
 }
+
+for (const { label, path } of [
+  { label: 'Rytmi', path: '/oppi/rytmi/sama-musiikki-eri-tuntuma.html' },
+  { label: 'Soinnut', path: '/oppi/soinnut/kuule-ja-kokoa-sointu.html' },
+] as const) {
+  test(`${label}: erillisellä oppituntisivulla Knoppitieto kohdistuu ja sulkeminen palauttaa`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 640 });
+    const errors: string[] = [];
+    page.on('pageerror', error => errors.push(error.message));
+    await page.goto(path);
+    const tip = page.locator('details.study-knoppi').first();
+    const summary = tip.locator(':scope > summary');
+    const heading = tip.locator('.study-knoppi-sisalto > h3').first();
+    await summary.scrollIntoViewIfNeeded();
+    const openingTop = await summary.evaluate(node => node.getBoundingClientRect().top);
+
+    await summary.click();
+    await expect(tip).toHaveAttribute('open', '');
+    await expect(heading).toBeInViewport();
+    await expect.poll(() => heading.evaluate(node => node.getBoundingClientRect().top))
+      .toBeLessThanOrEqual(72);
+    const close = tip.getByRole('button', { name: 'Sulje lisätieto ja palaa avauskohtaan' });
+    await expect(close).toBeInViewport();
+    await close.click();
+    await expect(tip).not.toHaveAttribute('open', '');
+    await expect(summary).toBeFocused();
+    await expect.poll(() => summary.evaluate(node => node.getBoundingClientRect().top))
+      .toBeGreaterThanOrEqual(Math.max(16, openingTop) - 12);
+    expect(errors, 'JS-virhe erillisellä oppituntisivulla').toEqual([]);
+  });
+}
