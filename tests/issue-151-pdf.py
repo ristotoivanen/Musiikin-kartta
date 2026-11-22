@@ -94,9 +94,17 @@ def pdf_test(pdf_path, html_path, docs, chapters, appendices):
     assert all(int(n) == found[t] for t, n in rows), 'PDF:n sivunumerot ja sisällys eivät vastaa toisiaan'
 
     links = [link for page in doc for link in page.get_links()]
-    internal = [link for link in links if link['kind'] == fitz.LINK_GOTO]
+    # Chrome tallentaa fragmenttilinkit nimettyinä kohteina (LINK_NAMED);
+    # PyMuPDF:n LINK_GOTO ei yksin kata niitä.
+    internal = [link for link in links if link['kind'] in (fitz.LINK_GOTO, fitz.LINK_NAMED)]
     assert len(internal) >= len(targets), f'PDF:n sisäisiä linkkejä liian vähän: {len(internal)}'
-    assert all(0 <= link['page'] < doc.page_count for link in internal), 'Rikkinäinen PDF-sisälinkki'
+    names = doc.resolve_names()
+    for link in internal:
+        assert 0 <= link['page'] < doc.page_count, 'Rikkinäinen PDF-sisälinkki'
+        if link['kind'] == fitz.LINK_NAMED:
+            dest = link['nameddest']
+            assert dest in names, f'Puuttuva nimetty PDF-kohde: {dest}'
+            assert names[dest]['page'] == link['page'], f'Väärä kohdesivu: {dest}'
     assert any(link['kind'] == fitz.LINK_URI for link in links), 'Ulkoiset kuuntelulinkit puuttuvat'
     assert all(abs(page.rect.width - 595.28) < 3 and abs(page.rect.height - 841.89) < 3 for page in doc), 'PDF ei ole A4'
     assert 'ä' in full_text.lower() and 'ö' in full_text.lower() and 'Ä' in full_text, 'Ääkkösiä puuttuu'
