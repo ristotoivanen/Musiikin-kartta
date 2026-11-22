@@ -26,9 +26,10 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Verify original F4 sample and existing licensed audio bank
+      - name: Verify original F4 and A/Am samples and existing licensed audio bank
         run: |
           python3 tools/aanet/tuo-soinnut-f4.py
+          python3 tools/aanet/tuo-soinnut-a-am.py
           python3 tools/aanet/soinnut-naytteet.py tarkista
       - name: Regenerate Oppimiskartta from the canonical sources
         run: |
@@ -36,7 +37,13 @@ jobs:
           python3 tools/oppimiskartta/rakenna.py --tarkista
       - name: Persist generated pages only to this #116 branch
         run: |
-          git add -- index.html oppi/ assets/oppimiskartta.js assets/audio/soinnut/INSGuitarSteel_StringHighE_Vel02_F4_01.ogg assets/audio/soinnut/INSGuitarSteel_StringHighE_Vel02_F4_01.m4a
+          git add -- index.html oppi/ assets/oppimiskartta.js \
+            assets/audio/soinnut/INSGuitarSteel_StringHighE_Vel02_F4_01.ogg \
+            assets/audio/soinnut/INSGuitarSteel_StringHighE_Vel02_F4_01.m4a \
+            assets/audio/soinnut/INSGuitarSteel_StringA_Vel02_A2_01.ogg \
+            assets/audio/soinnut/INSGuitarSteel_StringA_Vel02_A2_01.m4a \
+            assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_Cs4_01.ogg \
+            assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_Cs4_01.m4a
           if ! git diff --cached --quiet; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
