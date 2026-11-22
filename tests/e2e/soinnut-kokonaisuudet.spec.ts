@@ -1099,6 +1099,8 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
       await page.keyboard.press('Enter');
     }
     await expect(listen).toHaveAttribute('data-playing', '');
+    await expect(listen).not.toHaveClass(/is-(correct|wrong)/);
+    await expect(listen).toHaveCSS('background-color', 'rgb(45, 36, 68)');
     expect(await sizeOf(listen)).toEqual(bounds);
     const reply = page.getByRole('group', { name: 'Vastaa' });
     const choiceButtons = reply.locator('button');
@@ -1139,11 +1141,24 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     await expect(page.locator('[data-sointu-tila]')).not.toHaveCSS('color', 'rgb(255, 224, 138)');
     await expect(eComparison).toBeVisible();
     const played = (await starts(page)).length;
+    // Vasta vastauksen JÄLKEEN kuunneltu väärä sointu on punainen.
+    await expect(listenButtons.nth(0)).not.toHaveClass(/is-(correct|wrong)/);
+    await expect(listenButtons.nth(1)).not.toHaveClass(/is-(correct|wrong)/);
     await listenButtons.nth(1).click();
     await expect(listenButtons.nth(1)).toHaveAttribute('data-playing', '');
+    await expect(listenButtons.nth(1)).toHaveClass(/is-wrong/);
+    await expect(listenButtons.nth(1)).toHaveCSS('background-color', 'rgb(129, 44, 61)');
+    await expect(listenButtons.nth(1)).toHaveAccessibleName('Kuuntele sointu 2, E-molli, väärä vastaus');
+    await expect(listenButtons.nth(0)).not.toHaveClass(/is-(correct|wrong)/);
     await expect.poll(async () => (await starts(page)).length - played).toBe(6);
+    // Kun kuunnellaan oikea vaihtoehto, väri siirtyy juuri siihen.
     await listenButtons.nth(0).click();
     await expect(listenButtons.nth(0)).toHaveAttribute('data-playing', '');
+    await expect(listenButtons.nth(0)).toHaveClass(/is-correct/);
+    await expect(listenButtons.nth(0)).toHaveCSS('background-color', 'rgb(22, 99, 63)');
+    await expect(listenButtons.nth(0)).toHaveAccessibleName('Kuuntele sointu 1, E-duuri, oikea vastaus');
+    await expect(listenButtons.nth(1)).not.toHaveClass(/is-(correct|wrong)/);
+    await expect(listenButtons.nth(1)).toHaveAccessibleName('Kuuntele sointu 2, E-molli');
     // Kumpikaan vastauspainike ei saa nollata tulosta, ei kosketuksella
     // eikä näppäimistön Enter-painalluksella.
     await expect(page.locator('[data-arvauspalaute]')).toHaveText('Oikein! Sointu 1 oli E-duuri ja sointu 2 oli E-molli.');
@@ -1174,6 +1189,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     expect(await choicePositions()).toEqual(beforeChoicePositions);
     await expect(charts).toBeHidden();
     await expect(labels).toHaveText(['Sointu 1', 'Sointu 2']);
+    for (const button of await listenButtons.all()) await expect(button).not.toHaveClass(/is-(correct|wrong)/);
     await expect(listenButtons.nth(0)).toHaveAccessibleName('Kuuntele sointu 1');
     await expect(listenButtons.nth(1)).toHaveAccessibleName('Kuuntele sointu 2');
     expect(await listenSizes()).toEqual(revealedSizes);
@@ -1191,6 +1207,16 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     await expect(page.locator('[data-arvauspalaute]')).toHaveCSS('color', 'rgb(255, 224, 138)');
     await expect(charts.locator('figcaption')).toHaveText(['Sointu 1 = Em', 'Sointu 2 = E']);
     await expect(labels).toHaveText(['Sointu 1 · Em', 'Sointu 2 · E']);
+    // Väärän alavastauksen jälkeenkin kuuntelupainikkeen väri määräytyy
+    // SOINNUN, ei aiemmin painetun vastauksen mukaan.
+    await listenButtons.nth(0).click();
+    await expect(listenButtons.nth(0)).toHaveClass(/is-correct/);
+    await expect(listenButtons.nth(0)).toHaveCSS('background-color', 'rgb(22, 99, 63)');
+    await listenButtons.nth(1).click();
+    await expect(listenButtons.nth(1)).toHaveClass(/is-wrong/);
+    await expect(listenButtons.nth(1)).toHaveCSS('background-color', 'rgb(129, 44, 61)');
+    await expect(listenButtons.nth(0)).not.toHaveClass(/is-(correct|wrong)/);
+    await expect(page.locator('[data-arvauspalaute]')).toHaveText('Tällä kertaa ei. Sointu 1 oli E-molli ja sointu 2 oli E-duuri.');
     expect(await listenSizes()).toEqual(revealedSizes);
     expect(await storage(page)).toBeNull();
   });
