@@ -65,7 +65,7 @@ test('M2:n kitaran ja säestyksen voimakkuus muuttuu kesken toiston ilman uudell
   await expect(page.locator('#m0GainControls')).toBeHidden();
   await page.locator('#start').click();
   await expect(page.locator('#message')).toContainText('Musiikki soi: kuuntele mallikitaraa.', {timeout:15000});
-  await page.locator('#steelGain').fill('2.0');
+  await page.locator('#steelGain').fill('2');
   await expect(page.locator('#steelGainLabel')).toHaveText('2,0 ×');
   await page.locator('#m2BackingGain').fill('0.35');
   await expect(page.locator('#m2BackingGainLabel')).toHaveText('35 %');
