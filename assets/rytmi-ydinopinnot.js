@@ -98,12 +98,14 @@ function backing(task, example, loopStep) {
  * @param {number} loopStep 0–15 kahden tahdin kierrossa
  * @param {{example?: string, revealed?: boolean, mode?: string}} options
  */
-export function stepEvents(task, loopStep, { example = 'rock', revealed = false, mode = 'A' } = {}) {
+export function stepEvents(task, loopStep, { example = 'rock', revealed = false, mode = 'A', drumGap = false } = {}) {
   const barStep = loopStep % STEPS_PER_BAR;
   const onBeat = barStep % 2 === 0;
   const beat = Math.floor(barStep / 2);
   const harmony = harmonyAt(loopStep);
-  const events = backing(task, example, loopStep);
+  const events = backing(task, example, loopStep).filter(event =>
+    !(task === 'pulssi' && drumGap && loopStep >= STEPS_PER_BAR &&
+      ['hi-hat', 'virveli', 'bassorumpu'].includes(event.role)));
   if (task === 'pulssi') {
     if (onBeat && beat === 0) events.push({ type: 'chord', role: 'harmonia', harmony, level: 0.075 });
     if (onBeat && revealed) events.push({ type: 'click', role: 'pulssivihje', strong: beat === 0 });
@@ -128,7 +130,7 @@ export function stepEvents(task, loopStep, { example = 'rock', revealed = false,
 export function gridCell(task, loopStep) {
   const barStep = loopStep % STEPS_PER_BAR;
   if (task === 'tuntuma') return { bar: 0, index: barStep };
-  return { bar: task === 'hiljaisuus' || task === 'osanvaihto' ? Math.floor(loopStep / STEPS_PER_BAR) : 0, index: Math.floor(barStep / 2) };
+  return { bar: ['pulssi', 'hiljaisuus', 'osanvaihto'].includes(task) ? Math.floor(loopStep / STEPS_PER_BAR) : 0, index: Math.floor(barStep / 2) };
 }
 
 /** Toiston aikajana. Ei riipu selaimesta, joten ajastus ja versiovaihdot voidaan testata. */
@@ -301,12 +303,13 @@ function setupExercise(root) {
   const button = root.querySelector('[data-rytmi-toisto]');
   const status = root.querySelector('[data-rytmi-tila]');
   const exampleButtons = [...root.querySelectorAll('[data-esimerkki]')];
+  const drumButtons = [...root.querySelectorAll('[data-rumpumalli]')];
   const grooveButtons = [...root.querySelectorAll('[data-versio]')];
   const reveal = root.querySelector('[data-rytmi-vihje]');
   const grooveGrid = root.querySelector('[data-rytmi-ruudukko="tuntuma"]');
   const isTransition = task === 'osanvaihto';
   const versionNames = isTransition ? TRANSITIONS : GROOVES;
-  const state = { example: 'rock', revealed: false, mode: 'A' };
+  const state = { example: 'rock', revealed: false, mode: 'A', drumGap: false };
   let session = null;
   let starting = false;
   let token = 0;
@@ -358,8 +361,10 @@ function setupExercise(root) {
   }
 
   function drawReveal() {
-    cells(0).forEach((element, index) => {
-      element.querySelector('.rytmi-isku-nimi').textContent = state.revealed ? String(index + 1) : '•';
+    [0, 1].forEach(bar => {
+      cells(bar).forEach((element, index) => {
+        element.querySelector('.rytmi-isku-nimi').textContent = state.revealed ? String(index + 1) : '•';
+      });
     });
     reveal.textContent = state.revealed ? 'Piilota pulssivihje' : 'Paljasta pulssi';
   }
@@ -470,6 +475,21 @@ function setupExercise(root) {
         stop();
         start();
       }
+    });
+  }
+
+  for (const choice of drumButtons) {
+    choice.addEventListener('click', () => {
+      const drumGap = choice.dataset.rumpumalli === 'katko';
+      if (drumGap === state.drumGap) return;
+      state.drumGap = drumGap;
+      setPressed(drumButtons, button => (button.dataset.rumpumalli === 'katko') === drumGap);
+      const caption = root.querySelector('[data-rummut-tahti]');
+      if (caption) caption.textContent = drumGap
+        ? 'Tahti 2 · Rummut vaikenevat, basso ja harmonia jatkavat'
+        : 'Tahti 2 · Rummut kuuluvat edelleen';
+      // A/B alkaa alusta samassa taustassa ja tempossa. Tämänhetkinen malli ei vaihdu keskellä tahtia.
+      if (session) { stop(); start(); }
     });
   }
 
