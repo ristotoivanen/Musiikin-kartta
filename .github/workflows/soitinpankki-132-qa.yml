@@ -19,6 +19,7 @@ jobs:
       first_error: ${{ steps.browser.outputs.first_error }}
       expected_text: ${{ steps.browser.outputs.expected_text }}
       received_text: ${{ steps.browser.outputs.received_text }}
+      error_context: ${{ steps.browser.outputs.error_context }}
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
@@ -64,7 +65,7 @@ jobs:
           code=$?
           cat playwright.log
           # Playwright tuottaa GitHub Actionsissa ANSI-koodeja myös FORCE_COLOR=0-tilassa.
-          sed -r 's/\\x1B\\[[0-9;]*[mK]//g' playwright.log > playwright-plain.log
+          sed -r 's/\x1B\[[0-9;]*[mK]//g' playwright.log > playwright-plain.log
           failed=$(grep -m1 -E '^[[:space:]]*[0-9]+\) \[' playwright-plain.log || true)
           error=$(grep -m1 -E 'Error:|TimeoutError:' playwright-plain.log || true)
           failed=${failed:0:230}
@@ -72,11 +73,13 @@ jobs:
           echo "first_failure=${failed:-PASS}" >> "$GITHUB_OUTPUT"
           echo "first_error=${error:-Not available}" >> "$GITHUB_OUTPUT"
           expected=$(grep -m1 -E 'Expected:|Expected string:|Expected pattern:' playwright-plain.log || true)
-          received=$(grep -m1 -E 'Received:|Received string:' playwright-plain.log || true)
+          received=$(grep -mi1 -E 'Received|Actual:' playwright-plain.log || true)
           expected=${expected:0:220}
           received=${received:0:220}
           echo "expected_text=${expected:-not found}" >> "$GITHUB_OUTPUT"
           echo "received_text=${received:-not found}" >> "$GITHUB_OUTPUT"
+          context=$(grep -A 9 -m1 -E 'Error:' playwright-plain.log | tail -n 8 | tr '\n' '|' | cut -c 1-230)
+          echo "error_context=${context:-not found}" >> "$GITHUB_OUTPUT"
           exit "$code"
       - name: Upload browser failure traces
         if: failure()
@@ -117,3 +120,11 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - run: echo 'Actual state reported in this check name.'
+
+  browser_context:
+    if: always()
+    needs: quality
+    name: "Failure context: ${{ needs.quality.outputs.error_context }}"
+    runs-on: ubuntu-24.04
+    steps:
+      - run: echo 'First browser failure details are displayed in this check name.'
