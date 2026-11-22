@@ -364,7 +364,7 @@
     // E/Em on oletus, jotta jo hyväksytty kuuntelu ja sen näppäimistötoiminta säilyvät.
     function chooseFamily(nextFamily) {
       if (family === nextFamily) return;
-      stopExample();
+      stop();
       family = nextFamily;
       pair = null;
       answered = false;
@@ -405,7 +405,7 @@
       });
     }
     next.addEventListener('click', () => {
-      stopExample();
+      stop();
       const selected = families[family];
       pair = Math.random() < 0.5 ? [...selected] : [...selected].reverse();
       target = Math.random() < 0.5 ? selected[1] : selected[0];
