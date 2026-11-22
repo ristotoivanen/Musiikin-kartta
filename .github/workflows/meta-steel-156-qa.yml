@@ -1,0 +1,42 @@
+name: Meta Steel 156 Catalog QA
+
+on:
+  push:
+    branches:
+      - chatgpt/156-meta-steel-inventory
+
+permissions:
+  contents: read
+
+concurrency:
+  group: meta-steel-156-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install pinned dependencies
+        run: npm ci
+      - name: Validate all source assets and velocity mapping
+        run: |
+          node tools/soitinpankki/plan-meta-steel.mjs --validate
+          node tools/soitinpankki/plan-meta-steel.mjs --example
+          npx vitest run tests/meta-steel-inventory.test.ts
+      - name: Verify WAV staging converter without source archives
+        run: |
+          if ! command -v ffmpeg >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y ffmpeg
+          fi
+          node tools/soitinpankki/plan-meta-steel.mjs --example > "$RUNNER_TEMP/steel-plan.json"
+          python3 tools/soitinpankki/valmistele_meta_steel.py --plan "$RUNNER_TEMP/steel-plan.json" --dry-run
+          python3 -m unittest discover -s tools/soitinpankki -p 'test_valmistele_meta_steel.py' -v
+      - name: Full project static checks, unit tests and build
+        run: npm run check
