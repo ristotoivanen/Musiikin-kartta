@@ -162,7 +162,7 @@ test('04 G–D–Em–C säilyttää hyväksytyn yhden soinnun 4/4-tahdissa ja o
   for (const html of [standalone, topic]) {
     expect(html).toContain('data-sointuharjoitus="asteet"');
     const section = html.slice(html.indexOf('data-sointuharjoitus="asteet"'));
-    const diagrams = [...section.matchAll(/<figure class="chord-diagram"><figcaption>(G|D|Em|C)<\\/figcaption>/g)]
+    const diagrams = [...section.matchAll(/<figure class="chord-diagram"><figcaption>(G|D|Em|C)<\/figcaption>/g)]
       .map(([, name]) => name);
     expect(diagrams.slice(0, 4)).toEqual(['G', 'D', 'Em', 'C']);
     expect(section).toContain('G-duurin seitsemän kolmisointua');
