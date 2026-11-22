@@ -65,25 +65,71 @@ alkuperäisten OGG-tiedostojen tavut. Se **ei** tee verkkopyyntöjä eikä
 luo julkaistavia äänitiedostoja. Tämä on suunnittelun verkkobudjetti,
 ei loppukäyttäjän mitattu lataus.
 
-## Seuraava toteutusvaihe, ei vielä tehty
+## Rajattu WAV→OGG/AAC-valmistelija, ei tuotantojulkaisu
 
-1. Valitaan ensimmäisen todellisen harjoituksen tarvitsema rajattu
-   näytejoukko (kieli, MIDI, kolme velocity-kerrosta tarpeen mukaan).
-2. Haetaan **alkuperäinen WAV-julkaisuarkisto** lukitulta Meta-versiolta,
-   varmistetaan koko arkiston SHA-256:
-   `caaa8a9c07217f4a82d1dfd9f5657c286155464b66bf4dd27797811c2558a909`.
-   Alkuperäisen WAV-tiedoston yksittäistä SHA:ta ei pidä keksiä
-   lähteen pelkän OGG-tarkistesarjan perusteella.
-3. Pakataan juuri valitut alkuperäiset WAV:t selaimen OGG/AAC-muotoihin;
-   vältetään OGG→AAC-häviöllinen uudelleenpakkaus. Tallennetaan käytetty
-   FFmpeg-versio, prosessointi, onset, kesto ja jokaisen lopullisen assetin SHA-256.
-4. Verrataan sävy, viritys, velocity-kerrokset ja näytteen alku/loppu.
-   Erityisesti nykyisen pilotin viiden sekunnin lopetus ei saa
-   muuttua huomaamatta pitkien melodia- tai sustain-harjoitusten oletukseksi.
-5. Mittaukset ja laitetestit (iPhone/Safari, Android/Chrome) tehdään
-   **oikealla toistolla**. Täysi katalogi ei ole näyttö Safari AAC -tuesta.
-6. Vasta erillisellä päätöksellä tuodaan valitut assetit
-   yhteiseen selaintoistimeen ja ensimmäiseen varsinaiseen harjoitukseen.
+`tools/soitinpankki/valmistele_meta_steel.py` on toteutettu. Työkalu
+toimii **vain paikallisesti** ja käyttää erikseen toimitettua alkuperäistä
+Meta v1.0.0 WAV-julkaisuarkistoa. Se ei lataa mitään verkosta.
+
+```sh
+# Suunnittele pieni, tarpeellinen näytejoukko ilman verkkopyyntöjä:
+node tools/soitinpankki/plan-meta-steel.mjs --example > /tmp/steel-valinta.json
+python3 tools/soitinpankki/valmistele_meta_steel.py \
+  --plan /tmp/steel-valinta.json --dry-run
+
+# Myöhemmin, kun Meta v1.0.0 alkuperäinen ZIP on saatu ja tarkistettu:
+python3 tools/soitinpankki/valmistele_meta_steel.py \
+  --plan /tmp/steel-valinta.json \
+  --archive /oma/polku/meta-open-sound-meta-steel-guitar-wav.zip \
+  --out /tmp/meta-steel-v1-qa
+```
+
+Työkalu pysähtyy, jos koko WAV-arkiston SHA-256 ei täsmää julkaisuun:
+
+`caaa8a9c07217f4a82d1dfd9f5657c286155464b66bf4dd27797811c2558a909`
+
+Se tarkistaa jokaisen suunnitelmarivin lähdekatalogia vasten,
+valitsee ZIP:stä vain tarvittavat WAV:t ja tuottaa kustakin
+OGG- sekä AAC-tiedoston **alkuperäisestä WAV:ista**, ei
+häviöllisestä OGG:sta uudelleenpakkaamalla. Tuloksena on erilliseen
+*aiemmin olemattomaan* kansioon kirjoitettu
+`manifest.json`, jossa on WAV:n ja johdettujen tiedostojen SHA-256,
+tavukoot, äänen alun mittaukset sekä käytetty FFmpeg-versio.
+
+Oletuksena tehdään enintään 48 valittua näytettä ja viiden sekunnin
+esitystiedostot 400 ms:n loppuhäivytyksellä. Yli 48 näytteen erä
+vaatii eksplisiittisen `--allow-large-batch`-valinnan. Samaa
+kohdekansiota ei voi ylikirjoittaa. Tuotokset ovat aina
+`staging-only` eikä niitä kopioida automaattisesti sivuston
+`assets/`-kansioon. **Viiden sekunnin rajaus ei ole lopullinen
+sustain- tai äänenlaadun hyväksyntä.**
+
+Synteettisellä stereo-WAV:lla on testattu ZIP:n SHA-256-virheen
+pysäytys sekä FFmpegistä syntyvien OGG/AAC-tiedostojen,
+onsettien, manifestin ja tiedostotarkisteiden tuotanto.
+Testi **ei** korvaa oikean Meta-julkaisuarkiston,
+kaikkien velocity-kerrosten eikä fyysisten laitteiden koetta.
+
+```sh
+python3 -m unittest discover -s tools/soitinpankki -p 'test_valmistele_meta_steel.py' -v
+```
+
+## Seuraavat edelleen avoimet hyväksynnät
+
+1. Valitaan ensimmäisen oikean harjoituksen tarvitsema rajattu
+   näytejoukko (kieli, MIDI, dynamiikkakerrokset).
+2. Haetaan oikea Meta v1.0.0 WAV-arkisto ja ajetaan sitä vasten
+   tämä valmistelija. Arkiston SHA-256 ja jokaisen valitun alkuperäisen
+   WAV:n oma laskettu SHA kirjataan toteutuneina, ei päätellä OGG-tarkisteesta.
+3. Kuunnellaan uudet Vel01/Vel03-kerrokset, tarkistetaan viritys,
+   äänien luontainen kesto, vaimennus ja eri voimakkuustasojen tasapaino.
+   Pilotin `referenceGain=0.76221` on **väliaikainen** myös valmistelijan
+   manifestissa, sitä ei saa tulkita kaikkien 375 näytteen hyväksytyksi
+   dynaamiseksi miksaukseksi.
+4. Testataan oikeiden, johdettujen OGG- ja AAC-assetien
+   lataus sekä fyysinen iPhone/Safari ja Android/Chrome.
+5. Vasta erillisellä hyväksynnällä lisätään
+   rajattu valikoima varsinaiseen web-äänipankkiin ja yhteen harjoitukseen.
 
 ## Rajat
 
