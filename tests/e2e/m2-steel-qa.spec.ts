@@ -99,7 +99,34 @@ test('M0:n erillinen kitarasäätö toimii toiston aikana ilman vaikutusta M2-s�
   await page.locator('#stop').click();
 });
 
+
+/**
+ * Kriittinen regressio: A/B/C-tason pitää muuttua oikeassa Web Audio
+ * GainNode-solmussa, ei pelkässä liukusäätimen tekstissä.
+ */
+async function observeAudioGains(page: import('@playwright/test').Page) {
+  await page.addInitScript(() => {
+    const w = window as Window & { __capturedGains?: GainNode[] };
+    w.__capturedGains = [];
+    const original = AudioContext.prototype.createGain;
+    AudioContext.prototype.createGain = function() {
+      const node = original.call(this);
+      w.__capturedGains?.push(node);
+      return node;
+    };
+  });
+}
+
+async function hasWebAudioGain(page: import('@playwright/test').Page, value: number) {
+  return page.evaluate((v) => {
+    const gains = (window as Window & { __capturedGains?: GainNode[] }).__capturedGains ?? [];
+    return gains.some(node => Math.abs(node.gain.value - v) < 0.001);
+  }, value);
+}
+
 test('sokkoutettu M2 Steel A/B/C käynnistyy aina samalla säestyksellä ja paljastaa tasot vasta kuuntelun jälkeen', async ({page}) => {
+  await observeAudioGains(page);
+  const testedSteelGains:number[] = [];
   const sourceRequests:string[] = [];
   page.on('request', request => {
     if (request.url().includes('em-komppi-b-m3-hillitty-basso.wav')) sourceRequests.push(request.url());
@@ -115,8 +142,13 @@ test('sokkoutettu M2 Steel A/B/C käynnistyy aina samalla säestyksellä ja palj
     await page.locator('[data-trial-option="'+letter+'"]').click();
     await expect(page.locator('#message')).toContainText('Musiikki soi: kuuntele mallikitaraa.', {timeout:15000});
     await expect(page.locator('#trialStatus')).toContainText('Kuuntelet '+letter+':ää');
+    const steelGain = Number(await page.locator('#steelGain').inputValue());
+    testedSteelGains.push(steelGain);
+    expect(await hasWebAudioGain(page, steelGain)).toBe(true);
+    expect(await hasWebAudioGain(page, .55)).toBe(true); // säestys ei muutu Steel-kokeessa
     await expect(page.locator('#trialRevealResult')).toBeHidden();
   }
+  expect(testedSteelGains.sort((a,b)=>a-b)).toEqual([1.8,2.4,3]);
   expect(sourceRequests).toHaveLength(1); // Samaa paikallista B-WAV:ia käytetään uudelleen.
   await page.locator('#trialSelect').selectOption('B');
   await page.locator('#trialResultNote').fill('A, B ja C kuunneltu samasta alusta.');
@@ -134,6 +166,8 @@ test('sokkoutettu M2 Steel A/B/C käynnistyy aina samalla säestyksellä ja palj
 });
 
 test('sokkoutettu M0 vertaa kitaran tasoa ja kopioi vain pyydettäessä selkeän ei-hyväksytty-raportin', async ({page}) => {
+  await observeAudioGains(page);
+  const testedM0Gains:number[] = [];
   await page.addInitScript(() => {
     const saved: string[] = [];
     Object.defineProperty(window, '__copiedTrial', {value:saved,configurable:true});
@@ -151,7 +185,11 @@ test('sokkoutettu M0 vertaa kitaran tasoa ja kopioi vain pyydettäessä selkeän
   for (const letter of ['C','A','B']) {
     await page.locator('[data-trial-option="'+letter+'"]').click();
     await expect(page.locator('#message')).toContainText('Esimerkki soi:', {timeout:15000});
+    const m0Gain = Number(await page.locator('#m0Gain').inputValue());
+    testedM0Gains.push(m0Gain);
+    expect(await hasWebAudioGain(page, m0Gain)).toBe(true);
   }
+  expect(testedM0Gains.sort((a,b)=>a-b)).toEqual([.2,.3,.4]);
   await page.locator('#trialReveal').click();
   const label = await page.locator('#trialRevealResult').innerText();
   expect(label).toContain('20 %');
@@ -170,6 +208,8 @@ test('sokkoutettu M0 vertaa kitaran tasoa ja kopioi vain pyydettäessä selkeän
 });
 
 test('balanssikoe ei väitä miksauksen hyväksyntää ja pitää A/B/C-säätimet oikeilla rajoilla', async ({page}) => {
+  await observeAudioGains(page);
+  const testedBackingGains:number[] = [];
   await page.goto(url);
   await expect(page.locator('#balanceStatus')).toContainText('Balanssi avoin');
   const bounds = await page.evaluate(() => {
@@ -186,12 +226,15 @@ test('balanssikoe ei väitä miksauksen hyväksyntää ja pitää A/B/C-säätim
   });
   await page.locator('input[name="trialGroup"][value="backing"]').check();
   await page.locator('#trialBegin').click();
-  await page.locator('[data-trial-option="A"]').click();
-  await expect(page.locator('#message')).toContainText('Musiikki soi:', {timeout:15000});
-  await page.locator('[data-trial-option="B"]').click();
-  await expect(page.locator('#message')).toContainText('Musiikki soi:', {timeout:15000});
-  await page.locator('[data-trial-option="C"]').click();
-  await expect(page.locator('#message')).toContainText('Musiikki soi:', {timeout:15000});
+  for (const letter of ['A','B','C']) {
+    await page.locator('[data-trial-option="'+letter+'"]').click();
+    await expect(page.locator('#message')).toContainText('Musiikki soi:', {timeout:15000});
+    const backingGain = Number(await page.locator('#m2BackingGain').inputValue());
+    testedBackingGains.push(backingGain);
+    expect(await hasWebAudioGain(page, backingGain)).toBe(true);
+    expect(await hasWebAudioGain(page, 2.4)).toBe(true); // Steel pysyy vakiona
+  }
+  expect(testedBackingGains.sort((a,b)=>a-b)).toEqual([.4,.55,.7]);
   await page.locator('#trialSelect').selectOption('A');
   await page.locator('#trialReveal').click();
   const label = await page.locator('#trialRevealResult').innerText();
