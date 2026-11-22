@@ -69,7 +69,7 @@ describe('Soinnut ja harmonia: oma oppimiskokonaisuus', () => {
 
 it('Ydinopinnot on ensimmäinen ja kokeilut eivät sekoitu G-pilotin tai aiempien tunnisteisiin', () => {
   const topic = read('oppi/soinnut/index.html');
-  const slugs = ['kuule-ja-kokoa-sointu', 'yksi-savel-muuttaa-sointua', 'mihin-kappale-haluaa-palata', 'sointukierto-ja-asteet', 'sama-kierto-vahemmilla-vihjeilla'];
+  const slugs = ['kuule-ja-kokoa-sointu', 'yksi-savel-muuttaa-sointua', 'mihin-kappale-haluaa-palata', 'sointukierto-ja-asteet', 'siirra-sama-rakenne', 'sama-kierto-vahemmilla-vihjeilla'];
   const attempts = slugs.map(slug => 'harjoitus:' + slug);
   expect(topic).toMatch(/<div class="study-units">\s+<details class="study-unit" id="ydinopinnot">/);
   expect([...topic.matchAll(/data-study-attempt-status="([^"]+)"/g)].map(([, id]) => id)).toEqual(attempts);
@@ -187,4 +187,22 @@ it('06 sointukierto säilyttää neljä vapaasti vaihdettavaa, ei-lukittua vihje
   expect(page).toContain('data-study-item="harjoitus:sama-kierto-vahemmilla-vihjeilla"');
   expect(topic).toContain('data-study-attempt-status="harjoitus:sama-kierto-vahemmilla-vihjeilla"');
   expect(page).toContain('G–D–Em–C');
+});
+
+it('05 C–G–Am–F käyttää oikean F-duurin valmista graafista otetta', () => {
+  const src = read('tools/oppimiskartta/sisallot/soinnut/siirra-sama-rakenne.html');
+  const page = read('oppi/soinnut/siirra-sama-rakenne.html');
+  const topic = read('oppi/soinnut/index.html');
+  expect(src).toContain('G–D–Em–C');
+  expect(src).toContain('C–G–Am–F');
+  expect(src).toContain('I–V–vi–IV');
+  expect(src).toContain('<!-- sointukaaviot:osa-3#harmoninen-kentta F -->');
+  const diagramStart = page.indexOf('<div class="chord-diagrams">');
+  const diagrams = page.slice(diagramStart, page.indexOf('</div>', diagramStart));
+  expect([...diagrams.matchAll(/<figure class="chord-diagram"><figcaption>([^<]+)<\/figcaption>/g)]
+    .map(([, chord]) => chord)).toEqual(['C', 'G', 'Am', 'F']);
+  expect(diagrams).toContain('<code>xx3211</code>');
+  expect(diagrams).not.toContain('<figcaption>Fmaj7</figcaption>');
+  expect(topic).toContain('data-study-attempt-status="harjoitus:siirra-sama-rakenne"');
+  expect(page).toContain('data-study-item="harjoitus:siirra-sama-rakenne"');
 });
