@@ -105,9 +105,8 @@
 .sointu-ydin .sointu-kierron-toisto { display: inline-grid; }
 .sointu-kierron-toisto > span { grid-area: 1 / 1; }
 .sointu-piilossa, .sointu-varaus { visibility: hidden; }
-/* E/Em-kuunteluarvaus: kysymys ja ohjainten paikat eivät vaihdu tehtävän
- * alkaessa. Puhelimessa molemmat kuuntelupainikkeet pinoutuvat jo ennen Arvaa-
- * painallusta; leveämmässä näkymässä ne pysyvät rinnakkain kummassakin tilassa. */
+/* Tunnistuksessa kuuntelu ja vastaus käyttävät samaa kahden palstan rivijakoa.
+ * Suurennetulla mobiilinäkymällä molemmat voivat rivittyä allekkain. */
 .sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-kysymys] {
   min-block-size: 7.5rem;
 }
@@ -121,16 +120,31 @@
   justify-items: start;
   gap: .5rem;
 }
-.sointu-ydin[data-sointuharjoitus="arvaa"] :is([data-suora-kuuntelu], [data-arvaus-kuuntelu]) {
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-suora-kuuntelu] {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.5rem), 1fr));
   gap: .5rem;
   inline-size: min(100%, 28rem);
 }
-.sointu-ydin[data-sointuharjoitus="arvaa"] :is([data-suora-kuuntelu], [data-arvaus-kuuntelu]) > button {
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-suora-kuuntelu] > button {
   inline-size: 100%;
   min-inline-size: 0;
   min-block-size: 2.5em;
+}
+/* Sama rivijako kuin Vastaa-painikkeilla. Sointu 1/2 on ennen vastausta
+ * pisin näkyvä nimi, joten kahteen palstaan mahtuminen ei paljasta tulosta. */
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-kuuntelu] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: .5rem;
+  inline-size: min(100%, 28rem);
+}
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-kuuntelu] > button {
+  flex: 1 1 6.5rem;
+  min-inline-size: 0;
+  min-block-size: 44px;
+  padding-inline: .55rem;
 }
 .sointu-ydin[data-sointuharjoitus="arvaa"] [data-uusi-arvaus] {
   inline-size: min(100%, 11rem);
