@@ -56,28 +56,32 @@ test('changing selected file stops prior state without autostarting', async ({ p
 /**
  * Positive decoding/scheduling regression using a valid synthetic 30.4 s WAV.
  * The tested page's SHA literal is replaced with the fixture SHA *only* for
- * this test. The actual master SHA and audible recording are not exercised.
+ * this test. The actual master SHA and audible recording are not exercised; fixture shares the real 48 kHz / 24-bit / stereo format.
  */
 function makeSyntheticBacking(): Buffer {
-  const sampleRate = 8000;
+  const sampleRate = 48000;
   const samples = Math.round(30.4 * sampleRate);
-  const wav = Buffer.alloc(44 + samples * 2);
+  const bytesPerFrame = 6; // PCM 24-bit, stereo, like the actual B-rock master
+  const wav = Buffer.alloc(44 + samples * bytesPerFrame);
   wav.write('RIFF', 0, 'ascii');
   wav.writeUInt32LE(wav.length - 8, 4);
   wav.write('WAVE', 8, 'ascii');
   wav.write('fmt ', 12, 'ascii');
   wav.writeUInt32LE(16, 16);
   wav.writeUInt16LE(1, 20); // PCM
-  wav.writeUInt16LE(1, 22); // Mono; the real master is stereo 24 bit
+  wav.writeUInt16LE(2, 22); // Stereo
   wav.writeUInt32LE(sampleRate, 24);
-  wav.writeUInt32LE(sampleRate * 2, 28);
-  wav.writeUInt16LE(2, 32);
-  wav.writeUInt16LE(16, 34);
+  wav.writeUInt32LE(sampleRate * bytesPerFrame, 28);
+  wav.writeUInt16LE(bytesPerFrame, 32);
+  wav.writeUInt16LE(24, 34);
   wav.write('data', 36, 'ascii');
-  wav.writeUInt32LE(samples * 2, 40);
-  // A faint 220 Hz tone in the music section; validates a nonempty PCM source.
-  for (let i = Math.round(4 * sampleRate * 60 / 72); i < Math.round(30 * sampleRate); i++) {
-    wav.writeInt16LE(Math.round(400 * Math.sin(2 * Math.PI * 220 * i / sampleRate)), 44 + i * 2);
+  wav.writeUInt32LE(samples * bytesPerFrame, 40);
+  // Tiny 220 Hz cue in otherwise silent 30.4s fixture, no music claim.
+  const musicStart = Math.round(4 * sampleRate * 60 / 72);
+  for (let i = musicStart; i < musicStart + sampleRate / 10; i++) {
+    const sample = Math.round(0.01 * 8388607 * Math.sin(2 * Math.PI * 220 * i / sampleRate));
+    wav.writeIntLE(sample, 44 + i * bytesPerFrame, 3);
+    wav.writeIntLE(sample, 44 + i * bytesPerFrame + 3, 3);
   }
   return wav;
 }
