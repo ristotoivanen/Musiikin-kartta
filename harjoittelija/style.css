@@ -321,6 +321,20 @@ input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-
 }
 .song-toggles input { width: 19px; height: 19px; margin: 0; }
 .song-player .tools-note { margin: 4px 0; }
+/* D2-kokeilu: MP3-raitojen taustalatauksen eteneminen (hillitty, ei animaatiota). */
+.song-load {
+  display: flex; align-items: center; gap: 10px; margin: 6px 0 2px; min-width: 0;
+  font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums;
+}
+.song-load span { flex: none; }
+.song-load progress {
+  flex: 1 1 auto; min-width: 60px; max-width: 320px; height: 4px; margin: 0;
+  appearance: none; -webkit-appearance: none; border: 0; border-radius: 2px;
+  background: var(--line); color: var(--lavender); overflow: hidden;
+}
+.song-load progress::-webkit-progress-bar { background: var(--line); border-radius: 2px; }
+.song-load progress::-webkit-progress-value { background: var(--lavender); border-radius: 2px; }
+.song-load progress::-moz-progress-bar { background: var(--lavender); border-radius: 2px; }
 /* Lataa MP3: valitun version valmis kokonainen tiedosto. */
 .song-download { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin: 6px 0 2px; font-size: 14px; color: var(--muted); }
 .song-download a {

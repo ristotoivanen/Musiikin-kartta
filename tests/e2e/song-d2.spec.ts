@@ -181,3 +181,65 @@ test('D2-ensilataus (kokeilu): hitaalla yhteydellä toisto alkaa ennen koko lata
   expect(result.events).not.toContain('virhe');
   expect(result.events).not.toContain('alivuoto');
 });
+
+const percentOf = async (page: Page) => Number((await page.locator('#song-load-label').textContent())?.match(/\d+/)?.[0] ?? -1);
+
+test('D2-latausnäyttö: "Ladattu XX %" ja palkki soiton aikana, valitun kohdan odotus, 100 % ja piiloon, versionvaihto, 320 px', async ({ page }) => {
+  test.setTimeout(180000);
+  await page.setViewportSize({ width: 320, height: 720 });
+  const cdp = await page.context().newCDPSession(page);
+  await page.goto(SONG);
+  await cdp.send('Network.enable');
+  const slow = () => cdp.send('Network.emulateNetworkConditions', { offline: false, latency: 150, downloadThroughput: 190000, uploadThroughput: 100000 });
+  const fast = () => cdp.send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
+  await slow();
+  const play = page.locator('.song-play');
+  await play.click();
+  await expect(play).toHaveText(/Tauko/, { timeout: 60000 });
+  // Palkki ja todellinen prosentti soiton aikana; saavutettava nimi on näkyvä teksti.
+  const bar = page.getByRole('progressbar', { name: /^Ladattu \d+ %$/ });
+  await expect(bar).toBeVisible();
+  const first = await percentOf(page);
+  expect(first).toBeGreaterThanOrEqual(0);
+  expect(first).toBeLessThan(60);
+  await expect.poll(() => percentOf(page), { timeout: 30000 }).toBeGreaterThan(first);
+  const shown = await percentOf(page), value = Number(await bar.getAttribute('value'));
+  expect(Math.abs(value - shown)).toBeLessThanOrEqual(1);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+  // Kelaus lataamattomaan kohtaan: selkeä odotusviesti.
+  await page.locator('input[aria-label="Siirry kappaleessa"]').fill('200');
+  await expect(page.getByRole('status').filter({ hasText: 'Ladataan valittua kohtaa…' })).toBeVisible({ timeout: 5000 });
+  // Lataus valmistuu: 100 % näkyy hetken, sitten palkki ja odotusviesti poistuvat.
+  await fast();
+  await expect(page.locator('#song-load-label')).toHaveText('Ladattu 100 %', { timeout: 60000 });
+  await expect(page.getByRole('status').filter({ hasText: 'Kappale ladattu.' })).toHaveCount(1);
+  await expect(page.getByText('Ladataan valittua kohtaa…')).toBeHidden({ timeout: 20000 });
+  await expect(page.locator('.song-load')).toBeHidden({ timeout: 5000 });
+  // Versionvaihto: näyttö tyhjenee ja seuraa uuden version latausta.
+  await play.click();
+  await slow();
+  await page.locator('#song-version-select').selectOption('acoustic');
+  await expect(page.locator('.song-load')).toBeHidden();
+  await play.click();
+  await expect(play).toHaveText(/Tauko/, { timeout: 60000 });
+  await expect(page.getByRole('progressbar', { name: /^Ladattu \d+ %$/ })).toBeVisible();
+  expect(await percentOf(page)).toBeLessThan(60);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+  await fast();
+});
+
+test('D2-latausnäyttö: katkennut lataus näyttää virheen eikä etenemispalkkia', async ({ page }) => {
+  test.setTimeout(60000);
+  // Kitararaidan vastaus päättyy kesken (runko lyhyempi kuin Content-Length) → virta katkeaa.
+  await page.route('**/*-normaali-kitara.mp3', async route => {
+    const response = await route.fetch();
+    const body = await response.body();
+    await route.fulfill({ status: 200, headers: { ...response.headers(), 'content-length': String(body.length) }, body: body.subarray(0, 200000) });
+  });
+  await page.goto(SONG);
+  await page.locator('.song-play').click();
+  await expect(page.getByText(/epäonnistui|keskeytyi/)).toBeVisible({ timeout: 30000 });
+  await expect(page.locator('.song-load')).toBeHidden();
+  await expect(page.getByRole('progressbar')).toHaveCount(0);
+  await expect(page.getByText('Ladataan valittua kohtaa…')).toBeHidden();
+});

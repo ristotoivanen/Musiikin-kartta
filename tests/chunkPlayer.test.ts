@@ -603,6 +603,28 @@ describe('Ensilataus (kokeilu): virtalataus D2:n syötteenä', () => {
     expect(player.playing).toBe(false);
   });
 
+  it('downloadStatus (vain luku): todelliset tavut ja koko latauksen aikana, valmis lopussa, nollautuu vapautuksessa', async () => {
+    const { player, net, clock, flush } = await startPartial();
+    const partial = player.downloadStatus;
+    expect(partial.total).toBe(3 * mp3.length);
+    expect(partial.received).toBe(Object.values(net.state).reduce((sum, e) => sum + e.sent, 0));
+    expect(partial.complete).toBe(false);
+    for (let i = 0; i < 400 && !player.downloadStatus.complete; i++) { net.push(262144); clock.t += 100; await macro(); await flush(); }
+    expect(player.downloadStatus).toEqual({ received: 3 * mp3.length, total: 3 * mp3.length, complete: true });
+    player.release();
+    expect(player.downloadStatus).toEqual({ received: 0, total: null, complete: false });
+  });
+
+  it('downloadStatus ilman virtaa (ei Content-Lengthiä): valmis koko latauksen jälkeen', async () => {
+    const clock = { t: 0 }, net = streamingFiles(files, { contentLength: false });
+    const { player, flush } = setup(8842, { fetch: net.fetch, progressive: true, clock });
+    const loading = player.load(progressiveUrls);
+    expect(player.downloadStatus).toEqual({ received: 0, total: null, complete: false });
+    for (let i = 0; i < 400 && player.state !== 'valmis'; i++) { net.push(262144); clock.t += 100; await macro(); await flush(); }
+    await loading;
+    expect(player.downloadStatus).toEqual({ received: 3 * mp3.length, total: 3 * mp3.length, complete: true });
+  });
+
   it('ilman Content-Lengthiä ladataan koko tiedosto ensin kuten hyväksytyssä D2:ssa', async () => {
     const clock = { t: 0 }, net = streamingFiles(files, { contentLength: false });
     const { player, flush } = setup(8842, { fetch: net.fetch, progressive: true, clock });

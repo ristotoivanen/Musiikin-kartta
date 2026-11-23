@@ -8,6 +8,7 @@ import {
 import { DEFAULT_SONG_VERSION, chordAt, isSongLink, songLink, versionFromSongLink, type SongVersion } from './songChart';
 import { BufferSongPlayer, createPlaybackContext, type BufferPlayerState } from './bufferPlayer';
 import { ChunkSongPlayer } from './chunkPlayer';
+import { DownloadProgressLine } from './DownloadProgressLine';
 
 /**
  * KOKEILU (issue #9, ei julkaisuun): ?soitin=d1 soittaa raidat kokonaan puretuista AudioBuffereista (bufferPlayer.ts),
@@ -524,9 +525,14 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
         <span>{song.label}, koko kappale · {song.downloadSize}</span>
       </p>
       {error && <p className="backing-error" role="alert">{error}</p>}
-      {D1_MODE && (d1State === 'ladataan' || d1State === 'puretaan') && <p className="tools-note" role="status">
+      {D1_MODE && !D2_MODE && (d1State === 'ladataan' || d1State === 'puretaan') && <p className="tools-note" role="status">
         {d1State === 'ladataan' ? 'Ladataan kappaleen raitoja…' : 'Valmistellaan raitoja soittoa varten…'}</p>}
-      {D1_MODE && d2Waiting && <p className="tools-note" role="status">Ladataan kappaletta tähän kohtaan…</p>}
+      {D1_MODE && d2Waiting && <p className="tools-note song-load-wait" role="status">Ladataan valittua kohtaa…</p>}
+      {D2_MODE && <DownloadProgressLine state={d1State} read={() => {
+        // D2: taustalatauksen eteneminen soittimen todellisista tavuista (ei soittoajasta).
+        const player = d1.current?.player;
+        return player instanceof ChunkSongPlayer ? { status: player.downloadStatus, state: player.state } : null;
+      }} />}
       {D2_DIAG && <pre className="tools-note" style={{ whiteSpace: 'pre-wrap', fontSize: '0.75rem' }}>{d2Diag}</pre>}
       {!D1_MODE && <>
       <audio key={version + '-backing'} ref={backingRef} src={song.backing} preload="metadata" loop={loopOn}

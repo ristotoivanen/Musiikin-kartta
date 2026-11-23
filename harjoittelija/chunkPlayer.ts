@@ -429,6 +429,22 @@ export class ChunkSongPlayer {
     this.onWaitingChange?.(waiting);
   }
 
+  /**
+   * Käyttöliittymälle (vain luku, ei vaikuta lataukseen tai soittoon): taustalatauksen saapuneet ja kokonaistavut.
+   * total = null, jos kaikkien raitojen kokoa ei tunneta; ilman virtaa ja ilman dataa { 0, null, false }.
+   */
+  get downloadStatus(): { received: number; total: number | null; complete: boolean } {
+    if (!this.streams.length) {
+      return this.data ? { received: this.compressedBytes, total: this.compressedBytes, complete: true } : { received: 0, total: null, complete: false };
+    }
+    const known = this.streams.length === BUFFER_TRACKS.length;
+    return {
+      received: this.streams.reduce((sum, stream) => sum + stream.received, 0),
+      total: known ? this.streams.reduce((sum, stream) => sum + stream.total, 0) : null,
+      complete: this.streams.every(stream => stream.done) && (known || this.data !== null),
+    };
+  }
+
   /** Ladattu osuus (0…1) virtalatauksessa; 1, kun kaikki on ladattu tai virtaa ei käytetä. */
   get downloadProgress(): number {
     if (!this.streams.length) return this.data ? 1 : 0;
