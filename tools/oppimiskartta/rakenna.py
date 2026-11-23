@@ -707,6 +707,10 @@ def render(topic, content, nav, page=None, *, path_items=()):
         stylesheets.append('assets/kokonaisuudet.css')
     if chord_practice:
         stylesheets.append('assets/sointuharjoitus.css')
+    # Otelaudan Ydinopinnot (#116, vaihe 3): sivukohtainen otelauta ja demoäänet.
+    fretboard_practice = 'data-otelautaharjoitus=' in (page.markup if page else content)
+    if fretboard_practice:
+        stylesheets.append('assets/otelauta-ydinopinnot.css')
     styles = '\n'.join(stylesheet(path, output) for path in stylesheets)
     focus_mode = bool(page and getattr(page, 'unit', None) and page.unit.get('inline'))
     back_href = rel(topic['path'], output) if page else rel('index.html', output) + '#' + topic['anchor']
@@ -744,6 +748,8 @@ def render(topic, content, nav, page=None, *, path_items=()):
         scripts += f'\n  <script type="module" src="{url}"></script>'
     if rhythm_practice:
         scripts += f'\n  <script type="module" src="{versioned_url("assets/rytmi-ydinopinnot.js", output)}"></script>'
+    if fretboard_practice:
+        scripts += f'\n  <script type="module" src="{versioned_url("assets/otelauta-ydinopinnot.js", output)}"></script>'
     page_class = ' recap-page' if recap else (' study-page--focus' if focus_mode else '')
     # Muiden sivujen yhteinen päävalikko pysyy tavulleen ennallaan.
     header_html = '' if focus_mode else ('  <header class="site-top">\n'
