@@ -1,0 +1,142 @@
+/* Sävelkorva ja melodia · Ydinopinnot (#116, vaihe 2). Ladataan vain sivuille, joilla on
+ * [data-melodiaharjoitus] (tools/oppimiskartta/rakenna.py). Värit book/reader.css:n muuttujista;
+ * painikkeet, palaute ja ⓘ-lisätieto kuten Soinnut ja harmonia -aiheen Ydinopinnoissa. */
+
+.melodia-ydin h2 { margin-block: 0 .55rem; font-size: 1.1rem; }
+.melodia-ydin h3 { margin: 1rem 0 .45rem; font-size: 1.05rem; }
+.melodia-ydin [hidden] { display: none !important; }
+.melodia-ydin.study-knoppi-host h2:first-child { padding-inline-end: 44px; }
+.melodia-ydin.study-knoppi-host .study-knoppi-sisalto { width: 100%; }
+.melodia-ydin .study-knoppi h3 { margin: 0 0 .5rem; }
+
+.melodia-toiminnot { display: flex; flex-wrap: wrap; gap: .5rem; margin: .85rem 0 .35rem; }
+.melodia-ydin button {
+  min-height: 44px;
+  max-width: 100%;
+  padding: .45rem .95rem;
+  border: 1px solid #71638c;
+  border-radius: .55rem;
+  background: #2d2444;
+  color: var(--text);
+  font: inherit;
+  font-weight: 700;
+  text-align: start;
+  cursor: pointer;
+}
+.melodia-ydin button:hover { border-color: var(--accent); background: #3a2f55; }
+.melodia-ydin .melodia-ensisijainen { border-color: #d6c7ff; background: var(--accent); color: #170f28; }
+.melodia-ydin .melodia-ensisijainen:hover { background: #d5c6ff; }
+.melodia-ydin button:focus-visible { outline: 3px solid #75e5c6; outline-offset: 2px; }
+.melodia-ydin button:disabled { opacity: .6; cursor: default; }
+.melodia-ydin button:disabled:hover { border-color: #71638c; background: #2d2444; }
+.melodia-ydin button[data-playing] { border-color: var(--accent); background: #234133; box-shadow: inset 0 0 0 1px currentColor; }
+.melodia-ydin .melodia-ensisijainen[data-playing] { color: var(--text); }
+.melodia-ydin button[aria-pressed="true"] {
+  border-color: #d8caff; background: var(--accent); color: #171021; box-shadow: inset 0 0 0 1px currentColor;
+}
+
+.melodia-tila { min-height: 1.5em; margin: .35rem 0 0; color: #9fe4c3; font-size: .92rem; }
+.melodia-tila.is-error { color: #ffd6b3; }
+.melodia-ohje, .melodia-huomautus, .melodia-lahde { color: var(--muted); font-size: .9rem; }
+
+.melodia-tehtava {
+  min-width: 0; margin-block: .85rem; padding: .65rem .75rem;
+  border: 1px solid var(--line); border-radius: .55rem;
+}
+.melodia-tehtava > h3:first-child { margin-top: 0; }
+
+/* Vastausryhmät: natiivi fieldset + legend nimeää ryhmän ruudunlukijalle. */
+.melodia-valinnat, .melodia-otelauta {
+  display: flex; flex-wrap: wrap; gap: .5rem; min-width: 0;
+  margin: .75rem 0; padding: 0; border: 0;
+}
+.melodia-valinnat legend, .melodia-otelauta legend { margin-bottom: .45rem; padding: 0; font-weight: 700; }
+.melodia-valinnat button { flex: 0 1 auto; }
+
+/* Kitaran paikat: viisi painiketta matalimmasta korkeimpaan, nimi ja paikka allekkain. */
+.melodia-otelauta { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.melodia-otelauta legend { grid-column: 1 / -1; }
+.melodia-otelauta button {
+  display: grid; justify-items: center; gap: .1rem;
+  min-width: 0; min-height: 64px; padding: .35rem .25rem; text-align: center;
+}
+.melodia-otelauta button strong { font-size: 1.2rem; line-height: 1.1; }
+.melodia-otelauta button span { color: var(--muted); font-size: .78rem; font-weight: 600; line-height: 1.2; overflow-wrap: anywhere; }
+.melodia-otelauta button[data-playing] span { color: var(--text); }
+
+.melodia-vastaus {
+  display: grid; gap: .3rem; margin: .25rem 0 .5rem; padding: .55rem .75rem;
+  border-radius: .55rem; background: var(--bg); list-style: none;
+}
+.melodia-vastaus li { display: flex; gap: .55rem; align-items: baseline; min-width: 0; }
+.melodia-vastaus-nro {
+  flex: 0 0 auto; min-width: 1.6rem; color: var(--muted); font-variant-numeric: tabular-nums; font-weight: 700;
+}
+.melodia-vastaus .is-empty { color: var(--muted); font-style: italic; }
+
+.melodia-palaute { min-height: 1.5em; margin: .5rem 0; color: var(--muted); }
+.melodia-palaute.is-answered { color: #9fe4c3; }
+.melodia-palaute.is-answered.is-error { color: #ffe08a; }
+
+/* Kuultu melodia vastauksen jälkeen: korkeampi sävel nousee korkeammalle (ei vain värillä). */
+.melodia-kaari { margin-top: .75rem; }
+.melodia-kaari h3 { margin: 0 0 .45rem; }
+.melodia-kaari ol {
+  display: flex; flex-wrap: nowrap; align-items: flex-end; gap: clamp(.2rem, 1.2vw, .45rem);
+  margin: 0; padding: .55rem .5rem; border-radius: .55rem; background: var(--bg); list-style: none;
+}
+.melodia-kaari li {
+  display: grid; justify-items: center; gap: .1rem;
+  flex: 1 1 0; min-width: 0; max-width: 7rem;
+  margin-bottom: calc(var(--taso, 0) * .3rem);
+  padding: .35rem .2rem;
+  border: 1px solid #7b6c97; border-radius: .55rem; background: var(--panel);
+  text-align: center;
+}
+.melodia-kaari li strong { font-size: 1.2rem; line-height: 1.1; }
+.melodia-kaari li span { color: var(--muted); font-size: .75rem; line-height: 1.2; overflow-wrap: anywhere; }
+/* Pitkä melodia (02): vain sävelnimet näkyvät, kitaran paikka on saavutettavassa nimessä. */
+.melodia-kaari ol.is-pitka li span { display: none; }
+
+@media (max-width: 560px) {
+  .melodia-otelauta { grid-template-columns: repeat(auto-fit, minmax(min(100%, 5.25rem), 1fr)); }
+}
+@media (forced-colors: active) {
+  .melodia-ydin button[aria-pressed="true"] { outline: 3px solid Highlight; }
+}
+@media print {
+  .melodia-toiminnot, .melodia-tila, .melodia-tehtava { display: none !important; }
+}
+
+/* Aihesivun harjoituskortti käyttää samaa korttipohjaa ja natiivia avautumista kuin
+ * Soinnut ja harmonia -aiheessa (assets/sointuharjoitus.css). */
+.study-units .study-inline-choices { grid-template-rows: none; grid-auto-rows: auto; }
+.study-inline-choices > li { display: block; grid-row: auto; min-width: 0; }
+.study-inline { min-width: 0; border: 1px solid #71638c; border-radius: .65rem; }
+.study-inline > summary { grid-template-rows: auto 1fr; border: 0; list-style: none; cursor: pointer; }
+.study-inline > summary::-webkit-details-marker { display: none; }
+.study-inline > summary:hover .study-title { text-decoration: underline; text-underline-offset: .18em; }
+.study-inline > summary:focus-visible { outline: 2px solid #75e5c6; }
+.study-inline .study-arrow::before { color: var(--accent); content: "+"; content: "+" / ""; }
+.study-inline[open] .study-arrow::before { content: "−"; content: "−" / ""; }
+.study-inline[open] > summary {
+  border-bottom: 1px solid #71638c;
+  border-end-start-radius: 0;
+  border-end-end-radius: 0;
+}
+.study-inline-body { padding: 0 clamp(.45rem, 2vw, .875rem) .875rem; min-width: 0; }
+.study-inline-body .done-row, .study-inline-link { margin-block: .75rem 0; }
+.study-inline-link a { display: inline-flex; align-items: center; min-height: 44px; }
+@media print {
+  .study-inline .study-arrow::before { content: none; }
+}
+
+@media (max-width: 600px) {
+  .study-unit-body:has(> .study-inline-choices) { padding-inline: .25rem; }
+  .study-unit-body:has(> .study-inline-choices) > :is(.study-unit-goal, .study-start) {
+    margin-inline: .5rem;
+  }
+  .study-inline-body { padding-inline: .125rem; }
+  .study-inline-body > :is(.practice, .note) { padding-inline: .625rem; }
+  .study-inline-body > :is(.melodia-huomautus, .melodia-lahde, .done-row, .study-inline-link) { margin-inline: .5rem; }
+}
