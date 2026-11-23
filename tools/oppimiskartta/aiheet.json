@@ -219,22 +219,22 @@
             {
               "standalone": "sama-savel-toiselta-kielelta",
               "title": "Sama sävel toiselta kieleltä",
-              "goal": "Yhtä korkea sävel naapurikielellä"
+              "goal": "Yhtä korkea sävel naapurikielellä, vaihtuvat tehtävät"
             },
             {
               "standalone": "kuule-oktaavi",
               "title": "Kuule ja löydä oktaavi",
-              "goal": "Matalampi, yhtä korkea vai korkeampi?"
+              "goal": "Kuule korkeusero ja löydä paikka"
             },
             {
               "standalone": "perussavel-e-ja-a-kielelta",
               "title": "Etsi perussävel E- ja A-kieleltä",
-              "goal": "Kiintopisteet 0, 3, 5, 7 ja 12"
+              "goal": "Päättele sävel kiintopisteistä"
             },
             {
               "standalone": "liiku-otelaudalla",
               "title": "Liiku otelaudalla",
-              "goal": "Kaikki D:t ja F:t oktaaveittain"
+              "goal": "Saman sävelen kaikki paikat ja oktaavit"
             }
           ]
         },

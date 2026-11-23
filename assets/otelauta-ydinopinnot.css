@@ -77,8 +77,44 @@
 
 .otelauta-sovellus { margin: .9rem 0; }
 .otelauta-toiminnot { display: flex; flex-wrap: wrap; gap: .5rem; margin: .6rem 0; }
-.otelauta-kierros { margin: 0 0 .2rem; font-weight: 700; }
-.otelauta-tehtava { margin: 0 0 .5rem; font-size: 1.05rem; font-weight: 700; }
+.otelauta-toiminnot:empty { display: none; }
+/* Tehtävä vasemmalla, tehtävänumero ja äänivalinta oikealla; kapealla allekkain. */
+.otelauta-otsake { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: .35rem .75rem; }
+.otelauta-sivupalkki { display: flex; align-items: center; gap: .5rem; margin-inline-start: auto; }
+.otelauta-kierros { color: var(--muted); font-size: .85rem; font-weight: 700; white-space: nowrap; }
+.otelauta-tehtava { flex: 1 1 14rem; margin: 0 0 .4rem; font-size: 1.12rem; font-weight: 800; }
+.otelauta-harjoitus .otelauta-aani { min-height: 44px; padding: .3rem .7rem; font-size: .9rem; }
+.otelauta-kitaravinkki { display: flex; align-items: center; gap: .45rem; margin: .3rem 0 .6rem; color: var(--muted); font-size: .92rem; }
+.otelauta-suhteet button { flex: 1 1 8rem; }
+.otelauta-laajuus { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin: .4rem 0 .6rem; }
+.otelauta-laajuus label { font-weight: 700; }
+.otelauta-laajuus select {
+  min-height: 44px; max-width: 100%; padding: .35rem .6rem;
+  border: 1px solid #71638c; border-radius: .55rem; background: #2d2444; color: var(--text); font: inherit;
+}
+.otelauta-laajuus select:focus-visible { outline: 3px solid #75e5c6; outline-offset: 2px; }
+.otelauta-harjoitus .otelauta-linkki {
+  min-height: 44px; padding-inline: 0; border: 0; background: none; color: var(--accent);
+  font-weight: 600; text-decoration: underline; text-underline-offset: .18em;
+}
+.otelauta-harjoitus .otelauta-linkki:hover { background: none; color: var(--text); }
+.otelauta-harjoitus .otelauta-linkki[aria-pressed="true"] { box-shadow: none; }
+.otelauta-harjoitus .otelauta-toissijainen { border-color: transparent; background: none; color: var(--muted); font-weight: 600; }
+.otelauta-tila-huomautus { margin: .2rem 0 .5rem; color: #ffd6b3; font-size: .9rem; }
+.otelauta-vaihto { margin: .2rem 0 0; }
+/* Palaute ja seuraava toiminto pysyvät näkyvissä pitkän laudan alla puhelimessa. */
+.otelauta-paneeli {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  margin-inline: -.25rem;
+  padding: .1rem .25rem .2rem;
+  background: var(--panel);
+  box-shadow: 0 -.5rem .6rem -.4rem rgba(0, 0, 0, .55);
+}
+/* Ennen ensimmäistä palautetta paneeli on tavallisessa järjestyksessä laudan alla eikä peitä mitään. */
+.otelauta-paneeli:has(> .otelauta-palaute:empty) { position: static; box-shadow: none; }
+.otelauta-lauta td > button { scroll-margin-block: 4rem 10rem; }
 .otelauta-tehtava:focus { outline: none; }
 .otelauta-tehtava:focus-visible { outline: 2px solid #75e5c6; outline-offset: 3px; }
 .otelauta-palaute {
@@ -101,9 +137,12 @@
 
 /* Pystysuora otelauta: paksu E vasemmalla, satula ylhäällä kuten sointukaaviossa. */
 .otelauta-laudan-alue { margin: .4rem 0; }
-/* Kapealla näytöllä lauta käyttää myös kortin reunatäytteen, jotta kuusi kieltä mahtuu 320 px:iin. */
-@media (max-width: 420px) {
-  .otelauta-laudan-alue .otelauta-kehys { max-inline-size: none; margin-inline: calc(-1 * var(--kortin-reuna) + .25rem); }
+/* Kapealla näytöllä (≤ 480 px) skripti levittää laudan 4 px:n päähän näkymän reunoista (createBoard/fit),
+ * jolloin kuuden kielen sarakkeet ovat 320 px:ssä vähintään 44 px leveitä. */
+@media (max-width: 480px) {
+  .otelauta-laudan-alue .otelauta-kehys { max-inline-size: none; }
+  .otelauta-laudan-alue .otelauta-lauta { max-width: none; }
+  .otelauta-laudan-alue .otelauta-lauta--kapea { max-width: 15rem; }
 }
 .otelauta-ohje { margin: .2rem 0 .4rem; }
 .otelauta-kehys {
@@ -117,7 +156,7 @@
   --nauha: #7f7296;
   width: 100%;
   max-width: 26rem;
-  min-width: calc(1.9rem + var(--kielia, 6) * 2.25rem);
+  min-width: calc(1.4rem + var(--kielia, 6) * 44px);
   margin: 0;
   border-collapse: collapse;
   table-layout: fixed;
@@ -125,7 +164,8 @@
 }
 .otelauta-lauta th, .otelauta-lauta td { padding: 0; border: 0; text-align: center; }
 .otelauta-lauta thead th { padding-block: .2rem; color: var(--muted); font-size: .9rem; font-weight: 800; }
-.otelauta-lauta thead th:first-child, .otelauta-lauta tbody th { width: 1.9rem; }
+.otelauta-lauta thead th:first-child, .otelauta-lauta tbody th { width: 1.4rem; }
+.otelauta-lauta--kapea { max-width: 15rem; }
 .otelauta-lauta tbody th {
   color: var(--muted);
   font-size: .78rem;
@@ -164,7 +204,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 1.9rem;
+  min-width: min(1.9rem, calc(100% - 4px));
   height: 1.9rem;
   padding-inline: .15rem;
   border-radius: 999px;

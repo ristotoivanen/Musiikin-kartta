@@ -34,28 +34,63 @@ Lähteet: `book/osa-5.html` (luvut 13–14), `book/osa-6.html` (luku 16), `tools
 
 **Yhteenveto:** aiempi aineisto on musiikillisesti oikeaa ja kattavaa, mutta (a) lähes kaikki tehtävät ovat itsearvioituja ja vastaus on heti avattavissa, (b) unisonon ja oktaavin ero kerrotaan tekstinä, ei kuunnella, (c) sääntöjä (oktaavimuodot, 13 nauhan taulukko) pyydetään muistamaan ennen käyttöä ja (d) CAGED-osuus on sointuaiheen syventävää sisältöä.
 
-## 3. Ydinopinnot: neljä harjoitusta
+## 3. Ydinopinnot: neljä harjoitusta (päivitetty 23.11.2026, vaihe 3b)
 
-Määrä perustuu tavoitteisiin: kolme perustaitoa (unisono naapurikielellä, oktaavi korvalla ja paikkana, E/A-kiintopisteet) ja yksi yhdistävä soveltaminen. Viides harjoitus olisi ollut sointusävelet tai CAGED (#138:n 05C/05D), mutta ne ovat sointuaiheen sisältöä eivätkä kuulu toimeksiannon viiteen tavoitteeseen; ne säilyvät Aiemmissa ja voidaan arvioida myöhemmin Lisäopinnoiksi.
+Määrä perustuu tavoitteisiin: kolme perustaitoa (unisono naapurikielellä, oktaavi korvalla ja paikkana, E/A-kiintopisteet) ja yksi yhdistävä soveltaminen. Sointusävelet ja CAGED (#138:n 05C/05D) ovat sointuaiheen sisältöä; ne säilyvät Aiemmissa.
 
-| # | Otsikko · tunniste | Oppijan havaittava teko | Palaute | Kitaralla | Ei kopioi vanhaa, koska |
-|---|---|---|---|---|---|
-| 01 | **Sama sävel toiselta kieleltä** · `harjoitus:sama-savel-toiselta-kielelta` | Kuusi tehtävää: lähtösävel merkitty (esim. vapaa A = A2), oppija valitsee yhtä korkean paikan paksummalta naapurikieleltä. Mukana G–B-poikkeus (vapaa B → G 4, B 3 → G 7). | Valittu paikka soi ja nimetään korkeudella; ”kaksi puoliaskelta korkeampi, siirry kaksi nauhaa alemmas”; oktaavivirhe nimetään oktaaviksi; toisen kielen sama korkeus kuitataan hyväksi havainnoksi. Vihje ja Näytä vastaus erikseen. | Kieliparien vertailu (sama periaate kuin korvavirityksessä). | Vanhoissa ei ole naapurikielen unisonoharjoitusta palautteella. |
-| 02 | **Kuule ja löydä oktaavi** · `harjoitus:kuule-oktaavi` | Kuusi tehtävää (A, G, C, D, E, F): lähtösävel ja kolme merkittyä paikkaa (oktaavi alas, unisono, oktaavi ylös). Oppija kuuntelee arvoitussävelen ja valitsee paikan. | Paljastaa kaikkien kolmen paikan korkeuden ja suhteen; paikat voi kuunnella vastaamisen jälkeen. Arvoitussävel ei näy saavutettavassa nimessä ennen vastausta. | Kolme A:ta (A2, A3, A4), oman lauluäänen A. | Vanhoissa oktaavi on vain tekstinä/taulukkona. |
-| 03 | **Etsi perussävel E- ja A-kieleltä** · `harjoitus:perussavel-e-ja-a-kielelta` | Kahdeksan tehtävää: etsi G/C/D/G kahdelta kieleltä ja nimeä A 5, E 5, E 8, A 7. Lauta näyttää vain E- ja A-kielen. | Suuntavihje (ylempää/alempaa), kiintopistevihje (”7. nauha on B, yhden nauhan ylempänä eli puoliaskelen korkeampi”). | Soita perussävel ennen sointua (G, C, Am, Em). | Vanha taulukko opetetaan kiintopisteinä; vanhat D/F/B♭-tehtävät säilyvät. |
-| 04 | **Liiku otelaudalla** · `harjoitus:liiku-otelaudalla` | Etsi kaikki D:t (7) ja F:t (6) nauhoilta 0–12 ilman asteikkokuviota. | Jokainen löytö: korkeus ja ”Sama korkeus kuin A 5” / ”Uusi korkeus”. Lista ryhmittelee löydöt korkeuksittain (D3 × 3, D4 × 3, D5 × 1). Vihjeiden määrä näkyy. | Soita D:t matalimmasta korkeimpaan ja sano korkeus. | Vanha G/C-harjoitus säilyy; uusi käyttää eri säveliä ja erottaa saman nimen korkeudet. |
+### 3.1 Riippumattoman auditoinnin havainnot ja korjaukset
 
-**Kulku jokaisessa:** johdanto → tehtävä → yritys → välitön palaute (tilaviesti) → seuraava / alusta → Kokeile kitaralla → Mitä opit? Yhteenveto erottelee ensimmäisellä yrityksellä, useammalla yrityksellä, vihjeellä ja näytetyllä vastauksella ratkaistut (PED-3/PED-4). Mitään ei tallenneta; ”Merkitse kokeilluksi” on Ydinopintojen yhteinen itse merkitty kuittaus.
+| Havainto (versio `6118261`) | Korjaus |
+|---|---|
+| Kaikki neljä harjoitusta olivat kiinteitä sarjoja (6/6/8/2 tehtävää); vastaukset oli helppo muistaa. | Jokainen harjoitus arpoo tehtävät kaikista kelvollisista kieli- ja nauhapaikoista 0–12 (`generate*`). Tehtäviä riittää loputtomiin; ”Uusi tehtävä” jatkaa aina. |
+| **02:n oikeat paikat toistuivat järjestyksessä 3–1–2–3–1–2**, ja paikat oli aina numeroitu kielijärjestyksessä (matalin = 1). Läpäisy onnistui ilman kuuntelua. | 02 jaettu kahteen vaiheeseen: **A) kuule suhde** (matalampi / sama / korkeampi), **B) löydä paikka** kolmesta numeroidusta kohdasta. Suhde arvotaan (ei kolmesti peräkkäin samaa), paikkojen numerointi sekoitetaan joka tehtävässä. Testi: kunkin numeron osuus 29–38 %, peräkkäisten sama numero 25–42 %, paksuin kieli numerona 1 alle 45 %. |
+| 01–03 olivat helppoja, 04 nousi jyrkästi (yksi tehtävä: kaikki 7 D:tä kuudelta kieleltä). | 04:ssä yksi **Laajuus**-valinta: E- ja A-kieli → kaikki kuusi kieltä → myös ♯/♭. Ei lukitusta; vaikeimman voi valita suoraan. 03:ssa ♯/♭ tulevat mukaan vasta neljän tehtävän jälkeen. |
+| Ohjeet olivat pitkiä (johdanto, merkintäselitys, taulukko, ohjerivit). | Jokaisessa harjoituksessa yksi–kaksi ohjelausetta, korostettu tehtävälause, välitön palaute ja yksi päätoiminto (”Uusi tehtävä →”). Teoria on ⓘ-lisätiedossa, kiintopistetaulukko vihjeessä. Ilman JavaScriptiä näkyvä tekstiversio piilotetaan, kun vuorovaikutteinen harjoitus toimii. |
+| Pisteiden kaltainen yhteenveto (ensimmäinen yritys / vihje / vastaus). | Poistettu. Palautteesta näkee, käytettiinkö vihjettä tai näytettiinkö vastaus. |
 
-**Mitä tulos ei mittaa:** virtuaalivalinta ei todista paikan löytämistä oikealta kitaralta, sormitusta tai soittotekniikkaa. Kuuntelutehtävä mittaa kuulonvaraista erottelua vain, jos oppija ei päättele vastausta paikoista (päättely on sallittu ja hyödyllinen). Pitkäaikaista oppimista ei ole tutkittu.
+### 3.2 Lopullinen toiminta
 
-## 4. Musiikillinen oikeellisuus
+| # | Tehtävä ja vaihtelu | Palaute ja vihje | Kitaralla |
+|---|---|---|---|
+| **01 Sama sävel toiselta kieleltä** · `harjoitus:sama-savel-toiselta-kielelta` | Ensin opettava esimerkki (vapaa A → E 5). Sitten arvotaan lähtöpaikka ja naapurikieli **molempiin suuntiin** kaikista 82 kelvollisesta tehtävästä (joista 18 ylittää G–B-välin). G–B-poikkeus vähintään joka neljännessä tehtävässä; sama lähtöpaikka ei toistu kolmen tehtävän sisällä eikä sama korkeus peräkkäin. | ”Oikein. Molemmat ovat A2.” Virhe: ”B2 – liian korkea. Siirry kaksi nauhaa alemmas.” Oktaavi nimetään oktaaviksi, väärä kieli ohjataan oikealle kielelle. Vihje kertoo säännön (5 nauhaa, G–B 4) ja suunnan, ei paikkaa. | ”Etsi ensin kitaralta, tarkista sitten ruudulta”; kieliparien vertailu korvalla. |
+| **02 Kuule ja löydä oktaavi** · `harjoitus:kuule-oktaavi` | Arvotaan lähtösävel 35 kelvollisesta paikasta, suhde (−12 / 0 / +12) ja kolme paikkaa eri kielillä. A: kuuntele ja valitse suhde. B: valitse paikka laudalta tai painikkeella. Vastaus ei näy ennen ratkaisua: paikkojen saavutettavat nimet ovat ”paikka 1–3”. | Suhteen jälkeen kerrotaan oikea suhde; paikan jälkeen kaikkien kolmen korkeus ja siirto lähtösävelestä (”kaksi kieltä ohuemmalle, kaksi nauhaa ylemmäs”). Paikkoja voi napauttaa ja verrata. | Soita lähtösävel ja kokeile paikkoja ennen vastaamista. |
+| **03 Etsi perussävel E- ja A-kieleltä** · `harjoitus:perussavel-e-ja-a-kielelta` | Arvotaan vuorotellen (ei kolmesti samaa tyyppiä) *etsi* (kaikki 12 sävelnimeä, ♯/♭ vasta tehtävästä 5 alkaen) ja *nimeä* (luonnolliset sävelet nauhoilla 1–12). | ”Oikein. Paksun E-kielen 8. nauha on C. Löydät sen B:n vierestä (7. nauha).” Väärä nimi: ”Ei B. Lähin kiintopiste: 7. nauha on B.” Vihje näyttää kiintopisteet (0 · 3 · 5 · 7 · 12) ja ♯/♭-sävelen naapurit. | Soita perussävel ennen sointua. |
+| **04 Kaikki saman sävelen paikat** · `harjoitus:liiku-otelaudalla` | Laajuus: E- ja A-kieli (luonnolliset) / kaikki kuusi kieltä / myös ♯ ja ♭. Kohdesävel arvotaan, ei samaa kahden peräkkäisen sisällä. Paikkojen määrä lasketaan ohjelmallisesti. | Jokainen löytö: korkeus ja ”sama korkeus kuin A 5” / ”uusi korkeus”; lista korkeuksittain. Vihje kolmessa vaiheessa: millä kielellä → päättely löydetystä paikasta (unisono tai tuttu oktaavimuoto) tai kiintopisteistä → vasta lopuksi merkintä. | Soita paikat matalimmasta korkeimpaan ja sano korkeus. |
 
-- Kaikki sävelkorkeudet lasketaan yhdestä lähteestä: vakiovire E2 = MIDI 40 … E4 = MIDI 64, `pitchAt(kieli, nauha) = vapaa + nauha`. Taajuus `440 · 2^((MIDI − 69) / 12)`. Sama funktio tuottaa näkyvän nimen ja kuultavan taajuuden.
-- Yksikkötestit vertaavat E- ja A-kielen nimiä teoriaoppaan taulukkoon, varmistavat kielivälit 5–5–5–4–5, jokaisen tehtävän vastauksen ja oktaavisuhteen (−12/0/+12) sekä tekstiversion vastausten vastaavuuden moduulin laskemaan.
-- Selaintesti varmistaa kuultavat taajuudet: E 7 → 123,47 Hz (B2), E 5 → 110 Hz (A2), G 2 → 220 Hz (A3), e 5 → 440 Hz (A4).
+### 3.3 Miksi vaikeustaso sopii 1–2 vuotta soittaneelle
+
+- **Ei aloita alusta:** tehtävät olettavat nauhojen numeroinnin ja avosointujen tuntemisen, eivät opeta pitelemistä tai viritystä. Ensimmäinen esimerkki ja kiintopisteet antavat pohjan niille, joille otelaudan sävelnimet ovat uusia (#138:n kohderyhmä).
+- **Haaste kasvaa sisällöstä, ei ajastimesta:** 01 laajenee kaikkiin kielipareihin ja molempiin suuntiin, 02 vaatii korvan ja otelaudan yhdistämistä, 03 tuo ♯/♭-sävelet, 04:n laajuus kasvaa kahdesta kielestä koko laudalle.
+- **Vaihtelu estää ulkoa muistamisen:** sama tehtävä ei toistu peräkkäin, ja vastausjärjestys on satunnainen.
+- **Ei pistejärjestelmää eikä pakollista etenemistä.** Taso valitaan yhdellä valinnalla.
+
+### 3.4 Mitä tulos ei mittaa
+
+Virtuaalivalinta ei todista paikan löytämistä oikealta kitaralta, sormitusta tai soittotekniikkaa. 02:n tekstiversio on nimetty päättelyksi (”päättelet korkeuden sävelmerkinnästä, se ei harjoita kuulemista”). Pitkäaikaista oppimista ei ole tutkittu.
+
+## 4. Musiikillinen ja tekninen oikeellisuus
+
+- Kaikki sävelkorkeudet lasketaan yhdestä lähteestä: vakiovire E2 = MIDI 40 … E4 = MIDI 64, `pitchAt(kieli, nauha) = vapaa + nauha`. Taajuus `440 · 2^((MIDI − 69) / 12)`. Sama funktio tuottaa näkyvän nimen ja soivan taajuuden.
+- Yksikkötestit vertaavat kaikkia 78 paikkaa riippumattomaan laskentaan ja teoriaoppaan E/A-taulukkoon sekä käyvät läpi **kaikki** generaattoreiden mahdolliset tehtävät (01: 82 kieliparitehtävää ja jokainen nauha vastausehdokkaana; 03: kaikki 26 E/A-paikkaa; 04: jokainen sävel jokaisella tasolla kokonaan ratkaistuna ja jokainen vihjetilanne). Lisäksi kukin generaattori ajetaan 12 siemenellä 200–500 tehtävää (yhteensä yli 20 000 tehtävää): ei tyhjiä tai mahdottomia tehtäviä, oktaavierot täsmälleen 12 puoliaskelta, täsmälleen yksi oikea paikka.
+- Selaintesti tunnistaa 02:n arvoitussävelen soitetusta taajuudesta ja tarkistaa, että se on täsmälleen lähtösävel tai oktaavi.
 - Merkintä A2/A3 on soivan korkeuden tieteellinen merkintä (vapaa paksu E = E2), ei nuottikirjoituksen kitaratranspositio.
-- Äänet ovat selaimessa tuotettuja yksinkertaisia demoääniä (osasävelaalto + verhokäyrä), eivät äänitteitä. Uutta äänimateriaalia tai lisensoitua aineistoa ei lisätty.
+- Äänet ovat selaimessa tuotettuja yksinkertaisia demoääniä, eivät äänitteitä. Uutta äänimateriaalia, ääniarkkitehtuuria tai mikrofonia ei lisätty.
+
+## 4b. Mobiiliotelauta: vaihtoehtojen vertailu
+
+Lähtötilanne: 320 px:ssä kuusi kieltä noin 38 px leveinä (alle projektin 44 px -tavoitteen).
+
+| Peruste | A: kuusi kieltä + laudan oma vaakavieritys | B: kolme kieltä kerrallaan + ryhmän vaihto | **C (valittu): kuusi kieltä, lauta näkymän reunoihin asti** |
+|---|---|---|---|
+| Kosketuskohteet | 44 px, mutta 320 px:ssä noin 35 px laudasta piilossa | 44 px+ | **48 px leveät, 44 px korkeat (320 px)**, 55 px (360 px) |
+| Koko laudan hahmotus | e-kieli osin piilossa | heikko: G–B-poikkeus ja oktaavimuodot ylittävät ryhmän rajan | **kaikki kuusi kieltä yhtä aikaa** |
+| Ryhmien välillä siirtyminen | vieritys | lisätoiminto, tila katoaa | ei tarvita |
+| Näppäimistö ja ruudunlukija | sama ruudukko | ruudukko vaihtuu, lisäselitys tarvitaan | sama ruudukko, yksi sarkainpysähdys |
+| Ensikäyttö | vierityksen löydettävyys | ryhmävalinnan ymmärtäminen | ei uutta ohjetta |
+| Tahaton vaakavieritys | todennäköinen | ei | ei (testattu 320/360/390) |
+| 200 % suurennus | vierittyy | toimii | toimii: sarakkeet pysyvät ≥ 44 px, nauhanumerosarake kasvaa |
+
+Toteutus: nauhanumerosarake kapeni (1,4 rem), ja ≤ 480 px:n näytöllä skripti levittää laudan 4 px:n päähän näkymän reunoista kortin ja sivun reunatäytteiden yli (ResizeObserver, mitataan kääreestä). Lisäksi palaute ja ”Uusi tehtävä” -painike pysyvät näkyvissä laudan alla tahmeassa paneelissa, kun palautetta on. Laudan painikkeilla on `scroll-margin`, jottei näppäimistöfokus jää paneelin alle.
 
 ## 5. Aihesivu
 
@@ -64,14 +99,15 @@ Määrä perustuu tavoitteisiin: kolme perustaitoa (unisono naapurikielellä, ok
 - Uudet tunnisteet ovat `harjoitus:<sivu>`-muotoisia eivätkä osu yhteenkään vanhaan. ”Kokeiltu” (uudet) ja ”Tehty” (aiemmat) pysyvät erillään.
 - Etusivun aihekortin otsikko ja kuvaus (”Sävelten sijainnit, oktaavit ja CAGED.”) on jätetty ennalleen.
 
-## 6. Tekniset muutokset ja yhteensovitus Sävelkorva-työn kanssa
+## 6. Tekniset muutokset ja yhteensovitus Sävelkorva-työn (PR #178) kanssa
 
-| Tiedosto | Muutos | Yhteinen? |
+| Tiedosto | Tämä PR (#179) | PR #178 (tarkistettu 23.11.2026) |
 |---|---|---|
-| `tools/oppimiskartta/aiheet.json` | Vain Otelauta-aiheen lohko | Sama tiedosto, eri lohko |
-| `tools/oppimiskartta/rakenna.py` | 6 riviä `render()`-funktioon: `data-otelautaharjoitus` lataa oman CSS:n ja moduulin (sama malli kuin Rytmi/Soinnut) | **Yhteinen.** Jos Sävelkorva-työ lisää samaan kohtaan vastaavan rivin, syntyy pieni tekstikonflikti: säilytä molemmat lohkot. |
-| `tests/oppimiskartta-kokonaisuudet.test.ts` | Kovakoodattu `toHaveLength(2)` → aiheet.json:n `progress_text`-aiheiden määrä | **Yhteinen.** Muutos tekee testistä riippumattoman siitä, kuinka moni aihe siirtyy uuteen malliin. |
-| `index.html`, `oppi/otelauta/*` | Generoitu | Regeneroi yhdistämisen jälkeen (`npm run build:oppimiskartta`) |
-| `assets/otelauta-ydinopinnot.{js,css,d.ts}`, `tools/oppimiskartta/sisallot/otelauta/*`, `tests/otelauta-ydinopinnot.test.ts`, `tests/e2e/otelauta-ydinopinnot.spec.ts`, `playwright.otelauta-ydinopinnot-webkit.config.ts`, `.github/workflows/otelauta-ydinopinnot-qa.yml` | Uudet | Vain tämän työn tiedostoja |
+| `tools/oppimiskartta/aiheet.json` | Vain Otelauta-lohko | Vain Sävelkorva-lohko → eri kohdat; yhdistyy normaalisti |
+| `tools/oppimiskartta/rakenna.py` | 6 riviä `render()`: `data-otelautaharjoitus` lataa oman CSS:n ja moduulin | Ei muutoksia |
+| `tests/oppimiskartta-kokonaisuudet.test.ts`, `tests/e2e/aihesivut.spec.ts`, `aihelista.spec.ts`, `lukumerkinnat.spec.ts` | Kovakoodattu ”vain Rytmi ja Soinnut” → luetaan aiheet.json:n `progress_text`-aiheista | Muuttaa samoja rivejä (lisää todennäköisesti `korva` listaan) → **tekstikonflikti odotettavissa**: valitse tämän PR:n aiheet.json-pohjainen muoto, joka kattaa molemmat aiheet |
+| `tests/e2e/ydinopinnot-yhteinen-ui.spec.ts` | Ei muutoksia | Muuttaa |
+| `index.html`, `oppi/` | Generoitu | Generoitu → regeneroi yhdistämisen jälkeen (`npm run build:oppimiskartta`), älä yhdistä käsin |
+| `assets/otelauta-ydinopinnot.{js,css,d.ts}`, `tools/oppimiskartta/sisallot/otelauta/*`, `tests/otelauta-ydinopinnot.test.ts`, `tests/e2e/otelauta-ydinopinnot.spec.ts`, `playwright.otelauta-ydinopinnot-webkit.config.ts`, `.github/workflows/otelauta-ydinopinnot-qa.yml` | Uudet, vain tämän työn | – |
 
-Yhteistä Otelautaopasta (`assets/otelauta.js`), Kitaraharjoittelijaa tai äänimoottoria ei muutettu. Sivukohtainen lauta on rajattu näihin neljään harjoitukseen.
+Yhteistä Otelautaopasta (`assets/otelauta.js`), Kitaraharjoittelijaa tai äänimoottoria ei muutettu. PR #178:n keskeneräisiä muutoksia ei ole tuotu tähän haaraan.
