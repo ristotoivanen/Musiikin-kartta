@@ -512,7 +512,10 @@
         feedback.replaceChildren(result, document.createTextNode(` Sointu 1 oli ${fullName[pair[0]]} ja sointu 2 oli ${fullName[pair[1]]}.`));
         pair.forEach((chord, index) => {
           const figure = chords[chord];
-          figure.querySelector('figcaption').textContent = `Sointu ${index + 1} = ${chord}`;
+          // Kaavion näkyvä otsikko on pelkkä sointumerkki. Ruudunlukija saa
+          // edelleen Sointu 1/2 -yhteyden kaavion omasta saavutettavasta nimestä.
+          figure.querySelector('figcaption').textContent = chord;
+          figure.setAttribute('aria-label', `Sointu ${index + 1}: ${fullName[chord]}`);
           diagrams.append(figure);
         });
         nameListening(true);
