@@ -293,6 +293,9 @@ test.describe('01 · Ylös, alas vai sama?', () => {
     const p = parts(page, 'suunta');
     await p.listen.click();
     await scheduled(page, 3);
+    // Soittotila on luettava myös, kun osoitin (tai puhelimen napautus) jää painikkeen päälle.
+    await p.listen.hover();
+    await expect(p.listen).toHaveCSS('background-color', 'rgb(35, 65, 51)');
     await clearLog(page);
     await p.listen.click();
     await expect(p.listen).toHaveText('▶ Kuuntele');

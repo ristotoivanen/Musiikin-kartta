@@ -32,7 +32,8 @@
 .melodia-ydin button[aria-disabled="true"]:not([aria-pressed="true"]) { opacity: .6; }
 .melodia-ydin button:disabled:hover { border-color: #71638c; background: #2d2444; }
 .melodia-ydin button[data-playing] { border-color: var(--accent); background: #234133; box-shadow: inset 0 0 0 1px currentColor; }
-.melodia-ydin .melodia-ensisijainen[data-playing] { color: var(--text); }
+.melodia-ydin .melodia-ensisijainen[data-playing],
+.melodia-ydin .melodia-ensisijainen[data-playing]:hover { border-color: var(--accent); background: #234133; color: var(--text); }
 .melodia-ydin button[aria-pressed="true"] {
   border-color: #d8caff; background: var(--accent); color: #171021; box-shadow: inset 0 0 0 1px currentColor;
 }
