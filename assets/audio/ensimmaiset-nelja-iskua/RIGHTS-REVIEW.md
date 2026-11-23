@@ -49,7 +49,7 @@ Omistajan vahvistuksen jälkeen kysymys ei ole siitä, tunnistetaanko B oman pro
 
 **Tässä tarkastuksessa löytyi** projektin `README.md`, hyväksytty B-lähde-MP3 ja dokumentoitu MP3→WAV-ketju. Erillistä B:n renderöintiskriptiä tai käytettyjen instrumenttiäänien yksilöintiä ei löytynyt tästä projektiaineistosta. Tämä on **dokumentaatioaukko, ei todettu oikeudenloukkaus**.
 
-Oma äänite ei muutu automaattisesti CC0-aineistoksi tai lähdekoodin Unlicense-lisenssin alaiseksi. Äänitteen erilliset jakeluehdot voidaan kirjata, kun tarvittava lähdenäyttö on koossa. Jo olemassa oleva testiesikatselu ei itsessään todista laajempia edelleenjakeluoikeuksia.
+Oma äänite ei muutu automaattisesti CC0-aineistoksi tai lähdekoodin Unlicense-lisenssin alaiseksi. Äänitteen erilliset jakeluehdot voidaan kirjata, kun tarvittava lähdenäyttö on koossa. **Huomio julkisesta jakelusta:** PR-esikatselun Cloudflare Pages -URL sekä julkisessa GitHub-varastossa olevat audioassetit voivat jo merkitä aineiston yleisön saataville asettamista tai jakelua. Pelkkä 'testi'- tai 'Draft'-merkintä ei tee julkaisuympäristöstä yksityistä. Lisenssiselvitys ei siis ole vain myöhemmän main-julkaisun muodollisuus; mahdollisten jakelurajoitusten käytännön vaikutus julkisiin esikatseluihin on arvioitava erikseen. Mitään olemassa olevaa ääntä tai esikatselua ei poisteta ilman erillistä päätöstä.
 
 ## Portit
 
