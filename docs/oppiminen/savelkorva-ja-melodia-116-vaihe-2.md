@@ -1,7 +1,7 @@
 # #116, vaihe 2: Sävelkorva ja melodia – inventaario ja Ydinopinnot
 
 **Tila:** KATSELMOITAVA TOTEUTUS (Draft-PR). Ei omistajan pedagogista hyväksyntää, beta-yhdistämistä eikä julkaisua.
-**Päiväys:** 23.11.2026, versio 2 (riippumattoman pedagogisen auditoinnin jälkeen). **Lähtö-SHA:** `beta` @ `454aee5882346c1834a41ee6f786c6195680cb06`.
+**Päiväys:** 23.11.2026, versio 2.1 (pedagogisen auditoinnin ja omistajan käyttäjätestin jälkeen). **Lähtö-SHA:** `beta` @ `454aee5882346c1834a41ee6f786c6195680cb06`.
 **Haara:** `claude/116-savelkorva-ydinopinnot`.
 **Lähteet:** [#116](https://github.com/ristotoivanen/Musiikin-kartta/issues/116) ja sen omistajakommentit 19.–23.11.2026, [#115](https://github.com/ristotoivanen/Musiikin-kartta/issues/115), avoimen Draft-PR:n [#146](https://github.com/ristotoivanen/Musiikin-kartta/pull/146) inventaarioehdotus (`docs/oppiminen/sisaltoinventaario-115-2026-11-21.md`, ei betassa), [suunnittelu- ja PR-katselmointiohje](../suunnittelu/suunnittelu-ja-pr-katselmointi.md), Rytmin ja Sointujen hyväksytty Ydinopinnot-toteutus betassa.
 
@@ -77,6 +77,18 @@ Ydinopinnot on omistajan 20.11. linjauksen mukaan lyhyt, opettava poikkileikkaus
 | **Soveltaminen** | ⓘ askel/hyppy kitaralla. | ⓘ F♯→G kitaralla. | Oikean kitaran polku ja ⓘ Riffikaiku. |
 
 **Kaikissa:** vain Kuuntele näkyy aluksi; tehtävä ilmestyy, kun ääni on alkanut soida. Sama painike pysäyttää (■ Pysäytä). Seuraava arpoo uuden tehtävän (ei sama kahdesti peräkkäin) ja soittaa sen heti saman painalluksen aikana. Vastaus pysyy vain JavaScriptin muistissa ennen tarkistusta. Vastauksen jälkeen valinnat lukitaan `aria-disabled`-tilaan, jotta näppäimistöfokus ei putoa. Tavallinen soitto ei tuota tilaviestejä; vain lataus (jos kestää), keskeytys ja virheet kerrotaan.
+
+### Versio 2.1: käyttöliittymän viimeistely omistajan käyttäjätestin jälkeen (23.11.)
+
+Perusidea, generaattori, vaikeustasot ja tunnisteet säilyivät. Muutokset:
+
+| | Havainto | Ratkaisu |
+|---|---|---|
+| **01** | ↑/↓-nuoli ei kuvannut intuitiivisesti korkeampaa ja matalampaa säveltä. | **Suuntakuva:** kaksi sävelpistettä ja niiden välinen viiva. Aika kulkee vasemmalta oikealle, korkeampi sävel on ylempänä, ontto piste on edellinen sävel ja täytetty seuraava (ei värin varassa). Sama kuva on vastauspainikkeissa (Ylös / Alas / Sama, saavutettavat nimet ”Ylös: korkeampi sävel” jne.), vastausketjussa ja palautteessa. Palautteessa melodian todellinen muoto pisteinä (korkeus sävelkorkeuden mukaan), virheellinen vaihto katkoviivalla ja ”✗ n”, sekä vaihtokohtaiset kortit: ylhäällä kuultu suunta, alla ”sinä” + ✓/✗. |
+| **02** | ▶ 1, ▶ 2 ja ▶ Kotisävel G olivat turhia; Loppu 1/2 voisivat itse soittaa. | **Loppu 1 / Loppu 2 soittavat ja valitsevat alustavasti**; valintaa voi vaihtaa ja molempia kuunnella. Tarkistus vain **Tarkista valinta** -painikkeesta, joka ilmestyy valinnan jälkeen. Soiva (turkoosi reunus, ”▶ soi”) ja valittu (täyttö, ”✓ valittu”, `aria-pressed`) ovat eri tiloja; soi-merkintä poistuu, kun kuuntelu päättyy. Tarkistuksen jälkeen ”✓ valmiimpi” / ”✗ valintasi” ja loppujen sävelet avattavissa; lopun painallus vain soittaa. ▶ 1 / ▶ 2 poistettiin, Kotisävel G siirtyi ⓘ-lisätietoon. |
+| **03** | Pitkä virhelause (”Sävel 1: kuului G, soitit A; …”) ja oikea malli merkittiin virheellisenä. | **Lyhyt palaute** (”1/4 oikein. Kolmessa sävelessä oli eroa.”) ja **sävelkortit**: ylhäällä kuultu sävel (malli, ei koskaan virhemerkintää), alla ”sinä” + oma sävel ja ✓/✗. Oikeat paikat numeroidaan otelautaruudukkoon, kulku kerrotaan myös kielinä ja nauhoina. Virheen jälkeen **▶ Oma kulkusi** soittaa oman yrityksen vertailuksi. ”Soitin kitaralla – näytä ratkaisu” → **Näytä sävelkulku**; palaute sanoo, ettei tätä lasketa vastaukseksi, eikä se nosta tasoa. |
+
+Yhteinen kulku kaikissa: **Kuuntele → kokeile tai valitse → Tarkista → palaute → Seuraava**.
 
 ### Melodioiden säännöt (01 ja 03)
 

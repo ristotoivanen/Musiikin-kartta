@@ -1,8 +1,8 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
-  ARROWS, BASS_GAIN, ENDING_PHRASES, ENDING_ROUNDS, HOME_TONE_PLAN, LEVELS, NOTES, POOLS, SAMPLE_SECONDS, TIMING, VERSION_GAP,
-  adapt, boardRows, bothEndingsPlan, checkContour, checkEcho, contourFeedback, contourOf, direction, echoFeedback,
+  BASS_GAIN, COUNT_WORDS, ICON, ENDING_PHRASES, ENDING_ROUNDS, HOME_TONE_PLAN, LEVELS, NOTES, POOLS, SAMPLE_SECONDS, TIMING, VERSION_GAP,
+  adapt, boardRows, directionPoints, shapePoints, bothEndingsPlan, checkContour, checkEcho, contourFeedback, contourOf, direction, echoFeedback,
   endingFeedback, endingRound, freshMelody, generateMelody, melodyPlan, moveKind, moveProblem, names, pickIndex, planEnd,
   position, recentNotes, singleNotePlan, versionPlan,
 // @ts-expect-error Testattu selainmoduuli palvellaan suoraan JavaScriptinä.
@@ -172,9 +172,9 @@ describe('01 · Ylös, alas vai sama?', () => {
     expect(contourOf(motif)).toEqual(['ylos', 'alas', 'sama', 'ylos']);
     expect(checkContour(motif, ['ylos', 'alas', 'sama', 'ylos']).correct).toBe(true);
     expect(checkContour(motif, ['ylos', 'alas', 'sama']).correct).toBe(false);
-    expect(contourFeedback(motif, ['ylos', 'alas', 'sama', 'ylos'])).toBe('Oikein! ↑ ↓ = ↑');
+    expect(contourFeedback(motif, ['ylos', 'alas', 'sama', 'ylos'])).toBe('Oikein! Kaikki 4 vaihtoa osuivat.');
     expect(contourFeedback(motif, ['ylos', 'ylos', 'sama', 'alas']))
-      .toBe('2/4 oikein. Vaihto 2: kuului ↓ alas, vastasit ↑ ylös; vaihto 4: kuului ↑ ylös, vastasit ↓ alas.');
+      .toBe('2/4 oikein. Vaihto 2: kuului alas, vastasit ylös; vaihto 4: kuului ylös, vastasit alas.');
     expect(contourFeedback(motif, ['ylos', 'ylos', 'sama', 'alas'])).not.toMatch(/osaat|hallitset|taito/i);
   });
 
@@ -187,7 +187,7 @@ describe('01 · Ylös, alas vai sama?', () => {
           const wrong = [...right];
           wrong[at] = value === 'ylos' ? 'alas' : 'ylos';
           expect(checkContour(melody, wrong).correct).toBe(false);
-          expect(contourFeedback(melody, wrong)).toContain(`Vaihto ${at + 1}: kuului ${ARROWS[value]}`);
+          expect(contourFeedback(melody, wrong).toLowerCase()).toContain(`vaihto ${at + 1}: kuului ${value === 'ylos' ? 'ylös' : value}`);
         });
       }
     }
@@ -277,8 +277,71 @@ describe('03 · Kuule ja etsi kitaralta', () => {
     expect(checkEcho(motif, motif).correct).toBe(true);
     expect(checkEcho(motif, ['G3', 'A3', 'B3']).correct).toBe(false);
     expect(echoFeedback(motif, motif)).toBe('Oikein! D → G → A → B. Soita sama oikealla kitaralla.');
-    expect(echoFeedback(motif, ['D3', 'G3', 'B3', 'B3'])).toBe('3/4 oikein. Sävel 3: kuului A, soitit B.');
-    expect(echoFeedback(motif, ['E3', 'G3', 'A3', 'C4'])).toBe('2/4 oikein. Sävel 1: kuului D, soitit E; sävel 4: kuului B, soitit C.');
+    // Ensimmäinen palaute on lyhyt; sävelkohtainen vertailu näytetään kuvana.
+    expect(echoFeedback(motif, ['D3', 'G3', 'B3', 'B3'])).toBe('3/4 oikein. Yhdessä sävelessä oli eroa.');
+    expect(echoFeedback(motif, ['E3', 'G3', 'A3', 'C4'])).toBe('2/4 oikein. Kahdessa sävelessä oli eroa.');
+    expect(echoFeedback(motif, ['E3', 'A3', 'B3', 'D4'])).toBe('0/4 oikein. Neljässä sävelessä oli eroa.');
+    expect(COUNT_WORDS).toHaveLength(6);
+  });
+});
+
+describe('suuntakuva ja melodian muoto', () => {
+  it('suuntakuvake: aika vasemmalta oikealle, korkeampi sävel ylempänä (SVG:ssä pienempi y)', () => {
+    const up = directionPoints('ylos');
+    const down = directionPoints('alas');
+    const same = directionPoints('sama');
+    for (const icon of [up, down, same]) expect(icon.to[0]).toBeGreaterThan(icon.from[0]);
+    expect(up.to[1]).toBeLessThan(up.from[1]);
+    expect(down.to[1]).toBeGreaterThan(down.from[1]);
+    expect(same.to[1]).toBe(same.from[1]);
+    for (const icon of [up, down, same]) {
+      for (const [x, y] of [icon.from, icon.to]) {
+        expect(x).toBeGreaterThan(0);
+        expect(x).toBeLessThan(ICON.width);
+        expect(y).toBeGreaterThan(0);
+        expect(y).toBeLessThan(ICON.height);
+      }
+    }
+  });
+
+  it('vastauspainikkeiden kiinteät kuvakkeet vastaavat moduulin suuntakuvia ja niillä on tekstinimi', () => {
+    const source = read('tools/oppimiskartta/sisallot/korva/ylos-alas-vai-sama.html');
+    const names: Record<string, string> = { ylos: 'Ylös: korkeampi sävel', alas: 'Alas: matalampi sävel', sama: 'Sama sävel' };
+    for (const value of ['ylos', 'alas', 'sama']) {
+      const button = source.match(new RegExp(`<button type="button" data-suunta="${value}" aria-label="([^"]+)">(.*?)</button>`))!;
+      expect(button, value).not.toBeNull();
+      expect(button[1]).toBe(names[value]);
+      const [, x1, y1, x2, y2] = button[2].match(/<line x1="(\d+)" y1="(\d+)" x2="(\d+)" y2="(\d+)"\/>/)!.map(Number);
+      const { from, to } = directionPoints(value);
+      expect([x1, y1, x2, y2], value).toEqual([...from, ...to]);
+      // Näkyvä teksti sisältyy saavutettavaan nimeen (WCAG 2.5.3).
+      const visible = button[2].match(/<span>([^<]+)<\/span>/)![1];
+      expect(button[1]).toContain(visible);
+      // Ontto alkupiste on vasemmalla.
+      expect(button[2]).toMatch(new RegExp(`<circle class="melodia-alku" cx="${from[0]}" cy="${from[1]}"`));
+    }
+  });
+
+  it('melodian muoto: korkeampi sävel ylempänä, sama korkeus samalla tasolla, aika vasemmalta oikealle', () => {
+    const melody = ['G3', 'D4', 'C4', 'C4', 'G4'];
+    const { points, width, height } = shapePoints(melody) as { points: [number, number][]; width: number; height: number };
+    points.slice(1).forEach(([x, y], index) => {
+      const [x0, y0] = points[index];
+      expect(x).toBeGreaterThan(x0);
+      const move = contourOf([melody[index], melody[index + 1]])[0];
+      if (move === 'ylos') expect(y).toBeLessThan(y0);
+      if (move === 'alas') expect(y).toBeGreaterThan(y0);
+      if (move === 'sama') expect(y).toBe(y0);
+    });
+    // Korkein sävel ylimpänä, matalin alimpana; kaikki pisteet kuvan sisällä.
+    expect(points[4][1]).toBe(Math.min(...points.map(([, y]) => y)));
+    expect(points[0][1]).toBe(Math.max(...points.map(([, y]) => y)));
+    for (const [x, y] of points) {
+      expect(x).toBeLessThanOrEqual(width);
+      expect(y).toBeLessThanOrEqual(height);
+    }
+    // Pitkässäkin melodiassa pisteet pysyvät samassa mittakaavassa (viisi säveltä).
+    expect(shapePoints(['G3', 'A3', 'B3', 'C4', 'D4']).width).toBe(shapePoints(['D4', 'C4']).width + 3 * 44);
   });
 });
 
@@ -365,7 +428,11 @@ describe('aihesivu ja tunnisteet', () => {
       expect(intro).toMatch(/data-melodia-kuuntele/);
       // Tehtävä, palaute ja kuultu melodia ovat piilossa, kunnes kuuntelu on alkanut / on vastattu.
       expect(source).toContain('<div class="melodia-tehtava" data-melodia-tehtava hidden>');
-      expect(source).toMatch(/<div class="melodia-kaari" data-melodia-kaari hidden>\s*<h3>[^<]+<\/h3>\s*<(ol|ul)[^>]*data-melodia-muoto[^>]*><\/(ol|ul)>/);
+      // Paljastus on piilossa ja sen sisältö tyhjä, kunnes oppija on vastannut tai pyytänyt ratkaisun.
+      const reveal = source.slice(source.indexOf('<div class="melodia-kaari" data-melodia-kaari hidden>'));
+      expect(reveal.length).toBeLessThan(source.length);
+      expect(reveal).toMatch(/<(div|ul) class="[^"]+" data-melodia-muoto><\/(div|ul)>/);
+      expect(reveal).not.toMatch(/data-melodia-savelet>[^<]/);
       expect(html).not.toMatch(/data-(oikea|vastaus-oikein)=/);
       expect(html).toContain('Sivu ei kuuntele omaa soittoasi tai hyräilyäsi. Oikea vastaus koskee vain kyseistä tehtävää. ”Kokeiltu” ei ole osaamistesti.');
       expect(html).toContain('<p class="melodia-tila" data-melodia-tila role="status" aria-live="polite">Ääniesimerkki tarvitsee JavaScriptin ja selaimen äänituen.</p>');

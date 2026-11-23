@@ -74,7 +74,6 @@
 .melodia-loput button { flex: 1 1 8rem; min-height: 52px; font-size: 1.05rem; }
 /* 02: parhaillaan soiva loppu korostuu (ei vain värillä: myös reunus ja ▶-merkki). */
 .melodia-loput button[data-soi] { border-color: #75e5c6; box-shadow: inset 0 0 0 2px #75e5c6; }
-.melodia-loput button[data-soi]::before { content: "▶ "; content: "▶ " / ""; }
 .melodia-toissijaiset { margin-top: 0; }
 .melodia-toissijaiset button { min-height: 44px; padding-inline: .75rem; font-weight: 600; }
 
@@ -88,44 +87,78 @@
 .melodia-otelauta button { min-width: 0; padding: .3rem .1rem; text-align: center; font-size: 1.1rem; }
 .melodia-tyhja { min-height: 44px; border-block-end: 1px solid var(--line); }
 
+/* Sävelpisteet ja viivat: aika vasemmalta oikealle, korkeampi sävel ylempänä. Ontto piste on
+ * edellinen sävel, täytetty seuraava, joten kulkusuunta erottuu ilman värejä. */
+.melodia-suunta-kuva {
+  width: 2.2rem; height: 1.4rem; flex: 0 0 auto;
+  fill: currentColor; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; overflow: visible;
+}
+.melodia-suunta-kuva .melodia-alku, .melodia-muoto-kuva .melodia-alku { fill: var(--kuva-tausta, #2d2444); stroke-width: 2.5; }
+.melodia-ydin button[aria-pressed="true"] .melodia-suunta-kuva { --kuva-tausta: var(--accent); }
+.melodia-suuntanapit button { gap: .15rem; }
+.melodia-poista-merkki { font-size: 1.35rem; line-height: 1.4rem; }
+.melodia-ydin ol.melodia-paikat li { --kuva-tausta: var(--bg); }
+.melodia-ydin ol.melodia-paikat li .melodia-suunta-kuva { width: 2rem; }
+
 .melodia-palaute { min-height: 1.5em; margin: .5rem 0; color: var(--muted); }
 .melodia-palaute:empty { min-height: 0; margin: 0; }
 .melodia-palaute.is-answered { color: #9fe4c3; }
 .melodia-palaute.is-answered.is-error { color: #ffe08a; }
 
-/* Melodian muoto vastauksen jälkeen: korkeampi sävel nousee korkeammalle, nuoli kertoo suunnan
- * ja virhe merkitään ✗:llä (ei vain värillä). */
 .melodia-kaari { margin-top: .5rem; }
 .melodia-kaari h3 { margin: 0 0 .45rem; }
-.melodia-kaari ol {
-  display: flex; flex-wrap: nowrap; align-items: flex-end; gap: clamp(.15rem, 1vw, .4rem);
-  margin: 0; padding: .55rem .4rem; border-radius: .55rem; background: var(--bg); list-style: none;
+.melodia-muoto { display: grid; gap: .6rem; min-width: 0; }
+.melodia-muoto-kuva {
+  display: block; width: 100%; max-width: min(20rem, calc(var(--savelia, 5) * 3.6rem)); height: auto; padding: .4rem; box-sizing: border-box;
+  border-radius: .55rem; background: var(--bg); --kuva-tausta: var(--bg);
+  fill: currentColor; stroke: currentColor; stroke-width: 3; stroke-linecap: round;
 }
-.melodia-kaari ol > li {
-  position: relative; display: grid; justify-items: center; gap: .1rem;
-  flex: 1 1 0; min-width: 0; max-width: 6.5rem;
-  margin-bottom: calc(var(--taso, 0) * .28rem);
-  padding: .3rem .15rem;
-  border: 1px solid #7b6c97; border-radius: .55rem; background: var(--panel);
-  text-align: center;
+.melodia-muoto-kuva line.is-virhe { stroke: #ffe08a; stroke-dasharray: 5 4; }
+.melodia-muoto-kuva text { fill: #ffe08a; stroke: none; font-size: 11px; font-weight: 800; }
+
+/* Vertailu kortteina: kuultu malli ylhäällä, oma vastaus (”sinä”) alla; ✓/✗ ja katkoreunus, ei pelkkä väri. */
+.melodia-ydin ol.melodia-vertailu { display: flex; flex-wrap: wrap; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+.melodia-vertailu li {
+  display: grid; justify-items: center; align-content: start; gap: .15rem;
+  min-width: 3.6rem; padding: .3rem .35rem; text-align: center;
+  border: 1px solid #7b6c97; border-radius: .5rem; background: var(--panel); --kuva-tausta: var(--panel);
 }
-.melodia-nuoli { font-size: 1.15rem; font-weight: 800; line-height: 1.1; }
-.melodia-kaari ol > li strong { font-size: 1.1rem; line-height: 1.1; }
-.melodia-paikka { color: var(--muted); font-size: .72rem; line-height: 1.2; overflow-wrap: anywhere; }
-.melodia-kaari ol > li.is-virhe { border: 2px solid #ffe08a; }
-.melodia-merkki { color: #ffe08a; font-weight: 800; }
-.melodia-lisa { margin-top: .5rem; }
+.melodia-vertailu-nro { color: var(--muted); font-size: .72rem; font-weight: 700; }
+.melodia-kuului strong, .melodia-sina strong { font-size: 1.1rem; }
+.melodia-sina { display: grid; justify-items: center; gap: .05rem; padding-top: .2rem; border-top: 1px solid var(--line); }
+.melodia-pieni-teksti { color: var(--muted); font-size: .7rem; }
+.melodia-vertailu .melodia-merkki { font-size: .9rem; font-weight: 800; line-height: 1; }
+.melodia-vertailu li.is-oikein .melodia-merkki { color: #9fe4c3; }
+.melodia-vertailu li.is-virhe { border: 2px dashed #ffe08a; }
+.melodia-vertailu li.is-virhe .melodia-merkki { color: #ffe08a; }
+.melodia-vertailu .melodia-suunta-kuva { width: 1.9rem; }
+.melodia-kaari .melodia-lisa ol, .melodia-loppulista { margin: .3rem 0 0; padding-inline-start: 1.1rem; }
+.melodia-kaari .melodia-lisa ol { padding-inline-start: 0; list-style: none; }
+.melodia-lisa { margin-top: .25rem; }
 .melodia-lisa summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; color: var(--accent); }
-.melodia-kaari .melodia-lisa ol { display: grid; gap: .2rem; padding: .3rem 0 0 0; background: none; }
-.melodia-kaari .melodia-lisa li { display: block; margin: 0; padding: 0; border: 0; background: none; text-align: start; max-width: none; }
-.melodia-loppulista { margin: 0; padding-inline-start: 1.1rem; }
+.melodia-kaari .melodia-toiminnot:has(> [hidden]) { display: none; }
+
+/* 02: lopun painike soittaa ja valitsee. Soiva = turkoosi reunus + ”▶ soi”; valittu = täyttö + ”✓ valittu”. */
+.melodia-loput button { display: grid; justify-items: center; gap: .1rem; }
+.melodia-loppu-nimi { font-size: 1.05rem; }
+.melodia-loppu-tila { min-height: 1.1em; font-size: .82rem; font-weight: 600; }
+.melodia-loput button.is-valmiimpi { border: 2px solid #9fe4c3; }
+
+/* 03: oikean kulun paikat numeroidaan ruudukkoon vastauksen tai ratkaisun jälkeen. */
+.melodia-otelauta button { position: relative; }
+.melodia-otelauta button.is-kulussa { border: 2px solid #9fe4c3; }
+.melodia-numero {
+  position: absolute; inset-block-start: -.45rem; inset-inline-end: -.35rem;
+  min-width: 1.2rem; padding: 0 .2rem; border-radius: .6rem;
+  background: #9fe4c3; color: #102018; font-size: .72rem; font-weight: 800; line-height: 1.2rem;
+}
 
 @media (max-width: 400px) {
   .melodia-tehtava { padding-inline: .45rem; }
 }
 @media (forced-colors: active) {
   .melodia-ydin button[aria-pressed="true"], .melodia-loput button[data-soi] { outline: 3px solid Highlight; }
-  .melodia-kaari ol > li.is-virhe { outline: 3px solid Mark; }
+  .melodia-vertailu li.is-virhe { outline: 3px solid Mark; }
 }
 @media print {
   .melodia-toiminnot, .melodia-tila, .melodia-tehtava { display: none !important; }

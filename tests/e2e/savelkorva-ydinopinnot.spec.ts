@@ -84,10 +84,21 @@ const parts = (page: Page, kind: string) => {
     status: section.locator('[data-melodia-tila]'),
     feedback: section.locator('[data-melodia-palaute]'),
     reveal: section.locator('[data-melodia-kaari]'),
-    shape: section.locator('[data-melodia-muoto] > li'),
+    shape: section.locator('[data-melodia-muoto]'),
+    dots: section.locator('[data-melodia-muoto] svg.melodia-muoto-kuva circle'),
+    cards: section.locator('ol.melodia-vertailu > li'),
+    heard: section.locator('ol.melodia-vertailu .melodia-kuului'),
+    yours: section.locator('ol.melodia-vertailu .melodia-sina'),
     check: section.locator('[data-melodia-tarkista]'),
   };
 };
+const labels = (locator: import('@playwright/test').Locator) => locator.evaluateAll(all => all.map(node => node.getAttribute('aria-label')));
+// Suuntakuvakkeen viiva: [x1, y1, x2, y2]. SVG:ssä pienempi y on ylempänä.
+const iconLines = (locator: import('@playwright/test').Locator) => locator.evaluateAll(all => all.map(node => {
+  const line = node.querySelector('.melodia-suunta-kuva line');
+  return line ? ['x1', 'y1', 'x2', 'y2'].map(name => Number(line.getAttribute(name))) : null;
+}));
+const iconOf = (value: string) => { const { from, to } = melodia.directionPoints(value); return [...from, ...to]; };
 const answerContour = async (page: Page, directions: string[]) => {
   for (const value of directions) await page.locator(`[data-suunta="${value}"]`).click();
 };
@@ -209,19 +220,32 @@ test.describe('01 · Ylös, alas vai sama?', () => {
     await expect(p.info).toHaveText('3 säveltä · 2 vaihtoa');
     // Vastaus ei näy ennen tarkistusta.
     await expect(p.reveal).toBeHidden();
-    await expect(p.shape).toHaveCount(0);
-    await expect(p.section.locator('[data-suunta-vastaus] li')).toHaveText(['_', '_']);
+    await expect(p.dots).toHaveCount(0);
+    await expect(p.section.locator('ol.melodia-vertailu')).toHaveCount(0);
+    const slots = p.section.locator('[data-suunta-vastaus] li');
+    expect(await labels(slots)).toEqual(['Vaihto 1: ei vielä valittu', 'Vaihto 2: ei vielä valittu']);
     await expect(p.check).toBeHidden();
+    // Vastauspainikkeiden kuvat: ylös = loppupiste ylempänä, alas = alempana, sama = samalla tasolla.
+    expect(await iconLines(page.locator('[data-suunta]'))).toEqual(['ylos', 'alas', 'sama'].map(iconOf));
 
     const right = melodia.contourOf(first);
     await answerContour(page, right);
-    await expect(p.section.locator('[data-suunta-vastaus] li')).toHaveText(right.map((value: string) => melodia.ARROWS[value]));
+    // Vastausketju käyttää samaa kuvaa kuin painikkeet.
+    expect(await iconLines(slots)).toEqual(right.map(iconOf));
+    expect(await labels(slots)).toEqual(right.map((value: string, index: number) => `Vaihto ${index + 1}: ${melodia.DIRECTION_LABELS[value]}`));
     await expect(page.locator('[data-suunta="ylos"]')).toHaveAttribute('aria-disabled', 'true');
     await p.check.click();
     await expect(p.feedback).toHaveText(melodia.contourFeedback(first, right));
-    await expect(p.feedback).toHaveText(/^Oikein! /);
-    await expect(p.shape).toHaveCount(3);
+    await expect(p.feedback).toHaveText('Oikein! Kaikki 2 vaihtoa osuivat.');
+    // Melodian muoto: kolme pistettä oikeilla korkeuksilla, ei virheviivoja; vertailussa sama kuva.
+    await expect(p.dots).toHaveCount(3);
+    const ys = await p.dots.evaluateAll(all => all.map(node => Number(node.getAttribute('cy'))));
+    const midis = first.map(id => melodia.NOTES[id].midi);
+    ys.slice(1).forEach((y, index) => expect(Math.sign(ys[index] - y)).toBe(Math.sign(midis[index + 1] - midis[index])));
     await expect(p.section.locator('.is-virhe')).toHaveCount(0);
+    expect(await iconLines(p.heard)).toEqual(right.map(iconOf));
+    expect(await iconLines(p.yours)).toEqual(right.map(iconOf));
+    await expect(p.yours.locator('.melodia-merkki')).toHaveText(['✓', '✓']);
     await p.section.getByText('Näytä sävelet ja kitaran paikat').click();
     await expect(p.section.locator('[data-melodia-savelet] li')).toHaveText(first.map((id, index) => `${index + 1}. ${melodia.NOTES[id].name} · ${melodia.position(id)}`));
     await expect(p.check).toHaveAttribute('aria-disabled', 'true');
@@ -241,8 +265,14 @@ test.describe('01 · Ylös, alas vai sama?', () => {
     await expect(p.feedback).toHaveText(melodia.contourFeedback(second, wrong));
     await expect(p.feedback).toHaveText(/^1\/2 oikein\. Vaihto 1: kuului /);
     await expect(p.feedback).toHaveClass(/is-error/);
-    await expect(p.section.locator('.is-virhe')).toHaveCount(1);
-    await expect(p.shape.nth(1)).toHaveClass(/is-virhe/);
+    // Kuultu rivi näyttää oikean suunnan, oma rivi valitun; vain oma rivi merkitään ✗:llä.
+    expect(await iconLines(p.heard)).toEqual(melodia.contourOf(second).map(iconOf));
+    expect(await iconLines(p.yours)).toEqual(wrong.map(iconOf));
+    await expect(p.yours.locator('.melodia-merkki')).toHaveText(['✗', '✓']);
+    await expect(p.cards.nth(0)).toHaveClass(/is-virhe/);
+    await expect(p.heard.nth(0).locator('.melodia-merkki')).toHaveCount(0);
+    await expect(p.shape.locator('line.is-virhe')).toHaveCount(1);
+    await expect(p.shape.locator('svg text')).toHaveText('✗ 1');
 
     // Kaksi peräkkäistä oikeaa → neljän sävelen melodiat.
     let previous = second;
@@ -262,8 +292,9 @@ test.describe('01 · Ylös, alas vai sama?', () => {
     await scheduled(page, 4);
     await answerContour(page, melodia.contourOf(longer));
     await p.check.click();
-    await expect(p.feedback).toHaveText(/^Oikein! /);
-    await expect(p.shape).toHaveCount(4);
+    await expect(p.feedback).toHaveText('Oikein! Kaikki 3 vaihtoa osuivat.');
+    await expect(p.dots).toHaveCount(4);
+    await expect(p.heard).toHaveCount(3);
   });
 
   test('⌫ poistaa viimeisimmän; Tarkista näkyy vasta, kun kaikki vaihdot on merkitty', async ({ page }) => {
@@ -274,14 +305,14 @@ test.describe('01 · Ylös, alas vai sama?', () => {
     const slots = p.section.locator('[data-suunta-vastaus] li');
     const erase = page.getByRole('button', { name: 'Poista viimeisin' });
     await expect(erase).toHaveAttribute('aria-disabled', 'true');
-    await page.locator('[data-suunta="sama"]').click();
-    await expect(slots).toHaveText(['=', '_']);
+    await page.getByRole('button', { name: 'Sama sävel' }).click();
+    expect(await labels(slots)).toEqual(['Vaihto 1: sama', 'Vaihto 2: ei vielä valittu']);
     await expect(p.check).toBeHidden();
     await erase.click();
-    await expect(slots).toHaveText(['_', '_']);
-    await page.locator('[data-suunta="alas"]').click();
-    await page.locator('[data-suunta="ylos"]').click();
-    await expect(slots).toHaveText(['↓', '↑']);
+    expect(await labels(slots)).toEqual(['Vaihto 1: ei vielä valittu', 'Vaihto 2: ei vielä valittu']);
+    await page.getByRole('button', { name: 'Alas: matalampi sävel' }).click();
+    await page.getByRole('button', { name: 'Ylös: korkeampi sävel' }).click();
+    expect(await iconLines(slots)).toEqual(['alas', 'ylos'].map(iconOf));
     await expect(p.check).toBeVisible();
     await erase.click();
     await expect(p.check).toBeHidden();
@@ -348,7 +379,7 @@ test.describe('01 · Ylös, alas vai sama?', () => {
 });
 
 test.describe('02 · Kotiin vai kesken?', () => {
-  test('molemmat loput soivat peräkkäin ja soiva loppu korostuu; palaute ja tukiäänen pois jääminen', async ({ page }) => {
+  test('Loppu 1/2 soittaa ja valitsee; valintaa voi vaihtaa; vasta Tarkista valinta tarkistaa', async ({ page }) => {
     await recordAudio(page);
     await seedPage(page, 21);
     const random = mulberry(21);
@@ -357,6 +388,7 @@ test.describe('02 · Kotiin vai kesken?', () => {
     await page.goto('/oppi/korva/kotiin-vai-kesken.html');
     const p = parts(page, 'koti');
     const answers = p.section.locator('[data-loppu]');
+    const state = (which: number) => answers.nth(which).locator('[data-loppu-tila]');
     await expect(p.section.locator('button:visible')).toHaveCount(1);
     await expect(p.listen).toHaveText('▶ Kuuntele molemmat');
 
@@ -365,24 +397,63 @@ test.describe('02 · Kotiin vai kesken?', () => {
     await expect(p.info).toHaveText('Matala G soi taustalla kotisävelen tukena.');
     const length = round.versions[0].length;
     await scheduled(page, 2 * (length + 1));
-    // Ensimmäinen loppu korostuu soidessaan (myös ▶-merkillä, ei vain värillä).
+    // Soiva loppu korostuu (myös tekstinä), mutta mitään ei ole valittu.
     await expect(answers.nth(0)).toHaveAttribute('data-soi', '');
+    await expect(state(0)).toHaveText('▶ soi');
     await expect(answers.nth(1)).not.toHaveAttribute('data-soi', '');
+    for (const which of [0, 1]) await expect(answers.nth(which)).toHaveAttribute('aria-pressed', 'false');
+    // Tehtävänäkymässä ei ole erillisiä ▶ 1 / ▶ 2 / Kotisävel G -painikkeita, eikä Tarkista näy ennen valintaa.
+    await expect(p.task.locator('button:visible')).toHaveText(['Loppu 1 ▶ soi', 'Loppu 2']);
+    await expect(p.check).toBeHidden();
 
     const home = round.order.indexOf('koti');
+    // Valitse ensin toinen: soi ja valitaan, mutta ei tarkisteta.
+    await clearLog(page);
+    await answers.nth(1 - home).click();
+    await scheduled(page, length + 1);
+    await expect(answers.nth(1 - home)).toHaveAttribute('aria-pressed', 'true');
+    await expect(answers.nth(1 - home)).toHaveAttribute('data-soi', '');
+    await expect(state(1 - home)).toHaveText('✓ valittu · ▶ soi');
+    await expect(p.feedback).toHaveText('');
+    await expect(p.check).toBeVisible();
+    await expect(p.check).toHaveText('Tarkista valinta');
+    // Nopeat painallukset: vain viimeisin soi, edellinen pysäytetään.
     await answers.nth(home).click();
-    await expect(p.feedback).toHaveText(melodia.endingFeedback(round, home).text);
+    await answers.nth(1 - home).click();
+    await answers.nth(home).click();
+    await expect(answers.nth(home)).toHaveAttribute('data-soi', '');
+    await expect(answers.nth(1 - home)).not.toHaveAttribute('data-soi', '');
     await expect(answers.nth(home)).toHaveAttribute('aria-pressed', 'true');
-    await expect(answers.nth(1 - home)).toHaveAttribute('aria-disabled', 'true');
-    await expect(p.shape).toHaveText(round.versions.map((notes: Melody, which: number) =>
+    await expect(answers.nth(1 - home)).toHaveAttribute('aria-pressed', 'false');
+    await expect(state(1 - home)).toHaveText('');
+    await expect(p.feedback).toHaveText('');
+    // Kuuntelun päätyttyä soi-tila poistuu, valinta jää.
+    await expect(answers.nth(home)).not.toHaveAttribute('data-soi', '', { timeout: 8000 });
+    await expect(state(home)).toHaveText('✓ valittu');
+
+    await p.check.click();
+    await expect(p.feedback).toHaveText(melodia.endingFeedback(round, home).text);
+    await expect(state(home)).toHaveText('✓ valmiimpi');
+    await expect(answers.nth(home)).toHaveClass(/is-valmiimpi/);
+    await expect(p.check).toHaveAttribute('aria-disabled', 'true');
+    await p.section.getByText('Näytä loppujen sävelet').click();
+    await expect(p.shape.locator('li')).toHaveText(round.versions.map((notes: Melody, which: number) =>
       `Loppu ${which + 1}: ${melodia.names(notes)}${round.order[which] === 'koti' ? ' (kotiin)' : ''}`));
+    // Tarkistuksen jälkeen lopun painallus vain soittaa; valinta ja palaute pysyvät.
+    await answers.nth(1 - home).click();
+    await expect(answers.nth(1 - home)).toHaveAttribute('data-soi', '');
+    await expect(answers.nth(home)).toHaveAttribute('aria-pressed', 'true');
+    await expect(p.feedback).toHaveText(melodia.endingFeedback(round, home).text);
 
     // Toinen oikea vastaus → seuraavaksi ilman tukiääntä.
     index = melodia.pickIndex(melodia.ENDING_ROUNDS, index, random);
     round = melodia.endingRound(index);
     await p.next.click();
     await expect(p.feedback).toHaveText('');
+    await expect(p.check).toBeHidden();
+    for (const which of [0, 1]) await expect(answers.nth(which)).toHaveAttribute('aria-pressed', 'false');
     await answers.nth(round.order.indexOf('koti')).click();
+    await p.check.click();
     await expect(p.feedback).toHaveText(`${melodia.endingFeedback(round, round.order.indexOf('koti')).text} Seuraavaksi ilman tukiääntä.`);
 
     index = melodia.pickIndex(melodia.ENDING_ROUNDS, index, random);
@@ -391,24 +462,42 @@ test.describe('02 · Kotiin vai kesken?', () => {
     await p.next.click();
     await expect(p.info).toHaveText('Ilman tukiääntä.');
     await scheduled(page, 2 * round.versions[0].length);
-    // Loppujen erillinen kuuntelu ja kotisävel.
+    // Kotisävel löytyy ⓘ-lisätiedosta.
+    await p.section.locator('.study-knoppi > summary').click();
     await clearLog(page);
-    await p.section.locator('[data-loppu-kuuntele="1"]').click();
-    await expect(answers.nth(1)).toHaveAttribute('data-soi', '');
-    await scheduled(page, round.versions[1].length);
-    await clearLog(page);
-    await p.section.getByRole('button', { name: 'Kotisävel G' }).click();
+    await p.section.getByRole('button', { name: 'Kuuntele kotisävel G' }).click();
     await scheduled(page, 2);
     const wrong = 1 - round.order.indexOf('koti');
     await answers.nth(wrong).click();
+    await p.check.click();
     await expect(p.feedback).toHaveText(melodia.endingFeedback(round, wrong).text);
     await expect(p.feedback).toHaveText(/^Tässä melodiassa loppu [12] kuulostaa valmiimmalta/);
     await expect(p.feedback).toHaveClass(/is-error/);
+    await expect(state(wrong)).toHaveText(/^✗ valintasi/);
+    await expect(state(1 - wrong)).toHaveText(/^✓ valmiimpi/);
+  });
+
+  test('näppäimistöllä: Space valitsee lopun, Enter tarkistaa ja fokus säilyy', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Näppäimistö testataan työpöytäkoossa.');
+    await page.goto('/oppi/korva/kotiin-vai-kesken.html');
+    const p = parts(page, 'koti');
+    await p.listen.focus();
+    await page.keyboard.press('Enter');
+    await expect(p.task).toBeVisible();
+    const second = p.section.getByRole('button', { name: /^Loppu 2/ });
+    await second.focus();
+    await page.keyboard.press('Space');
+    await expect(second).toHaveAttribute('aria-pressed', 'true');
+    await page.keyboard.press('Tab');
+    await expect(p.check).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(p.feedback).not.toHaveText('');
+    await expect(p.check).toBeFocused();
   });
 });
 
 test.describe('03 · Kuule ja etsi kitaralta', () => {
-  test('tapailu otelautaruudukossa, ratkaisu oikealla kitaralla soittavalle ja laajeneva sävelalue', async ({ page }) => {
+  test('tapailu, lyhyt palaute ja Kuului/Sinä-vertailu, Näytä sävelkulku ja laajeneva sävelalue', async ({ page }) => {
     await recordAudio(page);
     await seedPage(page, 31);
     const random = mulberry(31);
@@ -418,6 +507,7 @@ test.describe('03 · Kuule ja etsi kitaralta', () => {
     const p = parts(page, 'etsi');
     const slots = p.section.locator('[data-etsi-vastaus] li');
     const board = p.section.locator('[data-paikka]');
+    const own = p.section.getByRole('button', { name: 'Oma kulkusi' });
     await expect(p.section.locator('button:visible')).toHaveCount(1);
 
     await p.listen.click();
@@ -427,8 +517,9 @@ test.describe('03 · Kuule ja etsi kitaralta', () => {
     await expect(board).toHaveCount(5);
     await expect(p.section.locator('.melodia-kieli')).toHaveText(['B', 'G']);
     await expect(page.getByRole('button', { name: 'A, G-kieli, 2. nauha' })).toBeVisible();
-    await expect(slots).toHaveText(['_', '_', '_']);
+    await expect(slots).toHaveText(['?', '?', '?']);
     await expect(p.check).toBeHidden();
+    await expect(p.section.getByRole('button', { name: 'Näytä sävelkulku' })).toBeVisible();
 
     // Väärät kokeilut matkalla eivät haittaa: kolme viimeisintä ratkaisevat.
     await clearLog(page);
@@ -438,15 +529,23 @@ test.describe('03 · Kuule ja etsi kitaralta', () => {
     await expect(slots).toHaveText(first.map(id => melodia.NOTES[id].name));
     await p.check.click();
     await expect(p.feedback).toHaveText(melodia.echoFeedback(first, first));
-    await expect(p.shape).toHaveCount(3);
-    await expect(p.shape.first()).toContainText(melodia.position(first[0]));
+    await expect(p.heard).toHaveText(first.map(id => melodia.NOTES[id].name));
+    await expect(p.yours.locator('.melodia-merkki')).toHaveText(['✓', '✓', '✓']);
+    await expect(own).toBeHidden();
+    // Oikeat paikat numeroidaan ruudukkoon.
+    for (const [at, id] of first.entries()) {
+      await expect(page.locator(`[data-paikka="${id}"] .melodia-numero`)).toContainText(String(at + 1));
+    }
+    await expect(p.shape).toContainText(`Kitaralla: ${first.map(melodia.position).join(' → ')}`);
 
-    // Oikealla kitaralla soittanut katsoo ratkaisun: ei vastausta eikä tason muutosta.
+    // Oikealla kitaralla etsinyt: Näytä sävelkulku ei ole vastaus eikä muuta tasoa.
     const second: Melody = melodia.freshMelody(levels[0], first, random);
     await p.next.click();
-    await p.section.getByRole('button', { name: 'Soitin kitaralla – näytä ratkaisu' }).click();
-    await expect(p.feedback).toHaveText(`Ratkaisu: ${melodia.names(second)}. Vertaa omaan soittoosi.`);
-    await expect(p.shape).toHaveCount(3);
+    await expect(p.section.locator('.melodia-numero')).toHaveCount(0);
+    await p.section.getByRole('button', { name: 'Näytä sävelkulku' }).click();
+    await expect(p.feedback).toHaveText(`Sävelkulku: ${melodia.names(second)}. Vertaa omaan soittoosi. Tätä ei lasketa vastaukseksi.`);
+    await expect(p.heard).toHaveText(second.map(id => melodia.NOTES[id].name));
+    await expect(p.yours).toHaveCount(0);
 
     // Toinen oikea vastaus → vaihtuva lähtösävel ja G-, B- ja e-kieli.
     const third: Melody = melodia.freshMelody(levels[0], second, random);
@@ -463,9 +562,18 @@ test.describe('03 · Kuule ja etsi kitaralta', () => {
     guess[1] = fourth[1] === 'G4' ? 'E4' : 'G4';
     await tap(page, guess);
     await p.check.click();
-    await expect(p.feedback).toHaveText(melodia.echoFeedback(fourth, guess));
-    await expect(p.feedback).toHaveText(/^2\/3 oikein\. Sävel 2: kuului /);
-    await expect(p.section.locator('.is-virhe')).toHaveCount(1);
+    await expect(p.feedback).toHaveText('2/3 oikein. Yhdessä sävelessä oli eroa.');
+    // Malli (Kuului) pysyy oikeana; vain oma rivi merkitään.
+    await expect(p.heard).toHaveText(fourth.map(id => melodia.NOTES[id].name));
+    await expect(p.yours.locator('strong')).toHaveText(guess.map(id => melodia.NOTES[id].name));
+    await expect(p.yours.locator('.melodia-merkki')).toHaveText(['✓', '✗', '✓']);
+    await expect(p.heard.locator('.melodia-merkki')).toHaveCount(0);
+    await expect(p.section.locator('ol.melodia-vertailu > li.is-virhe')).toHaveCount(1);
+    expect(await labels(p.cards)).toEqual(fourth.map((id, at) => `Sävel ${at + 1}: kuului ${melodia.NOTES[id].name}, ${guess[at] === id ? 'oikein' : `vastasit ${melodia.NOTES[guess[at]].name}`}`));
+    // Oma kulku vertailuksi.
+    await clearLog(page);
+    await own.click();
+    await scheduled(page, 3);
     // Tarkistuksen jälkeen paikat soivat yhä, mutta vastaus pysyy.
     await clearLog(page);
     await page.locator('[data-paikka="G3"]').click();
@@ -499,8 +607,10 @@ async function answerAll(page: Page, slug: string) {
     await page.getByText('Näytä sävelet ja kitaran paikat').click();
   } else if (slug === 'kotiin-vai-kesken') {
     await page.locator('[data-loppu="0"]').click();
+    await page.locator('[data-melodia-tarkista]').click();
+    await page.getByText('Näytä loppujen sävelet').click();
   } else {
-    await tap(page, ['G3', 'B3', 'D4']);
+    await tap(page, ['A3', 'B3', 'D4']);
     await page.locator('[data-melodia-tarkista]').click();
   }
 }

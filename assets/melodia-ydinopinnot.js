@@ -192,15 +192,37 @@ export function checkContour(motif, answers) {
 }
 
 const capitalize = text => text.charAt(0).toUpperCase() + text.slice(1);
-const arrow = value => value ? `${ARROWS[value]} ${DIRECTION_LABELS[value]}` : 'ei vastausta';
+export const COUNT_WORDS = Object.freeze(['', 'yhdessä', 'kahdessa', 'kolmessa', 'neljässä', 'viidessä']);
+const said = value => value ? DIRECTION_LABELS[value] : 'ei vastausta';
 
 export function contourFeedback(motif, answers) {
   const { correct, steps } = checkContour(motif, answers);
-  if (correct) return `Oikein! ${steps.map(step => ARROWS[step.expected]).join(' ')}`;
+  if (correct) return `Oikein! Kaikki ${steps.length} vaihtoa osuivat.`;
   const right = steps.filter(step => step.ok).length;
   const misses = steps.flatMap((step, index) => step.ok ? []
-    : [`vaihto ${index + 1}: kuului ${arrow(step.expected)}, vastasit ${arrow(step.given)}`]);
+    : [`vaihto ${index + 1}: kuului ${said(step.expected)}, vastasit ${said(step.given)}`]);
   return `${right}/${steps.length} oikein. ${capitalize(misses.join('; '))}.`;
+}
+
+// Suuntakuvake: kaksi sävelpistettä. x = aika (vasemmalta oikealle), y = korkeus (SVG:ssä pienempi y on ylempänä).
+export const ICON = Object.freeze({ width: 32, height: 20, left: 6, right: 26, high: 5, low: 15, middle: 10 });
+export function directionPoints(value) {
+  const { left, right, high, low, middle } = ICON;
+  if (value === 'ylos') return { from: [left, low], to: [right, high] };
+  if (value === 'alas') return { from: [left, high], to: [right, low] };
+  return { from: [left, middle], to: [right, middle] };
+}
+
+// Melodian muoto oikeilla sävelkorkeuksilla: puoliaskel = 4 yksikköä pystysuunnassa.
+export function shapePoints(melody, { step = 44, unit = 4, pad = 8 } = {}) {
+  const midis = melody.map(id => NOTES[id].midi);
+  const top = Math.max(...midis);
+  const bottom = Math.min(...midis);
+  return {
+    width: pad * 2 + (melody.length - 1) * step,
+    height: pad * 2 + (top - bottom) * unit,
+    points: midis.map((midi, index) => [pad + index * step, pad + (top - midi) * unit]),
+  };
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -259,9 +281,7 @@ export function echoFeedback(motif, chosen) {
   const { correct, steps } = checkEcho(motif, chosen);
   if (correct) return `Oikein! ${names(motif)}. Soita sama oikealla kitaralla.`;
   const right = steps.filter(step => step.ok).length;
-  const misses = steps.flatMap((step, index) => step.ok ? []
-    : [`sävel ${index + 1}: kuului ${NOTES[step.expected].name}, soitit ${step.given ? NOTES[step.given].name : '–'}`]);
-  return `${right}/${steps.length} oikein. ${capitalize(misses.join('; '))}.`;
+  return `${right}/${steps.length} oikein. ${capitalize(COUNT_WORDS[steps.length - right])} sävelessä oli eroa.`;
 }
 
 // Kitaran paikat ruudukkona: kielet ohuimmasta paksuimpaan (kuten tabulatuurissa), nauhat 0–3.
@@ -531,6 +551,50 @@ function lock(buttons, isLocked) {
 
 const locked = button => button.getAttribute('aria-disabled') === 'true';
 
+
+// ---------------------------------------------------------------------------------------------
+// Kuvat: sävelpisteet ja viivat. Aika kulkee vasemmalta oikealle, korkeampi sävel on ylempänä.
+// Ensimmäinen piste on ontto, jotta kulkusuunta erottuu ilman värejä.
+
+const SVG = 'http://www.w3.org/2000/svg';
+
+function svgNode(tag, attributes = {}) {
+  const node = document.createElementNS(SVG, tag);
+  for (const [name, value] of Object.entries(attributes)) node.setAttribute(name, String(value));
+  return node;
+}
+
+function directionIcon(value) {
+  const { from, to } = directionPoints(value);
+  const svg = svgNode('svg', { class: 'melodia-suunta-kuva', viewBox: `0 0 ${ICON.width} ${ICON.height}`, 'aria-hidden': 'true', focusable: 'false' });
+  svg.append(svgNode('line', { x1: from[0], y1: from[1], x2: to[0], y2: to[1] }),
+    svgNode('circle', { class: 'melodia-alku', cx: from[0], cy: from[1], r: 3.5 }),
+    svgNode('circle', { cx: to[0], cy: to[1], r: 3.5 }));
+  return svg;
+}
+
+// Melodian todellinen muoto: pisteet sävelkorkeuden mukaan, virheelliset vaihdot katkoviivalla ja ✗:llä.
+function melodyShape(melody, wrong = new Set()) {
+  const { width, height, points } = shapePoints(melody);
+  const svg = svgNode('svg', { class: 'melodia-muoto-kuva', viewBox: `0 0 ${width} ${height + 14}`, role: 'img' });
+  svg.style.setProperty('--savelia', String(melody.length));
+  const moves = contourOf(melody);
+  svg.setAttribute('aria-label', `Melodian muoto: ${moves.map((move, index) => `vaihto ${index + 1} ${DIRECTION_LABELS[move]}${wrong.has(index) ? ' (vastauksesi poikkesi)' : ''}`).join(', ')}`);
+  points.slice(1).forEach(([x, y], index) => {
+    const [x0, y0] = points[index];
+    const line = svgNode('line', { x1: x0, y1: y0, x2: x, y2: y });
+    if (wrong.has(index)) {
+      line.setAttribute('class', 'is-virhe');
+      const mark = svgNode('text', { x: (x0 + x) / 2, y: height + 12, 'text-anchor': 'middle', class: 'melodia-merkki' });
+      mark.textContent = `✗ ${index + 1}`;
+      svg.append(mark);
+    }
+    svg.append(line);
+  });
+  points.forEach(([x, y], index) => svg.append(svgNode('circle', { cx: x, cy: y, r: 5, class: index ? '' : 'melodia-alku' })));
+  return svg;
+}
+
 function element(tag, className, text) {
   const node = document.createElement(tag);
   if (className) node.className = className;
@@ -538,28 +602,26 @@ function element(tag, className, text) {
   return node;
 }
 
-// Melodian muoto: korkeampi sävel nousee korkeammalle; nuoli kertoo vaihdon suunnan.
-// marks: 01:ssä vaihtojen tulokset, 03:ssa (markNotes) sävelten tulokset.
-function renderShape(list, notes, { marks = [], withNames = false, markNotes = false } = {}) {
-  const lowest = Math.min(...notes.map(id => NOTES[id].midi));
-  list.replaceChildren(...notes.map((id, index) => {
-    const item = element('li');
-    item.style.setProperty('--taso', String(NOTES[id].midi - lowest));
-    const move = index ? contourOf([notes[index - 1], id])[0] : null;
-    const mark = markNotes ? marks[index] : (index ? marks[index - 1] : null);
-    item.append(element('span', 'melodia-nuoli', move ? ARROWS[move] : '•'));
-    if (withNames) item.append(element('strong', '', NOTES[id].name), element('span', 'melodia-paikka', position(id)));
-    if (mark && !mark.ok) {
-      item.classList.add('is-virhe');
-      item.append(element('span', 'melodia-merkki', '✗'));
+// Vertailu kortteina: ylhäällä kuultu malli, alla oppijan vastaus (”sinä”). Merkinnät vain vastauksessa.
+// Kortit rivittyvät, joten pitkäkin kulku mahtuu kapeaan näkymään ja suurennettuna.
+function compareCards(caption, items) {
+  const list = element('ol', 'melodia-vertailu');
+  list.setAttribute('aria-label', caption);
+  list.append(...items.map(({ number, heard, heardText, yours, yoursText, ok }) => {
+    const item = element('li', yours ? (ok ? 'is-oikein' : 'is-virhe') : '');
+    item.append(element('span', 'melodia-vertailu-nro', number));
+    const top = element('span', 'melodia-kuului');
+    top.append(...heard);
+    item.append(top);
+    if (yours) {
+      const bottom = element('span', 'melodia-sina');
+      bottom.append(element('span', 'melodia-pieni-teksti', 'sinä'), ...yours, element('span', 'melodia-merkki', ok ? '✓' : '✗'));
+      item.append(bottom);
     }
-    const parts = [`Sävel ${index + 1}`];
-    if (move) parts.push(`vaihto ${DIRECTION_LABELS[move]}`);
-    if (withNames) parts.push(`${NOTES[id].name}, ${position(id)}`);
-    if (mark && !mark.ok) parts.push('vastauksesi poikkesi');
-    item.setAttribute('aria-label', parts.join(', '));
+    item.setAttribute('aria-label', `${number}: kuului ${heardText}${yours ? `, ${ok ? 'oikein' : `vastasit ${yoursText}`}` : ''}`);
     return item;
   }));
+  return list;
 }
 
 function renderNames(list, notes) {
@@ -567,7 +629,7 @@ function renderNames(list, notes) {
     element('li', '', `${index + 1}. ${NOTES[id].name} · ${position(id)}`)));
 }
 
-// Yhteinen kulku: Kuuntele → vastaa → palaute → Seuraava (soi heti).
+// Yhteinen kulku: Kuuntele → kokeile tai valitse → Tarkista → palaute → Seuraava (soi heti).
 function setupFlow(section, player) {
   const flow = {
     status: section.querySelector('[data-melodia-tila]'),
@@ -620,8 +682,10 @@ function setupContour(section, player) {
     const count = motif.length - 1;
     slots.replaceChildren(...Array.from({ length: count }, (_, index) => {
       const value = answers[index];
-      const item = element('li', value ? '' : 'is-empty', value ? ARROWS[value] : '_');
-      item.setAttribute('aria-label', `Vaihto ${index + 1}: ${value ? DIRECTION_LABELS[value] : 'tyhjä'}`);
+      const item = element('li', value ? '' : 'is-empty');
+      if (value) item.append(directionIcon(value));
+      else item.append(element('span', '', '?'));
+      item.setAttribute('aria-label', `Vaihto ${index + 1}: ${value ? DIRECTION_LABELS[value] : 'ei vielä valittu'}`);
       return item;
     }));
     const full = answers.length === count;
@@ -663,7 +727,14 @@ function setupContour(section, player) {
     checked = true;
     state = adapt(state, result.correct, LEVELS.suunta.length);
     flow.answered(contourFeedback(motif, answers) + (LEVEL_TEXT[state.change] ?? ''), result.correct);
-    renderShape(flow.shape, motif, { marks: result.steps });
+    const wrong = new Set(result.steps.flatMap((step, index) => step.ok ? [] : [index]));
+    flow.shape.replaceChildren(
+      melodyShape(motif, wrong),
+      compareCards('Sävelvaihdot: kuultu ja vastauksesi', result.steps.map((step, index) => ({
+        number: `Vaihto ${index + 1}`,
+        heard: [directionIcon(step.expected)], heardText: DIRECTION_LABELS[step.expected],
+        yours: [directionIcon(step.given)], yoursText: DIRECTION_LABELS[step.given], ok: step.ok,
+      }))));
     renderNames(flow.names, motif);
     draw();
   });
@@ -673,56 +744,82 @@ function setupContour(section, player) {
 function setupEndings(section, player) {
   const flow = setupFlow(section, player);
   const answers = [...section.querySelectorAll('[data-loppu]')];
-  const replays = [...section.querySelectorAll('[data-loppu-kuuntele]')];
+  const check = section.querySelector('[data-melodia-tarkista]');
   let state = { level: 0, streak: 0 };
   let index = -1;
   let round = null;
-  let answered = false;
+  let selected = null;
+  let playing = -1;
+  let checked = false;
   const drone = () => LEVELS.koti[state.level].drone;
-  const highlight = playing => answers.forEach((button, which) => button.toggleAttribute('data-soi', which === playing));
+
+  // Soiva ja valittu ovat eri tiloja: soiva = data-soi + ”▶ soi”, valittu = aria-pressed + ”✓ valittu”.
+  const paint = () => answers.forEach((button, which) => {
+    const parts = [];
+    if (checked && round.order[which] === 'koti') parts.push('✓ valmiimpi');
+    else if (checked && which === selected) parts.push('✗ valintasi');
+    else if (which === selected) parts.push('✓ valittu');
+    if (which === playing) parts.push('▶ soi');
+    button.querySelector('[data-loppu-tila]').textContent = parts.join(' · ');
+    button.toggleAttribute('data-soi', which === playing);
+    button.setAttribute('aria-pressed', String(which === selected));
+    button.classList.toggle('is-valmiimpi', checked && round.order[which] === 'koti');
+  });
+  const follow = which => time => {
+    const now = time < 0 ? -1 : which;
+    if (now !== playing) {
+      playing = now;
+      paint();
+    }
+  };
 
   flow.newTask = () => {
     index = pickIndex(ENDING_ROUNDS, index);
     round = endingRound(index);
-    answered = false;
+    selected = null;
+    playing = -1;
+    checked = false;
     flow.task.hidden = true;
     flow.info.textContent = drone() ? 'Matala G soi taustalla kotisävelen tukena.' : 'Ilman tukiääntä.';
-    lock(answers, false);
-    answers.forEach(button => button.setAttribute('aria-pressed', 'false'));
+    check.hidden = true;
+    lock([check], false);
     flow.reset();
+    paint();
   };
   flow.listen.addEventListener('click', () => {
     const { plan, marks } = bothEndingsPlan(round, drone());
     player.play(flow.listen, flow.status, plan, {
       toggle: true,
       onStart: () => { flow.task.hidden = false; },
-      onPosition: time => highlight(time < 0 ? -1 : time >= marks[1] ? 1 : 0),
+      onPosition: time => follow(time >= marks[1] ? 1 : 0)(time),
     });
   });
-  replays.forEach((button, which) => {
-    button.addEventListener('click', () => {
-      player.play(button, flow.status, versionPlan(round.versions[which], drone()), {
-        onPosition: time => highlight(time < 0 ? -1 : which),
-      });
-    });
-  });
-  section.querySelector('[data-koti-savel]').addEventListener('click', event => {
-    player.play(event.currentTarget, flow.status, HOME_TONE_PLAN);
-  });
+  // Lopun painallus soittaa sen ja valitsee sen alustavasti. Tarkistus vasta Tarkista valinta -painikkeesta.
   answers.forEach((button, which) => {
     button.addEventListener('click', () => {
-      if (answered) return;
-      answered = true;
-      const result = endingFeedback(round, which);
-      state = adapt(state, result.correct, LEVELS.koti.length);
-      button.setAttribute('aria-pressed', 'true');
-      lock(answers, true);
-      const change = state.change === 'ylos' ? ' Seuraavaksi ilman tukiääntä.'
-        : state.change === 'alas' ? ' Seuraavaksi tukiääni taas mukana.' : '';
-      flow.answered(result.text + change, result.correct);
-      flow.shape.replaceChildren(...round.versions.map((notes, which) => element('li', '',
-        `Loppu ${which + 1}: ${names(notes)}${round.order[which] === 'koti' ? ' (kotiin)' : ''}`)));
+      if (!checked) {
+        selected = which;
+        check.hidden = false;
+        paint();
+      }
+      player.play(button, flow.status, versionPlan(round.versions[which], drone()), { onPosition: follow(which) });
     });
+  });
+  check.addEventListener('click', () => {
+    if (checked || selected === null) return;
+    checked = true;
+    const result = endingFeedback(round, selected);
+    state = adapt(state, result.correct, LEVELS.koti.length);
+    lock([check], true);
+    const change = state.change === 'ylos' ? ' Seuraavaksi ilman tukiääntä.'
+      : state.change === 'alas' ? ' Seuraavaksi tukiääni taas mukana.' : '';
+    flow.answered(result.text + change, result.correct);
+    flow.shape.replaceChildren(...round.versions.map((notes, which) => element('li', '',
+      `Loppu ${which + 1}: ${names(notes)}${round.order[which] === 'koti' ? ' (kotiin)' : ''}`)));
+    paint();
+  });
+  section.querySelector('[data-koti-savel]')?.addEventListener('click', event => {
+    player.play(event.currentTarget, flow.status, HOME_TONE_PLAN);
   });
   flow.newTask();
 }
@@ -733,9 +830,11 @@ function setupEcho(section, player) {
   const slots = section.querySelector('[data-etsi-vastaus]');
   const check = section.querySelector('[data-melodia-tarkista]');
   const solution = section.querySelector('[data-etsi-ratkaisu]');
+  const own = section.querySelector('[data-etsi-oma]');
   let state = { level: 0, streak: 0 };
   let motif = null;
   let history = [];
+  let tried = [];
   let checked = false;
   let pool = null;
 
@@ -743,12 +842,23 @@ function setupEcho(section, player) {
     const chosen = recentNotes(history, motif.length);
     slots.replaceChildren(...motif.map((_, index) => {
       const id = chosen[index];
-      const item = element('li', id ? '' : 'is-empty', id ? NOTES[id].name : '_');
+      const item = element('li', id ? '' : 'is-empty', id ? NOTES[id].name : '?');
       item.setAttribute('aria-label', `Sävel ${index + 1}: ${id ? `${NOTES[id].name}, ${position(id)}` : 'ei vielä soitettu'}`);
       return item;
     }));
     check.hidden = chosen.length !== motif.length;
     lock([check, solution], checked);
+  };
+  // Oikean kulun järjestysnumerot ruudukon paikoille (sama paikka voi olla kulussa useasti).
+  const markBoard = melody => {
+    for (const button of board.querySelectorAll('[data-paikka]')) {
+      const id = button.dataset.paikka;
+      const order = melody.flatMap((note, index) => note === id ? [index + 1] : []);
+      button.querySelector('.melodia-numero')?.remove();
+      button.classList.toggle('is-kulussa', order.length > 0);
+      button.setAttribute('aria-label', `${NOTES[id].name}, ${position(id)}${order.length ? `, sävel ${order.join(' ja ')} kulussa` : ''}`);
+      if (order.length) button.append(element('span', 'melodia-numero', order.join('·')));
+    }
   };
   const buildBoard = () => {
     const header = element('div', 'melodia-otelauta-rivi melodia-otelauta-otsikko');
@@ -781,11 +891,27 @@ function setupEcho(section, player) {
     });
     board.replaceChildren(header, ...rows);
   };
+  const reveal = (text, correct, steps) => {
+    checked = true;
+    flow.answered(text, correct);
+    const answered = steps[0].given !== undefined;
+    flow.shape.replaceChildren(
+      compareCards('Sävelkulku: kuultu ja soittamasi', steps.map((step, index) => ({
+        number: `Sävel ${index + 1}`,
+        heard: [element('strong', '', NOTES[step.expected].name)], heardText: NOTES[step.expected].name,
+        yours: answered ? [element('strong', '', step.given ? NOTES[step.given].name : '–')] : null,
+        yoursText: step.given ? NOTES[step.given].name : 'ei säveltä', ok: step.ok,
+      }))),
+      element('p', 'melodia-pieni', `Kitaralla: ${motif.map(position).join(' → ')}`));
+    markBoard(motif);
+    draw();
+  };
 
   flow.newTask = () => {
     const level = LEVELS.etsi[state.level];
     motif = freshMelody(level, motif);
     history = [];
+    tried = [];
     checked = false;
     flow.task.hidden = true;
     flow.info.textContent = `${motif.length} säveltä · ${level.start ? 'alkaa vapaalta G-kieleltä' : 'lähtösävel vaihtelee'}`;
@@ -793,6 +919,8 @@ function setupEcho(section, player) {
       pool = level.pool;
       buildBoard();
     }
+    markBoard([]);
+    own.hidden = true;
     flow.reset();
     draw();
   };
@@ -803,22 +931,21 @@ function setupEcho(section, player) {
   });
   check.addEventListener('click', () => {
     if (checked) return;
-    const chosen = recentNotes(history, motif.length);
-    const result = checkEcho(motif, chosen);
-    checked = true;
+    tried = recentNotes(history, motif.length);
+    const result = checkEcho(motif, tried);
     state = adapt(state, result.correct, LEVELS.etsi.length);
-    flow.answered(echoFeedback(motif, chosen) + (LEVEL_TEXT[state.change] ?? ''), result.correct);
-    renderShape(flow.shape, motif, { marks: result.steps, withNames: true, markNotes: true });
-    draw();
+    reveal(echoFeedback(motif, tried) + (LEVEL_TEXT[state.change] ?? ''), result.correct, result.steps);
+    own.hidden = result.correct;
   });
-  // Oikealla kitaralla harjoitteleva katsoo ratkaisun; tämä ei ole vastaus eikä muuta tasoa.
+  // Oikealla kitaralla etsinyt katsoo sävelkulun; se ei ole vastaus eikä muuta tasoa.
   solution.addEventListener('click', () => {
     if (checked) return;
-    checked = true;
-    flow.answered(`Ratkaisu: ${names(motif)}. Vertaa omaan soittoosi.`, true);
+    reveal(`Sävelkulku: ${names(motif)}. Vertaa omaan soittoosi. Tätä ei lasketa vastaukseksi.`, true,
+      motif.map(id => ({ expected: id })));
     flow.feedback.classList.remove('is-answered');
-    renderShape(flow.shape, motif, { withNames: true });
-    draw();
+  });
+  own.addEventListener('click', () => {
+    player.play(own, flow.status, melodyPlan(tried, TIMING.etsi));
   });
   flow.newTask();
 }
