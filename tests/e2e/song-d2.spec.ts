@@ -94,3 +94,54 @@ test('D2: tauko ja jatko samasta kohdasta, kelaus, loop ja versionvaihto ilman a
   expect(final.events).not.toContain('virhe');
   expect(final.events).not.toContain('allas-taynna');
 });
+
+test('D2: nopeat kelaukset, versionvaihdot, latauksen peruutus ja tauko/jatko-sarja eivät jätä väärää tilaa', async ({ page }) => {
+  test.setTimeout(90000);
+  await page.goto(SONG);
+  const play = page.locator('.song-play'), slider = page.locator('input[aria-label="Siirry kappaleessa"]');
+  const select = page.locator('#song-version-select');
+  await play.click();
+  await expect(play).toHaveText(/Tauko/, { timeout: 30000 });
+  for (const at of [20, 60, 100, 140, 30, 90]) await slider.fill(String(at));
+  await expect.poll(async () => { const h = (await hook(page))!; return h.playing && h.position > 90.2 && h.position < 96; }, { timeout: 10000 }).toBe(true);
+  await play.click();
+  for (const value of ['acoustic', 'normal', 'acoustic', 'normal', 'acoustic']) await select.selectOption(value);
+  await play.click();
+  await expect.poll(async () => { const h = (await hook(page))!; return h.playing && h.position > 0.3; }, { timeout: 30000 }).toBe(true);
+  expect((await hook(page))!.duration).toBeCloseTo(233.33, 1);
+  await play.click();
+  // Soita ja heti versionvaihto (peruu latauksen), sitten soitto uudella versiolla.
+  await select.selectOption('normal');
+  await play.click();
+  await select.selectOption('acoustic');
+  await select.selectOption('normal');
+  await play.click();
+  await expect.poll(async () => { const h = (await hook(page))!; return h.playing && h.position > 0.3; }, { timeout: 30000 }).toBe(true);
+  expect((await hook(page))!.duration).toBeCloseTo(212.17, 1);
+  for (let i = 0; i < 7; i++) await play.click();
+  await expect.poll(async () => (await hook(page))!.playing, { timeout: 5000 }).toBe(false);
+  const final = (await hook(page))!;
+  expect(final.events).not.toContain('virhe');
+  expect(final.bytes).toBeLessThanOrEqual(POOL_LIMIT);
+});
+
+test('D2: 44,1 kHz:n konteksti kohdistaa palat ruudukkoon ja soi oikeassa tahdissa', async ({ page }) => {
+  test.setTimeout(60000);
+  await page.goto(SONG + '&naytetaajuus=44100');
+  const play = page.locator('.song-play');
+  await play.click();
+  await expect(play).toHaveText(/Tauko/, { timeout: 30000 });
+  const info = await page.evaluate(() => {
+    const h = (window as unknown as { __kappaleD1: Hook }).__kappaleD1;
+    return { rate: h.context.sampleRate, event: h.player.events.find(e => e.kind === 'naytetaajuus-ero') };
+  });
+  expect(info.rate).toBe(44100);
+  expect(info.event).toMatchObject({ mp3: 48000, konteksti: 44100, ruudukko: 160 });
+  // Aikajana etenee kontekstin kellon mukaan (ei 48/44,1-kertaisesti).
+  const sample = () => page.evaluate(() => { const h = (window as unknown as { __kappaleD1: Hook }).__kappaleD1; return { t: h.context.currentTime, p: h.player.position() }; });
+  await expect.poll(async () => (await sample()).p, { timeout: 10000 }).toBeGreaterThan(0.5);
+  const a = await sample();
+  await page.waitForTimeout(1500);
+  const b = await sample();
+  expect((b.p - a.p) / (b.t - a.t)).toBeCloseTo(1, 3);
+});

@@ -8,7 +8,7 @@ const RATE = 48000, FRAME_BYTES = 576, SEG = SEGMENT_SECONDS * RATE;
 const HEADER = [0xff, 0xfb, 0xb4, 0x00]; // MPEG-1 Layer III, 192 kbit/s, 48 kHz, stereo
 
 /** Synteettinen MP3: ID3, Info-kehys (Lavc-viive ja -täyte) ja kehykset, joiden hyötykuorma kertoo kehyksen numeron. */
-function synthMp3(frames: number, { id3 = 300, delay = 576, padding = 1080, info = true } = {}) {
+function synthMp3(frames: number, { id3 = 300, delay = 576, padding = 1080, info = true, version = 0 } = {}) {
   const bytes = new Uint8Array(10 + id3 + (info ? FRAME_BYTES : 0) + frames * FRAME_BYTES);
   bytes.set([0x49, 0x44, 0x33, 3, 0, 0, (id3 >> 21) & 127, (id3 >> 14) & 127, (id3 >> 7) & 127, id3 & 127]);
   let o = 10 + id3;
@@ -21,7 +21,8 @@ function synthMp3(frames: number, { id3 = 300, delay = 576, padding = 1080, info
     bytes.set([delay >> 4, ((delay & 15) << 4) | (padding >> 8), padding & 255], lame + 21);
     o += FRAME_BYTES;
   }
-  for (let f = 0; f < frames; f++) { bytes.set(HEADER, o); new DataView(bytes.buffer).setUint32(o + 4, f); o += FRAME_BYTES; }
+  // Hyötykuorma: kehyksen numero (4 tavua) ja versiotunniste (kanava 1 = +p versiossa 1, −p versiossa 0).
+  for (let f = 0; f < frames; f++) { bytes.set(HEADER, o); new DataView(bytes.buffer).setUint32(o + 4, f); bytes[o + 8] = version; o += FRAME_BYTES; }
   return bytes;
 }
 
@@ -37,10 +38,12 @@ class FakeBuffer {
 
 class FakeSource {
   buffer: FakeBuffer | null = null; started: [number, number] | null = null; stopped = false; connected: unknown = null;
+  /** Ajastettu pysäytys (stop(when)); stopped kertoo välittömästä pysäytyksestä (stop()). */
+  stopAt: number | null = null;
   onended: (() => void) | null = null;
   connect(target: unknown) { this.connected = target; } disconnect() { this.connected = null; }
   start(when: number, offset = 0) { this.started = [when, offset]; }
-  stop() { this.stopped = true; }
+  stop(when?: number) { if (when === undefined) this.stopped = true; else this.stopAt = when; }
 }
 
 /**
@@ -49,7 +52,7 @@ class FakeSource {
  * alussa) ja viimeinen (paitsi lopussa) ovat roskaa (−1); extra > 0 jäljittelee FFmpegiä (dekooderiviive näkyy
  * siirtymänä, viimeinen kehys kunnossa). Tiedosto (ID3 + Info) puretaan aikajanan mukaan: alusta poistetaan viive.
  */
-function fakeContext(totalFrames: number, { extra = 0, silent = false } = {}) {
+function fakeContext(totalFrames: number, { extra = 0, silent = false, silentFrames = 0, noise = false, rate = RATE } = {}) {
   const sources: FakeSource[] = [];
   const created: FakeBuffer[] = [];
   const decodes: { frames: number; resolve: () => void; reject: (e: Error) => void }[] = [];
@@ -60,7 +63,7 @@ function fakeContext(totalFrames: number, { extra = 0, silent = false } = {}) {
     const file = bytes[0] === 0x49 && bytes[1] === 0x44 && bytes[2] === 0x33;
     const layout = file ? parseMp3(bytes) : null;
     const offsets = layout ? Array.from(layout.frameOffsets) : Array.from({ length: data.byteLength / FRAME_BYTES }, (_, k) => k * FRAME_BYTES);
-    const frames = offsets.map(o => view.getUint32(o + 4)), n = frames.length, first = frames[0];
+    const frames = offsets.map(o => view.getUint32(o + 4)), n = frames.length, first = frames[0], sign = bytes[offsets[0] + 8] ? 1 : -1;
     const trim = layout ? layout.delay : 0, out = new FakeBuffer(2, n * SAMPLES_PER_FRAME - trim, RATE);
     for (let j = 0; j < out.length; j++) {
       let v: number;
@@ -70,13 +73,16 @@ function fakeContext(totalFrames: number, { extra = 0, silent = false } = {}) {
         const garbage = (first > 0 && frame < first + 2) || (!extra && frame === frames[n - 1] && frame < totalFrames - 1);
         v = p < first * SAMPLES_PER_FRAME ? 0 : garbage ? -1 : p;
       }
-      if (silent) v = 0;
-      out.data[0][j] = v; out.data[1][j] = -v;
+      const p = layout ? first * SAMPLES_PER_FRAME + j + trim : first * SAMPLES_PER_FRAME + j - extra;
+      if (silent || p < silentFrames * SAMPLES_PER_FRAME) v = 0;
+      // Tuntematon dekooderi: raakapurku ei ole bittitarkka koko tiedoston purkuun nähden.
+      if (noise && !layout && v > 0) v += 0.5;
+      out.data[0][j] = v; out.data[1][j] = sign * v;
     }
     return out;
   }
   const context = {
-    currentTime: 10, sampleRate: RATE, destination: {} as AudioNode, outputLatency: 0, baseLatency: 0,
+    currentTime: 10, sampleRate: rate, destination: {} as AudioNode, outputLatency: 0, baseLatency: 0,
     createGain: () => gain() as unknown as GainNode,
     createBuffer: (channels: number, length: number, rate: number) => { const b = new FakeBuffer(channels, length, rate); created.push(b); return b as unknown as AudioBuffer; },
     createBufferSource: () => { const s = new FakeSource(); sources.push(s); return s as unknown as AudioBufferSourceNode; },
@@ -91,12 +97,15 @@ function fakeContext(totalFrames: number, { extra = 0, silent = false } = {}) {
     manual: () => { manual = true; }, failNext: () => { failNext = true; } };
 }
 
-function setup(frames = 8842, extra: { fetch?: (url: string, init?: RequestInit) => Promise<Response>; decoderDelay?: number; silent?: boolean } = {}) {
-  const fake = fakeContext(frames, { extra: extra.decoderDelay ?? 0, silent: extra.silent });
+type SetupOptions = { fetch?: (url: string, init?: RequestInit) => Promise<Response>; decoderDelay?: number; silent?: boolean;
+  silentFrames?: number; noise?: boolean; rate?: number; files?: Record<string, Uint8Array> };
+function setup(frames = 8842, extra: SetupOptions = {}) {
+  const fake = fakeContext(frames, { extra: extra.decoderDelay ?? 0, silent: extra.silent, silentFrames: extra.silentFrames, noise: extra.noise, rate: extra.rate });
   const mp3 = synthMp3(frames);
   let tick: (() => void) | null = null;
   const player = new ChunkSongPlayer(fake.context, {
-    fetch: extra.fetch ?? (async () => new Response(mp3.slice())),
+    fetch: extra.fetch ?? (async (url: string) => new Response((extra.files?.[url] ?? mp3).slice())),
+    decoderFor: () => fake.context,
     setInterval: callback => { tick = callback; return 1; }, clearInterval: () => { tick = null; },
   });
   const flush = async () => { for (let i = 0; i < 20; i++) await Promise.resolve(); };
@@ -332,16 +341,177 @@ describe('D2: dekooderin kalibrointi (Apple ja FFmpeg)', () => {
     expect(far.buffer!.data[0][Math.round(far.started![1] * RATE)]).toBe(at + delay);
   });
 
-  it('hiljaisilla raidoilla kalibrointi epäonnistuu hallitusti ja oletetaan Applen käytös', async () => {
-    const { player } = setup(8842, { silent: true });
+  it('hiljaisilla raidoilla kalibrointi päättyy hallittuun virheeseen eikä viivettä arvata', async () => {
+    const { player, sources } = setup(8842, { silent: true });
+    await expect(player.load(urls)).resolves.toBe('virhe');
+    expect(player.state).toBe('virhe');
+    expect(player.errorKind).toBe('kalibrointi');
+    expect(player.events.find(e => e.kind === 'kalibrointi-epaonnistui')?.yritykset).toHaveLength(9);
+    expect(player.play(0)).toBe(false);
+    expect(sources).toHaveLength(0);
+  });
+
+  it('tuntematon dekooderi (ei bittitarkkaa vastaavuutta) → hallittu virhe', async () => {
+    const { player } = setup(8842, { noise: true });
+    await expect(player.load(urls)).resolves.toBe('virhe');
+    expect(player.errorKind).toBe('kalibrointi');
+  });
+
+  it('hiljainen alku: kalibrointi käyttää myöhempää ikkunaa', async () => {
+    const { player, sources, flush } = setup(8842, { silentFrames: 2000, decoderDelay: 529 });
     await expect(player.load(urls)).resolves.toBe('valmis');
-    expect(player.events.some(e => e.kind === 'kalibrointi-epaonnistui')).toBe(true);
+    expect(player.events.find(e => e.kind === 'kalibroitu')).toMatchObject({ kehys: 3000, dekooderiviive: 529 });
+    player.seek(100); player.play(100); await flush();
+    expect(sources.at(-1)!.buffer!.data[0][0]).toBe(100 * RATE + delay);
+  });
+
+  it('lyhyt raita kalibroidaan kolmanneksen kohdalta', async () => {
+    const { player } = setup(40, { decoderDelay: 529 });
+    await expect(player.load(urls)).resolves.toBe('valmis');
+    expect(player.events.find(e => e.kind === 'kalibroitu')).toMatchObject({ kehys: 13, dekooderiviive: 529 });
   });
 
   it('kalibroidaan vain kerran soittimen elinaikana', async () => {
     const { player } = setup();
     await player.load(urls); await player.load(urls);
     expect(player.events.filter(e => e.kind === 'kalibroitu')).toHaveLength(1);
+  });
+});
+
+describe('D2: katselmoinnin korjaukset (loopin alku, näytetaajuus, kilpailutilanteet)', () => {
+  type Internals = { slots: { users: number; filling: boolean; ready: boolean; start: number }[] };
+  const slots = (player: ChunkSongPlayer) => (player as unknown as Internals).slots;
+  const settle = async (fake: { decodes: { resolve: () => void }[] }, flush: () => Promise<void>) => {
+    for (let i = 0; i < 20 && fake.decodes.length; i++) { fake.decodes.splice(0).forEach(d => d.resolve()); await flush(); }
+  };
+
+  it('loopin kytkentä aivan lopussa: loopin alku on purettu etukäteen ja jatkuu samasta kehyksestä ilman taukoa', async () => {
+    const { player, sources, flush, context, created, layout } = setup();
+    await player.load(urls);
+    for (const at of [60, 100, 150, 190]) { player.play(at); await flush(); }
+    expect(slots(player).some(s => s.ready && s.start === 0)).toBe(false);
+    const d = player.duration, from = Math.round((d - 1) * RATE);
+    player.play(d - 1); await flush();
+    const last = sources.at(-3)!, endFrame = Math.round(last.started![0] * RATE) + layout.length - from;
+    expect(slots(player).some(s => s.ready && s.start === 0)).toBe(true);
+    const decodesBefore = player.events.filter(e => e.kind === 'pala').length;
+    context.currentTime = (endFrame - 480) / RATE;
+    player.setLoop(true); await flush();
+    const wrap = sources.slice(-3);
+    expect(wrap.map(s => Math.round(s.started![0] * RATE))).toEqual([endFrame, endFrame, endFrame]);
+    expect(wrap.every(s => s.started![1] === 0)).toBe(true);
+    expect(wrap[0].buffer!.data[0][0]).toBe(delay);
+    expect(player.events.filter(e => e.kind === 'pala').length).toBe(decodesBefore);
+    expect(player.events.some(e => e.kind === 'alivuoto')).toBe(false);
+    expect(created.length).toBeLessThanOrEqual(POOL_SLOTS * 3);
+  });
+
+  it('jokainen pala pysähtyy täsmälleen loppukehykseensä: kappaleen lopun lyhyt pala ei soita altaan vanhaa dataa', async () => {
+    const { player, sources, flush, layout } = setup();
+    await player.load(urls);
+    for (const at of [0, 60, 150]) { player.play(at); await flush(); }
+    const d = player.duration, from = Math.round((d - 3) * RATE);
+    player.setLoop(true);
+    player.play(d - 3); await flush();
+    const tail = sources.filter(s => s.started && !s.stopped && s.stopAt !== null);
+    // Viimeinen pala: alkaa kohdasta d − 3 ja pysähtyy kappaleen loppuun (3 s), ei altaan paikan loppuun (10 s).
+    const end = tail.filter(s => s.buffer && s.stopAt! - s.started![0] < 3.01);
+    expect(end.length).toBeGreaterThanOrEqual(3);
+    for (const s of end) expect(Math.round((s.stopAt! - s.started![0]) * RATE)).toBe(layout.length - from);
+    // Loopin alku alkaa täsmälleen siitä kehyksestä, johon viimeinen pala pysähtyy.
+    const wrap = tail.find(s => s.started![0] > end[0].started![0])!;
+    expect(Math.round(wrap.started![0] * RATE)).toBe(Math.round(end[0].stopAt! * RATE));
+    // Kaikki ajastetut palat: pysäytyskehys = alku + pituus kokonaisina kehyksinä.
+    for (const s of tail) { const f = s.stopAt! * RATE; expect(Math.abs(f - Math.round(f))).toBeLessThan(1e-6); }
+  });
+
+  it('44,1 kHz:n konteksti: alut ja palat 160 näytteen ruudukossa, rajat kokonaisiin kehyksiin, aikajana oikein', async () => {
+    const { player, sources, advance, flush } = setup(8842, { rate: 44100 });
+    await expect(player.load(urls)).resolves.toBe('valmis');
+    expect(player.events.find(e => e.kind === 'naytetaajuus-ero')).toMatchObject({ mp3: 48000, konteksti: 44100, ruudukko: 160 });
+    expect(Math.round(player.duration * RATE) % 160).toBe(0);
+    player.play(1.2345); await flush();
+    const first = sources[0], start = Math.round(first.started![1] * RATE);
+    expect(start % 160).toBe(0);
+    expect(Math.abs(start - 1.2345 * RATE)).toBeLessThanOrEqual(80);
+    const f0 = first.started![0] * 44100;
+    expect(Math.abs(f0 - Math.round(f0))).toBeLessThan(1e-6);
+    expect(player.position(first.started![0] + 2)).toBeCloseTo(start / RATE + 2, 6);
+    await advance(first.started![0] + (SEG - start) / RATE - LOOKAHEAD_SECONDS + 0.1);
+    await advance(first.started![0] + (2 * SEG - start) / RATE - LOOKAHEAD_SECONDS + 0.1);
+    const frames = [0, 3, 6].map(i => sources[i].started![0] * 44100);
+    expect(frames[1] - frames[0]).toBeCloseTo((SEG - start) * 44100 / RATE, 6);
+    expect(Number.isInteger(Math.round((frames[1] - frames[0]) * 1e6) / 1e6)).toBe(true);
+    expect(frames[2] - frames[1]).toBeCloseTo(441000, 6);
+    expect(sources[3].buffer!.data[0][0]).toBe(SEG + delay);
+  });
+
+  it('kontekstin taajuus, jolle ei ole kohtuullista ruudukkoa (44 101 Hz) → hallittu virhe', async () => {
+    const { player } = setup(8842, { rate: 44101 });
+    await expect(player.load(urls)).resolves.toBe('virhe');
+    expect(player.errorKind).toBe('naytetaajuus');
+  });
+
+  it('nopeat peräkkäiset kelaukset: vain viimeinen kohta puretaan ja soi, paikat vapautuvat', async () => {
+    const fake = setup(), { player, sources, flush, manual, decodes } = fake;
+    await player.load(urls);
+    manual();
+    player.play(0); await flush();
+    for (const at of [50, 100, 150, 200]) player.seek(at);
+    await flush();
+    expect(decodes).toHaveLength(3);
+    await settle(fake, flush);
+    const scheduled = sources.slice(3).filter(s => s.started);
+    expect(scheduled).toHaveLength(3);
+    expect(scheduled[0].buffer!.data[0][0]).toBe(200 * RATE + delay);
+    expect(player.events.filter(e => e.kind === 'pala').map(e => e.start)).toEqual([0, 50, 200]);
+    player.pause();
+    expect(slots(player).every(s => s.users === 0 && !s.filling)).toBe(true);
+  });
+
+  it('sama pala pyydetään kahdesti ennen purun valmistumista → yksi purku', async () => {
+    const { player, flush, manual, decodes } = setup();
+    await player.load(urls);
+    manual();
+    player.play(100); await flush();
+    player.play(100.5); await flush();
+    expect(decodes).toHaveLength(3);
+  });
+
+  it('versionvaihto kesken palan purun: vanha purku ei ajastu eikä sotke uuden version allasta', async () => {
+    const versionB = synthMp3(4000, { version: 1 });
+    const fake = setup(8842, { files: { 'B1': versionB, 'B2': versionB, 'B3': versionB } }), { player, sources, flush, manual } = fake;
+    await player.load(urls);
+    manual();
+    player.play(120); await flush();
+    player.release();
+    const loading = player.load({ backing: 'B1', guitar: 'B2', vocals: 'B3' });
+    await settle(fake, flush);
+    await expect(loading).resolves.toBe('valmis');
+    expect(sources).toHaveLength(0);
+    player.play(0); await settle(fake, flush);
+    expect(sources).toHaveLength(3);
+    expect(sources[0].buffer!.data[1][1000]).toBe(1000 + delay);
+    expect(player.duration).toBeCloseTo((4000 * 1152 - 1656) / RATE, 6);
+    expect(slots(player).every(s => !s.filling)).toBe(true);
+  });
+
+  it('peruutus ensimmäisen palan purun aikana ja heti uusi lataus: vain uusi versio valmistuu', async () => {
+    const versionB = synthMp3(4000, { version: 1 });
+    const fake = setup(8842, { files: { 'B1': versionB, 'B2': versionB, 'B3': versionB } }), { player, flush, manual, decodes } = fake;
+    manual();
+    const first = player.load(urls);
+    for (let i = 0; i < 20 && player.state !== 'puretaan'; i++) await flush();
+    while (decodes.length && !player.events.some(e => e.kind === 'kalibroitu')) { decodes.splice(0).forEach(d => d.resolve()); await flush(); }
+    expect(player.state).toBe('puretaan');
+    player.cancel();
+    const second = player.load({ backing: 'B1', guitar: 'B2', vocals: 'B3' });
+    await settle(fake, flush);
+    await expect(first).resolves.toBe('peruttu');
+    await expect(second).resolves.toBe('valmis');
+    player.play(0); await settle(fake, flush);
+    const src = fake.sources.at(-1)!;
+    expect(src.buffer!.data[1][10]).toBe(10 + delay);
   });
 });
 

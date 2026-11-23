@@ -7,6 +7,22 @@ ei PR #171:n sivunlatausta (M1 ei ole D2:ssa tarpeen). Päätösloki: [paatoslok
 Simulaattori ei pakota iOS:n muistirajaa (jetsam) eikä vastaa iPhonen suoritinta, joten muistitavoitteen täyttyminen
 ei ole sama asia kuin todistettu iPhone-turvallisuus. Issue #9 pysyy NO-GO-tilassa.
 
+## Katselmointi ennen fyysistä testiä (23.11.2026)
+
+| kohta | löydös | korjaus | varmistus |
+|---|---|---|---|
+| **Palan pysäytys (bugi)** | Lähde soitti altaan paikan loppuun (aina 10 s), ei palan loppuun. Kappaleen viimeisen, lyhyemmän palan perässä soi altaan **vanhaa dataa** jopa 10 s (loopissa päällekkäin uuden kierroksen kanssa), ja loppumisilmoitus myöhästyi. Ensimmäinen versio sisälsi tämän; aiemmat mittaukset eivät paljastaneet sitä (korrelaatio vain heikkeni). | Jokainen lähde pysäytetään täsmälleen palan loppukehykseen `stop((kehys + pituus) / taajuus)`. | Yksikkötesti kaatuu ilman korjausta; loop lopussa: alku-kehys = viimeisen palan loppukehys (ero 0). |
+| Kalibroinnin epäonnistuminen | Hiljainen oletus 0 olisi voinut siirtää kappaleen väärin. | Kolme ikkunaa (kehykset 100, 1000, 3000) ja lyhyelle raidalle oma ikkuna, halvin ensin; ei osumaa → `CalibrationError`, tila `virhe`, laji `kalibrointi`, oma viesti ("Kokeilusoitin ei voi soittaa tässä selaimessa … Käytä tavallista soitinta"). Ei arvausta. | Testit: hiljaiset raidat, tuntematon dekooderi, hiljainen alku (ikkuna 3000), lyhyt raita. |
+| Loopin kytkentä aivan lopussa | Pala kohdasta 0 purettiin vasta kytkettäessä → mahdollinen tauko. | Kun viimeinen pala on ajastettu ilman looppia, loopin alku puretaan valmiiksi altaaseen (ei uutta muistia, allas ≤ 4). Saman palan rinnakkaiset pyynnöt yhdistetään yhdeksi purkuksi. | Simulaattori: kytkentä 0,35 / 0,15 / 0,05 s ennen loppua → alku ajastettu 0–3 ms kytkennästä, täsmälleen viimeisen palan loppukehykseen, ei alivuotoja. |
+| Kontekstin taajuus ≠ 48 kHz | Safari ja Chromium noudattavat pyyntöä (44,1 / 48 / 22,05 kHz). Jos taajuus poikkeaa, 48 kHz:n palat uudelleennäytteistetään toistossa: ilman ruudukkoa toisen palan vaihe on väärä (ero 0,07–0,4), ilman pysäytystä sauma saa ylimääräisen kehyksen (0,28–0,72). | Alut ja palojen pituudet ruudukkoon (44,1 kHz: 160 näytettä = 3,3 ms), raja kokonaiseen kontekstin kehykseen + pysäytys saumaan. Kohtuuton ruudukko (> 480 näytettä) → hallittu virhe `naytetaajuus`. | Offline-sauma (Safari ja Chromium): ero jatkuvaan soittoon ≤ 1,7·10⁻⁶. Oikea soitin 44,1 kHz:ssä (`?naytetaajuus=44100`): aikajana −5,1…+5,7 ms, raidat −4,6…+5,7 ms, jatko −1,3…+0,7 ms (ruudukko), sointunäyttö −14…+24 ms, ei alivuotoja. E2E: aikajana etenee kontekstin kellon tahdissa. |
+| Kilpailutilanteet | Ei löytynyt virhettä; lisätty kesken olevien purkujen yhdistäminen. | – | Yksikkötestit: nopeat kelaukset (vain viimeinen puretaan), sama pala kahdesti (yksi purku), versionvaihto purun aikana (vanha ei ajastu eikä sotke allasta), peruutus ensimmäisen palan purussa + heti uusi lataus. Simulaattori: 10 kelausta 40 ms välein, 5 nopeaa versionvaihtoa, kaksi peruutusta latauksessa, 8 nopeaa tauko/jatkoa: oikea tila ja versio, 0 virhettä, 0 alivuotoa, allas ≤ 4. E2E sama Chromiumissa. |
+
+Loppuversion simulaattorimittaukset (bundle f07b6bde3abf): ajoitus 48 kHz: aikajana ja raitojen ero 0,0 ms, jatko 0,0 ms,
+sointunäyttö −11…+30 ms; bittitarkkuus 33/33 (ero 0); 10 versionvaihtoa WebContent 109–138 Mt, 3 min soitto 133–166 Mt,
+huippu 168 Mt, allas ≤ 46 Mt; ei pääsäikeen jumeja. Yksittäiset korrelaatiopoikkeamat (+17 ms laulu samassa kohdassa
+kuin D1:n raportissa, loopin jälkeen ±10,2 ms:n monikerrat jaksollisessa introssa, yksi hyväksytty +40,8 ms) ovat
+mittausartefakteja: ajastus on näytetarkka (ero 0 kehystä), naapurimittaukset 0,0 ms ja vahvimmat lukemat 0,0 ms.
+
 ## Ratkaisu lyhyesti
 
 1. Kolme MP3:a ladataan kokonaan (pakattuna 15,3 / 16,9 Mt). Kehysten sijainnit, kooderiviive ja täyte jäsennetään
@@ -105,14 +121,16 @@ sovelluksista. Tätä ei voi todistaa simulaattorilla.
 
 ## Testit
 
-- Yksikkötestit `tests/chunkPlayer.test.ts` (18): MP3-rakenne (myös oikeat tiedostot, vastaa `afinfo`a), palan kehysalue,
+- Yksikkötestit `tests/chunkPlayer.test.ts` (29): MP3-rakenne (myös oikeat tiedostot, vastaa `afinfo`a), palan kehysalue,
   palan sisältö = aikajanan näytteet, saumaton ajastus samaan kehykseen, aikajana ja tauko, jatko ilman purkua,
   kaukainen kelaus, loop ja sen poisto, loppuun soitto, altaan raja (läpisoitto + 10 versionvaihtoa), tasot,
-  latauksen peruutus, purkuvirhe soiton aikana, alivuoto, kalibrointi (Apple 0, FFmpeg 529, epäonnistuminen, kerran).
+  latauksen peruutus, purkuvirhe soiton aikana, alivuoto, kalibrointi (Apple 0, FFmpeg 529, hallittu epäonnistuminen,
+  hiljainen alku, lyhyt raita, kerran), palan pysäytys loppukehykseen, loopin alku lopussa, 44,1 kHz:n ruudukko,
+  kohtuuton taajuus, kilpailutilanteet (nopeat kelaukset, sama pala kahdesti, vaihto purussa, peruutus purussa).
 - E2E `tests/e2e/song-d2.spec.ts` (Chromium, desktop + phone): palapurku bittitarkka molemmissa versioissa; tauko ja
-  jatko samasta kohdasta, kelaus, loop, versionvaihto ilman altaan ylitystä. Mutaatiotarkistus: kalibrointi pois →
-  testi kaatuu (erot 0,03–0,21).
-- Koko sarja: typecheck ✅, lint ✅, vitest 40 tiedostoa / 658 testiä ✅, Playwright E2E 842 läpi / 42 ohitettu / 0 virhettä
+  jatko samasta kohdasta, kelaus, loop, versionvaihto ilman altaan ylitystä; nopeat kelaukset, versionvaihdot,
+  peruutus ja tauko/jatko-sarja; 44,1 kHz:n konteksti. Mutaatiotarkistus: kalibrointi pois → testi kaatuu (erot 0,03–0,21).
+- Koko sarja (katselmoinnin jälkeen): typecheck ✅, lint ✅, vitest 40 tiedostoa / 669 testiä ✅, Playwright E2E 846 läpi / 42 ohitettu / 0 virhettä
   (desktop + phone, sisältää oletussoittimen testit) ✅.
 
 ## Rajoitukset ja avoimet riskit
@@ -122,9 +140,10 @@ sovelluksista. Tätä ei voi todistaa simulaattorilla.
   laitteella; lukituksen käsittely on sama kuin D1:ssä (`onstatechange` → tauko, PR #92:n rajapinta).
 - Taustasoitto lukitusnäytöllä ei ole tavoite: konteksti keskeytyy kuten D1:ssä. Jos ajastimia hidastetaan, ennakko
   riittää 6 s.
-- `new AudioContext({ sampleRate: 48000 })`: jos selain ei tue pyyntöä, käytetään laitteen taajuutta ja palat puretaan
-  sen mukaisesti (kirjataan `naytetaajuus-ero`); näytetarkkuutta ei silloin mitattu.
-- Loopin kytkeminen päälle aivan kappaleen lopussa (alle purkuajan ennen loppua) voi jättää lyhyen tauon.
+- Kontekstin taajuus ≠ 48 kHz: palat soivat ruudukossa (katselmointi yllä); uudelleennäytteistys tapahtuu
+  AudioBufferSourceNodessa (lineaarinen interpolointi), joten laatu voi olla hieman heikompi kuin 48 kHz:ssä.
+- Loopin kytkeminen sen jälkeen, kun kappale on jo soinut loppuun äänisäikeessä (ennen kuin päättymisilmoitus ehtii
+  pääsäikeelle, muutama ms), aloittaa alun pienen viiveen jälkeen.
 - Valjaan kanssa tauolla seisova sivu kasvoi hitaasti (~0,2 Mt/min, 3 h). Ilman valjasta muisti pysyi soiton aikana
   tasaisena ja laski tauolla, joten kasvu tuli valjaasta, ei soittimesta.
 

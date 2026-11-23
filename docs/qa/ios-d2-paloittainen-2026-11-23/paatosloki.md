@@ -81,3 +81,14 @@ vastaavuus; hyväksytään vain bittitarkka osuma. Mitattu: Safari (simulaattori
 
 D2 täyttää simulaattorissa kaikki ennalta asetetut kriteerit (raportti). Fyysinen iPhone-testi ja muistirajan
 varmistus laitteella puuttuvat; ne ovat seuraava päätös.
+
+## 8. Katselmointi ennen fyysistä testiä
+
+- Löydetty bugi: lähde soitti altaan paikan loppuun eikä palan loppuun (kappaleen lopun lyhyt pala → vanhaa dataa
+  jopa 10 s). Korjattu pysäytyksellä palan loppukehykseen; regressiotesti kaatuu ilman korjausta.
+- Kalibrointi: ei hiljaista oletusta. Useita ikkunoita, epäonnistuminen on hallittu virhe (`kalibrointi`).
+- Loopin alku puretaan valmiiksi, kun kappale lähestyy loppua ilman looppia; rinnakkaiset saman palan purut yhdistetään.
+- Taajuusero: ruudukko + pysäytys saumaan (offline-sauma ≤ 1,7·10⁻⁶ Safarissa ja Chromiumissa); kohtuuton ruudukko
+  → hallittu virhe (`naytetaajuus`). Hylätty vaihtoehto: purku soittokontekstin taajuudella (uudelleennäytteistetyt
+  palat eivät kohdistu kokonaislukuihin) ja pelkkä virhe ilman tukea (turha, kun ruudukko toimii mitatusti).
+- Kilpailutilanteet: ei virheitä; testit lisätty (yksikkö, E2E, simulaattori).

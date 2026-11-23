@@ -84,33 +84,42 @@ export function planSegment(layout: Mp3Layout, start: number, length: number, de
   return { firstFrame, endFrame, skip: from - firstFrame * SAMPLES_PER_FRAME + decoderDelay };
 }
 
-/** Kalibroinnin kehykset: alkuosa (ID3 + Info + kehykset 0…CAL_END) ja raakapala CAL_FROM…CAL_END. */
-export const CAL_FROM = 100, CAL_END = 160;
+/**
+ * Kalibroinnin ikkunat [alkukehys, loppukehys): raakapala ja sitä vastaava alkuosa (ID3 + Info + kehykset 0…loppu).
+ * Myöhemmät ikkunat ovat varalla, jos raitojen alku on hiljainen.
+ */
+export const CAL_WINDOWS: readonly (readonly [number, number])[] = [[100, 160], [1000, 1060], [3000, 3060]];
+const CAL_WINDOW = 2048;
+const calStart = (PREROLL_FRAMES + 1) * SAMPLES_PER_FRAME;
+
+/** Onko raakapalan vertailuikkunassa ääntä (hiljaisuudesta ei voi päätellä viivettä). */
+export function hasCalibrationSignal(raw: Float32Array): boolean {
+  if (raw.length < calStart + CAL_WINDOW) return false;
+  let energy = 0;
+  for (let j = calStart; j < calStart + CAL_WINDOW; j++) energy += raw[j] * raw[j];
+  return energy >= 1e-6;
+}
 
 /**
  * Selaimen dekooderiviive: verrataan alkuosan purkua (aikajanan mukainen, viive ja Info-kehys huomioitu)
- * raakakehysten purkuun samasta kohdasta. Palauttaa viiveen näytteinä tai null, jos yhtäpitävää kohtaa ei löydy
- * (hiljaisuus, liian lyhyt raita). Hyväksytään vain lähes bittitarkka vastaavuus.
+ * raakakehysten purkuun kehyksestä calFrom alkaen. Palauttaa viiveen näytteinä tai null, jos bittitarkkaa
+ * vastaavuutta ei löydy (hiljaisuus, liian lyhyt raita, tuntematon dekooderi).
  */
-export function findDecoderDelay(prefix: Float32Array, raw: Float32Array, layout: Mp3Layout, maxDelay = 1700): number | null {
-  const window = 2048, from = (PREROLL_FRAMES + 1) * SAMPLES_PER_FRAME;
-  if (raw.length < from + window + maxDelay) return null;
-  let energy = 0;
-  for (let j = from; j < from + window; j++) energy += raw[j] * raw[j];
-  if (energy < 1e-6) return null;
-  // raw[j] ↔ prefix[CAL_FROM × 1152 − delay + j − d], d = dekooderiviive.
-  const base = CAL_FROM * SAMPLES_PER_FRAME - layout.delay;
+export function findDecoderDelay(prefix: Float32Array, raw: Float32Array, layout: Mp3Layout, calFrom: number, maxDelay = 1700): number | null {
+  if (!hasCalibrationSignal(raw)) return null;
+  // raw[j] ↔ prefix[calFrom × 1152 − viive + j − d], d = dekooderiviive.
+  const base = calFrom * SAMPLES_PER_FRAME - layout.delay;
   let best: number | null = null, bestError = Infinity;
   for (let d = 0; d <= maxDelay; d++) {
     const at = base - d;
-    if (at + from < 0 || at + from + window > prefix.length) continue;
+    if (at + calStart < 0 || at + calStart + CAL_WINDOW > prefix.length) continue;
     let error = 0;
-    for (let j = from; j < from + window && error < bestError; j += 8) error = Math.max(error, Math.abs(raw[j] - prefix[at + j]));
+    for (let j = calStart; j < calStart + CAL_WINDOW && error < bestError; j += 8) error = Math.max(error, Math.abs(raw[j] - prefix[at + j]));
     if (error < bestError) { bestError = error; best = d; }
   }
   if (best === null) return null;
   let exact = 0;
-  for (let j = from; j < from + window; j++) exact = Math.max(exact, Math.abs(raw[j] - prefix[base - best + j]));
+  for (let j = calStart; j < calStart + CAL_WINDOW; j++) exact = Math.max(exact, Math.abs(raw[j] - prefix[base - best + j]));
   return exact <= 1e-4 ? best : null;
 }
 

@@ -17,8 +17,11 @@ import { ChunkSongPlayer } from './chunkPlayer';
 const PLAYER_MODE = typeof location !== 'undefined' ? new URLSearchParams(location.search).get('soitin') : null;
 const D2_MODE = PLAYER_MODE === 'd2';
 const D1_MODE = PLAYER_MODE === 'd1' || D2_MODE;
-/** D2: raitojen MP3:t ovat 48 kHz; sama kontekstin taajuus pitää palat näytetarkkoina ilman uudelleennäytteistystä. */
-const D2_SAMPLE_RATE = 48000;
+/**
+ * D2: raitojen MP3:t ovat 48 kHz; sama kontekstin taajuus pitää palat näytetarkkoina ilman uudelleennäytteistystä.
+ * Testausta varten ?naytetaajuus=44100 pyytää toisen taajuuden (soitin kohdistaa palat silloin ruudukkoon).
+ */
+const D2_SAMPLE_RATE = (typeof location !== 'undefined' && Number(new URLSearchParams(location.search).get('naytetaajuus'))) || 48000;
 
 // Käyttäjän itse valitsema versio säilyy, vaikka hän käy välillä oppimispoluissa.
 let chosenVersion: SongVersion | null = null;
@@ -272,7 +275,14 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
     if (player.state !== 'valmis') {
       const result = await player.load({ backing: song.backing, guitar: song.guitar, vocals: song.vocals });
       if (request !== d1Request.current) return;
-      if (result === 'virhe') { setError('Kappaleen lataus epäonnistui. Tarkista yhteys ja paina Soita uudelleen.'); return; }
+      if (result === 'virhe') {
+        const kind = player instanceof ChunkSongPlayer ? player.errorKind : 'lataus';
+        // Kalibrointi- ja taajuusvirhe eivät korjaannu uudella yrityksellä: kerrotaan syy eikä neuvota yhteydestä.
+        setError(kind === 'kalibrointi' || kind === 'naytetaajuus'
+          ? `Kokeilusoitin ei voi soittaa tässä selaimessa (${player.error}). Käytä tavallista soitinta.`
+          : 'Kappaleen lataus epäonnistui. Tarkista yhteys ja paina Soita uudelleen.');
+        return;
+      }
       if (result !== 'valmis') return;
       setDuration(player.duration);
     }

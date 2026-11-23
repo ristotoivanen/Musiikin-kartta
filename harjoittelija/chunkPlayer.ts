@@ -13,7 +13,7 @@
  */
 import { BUFFER_TRACKS, LEVEL_TIME_CONSTANT, START_LEAD_SECONDS, type BufferPlayerEvent, type BufferPlayerState,
   type BufferTrack, type LoadResult, type PlayerContext } from './bufferPlayer';
-import { CAL_END, CAL_FROM, findDecoderDelay, parseMp3, planSegment, segmentBytes, type Mp3Layout } from './mp3Layout';
+import { CAL_WINDOWS, findDecoderDelay, hasCalibrationSignal, parseMp3, planSegment, segmentBytes, type Mp3Layout } from './mp3Layout';
 
 export const SEGMENT_SECONDS = 10;
 export const POOL_SLOTS = 4;
@@ -22,6 +22,15 @@ export const LOOKAHEAD_SECONDS = 6;
 const PUMP_INTERVAL_MS = 400;
 /** Pala on myöhässä, jos sen alku ei ole vähintään näin monta kehystä renderöinnin edellä. */
 const LATE_FRAMES = 256;
+/** Suurin sallittu kohdistusruudukko (MP3-näytteinä), jos kontekstin taajuus poikkeaa MP3:sta (44,1 kHz → 160). */
+const MAX_GRID = 480;
+
+/** Selaimen MP3-purkua ei voitu kohdistaa aikajanaan: soitinta ei käytetä arvaamalla. */
+export class CalibrationError extends Error {}
+/** Kontekstin näytetaajuus ei sovi näytetarkkaan paloitukseen. */
+export class SampleRateError extends Error {}
+
+const gcd = (a: number, b: number): number => (b ? gcd(b, a % b) : a);
 
 export interface ChunkPlayerContext extends PlayerContext {
   readonly sampleRate: number;
@@ -45,10 +54,13 @@ interface Slot {
 }
 interface Scheduled { slot: Slot; frame: number; timelineStart: number; length: number; sources: AudioBufferSourceNode[]; done: boolean }
 interface Session { id: number; items: Scheduled[]; nextFrame: number | null; nextTimeline: number; ending: boolean }
+interface Pending { gen: number; start: number; length: number; promise: Promise<Slot | null> }
 
 export class ChunkSongPlayer {
   state: BufferPlayerState = 'tyhja';
   error = '';
+  /** Viimeisimmän virheen laji: kalibrointi ja näytetaajuus eivät korjaannu uudella yrityksellä. */
+  errorKind: 'lataus' | 'kalibrointi' | 'naytetaajuus' | 'purku' | null = null;
   readonly events: BufferPlayerEvent[] = [];
   onEnded?: () => void;
   onStateChange?: (state: BufferPlayerState) => void;
@@ -64,6 +76,7 @@ export class ChunkSongPlayer {
   /** Selaimen MP3-dekooderin viive raakakehysten purussa (kalibroidaan kerran: Apple 0, FFmpeg 529). */
   private decoderDelay: number | null = null;
   private slots: Slot[] = [];
+  private pending: Pending[] = [];
   private gen = 0;
   private useCounter = 0;
   private session: Session | null = null;
@@ -135,6 +148,7 @@ export class ChunkSongPlayer {
     this.controller = controller;
     const current = () => token === this.loadToken;
     this.error = '';
+    this.errorKind = null;
     this.setState('ladataan');
     const started = this.now();
     this.record('lataus-alku');
@@ -158,11 +172,14 @@ export class ChunkSongPlayer {
       if (rate !== this.rate || channels !== this.channels) this.slots = [];
       this.rate = rate;
       this.channels = channels;
-      this.length = Math.min(...BUFFER_TRACKS.map(track => data[track].layout.length));
+      const grid = this.grid;
+      if (grid > MAX_GRID) throw new SampleRateError(`Äänikontekstin näytetaajuus ${this.context.sampleRate} Hz ei sovi ${rate} Hz:n raitojen näytetarkkaan paloitukseen`);
+      // Eri taajuuksilla palojen rajat ja alut ovat ruudukossa, jolloin jokainen raja on kokonainen kontekstin kehys.
+      this.length = Math.floor(Math.min(...BUFFER_TRACKS.map(track => data[track].layout.length)) / grid) * grid;
       this.data = data;
       this.gen++;
-      if (rate !== this.context.sampleRate) this.record('naytetaajuus-ero', { mp3: rate, konteksti: this.context.sampleRate });
-      if (this.decoderDelay === null) await this.calibrate(data);
+      if (rate !== this.context.sampleRate) this.record('naytetaajuus-ero', { mp3: rate, konteksti: this.context.sampleRate, ruudukko: grid });
+      if (this.decoderDelay === null) await this.calibrate(data, current);
       if (!current()) return 'peruttu';
       const first = await this.obtain(0);
       if (!current()) return 'peruttu';
@@ -178,7 +195,8 @@ export class ChunkSongPlayer {
       this.data = null;
       this.length = 0;
       this.error = error instanceof Error ? error.message : String(error);
-      this.record('virhe', { message: this.error });
+      this.errorKind = error instanceof CalibrationError ? 'kalibrointi' : error instanceof SampleRateError ? 'naytetaajuus' : 'lataus';
+      this.record('virhe', { message: this.error, laji: this.errorKind });
       this.setState('virhe');
       return 'virhe';
     }
@@ -225,7 +243,8 @@ export class ChunkSongPlayer {
   play(at: number = this.offset): boolean {
     if (this.state !== 'valmis' || this.length <= 0) return false;
     this.stopSession();
-    const start = Math.max(0, Math.min(Math.round(at * this.rate), this.length - 1));
+    const grid = this.grid;
+    const start = Math.max(0, Math.min(Math.round(at * this.rate / grid) * grid, this.length - grid));
     this.session = { id: ++this.sessionId, items: [], nextFrame: null, nextTimeline: start, ending: false };
     this.offset = start / this.rate;
     this.timer = this.setIntervalImpl(() => { void this.pump(); }, PUMP_INTERVAL_MS);
@@ -315,25 +334,39 @@ export class ChunkSongPlayer {
   }
 
   /**
-   * Mittaa kerran, miten selaimen dekooderi kohdistaa raakakehysten purun aikajanaan. Ilman tätä palat olisivat
-   * esimerkiksi Chromiumissa 529 näytettä (11 ms) siirtyneinä. Epäonnistuessa oletetaan Applen käytös (0).
+   * Mittaa kerran, miten selaimen dekooderi kohdistaa raakakehysten purun aikajanaan (Apple 0, Chromiumin FFmpeg 529
+   * näytettä). Kokeillaan ikkunoita ja raitoja, kunnes löytyy ääntä ja bittitarkka vastaavuus. Jos ei löydy, lataus
+   * päättyy hallittuun virheeseen eikä viivettä arvata (väärä arvo siirtäisi koko kappaleen).
    */
-  private async calibrate(data: Record<BufferTrack, TrackData>) {
+  private async calibrate(data: Record<BufferTrack, TrackData>, current: () => boolean) {
     const decoder = this.decoder();
+    const tried: string[] = [];
+    // Ehdokkaat halvimmasta (lyhin alkuosa) kalleimpaan. Lyhyelle raidalle ikkuna kolmanneksen kohdalta.
+    const candidates: [BufferTrack, number, number][] = [];
     for (const track of BUFFER_TRACKS) {
+      const frames = data[track].layout.frameOffsets.length;
+      const windows = CAL_WINDOWS.filter(([, end]) => frames > end + 2);
+      if (!windows.length && frames >= 16) { const from = Math.max(4, Math.floor(frames / 3)); windows.push([from, Math.min(frames - 2, from + 60)]); }
+      for (const [from, end] of windows) candidates.push([track, from, end]);
+    }
+    candidates.sort((a, b) => a[2] - b[2]);
+    for (const [track, from, end] of candidates) {
       const { bytes, layout } = data[track];
-      if (layout.frameOffsets.length <= CAL_END + 2) continue;
-      const prefix = await decoder.decodeAudioData(bytes.slice(0, layout.frameOffsets[CAL_END]).buffer as ArrayBuffer);
-      const raw = await decoder.decodeAudioData(segmentBytes(bytes, layout, { firstFrame: CAL_FROM, endFrame: CAL_END, skip: 0 }).buffer as ArrayBuffer);
-      const delay = findDecoderDelay(prefix.getChannelData(0), raw.getChannelData(0), layout);
+      const raw = await decoder.decodeAudioData(segmentBytes(bytes, layout, { firstFrame: from, endFrame: end, skip: 0 }).buffer as ArrayBuffer);
+      if (!current()) return;
+      if (!hasCalibrationSignal(raw.getChannelData(0))) { tried.push(`${track}@${from}: hiljainen`); continue; }
+      const prefix = await decoder.decodeAudioData(bytes.slice(0, layout.frameOffsets[end]).buffer as ArrayBuffer);
+      if (!current()) return;
+      const delay = findDecoderDelay(prefix.getChannelData(0), raw.getChannelData(0), layout, from);
       if (delay !== null) {
         this.decoderDelay = delay;
-        this.record('kalibroitu', { track, dekooderiviive: delay });
+        this.record('kalibroitu', { track, kehys: from, dekooderiviive: delay });
         return;
       }
+      tried.push(`${track}@${from}: ei bittitarkkaa vastaavuutta`);
     }
-    this.decoderDelay = 0;
-    this.record('kalibrointi-epaonnistui');
+    this.record('kalibrointi-epaonnistui', { yritykset: tried });
+    throw new CalibrationError('Selaimen MP3-purkua ei voitu kohdistaa aikajanaan');
   }
 
   private decoder(): Pick<PlayerContext, 'decodeAudioData'> {
@@ -342,7 +375,13 @@ export class ChunkSongPlayer {
     return new OfflineAudioContext(1, 1, this.rate);
   }
 
-  private get segmentLength(): number { return Math.round(SEGMENT_SECONDS * this.rate); }
+  /** Kohdistusruudukko MP3-näytteinä: 1, kun taajuudet ovat samat; muuten pienin pituus, joka on kokonainen kontekstin kehysmäärä. */
+  private get grid(): number {
+    const context = Math.round(this.context.sampleRate);
+    return this.rate && context !== this.rate ? this.rate / gcd(this.rate, context) : 1;
+  }
+
+  private get segmentLength(): number { const grid = this.grid; return Math.floor(Math.round(SEGMENT_SECONDS * this.rate) / grid) * grid; }
 
   /** Vapaa allaspaikka: varaamaton tai vanhentunut ensin, sitten pisimpään käyttämätön; uusi vain tarvittaessa. */
   private freeSlot(): Slot | null {
@@ -361,15 +400,27 @@ export class ChunkSongPlayer {
     return free.length ? free.reduce((a, b) => (a.used <= b.used ? a : b)) : null;
   }
 
-  /** Pala, joka sisältää aikajanan näytteen start: valmis paikka altaasta tai uusi purku alkaen kohdasta start. */
-  private async obtain(start: number): Promise<Slot | null> {
+  /**
+   * Pala, joka sisältää aikajanan näytteen start: valmis paikka altaasta, kesken oleva purku samalle kohdalle
+   * (ei kahta purkua samasta palasta) tai uusi purku alkaen kohdasta start.
+   */
+  private obtain(start: number): Promise<Slot | null> {
     const gen = this.gen;
     const hit = this.slots.find(slot => slot.ready && slot.gen === gen && start >= slot.start && start < slot.start + slot.length);
-    if (hit) { hit.used = ++this.useCounter; return hit; }
+    if (hit) { hit.used = ++this.useCounter; return Promise.resolve(hit); }
+    const pending = this.pending.find(p => p.gen === gen && start >= p.start && start < p.start + p.length);
+    if (pending) return pending.promise;
     const data = this.data;
     const slot = this.freeSlot();
-    if (!slot || !data) return null;
+    if (!slot || !data) return Promise.resolve(null);
     const length = Math.min(this.segmentLength, this.length - start);
+    const entry: Pending = { gen, start, length, promise: Promise.resolve(null) };
+    entry.promise = this.fill(slot, data, gen, start, length).finally(() => { this.pending = this.pending.filter(p => p !== entry); });
+    this.pending.push(entry);
+    return entry.promise;
+  }
+
+  private async fill(slot: Slot, data: Record<BufferTrack, TrackData>, gen: number, start: number, length: number): Promise<Slot | null> {
     Object.assign(slot, { gen, start, length, ready: false, filling: true });
     const started = this.now();
     try {
@@ -415,7 +466,12 @@ export class ChunkSongPlayer {
         if (session.nextFrame !== null && session.nextFrame / this.context.sampleRate - this.context.currentTime >= LOOKAHEAD_SECONDS) return;
         let start = session.nextTimeline;
         if (start >= this.length) {
-          if (!this.looping) { session.ending = true; return; }
+          if (!this.looping) {
+            session.ending = true;
+            // Loopin alku valmiiksi, jotta loopin kytkeminen aivan lopussa ei jätä purkuaikaista taukoa.
+            this.obtain(0).catch(() => this.record('alku-esipurku-virhe'));
+            return;
+          }
           start = 0;
         }
         const slot = await this.obtain(start);
@@ -445,11 +501,16 @@ export class ChunkSongPlayer {
       frame = earliest;
     }
     const when = frame / rate;
+    // Palan kesto kontekstin kehyksinä: kokonaisluku, koska pituus on ruudukossa.
+    const span = Math.round(length * rate / this.rate);
     const sources = BUFFER_TRACKS.map(track => {
       const source = this.context.createBufferSource();
       source.buffer = slot.buffers[track];
       source.connect(this.inputs[track]);
       source.start(when, offsetInSlot / this.rate);
+      // Pysäytys täsmälleen palan loppukehykseen: allaspaikka on aina 10 s, joten lyhyemmän palan (kappaleen loppu)
+      // perässä olisi edellisen käytön dataa; eri taajuuksilla lähde soittaisi muuten yhden kehyksen yli saumasta.
+      source.stop((frame + span) / rate);
       return source;
     });
     const item: Scheduled = { slot, frame, timelineStart: start, length, sources, done: false };
@@ -458,7 +519,7 @@ export class ChunkSongPlayer {
     session.items.push(item);
     if (session.items.length === 1) this.record('soitto', { when, offset: start / this.rate, contextTime: this.context.currentTime });
     else this.record('pala-ajastettu', { when, offset: start / this.rate, pituus: length / this.rate });
-    session.nextFrame = frame + Math.round(length * rate / this.rate);
+    session.nextFrame = frame + span;
     session.nextTimeline = start + length;
   }
 
