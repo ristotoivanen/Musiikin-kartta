@@ -32,13 +32,19 @@ Chromium ei toista iOS:n äänettömyyttä eikä lukitusta, joten nämä testit 
 | `muisti.sh` | simulaattorin WebKit-prosessien muisti (footprint) sekunnin välein | alkuperäinen |
 | `avaa.sh` | avaa skenaarion tuoreeseen simulaattorin Safariin, kirjaa koneen kuorman | uudelleen kirjoitettu yhdistelmä alkuperäisistä `avaa.sh`/`kylma.sh`/`ui-aja.sh` (laite parametrina) |
 | `tee-referenssit.sh` | muodostaa referenssi-PCM:n MP3:ista (`afconvert`) | uusi skripti alkuperäisestä komennosta; tulos tarkistettu tavu tavulta samaksi kuin alkuperäiset referenssit |
-| `yhteenveto.sh` | kokoaa valmiiden ajojen ajoituksen, latauksen ja sointunäytön | alkuperäinen, polut parametreiksi |
+| `yhteenveto.sh` | kokoaa valitun skenaarion (oletus `d1`) ajojen ajoituksen, latauksen ja sointunäytön; välittää analyysien poistumiskoodit | alkuperäinen; virheenkäsittely kirjoitettu uudelleen PR #185:n katselmoinnissa |
 | `analyysi/d1-analyysi.mjs` | ajoitus: aikajana, raitojen ero, jatkuvuus, sointunäyttö, lataus, muisti | alkuperäinen (nimi D1-ajalta, analysoi myös D2:ta); `songChart.ts`-polku suhteelliseksi |
 | `analyysi/naytto-tarkistus.mjs` | sointunäytön virhe kuuluvaan ääneen kahdella tavalla (A kaikki, B vain virheettömät aikajanamittaukset) | alkuperäinen; polku suhteelliseksi |
 | `analyysi/d2-analyysi.mjs` | muisti vaiheittain, versionvaihtojen viive, palojen purkuajat, alivuodot | alkuperäinen |
 | `analyysi/loopi-analyysi.mjs` | loopin kytkentä aivan kappaleen lopussa: sauma kehyksissä | alkuperäinen |
 | `analyysi/ensi-analyysi.mjs` | ensimmäinen ääni ja koko lataus (napautus → ensitavut → alku valmis → ääni → koko lataus) | alkuperäinen |
 | `analyysi/tarkistus-analyysi.mjs` | palapurun bittitarkkuus (`tarkistus`-skenaarion tulos), poistumiskoodi 0 vain onnistuneesta ajosta | **uusi** 24.11.2026 (alkuperäisessä ajossa tulos luettiin raportista käsin) |
+| `analyysi/lataus-yhteenveto.mjs` | yhteenvedon lataus-rivi (lataus valmis, odotukset, alivuodot, virheet, jumit) ja skenaarion tunnistus | **uusi** (oli `yhteenveto.sh`:n sisäinen `node -e`) |
+| `analyysi/yhteinen.mjs` | syötteen tarkistus, poistumiskoodit ja d1:n vähimmäisnäytemäärät kaikille analyyseille | **uusi** (PR #185:n katselmointi) |
+
+Analyysien automaattiset testit (myös puuttuva, rikkinäinen ja nollanäytteinen aineisto):
+`tests/issue9-d2-mittausanalyysit.test.ts`, syötteinä oikeiden 24.11. ajojen raportit `tests/fixtures/issue9-d2/*.gz`
+(132 kt). Ne ajetaan osana `npm test`ia, myös betan CI:ssä.
 
 ## Riippuvuudet ja laitteet
 
@@ -60,7 +66,7 @@ node palvelin.mjs --root ../../.. --port 8855 --out tulokset --nimi sv \
   --latenssi 140-250 --otsakkeet nostore --kaista 140000
 sh muisti.sh <simulaattorin UDID> tulokset/muisti-sv.jsonl &    # vain muistimittauksissa (pysäytä: pkill -f muisti.sh)
 SIM_UDID=<UDID> sh avaa.sh 8855 d1 a1        # skenaario d1, ajo a1 → napauta Soita simulaattorissa
-sh yhteenveto.sh                             # kun tulokset/sv-a1-loppu.json on syntynyt
+sh yhteenveto.sh                             # kun tulokset/sv-a1-loppu.json on syntynyt; echo $? (0 = aineisto kelpaa)
 ```
 
 Raportit: `tulokset/<nimi>-<ajo>-<tunniste>.json` (väliraportit `v30`, `v60`…, loppu `loppu`), pyyntöloki
@@ -121,9 +127,26 @@ sv-d1   kuorma 10.82  aikajana -10.2…+0.0 ms, raitojen ero -0.0…+2.7 ms, jat
   B ottaa mukaan vain hetket, joissa aikajanavirhe < 1 ms (poistaa korrelaation 10–17 ms:n artefaktit).
 - **odotukset / alivuodot / virheet**: soittimen tapahtumat (`odottaa-latausta`, `alivuoto`, `virhe`). **jumit**: yli 300 ms:n
   pääsäikeen katkot.
-- `–`: skenaario ei mittaa ajoitusta (esim. `tarkistus`, tai `viite=pois`).
-- Rivi puuttuu tai `?`: ajo ei valmistunut tai napautus ei osunut. Tarkista pyyntöloki ja `skenaario-virhe`-tapahtuma
-  ennen kuin tulkitset mitään. **Puuttuva tulos ei ole läpäisy.**
+- `OHITETTU: skenaario …`: raportti on toisesta skenaariosta (`sh yhteenveto.sh <kansio> <skenaario>` valitsee toisen).
+- `VIRHE` / `EI MITTAUKSIA` / `POIKKEAMA` -rivi: analyysi epäonnistui; syy on rivillä. **Puuttuva tulos ei ole läpäisy.**
+
+### Poistumiskoodit
+
+Kaikki analyysit ja `yhteenveto.sh` (määritelty `analyysi/yhteinen.mjs`:ssä):
+
+| koodi | merkitys |
+|---|---|
+| 0 | analyysi ajettiin ja aineistoa oli riittävästi. **Ei tarkoita hyväksymisrajojen täyttymistä**: vertaa luvut alla oleviin rajoihin |
+| 1 | mittaus ajettiin, mutta tulos rikkoo määrittelyn: palapurussa ero (`tarkistus`), loopin alkua ei ajastettu, sauma ≠ 0 kehystä tai alivuoto (`loopiloppu`) |
+| 2 | syöte puuttuu, ei ole kelvollista JSONia, raportista puuttuu `events`, skenaario päättyi virheeseen, tuloskansiota ei ole |
+| 3 | liian vähän mittauksia: skenaario ei käynnistynyt (ei operaatioita), lataus ei valmistunut, ei sointunäytön mittauksia, muistilokissa ei WebContent-lukemia, ensilatausajosta puuttuu soitto, tuloskansiossa ei valitun skenaarion raportteja tai d1:ssä alle vähimmäismäärän |
+
+`yhteenveto.sh` käy läpi kaikki raportit ja palauttaa ensimmäisen epäonnistuneen analyysin koodin.
+
+**d1:n vähimmäisnäytemäärät** (mittauksen kelpoisuusehto, ei hyväksymisraja): aikajana 124, raitojen ero 23, jatkuvuus 3,
+sointunäyttö 17. Arvot ovat puolet pienimmästä määrästä 11 hyväksytyssä vertailuajossa 22.–24.11.2026
+(aikajana 249–263, raitojen ero 47–60, jatkuvuus 5, sointunäyttö 34–43). Muissa skenaarioissa analyysi vaatii vain,
+että mittaus on olemassa.
 
 Tunnetut mittausartefaktit (eivät ole soittimen virheitä, todettu kaikissa versioissa): yksittäiset 10–17 ms:n
 korrelaatiolukemat, loopin jälkeen ±10,2 ms:n monikerrat jaksollisessa introssa. Simulaattorin raskas kuorma
@@ -207,6 +230,11 @@ pyyntölokista (3 MP3-pyyntöä).
 
 Korjattu tarkistuksen aikana: `tee-referenssit.sh`:n oletuspolku ja analyysien suhteellinen `songChart.ts`-polku
 hakemiston siirron jälkeen, `yhteenveto.sh` ei enää piilota analyysin virheitä ja käyttää ajon viimeisintä kuormamerkintää.
+
+PR #185:n katselmoinnin jälkeen (24.11.): kaikki analyysit tarkistavat syötteen ja näytemäärän ja palauttavat
+epäonnistuneen poistumiskoodin (ks. Poistumiskoodit); `yhteenveto.sh` välittää analyysien koodit eikä onnistu
+tyhjällä kansiolla. Kaikki yllä olevat ajot analysoituvat edelleen koodilla 0. Testit: 19 (`tests/issue9-d2-mittausanalyysit.test.ts`);
+edellisillä skripteillä niistä 15 kaatuu.
 
 Näitä ajoja ei ole verrattu fyysiseen laitteeseen; ne osoittavat, että työkalut toimivat ja tulokset vastaavat
 hyväksytyn D2:n simulaattoritasoa.

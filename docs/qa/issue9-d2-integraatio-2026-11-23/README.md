@@ -26,6 +26,8 @@ GitHubissa; aiempaa keskusteluhistoriaa ei tarvita.
 | beta | GitHub Actions `Build beta trainer assets` (run 45280437575) commitille `9526b70`: **success**; Cloudflare Pages -deployment onnistui, ja `beta.musiikin-kartta.pages.dev` tarjoaa bundlen `app.js?v=468eb179e91d` (= PR #182:n testattu bundle), tarkistettu 23.11.2026 22.35 UTC | GitHub, tämä tiedosto |
 
 Mittausmenetelmät ja niiden toistaminen: [`scripts/qa/issue9-d2/README.md`](../../../scripts/qa/issue9-d2/README.md).
+Analyysit palauttavat epäonnistuneen poistumiskoodin puuttuvalle, rikkinäiselle tai liian pienelle aineistolle; tämä
+testataan `npm test`issa (`tests/issue9-d2-mittausanalyysit.test.ts`).
 
 ### 2. Fyysiset käyttäjähavainnot (omistaja, iPhone)
 

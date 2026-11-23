@@ -1,9 +1,10 @@
 // node naytto-tarkistus.mjs <raportti>: sointunäytön virhe kahdella tavalla.
+// Poistumiskoodit: analyysi/yhteinen.mjs. Ei yhtään kelvollista mittausta (d1: alle D1_VAHIMMAT.naytto) → 3.
 // A = nykyinen analyysi (lähin hyväksytty säestyksen mittaus ±300 ms);
 // B = sama, mutta vain mittaukset, joiden aikajanavirhe |mMinusR| < 1 ms (ilman korrelaation 10–17 ms:n artefakteja).
-import { readFileSync } from 'node:fs';
+import { D1_VAHIMMAT, EI_MITTAUKSIA, fail, readReport, scenarioOf } from './yhteinen.mjs';
 import { SONG_CHARTS, barStartTime, sectionBarDuration } from '../../../../harjoittelija/songChart.ts';
-const r = JSON.parse(readFileSync(process.argv[2], 'utf8'));
+const r = readReport(process.argv[2]);
 const ok = e => e.rendered != null && e.score >= 0.9 && e.score - e.second >= 0.1;
 const renders = r.events.filter(e => e.event === 'render' && e.d1 && ok(e) && e.track === 'saestys');
 const clean = renders.filter(e => Math.abs(e.mMinusR) < 1);
@@ -24,3 +25,5 @@ for (const e of r.events.filter(e => e.event === 'naytto')) {
 }
 const f = v => v.length ? `${Math.min(...v).toFixed(0)}…+${Math.max(...v).toFixed(0)} ms (n ${v.length})` : '–';
 console.log(`A ${f(out.A)} | B ${f(out.B)}${rows.length ? ' | yli 30: ' + JSON.stringify(rows) : ''}`);
+const need = scenarioOf(r) === 'd1' ? D1_VAHIMMAT.naytto : 1;
+if (out.A.length < need) fail(`kelvollisia sointunäytön mittauksia ${out.A.length} < ${need} (${process.argv[2]})`, EI_MITTAUKSIA);

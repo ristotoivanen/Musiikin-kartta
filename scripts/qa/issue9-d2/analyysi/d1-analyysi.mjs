@@ -1,18 +1,22 @@
-// D1-prototyypin analyysi: node d1-analyysi.mjs <raportti-loppu.json> <pyynnot.json> <muisti.jsonl>
+// D1-prototyypin analyysi: node d1-analyysi.mjs <raportti-loppu.json> [pyynnot.json] [muisti.jsonl]
+// Poistumiskoodit: analyysi/yhteinen.mjs. d1-skenaariossa liian pieni mittausmäärä → 3 (ks. D1_VAHIMMAT).
 // Ajoitus (tavoitteet ennen mittauksia, docs/qa/…/tavoitteet.md): raitojen ero ±25 ms, aikajana ±30 ms, ei vanhaa ääntä,
 // ei uudelleen kuultavaa jatkossa (kuultu jatkuvuus), loop ilman hyppyä, raidan kytkentä ei käynnistä lähteitä uudelleen.
 // Lisäksi lataus, purku, puskurien koko, ensimmäisen toiston viive, verkko ja WebKit-prosessien muisti vaiheittain.
-import { readFileSync } from 'node:fs';
+import { D1_VAHIMMAT, EI_MITTAUKSIA, fail, readJson, readJsonLines, readReport, scenarioOf } from './yhteinen.mjs';
 import { SONG_CHARTS, barStartTime, sectionBarDuration } from '../../../../harjoittelija/songChart.ts';
 const [reportFile, requestFile, memoryFile] = process.argv.slice(2);
-const { events, d1Log } = JSON.parse(readFileSync(reportFile, 'utf8'));
-const requests = requestFile ? JSON.parse(readFileSync(requestFile, 'utf8')) : [];
-const memory = memoryFile ? readFileSync(memoryFile, 'utf8').trim().split('\n').map(l => JSON.parse(l)) : [];
+const report = readReport(reportFile);
+const { events, d1Log } = report;
+const requests = requestFile ? readJson(requestFile, 'pyyntöloki') : [];
+if (!Array.isArray(requests)) fail(`pyyntöloki ei ole taulukko: ${requestFile}`);
+const memory = memoryFile ? readJsonLines(memoryFile, 'muistinäytteet') : [];
 const f = (v, n = 0) => Number.isFinite(v) ? (v >= 0 ? '+' : '') + v.toFixed(n) : '–';
 const range = (v, n = 0) => v.length ? `${f(Math.min(...v), n)}…${f(Math.max(...v), n)}` : '–';
 const ok = e => e.rendered != null && e.score >= 0.9 && e.score - e.second >= 0.1;
 const TR = ['saestys', 'kitara', 'laulu'];
 const ops = events.filter(e => e.event === 'op');
+if (!ops.length) fail(`raportissa ei ole skenaarion operaatioita: skenaario ei käynnistynyt (${reportFile})`, EI_MITTAUKSIA);
 const wallOffset = ops[0].wall - ops[0].ms;
 const t0 = events.find(e => e.event === 'skenaario-alku')?.ms ?? ops[0].ms;
 const engine = [...new Map((d1Log ?? []).map(e => [`${e.kind}:${e.ms}:${e.track ?? ''}`, e])).values()].sort((a, b) => a.ms - b.ms);
@@ -89,6 +93,9 @@ ops.forEach((o, i) => {
   console.log(`${(o.kind + (o.toistuva !== undefined ? ' ' + o.toistuva : '')).padEnd(19)} ${((from - t0) / 1000).toFixed(1).padStart(5)} | ${err.map(v => range(v, 1).padEnd(14)).join(' ')} | ${range(inter.kitara, 1).padEnd(11)} ${range(inter.laulu, 1).padEnd(11)} | ${f(cont, 1).padStart(8)} | ${String(newSources).padStart(3)} | ${range(disp)} (${disp.length})`);
 });
 console.log(`\nKaikki: aikajana ${range(all.err, 1)} ms (n ${all.err.length}), raitojen ero ${range(all.inter, 1)} ms (n ${all.inter.length}), jatkuvuus ${range(all.cont, 1)} ms (n ${all.cont.length}), näyttö − ääni ${range(all.disp)} ms (n ${all.disp.length})`);
+// Kelpoisuus: d1-skenaariossa mittauksia on oltava vähintään D1_VAHIMMAT (muuten tulos ei ole vertailukelpoinen).
+const shortfall = scenarioOf(report) !== 'd1' ? [] : [['aikajana', all.err.length], ['raidat', all.inter.length], ['jatkuvuus', all.cont.length], ['naytto', all.disp.length]]
+  .filter(([k, n]) => n < D1_VAHIMMAT[k]).map(([k, n]) => `${k} n ${n} < ${D1_VAHIMMAT[k]}`);
 for (const e of events.filter(e => e.event === 'tasot' || e.event === 'tila')) console.log(`  ${e.event}: ${JSON.stringify({ volume: e.volume, levels: e.levels, state: e.state, hook: e.hook })}`);
 console.log(`Pääsäikeen pisin katko: ${f(Math.max(0, ...events.filter(e => e.event === 'jumi').map(e => e.gap)))} ms; mittauksen pisin kesto ${f(Math.max(0, ...events.filter(e => e.event === 'mittaus-kesto').map(e => e.ms2)))} ms`);
 
@@ -113,3 +120,5 @@ for (const [k, list] of procs) {
   if (list.length < 3) continue;
   console.log(`  ${k.padEnd(28)} ${marks.map(m => Number.isFinite(m[1]) ? at(m[1]) : '–').join(' | ')} | huippu ${peak.toFixed(0)}`);
 }
+if (shortfall.length) fail(`liian vähän mittauksia d1-skenaariossa: ${shortfall.join(', ')} (${reportFile})`, EI_MITTAUKSIA);
+if (scenarioOf(report) !== 'd1') console.log('\nHuom: vähimmäismäärät tarkistetaan vain d1-skenaariossa; skenaario ' + (scenarioOf(report) ?? 'ei tiedossa') + '.');
