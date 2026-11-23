@@ -30,9 +30,29 @@ export function preferredAudioFormats(audioElement) {
   return audioElement.canPlayType('audio/ogg; codecs="vorbis"') ? ['ogg', 'm4a'] : ['m4a', 'ogg'];
 }
 
+/** Odottaa jaettua latausta, mutta päästää kutsujan irti heti, kun sen oma signaali keskeytetään. */
+function untilAborted(promise, signal) {
+  signal.throwIfAborted();
+  return new Promise((resolve, reject) => {
+    const onAbort = () => reject(signal.reason);
+    signal.addEventListener('abort', onAbort, { once: true });
+    promise.then(
+      value => { signal.removeEventListener('abort', onAbort); resolve(value); },
+      error => { signal.removeEventListener('abort', onAbort); reject(error); });
+  });
+}
+
 /**
  * Hallinnoi vain kyseisen AudioContextin purettuja näytteitä. Ei ota haltuun
  * selaimen ääni-istuntoa eikä sulje kontekstia. Polkujen on oltava paikallisia.
+ *
+ * Formaattivalinta: `formats` on selaimen canPlayType-arvion mukainen järjestys.
+ * Arvio ei aina vastaa decodeAudioData-tukea (iOS 27.2 Safari: OGG "probably",
+ * mutta purku epäonnistuu). Siksi purkuvirhe merkitsee muodon tämän pankin
+ * (eli sivuistunnon) ajaksi käyttökelvottomaksi, eikä sitä haeta uudelleen.
+ * HTTP- ja verkkovirheet eivät merkitse muotoa käyttökelvottomaksi.
+ * Saman tiedoston samanaikaiset haut jaetaan, eikä yksittäisen pyynnön
+ * keskeytys peru jaettua hakua: valmis näyte jää välimuistiin seuraavaa kertaa varten.
  */
 export class SteelSampleBank {
   constructor(context, manifestUrl, { fetcher = (...args) => globalThis.fetch(...args),
@@ -43,19 +63,49 @@ export class SteelSampleBank {
     this.fetcher = fetcher;
     this.formats = formats;
     this.decoded = new Map();
+    this.pending = new Map();
+    this.undecodableFormats = new Set();
     this.loadedManifest = null;
+    this.pendingManifest = null;
   }
 
-  async manifest(signal) {
+  async manifest(signal = new AbortController().signal) {
     if (this.loadedManifest) return this.loadedManifest;
-    // Ei jaeta keskeneräistä, AbortSignal-sidonnaista hakua eri toistopyyntöjen kesken.
-    const response = await this.fetcher(this.manifestUrl, { signal });
-    if (!response.ok) throw new Error(`Ääniluettelo: HTTP ${response.status}`);
-    const data = await response.json();
-    signal.throwIfAborted();
-    if (data.schema !== 'musiikin-kartta-instrument-bank-v1') throw new Error('Virheellinen ääniluettelo.');
-    this.loadedManifest = data;
-    return data;
+    if (!this.pendingManifest) {
+      this.pendingManifest = (async () => {
+        const response = await this.fetcher(this.manifestUrl);
+        if (!response.ok) throw new Error(`Ääniluettelo: HTTP ${response.status}`);
+        const data = await response.json();
+        if (data.schema !== 'musiikin-kartta-instrument-bank-v1') throw new Error('Virheellinen ääniluettelo.');
+        this.loadedManifest = data;
+        return data;
+      })().finally(() => { this.pendingManifest = null; });
+    }
+    return untilAborted(this.pendingManifest, signal);
+  }
+
+  load(url, format, sample, info) {
+    const href = url.href;
+    let job = this.pending.get(href);
+    if (job) return { job, shared: true };
+    job = (async () => {
+      const response = await this.fetcher(url);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const array = await response.arrayBuffer();
+      const begun = performance.now();
+      let buffer;
+      try { buffer = await this.context.decodeAudioData(array); }
+      catch (error) {
+        this.undecodableFormats.add(format);
+        throw new Error(`${format.toUpperCase()}-purku epäonnistui (${error?.name || error})`);
+      }
+      const rate = 2 ** ((sample.playbackSemitones ?? 0) / 12);
+      const clip = { buffer, onset: info.onsetMs / 1000, rate, format };
+      this.decoded.set(href, clip);
+      return { clip, bytes: array.byteLength, decodeMs: performance.now() - begun };
+    })().finally(() => { this.pending.delete(href); });
+    this.pending.set(href, job);
+    return { job, shared: false };
   }
 
   async prepare(events, { signal = new AbortController().signal } = {}) {
@@ -63,31 +113,34 @@ export class SteelSampleBank {
     const manifest = await this.manifest(signal);
     signal.throwIfAborted();
     const wanted = resolveSamples(manifest, events);
-    const stats = { bytes: 0, decodeMs: 0, cacheHits: 0 };
+    const stats = { bytes: 0, decodeMs: 0, cacheHits: 0, sharedLoads: 0 };
+    const fileUrl = info => {
+      if (!/^audio\/[a-z0-9-]+\.(ogg|m4a)$/.test(info.path)) throw new Error('Virheellinen näytepolku.');
+      return new URL(info.path, this.manifestUrl);
+    };
     const pairs = await Promise.all([...wanted].map(async ([key, sample]) => {
+      // Jo purettu näyte käytetään sellaisenaan missä tahansa sallitussa muodossa.
+      for (const format of this.formats) {
+        const info = sample.files[format];
+        const cached = info && this.decoded.get(fileUrl(info).href);
+        if (cached) { stats.cacheHits += 1; return [key, cached]; }
+      }
       let failure;
       for (const format of this.formats) {
         signal.throwIfAborted();
         const info = sample.files[format];
         if (!info) continue;
-        if (!/^audio\/[a-z0-9-]+\.(ogg|m4a)$/.test(info.path)) throw new Error('Virheellinen näytepolku.');
-        const url = new URL(info.path, this.manifestUrl);
-        const cached = this.decoded.get(url.href);
-        if (cached) { stats.cacheHits += 1; return [key, cached]; }
+        const url = fileUrl(info);
+        if (this.undecodableFormats.has(format)) {
+          failure = new Error(`${format.toUpperCase()} ei purkaudu tässä selaimessa`);
+          continue;
+        }
+        const { job, shared } = this.load(url, format, sample, info);
         try {
-          const response = await this.fetcher(url, { signal });
-          if (!response.ok) throw new Error(`HTTP ${response.status}`);
-          const array = await response.arrayBuffer();
-          stats.bytes += array.byteLength;
-          const begun = performance.now();
-          let buffer;
-          try { buffer = await this.context.decodeAudioData(array); }
-          finally { stats.decodeMs += performance.now() - begun; }
-          signal.throwIfAborted();
-          const rate = 2 ** ((sample.playbackSemitones ?? 0) / 12);
-          const clip = { buffer, onset: info.onsetMs / 1000, rate, format };
-          this.decoded.set(url.href, clip);
-          return [key, clip];
+          const result = await untilAborted(job, signal);
+          if (shared) stats.sharedLoads += 1;
+          else { stats.bytes += result.bytes; stats.decodeMs += result.decodeMs; }
+          return [key, result.clip];
         } catch (error) {
           signal.throwIfAborted();
           failure = error;
@@ -98,6 +151,7 @@ export class SteelSampleBank {
     return { samples: new Map(pairs), stats, manifest };
   }
 
+  /** Tyhjentää puretut näytteet. Purkautumattomien muotojen tieto säilyy pankin elinajan. */
   clearCache() { this.decoded.clear(); }
 }
 
