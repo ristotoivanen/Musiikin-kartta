@@ -802,6 +802,21 @@ test('02:n kolme sointuparia pysyvät näkyvissä ja ilman vaakavierintää iPho
     const section = page.locator('[data-sointuharjoitus="arvaa"]');
     const choices = section.getByRole('group', { name: 'Valitse tunnistustehtävän sointupari' });
     await expect(choices.locator('button')).toHaveText(['D / Dm', 'E / Em', 'A / Am']);
+    if (width === 390) {
+      const positions = await choices.locator('button').evaluateAll(buttons =>
+        buttons.map(button => {
+          const box = button.getBoundingClientRect();
+          return { left: box.left, right: box.right, top: box.top };
+        }));
+      expect(positions[1].top).toBeCloseTo(positions[0].top, 0);
+      expect(positions[2].top).toBeCloseTo(positions[0].top, 0);
+      // Sointuparit ovat tiivis vasempaan reunaan ryhmitelty valinta,
+      // eivät kolme tasaisesti koko riville levitettyä vaihtoehtoa.
+      for (let i = 1; i < positions.length; i++) {
+        expect(positions[i].left - positions[i - 1].right).toBeGreaterThanOrEqual(0);
+        expect(positions[i].left - positions[i - 1].right).toBeLessThanOrEqual(8);
+      }
+    }
     await expect(section.getByRole('button', { name: 'A / Am' })).toBeVisible();
     await section.getByRole('button', { name: 'A / Am' }).click();
     await section.getByRole('button', { name: 'Tunnista', exact: true }).click();
