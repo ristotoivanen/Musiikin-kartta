@@ -104,7 +104,7 @@ it('03 alkaa ilman valittua lopetusta ja kertoo G:n roolin vasta Mitä opit? -os
   }
   for (const html of [read('oppi/soinnut/yksi-savel-muuttaa-sointua.html'), topic]) {
     for (const number of [1, 2]) {
-      expect(html).toContain(`<span class="sointu-vaihtuva"><span data-arvaus-teksti>Sointu ${number}</span><span class="sointu-varaus" aria-hidden="true">Sointu ${number} · Em</span><span class="sointu-varaus" aria-hidden="true">Sointu ${number} · Dm</span><span class="sointu-varaus" aria-hidden="true">Sointu ${number} · Am</span></span>`);
+      expect(html).toContain(`<span class="sointu-vaihtuva"><span data-arvaus-teksti>Sointu ${number}</span><span class="sointu-varaus" aria-hidden="true">Sointu ${number}</span></span>`);
     }
     // PR #141 (zoom): jokainen tunnistustilan vaihtuva teksti on myös näkymättömänä varauksena, jotta
     // kortin ja painikkeiden korkeus ei muutu tilanvaihdossa. JS:n teksti ja varaus pidetään samoina.

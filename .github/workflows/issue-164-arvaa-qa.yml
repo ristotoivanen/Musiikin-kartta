@@ -1,0 +1,62 @@
+name: "#164 Arvaa feedback QA"
+on:
+  push:
+    branches: [codex/issue-164-arvaa-palaute]
+  pull_request:
+    branches: [beta]
+    paths:
+      - 'assets/sointuharjoitus.js'
+      - 'assets/sointuharjoitus.css'
+      - 'tests/e2e/soinnut-kokonaisuudet.spec.ts'
+      - '.github/workflows/issue-164-arvaa-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-and-unit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Lint, typecheck, unit suite and build
+        run: npm run lint && npm run typecheck && npm test && npm run build
+      - name: Generated pages, links and historical sources (#117)
+        run: |
+          python3 tools/oppimiskartta/rakenna.py --tarkista
+          python3 tools/linkit/tarkista-linkit.py
+          python3 tests/issue-117-pdf-sources.py
+
+  chromium-regression:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Full Playwright regression (desktop and phone, includes #117)
+        run: npx playwright test --workers=3 --max-failures=20
+
+  webkit-scroll:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps webkit
+      - name: WebKit desktop and iPhone emulation focus/scroll regression
+        run: npx playwright test --config=playwright.ydinopinnot-webkit.config.ts --workers=2

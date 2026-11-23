@@ -1,0 +1,63 @@
+name: "#117 compatibility contract"
+
+on:
+  pull_request:
+    branches: [beta]
+    paths:
+      - 'docs/oppiminen/yhteensopivuus-117-2026-11-22.md'
+      - 'tests/fixtures/issue-117-legacy-urls.json'
+      - 'tests/yhteensopivuus-117.test.ts'
+      - 'tests/e2e/yhteensopivuus-117.spec.ts'
+      - 'tests/issue-117-pdf-sources.py'
+      - '.github/workflows/issue-117-compat.yml'
+      # Suojattavat tuotantolähteet: ilman näitä sopimus ei aja muutoksille, joita se valvoo.
+      - 'assets/edistyminen.js'
+      - 'index.html'
+      - 'book/**'
+      - 'oppi/**'
+      - 'tools/oppimiskartta/**'
+      - 'tools/pdf/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-and-storage:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint, typecheck, and entire existing unit suite
+        run: npm run lint && npm run typecheck && npm test
+      - name: Generator check without rewriting pages
+        run: python3 tools/oppimiskartta/rakenna.py --tarkista
+      - name: Static links and historical book-anchor cross-check
+        run: python3 tools/linkit/tarkista-linkit.py
+
+  browser-legacy:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Old book anchors and localStorage in desktop/phone emulations
+        run: npx playwright test tests/e2e/yhteensopivuus-117.spec.ts --project=desktop --project=phone
+
+  pdf-source:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: PDF HTML source assembly without Chrome/PDF changes
+        run: python3 tests/issue-117-pdf-sources.py

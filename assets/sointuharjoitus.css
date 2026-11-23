@@ -78,16 +78,23 @@
 }
 .sointu-ydin button[data-playing] { background: #234133; }
 .sointu-parin-valinta {
-  display: flex; flex-wrap: wrap; align-items: center; gap: .5rem;
+  display: flex; flex-wrap: wrap; justify-content: flex-start; align-items: center;
+  gap: .5rem .35rem;
   margin-block: 1rem .5rem;
   /* iPhonen yläpalkki ja suurennettu teksti: pidä pari näkyvissä vierityksen jälkeen. */
   scroll-margin-block-start: 3.5rem;
 }
 .sointu-parin-valinta strong { flex-basis: 100%; }
+.sointu-parin-valinta > button {
+  flex: 0 0 auto;
+  inline-size: auto;
+  padding-inline: .7rem;
+}
 .sointu-ydin .sointu-valinta { display: block; }
 .sointu-ydin .sointu-ohje.is-error { color: #ffd6b3; }
 /* Koko vastauksen palaute on vihreä (oikein) tai keltainen (väärin).
- * Vain valittu vastauspainike väritetään; erillinen toimintaohje pysyy neutraalina. */
+ * Vain valittu vastauspainike väritetään; erillinen toimintaohje pysyy neutraalina.
+ * Tämä lohko korvaa #164:n vastaavat palautesäännöt (integraatio betaan 23.11.2026). */
 .sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvauspalaute] { color: var(--muted); }
 .sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvauspalaute].is-answered { color: #9fe4c3; }
 .sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvauspalaute].is-answered.is-error { color: #ffe08a; }
@@ -99,9 +106,8 @@
 .sointu-ydin .sointu-kierron-toisto { display: inline-grid; }
 .sointu-kierron-toisto > span { grid-area: 1 / 1; }
 .sointu-piilossa, .sointu-varaus { visibility: hidden; }
-/* E/Em-kuunteluarvaus: kysymys ja ohjainten paikat eivät vaihdu tehtävän
- * alkaessa. Puhelimessa molemmat kuuntelupainikkeet pinoutuvat jo ennen Arvaa-
- * painallusta; leveämmässä näkymässä ne pysyvät rinnakkain kummassakin tilassa. */
+/* Tunnistuksessa kuuntelu ja vastaus käyttävät samaa kahden palstan rivijakoa.
+ * Suurennetulla mobiilinäkymällä molemmat voivat rivittyä allekkain. */
 .sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-kysymys] {
   min-block-size: 7.5rem;
 }
@@ -115,16 +121,31 @@
   justify-items: start;
   gap: .5rem;
 }
-.sointu-ydin[data-sointuharjoitus="arvaa"] :is([data-suora-kuuntelu], [data-arvaus-kuuntelu]) {
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-suora-kuuntelu] {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.5rem), 1fr));
   gap: .5rem;
   inline-size: min(100%, 28rem);
 }
-.sointu-ydin[data-sointuharjoitus="arvaa"] :is([data-suora-kuuntelu], [data-arvaus-kuuntelu]) > button {
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-suora-kuuntelu] > button {
   inline-size: 100%;
   min-inline-size: 0;
   min-block-size: 2.5em;
+}
+/* Sama rivijako kuin Vastaa-painikkeilla. Sointu 1/2 on ennen vastausta
+ * pisin näkyvä nimi, joten kahteen palstaan mahtuminen ei paljasta tulosta. */
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-kuuntelu] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: .5rem;
+  inline-size: min(100%, 28rem);
+}
+.sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-kuuntelu] > button {
+  flex: 1 1 6.5rem;
+  min-inline-size: 0;
+  min-block-size: 44px;
+  padding-inline: .55rem;
 }
 .sointu-ydin[data-sointuharjoitus="arvaa"] [data-uusi-arvaus] {
   inline-size: min(100%, 11rem);
@@ -158,7 +179,7 @@
 @media (max-width: 220px) {
   .sointu-ydin[data-sointuharjoitus="arvaa"].study-knoppi-host > h2:first-child {
     padding-inline-end: 0;
-    padding-block-start: 1.25rem;
+    padding-block-start: calc(44px + .25rem);
   }
 }
 .sointu-ydin[data-sointuharjoitus="arvaa"] [data-arvaus-vastaus] > strong {
