@@ -6,28 +6,40 @@ import {
   startLoading, trackLevel, tracksReady, waitForTracksReady, type SongTrack,
 } from './songAudio';
 import { DEFAULT_SONG_VERSION, chordAt, isSongLink, songLink, versionFromSongLink, type SongVersion } from './songChart';
-import { BufferSongPlayer, createPlaybackContext, type BufferPlayerState } from './bufferPlayer';
+import { createPlaybackContext, type BufferPlayerState } from './bufferPlayer';
 import { ChunkSongPlayer } from './chunkPlayer';
+import { CLOCK_PLAYING_WINDOW_MS, ContextClockWatch, clockAdvances, recoverContext } from './contextClock';
 import { DownloadProgressLine } from './DownloadProgressLine';
 
 /**
- * KOKEILU (issue #9, ei julkaisuun): ?soitin=d1 soittaa raidat kokonaan puretuista AudioBuffereista (bufferPlayer.ts),
- * ?soitin=d2 paloittain puretuista 10 s:n paloista kiinteän puskurialtaan kautta (chunkPlayer.ts). Molemmat käyttävät
- * samaa Web Audio -polkua (D1_MODE). Oletuksena käytetään nykyistä mediaelementtisoitinta ja sen kylmäkäynnistystä (PR #155).
+ * Issue #9: kappalesoitin soittaa raidat D2:lla (chunkPlayer.ts). 10 s:n palat puretaan kiinteään AudioBuffer-altaaseen
+ * ja soitetaan yhteisellä Web Audio -kellolla, joten raidat pysyvät näytetarkasti tahdissa. Raidat luetaan virtana
+ * (progressiveLoad.ts), joten soitto alkaa ennen koko latausta.
+ * Palautusvaihtoehdot: ?soitin=vanha = aiempi mediaelementtisoitin (PR #155:n kylmäkäynnistyksellä), ?lataus=koko = D2
+ * lataa koko version ennen soittoa. ?diag=1 näyttää latauksen vaiheet. D1-kokeilu (?soitin=d1) ei ole käytössä: sen
+ * muisti kasvoi jokaisessa versionvaihdossa (docs/qa/ios-d1-puskurisoitin-2026-11-22).
  */
-const PLAYER_MODE = typeof location !== 'undefined' ? new URLSearchParams(location.search).get('soitin') : null;
-const D2_MODE = PLAYER_MODE === 'd2';
-const D1_MODE = PLAYER_MODE === 'd1' || D2_MODE;
+const PARAMS = typeof location !== 'undefined' ? new URLSearchParams(location.search) : new URLSearchParams();
+const LEGACY_PLAYER = PARAMS.get('soitin') === 'vanha';
+const D2_MODE = !LEGACY_PLAYER;
+/** Mittausvaljas ja selaintestit lukevat soittimen tilan (window.__kappaleD1); tavalliselle käyttäjälle sitä ei anneta. */
+const EXPOSE_PLAYER_HOOK = D2_MODE && (PARAMS.has('valjas') || (typeof navigator !== 'undefined' && navigator.webdriver === true));
 /**
  * D2: raitojen MP3:t ovat 48 kHz; sama kontekstin taajuus pitää palat näytetarkkoina ilman uudelleennäytteistystä.
  * Testausta varten ?naytetaajuus=44100 pyytää toisen taajuuden (soitin kohdistaa palat silloin ruudukkoon).
  */
-const D2_SAMPLE_RATE = (typeof location !== 'undefined' && Number(new URLSearchParams(location.search).get('naytetaajuus'))) || 48000;
-const PARAMS = typeof location !== 'undefined' ? new URLSearchParams(location.search) : new URLSearchParams();
-/** KOKEILU (ensilataus): D2 lukee raidat virtana ja aloittaa ennen koko latausta; ?lataus=koko = hyväksytty D2-lataus. */
+const D2_SAMPLE_RATE = Number(PARAMS.get('naytetaajuus')) || 48000;
+/** D2 lukee raidat virtana ja aloittaa ennen koko latausta; ?lataus=koko lataa koko version ensin. */
 const D2_PROGRESSIVE = D2_MODE && PARAMS.get('lataus') !== 'koko';
-/** KOKEILU: ?diag=1 näyttää latauksen vaiheet laitetestiä varten. */
+/** ?diag=1 näyttää latauksen vaiheet laitetestiä varten (ei tavalliselle käyttäjälle). */
 const D2_DIAG = D2_MODE && PARAMS.get('diag') === '1';
+
+/** Sama osoite vanhalla soittimella (tarjotaan, jos D2 ei voi soittaa tässä selaimessa). */
+function legacyPlayerHref(): string {
+  const url = new URL(location.href);
+  url.searchParams.set('soitin', 'vanha');
+  return url.pathname + url.search + url.hash;
+}
 
 /** Latauksen vaiheet ja selaimen omat verkkoluvut MP3:ille (Resource Timing). */
 function d2Diagnostics(player: ChunkSongPlayer): string {
@@ -104,9 +116,15 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   // Pitää kitaran ja laulun taustan tahdissa ja oppii laitteen kelausviiveen.
   const aligner = useRef(new StemAligner());
   const pendingSeek = useRef<number | null>(null);
-  // D1-kokeilu: puretut raidat ja oma AudioContext. Pyyntötunniste ohittaa vanhentuneen latauksen.
-  const d1 = useRef<{ context: AudioContext; player: BufferSongPlayer | ChunkSongPlayer } | null>(null);
+  // D2: paloittain puretut raidat ja oma AudioContext. Pyyntötunniste ohittaa vanhentuneen latauksen.
+  const d1 = useRef<{ context: AudioContext; player: ChunkSongPlayer } | null>(null);
   const d1Request = useRef(0);
+  // Lukituksen jälkeinen kellon pysähdys (PR #92, D6): kellon seuranta, todettu pysähdys ja kesken oleva palautus.
+  const clockWatch = useRef(new ContextClockWatch());
+  const clockStalled = useRef(false);
+  const recovering = useRef(false);
+  const [recoveryNote, setRecoveryNote] = useState('');
+  const [legacyOffer, setLegacyOffer] = useState(false);
   const [d1State, setD1State] = useState<BufferPlayerState>('tyhja');
   const [d2Waiting, setD2Waiting] = useState(false);
   const [d2Diag, setD2Diag] = useState('');
@@ -151,7 +169,7 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
 
   /** Asettaa kaikkien raitojen tason. Ei koske toistoon, kelaukseen eikä synkronointiin. */
   function applyLevels(level = volume, audible?: Partial<Record<SongTrack, boolean>>) {
-    if (D1_MODE) {
+    if (D2_MODE) {
       // D1: taso ja raidan kytkentä ovat GainNode-tasoja. Soitto ei katkea.
       const player = d1.current?.player;
       if (player) for (const [track, , on] of tracks()) player.setLevel(track, trackLevel(track, level, audible?.[track] ?? on));
@@ -176,7 +194,7 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   }
 
   function pause() {
-    if (D1_MODE) {
+    if (D2_MODE) {
       const player = d1.current?.player;
       if (player?.playing) setPosition(player.pause());
     }
@@ -189,7 +207,7 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
 
   function changeVersion(next: SongVersion) {
     if (next === version) return;
-    if (D1_MODE) {
+    if (D2_MODE) {
       // Edellisen version puskurit ja lähteet vapautetaan ennen kuin uusi versio puretaan seuraavasta Soita-painalluksesta.
       d1Request.current++;
       d1.current?.player.release();
@@ -210,7 +228,7 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   }
 
   function seek(seconds: number) {
-    if (D1_MODE) {
+    if (D2_MODE) {
       const player = d1.current?.player;
       const at = Math.max(0, Math.min(seconds, duration > 0 ? duration : seconds));
       setPosition(at);
@@ -259,15 +277,15 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
     if (!backing.paused) syncStems();
   }
 
-  /** D1: AudioContext ja soitin luodaan ensimmäisestä Soita-painalluksesta (iOS vaatii käyttäjän eleen). */
+  /** D2: AudioContext ja soitin luodaan ensimmäisestä Soita-painalluksesta (iOS vaatii käyttäjän eleen). */
   function ensureD1() {
     if (d1.current) return d1.current;
     try {
-      const context = createPlaybackContext(D2_MODE ? { sampleRate: D2_SAMPLE_RATE } : undefined);
-      const player = D2_MODE ? new ChunkSongPlayer(context, { progressive: D2_PROGRESSIVE }) : new BufferSongPlayer(context);
+      const context = createPlaybackContext({ sampleRate: D2_SAMPLE_RATE });
+      const player = new ChunkSongPlayer(context, { progressive: D2_PROGRESSIVE });
       player.onStateChange = setD1State;
-      if (player instanceof ChunkSongPlayer) player.onWaitingChange = setD2Waiting;
-      if (player instanceof ChunkSongPlayer) player.onError = message => {
+      player.onWaitingChange = setD2Waiting;
+      player.onError = message => {
         setPlaying(false);
         setPosition(player.position());
         setError(`Toisto keskeytyi (${message}). Paina Soita uudelleen.`);
@@ -278,17 +296,63 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
       context.onstatechange = () => {
         if (context.state !== 'running' && player.playing) { setPosition(player.pause()); setPlaying(false); }
       };
+      clockWatch.current.reset();
+      clockStalled.current = false;
       d1.current = { context, player };
-      // KOKEILU: mittausvaljas lukee soittimen tilan ja raitojen tulot.
-      (window as unknown as { __kappaleD1?: unknown }).__kappaleD1 = { context, player };
+      if (EXPOSE_PLAYER_HOOK) (window as unknown as { __kappaleD1?: unknown }).__kappaleD1 = { context, player };
       return d1.current;
     } catch (cause) {
       setError('Web Audio ei ole käytettävissä tässä selaimessa. ' + (cause instanceof Error ? cause.message : ''));
+      setLegacyOffer(true);
       return null;
     }
   }
 
+  /** Vapauttaa D2:n soittimen ja kontekstin (poistuminen tai epäonnistunut palautus). Seuraava Soita luo uudet. */
+  function teardownD2() {
+    d1Request.current++;
+    d1.current?.player.dispose();
+    void d1.current?.context.close().catch(() => {});
+    d1.current = null;
+    clockWatch.current.reset();
+    clockStalled.current = false;
+    delete (window as unknown as { __kappaleD1?: unknown }).__kappaleD1;
+  }
+
+  /**
+   * Palauttaa pysähtyneen kellon Soita-painalluksesta: suspend() → resume() ja varmistus, että kello etenee.
+   * Jos palautus ei onnistu, soitin ja konteksti luodaan seuraavasta painalluksesta uudelleen samaan kohtaan.
+   */
+  async function recoverClock(context: AudioContext, request: number): Promise<boolean> {
+    recovering.current = true;
+    setRecoveryNote('Palautetaan ääntä…');
+    try {
+      const result = await recoverContext(context);
+      const advancing = result.ok && await clockAdvances(() => context.currentTime);
+      if (request !== d1Request.current) return false;
+      clockWatch.current.reset();
+      if (advancing) { clockStalled.current = false; return true; }
+      if (result.reason?.startsWith('NotAllowedError')) {
+        // iOS vaatii uuden eleen: seuraava painallus yrittää uudelleen.
+        setError('Ääni ei käynnistynyt. Paina Soita uudelleen.');
+        return false;
+      }
+      const at = d1.current?.player.position() ?? 0;
+      teardownD2();
+      pendingSeek.current = at;
+      setPosition(at);
+      setD1State('tyhja');
+      setError('Ääntä ei saatu palautettua. Paina Soita, niin soitin käynnistetään uudelleen samasta kohdasta.');
+      return false;
+    } finally {
+      recovering.current = false;
+      setRecoveryNote('');
+    }
+  }
+
   async function toggleD1() {
+    // Palautus kesken: lisäpainallukset eivät käynnistä mitään rinnakkain.
+    if (recovering.current) return;
     const created = ensureD1();
     if (!created) return;
     const { context, player } = created;
@@ -302,6 +366,7 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
     // resume() kutsutaan heti painalluksesta, ennen yhtään odotusta.
     const resumed = context.state === 'running' ? Promise.resolve() : context.resume();
     setError('');
+    setLegacyOffer(false);
     const request = ++d1Request.current;
     if (player.state !== 'valmis') {
       const result = await player.load({ backing: song.backing, guitar: song.guitar, vocals: song.vocals });
@@ -309,9 +374,11 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
       if (result === 'virhe') {
         const kind = player instanceof ChunkSongPlayer ? player.errorKind : 'lataus';
         // Kalibrointi- ja taajuusvirhe eivät korjaannu uudella yrityksellä: kerrotaan syy eikä neuvota yhteydestä.
-        setError(kind === 'kalibrointi' || kind === 'naytetaajuus'
-          ? `Kokeilusoitin ei voi soittaa tässä selaimessa (${player.error}). Käytä tavallista soitinta.`
+        const unsupported = kind === 'kalibrointi' || kind === 'naytetaajuus';
+        setError(unsupported
+          ? `Soitin ei voi purkaa kappaleen ääntä tässä selaimessa (${player.error}).`
           : 'Kappaleen lataus epäonnistui. Tarkista yhteys ja paina Soita uudelleen.');
+        setLegacyOffer(unsupported);
         return;
       }
       if (result !== 'valmis') return;
@@ -322,6 +389,11 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
     if (context.state !== 'running') {
       setError(`Ääni ei käynnistynyt (Web Audio: ${context.state}). Paina Soita uudelleen.`);
       return;
+    }
+    // Näytön lukituksen jälkeen kello voi jäädä paikalleen tilassa running (PR #92, D6): palautetaan ennen soittoa.
+    if (clockStalled.current || clockWatch.current.status() === 'stalled') {
+      if (!await recoverClock(context, request)) return;
+      if (request !== d1Request.current) return;
     }
     applyLevels();
     player.setLoop(loopOn);
@@ -334,7 +406,7 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   }
 
   async function togglePlayback() {
-    if (D1_MODE) { await toggleD1(); return; }
+    if (D2_MODE) { await toggleD1(); return; }
     const backing = backingRef.current;
     const guitar = guitarRef.current;
     const vocals = vocalsRef.current;
@@ -437,13 +509,30 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
       guitarRef.current?.pause();
       vocalsRef.current?.pause();
       mixer.current?.close();
-      // D1: lataus perutaan, lähteet pysäytetään, puskurit ja konteksti vapautetaan.
-      d1Request.current++;
-      d1.current?.player.dispose();
-      void d1.current?.context.close().catch(() => {});
-      d1.current = null;
-      delete (window as unknown as { __kappaleD1?: unknown }).__kappaleD1;
+      // D2: lataus perutaan, lähteet pysäytetään, puskurit ja konteksti vapautetaan.
+      teardownD2();
     };
+  }, []);
+
+  // D2: lukituksen jälkeen kello voi jäädä paikalleen tilassa running (PR #92, D6). Kelloa seurataan näkyvältä sivulta.
+  // Soiton aikana pysähdys pysäyttää toiston kuuluvaan kohtaan (kohta lasketaan pysähtyneestä kellosta) ja pyytää
+  // painamaan Soita: palautus tehdään painalluksesta, koska iOS voi vaatia eleen. Piilossa kello saa pysähtyä.
+  useEffect(() => {
+    if (!D2_MODE) return;
+    const watch = clockWatch.current;
+    const visibility = () => watch.reset();
+    document.addEventListener('visibilitychange', visibility);
+    const id = setInterval(() => {
+      const current = d1.current;
+      if (!current || document.hidden || current.context.state !== 'running' || recovering.current) { watch.reset(); return; }
+      watch.sample(current.context.currentTime, performance.now());
+      if (!current.player.playing || watch.status(CLOCK_PLAYING_WINDOW_MS) !== 'stalled') return;
+      clockStalled.current = true;
+      setPosition(current.player.pause());
+      setPlaying(false);
+      setError('Ääni pysähtyi (esimerkiksi näytön lukituksen jälkeen). Paina Soita jatkaaksesi samasta kohdasta.');
+    }, 250);
+    return () => { clearInterval(id); document.removeEventListener('visibilitychange', visibility); };
   }, []);
 
   // Versionvaihdossa syntyvät uudet audioelementit saavat saman tason heti.
@@ -452,7 +541,7 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   // D1: sointunäyttö seuraa kuuluvaa kohtaa ruudunpäivityksen tarkkuudella. Tila päivitetään iskun vaihtuessa
   // (ja vähintään 4 kertaa sekunnissa ajan ja liukusäätimen vuoksi), ei jokaisella ruudulla.
   useEffect(() => {
-    if (!D1_MODE || !playing) return;
+    if (!D2_MODE || !playing) return;
     let frame = 0, lastKey = '', lastSet = 0;
     const tick = () => {
       const player = d1.current?.player;
@@ -524,17 +613,17 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
         </a>
         <span>{song.label}, koko kappale · {song.downloadSize}</span>
       </p>
-      {error && <p className="backing-error" role="alert">{error}</p>}
-      {D1_MODE && !D2_MODE && (d1State === 'ladataan' || d1State === 'puretaan') && <p className="tools-note" role="status">
-        {d1State === 'ladataan' ? 'Ladataan kappaleen raitoja…' : 'Valmistellaan raitoja soittoa varten…'}</p>}
-      {D1_MODE && d2Waiting && <p className="tools-note song-load-wait" role="status">Ladataan valittua kohtaa…</p>}
+      {error && <p className="backing-error" role="alert">{error}{legacyOffer && <> <a href={legacyPlayerHref()}>Käytä
+        vanhaa soitinta</a>.</>}</p>}
+      {recoveryNote && <p className="tools-note" role="status">{recoveryNote}</p>}
+      {D2_MODE && d2Waiting && <p className="tools-note song-load-wait" role="status">Ladataan valittua kohtaa…</p>}
       {D2_MODE && <DownloadProgressLine state={d1State} read={() => {
         // D2: taustalatauksen eteneminen soittimen todellisista tavuista (ei soittoajasta).
         const player = d1.current?.player;
         return player instanceof ChunkSongPlayer ? { status: player.downloadStatus, state: player.state } : null;
       }} />}
       {D2_DIAG && <pre className="tools-note" style={{ whiteSpace: 'pre-wrap', fontSize: '0.75rem' }}>{d2Diag}</pre>}
-      {!D1_MODE && <>
+      {!D2_MODE && <>
       <audio key={version + '-backing'} ref={backingRef} src={song.backing} preload="metadata" loop={loopOn}
         onLoadedMetadata={event => {
           if (event.currentTarget !== backingRef.current) return;

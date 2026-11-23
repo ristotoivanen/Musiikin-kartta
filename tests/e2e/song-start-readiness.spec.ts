@@ -1,3 +1,5 @@
+// Issue #9: kappaleharjoittelijan oletussoitin on D2 (tests/e2e/song-d2*.spec.ts). Tämä tiedosto on vanhan
+// mediaelementtisoittimen (?soitin=vanha, palautusvaihtoehto) regressiotesti.
 import { test, expect, type Page } from '@playwright/test';
 
 /**
@@ -10,7 +12,7 @@ import { test, expect, type Page } from '@playwright/test';
  * Chromium ei toista WebKitin äänipuskuria, joten raitojen valmius ja toisto ohjataan tässä käsin
  * samaan tilaan kuin laitteella: kitaralla ja laululla on dataa, säestyksellä vain metatiedot.
  */
-const SONG = '/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-normaali';
+const SONG = '/kitaraharjoittelija.html?soitin=vanha&kappale=yksi-sointu-kaksi-askelta-normaali';
 
 type Call = { kind: string; track: string; readyState?: number; value?: number; ms: number };
 
