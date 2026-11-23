@@ -150,17 +150,26 @@ for (const { name, path } of pages) {
 }
 
 test.describe('B – Steel-pankin formaattimuisti (Safari-kaltainen OGG-purkuvirhe simuloitu)', () => {
-  /** Simuloi iOS 27.2 Safarin tilannetta: OGG ilmoitetaan tuetuksi, mutta decodeAudioData hylkää sen. */
-  async function rejectFormats(page: Page, formats: ('ogg' | 'm4a')[]) {
-    await page.addInitScript((rejected: string[]) => {
+  /**
+   * Simuloi iOS 27.2 Safarin OGG-virhettä. CI:n Linux-Chromium ei välttämättä
+   * pura AAC/M4A:ta, joten muodon onnistumisen voi simuloida vain näissä
+   * formaattivaihdon toimintalogiikan testeissä. Tämä EI testaa oikeaa
+   * AAC-dekoodausta: se tarkistetaan erikseen oikeassa iOS Safarissa.
+   */
+  async function rejectFormats(page: Page, formats: ('ogg' | 'm4a')[], simulatedSuccess: ('ogg' | 'm4a')[] = []) {
+    await page.addInitScript(({ rejected, simulated }: { rejected: string[]; simulated: string[] }) => {
       const original = BaseAudioContext.prototype.decodeAudioData;
       BaseAudioContext.prototype.decodeAudioData = function (this: BaseAudioContext, data: ArrayBuffer, ...rest: unknown[]) {
         const head = new TextDecoder('latin1').decode(new Uint8Array(data, 0, Math.min(12, data.byteLength)));
         const format = head.startsWith('OggS') ? 'ogg' : head.slice(4, 8) === 'ftyp' ? 'm4a' : 'other';
         if (rejected.includes(format)) return Promise.reject(new DOMException('Decoding failed', 'EncodingError'));
+        if (simulated.includes(format)) {
+          // Vain ohjauspolun testin kelvollinen 5 sekunnin AudioBuffer, ei oikea ääninäyte.
+          return Promise.resolve(this.createBuffer(1, Math.round(5 * this.sampleRate), this.sampleRate));
+        }
         return (original as (...a: unknown[]) => Promise<AudioBuffer>).call(this, data, ...rest);
       };
-    }, formats);
+    }, { rejected: formats, simulated: simulatedSuccess });
   }
   function steelRequests(page: Page) {
     const list: string[] = [];
@@ -185,7 +194,7 @@ test.describe('B – Steel-pankin formaattimuisti (Safari-kaltainen OGG-purkuvir
   });
 
   test('OGG-purku epäonnistuu, M4A toimii: OGG ladataan vain kerran sivuistunnossa', async ({ page }) => {
-    await rejectFormats(page, ['ogg']);
+    await rejectFormats(page, ['ogg'], ['m4a']);
     const requests = steelRequests(page);
     await page.goto(steelPath);
     await m2(page, /Meta Steel -mallikitaraa/);
@@ -205,7 +214,7 @@ test.describe('B – Steel-pankin formaattimuisti (Safari-kaltainen OGG-purkuvir
 
   test('pysäytys latauksen aikana: uusi käynnistys käyttää jo alkanutta latausta', async ({ page }) => {
     await instrument(page);
-    await rejectFormats(page, ['ogg']);
+    await rejectFormats(page, ['ogg'], ['m4a']);
     const requests = steelRequests(page);
     await page.route(/steel-6-40\.(ogg|m4a)$/, async route => { await delay(700); await route.continue(); });
     await page.goto(steelPath);
