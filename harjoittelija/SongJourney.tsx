@@ -120,6 +120,8 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
 
   function pause() {
     playbackRequest.current++;
+    // Kellonäyte tauon hetkeltä: seuraava Soita-painallus vertaa siihen, eteneekö Web Audio.
+    mixer.current?.observe();
     backingRef.current?.pause();
     guitarRef.current?.pause();
     vocalsRef.current?.pause();
@@ -195,17 +197,32 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
     const startAt = pendingSeek.current ?? backing.currentTime;
     if (Number.isFinite(backing.duration) && startAt >= backing.duration - 0.05) seek(0);
     retryPendingSeek(backing);
+    let recovery: Promise<boolean> | null = null;
     if (volumeMode === 'webaudio') {
       // AudioContext käynnistyy käyttäjän painalluksesta. Jokainen elementti kytketään vain kerran.
       const gains = mixer.current ??= new SongGainMixer();
       const routed = gains.unlock() && [backing, guitar, vocals].map(stem => gains.route(stem)).every(Boolean);
       setVolumeNote(routed ? '' : 'Äänenvoimakkuutta ei voi säätää tässä selaimessa. Käytä laitteen äänenvoimakkuuspainikkeita. ' + gains.lastError);
+      // iPhonen näytön lukitus voi pysäyttää renderöinnin niin, että tila on yhä 'running' (17.11.2026).
+      // Pysähtynyt konteksti käynnistetään uudelleen tästä painalluksesta ennen play()-kutsuja.
+      // Nopeat lisäpainallukset odottavat samaa palautusta, eivätkä aloita uutta.
+      if (routed && (gains.recovering || gains.clockState() === 'stalled')) recovery = gains.recover();
     }
     applyLevels();
     guitar.muted = !guitarOn;
     vocals.muted = !vocalsOn;
     syncStems(true);
     const request = ++playbackRequest.current;
+    if (recovery) {
+      const restored = await recovery;
+      // Uudempi painallus, tauko, versionvaihto tai sivun piilotus on ohittanut tämän pyynnön.
+      if (request !== playbackRequest.current) return;
+      if (!restored) {
+        const reason = mixer.current?.lastError;
+        setError('Ääni ei palautunut: Web Audio on pysähtynyt. Lataa sivu uudelleen.' + (reason ? ' ' + reason : ''));
+        return;
+      }
+    }
     try {
       // Kaikki käynnistyvät samalla käyttäjän painalluksella. Pois kytkettyä raitaa ei soiteta
       // mykistettynä: iPhonen Safari ei vie mykistettyä raitaa eteenpäin, eikä se ala kuulua,
@@ -220,15 +237,28 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
       // Reititetty raita kuuluu vain, kun Web Audio on käynnissä. Jos se jää pysähdyksiin, kerrotaan siitä.
       if (volumeMode === 'webaudio' && mixer.current?.routed(backing)) {
         const gains = mixer.current;
+        gains.observe();
         setTimeout(() => {
-          if (request === playbackRequest.current && gains.state !== 'running')
+          if (request !== playbackRequest.current) return;
+          if (gains.state !== 'running') {
             setError(`Ääni ei käynnistynyt (Web Audio: ${gains.state}). Pysäytä ja soita uudelleen.${gains.lastError ? ' ' + gains.lastError : ''}`);
+          } else if (gains.clockState() === 'stalled') {
+            // Tila on 'running', mutta kello ei edennyt toiston alun jälkeen: mitään ei kuulu.
+            // Toistoa ei jätetä näennäisesti soimaan. Seuraava painallus käynnistää kontekstin uudelleen.
+            pause();
+            setError('Ääni ei kulje: Web Audio on pysähtynyt. Paina Soita kappale uudelleen. Jos ääni ei palaa, lataa sivu uudelleen.');
+          }
         }, 800);
       }
-    } catch {
+    } catch (cause) {
       if (request !== playbackRequest.current) return;
       pause();
-      setError('Toisto epäonnistui. Tarkista, että valitun version kaikki kolme MP3-raitaa ovat paikallaan.');
+      // Palautuksen jälkeinen play() ei ole enää samassa tehtävässä kuin painallus. Jos iOS vaatii
+      // uuden painalluksen, konteksti on jo palautettu ja seuraava painallus soittaa heti.
+      const notAllowed = (cause as { name?: unknown } | null)?.name === 'NotAllowedError';
+      setError(recovery && notAllowed
+        ? 'Ääni palautettiin, mutta toisto vaatii uuden painalluksen. Paina Soita kappale uudelleen.'
+        : 'Toisto epäonnistui. Tarkista, että valitun version kaikki kolme MP3-raitaa ovat paikallaan.');
     }
   }
 
@@ -256,13 +286,15 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   }
 
   useEffect(() => {
-    const hide = () => {
-      if (!document.hidden) return;
-      pause();
+    const visibility = () => {
+      // Kellonäyte piilotus- ja paluuhetkeltä: lukituksen aikana pysähtynyt renderöinti näkyy
+      // seuraavassa Soita-painalluksessa, vaikka konteksti ilmoittaisi tilaksi 'running'.
+      mixer.current?.observe();
+      if (document.hidden) pause();
     };
-    document.addEventListener('visibilitychange', hide);
+    document.addEventListener('visibilitychange', visibility);
     return () => {
-      document.removeEventListener('visibilitychange', hide);
+      document.removeEventListener('visibilitychange', visibility);
       playbackRequest.current++;
       backingRef.current?.pause();
       guitarRef.current?.pause();
