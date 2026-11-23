@@ -73,7 +73,8 @@ Lähtöaineisto: suunnittelukeskustelussa hyväksytty
 - **Rajoitus:** B on hyväksytty ~35 kbit/s MP3. Sen komppi on samaa koodekkilaatua kuin kuunneltu vertailutiedosto
   (A vastaa alkuperäistä häviötöntä komppia noin 19 dB:n signaali-kohinasuhteella). Häviötöntä B-masteria ei ollut
   saatavilla. WAV-muunnos ei paranna eikä heikennä hyväksyttyä ääntä.
-- **Käyttöoikeus:** kuten M2/M3-demotaustat (yllä), omistajan vahvistettava ennen käyttöä testisivun ulkopuolella.
+- **Alkuperä:** omistaja vahvisti 23.11.2026, että B-säestys tehtiin itse projektia varten erillisessä ChatGPT-keskustelussa. MP3→WAV-ketju on dokumentoitu; alkuperäistä renderöintityökalua ja mahdollisia soitinäänikirjastoja ei ole vielä yksilöity.
+- **Käyttöoikeudet:** oman tuotannon vahvistus ei yksin osoita mahdollisten kolmannen osapuolen soitinäänten ehtoja. Selvitä lähde ja mahdolliset samplelisenssit ennen laajaa julkaisuhyväksyntää; ks. `RIGHTS-REVIEW.md`. Älä käsittele B:tä Suno-tuotoksena ilman näyttöä.
 
 
 ## M2: väliaikainen mallikitara ja yhteinen B-säestys (20.11.2026)
