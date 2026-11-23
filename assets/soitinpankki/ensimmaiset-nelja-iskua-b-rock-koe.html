@@ -30,12 +30,15 @@ async function decodeBacking(which){
   if(which!=='M2'&&which!=='M3') throw Error('Virheellinen harjoitustila');
   if(!testBackingFile) throw Error('Valitse ensin B-rock-WAV-tiedosto');
   if(testBackingBuffer) return testBackingBuffer;
+  const selectedFile=testBackingFile;
   msg('Tarkistetaan uuden säestyksen SHA-256 ja puretaan WAV…');
-  const data=await testBackingFile.arrayBuffer();
+  const data=await selectedFile.arrayBuffer();
+  if(selectedFile!==testBackingFile) throw Error('WAV-tiedosto vaihtui latauksen aikana');
   const sha=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',data)),v=>v.toString(16).padStart(2,'0')).join('');
   if(sha!==B_ROCK_SHA256) throw Error('Valittu WAV ei vastaa hyväksyttyä B-rock-kuuntelukandidaattia (SHA-256)');
   let b;try{b=await ac.decodeAudioData(data)}catch{throw Error('Valittu WAV ei purkautunut ääneksi')}
   if(Math.abs(b.duration-30.4)>.025) throw Error('Uuden säestyksen kesto poikkeaa 30,4 sekunnista');
+  if(selectedFile!==testBackingFile) throw Error('WAV-tiedosto vaihtui latauksen aikana');
   testBackingBuffer=b;
   return b;
 }
