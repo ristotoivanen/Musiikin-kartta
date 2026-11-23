@@ -1,7 +1,7 @@
 # #116, vaihe 2: Sävelkorva ja melodia – inventaario ja Ydinopinnot
 
 **Tila:** KATSELMOITAVA TOTEUTUS (Draft-PR). Ei omistajan pedagogista hyväksyntää, beta-yhdistämistä eikä julkaisua.
-**Päiväys:** 23.11.2026. **Lähtö-SHA:** `beta` @ `454aee5882346c1834a41ee6f786c6195680cb06`.
+**Päiväys:** 23.11.2026, versio 2 (riippumattoman pedagogisen auditoinnin jälkeen). **Lähtö-SHA:** `beta` @ `454aee5882346c1834a41ee6f786c6195680cb06`.
 **Haara:** `claude/116-savelkorva-ydinopinnot`.
 **Lähteet:** [#116](https://github.com/ristotoivanen/Musiikin-kartta/issues/116) ja sen omistajakommentit 19.–23.11.2026, [#115](https://github.com/ristotoivanen/Musiikin-kartta/issues/115), avoimen Draft-PR:n [#146](https://github.com/ristotoivanen/Musiikin-kartta/pull/146) inventaarioehdotus (`docs/oppiminen/sisaltoinventaario-115-2026-11-21.md`, ei betassa), [suunnittelu- ja PR-katselmointiohje](../suunnittelu/suunnittelu-ja-pr-katselmointi.md), Rytmin ja Sointujen hyväksytty Ydinopinnot-toteutus betassa.
 
@@ -10,8 +10,8 @@ Tämä dokumentti ei korvaa #115:n kanonista sisältöpäätöstä. Se kirjaa t�
 ## 1. Oppija, tavoite ja kulku (ohjeen §3)
 
 - **Kuka ja missä:** #138:n kohderyhmä: soittanut 1–2 vuotta, osaa avosoinnut ja yksinkertaisen kompin. Korvakuuloa, otelaudan säveliä tai teoriaa ei oleteta. Puhelin telineessä, kitara sylissä tai ilman kitaraa.
-- **Havaittava tavoite:** kuulee lyhyen melodian suunnan, kuulee, palaako melodia kotisäveleen, ja löytää kolmen sävelen kulun kitaralta G- ja B-kieleltä.
-- **Kulku:** aihesivu → Ydinopinnot (oletuksena suljettu, kuten Rytmissä ja Soinnuissa) → harjoitus avautuu kortin sisään tai omalle sivulleen → kuuntele → vastaa → palaute ja kuultu melodia näkyviin → kuuntele uudelleen tai uusi tehtävä → kokeile kitaralla → paluu.
+- **Havaittava tavoite:** kuulee 3–5 sävelen melodian suunnan, kuulee kahdesta lopusta valmiimman sävellajin tonaalisessa yhteydessä ja löytää 3–5 sävelen kulun kitaralta.
+- **Kulku:** aihesivu → Ydinopinnot (oletuksena suljettu, kuten Rytmissä ja Soinnuissa) → harjoitus avautuu kortin sisään tai omalle sivulleen → **Kuuntele → vastaa tai tapaile → palaute → Seuraava** (soi heti) → paluu. Ensimmäisessä näkymässä on otsikko, yksi ohjelause ja yksi painike (Kuuntele); muut toiminnot tulevat näkyviin vasta, kun niitä tarvitaan.
 - **Mitä tulos kertoo:** oikea vastaus kertoo vain, että tämän tehtävän vastaus oli oikein. Se ei todista yleistä sävelkorvaa eikä oikean kitaran soittotaitoa. ”Kokeiltu” on oppijan oma merkintä.
 
 ## 2. Nykyisten 14 sisällön inventaario
@@ -53,8 +53,8 @@ Ydinopinnot on omistajan 20.11. linjauksen mukaan lyhyt, opettava poikkileikkaus
 
 | Ehdotettu taito (toimeksianto) | Ratkaisu | Perustelu |
 |---|---|---|
-| Jatkuuko vai päättyykö melodia | **02** | Nykyinen sisältö 1–4 kuvaa ilmiön yhdellä äänitteellä. 02 antaa kahdeksan sokkotapausta ja vertailun. |
-| Melodian kotisävel | **02** (sama harjoitus) | Kotisävel kuullaan matalan G:n ja hyräilyn avulla; erillinen sävellajiharjoitus olisi päällekkäinen 3–4:n kanssa. |
+| Jatkuuko vai päättyykö melodia | **02** | Nykyinen sisältö 1–4 kuvaa ilmiön yhdellä äänitteellä. 02 antaa 16 vertailukierrosta (8 melodiaa × kaksi järjestystä), ensin tukiäänen kanssa ja sitten ilman. |
+| Melodian kotisävel | **02** (sama harjoitus) | Kotisävel esitellään kuuntelemalla (▶ Kotisävel G, tukiääni ensimmäisellä tasolla); erillinen sävellajiharjoitus olisi päällekkäinen 3–4:n kanssa. |
 | Nousu, lasku ja toistuva sävel | **01** | Ei opeteta missään. Perusta kaikelle melodian etsimiselle. |
 | Hyräile lyhyt kuvio | **01–03** ohjeissa | Sivu ei voi tarkistaa hyräilyä; se on ohjeistettu, ei arvioitu. |
 | Etsi sävelkulku oikealta kitaralta | **03** | Laajentaa sisällön 7 ideaa ja valmistaa Riffikaikuun. |
@@ -62,27 +62,39 @@ Ydinopinnot on omistajan 20.11. linjauksen mukaan lyhyt, opettava poikkileikkaus
 | Duuri/molli-sokkotunnistus | **Ei uutta** | Sointujen Ydinopinnot 02 tekee jo tämän. |
 | Basson kuuleminen | **Ei tässä vaiheessa** | Tärkeä (sisältö 9), mutta oma kokonaisuutensa. Ehdotetaan seuraavaksi syventäväksi kokonaisuudeksi (§8). |
 
-## 4. Harjoitukset
+## 4. Harjoitukset (versio 2)
+
+**Auditoinnin johtopäätös 23.11.:** hyvä perusta, mutta ensimmäiset harjoitukset olivat 1–2 vuotta soittaneelle liian helppoja, toistettavuus oli rajallinen (20 / 8 / 12 kiinteää tehtävää) ja 02:n selitys saattoi antaa virheellisen yleistyksen ”melodia on valmis vain kotisävelessä”. Versio 2 vastaa näihin.
 
 | | 01 Ylös, alas vai sama? | 02 Kotiin vai kesken? | 03 Kuule ja etsi kitaralta |
 |---|---|---|---|
-| **Tunniste** | `harjoitus:ylos-alas-vai-sama` | `harjoitus:kotiin-vai-kesken` | `harjoitus:kuule-ja-etsi-kitaralta` |
-| **Tavoite** | Kuulen, nouseeko melodia, laskeeko se vai toistuuko sama sävel. | Kuulen, palaako melodia kotisäveleen vai jääkö se kesken. | Löydän kuulemani kolmen sävelen kulun kitaralta. |
-| **Esimerkki** | 20 kolmen sävelen melodiaa, kaikki 8 suuntayhdistelmää (vähintään 2 kpl kustakin), ei puoliaskelia. | 4 G-duurimelodiaa × 2 loppua (koti G / kesken A, F♯ tai C). Matala G soi alussa kodin merkkinä. Erillinen ”Kuuntele kotisävel G”. | 12 kulkua, aina alkaen vapaalta G-kieleltä; sävelet viidestä paikasta (G0, G2, B0, B1, B3). |
-| **Tehtävä** | Valitse kummallekin siirtymälle ↑ / ↓ / =, sitten Tarkista. | Vastaa ”Palasi kotiin” tai ”Jäi kesken”. | Tapaile koko kulku G:stä alkaen kitaralla tai sivun paikoilla. Jokainen paikka soittaa sävelensä; kolme viimeksi soitettua näkyvät ja tarkistetaan. Aloitussäveltä ei täytetä valmiiksi (omistajan palaute 23.11.: valmis G häiritsi tapailua). |
-| **Palaute** | Kuullut sävelet, jokainen siirtymä sanoin (”Melodia nousi G:stä hypyllä B:hen”) ja kumpi kohta meni väärin. Kuultu melodia näkyy korkeuseroina, niminä ja kitaran paikkoina. | Mihin säveleen melodia pysähtyi ja miksi (aste, puoliaskel kodin alapuolella jne.). Molempien loppujen vertailu. | Mitkä kolmesta sävelestä osuivat, mikä kuului, siirtymän suunta ja koko sekä koko kulku kitaran paikkoina. |
-| **Toisto** | Kuuntele uudelleen; Uusi melodia (ei sama kahdesti peräkkäin). | Sama | Sama; väärät kokeilut eivät haittaa, koska vain kolme viimeisintä lasketaan. |
-| **Soveltaminen** | ⓘ askel/hyppy kitaralla. | ⓘ G vapaalta G-kieleltä ja e-kielen 3. nauhalta; F♯→G-nousu. | Kohta 3: soita kulku kitaralla ja hyräile; ⓘ suunnan käyttö etsinnässä, linkki Riffikaikuun. |
+| **Tunniste** (ennallaan) | `harjoitus:ylos-alas-vai-sama` | `harjoitus:kotiin-vai-kesken` | `harjoitus:kuule-ja-etsi-kitaralta` |
+| **Tavoite** | Kuulen 3–5 sävelen melodian jokaisen sävelvaihdon suunnan. | Kuulen, kumpi saman melodian kahdesta lopusta kuulostaa tässä valmiimmalta, ja miksi. | Löydän kuulemani 3–5 sävelen kulun kitaralta korvalla. |
+| **Esimerkit** | Sääntöpohjainen generaattori: tasolla 1 kolme säveltä ilman puoliaskelia, tasolla 2 neljä säveltä puoliaskelineen (B–C, F♯–G), tasolla 3 viisi säveltä sointusävelellä päättyen. Lähtösävel vaihtelee (G3–G4). Otoksessa 170 / 600 / 900 erilaista melodiaa. | 8 käsin kirjoitettua G-duurimelodiaa, kullakin koti-loppu (G) ja kesken-loppu (A, C, D tai F♯), 16 kierrosta (järjestys vaihtelee). Taso 1: matala G tukiäänenä; taso 2: ilman tukiääntä. | Generaattori: taso 1 kolme säveltä vapaalta G-kieleltä (5 paikkaa G/B), taso 2 kolme säveltä vaihtuvalla lähtösävelellä (8 paikkaa G/B/e), taso 3 neljä ja taso 4 viisi säveltä (10 paikkaa D/G/B/e). |
+| **Tehtävä** | Merkitse vaihdot ↑ / ↓ / = -näppäimillä (⌫ poistaa), Tarkista ilmestyy, kun kaikki on merkitty. | Kuuntele molemmat (soiva loppu korostuu), valitse Loppu 1 tai 2. Erikseen ▶ 1, ▶ 2 ja ▶ Kotisävel G. | Tapaile otelautaruudukossa (ohuin kieli ylimpänä kuten tabulatuurissa); viimeksi soitetut sävelet tarkistetaan. Vaihtoehtoisesti: soita oikealla kitaralla ja paina ”Soitin kitaralla – näytä ratkaisu”. |
+| **Palaute** | Lyhyt: ”Oikein! ↑ ↓ =” tai ”2/4 oikein. Vaihto 2: kuului ↓ alas, vastasit ↑ ylös.” Melodian muoto korkeuseroina ja nuolina, virhekohta ✗:llä. Sävelnimet ja kitaran paikat avattavissa. | ”Loppu 2 palaa kotisävel G:hen ja kuulostaa siksi tässä valmiimmalta. Loppu 1 jää A:han…”. Molempien loppujen sävelet. | ”3/4 oikein. Sävel 3: kuului A, soitit B.” Kulku kitaran paikkoina, virheellinen sävel ✗:llä. |
+| **Vaikeus** | Kaksi peräkkäistä oikeaa → seuraava taso; kaksi peräkkäistä virhettä → edellinen. Ei pisteitä, ei lukkoja; ensimmäinen tehtävä on aina helpoin. | Sama (tukiääni pois / takaisin). | Sama; ”näytä ratkaisu” ei vaikuta tasoon. |
+| **Soveltaminen** | ⓘ askel/hyppy kitaralla. | ⓘ F♯→G kitaralla. | Oikean kitaran polku ja ⓘ Riffikaiku. |
 
-Kaikissa: ”Uusi melodia” / ”Uusi sävelkulku” arpoo uuden tehtävän ja soittaa sen heti kerran saman painalluksen aikana (omistajan palaute 23.11.). Vastaaminen avautuu vasta, kun kuuntelu on onnistuneesti alkanut. Vastaus pysyy vain JavaScriptin muistissa; sivulla, saavutettavissa nimissä ja data-attribuuteissa sitä ei ole ennen vastaamista. Vastauksen jälkeen valinnat lukittuvat kyseiseltä kierrokselta. Tilaviestit käyttävät `role="status"`-aluetta; fokusta ei siirretä.
+**Kaikissa:** vain Kuuntele näkyy aluksi; tehtävä ilmestyy, kun ääni on alkanut soida. Sama painike pysäyttää (■ Pysäytä). Seuraava arpoo uuden tehtävän (ei sama kahdesti peräkkäin) ja soittaa sen heti saman painalluksen aikana. Vastaus pysyy vain JavaScriptin muistissa ennen tarkistusta. Vastauksen jälkeen valinnat lukitaan `aria-disabled`-tilaan, jotta näppäimistöfokus ei putoa. Tavallinen soitto ei tuota tilaviestejä; vain lataus (jos kestää), keskeytys ja virheet kerrotaan.
+
+### Melodioiden säännöt (01 ja 03)
+
+Liike asteikon askelina (askel yleisin, hypyt enintään kvintti), enintään yksi toistettu sävel, ei tritonusta (C–F♯), kvartin tai kvintin hypyn jälkeen askel takaisin vastakkaiseen suuntaan, kaksi samansuuntaista hyppyä vain murtosointuna (enintään seksti, esim. G–B–D), pidemmässä melodiassa suunta vaihtuu vähintään kerran. Vitest tarkistaa säännöt 1 500 melodian otoksella tasoa kohden.
+
+### 02:n musiikillinen tarkistus
+
+Kaikissa kahdeksassa melodiassa on C, joka erottaa G-duurin D-duurista, ja osassa myös F♯, joka erottaa sen C-duurista. Loput valittiin niin, että koti-G on valmiimpi myös silloin, jos kuulija hahmottaisi C-duurin (A, C, D ja F♯ eivät ole kummassakaan tulkinnassa vakaampia kuin G). E-loppuja vältettiin (voi kuulostaa e-mollin kodilta), samoin B-loppuja (G-soinnun terssi, liian vakaa reiluun vertailuun). Edellisen version melodia 3 (kesken-loppu C, joka C-duurina kuultuna voisi tuntua kodilta) korvattiin D-lopulla. Teksti ei väitä yleissääntöä; ”Mitä opit?” kertoo, ettei kaikki musiikki pääty kotisäveleen.
+
+**Tukiääni:** matala G auttaa ensimmäisissä tehtävissä hahmottamaan kodin, mutta sen kanssa tehtävä voi muuttua bassoon vertaamiseksi. Siksi se jää pois kahden peräkkäisen oikean vastauksen jälkeen. Ilman tukiääntä melodian oma tonaalinen yhteys ratkaisee.
 
 ## 5. Äänet
 
 - **Lähde:** betassa jo olevat Meta Open Sound · Meta Steel Guitar -kielinäytteet (`assets/audio/soinnut/`, CC0 1.0, [LAHTEET.md](../../assets/audio/soinnut/LAHTEET.md)). **Ei uusia äänitiedostoja eikä ulkopuolista aineistoa.**
-- **Vastaavuus:** jokainen näkyvä paikka soi juuri sillä kielellä äänitetystä näytteestä, ilman transponointia: G3 = G-kieli vapaa, A3 = G-kieli 2, B3 = B-kieli vapaa, C4 = B-kieli 1, D4 = B-kieli 3, E4 = ohut e vapaa, F♯4 = ohut e 2, G4 = ohut e 3, matala G2 = paksu E 3. Vitest tarkistaa MIDI-korkeuden, nimen, kielen ja tiedoston vastaavuuden.
-- **Ajoitus:** 01: 0,70 s välein, viimeinen 1,3 s. 02: 0,45 s välein, viimeinen 1,8 s, matala G enintään 4,8 s. 03: 0,75 s välein. Kaikki mahtuvat 5,0 s:n näytteisiin.
+- **Vastaavuus:** jokainen näkyvä paikka soi juuri sillä kielellä äänitetystä näytteestä, ilman transponointia: D3 = D-kieli vapaa, E3 = D-kieli 2, G3 = G-kieli vapaa, A3 = G-kieli 2, B3 = B-kieli vapaa, C4 = B-kieli 1, D4 = B-kieli 3, E4 = ohut e vapaa, F♯4 = ohut e 2, G4 = ohut e 3, matala G2 = paksu E 3. Vitest tarkistaa MIDI-korkeuden, nimen, kielen ja tiedoston vastaavuuden.
+- **Ajoitus:** 01: 0,62 s välein, viimeinen 1,2 s (viisi säveltä ≈ 3,7 s). 02: 0,45 s välein, viimeinen 1,6 s, matala G enintään 4,8 s; molemmat loput peräkkäin 0,9 s:n tauolla (≈ 9–10 s). 03: 0,70 s välein. Jokainen yksittäinen sävel mahtuu 5,0 s:n näytteeseen. F♯3 (D-kielen 4. nauha) puuttuu näytteistä, joten sitä ei käytetä; uusia näytteitä ei tuotu.
 - **Toteutus:** oma pieni sivukohtainen soitin `assets/melodia-ydinopinnot.js` (sama malli kuin Sointujen soitin: AAC/OGG-varamuoto, lataus kerran, 25 ms:n häivytys pysäytyksessä). **Yhteistä äänimoottoria, Sointujen soitinta, iPhone-diagnostiikkaa tai muiden harjoitusten äänilogiikkaa ei muutettu.**
-- **Melodiat:** tätä työtä varten kirjoitettuja lyhyitä G-duurikulkuja; ei lainattuja sävellyksiä.
+- **Melodiat:** 02:n melodiat on kirjoitettu tätä työtä varten; 01:n ja 03:n melodiat syntyvät generaattorista. Ei lainattuja sävellyksiä.
 - **Ei kuunneltu:** äänenlaatua, voimakkuusbalanssia (melodia 0,40–0,42, matala G 0,20) eikä toistoa puhelimen kaiuttimella ole aidosti kuunneltu. Automaattitestit todentavat ajoituksen ja tiedostot, eivät kuultua laatua.
 
 ## 6. Aihesivun rakenne ja säilyvyys
@@ -97,8 +109,8 @@ Kaikissa: ”Uusi melodia” / ”Uusi sävelkulku” arpoo uuden tehtävän ja 
 
 1. **Pedagoginen hyväksyntä** kolmelle harjoitukselle, otsikoille ja aiheen uudelle johdannolle.
 2. **Aiempien 14 alaryhmien nimet** sekä §2:n säilytä/tiivistä/yhdistä-ehdotukset (#115:n päätöksiä; mitään ei piilotettu).
-3. **Fyysinen iPhone/Safari-kuuntelu** (DEVICE-1, AUDIO-2): melodian ja matalan G:n balanssi, 0,45 s:n tempo 02:ssa ja kotiloppujen selkeys.
-4. Onko **matala G** 02:ssa hyvä kodin vihje, vai pitäisikö kodin kuulua pelkästä melodiasta? Pelkässä melodiassa ilman säestystä kotisävel voi jäädä monitulkintaiseksi; siksi valittiin taustasävel.
+3. **Fyysinen iPhone/Safari-kuuntelu** (DEVICE-1, AUDIO-2): melodian ja matalan G:n balanssi, 02:n 0,45 s:n tempo ja noin 10 s:n ”molemmat loput” -kesto, sekä onko jokaisen kahdeksan melodian koti-loppu korvalla selvästi valmiimpi myös ilman tukiääntä.
+4. **Tasonvaihdon raja** (kaksi oikeaa / kaksi väärää) ja se, että taso nollautuu sivun latauksessa (ei tallenneta). Kokeillaan käyttäjätestissä.
 5. Seuraava syventävä kokonaisuus (§8) erillisenä vaiheena.
 
 ## 8. Ehdotettu jatko (ei toteutettu)

@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="../../book/reader.css?v=65711fca9c">
   <link rel="stylesheet" href="../../assets/paavalikko.css?v=4e5c7fbf95">
   <link rel="stylesheet" href="../../assets/oppi.css?v=8a69bdc0e8">
-  <link rel="stylesheet" href="../../assets/melodia-ydinopinnot.css?v=671b0dcd56">
+  <link rel="stylesheet" href="../../assets/melodia-ydinopinnot.css?v=279b8659b3">
   <link rel="stylesheet" href="../../assets/kokonaisuudet.css?v=db6d10a623">
 </head>
 <body>
@@ -19,47 +19,35 @@
     </nav>
     <h1 class="study-focus-title">Kuule ja etsi kitaralta</h1>
     <section class="practice melodia-ydin study-knoppi-host" data-melodiaharjoitus="etsi" aria-labelledby="melodia-etsi-otsikko">
-      <h2 id="melodia-etsi-otsikko">1 · Kuuntele ja hyräile</h2>
-      <p>Kuulet kolmen sävelen kulun. Se alkaa aina <strong>G:stä eli vapaalta G-kieleltä</strong>. Hyräile kulku perässä. Mieti, nouseeko vai laskeeko melodia ja liikkuuko se askelin vai hypyin.</p>
+      <h2 id="melodia-etsi-otsikko">Kuule ja etsi sävelkulku</h2>
+      <p class="melodia-ohje">Kuuntele, hyräile ja tapaile sävelet kitaralta tai alla olevista paikoista.</p>
       <div class="melodia-toiminnot" data-melodia-ohjaimet hidden>
-        <button type="button" class="melodia-ensisijainen" data-melodia-kuuntele><span aria-hidden="true">▶</span> Kuuntele sävelkulku</button>
-        <button type="button" data-melodia-uusi>Uusi sävelkulku</button>
+        <button type="button" class="melodia-ensisijainen" data-melodia-kuuntele><span aria-hidden="true">▶</span> Kuuntele</button>
       </div>
       <p class="melodia-tila" data-melodia-tila role="status" aria-live="polite">Ääniesimerkki tarvitsee JavaScriptin ja selaimen äänituen.</p>
-      <h3>2 · Etsi sävelet kitaralta</h3>
-      <p>Ota kitara ja tapaile kulku alusta loppuun. Kaikki sävelet löytyvät G- ja B-kieleltä kolmen ensimmäisen nauhan alueelta. Voit tapailla myös alla olevilla paikoilla: jokainen painallus soittaa sävelen, ja kolme viimeksi soitettua näkyvät listassa. Kun soittamasi kulku kuulostaa samalta kuin esimerkki, paina Tarkista.</p>
-      <div class="melodia-tehtava" data-melodia-ohjaimet hidden>
-        <h3 class="melodia-vastaus-otsikko">Kolme viimeksi soittamaasi säveltä</h3>
-        <ol class="melodia-vastaus" aria-label="Kolme viimeksi soittamaasi säveltä">
-          <li><span class="melodia-vastaus-nro">1</span> <span data-etsi-vastaus>ei vielä soitettu</span></li>
-          <li><span class="melodia-vastaus-nro">2</span> <span data-etsi-vastaus>ei vielä soitettu</span></li>
-          <li><span class="melodia-vastaus-nro">3</span> <span data-etsi-vastaus>ei vielä soitettu</span></li>
-        </ol>
-        <fieldset class="melodia-otelauta" data-etsi-paikat disabled>
-          <legend>Kitaran paikat matalimmasta korkeimpaan</legend>
-          <button type="button" data-paikka="G3"><strong>G</strong> <span>G-kieli, vapaa</span></button>
-          <button type="button" data-paikka="A3"><strong>A</strong> <span>G-kieli, 2. nauha</span></button>
-          <button type="button" data-paikka="B3"><strong>B</strong> <span>B-kieli, vapaa</span></button>
-          <button type="button" data-paikka="C4"><strong>C</strong> <span>B-kieli, 1. nauha</span></button>
-          <button type="button" data-paikka="D4"><strong>D</strong> <span>B-kieli, 3. nauha</span></button>
-        </fieldset>
+      <div class="melodia-tehtava" data-melodia-tehtava hidden>
+        <p class="melodia-taso" data-melodia-taso></p>
+        <div class="melodia-otelauta" data-etsi-paikat role="group" aria-label="Kitaran paikat: painallus soittaa sävelen"></div>
+        <p class="melodia-pieni">Viimeksi soitetut:</p>
+        <ol class="melodia-paikat" data-etsi-vastaus aria-label="Viimeksi soitetut sävelet"></ol>
         <div class="melodia-toiminnot">
-          <button type="button" data-melodia-tarkista disabled>Tarkista</button>
+          <button type="button" class="melodia-ensisijainen" data-melodia-tarkista hidden>Tarkista</button>
+          <button type="button" data-etsi-ratkaisu>Soitin kitaralla – näytä ratkaisu</button>
         </div>
         <p class="melodia-palaute" data-melodia-palaute role="status" aria-live="polite"></p>
+        <p class="melodia-seuraava-rivi"><button type="button" class="melodia-ensisijainen" data-melodia-seuraava>Seuraava sävelkulku <span aria-hidden="true">→</span></button></p>
         <div class="melodia-kaari" data-melodia-kaari hidden>
-          <h3>Kuulemasi sävelkulku</h3>
-          <ol aria-label="Kuulemasi sävelkulun sävelet"></ol>
+          <h3>Sävelkulku kitaralla</h3>
+          <ol data-melodia-muoto aria-label="Kuulemasi sävelkulku kitaralla"></ol>
         </div>
       </div>
-      <h3>3 · Soita oikealla kitaralla</h3>
-      <p>Soita kulku kitaralla kaksi kertaa ja hyräile mukana. Sivu ei kuule soittoasi: oma korvasi kertoo, kuulostaako soittamasi samalta kuin esimerkki.</p>
       <details class="study-knoppi">
-        <summary><svg class="study-knoppi-merkki" aria-hidden="true" focusable="false"><use href="../../assets/oppimisikonit.svg#extra-info"/></svg><span class="study-sr">Lisätieto: Etsi ensin suunta</span></summary>
+        <summary><svg class="study-knoppi-merkki" aria-hidden="true" focusable="false"><use href="../../assets/oppimisikonit.svg#extra-info"/></svg><span class="study-sr">Lisätieto: Näin tapailet</span></summary>
         <div class="study-knoppi-sisalto">
-          <h3>Etsi ensin suunta</h3>
-          <p>Jos sävelkulku nousee, etsi seuraavaa säveltä ylempää nauhaa tai ohuemmalta kieleltä. Jos se laskee, siirry alemmas. Vapaa B-kieli soi saman B:n kuin G-kielen 4. nauha, joten G-kieleltä kannattaa siirtyä B-kielelle jo 2. nauhan jälkeen.</p>
-          <p>Pidemmän, neljän sävelen riffin voit matkia <a href="../../riffikaiku.html?tila=harjoitus&amp;aihe=aihe-korva">Riffikaiussa</a>. Siellä mikrofoni voi kuunnella soittoasi, jos haluat.</p>
+          <h3>Näin tapailet</h3>
+          <p>Kokeile vapaasti: jokainen painallus soittaa sävelen, ja Tarkista vertaa viimeksi soittamiasi säveliä kuultuun kulkuun. Väärät kokeilut matkalla eivät haittaa.</p>
+          <p>Jos harjoittelet oikealla kitaralla, etsi kulku ensin itse ja katso sitten ratkaisu. Ensimmäiset kulut alkavat vapaalta G-kieleltä. Myöhemmin lähtösävel vaihtelee, kulut pitenevät ja mukaan tulevat D- ja ohut e-kieli.</p>
+          <p>Neljän sävelen riffejä voit matkia myös <a href="../../riffikaiku.html?tila=harjoitus&amp;aihe=aihe-korva">Riffikaiussa</a>.</p>
         </div>
       </details>
     </section>
@@ -67,7 +55,7 @@
       <h2>Mitä opit?</h2>
       <p>Kuulemasi melodian voi löytää kitaralta korvalla: hyräile, päättele suunta ja askelen koko ja kokeile sitten nauhoja. Oikein tapaillut paikat kertovat, että löysit tämän sävelkulun. Oikealla kitaralla soittaminen on erillinen taito, jota tämä sivu ei mittaa.</p>
     </section>
-    <p class="melodia-huomautus">Harjoittelu on vapaaehtoista. Sivu ei kuuntele omaa soittoasi tai hyräilyäsi. ”Kokeiltu” ei ole osaamistesti.</p>
+    <p class="melodia-huomautus">Harjoittelu on vapaaehtoista. Sivu ei kuuntele omaa soittoasi tai hyräilyäsi. Oikea vastaus koskee vain kyseistä tehtävää. ”Kokeiltu” ei ole osaamistesti.</p>
     <p class="melodia-lahde">Ääninäytteet: <a href="https://github.com/facebookincubator/Meta-open-sound">Meta Open Sound · Meta Steel Guitar</a>, CC0 1.0.</p>
     <p class="done-row"><button type="button" class="done-toggle" aria-pressed="false" disabled>Merkitse kokeilluksi</button></p>
   </main>
@@ -75,6 +63,6 @@
   <script src="../../assets/edistyminen.js?v=39bccb10a6"></script>
   <script src="../../assets/oppimistapa.js"></script>
   <script src="../../assets/kokonaisuudet.js?v=326aed1a00"></script>
-  <script type="module" src="../../assets/melodia-ydinopinnot.js?v=932b81f75f"></script>
+  <script type="module" src="../../assets/melodia-ydinopinnot.js?v=093fe36b7a"></script>
 </body>
 </html>

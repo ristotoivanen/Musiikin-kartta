@@ -156,22 +156,22 @@
           "inline": true,
           "back": "unit",
           "last": "start",
-          "goal": "Kolme lyhyttä kuuntelutehtävää: melodian suunta, kotisävel ja sävelkulku kitaralla. Etene haluamassasi järjestyksessä. ”Kokeiltu” ei ole osaamistesti.",
+          "goal": "Kolme kuuntelutehtävää: melodian suunta, melodian loppu ja sävelkulku kitaralla. Tehtävät pitenevät, kun onnistut. Etene haluamassasi järjestyksessä. ”Kokeiltu” ei ole osaamistesti.",
           "lessons": [
             {
               "standalone": "ylos-alas-vai-sama",
               "title": "Ylös, alas vai sama?",
-              "goal": "Melodian suunta korvalla"
+              "goal": "Melodian suunta, 3–5 säveltä"
             },
             {
               "standalone": "kotiin-vai-kesken",
               "title": "Kotiin vai kesken?",
-              "goal": "Kotisävel ja melodian loppu"
+              "goal": "Kumpi loppu kuulostaa valmiimmalta?"
             },
             {
               "standalone": "kuule-ja-etsi-kitaralta",
               "title": "Kuule ja etsi kitaralta",
-              "goal": "Kolme säveltä G- ja B-kieleltä"
+              "goal": "Tapaile 3–5 säveltä kitaralta"
             }
           ]
         },

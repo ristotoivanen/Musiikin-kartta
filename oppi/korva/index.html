@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="../../book/reader.css?v=65711fca9c">
   <link rel="stylesheet" href="../../assets/paavalikko.css?v=4e5c7fbf95">
   <link rel="stylesheet" href="../../assets/oppi.css?v=8a69bdc0e8">
-  <link rel="stylesheet" href="../../assets/melodia-ydinopinnot.css?v=671b0dcd56">
+  <link rel="stylesheet" href="../../assets/melodia-ydinopinnot.css?v=279b8659b3">
   <link rel="stylesheet" href="../../assets/kokonaisuudet.css?v=db6d10a623">
 </head>
 <body>
@@ -35,58 +35,54 @@
       <details class="study-unit" id="ydinopinnot">
         <summary><span class="study-unit-title">Ydinopinnot</span><span class="study-unit-count">3 sisältöä</span><span class="study-status study-unit-progress" data-unit-progress data-unit-attempts hidden></span></summary>
         <div class="study-unit-body">
-          <p class="study-unit-goal">Kolme lyhyttä kuuntelutehtävää: melodian suunta, kotisävel ja sävelkulku kitaralla. Etene haluamassasi järjestyksessä. ”Kokeiltu” ei ole osaamistesti.</p>
+          <p class="study-unit-goal">Kolme kuuntelutehtävää: melodian suunta, melodian loppu ja sävelkulku kitaralla. Tehtävät pitenevät, kun onnistut. Etene haluamassasi järjestyksessä. ”Kokeiltu” ei ole osaamistesti.</p>
           <p class="study-start">Aloita tästä</p>
           <ol class="study-choices study-inline-choices" role="list">
             <li><details class="study-inline" name="ydinopinnot-harjoitukset" data-study-item="harjoitus:ylos-alas-vai-sama" data-study-kind="harjoitus" data-study-mark="kokeiltu">
-              <summary class="study-choice study-choice--unit" id="valinta-ylos-alas-vai-sama"><span class="study-number" aria-hidden="true">01</span><strong class="study-title">Ylös, alas vai sama?</strong><span class="study-choice-details"><span class="study-description">Melodian suunta korvalla</span><span data-study-attempt-status="harjoitus:ylos-alas-vai-sama" class="study-status" hidden></span></span><span class="study-arrow" aria-hidden="true"></span></summary>
+              <summary class="study-choice study-choice--unit" id="valinta-ylos-alas-vai-sama"><span class="study-number" aria-hidden="true">01</span><strong class="study-title">Ylös, alas vai sama?</strong><span class="study-choice-details"><span class="study-description">Melodian suunta, 3–5 säveltä</span><span data-study-attempt-status="harjoitus:ylos-alas-vai-sama" class="study-status" hidden></span></span><span class="study-arrow" aria-hidden="true"></span></summary>
               <div class="study-inline-body">
                 <section class="practice melodia-ydin study-knoppi-host" data-melodiaharjoitus="suunta" aria-labelledby="melodia-suunta-otsikko">
-                  <h2 id="melodia-suunta-otsikko">1 · Kuuntele kolme säveltä</h2>
-                  <p>Melodia liikkuu sävelestä toiseen. Se voi <strong>nousta</strong> ylemmäs, <strong>laskea</strong> alemmas tai <strong>pysyä</strong> samassa sävelessä. Kuuntele kolmen sävelen melodia ja seuraa, mihin suuntaan se liikkuu.</p>
+                  <h2 id="melodia-suunta-otsikko">Mihin suuntaan melodia liikkuu?</h2>
+                  <p class="melodia-ohje">Kuuntele ja merkitse jokainen sävelvaihto: ylös, alas vai sama sävel.</p>
                   <div class="melodia-toiminnot" data-melodia-ohjaimet hidden>
-                    <button type="button" class="melodia-ensisijainen" data-melodia-kuuntele><span aria-hidden="true">▶</span> Kuuntele melodia</button>
-                    <button type="button" data-melodia-uusi>Uusi melodia</button>
+                    <button type="button" class="melodia-ensisijainen" data-melodia-kuuntele><span aria-hidden="true">▶</span> Kuuntele</button>
                   </div>
                   <p class="melodia-tila" data-melodia-tila role="status" aria-live="polite">Ääniesimerkki tarvitsee JavaScriptin ja selaimen äänituen.</p>
-                  <div class="melodia-tehtava" data-melodia-ohjaimet hidden>
-                    <h3>2 · Mihin suuntaan melodia liikkui?</h3>
-                    <p class="melodia-ohje">Vastaa kumpaankin kohtaan. Voit kuunnella uudelleen niin monta kertaa kuin haluat, ja hyräillä hiljaa mukana.</p>
-                    <fieldset class="melodia-valinnat" data-suunta-vaihe="0" disabled>
-                      <legend>Sävelestä 1 säveleen 2</legend>
-                      <button type="button" data-suunta="ylos" aria-pressed="false"><span aria-hidden="true">↑</span> Ylös</button>
-                      <button type="button" data-suunta="alas" aria-pressed="false"><span aria-hidden="true">↓</span> Alas</button>
-                      <button type="button" data-suunta="sama" aria-pressed="false"><span aria-hidden="true">=</span> Sama sävel</button>
-                    </fieldset>
-                    <fieldset class="melodia-valinnat" data-suunta-vaihe="1" disabled>
-                      <legend>Sävelestä 2 säveleen 3</legend>
-                      <button type="button" data-suunta="ylos" aria-pressed="false"><span aria-hidden="true">↑</span> Ylös</button>
-                      <button type="button" data-suunta="alas" aria-pressed="false"><span aria-hidden="true">↓</span> Alas</button>
-                      <button type="button" data-suunta="sama" aria-pressed="false"><span aria-hidden="true">=</span> Sama sävel</button>
-                    </fieldset>
-                    <div class="melodia-toiminnot">
-                      <button type="button" data-melodia-tarkista disabled>Tarkista</button>
+                  <div class="melodia-tehtava" data-melodia-tehtava hidden>
+                    <p class="melodia-taso" data-melodia-taso></p>
+                    <ol class="melodia-paikat" data-suunta-vastaus aria-label="Vastauksesi"></ol>
+                    <div class="melodia-napit melodia-suuntanapit" role="group" aria-label="Seuraavan sävelvaihdon suunta">
+                      <button type="button" data-suunta="ylos"><span aria-hidden="true">↑</span> <span>Ylös</span></button>
+                      <button type="button" data-suunta="alas"><span aria-hidden="true">↓</span> <span>Alas</span></button>
+                      <button type="button" data-suunta="sama"><span aria-hidden="true">=</span> <span>Sama</span></button>
+                      <button type="button" data-suunta-poista aria-label="Poista viimeisin"><span aria-hidden="true">⌫</span> <span aria-hidden="true">Poista</span></button>
                     </div>
+                    <button type="button" class="melodia-ensisijainen" data-melodia-tarkista hidden>Tarkista</button>
                     <p class="melodia-palaute" data-melodia-palaute role="status" aria-live="polite"></p>
+                    <p class="melodia-seuraava-rivi"><button type="button" class="melodia-ensisijainen" data-melodia-seuraava>Seuraava melodia <span aria-hidden="true">→</span></button></p>
                     <div class="melodia-kaari" data-melodia-kaari hidden>
-                      <h3>Kuulemasi melodia</h3>
-                      <ol aria-label="Kuulemasi melodian sävelet"></ol>
+                      <h3>Melodian muoto</h3>
+                      <ol data-melodia-muoto aria-label="Kuulemasi melodian muoto"></ol>
+                      <details class="melodia-lisa">
+                        <summary>Näytä sävelet ja kitaran paikat</summary>
+                        <ol data-melodia-savelet></ol>
+                      </details>
                     </div>
                   </div>
                   <details class="study-knoppi">
                     <summary><svg class="study-knoppi-merkki" aria-hidden="true" focusable="false"><use href="../../assets/oppimisikonit.svg#extra-info"/></svg><span class="study-sr">Lisätieto: Askel vai hyppy?</span></summary>
                     <div class="study-knoppi-sisalto">
                       <h3>Askel vai hyppy?</h3>
-                      <p>Suunnan lisäksi melodia liikkuu joko <strong>askelin</strong> viereiseen säveleen tai <strong>hypyin</strong> kauemmas. Kitaralla askel on yleensä yhden tai kahden nauhan matka samalla kielellä, hyppy vie usein toiselle kielelle.</p>
-                      <p>Kokeile: soita vapaa G-kieli ja G-kielen 2. nauha (askel ylös). Soita sitten vapaa G-kieli ja B-kielen 3. nauha (hyppy ylös).</p>
+                      <p>Ensimmäiset melodiat ovat lyhyitä. Kun vastaat kahdesti peräkkäin oikein, melodiat pitenevät ja mukaan tulee puoliaskelia, kuten B–C.</p>
+                      <p>Askel vie viereiseen säveleen, hyppy kauemmas. Kokeile kitaralla: vapaa G-kieli ja G-kielen 2. nauha (askel ylös), sitten vapaa G-kieli ja B-kielen 3. nauha (hyppy ylös).</p>
                     </div>
                   </details>
                 </section>
                 <section class="note">
                   <h2>Mitä opit?</h2>
-                  <p>Melodian suunta on sävelkorvan ensimmäinen kiintopiste. Kun kuulet, nouseeko melodia, laskeeko se vai toistuuko sama sävel, tiedät jo, mihin suuntaan sitä kannattaa etsiä kitaralta. Yksittäinen oikea vastaus kertoo tästä tehtävästä, ei vielä koko sävelkorvasta. Kokeile useampaa melodiaa.</p>
+                  <p>Melodian suunta on sävelkorvan ensimmäinen kiintopiste. Kun kuulet, nouseeko melodia, laskeeko se vai toistuuko sama sävel, tiedät, mihin suuntaan sitä kannattaa etsiä kitaralta. Melodiat arvotaan joka kerta uudelleen, joten vastauksia ei voi opetella ulkoa.</p>
                 </section>
-                <p class="melodia-huomautus">Harjoittelu on vapaaehtoista. Sivu ei kuuntele omaa soittoasi tai hyräilyäsi. ”Kokeiltu” ei ole osaamistesti.</p>
+                <p class="melodia-huomautus">Harjoittelu on vapaaehtoista. Sivu ei kuuntele omaa soittoasi tai hyräilyäsi. Oikea vastaus koskee vain kyseistä tehtävää. ”Kokeiltu” ei ole osaamistesti.</p>
                 <p class="melodia-lahde">Ääninäytteet: <a href="https://github.com/facebookincubator/Meta-open-sound">Meta Open Sound · Meta Steel Guitar</a>, CC0 1.0.</p>
                 <p class="done-row"><button type="button" class="done-toggle" aria-pressed="false" disabled>Merkitse kokeilluksi</button></p>
                 <p class="study-inline-link"><a href="ylos-alas-vai-sama.html" data-return-topic="valinta-ylos-alas-vai-sama">Avaa omalla sivullaan</a></p>
@@ -94,51 +90,47 @@
               </div>
             </details></li>
             <li><details class="study-inline" name="ydinopinnot-harjoitukset" data-study-item="harjoitus:kotiin-vai-kesken" data-study-kind="harjoitus" data-study-mark="kokeiltu">
-              <summary class="study-choice study-choice--unit" id="valinta-kotiin-vai-kesken"><span class="study-number" aria-hidden="true">02</span><strong class="study-title">Kotiin vai kesken?</strong><span class="study-choice-details"><span class="study-description">Kotisävel ja melodian loppu</span><span data-study-attempt-status="harjoitus:kotiin-vai-kesken" class="study-status" hidden></span></span><span class="study-arrow" aria-hidden="true"></span></summary>
+              <summary class="study-choice study-choice--unit" id="valinta-kotiin-vai-kesken"><span class="study-number" aria-hidden="true">02</span><strong class="study-title">Kotiin vai kesken?</strong><span class="study-choice-details"><span class="study-description">Kumpi loppu kuulostaa valmiimmalta?</span><span data-study-attempt-status="harjoitus:kotiin-vai-kesken" class="study-status" hidden></span></span><span class="study-arrow" aria-hidden="true"></span></summary>
               <div class="study-inline-body">
                 <section class="practice melodia-ydin study-knoppi-host" data-melodiaharjoitus="koti" aria-labelledby="melodia-koti-otsikko">
-                  <h2 id="melodia-koti-otsikko">1 · Kuuntele kotisävel</h2>
-                  <p><strong>Kotisävel</strong> on sävel, johon melodia voi palata ja jäädä lepäämään. Tämän harjoituksen melodioissa kotisävel on <strong>G</strong>. Kuuntele se ja hyräile perässä.</p>
+                  <h2 id="melodia-koti-otsikko">Kumpi loppu kuulostaa valmiimmalta?</h2>
+                  <p class="melodia-ohje">Kuulet saman melodian kahdesti eri lopulla. Valitse, kumpi loppu tuntuu tässä päättyneemmältä.</p>
                   <div class="melodia-toiminnot" data-melodia-ohjaimet hidden>
-                    <button type="button" data-koti-savel><span aria-hidden="true">▶</span> Kuuntele kotisävel G</button>
-                  </div>
-                  <h3>2 · Kotiin vai kesken?</h3>
-                  <p>Jokaisen melodian alussa soi matala G kodin merkkinä. Kuuntele melodia loppuun. Palasiko se kotisäveleen vai jäikö kesken odottamaan jatkoa? Hyräile viimeinen sävel ja vertaa sitä kotisäveleen.</p>
-                  <div class="melodia-toiminnot" data-melodia-ohjaimet hidden>
-                    <button type="button" class="melodia-ensisijainen" data-melodia-kuuntele><span aria-hidden="true">▶</span> Kuuntele melodia</button>
-                    <button type="button" data-melodia-uusi>Uusi melodia</button>
+                    <button type="button" class="melodia-ensisijainen" data-melodia-kuuntele><span aria-hidden="true">▶</span> Kuuntele molemmat</button>
                   </div>
                   <p class="melodia-tila" data-melodia-tila role="status" aria-live="polite">Ääniesimerkki tarvitsee JavaScriptin ja selaimen äänituen.</p>
-                  <div class="melodia-tehtava" data-melodia-ohjaimet hidden>
-                    <fieldset class="melodia-valinnat" data-koti-vastaus disabled>
-                      <legend>Miten melodia päättyi?</legend>
-                      <button type="button" data-koti="koti" aria-pressed="false">Palasi kotiin</button>
-                      <button type="button" data-koti="kesken" aria-pressed="false">Jäi kesken</button>
-                    </fieldset>
-                    <p class="melodia-palaute" data-melodia-palaute role="status" aria-live="polite"></p>
-                    <div class="melodia-toiminnot" data-koti-vertailu role="group" aria-label="Vertaa saman melodian kahta loppua" hidden>
-                      <button type="button" data-koti-vertaa="koti"><span aria-hidden="true">▶</span> Kotiin päättyvä loppu</button>
-                      <button type="button" data-koti-vertaa="kesken"><span aria-hidden="true">▶</span> Kesken jäävä loppu</button>
+                  <div class="melodia-tehtava" data-melodia-tehtava hidden>
+                    <p class="melodia-taso" data-melodia-taso></p>
+                    <div class="melodia-napit melodia-loput" role="group" aria-label="Kumpi loppu on valmiimpi?">
+                      <button type="button" data-loppu="0" aria-pressed="false">Loppu 1</button>
+                      <button type="button" data-loppu="1" aria-pressed="false">Loppu 2</button>
                     </div>
+                    <div class="melodia-toiminnot melodia-toissijaiset" role="group" aria-label="Kuuntele erikseen">
+                      <button type="button" data-loppu-kuuntele="0"><span aria-hidden="true">▶</span> 1</button>
+                      <button type="button" data-loppu-kuuntele="1"><span aria-hidden="true">▶</span> 2</button>
+                      <button type="button" data-koti-savel><span aria-hidden="true">▶</span> Kotisävel G</button>
+                    </div>
+                    <p class="melodia-palaute" data-melodia-palaute role="status" aria-live="polite"></p>
+                    <p class="melodia-seuraava-rivi"><button type="button" class="melodia-ensisijainen" data-melodia-seuraava>Seuraava melodia <span aria-hidden="true">→</span></button></p>
                     <div class="melodia-kaari" data-melodia-kaari hidden>
-                      <h3>Kuulemasi melodia</h3>
-                      <ol aria-label="Kuulemasi melodian sävelet"></ol>
+                      <h3>Sävelet</h3>
+                      <ul class="melodia-loppulista" data-melodia-muoto></ul>
                     </div>
                   </div>
                   <details class="study-knoppi">
-                    <summary><svg class="study-knoppi-merkki" aria-hidden="true" focusable="false"><use href="../../assets/oppimisikonit.svg#extra-info"/></svg><span class="study-sr">Lisätieto: Kokeile kotisäveltä kitaralla</span></summary>
+                    <summary><svg class="study-knoppi-merkki" aria-hidden="true" focusable="false"><use href="../../assets/oppimisikonit.svg#extra-info"/></svg><span class="study-sr">Lisätieto: Kotisävel ja tukiääni</span></summary>
                     <div class="study-knoppi-sisalto">
-                      <h3>Kokeile kotisäveltä kitaralla</h3>
-                      <p>G löytyy vapaalta G-kieleltä ja ohuen e-kielen 3. nauhalta. Soita jokin muu sävel, esimerkiksi G-kielen 2. nauhan A, ja heti perään vapaa G-kieli. Kuuletko, miten melodia asettuu kotiin?</p>
-                      <p>Kokeile myös ohuen e-kielen 2. nauhan F♯:ää ja sen jälkeen 3. nauhan G:tä. Puoliaskeleen nousu kotiin kuuluu monen kappaleen lopussa.</p>
+                      <h3>Kotisävel ja tukiääni</h3>
+                      <p>Melodiat ovat G-duurissa, joten G on niiden kotisävel. Aluksi matala G soi taustalla tukena. Kahden peräkkäisen oikean vastauksen jälkeen tukiääni jää pois, ja kodin kuulee pelkästä melodiasta.</p>
+                      <p>Kokeile kitaralla: soita ohuen e-kielen 2. nauhan F♯ ja sen jälkeen 3. nauhan G. Puoliaskeleen nousu kotiin kuuluu monen kappaleen lopussa.</p>
                     </div>
                   </details>
                 </section>
                 <section class="note">
                   <h2>Mitä opit?</h2>
-                  <p>Melodia tuntuu päättyneeltä, kun se palaa kotisäveleen. Jos se pysähtyy muuhun säveleen, loppu jää odottamaan jatkoa. Sama alku voi siis päättyä kahdella tavalla. Kotisävelen kuuleminen auttaa myöhemmin löytämään kappaleen sävellajin ja sen ensimmäisen soinnun.</p>
+                  <p>Saman melodian loppu voi tuntua päättyneeltä tai jäädä odottamaan jatkoa. Tässä harjoituksessa melodiat on rakennettu G-duuriin, joten G:hen palaava loppu kuulostaa niissä valmiimmalta. Kaikki musiikki ei kuitenkaan pääty kotisäveleen: kesken jäävä loppu voi olla tarkoituksellinen kysymys, jatko tai tunnelma.</p>
                 </section>
-                <p class="melodia-huomautus">Harjoittelu on vapaaehtoista. Sivu ei kuuntele omaa soittoasi tai hyräilyäsi. ”Kokeiltu” ei ole osaamistesti.</p>
+                <p class="melodia-huomautus">Harjoittelu on vapaaehtoista. Sivu ei kuuntele omaa soittoasi tai hyräilyäsi. Oikea vastaus koskee vain kyseistä tehtävää. ”Kokeiltu” ei ole osaamistesti.</p>
                 <p class="melodia-lahde">Ääninäytteet: <a href="https://github.com/facebookincubator/Meta-open-sound">Meta Open Sound · Meta Steel Guitar</a>, CC0 1.0.</p>
                 <p class="done-row"><button type="button" class="done-toggle" aria-pressed="false" disabled>Merkitse kokeilluksi</button></p>
                 <p class="study-inline-link"><a href="kotiin-vai-kesken.html" data-return-topic="valinta-kotiin-vai-kesken">Avaa omalla sivullaan</a></p>
@@ -146,50 +138,38 @@
               </div>
             </details></li>
             <li><details class="study-inline" name="ydinopinnot-harjoitukset" data-study-item="harjoitus:kuule-ja-etsi-kitaralta" data-study-kind="harjoitus" data-study-mark="kokeiltu">
-              <summary class="study-choice study-choice--unit" id="valinta-kuule-ja-etsi-kitaralta"><span class="study-number" aria-hidden="true">03</span><strong class="study-title">Kuule ja etsi kitaralta</strong><span class="study-choice-details"><span class="study-description">Kolme säveltä G- ja B-kieleltä</span><span data-study-attempt-status="harjoitus:kuule-ja-etsi-kitaralta" class="study-status" hidden></span></span><span class="study-arrow" aria-hidden="true"></span></summary>
+              <summary class="study-choice study-choice--unit" id="valinta-kuule-ja-etsi-kitaralta"><span class="study-number" aria-hidden="true">03</span><strong class="study-title">Kuule ja etsi kitaralta</strong><span class="study-choice-details"><span class="study-description">Tapaile 3–5 säveltä kitaralta</span><span data-study-attempt-status="harjoitus:kuule-ja-etsi-kitaralta" class="study-status" hidden></span></span><span class="study-arrow" aria-hidden="true"></span></summary>
               <div class="study-inline-body">
                 <section class="practice melodia-ydin study-knoppi-host" data-melodiaharjoitus="etsi" aria-labelledby="melodia-etsi-otsikko">
-                  <h2 id="melodia-etsi-otsikko">1 · Kuuntele ja hyräile</h2>
-                  <p>Kuulet kolmen sävelen kulun. Se alkaa aina <strong>G:stä eli vapaalta G-kieleltä</strong>. Hyräile kulku perässä. Mieti, nouseeko vai laskeeko melodia ja liikkuuko se askelin vai hypyin.</p>
+                  <h2 id="melodia-etsi-otsikko">Kuule ja etsi sävelkulku</h2>
+                  <p class="melodia-ohje">Kuuntele, hyräile ja tapaile sävelet kitaralta tai alla olevista paikoista.</p>
                   <div class="melodia-toiminnot" data-melodia-ohjaimet hidden>
-                    <button type="button" class="melodia-ensisijainen" data-melodia-kuuntele><span aria-hidden="true">▶</span> Kuuntele sävelkulku</button>
-                    <button type="button" data-melodia-uusi>Uusi sävelkulku</button>
+                    <button type="button" class="melodia-ensisijainen" data-melodia-kuuntele><span aria-hidden="true">▶</span> Kuuntele</button>
                   </div>
                   <p class="melodia-tila" data-melodia-tila role="status" aria-live="polite">Ääniesimerkki tarvitsee JavaScriptin ja selaimen äänituen.</p>
-                  <h3>2 · Etsi sävelet kitaralta</h3>
-                  <p>Ota kitara ja tapaile kulku alusta loppuun. Kaikki sävelet löytyvät G- ja B-kieleltä kolmen ensimmäisen nauhan alueelta. Voit tapailla myös alla olevilla paikoilla: jokainen painallus soittaa sävelen, ja kolme viimeksi soitettua näkyvät listassa. Kun soittamasi kulku kuulostaa samalta kuin esimerkki, paina Tarkista.</p>
-                  <div class="melodia-tehtava" data-melodia-ohjaimet hidden>
-                    <h3 class="melodia-vastaus-otsikko">Kolme viimeksi soittamaasi säveltä</h3>
-                    <ol class="melodia-vastaus" aria-label="Kolme viimeksi soittamaasi säveltä">
-                      <li><span class="melodia-vastaus-nro">1</span> <span data-etsi-vastaus>ei vielä soitettu</span></li>
-                      <li><span class="melodia-vastaus-nro">2</span> <span data-etsi-vastaus>ei vielä soitettu</span></li>
-                      <li><span class="melodia-vastaus-nro">3</span> <span data-etsi-vastaus>ei vielä soitettu</span></li>
-                    </ol>
-                    <fieldset class="melodia-otelauta" data-etsi-paikat disabled>
-                      <legend>Kitaran paikat matalimmasta korkeimpaan</legend>
-                      <button type="button" data-paikka="G3"><strong>G</strong> <span>G-kieli, vapaa</span></button>
-                      <button type="button" data-paikka="A3"><strong>A</strong> <span>G-kieli, 2. nauha</span></button>
-                      <button type="button" data-paikka="B3"><strong>B</strong> <span>B-kieli, vapaa</span></button>
-                      <button type="button" data-paikka="C4"><strong>C</strong> <span>B-kieli, 1. nauha</span></button>
-                      <button type="button" data-paikka="D4"><strong>D</strong> <span>B-kieli, 3. nauha</span></button>
-                    </fieldset>
+                  <div class="melodia-tehtava" data-melodia-tehtava hidden>
+                    <p class="melodia-taso" data-melodia-taso></p>
+                    <div class="melodia-otelauta" data-etsi-paikat role="group" aria-label="Kitaran paikat: painallus soittaa sävelen"></div>
+                    <p class="melodia-pieni">Viimeksi soitetut:</p>
+                    <ol class="melodia-paikat" data-etsi-vastaus aria-label="Viimeksi soitetut sävelet"></ol>
                     <div class="melodia-toiminnot">
-                      <button type="button" data-melodia-tarkista disabled>Tarkista</button>
+                      <button type="button" class="melodia-ensisijainen" data-melodia-tarkista hidden>Tarkista</button>
+                      <button type="button" data-etsi-ratkaisu>Soitin kitaralla – näytä ratkaisu</button>
                     </div>
                     <p class="melodia-palaute" data-melodia-palaute role="status" aria-live="polite"></p>
+                    <p class="melodia-seuraava-rivi"><button type="button" class="melodia-ensisijainen" data-melodia-seuraava>Seuraava sävelkulku <span aria-hidden="true">→</span></button></p>
                     <div class="melodia-kaari" data-melodia-kaari hidden>
-                      <h3>Kuulemasi sävelkulku</h3>
-                      <ol aria-label="Kuulemasi sävelkulun sävelet"></ol>
+                      <h3>Sävelkulku kitaralla</h3>
+                      <ol data-melodia-muoto aria-label="Kuulemasi sävelkulku kitaralla"></ol>
                     </div>
                   </div>
-                  <h3>3 · Soita oikealla kitaralla</h3>
-                  <p>Soita kulku kitaralla kaksi kertaa ja hyräile mukana. Sivu ei kuule soittoasi: oma korvasi kertoo, kuulostaako soittamasi samalta kuin esimerkki.</p>
                   <details class="study-knoppi">
-                    <summary><svg class="study-knoppi-merkki" aria-hidden="true" focusable="false"><use href="../../assets/oppimisikonit.svg#extra-info"/></svg><span class="study-sr">Lisätieto: Etsi ensin suunta</span></summary>
+                    <summary><svg class="study-knoppi-merkki" aria-hidden="true" focusable="false"><use href="../../assets/oppimisikonit.svg#extra-info"/></svg><span class="study-sr">Lisätieto: Näin tapailet</span></summary>
                     <div class="study-knoppi-sisalto">
-                      <h3>Etsi ensin suunta</h3>
-                      <p>Jos sävelkulku nousee, etsi seuraavaa säveltä ylempää nauhaa tai ohuemmalta kieleltä. Jos se laskee, siirry alemmas. Vapaa B-kieli soi saman B:n kuin G-kielen 4. nauha, joten G-kieleltä kannattaa siirtyä B-kielelle jo 2. nauhan jälkeen.</p>
-                      <p>Pidemmän, neljän sävelen riffin voit matkia <a href="../../riffikaiku.html?tila=harjoitus&amp;aihe=aihe-korva">Riffikaiussa</a>. Siellä mikrofoni voi kuunnella soittoasi, jos haluat.</p>
+                      <h3>Näin tapailet</h3>
+                      <p>Kokeile vapaasti: jokainen painallus soittaa sävelen, ja Tarkista vertaa viimeksi soittamiasi säveliä kuultuun kulkuun. Väärät kokeilut matkalla eivät haittaa.</p>
+                      <p>Jos harjoittelet oikealla kitaralla, etsi kulku ensin itse ja katso sitten ratkaisu. Ensimmäiset kulut alkavat vapaalta G-kieleltä. Myöhemmin lähtösävel vaihtelee, kulut pitenevät ja mukaan tulevat D- ja ohut e-kieli.</p>
+                      <p>Neljän sävelen riffejä voit matkia myös <a href="../../riffikaiku.html?tila=harjoitus&amp;aihe=aihe-korva">Riffikaiussa</a>.</p>
                     </div>
                   </details>
                 </section>
@@ -197,7 +177,7 @@
                   <h2>Mitä opit?</h2>
                   <p>Kuulemasi melodian voi löytää kitaralta korvalla: hyräile, päättele suunta ja askelen koko ja kokeile sitten nauhoja. Oikein tapaillut paikat kertovat, että löysit tämän sävelkulun. Oikealla kitaralla soittaminen on erillinen taito, jota tämä sivu ei mittaa.</p>
                 </section>
-                <p class="melodia-huomautus">Harjoittelu on vapaaehtoista. Sivu ei kuuntele omaa soittoasi tai hyräilyäsi. ”Kokeiltu” ei ole osaamistesti.</p>
+                <p class="melodia-huomautus">Harjoittelu on vapaaehtoista. Sivu ei kuuntele omaa soittoasi tai hyräilyäsi. Oikea vastaus koskee vain kyseistä tehtävää. ”Kokeiltu” ei ole osaamistesti.</p>
                 <p class="melodia-lahde">Ääninäytteet: <a href="https://github.com/facebookincubator/Meta-open-sound">Meta Open Sound · Meta Steel Guitar</a>, CC0 1.0.</p>
                 <p class="done-row"><button type="button" class="done-toggle" aria-pressed="false" disabled>Merkitse kokeilluksi</button></p>
                 <p class="study-inline-link"><a href="kuule-ja-etsi-kitaralta.html" data-return-topic="valinta-kuule-ja-etsi-kitaralta">Avaa omalla sivullaan</a></p>
@@ -262,6 +242,6 @@
   <script src="../../assets/edistyminen.js?v=39bccb10a6"></script>
   <script src="../../assets/oppimistapa.js"></script>
   <script src="../../assets/kokonaisuudet.js?v=326aed1a00"></script>
-  <script type="module" src="../../assets/melodia-ydinopinnot.js?v=932b81f75f"></script>
+  <script type="module" src="../../assets/melodia-ydinopinnot.js?v=093fe36b7a"></script>
 </body>
 </html>

@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="../../book/reader.css?v=65711fca9c">
   <link rel="stylesheet" href="../../assets/paavalikko.css?v=4e5c7fbf95">
   <link rel="stylesheet" href="../../assets/oppi.css?v=8a69bdc0e8">
-  <link rel="stylesheet" href="../../assets/melodia-ydinopinnot.css?v=671b0dcd56">
+  <link rel="stylesheet" href="../../assets/melodia-ydinopinnot.css?v=279b8659b3">
   <link rel="stylesheet" href="../../assets/kokonaisuudet.css?v=db6d10a623">
 </head>
 <body>
@@ -19,48 +19,44 @@
     </nav>
     <h1 class="study-focus-title">Kotiin vai kesken?</h1>
     <section class="practice melodia-ydin study-knoppi-host" data-melodiaharjoitus="koti" aria-labelledby="melodia-koti-otsikko">
-      <h2 id="melodia-koti-otsikko">1 · Kuuntele kotisävel</h2>
-      <p><strong>Kotisävel</strong> on sävel, johon melodia voi palata ja jäädä lepäämään. Tämän harjoituksen melodioissa kotisävel on <strong>G</strong>. Kuuntele se ja hyräile perässä.</p>
+      <h2 id="melodia-koti-otsikko">Kumpi loppu kuulostaa valmiimmalta?</h2>
+      <p class="melodia-ohje">Kuulet saman melodian kahdesti eri lopulla. Valitse, kumpi loppu tuntuu tässä päättyneemmältä.</p>
       <div class="melodia-toiminnot" data-melodia-ohjaimet hidden>
-        <button type="button" data-koti-savel><span aria-hidden="true">▶</span> Kuuntele kotisävel G</button>
-      </div>
-      <h3>2 · Kotiin vai kesken?</h3>
-      <p>Jokaisen melodian alussa soi matala G kodin merkkinä. Kuuntele melodia loppuun. Palasiko se kotisäveleen vai jäikö kesken odottamaan jatkoa? Hyräile viimeinen sävel ja vertaa sitä kotisäveleen.</p>
-      <div class="melodia-toiminnot" data-melodia-ohjaimet hidden>
-        <button type="button" class="melodia-ensisijainen" data-melodia-kuuntele><span aria-hidden="true">▶</span> Kuuntele melodia</button>
-        <button type="button" data-melodia-uusi>Uusi melodia</button>
+        <button type="button" class="melodia-ensisijainen" data-melodia-kuuntele><span aria-hidden="true">▶</span> Kuuntele molemmat</button>
       </div>
       <p class="melodia-tila" data-melodia-tila role="status" aria-live="polite">Ääniesimerkki tarvitsee JavaScriptin ja selaimen äänituen.</p>
-      <div class="melodia-tehtava" data-melodia-ohjaimet hidden>
-        <fieldset class="melodia-valinnat" data-koti-vastaus disabled>
-          <legend>Miten melodia päättyi?</legend>
-          <button type="button" data-koti="koti" aria-pressed="false">Palasi kotiin</button>
-          <button type="button" data-koti="kesken" aria-pressed="false">Jäi kesken</button>
-        </fieldset>
-        <p class="melodia-palaute" data-melodia-palaute role="status" aria-live="polite"></p>
-        <div class="melodia-toiminnot" data-koti-vertailu role="group" aria-label="Vertaa saman melodian kahta loppua" hidden>
-          <button type="button" data-koti-vertaa="koti"><span aria-hidden="true">▶</span> Kotiin päättyvä loppu</button>
-          <button type="button" data-koti-vertaa="kesken"><span aria-hidden="true">▶</span> Kesken jäävä loppu</button>
+      <div class="melodia-tehtava" data-melodia-tehtava hidden>
+        <p class="melodia-taso" data-melodia-taso></p>
+        <div class="melodia-napit melodia-loput" role="group" aria-label="Kumpi loppu on valmiimpi?">
+          <button type="button" data-loppu="0" aria-pressed="false">Loppu 1</button>
+          <button type="button" data-loppu="1" aria-pressed="false">Loppu 2</button>
         </div>
+        <div class="melodia-toiminnot melodia-toissijaiset" role="group" aria-label="Kuuntele erikseen">
+          <button type="button" data-loppu-kuuntele="0"><span aria-hidden="true">▶</span> 1</button>
+          <button type="button" data-loppu-kuuntele="1"><span aria-hidden="true">▶</span> 2</button>
+          <button type="button" data-koti-savel><span aria-hidden="true">▶</span> Kotisävel G</button>
+        </div>
+        <p class="melodia-palaute" data-melodia-palaute role="status" aria-live="polite"></p>
+        <p class="melodia-seuraava-rivi"><button type="button" class="melodia-ensisijainen" data-melodia-seuraava>Seuraava melodia <span aria-hidden="true">→</span></button></p>
         <div class="melodia-kaari" data-melodia-kaari hidden>
-          <h3>Kuulemasi melodia</h3>
-          <ol aria-label="Kuulemasi melodian sävelet"></ol>
+          <h3>Sävelet</h3>
+          <ul class="melodia-loppulista" data-melodia-muoto></ul>
         </div>
       </div>
       <details class="study-knoppi">
-        <summary><svg class="study-knoppi-merkki" aria-hidden="true" focusable="false"><use href="../../assets/oppimisikonit.svg#extra-info"/></svg><span class="study-sr">Lisätieto: Kokeile kotisäveltä kitaralla</span></summary>
+        <summary><svg class="study-knoppi-merkki" aria-hidden="true" focusable="false"><use href="../../assets/oppimisikonit.svg#extra-info"/></svg><span class="study-sr">Lisätieto: Kotisävel ja tukiääni</span></summary>
         <div class="study-knoppi-sisalto">
-          <h3>Kokeile kotisäveltä kitaralla</h3>
-          <p>G löytyy vapaalta G-kieleltä ja ohuen e-kielen 3. nauhalta. Soita jokin muu sävel, esimerkiksi G-kielen 2. nauhan A, ja heti perään vapaa G-kieli. Kuuletko, miten melodia asettuu kotiin?</p>
-          <p>Kokeile myös ohuen e-kielen 2. nauhan F♯:ää ja sen jälkeen 3. nauhan G:tä. Puoliaskeleen nousu kotiin kuuluu monen kappaleen lopussa.</p>
+          <h3>Kotisävel ja tukiääni</h3>
+          <p>Melodiat ovat G-duurissa, joten G on niiden kotisävel. Aluksi matala G soi taustalla tukena. Kahden peräkkäisen oikean vastauksen jälkeen tukiääni jää pois, ja kodin kuulee pelkästä melodiasta.</p>
+          <p>Kokeile kitaralla: soita ohuen e-kielen 2. nauhan F♯ ja sen jälkeen 3. nauhan G. Puoliaskeleen nousu kotiin kuuluu monen kappaleen lopussa.</p>
         </div>
       </details>
     </section>
     <section class="note">
       <h2>Mitä opit?</h2>
-      <p>Melodia tuntuu päättyneeltä, kun se palaa kotisäveleen. Jos se pysähtyy muuhun säveleen, loppu jää odottamaan jatkoa. Sama alku voi siis päättyä kahdella tavalla. Kotisävelen kuuleminen auttaa myöhemmin löytämään kappaleen sävellajin ja sen ensimmäisen soinnun.</p>
+      <p>Saman melodian loppu voi tuntua päättyneeltä tai jäädä odottamaan jatkoa. Tässä harjoituksessa melodiat on rakennettu G-duuriin, joten G:hen palaava loppu kuulostaa niissä valmiimmalta. Kaikki musiikki ei kuitenkaan pääty kotisäveleen: kesken jäävä loppu voi olla tarkoituksellinen kysymys, jatko tai tunnelma.</p>
     </section>
-    <p class="melodia-huomautus">Harjoittelu on vapaaehtoista. Sivu ei kuuntele omaa soittoasi tai hyräilyäsi. ”Kokeiltu” ei ole osaamistesti.</p>
+    <p class="melodia-huomautus">Harjoittelu on vapaaehtoista. Sivu ei kuuntele omaa soittoasi tai hyräilyäsi. Oikea vastaus koskee vain kyseistä tehtävää. ”Kokeiltu” ei ole osaamistesti.</p>
     <p class="melodia-lahde">Ääninäytteet: <a href="https://github.com/facebookincubator/Meta-open-sound">Meta Open Sound · Meta Steel Guitar</a>, CC0 1.0.</p>
     <p class="done-row"><button type="button" class="done-toggle" aria-pressed="false" disabled>Merkitse kokeilluksi</button></p>
   </main>
@@ -68,6 +64,6 @@
   <script src="../../assets/edistyminen.js?v=39bccb10a6"></script>
   <script src="../../assets/oppimistapa.js"></script>
   <script src="../../assets/kokonaisuudet.js?v=326aed1a00"></script>
-  <script type="module" src="../../assets/melodia-ydinopinnot.js?v=932b81f75f"></script>
+  <script type="module" src="../../assets/melodia-ydinopinnot.js?v=093fe36b7a"></script>
 </body>
 </html>
