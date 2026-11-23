@@ -910,7 +910,9 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     const unit = page.locator('#ydinopinnot');
     const summary = unit.locator(':scope > summary');
     await expect(unit).not.toHaveAttribute('open', '');
-    await expect(unit.locator('.study-choice').first()).toBeHidden();
+    // Suljetun yksikön sisältö: Playwrightin WebKit pitää sisäkkäistä <summary>-elementtiä
+    // näkyvänä suljetussakin <details>issä, joten tarkistetaan sisältölaatikko.
+    await expect(unit.locator(':scope > .study-unit-body')).toBeHidden();
     await summary.click();
     await expect(unit.locator('.study-choice').first()).toBeVisible();
     await summary.click();
@@ -1258,7 +1260,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     });
   }
 
-  test('tunnistuksen paikat arvotaan mutta kysymykset vuorottelevat ja vain valittu vastaus värittyy', async ({ page, isMobile }) => {
+  test('tunnistuksen paikat arvotaan mutta kysymykset vuorottelevat ja vain valittu vastaus värittyy', async ({ page, isMobile, browserName }) => {
     await recordAudio(page);
     await page.goto(ydinPath(1));
     const charts = page.locator('[data-arvaus-kaaviot]');
@@ -1284,7 +1286,8 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     const bounds = await sizeOf(listen);
     if (isMobile) await listen.click();
     else {
-      await page.keyboard.press('Tab');
+      // Safari (WebKit) kiertää painikkeet oletuksena vain Option+Tabilla.
+      await page.keyboard.press(browserName === 'webkit' ? 'Alt+Tab' : 'Tab');
       await expect(listen).toBeFocused();
       await expect(listen).toHaveCSS('outline-style', 'solid');
       await page.keyboard.press('Enter');
