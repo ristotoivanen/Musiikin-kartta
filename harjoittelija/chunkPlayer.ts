@@ -14,6 +14,7 @@
 import { BUFFER_TRACKS, LEVEL_TIME_CONSTANT, START_LEAD_SECONDS, type BufferPlayerEvent, type BufferPlayerState,
   type BufferTrack, type LoadResult, type PlayerContext } from './bufferPlayer';
 import { CAL_WINDOWS, findDecoderDelay, hasCalibrationSignal, parseMp3, planSegment, segmentBytes, type Mp3Layout } from './mp3Layout';
+import { enoughToStart, headBytesNeeded, predictCbrLayout, ProgressiveTrack } from './progressiveLoad';
 
 export const SEGMENT_SECONDS = 10;
 export const POOL_SLOTS = 4;
@@ -31,6 +32,8 @@ export class CalibrationError extends Error {}
 export class SampleRateError extends Error {}
 
 const gcd = (a: number, b: number): number => (b ? gcd(b, a % b) : a);
+/** Kehysalueen loppu tavuina (segmentBytes viipaloi tähän asti). */
+const planEnd = (layout: Mp3Layout, endFrame: number) => (endFrame < layout.frameOffsets.length ? layout.frameOffsets[endFrame] : layout.dataEnd);
 
 export interface ChunkPlayerContext extends PlayerContext {
   readonly sampleRate: number;
@@ -44,9 +47,17 @@ export interface ChunkPlayerOptions {
   clearInterval?: (id: unknown) => void;
   /** Purkuun käytettävä konteksti, jos MP3:n näytetaajuus poikkeaa soittokontekstista. */
   decoderFor?: (sampleRate: number) => Pick<PlayerContext, 'decodeAudioData'>;
+  /**
+   * KOKEILU (ensilataus): raidat luetaan virtana ja toisto voi alkaa ennen koko tiedoston latausta (progressiveLoad.ts).
+   * Oletuksena pois: koko tiedosto ladataan ensin kuten hyväksytyssä D2:ssa.
+   */
+  progressive?: boolean;
+  /** Odotusväli aloitussäännön tarkistukselle (testit). */
+  sleep?: (ms: number) => Promise<void>;
 }
 
-interface TrackData { bytes: Uint8Array; layout: Mp3Layout }
+/** Raidan tavut ja kehysrakenne. Virtalatauksessa ready() odottaa, että tavut [0, end) ovat saapuneet. */
+interface TrackData { bytes: Uint8Array; layout: Mp3Layout; ready?: (end: number) => Promise<void>; has?: (end: number) => boolean }
 interface Slot {
   buffers: Record<BufferTrack, AudioBuffer>;
   gen: number; start: number; length: number;
@@ -66,6 +77,9 @@ export class ChunkSongPlayer {
   onStateChange?: (state: BufferPlayerState) => void;
   /** Toisto keskeytyi purkuvirheeseen (soitin on tilassa 'virhe'). */
   onError?: (message: string) => void;
+  /** Virtalataus: toisto odottaa, että seuraavan palan tavut saapuvat (true) tai jatkuu (false). */
+  onWaitingChange?: (waiting: boolean) => void;
+  waiting = false;
   /** Mittausta varten: raitakohtaiset tulot ennen tasoa (lähteet kytkeytyvät näihin). */
   readonly inputs: Record<BufferTrack, GainNode>;
   private readonly levels: Record<BufferTrack, GainNode>;
@@ -85,6 +99,11 @@ export class ChunkSongPlayer {
   private looping = false;
   private loadToken = 0;
   private controller: AbortController | null = null;
+  /** Virtalatauksen keskeytys (jatkuu taustalla 'valmis'-tilan jälkeen; versionvaihto ja poistuminen keskeyttävät). */
+  private streamController: AbortController | null = null;
+  private streams: ProgressiveTrack[] = [];
+  private readonly progressive: boolean;
+  private readonly sleep: (ms: number) => Promise<void>;
   private pumping = false;
   private pumpQueued = false;
   private timer: unknown = null;
@@ -100,6 +119,8 @@ export class ChunkSongPlayer {
     this.setIntervalImpl = options.setInterval ?? ((callback, ms) => setInterval(callback, ms));
     this.clearIntervalImpl = options.clearInterval ?? (id => clearInterval(id as ReturnType<typeof setInterval>));
     this.decoderFor = options.decoderFor;
+    this.progressive = options.progressive ?? false;
+    this.sleep = options.sleep ?? (ms => new Promise(resolve => setTimeout(resolve, ms)));
     const inputs = {} as Record<BufferTrack, GainNode>, levels = {} as Record<BufferTrack, GainNode>;
     for (const track of BUFFER_TRACKS) {
       inputs[track] = context.createGain();
@@ -153,17 +174,23 @@ export class ChunkSongPlayer {
     const started = this.now();
     this.record('lataus-alku');
     try {
-      const fetched = await Promise.all(BUFFER_TRACKS.map(async track => {
-        const response = await this.fetchImpl(urls[track], { signal: controller.signal });
-        if (!response.ok) throw new Error(`${track}: HTTP ${response.status}`);
-        const bytes = new Uint8Array(await response.arrayBuffer());
-        this.record('ladattu', { track, bytes: bytes.byteLength, kesto: Math.round(this.now() - started) });
-        return bytes;
-      }));
-      if (!current()) return 'peruttu';
-      this.setState('puretaan');
       const data = {} as Record<BufferTrack, TrackData>;
-      BUFFER_TRACKS.forEach((track, index) => { data[track] = { bytes: fetched[index], layout: parseMp3(fetched[index]) }; });
+      if (this.progressive) {
+        const loaded = await this.loadProgressive(urls, controller, started);
+        if (!current()) return 'peruttu';
+        Object.assign(data, loaded);
+      } else {
+        const fetched = await Promise.all(BUFFER_TRACKS.map(async track => {
+          const response = await this.fetchImpl(urls[track], { signal: controller.signal });
+          if (!response.ok) throw new Error(`${track}: HTTP ${response.status}`);
+          const bytes = new Uint8Array(await response.arrayBuffer());
+          this.record('ladattu', { track, bytes: bytes.byteLength, kesto: Math.round(this.now() - started) });
+          return bytes;
+        }));
+        if (!current()) return 'peruttu';
+        BUFFER_TRACKS.forEach((track, index) => { data[track] = { bytes: fetched[index], layout: parseMp3(fetched[index]) }; });
+        this.setState('puretaan');
+      }
       const rates = new Set(BUFFER_TRACKS.map(track => data[track].layout.sampleRate));
       if (rates.size !== 1) throw new Error('Raitojen näytetaajuudet eroavat');
       const rate = data.backing.layout.sampleRate;
@@ -184,6 +211,16 @@ export class ChunkSongPlayer {
       const first = await this.obtain(0);
       if (!current()) return 'peruttu';
       if (!first) throw new Error('Puskurialtaassa ei ole tilaa');
+      if (this.streams.length) {
+        // Aloitussääntö: ensimmäinen pala ja ennakko ladattu, eikä toisto ennusteen mukaan ohita latausta.
+        while (!this.streams.every(stream => enoughToStart(stream, this.duration))) {
+          const failed = this.streams.find(stream => stream.error);
+          if (failed) throw failed.error;
+          await this.sleep(100);
+          if (!current()) return 'peruttu';
+        }
+        this.record('alku-valmis', { tavut: this.streams.map(stream => stream.received), kesto: Math.round(this.now() - started) });
+      }
       this.controller = null;
       this.record('valmis', { kesto: Math.round(this.now() - started), bytes: this.bufferBytes, compressed: this.compressedBytes,
         duration: this.duration, sampleRate: rate });
@@ -192,6 +229,7 @@ export class ChunkSongPlayer {
     } catch (error) {
       if (!current()) return 'peruttu';
       this.controller = null;
+      this.abortStreams();
       this.data = null;
       this.length = 0;
       this.error = error instanceof Error ? error.message : String(error);
@@ -216,6 +254,8 @@ export class ChunkSongPlayer {
   release() {
     this.cancel();
     this.stopSession();
+    this.abortStreams();
+    this.setWaiting(false);
     const hadData = this.data !== null;
     this.data = null;
     this.length = 0;
@@ -329,8 +369,71 @@ export class ChunkSongPlayer {
     const data = this.data?.[track];
     if (!data) throw new Error('Kappaletta ei ole ladattu');
     const plan = planSegment(data.layout, start, length, this.decoderDelay ?? 0);
+    await data.ready?.(planEnd(data.layout, plan.endFrame));
     const buffer = await this.decoder().decodeAudioData(segmentBytes(data.bytes, data.layout, plan).buffer as ArrayBuffer);
     return Array.from({ length: buffer.numberOfChannels }, (_, c) => buffer.getChannelData(c).slice(plan.skip, plan.skip + length));
+  }
+
+  /**
+   * KOKEILU (ensilataus): käynnistää raitojen virtalatauksen ja palauttaa rakenteen heti, kun alkutavut riittävät
+   * ennustukseen. Jos ennustus ei ole varma (tai virtaa ei ole), raita ladataan kokonaan ennen jäsennystä.
+   */
+  private async loadProgressive(urls: Record<BufferTrack, string>, controller: AbortController, started: number): Promise<Record<BufferTrack, TrackData>> {
+    const stream = new AbortController();
+    this.streamController = stream;
+    controller.signal.addEventListener('abort', () => stream.abort(), { once: true });
+    const streams: ProgressiveTrack[] = [];
+    this.streams = streams;
+    const entries = await Promise.all(BUFFER_TRACKS.map(async track => {
+      const response = await this.fetchImpl(urls[track], { signal: stream.signal });
+      if (!response.ok) throw new Error(`${track}: HTTP ${response.status}`);
+      const total = Number(response.headers.get('Content-Length'));
+      if (!response.body || !Number.isSafeInteger(total) || total <= 0) {
+        const bytes = new Uint8Array(await response.arrayBuffer());
+        this.record('ladattu', { track, bytes: bytes.byteLength, kesto: Math.round(this.now() - started), virta: false });
+        return [track, { bytes, layout: parseMp3(bytes) }] as const;
+      }
+      const progressive = new ProgressiveTrack(total, this.now);
+      streams.push(progressive);
+      void progressive.run(response.body).then(() => {
+        if (progressive.done) this.record('ladattu', { track, bytes: total, kesto: Math.round((progressive.doneAt ?? this.now()) - started), virta: true });
+      });
+      await progressive.waitForBytes(10);
+      const need = Math.min(total, headBytesNeeded(progressive.bytes.subarray(0, progressive.received)) ?? total);
+      await progressive.waitForBytes(need);
+      this.record('ensitavut', { track, kesto: Math.round((progressive.firstByteAt ?? this.now()) - started) });
+      let layout = predictCbrLayout(progressive.bytes.subarray(0, Math.max(need, progressive.received)), total);
+      if (!layout) {
+        // Ei varmaa ennustetta: koko raita ensin (sama kuin ilman virtaa).
+        this.record('virta-ei-ennustetta', { track });
+        await progressive.waitForBytes(total);
+        layout = parseMp3(progressive.bytes);
+      }
+      progressive.useLayout(layout);
+      if (progressive.error) throw progressive.error;
+      return [track, { bytes: progressive.bytes, layout, ready: (end: number) => progressive.waitForBytes(end), has: (end: number) => progressive.has(end) }] as const;
+    }));
+    return Object.fromEntries(entries) as Record<BufferTrack, TrackData>;
+  }
+
+  private abortStreams() {
+    this.streamController?.abort();
+    this.streamController = null;
+    this.streams = [];
+  }
+
+  private setWaiting(waiting: boolean) {
+    if (this.waiting === waiting) return;
+    this.waiting = waiting;
+    this.record(waiting ? 'odottaa-latausta' : 'lataus-ehti');
+    this.onWaitingChange?.(waiting);
+  }
+
+  /** Ladattu osuus (0…1) virtalatauksessa; 1, kun kaikki on ladattu tai virtaa ei käytetä. */
+  get downloadProgress(): number {
+    if (!this.streams.length) return this.data ? 1 : 0;
+    const total = this.streams.reduce((sum, stream) => sum + stream.total, 0);
+    return this.streams.reduce((sum, stream) => sum + stream.received, 0) / total;
   }
 
   /**
@@ -352,6 +455,8 @@ export class ChunkSongPlayer {
     candidates.sort((a, b) => a[2] - b[2]);
     for (const [track, from, end] of candidates) {
       const { bytes, layout } = data[track];
+      await data[track].ready?.(layout.frameOffsets[end]);
+      if (!current()) return;
       const raw = await decoder.decodeAudioData(segmentBytes(bytes, layout, { firstFrame: from, endFrame: end, skip: 0 }).buffer as ArrayBuffer);
       if (!current()) return;
       if (!hasCalibrationSignal(raw.getChannelData(0))) { tried.push(`${track}@${from}: hiljainen`); continue; }
@@ -425,6 +530,15 @@ export class ChunkSongPlayer {
     const started = this.now();
     try {
       const decoder = this.decoder();
+      // Virtalataus: odotetaan palan tavut. Toisto ilmoittaa odotuksesta, jos tavuja ei vielä ole.
+      const plans = BUFFER_TRACKS.map(track => planSegment(data[track].layout, start, length, this.decoderDelay ?? 0));
+      const ends = plans.map((plan, i) => planEnd(data[BUFFER_TRACKS[i]].layout, plan.endFrame));
+      if (BUFFER_TRACKS.some((track, i) => data[track].has && !data[track].has!(ends[i]))) {
+        if (this.session) this.setWaiting(true);
+        try { await Promise.all(BUFFER_TRACKS.map((track, i) => data[track].ready?.(ends[i]))); }
+        catch (error) { if (gen !== this.gen) { slot.filling = false; slot.gen = -1; return null; } throw error; }
+        if (this.session) this.setWaiting(false);
+      }
       const decoded = await Promise.all(BUFFER_TRACKS.map(async track => {
         const { bytes, layout } = data[track];
         const plan = planSegment(layout, start, length, this.decoderDelay ?? 0);
@@ -556,6 +670,7 @@ export class ChunkSongPlayer {
   private stopSession() {
     const session = this.session;
     this.session = null;
+    this.setWaiting(false);
     if (this.timer !== null) { this.clearIntervalImpl(this.timer); this.timer = null; }
     for (const item of session?.items ?? []) this.stopItem(item);
   }

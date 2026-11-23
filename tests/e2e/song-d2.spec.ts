@@ -145,3 +145,39 @@ test('D2: 44,1 kHz:n konteksti kohdistaa palat ruudukkoon ja soi oikeassa tahdis
   const b = await sample();
   expect((b.p - a.p) / (b.t - a.t)).toBeCloseTo(1, 3);
 });
+
+test('D2-ensilataus (kokeilu): hitaalla yhteydellä toisto alkaa ennen koko latausta ja palat ovat bittitarkat', async ({ page }) => {
+  test.setTimeout(150000);
+  const cdp = await page.context().newCDPSession(page);
+  await page.goto(SONG);
+  // Noin 1,5 Mbit/s: kolmen raidan 15 Mt latautuisi noin 80 s, toisto voi alkaa muutamassa sekunnissa.
+  await cdp.send('Network.enable');
+  await cdp.send('Network.emulateNetworkConditions', { offline: false, latency: 150, downloadThroughput: 190000, uploadThroughput: 100000 });
+  const play = page.locator('.song-play');
+  const started = Date.now();
+  await play.click();
+  await expect(play).toHaveText(/Tauko/, { timeout: 60000 });
+  const startSeconds = (Date.now() - started) / 1000;
+  const progress = () => page.evaluate(() => (window as unknown as { __kappaleD1: { player: { downloadProgress: number } } }).__kappaleD1.player.downloadProgress);
+  expect(await progress()).toBeLessThan(0.5);
+  expect(startSeconds).toBeLessThan(30);
+  await expect.poll(async () => (await hook(page))!.position, { timeout: 20000 }).toBeGreaterThan(2);
+  // Kaikki saapuu lopulta; soitto ei odottanut eikä virheitä.
+  await cdp.send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
+  await expect.poll(progress, { timeout: 60000 }).toBe(1);
+  const result = await page.evaluate(async () => {
+    const h = (window as unknown as { __kappaleD1: Hook }).__kappaleD1;
+    const url = '/assets/audio/kappaleet/yksi-sointu-kaksi-askelta-normaali/yksi-sointu-kaksi-askelta-normaali-laulu.mp3';
+    const full = await h.context.decodeAudioData(await (await fetch(url)).arrayBuffer());
+    let max = 0;
+    for (const start of [0, 480000, 5000000, full.length - 2000]) {
+      const n = Math.min(48000, full.length - start), part = await h.player.readRange('vocals', start, n);
+      for (let c = 0; c < full.numberOfChannels; c++) { const ref = full.getChannelData(c); for (let i = 0; i < n; i++) max = Math.max(max, Math.abs(part[c][i] - ref[start + i])); }
+    }
+    return { max, events: h.player.events.map(e => e.kind) };
+  });
+  expect(result.max).toBe(0);
+  expect(result.events).toContain('alku-valmis');
+  expect(result.events).not.toContain('virhe');
+  expect(result.events).not.toContain('alivuoto');
+});
