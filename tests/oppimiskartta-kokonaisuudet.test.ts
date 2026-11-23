@@ -1,11 +1,12 @@
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 // #116: Soinnut ja harmonia -aiheen oma oppimiskokonaisuus 01 · Miten sointu muodostuu?
 // Uudet oppitunnit ovat erillinen kokonaisuus: oma numerointi ja Edellinen/Seuraava, eivät aiheen
 // etenemisjärjestyksessä, aihesivun tai etusivun laskurissa eivätkä oppimispolun lopussa.
 const read = (path: string) => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
+const exists = (path: string) => existsSync(new URL('../' + path, import.meta.url));
 const unitPages = ['kuule-mika-on-sointu', 'rakenna-g-duurisointu', 'kokeile-g-sointua-kitaralla'];
 const unitIds = unitPages.map(slug => 'oppitunti:' + slug);
 const main = (html: string) => html.match(/<main\b[^>]+>/)![0];
@@ -69,7 +70,7 @@ describe('Soinnut ja harmonia: oma oppimiskokonaisuus', () => {
 
 it('Ydinopinnot on ensimmäinen ja kokeilut eivät sekoitu G-pilotin tai aiempien tunnisteisiin', () => {
   const topic = read('oppi/soinnut/index.html');
-  const slugs = ['kuule-ja-kokoa-sointu', 'yksi-savel-muuttaa-sointua', 'mihin-kappale-haluaa-palata'];
+  const slugs = ['kuule-ja-kokoa-sointu', 'yksi-savel-muuttaa-sointua', 'mihin-kappale-haluaa-palata', 'sointukierto-ja-asteet', 'siirra-sama-rakenne', 'sama-kierto-vahemmilla-vihjeilla'];
   const attempts = slugs.map(slug => 'harjoitus:' + slug);
   expect(topic).toMatch(/<div class="study-units">\s+<details class="study-unit" id="ydinopinnot">/);
   expect([...topic.matchAll(/data-study-attempt-status="([^"]+)"/g)].map(([, id]) => id)).toEqual(attempts);
@@ -103,17 +104,42 @@ it('03 alkaa ilman valittua lopetusta ja kertoo G:n roolin vasta Mitä opit? -os
   }
   for (const html of [read('oppi/soinnut/yksi-savel-muuttaa-sointua.html'), topic]) {
     for (const number of [1, 2]) {
-      expect(html).toContain(`<span class="sointu-vaihtuva"><span data-arvaus-teksti>Sointu ${number}</span><span class="sointu-varaus" aria-hidden="true">Sointu ${number} · Em</span></span>`);
+      expect(html).toContain(`<span class="sointu-vaihtuva"><span data-arvaus-teksti>Sointu ${number}</span><span class="sointu-varaus" aria-hidden="true">Sointu ${number}</span></span>`);
     }
-    // PR #141 (zoom): jokainen Arvaa-tilan vaihtuva teksti on myös näkymättömänä varauksena, jotta
+    // PR #141 (zoom): jokainen tunnistustilan vaihtuva teksti on myös näkymättömänä varauksena, jotta
     // kortin ja painikkeiden korkeus ei muutu tilanvaihdossa. JS:n teksti ja varaus pidetään samoina.
     const script = read('assets/sointuharjoitus.js');
-    const prompt = 'Kuuntele soinnut 1 ja 2. Valitse sitten vastaus.';
-    for (const text of ['Kumpi on duuri?', 'Kumpi on molli?', prompt, 'Uusi arvaus']) expect(script).toContain(`'${text}'`);
-    for (const [heading, text] of [['Kuuntele ensin E ja Em', 'Kuuntele molemmat soinnut. Valitse sitten Arvaa.'], ['Kumpi on duuri?', prompt], ['Kumpi on molli?', prompt]]) {
+    const prompt = 'Kuuntele sointuja 1 ja 2. Valitse sitten vastaus.';
+    for (const text of ['Kumpi on duuri?', 'Kumpi on molli?', prompt]) expect(script).toContain(`'${text}'`);
+    for (const [heading, text] of [['Kumpi on duuri?', prompt], ['Kumpi on molli?', prompt]]) {
       expect(html).toContain(`<div class="sointu-varaus" aria-hidden="true"><span class="sointu-varaus-otsikko">${heading}</span><span>${text}</span></div>`);
     }
-    expect(html).toContain('<span data-uusi-arvaus-teksti>Arvaa</span><span class="sointu-varaus" aria-hidden="true">Uusi arvaus</span>');
+    expect(html).toContain('<button type="button" data-uusi-arvaus>Tunnista</button>');
+    expect(html).not.toContain('Uusi tehtävä');
+    const recognitionCode = script.slice(script.indexOf('function setupGuess('), script.indexOf('function setupProgression('));
+    expect(recognitionCode).not.toContain('setTimeout(');
+    expect(recognitionCode).toContain('if (family === nextFamily && !started) return;');
+    expect(recognitionCode).toContain('if (answered) {');
+    expect(recognitionCode).toContain("choice.setAttribute('aria-disabled', 'true');");
+    expect(recognitionCode).toContain("button.removeAttribute('aria-disabled');");
+    const answerHandler = recognitionCode.slice(recognitionCode.indexOf('for (const button of choices)'));
+    expect(answerHandler).not.toContain('startRound(true)');
+    expect(html).toContain('Aloita uusi tehtävä valitsemalla sointupari ylhäältä.');
+    expect(html).not.toContain('Paina vastauspainiketta uudelleen');
+    expect(html).toContain('data-arvaus-kysymys hidden');
+    expect(html).toContain('data-arvaus-kuuntelu role="group" aria-label="Tunnistustehtävän ääniesimerkit" hidden');
+    expect(html).toContain('data-arvaus-pari="D" aria-pressed="true"');
+    expect(html).toContain('data-arvaus-pari="E" aria-pressed="false"');
+    expect(html).toContain('data-arvaus-pari="A" aria-pressed="false"');
+    expect(html).toContain('data-aam-kaaviot hidden');
+    expect(html).toContain('<figcaption>A</figcaption>');
+    expect(html).toContain('<figcaption>Am</figcaption>');
+    expect(html).toContain('<code>x02220</code>');
+    expect(html).toContain('<code>x02210</code>');
+    expect(script).toContain("A: ['A:A2', 'D:E3', 'G:A3', 'B:Cs4', 'HighE:E4']");
+    expect(script).toContain("Am: ['A:A2', 'D:E3', 'G:A3', 'B:C4', 'HighE:E4']");
+    expect(script).toContain("nextTargetByFamily = { D: 'D', E: 'E', A: 'A' }");
+    expect(html).not.toContain('data-suora-kuuntelu');
   }
 });
 
@@ -149,4 +175,95 @@ print(json.dumps({'id': page.study_id, 'kind': page.study_kind, 'mark': rakenna.
       expect(() => describePage(group)).toThrow(/voi olla vain/);
     }
   });
+});
+
+
+it('04 G–D–Em–C säilyttää hyväksytyn yhden soinnun 4/4-tahdissa ja oikean kaaviosarjan', () => {
+  const markup = read('tools/oppimiskartta/sisallot/soinnut/sointukierto-ja-asteet.html');
+  const standalone = read('oppi/soinnut/sointukierto-ja-asteet.html');
+  const topic = read('oppi/soinnut/index.html');
+  expect(markup).toContain('data-sointuharjoitus="asteet"');
+  expect(markup).toContain('I–V–vi–IV');
+  expect(markup).toContain('Jokainen sointu kestää yhden 4/4-tahdin');
+  for (const html of [standalone, topic]) {
+    expect(html).toContain('data-sointuharjoitus="asteet"');
+    const section = html.slice(html.indexOf('data-sointuharjoitus="asteet"'));
+    const diagrams = [...section.matchAll(/<figure class="chord-diagram"><figcaption>(G|D|Em|C)<\/figcaption>/g)]
+      .map(([, name]) => name);
+    expect(diagrams.slice(0, 4)).toEqual(['G', 'D', 'Em', 'C']);
+    expect(section).toContain('G-duurin seitsemän kolmisointua');
+    expect(section).toContain('F♯dim');
+  }
+});
+
+it('06 sointukierto säilyttää neljä vapaasti vaihdettavaa, ei-lukittua vihjenäkymää', () => {
+  const source = read('tools/oppimiskartta/sisallot/soinnut/sama-kierto-vahemmilla-vihjeilla.html');
+  const page = read('oppi/soinnut/sama-kierto-vahemmilla-vihjeilla.html');
+  const topic = read('oppi/soinnut/index.html');
+  for (const markup of [source, page, topic]) {
+    const section = markup.slice(markup.indexOf('data-sointuharjoitus="vihjeet"'));
+    for (const mode of ['soinnut', 'asteet', 'tahdit', 'ilman']) {
+      expect(section).toContain('data-vihje-mode="' + mode + '"');
+    }
+    expect(section).toContain('data-vihje-play');
+    expect(section).toContain('data-vihje-kartta');
+    expect(section).toContain('voit palata helpompaan näkymään milloin vain');
+    expect(section).not.toContain('data-requires-completed');
+  }
+  expect(page).toContain('data-study-item="harjoitus:sama-kierto-vahemmilla-vihjeilla"');
+  expect(topic).toContain('data-study-attempt-status="harjoitus:sama-kierto-vahemmilla-vihjeilla"');
+  expect(page).toContain('G–D–Em–C');
+});
+
+it('05 C–G–Am–F käyttää oikean F-duurin valmista graafista otetta', () => {
+  const src = read('tools/oppimiskartta/sisallot/soinnut/siirra-sama-rakenne.html');
+  const page = read('oppi/soinnut/siirra-sama-rakenne.html');
+  const topic = read('oppi/soinnut/index.html');
+  expect(src).toContain('G–D–Em–C');
+  expect(src).toContain('C–G–Am–F');
+  expect(src).toContain('I–V–vi–IV');
+  expect(src).toContain('<!-- sointukaaviot:osa-3#harmoninen-kentta F -->');
+  const diagramStart = page.indexOf('<div class="chord-diagrams">');
+  const diagrams = page.slice(diagramStart, page.indexOf('</div>', diagramStart));
+  expect([...diagrams.matchAll(/<figure class="chord-diagram"><figcaption>([^<]+)<\/figcaption>/g)]
+    .map(([, chord]) => chord)).toEqual(['C', 'G', 'Am', 'F']);
+  expect(diagrams).toContain('<code>xx3211</code>');
+  expect(diagrams).not.toContain('<figcaption>Fmaj7</figcaption>');
+  expect(topic).toContain('data-study-attempt-status="harjoitus:siirra-sama-rakenne"');
+  expect(page).toContain('data-study-item="harjoitus:siirra-sama-rakenne"');
+});
+
+
+it('02:n D/Dm käyttää F♯4:n rinnalla aitoa F4-näytettä ja säilyttää E/Em-arvauksen', () => {
+  const src = read('tools/oppimiskartta/sisallot/soinnut/yksi-savel-muuttaa-sointua.html');
+  const page = read('oppi/soinnut/yksi-savel-muuttaa-sointua.html');
+  const topic = read('oppi/soinnut/index.html');
+  const audio = read('assets/sointuharjoitus.js');
+  expect(src).toContain('D–F♯–A');
+  expect(src).toContain('D–F–A');
+  expect(src).toContain('data-ddm-play="D"');
+  expect(src).toContain('data-ddm-play="Dm"');
+  expect(src).toContain('data-eem-play="E"');
+  expect(src).toContain('data-eem-play="Em"');
+  expect(src).toContain('1 · Kuuntele D ja Dm');
+  expect(src).toContain('2 · Kuuntele E ja Em');
+  expect(src).toContain('3 · Tunnista duuri ja molli');
+  expect(src).toContain('data-eem-kaaviot');
+  expect(src).toContain('data-uusi-arvaus');
+  expect(audio).toContain("Dm: ['D:D3', 'G:A3', 'B:D4', 'HighE:F4']");
+  expect(audio).toContain("D: ['D:D3', 'G:A3', 'B:D4', 'HighE:Fs4']");
+  expect(exists('assets/audio/soinnut/INSGuitarSteel_StringHighE_Vel02_F4_01.ogg')).toBe(true);
+  expect(exists('assets/audio/soinnut/INSGuitarSteel_StringHighE_Vel02_F4_01.m4a')).toBe(true);
+  for (const markup of [page, topic]) {
+    const section = markup.slice(markup.indexOf('data-sointuharjoitus="arvaa"'));
+    expect(section).toContain('data-ddm-play="D"');
+    expect(section).toContain('data-ddm-play="Dm"');
+    const diagrams = [...section.matchAll(/<figure class="chord-diagram"><figcaption>(D|Dm)<\/figcaption>[\s\S]*?<code>([^<]+)<\/code><\/figure>/g)]
+      .slice(0, 2).map(([, chord, fingering]) => ({ chord, fingering }));
+    expect(diagrams).toEqual([
+      { chord: 'D', fingering: 'xx0232' },
+      { chord: 'Dm', fingering: 'xx0231' },
+    ]);
+    expect(section).toContain('data-arvaus-kaaviot');
+  }
 });

@@ -63,18 +63,23 @@
           "lessons": [
             {
               "standalone": "loyda-pulssi-ja-ykkonen",
-              "title": "Löydä pulssi ja ykkönen",
-              "goal": "Kuuntele ja naputa"
-            },
-            {
-              "standalone": "hiljaisuus-kuuluu-rytmiin",
-              "title": "Hiljaisuus kuuluu rytmiin",
-              "goal": "Kokeile taukoa"
+              "title": "Pulssi jatkuu, vaikka musiikki vaikenee",
+              "goal": "Pidä pulssi, kun musiikki vaikenee"
             },
             {
               "standalone": "sama-musiikki-eri-tuntuma",
-              "title": "Sama musiikki, eri tuntuma",
-              "goal": "Kuule ja vertaile"
+              "title": "Samat iskut, eri fiilis",
+              "goal": "Kitaran 1/3- ja 2/4-painotukset"
+            },
+            {
+              "standalone": "hiljaisuus-kuuluu-rytmiin",
+              "title": "Tauko ei aina tarkoita hiljaisuutta",
+              "goal": "Sointi, vaimennus ja pois jätetty isku"
+            },
+            {
+              "standalone": "valmistaudu-seuraavaan-osaan",
+              "title": "Valmistaudu seuraavaan osaan",
+              "goal": "Vaimenna D nelosella, aloita G ykkösellä"
             }
           ],
           "inline": true,
@@ -266,6 +271,21 @@
               "standalone": "mihin-kappale-haluaa-palata",
               "title": "Mihin kappale haluaa palata?",
               "goal": "Sointujen suhde"
+            },
+            {
+              "standalone": "sointukierto-ja-asteet",
+              "title": "Sointukierto ja sointuasteet",
+              "goal": "G–D–Em–C: I–V–vi–IV"
+            },
+            {
+              "standalone": "siirra-sama-rakenne",
+              "title": "Siirrä sama rakenne",
+              "goal": "C–G–Am–F: sama I–V–vi–IV"
+            },
+            {
+              "standalone": "sama-kierto-vahemmilla-vihjeilla",
+              "title": "Sama kierto, vähemmän apua",
+              "goal": "Neljä vaihdettavaa vihjenäkymää"
             }
           ]
         },

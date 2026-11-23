@@ -15,6 +15,11 @@
     G: ['LowE:G2', 'G:G3', 'B:B3', 'D:D4'],
     C: ['A:C3', 'G:G3', 'B:C4', 'HighE:E4'],
     D: ['D:D3', 'G:A3', 'B:D4', 'HighE:Fs4'],
+    Dm: ['D:D3', 'G:A3', 'B:D4', 'HighE:F4'],
+    // A / Am: viisi samaa avointa kieltä, vain B-kielen C♯4 → C4.
+    A: ['A:A2', 'D:E3', 'G:A3', 'B:Cs4', 'HighE:E4'],
+    Am: ['A:A2', 'D:E3', 'G:A3', 'B:C4', 'HighE:E4'],
+    Em: ['LowE:E2', 'D:E3', 'G:G3', 'B:B3'],
   };
   const TRIAD = [SCALE.G, SCALE.B, SCALE.D];
   const BAR = 2.25;
@@ -29,6 +34,10 @@
     ote: notes(OPEN_G, 3.60, 0.19, 0.045),
     yksitellen: notes(TRIAD, 1.2, 0.48, 0.52),
     ydinYhdessa: notes(TRIAD, 1.9, 0.33),
+    D: notes(HARMONY.D, 2.15, 0.23, 0.022),
+    Dm: notes(HARMONY.Dm, 2.15, 0.23, 0.022),
+    A: notes(HARMONY.A, 2.15, 0.21, 0.023),
+    Am: notes(HARMONY.Am, 2.15, 0.21, 0.023),
     E: notes(OPEN_E, 2.15, 0.19, 0.023),
     Em: notes(OPEN_EM, 2.15, 0.19, 0.023),
   };
@@ -42,8 +51,10 @@
     soita: 'Kuuntele, miltä kaikki kuusi kieltä kuulostavat yhdessä. Ääni on oikeasta kitaranäytteestä.',
     rakenna: 'Voit valita kolme säveltä haluamassasi järjestyksessä.',
     kokoa: 'Valitse esimerkki kuunneltavaksi.',
-    arvaa: 'Napauta E:tä tai Em:ää kuunnellaksesi.',
+    arvaa: 'Valitse sointupari ja paina Tunnista.',
     paluu: 'Valitse ensin lopetus: G, C tai D.',
+    asteet: 'Kuuntele neljä tahtia ja kokeile samaa kiertoa omalla kitaralla.',
+    vihjeet: 'Valitse vihjeiden määrä ja aloita neljä neljän tahdin kierrosta.',
   };
 
   // AAC ensin, jos selain ilmoittaa tukevansa sitä. Verkkovirhe tai purkuvirhe kokeilee toista muotoa.
@@ -149,7 +160,7 @@
     source.stop(end);
   }
 
-  async function play(trigger, status, plan, { label = 'Kuuntelu käynnissä.', onPosition, onStop } = {}) {
+  async function play(trigger, status, plan, { label = 'Kuuntelu käynnissä.', onPosition, onStop, onStart } = {}) {
     stop();
     const own = { trigger, status, onPosition, onStop, abort: new AbortController(), sources: new Set() };
     session = own;
@@ -191,6 +202,9 @@
       for (const event of plan) schedule(own, loadedByPitch.get(event.pitch), event);
       trigger.dataset.playing = '';
       showStatus(status, label);
+      // Kutsu vasta kun Web Audio -lähteet on ladattu ja käynnistys ajastettu.
+      // Epäonnistunut lataus tai keskeytynyt toisto ei avaa tunnistuksen vastaamista.
+      onStart?.();
       function followClock() {
         if (session !== own) return;
         const elapsed = ctx.currentTime - own.start;
@@ -309,7 +323,6 @@
   }
 
   function setupGuess(section, playExample, stopExample, showExerciseStatus) {
-    const normal = section.querySelector('[data-suora-kuuntelu]');
     const listening = section.querySelector('[data-arvaus-kuuntelu]');
     const question = section.querySelector('[data-arvaus-kysymys]');
     const heading = question.querySelector('[data-kysymys]');
@@ -319,96 +332,196 @@
     const feedback = section.querySelector('[data-arvauspalaute]');
     const firstPrompt = feedback.textContent;
     const diagrams = section.querySelector('[data-arvaus-kaaviot]');
-    const chords = { E: diagrams.children[0], Em: diagrams.children[1] };
-    const comparison = section.querySelector('[data-otevertailu]');
-    const tip = section.querySelector('.study-knoppi');
-    const next = section.querySelector('[data-uusi-arvaus]');
-    const fullName = { E: 'E-duuri', Em: 'E-molli' };
+    const originalD = section.querySelector('.chord-diagrams');
+    const originalE = section.querySelector('[data-eem-kaaviot]');
+    const originalA = section.querySelector('[data-aam-kaaviot]');
+    const chords = {
+      D: originalD.children[0].cloneNode(true),
+      Dm: originalD.children[1].cloneNode(true),
+      E: originalE.children[0].cloneNode(true),
+      Em: originalE.children[1].cloneNode(true),
+      A: originalA.children[0].cloneNode(true),
+      Am: originalA.children[1].cloneNode(true),
+    };
+    const families = { D: ['D', 'Dm'], E: ['E', 'Em'], A: ['A', 'Am'] };
+    const pairButtons = [...section.querySelectorAll('[data-arvaus-pari]')];
+    const pairSelection = section.querySelector('.sointu-parin-valinta');
+    const startButton = section.querySelector('[data-uusi-arvaus]');
+    let family = 'D';
+    let started = false;
+    const fullName = { D: 'D-duuri', Dm: 'D-molli', E: 'E-duuri', Em: 'E-molli', A: 'A-duuri', Am: 'A-molli' };
+    // #115: D/Dm ensin. F4 on oikea Vel02:n kitaranäyte,
+    // ei F♯4-näytteen äänenkorkeuden muutoksesta tehty korvike.
+    const ddmStatus = section.querySelector('[data-ddm-tila]');
+    showStatus(ddmStatus, 'Valitse D-duuri tai D-molli kuunneltavaksi.');
+    for (const button of section.querySelectorAll('[data-ddm-play]')) {
+      button.addEventListener('click', () => {
+        const chord = button.dataset.ddmPlay;
+        play(button, ddmStatus, plans[chord], {
+          label: `Kuulit ${chord === 'D' ? 'D-duurin' : 'D-mollin'}. Vertaa toiseen sointuun.`,
+        });
+      });
+    }
+    // Toinen kuunteluvaihe on itsenäinen: tunnistustehtävän vaihtelu ei piilota sitä.
+    const eemStatus = section.querySelector('[data-eem-tila]');
+    showStatus(eemStatus, 'Valitse E-duuri tai E-molli kuunneltavaksi.');
+    for (const button of section.querySelectorAll('[data-eem-play]')) {
+      button.addEventListener('click', () => {
+        const chord = button.dataset.eemPlay;
+        play(button, eemStatus, plans[chord], {
+          label: `Kuulit ${chord === 'E' ? 'E-duurin' : 'E-mollin'}. Vertaa toiseen sointuun.`,
+        });
+      });
+    }
     const listenButtons = [...listening.querySelectorAll('button')];
     let pair;
     let target;
     let answered = false;
+    // Kukin pari vuorottelee itsenäisesti: duuri → molli → duuri.
+    // Sointu 1:n ja Sointu 2:n keskinäinen järjestys arvotaan joka kierroksella.
+    const nextTargetByFamily = { D: 'D', E: 'E', A: 'A' };
 
-    for (const button of normal.querySelectorAll('button')) {
-      button.addEventListener('click', () => playExample(button, plans[button.dataset.ydinPlay]));
+    // Vertailut ovat erilliset kohdat 1 ja 2. Tunnistus alkaa ensimmäisellä
+    // Tunnista-painalluksella. Vastauksen jälkeen vain yläpuolen parivalinta
+    // aloittaa seuraavan kierroksen; vastauksia ei voi enää muuttaa.
+    function chooseFamily(nextFamily) {
+      // Ennen aloitusta valitaan pari. Aloituksen jälkeen kumpi tahansa
+      // paripainike aloittaa uuden kierroksen myös ilman aiempaa vastausta.
+      if (family === nextFamily && !started) return;
+      stop();
+      family = nextFamily;
+      pair = null;
+      answered = false;
+      const names = families[family];
+      pairButtons.forEach(button =>
+        button.setAttribute('aria-pressed', String(button.dataset.arvausPari === family)));
+      if (started) {
+        // Kumpi tahansa parivalinta aloittaa uuden kierroksen,
+        // mutta ei palauta ensimmäistä Tunnista-painiketta.
+        startRound();
+        showExerciseStatus(`Valittu ${names.join(' ja ')}. Kuuntele soinnut ja vastaa.`);
+      } else {
+        showExerciseStatus(`Valittu ${names.join(' ja ')}. Paina Tunnista.`);
+      }
     }
+    pairButtons.forEach(button =>
+      button.addEventListener('click', () => chooseFamily(button.dataset.arvausPari)));
     for (const button of listenButtons) {
-      button.addEventListener('click', () => playExample(button, plans[pair[Number(button.dataset.arvaaKuuntele)]]));
+      button.addEventListener('click', () => {
+        const index = Number(button.dataset.arvaaKuuntele);
+        const chord = pair[index];
+        if (answered) {
+          // Vasta kuuntelutehtävään vastaamisen jälkeen painettu kuuntelupainike
+          // näyttää, oliko kyseessä kysytty sointu. Toinen painike pysyy neutraalina.
+          listenButtons.forEach(choice => choice.classList.remove('is-correct', 'is-wrong'));
+          nameListening(true);
+          const correct = chord === target;
+          button.classList.add(correct ? 'is-correct' : 'is-wrong');
+          button.setAttribute('aria-label',
+            `Kuuntele sointu ${index + 1}, ${fullName[chord]}, ${correct ? 'oikea vastaus' : 'väärä vastaus'}`);
+        }
+        playExample(button, plans[chord], {
+          onStart: () => {
+            if (answered) return;
+            // Vähintään yhden tämän kierroksen ääniesimerkin käynnistyminen riittää.
+            choices.forEach(choice => { choice.disabled = false; });
+            feedback.textContent = 'Voit nyt vastata.';
+          },
+        });
+      });
     }
-    // Vastauksen jälkeen nimet näkyvät samoissa painikkeissa arvotussa järjestyksessä. Varattu
-    // leveys (.sointu-varaus) pitää painikkeen koon samana nimettynä ja nimettömänä.
+    // Vastauksen jälkeen näkyy vain sointumerkki (D, Dm, E, Em, A, Am).
+    // Sointu 1/2 -järjestys säilyy saavutettavassa nimessä ja sointukaavioissa.
+    // Piilotettu Sointu 1/2 -varaus pitää painikkeen koon vakaana.
     function nameListening(reveal) {
       listenButtons.forEach((button, index) => {
         const number = index + 1;
         const chord = pair[Number(button.dataset.arvaaKuuntele)];
-        button.querySelector('[data-arvaus-teksti]').textContent = reveal ? `Sointu ${number} · ${chord}` : `Sointu ${number}`;
+        button.querySelector('[data-arvaus-teksti]').textContent = reveal ? chord : `Sointu ${number}`;
         button.setAttribute('aria-label', reveal ? `Kuuntele sointu ${number}, ${fullName[chord]}` : `Kuuntele sointu ${number}`);
       });
     }
-    next.addEventListener('click', () => {
-      stopExample();
-      pair = Math.random() < 0.5 ? ['E', 'Em'] : ['Em', 'E'];
-      target = Math.random() < 0.5 ? 'Em' : 'E';
+    function startRound(initiatedByUser = false) {
+      stop();
+      started = true;
+      startButton.hidden = true;
+      const selected = families[family];
+      pair = Math.random() < 0.5 ? [...selected] : [...selected].reverse();
+      target = nextTargetByFamily[family];
+      nextTargetByFamily[family] = target === selected[0] ? selected[1] : selected[0];
       answered = false;
-      normal.hidden = comparison.hidden = diagrams.hidden = tip.hidden = true;
-      listening.hidden = answers.hidden = feedback.hidden = false;
+      diagrams.hidden = true;
+      diagrams.replaceChildren();
+      question.hidden = listening.hidden = answers.hidden = feedback.hidden = false;
       question.classList.add('is-active');
-      heading.textContent = target === 'E' ? 'Kumpi on duuri?' : 'Kumpi on molli?';
-      prompt.textContent = 'Kuuntele soinnut 1 ja 2. Valitse sitten vastaus.';
+      heading.textContent = target === selected[0] ? 'Kumpi on duuri?' : 'Kumpi on molli?';
+      prompt.textContent = 'Kuuntele sointuja 1 ja 2. Valitse sitten vastaus.';
       feedback.textContent = firstPrompt;
-      feedback.classList.remove('is-error');
+      feedback.classList.remove('is-error', 'is-answered');
       choices.forEach(button => {
+        button.disabled = true;
         button.removeAttribute('aria-disabled');
         button.removeAttribute('aria-label');
         button.classList.remove('is-correct', 'is-wrong');
       });
+      listenButtons.forEach(button => button.classList.remove('is-correct', 'is-wrong'));
       nameListening(false);
-      next.querySelector('[data-uusi-arvaus-teksti]').textContent = 'Uusi arvaus';
-      showExerciseStatus('Kuuntele sointu 1 ja sointu 2 ennen vastaamista.');
-      // Sama kysymyskortti on olemassa jo alussa, joten fokus ei työnnä kaikkia
-      // painikkeita eri paikkaan. Vieritä vain, jos kysymys ei ole näkyvissä.
-      heading.focus({ preventScroll: true });
-      question.scrollIntoView({ block: 'nearest', behavior: 'instant' });
-    });
+      showExerciseStatus('Kuuntele sointuja ja valitse vastaus.');
+      // Ensimmäinen aloitus tuo
+      // sointuparin valinnan JA kysymyksen samaan näkymään. Jos vierittäisimme
+      // pelkkään kysymyskorttiin, D/Dm- ja E/Em-painikkeet jäisivät yläpuolelle.
+      // Parin vaihto ei varasta fokusta.
+      if (initiatedByUser) {
+        heading.focus({ preventScroll: true });
+        pairSelection.scrollIntoView({ block: 'start', behavior: 'instant' });
+      }
+    }
+    startButton.addEventListener('click', () => startRound(true));
     for (const button of choices) {
       button.addEventListener('click', () => {
-        if (answered) return;
+        if (answered) {
+          // Vastauksen jälkeen molemmat vastauspainikkeet ovat lukittuja.
+          // Uusi kysymys alkaa vain valitsemalla ylhäältä sointupari.
+          return;
+        }
         answered = true;
         stopExample();
         const selectedIndex = Number(button.dataset.vastaus);
         const correctIndex = pair.indexOf(target);
         const correct = selectedIndex === correctIndex;
         choices.forEach((choice, index) => {
-          const isCorrect = correct && index === selectedIndex;
+          // Väritetään vain oppijan painama vaihtoehto. Oikea vastaus
+          // kerrotaan myös palautteessa ilman toisen painikkeen korostamista.
+          const isCorrect = index === selectedIndex && correct;
           const isWrong = index === selectedIndex && !correct;
-          choice.setAttribute('aria-disabled', 'true');
           choice.classList.toggle('is-correct', isCorrect);
           choice.classList.toggle('is-wrong', isWrong);
           // Painikkeen näkyvä teksti ei muutu eikä siirrä muita ohjaimia.
           // Tulos on luettavissa myös kohdistamalla ruudunlukija painikkeeseen.
+          choice.setAttribute('aria-disabled', 'true');
           if (isCorrect || isWrong) {
             choice.setAttribute('aria-label', `Sointu ${index + 1}, ${isCorrect ? 'oikea vastaus' : 'väärä vastaus'}`);
           } else {
-            choice.removeAttribute('aria-label');
+            choice.setAttribute('aria-label', `Sointu ${index + 1}, vastaus annettu`);
           }
         });
         feedback.classList.toggle('is-error', !correct);
-        const explanation = `Sointu 1 oli ${fullName[pair[0]]} ja sointu 2 oli ${fullName[pair[1]]}.`;
-        if (correct) {
-          const lead = document.createElement('strong');
-          lead.textContent = 'Oikein!';
-          feedback.replaceChildren(lead, document.createTextNode(` ${explanation}`));
-        } else {
-          feedback.textContent = `Tällä kertaa ei. ${explanation}`;
-        }
+        feedback.classList.add('is-answered');
+        const result = document.createElement('strong');
+        result.className = 'sointu-arvaus-tulos';
+        result.textContent = correct ? 'Oikein!' : 'Tällä kertaa ei.';
+        feedback.replaceChildren(result, document.createTextNode(` Sointu 1 oli ${fullName[pair[0]]} ja sointu 2 oli ${fullName[pair[1]]}.`));
         pair.forEach((chord, index) => {
           const figure = chords[chord];
-          figure.querySelector('figcaption').textContent = `Sointu ${index + 1} = ${chord}`;
+          // Kaavion näkyvä otsikko on pelkkä sointumerkki. Ruudunlukija saa
+          // edelleen Sointu 1/2 -yhteyden kaavion omasta saavutettavasta nimestä.
+          figure.querySelector('figcaption').textContent = chord;
+          figure.setAttribute('aria-label', `Sointu ${index + 1}: ${fullName[chord]}`);
           diagrams.append(figure);
         });
         nameListening(true);
-        diagrams.hidden = tip.hidden = false;
-        showExerciseStatus('Voit kuunnella molemmat soinnut uudelleen nimineen.');
+        diagrams.hidden = false;
+        showExerciseStatus('Palaute jää näkyviin. Valitse ylhäältä sointupari aloittaaksesi uuden tehtävän.');
       });
     }
   }
@@ -470,6 +583,104 @@
     });
   }
 
+
+  function setupDegrees(section, playExample, stopExample) {
+    const playButton = section.querySelector('[data-asteet-play]');
+    const bars = [...section.querySelectorAll('[data-asteet-bar]')];
+    const sequence = ['G', 'D', 'Em', 'C'];
+    let active = -1;
+
+    function draw(index) {
+      if (index === active) return;
+      active = index;
+      bars.forEach((bar, position) => {
+        if (position === index) bar.setAttribute('aria-current', 'step');
+        else bar.removeAttribute('aria-current');
+      });
+    }
+
+    playButton.addEventListener('click', () => {
+      if (session?.trigger === playButton) {
+        stopExample('Pysäytetty. Voit kuunnella uudelleen.');
+        return;
+      }
+      const plan = sequence.flatMap((chord, index) =>
+        notes(HARMONY[chord], 2.15, 0.23, 0.022, index * BAR));
+      draw(-1);
+      playButton.textContent = '■ Pysäytä';
+      playExample(playButton, plan, {
+        label: 'Kuuntele G–D–Em–C. Yksi sointu neljän iskun tahdissa.',
+        onPosition: elapsed => draw(elapsed < 0 ? -1 : Math.min(3, Math.floor(elapsed / BAR))),
+        onStop: () => { playButton.textContent = '▶ Kuuntele neljä tahtia'; },
+      });
+    });
+  }
+
+
+  function setupHints(section, playExample, stopExample, showExerciseStatus) {
+    const buttons = [...section.querySelectorAll('[data-vihje-mode]')];
+    const area = section.querySelector('[data-vihje-kartta]');
+    const main = [...section.querySelectorAll('[data-vihje-teksti]')];
+    const sub = [...section.querySelectorAll('[data-vihje-ala]')];
+    const bars = [...section.querySelectorAll('[data-vihje-tahti]')];
+    const hint = section.querySelector('[data-vihje-ohje]');
+    const playButton = section.querySelector('[data-vihje-play]');
+    const sequence = ['G', 'D', 'Em', 'C'];
+    const degrees = ['I', 'V', 'vi', 'IV'];
+    const modes = {
+      soinnut: 'Soitettava sointu ja tahdin numero näkyvät.',
+      asteet: 'Soinnun aste ja tahdin numero näkyvät.',
+      tahdit: 'Vain tahdin numero näkyy. Muista soinnut itse.',
+      ilman: 'Sointuvihjeet ja tahtikartta on piilotettu. Soita muistista.',
+    };
+    let mode = 'soinnut';
+    let active = -1;
+
+    function draw(position) {
+      active = position;
+      bars.forEach((bar, index) => {
+        if (mode !== 'ilman' && index === position) bar.setAttribute('aria-current', 'step');
+        else bar.removeAttribute('aria-current');
+      });
+    }
+
+    function setMode(nextMode) {
+      mode = nextMode;
+      buttons.forEach(button =>
+        button.setAttribute('aria-pressed', String(button.dataset.vihjeMode === mode)));
+      area.hidden = mode === 'ilman';
+      hint.textContent = modes[mode];
+      main.forEach((item, index) => {
+        item.textContent = mode === 'soinnut' ? sequence[index] :
+          mode === 'asteet' ? degrees[index] : String(index + 1);
+        sub[index].textContent = mode === 'tahdit' ? 'Tahti' : `Tahti ${index + 1}`;
+      });
+      draw(active);
+    }
+
+    buttons.forEach(button =>
+      button.addEventListener('click', () => setMode(button.dataset.vihjeMode)));
+    playButton.addEventListener('click', () => {
+      if (session?.trigger === playButton) {
+        stopExample('Pysäytetty. Voit kokeilla uudelleen.');
+        return;
+      }
+      // Neljä itsenäistä kierrosta, sama 4/4-pulssi. Ei ylimääräistä
+      // "tunnistettu oikein" -arviota tai pakollista etenemisjärjestystä.
+      const plan = Array.from({ length: 4 }, (_, cycle) =>
+        sequence.flatMap((chord, index) =>
+          notes(HARMONY[chord], 2.15, 0.23, 0.022, (cycle * 4 + index) * BAR)),
+      ).flat();
+      playButton.textContent = '■ Pysäytä harjoitus';
+      playExample(playButton, plan, {
+        label: 'Harjoitus soi. Vaihda vihjeitä vapaasti.',
+        onPosition: elapsed => draw(elapsed < 0 ? -1 : Math.min(3, Math.floor(elapsed / BAR) % 4)),
+        onStop: () => { playButton.textContent = '▶ Aloita soittoharjoitus'; },
+      });
+    });
+    setMode(mode);
+  }
+
   for (const section of sections) {
     const kind = section.dataset.sointuharjoitus;
     const status = section.querySelector('[data-sointu-tila]');
@@ -488,5 +699,7 @@
     if (kind === 'kokoa') setupTriad(section, playExample, stopExample);
     if (kind === 'arvaa') setupGuess(section, playExample, stopExample, showExerciseStatus);
     if (kind === 'paluu') setupProgression(section, playExample, stopExample, showExerciseStatus);
+    if (kind === 'asteet') setupDegrees(section, playExample, stopExample);
+    if (kind === 'vihjeet') setupHints(section, playExample, stopExample, showExerciseStatus);
   }
 })();

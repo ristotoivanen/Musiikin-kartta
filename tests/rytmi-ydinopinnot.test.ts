@@ -1,12 +1,12 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
-  compLevel, createTransport, grooveCells, gridCell, LOOP_STEPS, positionAt, requestMode, scheduleUntil, STEPS_PER_BAR,
+  compLevel, createTransport, grooveCells, gridCell, LOOP_STEPS, positionAt, pulseCellAt, requestDrumGap, requestMode, requestTaukoMode, scheduleUntil, STEPS_PER_BAR, transitionCells,
   stepEvents, tempoFor,
 // @ts-expect-error Testattu selainmoduuli palvellaan suoraan JavaScriptinä.
 } from '../assets/rytmi-ydinopinnot.js';
 
-type Event = { type: string; role: string; level?: number; harmony?: string; strong?: boolean; time: number; step: number };
+type Event = { type: string; role: string; level?: number; harmony?: string; duration?: number; strong?: boolean; time: number; step: number };
 type Switch = { time: number; step: number; mode: string };
 
 const roles = (task: string, step: number, options = {}): string[] => stepEvents(task, step, options).map((event: Event) => event.role);
@@ -19,7 +19,7 @@ describe('Rytmin Ydinopinnot: tempot ja tausta', () => {
   });
 
   it('rumpu- ja bassotausta soi jokaisella kahdeksasosalla kaikissa harjoituksissa', () => {
-    for (const task of ['pulssi', 'hiljaisuus', 'tuntuma']) {
+    for (const task of ['pulssi', 'hiljaisuus', 'tuntuma', 'osanvaihto']) {
       for (const step of loop(task)) expect(step.some((role: string) => ['hi-hat', 'virveli', 'bassorumpu', 'melodia'].includes(role))).toBe(true);
     }
   });
@@ -47,6 +47,164 @@ describe('01 Löydä pulssi ja ykkönen', () => {
   });
 });
 
+
+describe('#163: kahden tahdin pulssivihje', () => {
+  for (const tempo of [96, 108]) {
+    it(`piilotettuna vain ylemmän rivin ensimmäinen ruutu välähtää jokaisella iskulla myös toisessa tahdissa (${tempo} BPM)`, () => {
+      const begin = 1;
+      const transport = createTransport({ task: 'pulssi', tempo, begin });
+      const eighth = transport.stepDuration;
+      expect(pulseCellAt(transport, begin - .001, false)).toBeNull();
+      for (let bar = 0; bar < 4; bar++) {
+        const barStart = begin + bar * STEPS_PER_BAR * eighth;
+        for (let beat = 0; beat < 4; beat++) {
+          const beatStart = barStart + beat * 2 * eighth;
+          expect(pulseCellAt(transport, beatStart + .02, false)).toEqual({ bar: 0, index: 0 });
+          expect(pulseCellAt(transport, beatStart + .20, false)).toBeNull();
+          expect(pulseCellAt(transport, beatStart + eighth, false)).toBeNull();
+        }
+      }
+    });
+
+    it(`paljastettuna näyttää kaksi neljän iskun riviä kellon mukaan (${tempo} BPM)`, () => {
+      const begin = 1;
+      const transport = createTransport({ task: 'pulssi', tempo, begin });
+      for (let step = 0; step < 2 * LOOP_STEPS; step++) {
+        const at = begin + (step + .1) * transport.stepDuration;
+        if (step % 2 === 0) {
+          expect(pulseCellAt(transport, at, true)).toEqual({
+            bar: Math.floor((step % LOOP_STEPS) / STEPS_PER_BAR),
+            index: Math.floor((step % STEPS_PER_BAR) / 2),
+          });
+        } else {
+          expect(pulseCellAt(transport, at, true)).toBeNull();
+        }
+      }
+    });
+  }
+
+  it('B:n hiljainen toinen tahti on piilotettuna ilman välähdyksiä, mutta paljastettuna iskut 1–4 korostuvat', () => {
+    for (const tempo of [96, 108]) {
+      const transport = createTransport({ task: 'pulssi', tempo, begin: 1, drumGap: true });
+      const eighth = transport.stepDuration;
+      for (let cycle = 0; cycle < 2; cycle++) {
+        const start = 1 + cycle * LOOP_STEPS * eighth;
+        for (let beat = 0; beat < 4; beat++) {
+          const firstBar = start + (beat * 2 + .02) * eighth;
+          const silentBar = start + (STEPS_PER_BAR + beat * 2 + .02) * eighth;
+          expect(pulseCellAt(transport, firstBar, false)).toEqual({ bar: 0, index: 0 });
+          expect(pulseCellAt(transport, firstBar, true)).toEqual({ bar: 0, index: beat });
+          for (const reduced of [false, true]) {
+            expect(pulseCellAt(transport, silentBar, false, reduced)).toBeNull();
+            expect(pulseCellAt(transport, silentBar, true, reduced)).toEqual({ bar: 1, index: beat });
+            expect(pulseCellAt(transport, silentBar + .23, true, reduced)).toBeNull();
+          }
+        }
+      }
+    }
+  });
+
+  it('vähennetty liike ei enää jätä ensimmäistä ruutua pysyvästi vihreäksi', () => {
+    for (const tempo of [96, 108]) {
+      const transport = createTransport({ task: 'pulssi', tempo, begin: 1 });
+      const step = transport.stepDuration;
+      for (let bar = 0; bar < 2; bar++) {
+        for (let beat = 0; beat < 4; beat++) {
+          const at = 1 + (bar * STEPS_PER_BAR + beat * 2) * step;
+          expect(pulseCellAt(transport, at + .02, false, true)).toEqual({ bar: 0, index: 0 });
+          expect(pulseCellAt(transport, at + .22, false, true)).toBeNull();
+          expect(pulseCellAt(transport, at + step, false, true)).toBeNull();
+          expect(pulseCellAt(transport, at + .02, true, true)).toEqual({ bar, index: beat });
+          expect(pulseCellAt(transport, at + .22, true, true)).toBeNull();
+        }
+      }
+    }
+  });
+
+  it('normaalitilassa myös paljastetun iskun korostus sammuu ennen seuraavaa iskua', () => {
+    for (const tempo of [96, 108]) {
+      const transport = createTransport({ task: 'pulssi', tempo, begin: 1 });
+      const beat = 2 * transport.stepDuration;
+      expect(pulseCellAt(transport, 1 + .03, true)).toEqual({ bar: 0, index: 0 });
+      expect(pulseCellAt(transport, 1 + .15, true)).toBeNull();
+      expect(pulseCellAt(transport, 1 + beat + .03, true)).toEqual({ bar: 0, index: 1 });
+      expect(pulseCellAt(transport, 1 + beat + .15, true)).toBeNull();
+    }
+  });
+});
+
+describe('01 hyväksytty täysi hiljaisuus', () => {
+  it('A soi normaalisti; B:n toinen tahti on äänetön kaikilla iskulla, myös paljastetulla pulssilla', () => {
+    for (const example of ['rock', 'soft']) {
+      for (const revealed of [false, true]) {
+        const options = { example, revealed };
+        const a = loop('pulssi', { ...options, drumGap: false });
+        const b = loop('pulssi', { ...options, drumGap: true });
+        expect(a.slice(STEPS_PER_BAR).flat()).toContain('harmonia');
+        expect(b.slice(0, STEPS_PER_BAR)).toEqual(a.slice(0, STEPS_PER_BAR));
+        expect(b.slice(STEPS_PER_BAR)).toEqual(Array.from({ length: STEPS_PER_BAR }, () => []));
+        expect(a.slice(STEPS_PER_BAR).flat().length).toBeGreaterThan(0);
+      }
+    }
+    expect(gridCell('pulssi', STEPS_PER_BAR)).toEqual({ bar: 1, index: 0 });
+  });
+
+  it('B:n hiljainen tahti ei ajasta bassoa, sointua, rumpuja eikä pulssiklikkiä', () => {
+    const transport = createTransport({ task: 'pulssi', tempo: 96, begin: 1, drumGap: true });
+    const events = scheduleUntil(transport, 1 + 2 * LOOP_STEPS * transport.stepDuration, { revealed: true });
+    expect(events.filter((event: Event) => event.step % LOOP_STEPS >= STEPS_PER_BAR)).toEqual([]);
+    expect(events.some((event: Event) => event.step === LOOP_STEPS)).toBe(true);
+  });
+});
+
+describe('01 rumpuversion vaihto kesken toiston', () => {
+  const tempo = 96;
+  const begin = 1;
+  const eighth = 60 / tempo / 2;
+  const drums = ['hi-hat', 'virveli', 'bassorumpu'];
+  const at = (events: Event[], step: number) => events.filter(event => event.step === step);
+
+  it('vaihtaa A:n B:hen ja takaisin vain kahden tahdin alussa ilman ajan nollaamista', () => {
+    const transport = createTransport({ task: 'pulssi', tempo, begin, drumGap: false });
+    const events = scheduleUntil(transport, begin + 5 * eighth);
+    expect(requestDrumGap(transport, true)).toBe(true);
+    events.push(...scheduleUntil(transport, begin + 28 * eighth));
+    expect(transport.drumSwitches).toEqual([
+      { time: begin, step: 0, drumGap: false },
+      { time: begin + 16 * eighth, step: 16, drumGap: true },
+    ]);
+    // Keskeneräistä kiertoa ei katkaista: vanhan A-kierron toinen tahti kuuluu loppuun.
+    expect(at(events, 8).some(event => drums.includes(event.role))).toBe(true);
+    expect(at(events, 16).some(event => drums.includes(event.role))).toBe(true);
+    // Uuden B-kierron toisessa tahdissa on täydellinen hiljaisuus.
+    expect(at(events, 24)).toEqual([]);
+    expect(positionAt(transport, begin + 16 * eighth - 0.001).drumGap).toBe(false);
+    expect(positionAt(transport, begin + 16 * eighth).drumGap).toBe(true);
+    expect(positionAt(transport, begin + 16 * eighth).cell).toEqual({ bar: 0, index: 0 });
+
+    expect(requestDrumGap(transport, false)).toBe(true);
+    events.push(...scheduleUntil(transport, begin + 48 * eighth));
+    expect(transport.drumSwitches.map((item: { step: number }) => item.step)).toEqual([0, 16, 32]);
+    expect(at(events, 40).some(event => drums.includes(event.role))).toBe(true);
+    expect(positionAt(transport, begin + 32 * eighth).drumGap).toBe(false);
+    expect(transport.step).toBe(48);
+    expect(transport.next).toBeCloseTo(begin + 48 * eighth);
+  });
+
+  it('nopea A → B → A peruu odottavan vaihdon ilman ajastetun toiston muutosta', () => {
+    const transport = createTransport({ task: 'pulssi', tempo, begin });
+    scheduleUntil(transport, begin + 3 * eighth);
+    expect(requestDrumGap(transport, true)).toBe(true);
+    expect(transport.pendingDrumGap).toBe(true);
+    expect(requestDrumGap(transport, false)).toBe(true);
+    expect(transport.pendingDrumGap).toBe(null);
+    const later = scheduleUntil(transport, begin + 32 * eighth);
+    expect(transport.drumSwitches).toHaveLength(1);
+    expect(at(later, 24).some(event => drums.includes(event.role))).toBe(true);
+    expect(requestDrumGap(transport, false)).toBe(false);
+  });
+});
+
 describe('02 Hiljaisuus kuuluu rytmiin', () => {
   it('taputukset kuuluvat ensimmäisen tahdin iskuilla ja vaikenevat toisessa, tausta jatkuu', () => {
     const steps = loop('hiljaisuus');
@@ -68,8 +226,73 @@ describe('02 Hiljaisuus kuuluu rytmiin', () => {
     const page = readFileSync(new URL('../tools/oppimiskartta/sisallot/rytmi/hiljaisuus-kuuluu-rytmiin.html', import.meta.url), 'utf8');
     expect(page).toContain('taputukset vaikenevat');
     expect(page).toContain('Musiikkitausta ja pulssi jatkuvat');
+    expect(page).toContain('Tahti 1 · Pidä pulssi');
+    expect(page.match(/>Laske mielessä<\/span>/g)).toHaveLength(4);
+    expect(page).toContain('pidä liike käynnissä myös tauon aikana');
+    expect(page).toContain('komppikättä tasaisesti osumatta kieliin');
     expect(page).not.toContain('seuraavat neljä ovat hiljaisia');
     expect(page).not.toContain('github.com');
+  });
+});
+
+
+describe('03 hyväksytty sointi / vaimennus / pois jätetty isku', () => {
+  const chord = (mode: string) => Array.from({ length: LOOP_STEPS }, (_, step) =>
+    stepEvents('hiljaisuus', step, { taukoMode: mode })
+      .filter((event: Event) => event.role === 'tauon-sointu')
+      .map((event: Event) => ({ step, duration: event.duration }))).flat();
+  it('A soi nelosiskun yli, B vaimenee nelosen alussa, C jättää uuden iskun tekemättä', () => {
+    const beat = 60 / tempoFor('hiljaisuus');
+    expect(chord('soi')).toEqual([{ step: 8, duration: 4 * beat }]);
+    expect(chord('vaimenna')).toEqual([{ step: 8, duration: 3 * beat }]);
+    expect(chord('pois')).toEqual([{ step: 8, duration: 2 * beat }, { step: 12, duration: 2 * beat }]);
+    for (const mode of ['soi', 'vaimenna', 'pois']) {
+      expect(stepEvents('hiljaisuus', 14, { taukoMode: mode })
+        .some((event: Event) => event.role === 'tauon-sointu')).toBe(false);
+    }
+  });
+});
+
+describe('03 taukomallin A/B/C vaihto kesken soiton', () => {
+  const tempo = 72;
+  const begin = 1;
+  const eighth = 60 / tempo / 2;
+  const heldAt = (events: Event[], step: number) => events.filter(event =>
+    event.step === step && event.role === 'tauon-sointu');
+
+  it('säilyttää jo alkaneen Em:n soinnin ja vaihtaa vasta seuraavan kahden tahdin kierroksen alussa', () => {
+    const transport = createTransport({ task: 'hiljaisuus', tempo, begin, taukoMode: 'soi' });
+    const events = scheduleUntil(transport, begin + 11 * eighth);
+    expect(heldAt(events, 8)[0].duration).toBeCloseTo(4 * 60 / tempo);
+    expect(requestTaukoMode(transport, 'vaimenna')).toBe(true);
+    events.push(...scheduleUntil(transport, begin + 29 * eighth));
+    expect(transport.taukoSwitches.map((item: { step: number }) => item.step)).toEqual([0, 16]);
+    expect(heldAt(events, 8)[0].duration).toBeCloseTo(4 * 60 / tempo);
+    expect(heldAt(events, 24)[0].duration).toBeCloseTo(3 * 60 / tempo);
+    expect(positionAt(transport, begin + 16 * eighth - 0.001).taukoMode).toBe('soi');
+    expect(positionAt(transport, begin + 16 * eighth).taukoMode).toBe('vaimenna');
+    expect(positionAt(transport, begin + 16 * eighth).cell).toEqual({ bar: 0, index: 0 });
+    expect(transport.next).toBeCloseTo(begin + 29 * eighth);
+
+    expect(requestTaukoMode(transport, 'pois')).toBe(true);
+    events.push(...scheduleUntil(transport, begin + 49 * eighth));
+    expect(transport.taukoSwitches.map((item: { step: number }) => item.step)).toEqual([0, 16, 32]);
+    expect(heldAt(events, 40)[0].duration).toBeCloseTo(2 * 60 / tempo);
+    expect(heldAt(events, 44)[0].duration).toBeCloseTo(2 * 60 / tempo);
+    expect(positionAt(transport, begin + 32 * eighth).taukoMode).toBe('pois');
+  });
+
+  it('nopea A → B → C → A peruu odottavan vaihdon kokonaan', () => {
+    const transport = createTransport({ task: 'hiljaisuus', tempo, begin, taukoMode: 'soi' });
+    scheduleUntil(transport, begin + 3 * eighth);
+    expect(requestTaukoMode(transport, 'vaimenna')).toBe(true);
+    expect(requestTaukoMode(transport, 'pois')).toBe(true);
+    expect(requestTaukoMode(transport, 'soi')).toBe(true);
+    expect(transport.pendingTaukoMode).toBe(null);
+    expect(requestTaukoMode(transport, 'soi')).toBe(false);
+    const events = scheduleUntil(transport, begin + 32 * eighth);
+    expect(transport.taukoSwitches).toHaveLength(1);
+    expect(heldAt(events, 24)[0].duration).toBeCloseTo(4 * 60 / tempo);
   });
 });
 
@@ -95,8 +318,57 @@ describe('03 Sama musiikki, eri tuntuma: ruudukko ja ääni vastaavat toisiaan',
     expect(played('C')).toEqual([true, false, false, true, true, false, false, true]);
     expect(grooveCells('B').map((cell: { action: string }) => cell.action))
       .toEqual(['Soita', 'Hiljaa', 'Korosta', 'Hiljaa', 'Soita', 'Hiljaa', 'Korosta', 'Hiljaa']);
-    expect(compLevel('A', 2)).toBe(compLevel('A', 0));
+    expect(compLevel('A', 0)).toBeGreaterThan(compLevel('A', 2));
     expect(compLevel('B', 2)).toBeGreaterThan(compLevel('B', 0));
+  });
+});
+
+
+describe('04 Valmistaudu seuraavaan osaan: D–G ja aktiivinen vaimennus', () => {
+  const chords = (mode: string) =>
+    Array.from({ length: LOOP_STEPS }, (_, step) =>
+      stepEvents('osanvaihto', step, { mode }).find((event: Event) => event.role === 'osan-sointu'))
+      .filter(Boolean);
+
+  it('D ja G alkavat aina samojen tahtien ykkösillä', () => {
+    expect(chords('A').map((event: Event) => event.harmony)).toEqual(['D', 'G']);
+    expect(chords('B').map((event: Event) => event.harmony)).toEqual(['D', 'G']);
+    expect(gridCell('osanvaihto', 0)).toEqual({ bar: 0, index: 0 });
+    expect(gridCell('osanvaihto', 14)).toEqual({ bar: 1, index: 3 });
+  });
+
+  it('B vaimentaa D:n nelosiskun alussa, A antaa soida nelosen yli; tausta ja G eivät muutu', () => {
+    const [aD, aG] = chords('A');
+    const [bD, bG] = chords('B');
+    const beat = 60 / tempoFor('osanvaihto');
+    expect(aD.duration).toBeCloseTo(4 * beat);
+    expect(bD.duration).toBeCloseTo(3 * beat);
+    expect(aG.duration).toBeCloseTo(4 * beat);
+    expect(bG.duration).toBe(aG.duration);
+    for (let step = 0; step < LOOP_STEPS; step++) {
+      const sounds = (mode: string) => stepEvents('osanvaihto', step, { mode })
+        .filter((event: Event) => event.role !== 'osan-sointu');
+      expect(sounds('A')).toEqual(sounds('B'));
+    }
+    expect(transitionCells('A')).toEqual(['Soita D', 'Anna soida', 'Anna soida', 'Anna soida']);
+    expect(transitionCells('B')).toEqual(['Soita D', 'Anna soida', 'Anna soida', 'Vaimenna']);
+  });
+
+  it('käyttäjän B-vaihto tapahtuu seuraavan tahdin rajalla, ei valmiiksi ajastettuun D-ääneen', () => {
+    const tempo = tempoFor('osanvaihto');
+    const transport = createTransport({ task: 'osanvaihto', tempo, begin: 1, mode: 'A' });
+    const oneEighth = 60 / tempo / 2;
+    const prior = scheduleUntil(transport, 1 + 5 * oneEighth);
+    expect(prior.find((event: Event) => event.role === 'osan-sointu')?.duration)
+      .toBe(4 * 60 / tempo);
+    requestMode(transport, 'B');
+    const after = scheduleUntil(transport, 1 + 24 * oneEighth);
+    expect(transport.switches[1].step).toBe(16);
+    expect(after.find((event: Event) => event.role === 'osan-sointu' && event.step === 8)?.harmony).toBe('G');
+    expect(after.find((event: Event) => event.role === 'osan-sointu' && event.step === 16)?.duration)
+      .toBe(3 * 60 / tempo);
+    expect(positionAt(transport, transport.switches[1].time - .001).mode).toBe('A');
+    expect(positionAt(transport, transport.switches[1].time).mode).toBe('B');
   });
 });
 
@@ -176,7 +448,7 @@ describe('Versiovaihto tahdin rajalla', () => {
 
 describe('Rytmin aihesivu ja muodostetut sivut', () => {
   const read = (path: string) => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
-  const lessons = ['loyda-pulssi-ja-ykkonen', 'hiljaisuus-kuuluu-rytmiin', 'sama-musiikki-eri-tuntuma'];
+  const lessons = ['loyda-pulssi-ja-ykkonen', 'sama-musiikki-eri-tuntuma', 'hiljaisuus-kuuluu-rytmiin', 'valmistaudu-seuraavaan-osaan'];
   const legacy = ['pulssi-ja-komppi', 'kuuntele-pulssi', 'alas-ylos-yhdella-soinnulla', 'kaksi-sointua-yhdessa-tahdissa'];
 
   it('Ydinopinnot on ensimmäinen avattava kokonaisuus ja aiemmat neljä sisältöä sen jälkeen, molemmat suljettuina', () => {
@@ -187,7 +459,7 @@ describe('Rytmin aihesivu ja muodostetut sivut', () => {
     expect([...topic.matchAll(/<summary class="study-choice study-choice--unit" id="valinta-([^"]+)"/g)].map(([, slug]) => slug))
       .toEqual(lessons);
     for (const slug of lessons) expect(topic).toContain(`href="${slug}.html" data-return-topic="valinta-${slug}"`);
-    expect(topic.match(/class="study-inline-close" hidden>↑ Sulje oppitunti<\/button>/g)).toHaveLength(3);
+    expect(topic.match(/class="study-inline-close" hidden>↑ Sulje oppitunti<\/button>/g)).toHaveLength(4);
     // Vanhat kortit: samat ankkurit, osoitteet ja suoritustunnisteet kuin betassa.
     expect([...topic.matchAll(/<a class="study-choice" id="valinta-([^"]+)" href="([^"]+)\.html"/g)].map(([, id]) => id)).toEqual(legacy);
     expect([...topic.matchAll(/data-study-status="([^"]+)"/g)].map(([, id]) => id)).toEqual([
@@ -207,8 +479,8 @@ describe('Rytmin aihesivu ja muodostetut sivut', () => {
       expect(html).toContain('assets/rytmi-ydinopinnot.js?v=');
       expect(html).not.toContain('(valinnainen)');
     });
-    const last = read('oppi/rytmi/sama-musiikki-eri-tuntuma.html');
-    expect(last).toContain('href="index.html#valinta-sama-musiikki-eri-tuntuma"');
+    const last = read('oppi/rytmi/valmistaudu-seuraavaan-osaan.html');
+    expect(last).toContain('href="index.html#valinta-valmistaudu-seuraavaan-osaan"');
     expect(last).not.toContain('pulssi-ja-komppi.html');
     // Etusivun Rytmi-kortti ja aiemman sarjan laskuri sisältävät vain aiemmat neljä.
     const card = read('index.html').match(/href="oppi\/rytmi\/index.html" data-study-items="([^"]+)"/)![1].split(' ');
@@ -217,7 +489,7 @@ describe('Rytmin aihesivu ja muodostetut sivut', () => {
 
   it('Ydinopinnot käyttää yhteistä Kokeiltu-mekanismia samoilla oppitunti-tunnisteilla; aiemmat laskevat oman tekstinsä', () => {
     const topic = read('oppi/rytmi/index.html');
-    // Ryhmän "attempts": Kokeilematta / ✓ Kokeiltu ja x/3 kokeiltu (assets/edistyminen.js). Tunnisteet eivät muutu.
+    // Ryhmän "attempts": Kokeilematta / ✓ Kokeiltu ja x/4 kokeiltu (assets/edistyminen.js). Tunnisteet eivät muutu.
     expect([...topic.matchAll(/data-study-attempt-status="([^"]+)"/g)].map(([, id]) => id)).toEqual(lessons.map(slug => 'oppitunti:' + slug));
     expect(topic).not.toContain('data-study-intro-status=');
     expect(topic).toContain('data-unit-progress data-unit-attempts hidden');

@@ -42,6 +42,7 @@ NAMES += [
     'INSGuitarSteel_StringG_Vel02_A3_01',
     'INSGuitarSteel_StringG_Vel02_Gs3_01',
     'INSGuitarSteel_StringHighE_Vel02_E4_01',
+    'INSGuitarSteel_StringHighE_Vel02_F4_01',
     'INSGuitarSteel_StringHighE_Vel02_Fs4_01',
     'INSGuitarSteel_StringLowE_Vel02_E2_01',
 ]
@@ -69,6 +70,7 @@ SHA256.update({
     'INSGuitarSteel_StringG_Vel02_A3_01.ogg': '8d3032d6f2fe865ea30cdb2e154cc070c792547a8338ab144b7837d8924908a1',
     'INSGuitarSteel_StringG_Vel02_Gs3_01.ogg': '8ebd058a7d7cd3dc4af2882d277a23228572ca3a361596c4d11086d1dbabf26d',
     'INSGuitarSteel_StringHighE_Vel02_E4_01.ogg': '24fcdefc6b57e131677cc2af9e5055d07a093470e687c9ba03569b4471d0428a',
+    'INSGuitarSteel_StringHighE_Vel02_F4_01.ogg': '79fc96bcdea8c49147bc561c2109b030fcbdf40ffe698e098525eaa3c586516d',
     'INSGuitarSteel_StringHighE_Vel02_Fs4_01.ogg': '47cfd12ccdaeafa4b3a85f3ada6e48a8d70dc2c3f9ff3e63e13e26849f5119ec',
     'INSGuitarSteel_StringLowE_Vel02_E2_01.ogg': '07643f0430551e6cbba6c9884c0ca8a1ea2f7f23e3daa12fa141d9476d84fd6d',
     'INSGuitarSteel_StringA_Vel02_C3_01.wav': 'bcf10e28cbae32e8754bf373d242365ec233ff2267a3afaa309b6e3d3f62bff1',
@@ -79,6 +81,7 @@ SHA256.update({
     'INSGuitarSteel_StringG_Vel02_A3_01.wav': 'e3518b8f31330a854cdb863b5a795901fe2c41998b22c2941271086298eb2e2f',
     'INSGuitarSteel_StringG_Vel02_Gs3_01.wav': 'e70265a3a35d1e5305c68720f650034089ecb29b3fcb917326247b6594981110',
     'INSGuitarSteel_StringHighE_Vel02_E4_01.wav': '1a2411d8014c231be61d1b651e7e1416d069ec62426fa6398af29db824fbd143',
+    'INSGuitarSteel_StringHighE_Vel02_F4_01.wav': 'c1dc99e1bdac5423344087db1052077ccb8d175229d8d83420153be3bb8082b4',
     'INSGuitarSteel_StringHighE_Vel02_Fs4_01.wav': '893bcb1a5f547da6d5256190560bf6670e43c638cfe487aacbca6bb1c638c01b',
     'INSGuitarSteel_StringLowE_Vel02_E2_01.wav': '31be9f8e68f541dca017ad0ef3ed3476112b9266f9db4e356c02d9d96a2f312d',
 })
@@ -96,6 +99,7 @@ SHA256.update({
     'INSGuitarSteel_StringG_Vel02_G3_01.m4a': '8d41455e246ec17d011d36080d85173d53e91494244fa406d69c1bcefb3e2480',
     'INSGuitarSteel_StringG_Vel02_Gs3_01.m4a': 'ed9aa5e747521b21c4eb522f75979d918f89953bff26665d1cf7b395eaf26f02',
     'INSGuitarSteel_StringHighE_Vel02_E4_01.m4a': 'e8ca0f94d08ed2510baea170b5e994b637fe4aa4a53f14901083d7aa50ac85ba',
+    'INSGuitarSteel_StringHighE_Vel02_F4_01.m4a': '35e538b2e87d653e8806663a5dfd42f51370672f0cdd548c0853c4e190ff0cd0',
     'INSGuitarSteel_StringHighE_Vel02_Fs4_01.m4a': '41919a20fc3cf2e3ff0360a43955a9a01c4166ce7087a1cf479077b940b04a17',
     'INSGuitarSteel_StringHighE_Vel02_G4_01.m4a': '4a0534319c04ec2009462a78ab2f8e9a0624abf325526610bd3adc3a835b0815',
     'INSGuitarSteel_StringLowE_Vel02_E2_01.m4a': 'cbf397f7997a576f47ed420808605cc97c21fd648ec3ad4c7792af676ffe22cb',

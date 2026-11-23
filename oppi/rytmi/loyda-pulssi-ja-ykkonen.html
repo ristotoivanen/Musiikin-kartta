@@ -4,11 +4,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Löydä pulssi ja ykkönen – Musiikin kartta</title>
+  <title>Pulssi jatkuu, vaikka musiikki vaikenee – Musiikin kartta</title>
   <link rel="stylesheet" href="../../book/reader.css?v=65711fca9c">
   <link rel="stylesheet" href="../../assets/paavalikko.css?v=4e5c7fbf95">
   <link rel="stylesheet" href="../../assets/oppi.css?v=8a69bdc0e8">
-  <link rel="stylesheet" href="../../assets/rytmi-ydinopinnot.css?v=cd3bc61001">
+  <link rel="stylesheet" href="../../assets/rytmi-ydinopinnot.css?v=aa886f60db">
   <link rel="stylesheet" href="../../assets/kokonaisuudet.css?v=db6d10a623">
 </head>
 <body>
@@ -17,13 +17,17 @@
     <nav class="study-up" aria-label="Paluunavigointi">
       <a class="study-back" href="index.html#valinta-loyda-pulssi-ja-ykkonen"><span aria-hidden="true">←</span> Takaisin aiheeseen: Rytmi</a>
     </nav>
-    <h1 class="study-focus-title">Löydä pulssi ja ykkönen</h1>
+    <h1 class="study-focus-title">Pulssi jatkuu, vaikka musiikki vaikenee</h1>
     <section class="rytmi-harjoitus study-knoppi-host" data-rytmiharjoitus="pulssi" aria-labelledby="rytmi-01-otsikko">
-      <h2 id="rytmi-01-otsikko" class="rytmi-tunniste">01 · Kuuntele</h2>
-      <p class="rytmi-ohje">Kuuntele ensin musiikkia. Yritä löytää sen tasainen pulssi.</p>
+      <h2 id="rytmi-01-otsikko" class="rytmi-tunniste">01 · Pulssi jatkuu</h2>
+      <p class="rytmi-ohje">Kuuntele kahta saman musiikkiesimerkin versiota. A:ssa musiikki soi molemmissa tahdeissa. B:ssä koko toinen tahti on hiljainen: rummut, basso, soinnut, melodia ja naksahdukset vaikenevat. Pidä neljä iskua itse ja yritä osua mukaan, kun musiikki palaa seuraavan tahdin ykköselle. <strong>Tempo ei muutu A:n ja B:n välillä.</strong></p>
       <div class="rytmi-valinnat" role="group" aria-label="Musiikkiesimerkki" data-rytmi-ohjaimet hidden>
         <button type="button" data-esimerkki="rock" aria-pressed="true">Esimerkki 1 · 96 BPM</button>
         <button type="button" data-esimerkki="soft" aria-pressed="false">Uusi esimerkki · 108 BPM</button>
+      </div>
+      <div class="rytmi-valinnat" role="group" aria-label="Musiikin hiljeneminen" data-rytmi-ohjaimet hidden>
+        <button type="button" data-rumpumalli="jatkuva" aria-pressed="true">A · Musiikki koko ajan</button>
+        <button type="button" data-rumpumalli="katko" aria-pressed="false">B · Toinen tahti hiljaa</button>
       </div>
       <div class="rytmi-soitin" data-rytmi-ohjaimet hidden>
         <button type="button" class="rytmi-kuuntele" data-rytmi-toisto><span aria-hidden="true">▶</span> Kuuntele</button>
@@ -32,15 +36,23 @@
       <div class="rytmi-valinnat" data-rytmi-ohjaimet hidden>
         <button type="button" data-rytmi-vihje>Paljasta pulssi</button>
       </div>
-      <ol class="rytmi-ruudukko" aria-label="Tahdin neljä iskua">
+      <p class="rytmi-tahti">Tahti 1 · Musiikki kuuluu</p>
+      <ol class="rytmi-ruudukko" aria-label="Ensimmäisen tahdin neljä iskua">
         <li class="rytmi-isku" data-rytmi-isku data-tahti="0"><span class="rytmi-isku-nimi">•</span> <span class="rytmi-isku-teko">Pulssi</span></li>
         <li class="rytmi-isku" data-rytmi-isku data-tahti="0"><span class="rytmi-isku-nimi">•</span> <span class="rytmi-isku-teko">Pulssi</span></li>
         <li class="rytmi-isku" data-rytmi-isku data-tahti="0"><span class="rytmi-isku-nimi">•</span> <span class="rytmi-isku-teko">Pulssi</span></li>
         <li class="rytmi-isku" data-rytmi-isku data-tahti="0"><span class="rytmi-isku-nimi">•</span> <span class="rytmi-isku-teko">Pulssi</span></li>
       </ol>
+      <p class="rytmi-tahti" data-rummut-tahti>Tahti 2 · Musiikki jatkuu</p>
+      <ol class="rytmi-ruudukko" aria-label="Toisen tahdin neljä iskua">
+        <li class="rytmi-isku" data-rytmi-isku data-tahti="1"><span class="rytmi-isku-nimi">•</span> <span class="rytmi-isku-teko">Pulssi</span></li>
+        <li class="rytmi-isku" data-rytmi-isku data-tahti="1"><span class="rytmi-isku-nimi">•</span> <span class="rytmi-isku-teko">Pulssi</span></li>
+        <li class="rytmi-isku" data-rytmi-isku data-tahti="1"><span class="rytmi-isku-nimi">•</span> <span class="rytmi-isku-teko">Pulssi</span></li>
+        <li class="rytmi-isku" data-rytmi-isku data-tahti="1"><span class="rytmi-isku-nimi">•</span> <span class="rytmi-isku-teko">Pulssi</span></li>
+      </ol>
       <div class="rytmi-kokeile">
         <h3>2 · Kokeile itse</h3>
-        <p>Naputa musiikin mukana jalalla tai sormella. Kun pulssi löytyi, laske neljään ja kuuntele, mistä tahdin kierros alkaa uudelleen. Voit paljastaa pulssivihjeen tarvittaessa.</p>
+        <p>Naputa A-version mukana jalalla tai sormella. Siirry B-versioon ja jatka itse neljään laskemista täydellisen hiljaisuuden aikana. Musiikki palaa seuraavalle ykköselle: osuiko oma pulssisi kohdalleen? B-version hiljaisessa tahdissa ei kuulu ääniä, eikä piilotetussa näkymässä mikään ruutu välähdä. ”Paljasta pulssi” näyttää numerot 1–4 ja vihreän iskukorostuksen myös hiljaisen tahdin aikana, jotta voit tarkistaa oman laskusi.</p>
       </div>
       <details class="study-knoppi rytmi-lisa">
         <summary title="Lisävinkki"><svg class="study-knoppi-merkki" aria-hidden="true" focusable="false"><use href="../../assets/oppimisikonit.svg#extra-info"/></svg><span class="study-sr">Lisävinkki: Kokeile myös itse</span></summary>
@@ -51,8 +63,8 @@
         </div>
       </details>
       <div class="rytmi-opit">
-        <p><strong>Mitä opit?</strong> Pulssi on musiikin tasainen eteneminen. Pulssin nopeutta kutsutaan tempoksi. Tässä esimerkissä ryhmittelemme neljä iskua tahdiksi.</p>
-        <p class="rytmi-pieni">Tahdin ykkönen on tahdin ensimmäinen isku, ei välttämättä musiikin voimakkain ääni. Sen hahmottamista voivat auttaa esimerkiksi basson, harmonian tai melodian toistuvat aloituskohdat, vaikka ne eivät osu jokaiselle ykköselle.</p>
+        <p><strong>Mitä opit?</strong> Musiikin pulssi jatkuu mielessäsi, vaikka koko tausta vaikenee hetkeksi. Yksi tahti sisältää neljä iskua. Tavoite on jatkaa tasaista laskemista ja osua takaisin musiikkiin, kun se alkaa uudelleen.</p>
+        <p class="rytmi-pieni">Täydessä hiljaisuudessa oma laskeminen ja liike pitävät aikaa. Äänet palaavat seuraavan tahdin ykkösellä, vaikka hiljaisessa tahdissa ei kuulu mitään. Piilotettuna B-version hiljainen tahti on ilman ääniä ja välähdyksiä. Paljastettuna vihreä korostus näyttää myös hiljaisen tahdin iskut tarkistamista varten; hiljaisuus säilyy äänessä.</p>
       </div>
     </section>
     <p class="rytmi-huomautus">Harjoittelu on vapaaehtoista. Tämä sivu ei kuuntele tai mittaa omaa soittoasi. ”Kokeiltu” ei ole osaamistesti.</p>
@@ -63,6 +75,6 @@
   <script src="../../assets/edistyminen.js?v=39bccb10a6"></script>
   <script src="../../assets/oppimistapa.js"></script>
   <script src="../../assets/kokonaisuudet.js?v=326aed1a00"></script>
-  <script type="module" src="../../assets/rytmi-ydinopinnot.js?v=56fd4b4655"></script>
+  <script type="module" src="../../assets/rytmi-ydinopinnot.js?v=9897fb63a8"></script>
 </body>
 </html>

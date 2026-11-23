@@ -1,7 +1,7 @@
 // Rytmi · Ydinopinnot (#116, hyväksytty suunnitteluprototyyppi v0.9)
 //
-// Kolmen harjoituksen sivukohtainen toiminta: 01 Löydä pulssi ja ykkönen, 02 Hiljaisuus kuuluu
-// rytmiin ja 03 Sama musiikki, eri tuntuma. Sivut muodostaa tools/oppimiskartta/rakenna.py, joka
+// Neljän harjoituksen sivukohtainen toiminta: 01 Löydä pulssi ja ykkönen, 02 Hiljaisuus kuuluu
+// rytmiin, 03 Sama musiikki, eri tuntuma ja 04 Valmistaudu seuraavaan osaan. Sivut muodostaa tools/oppimiskartta/rakenna.py, joka
 // lataa tämän moduulin vain, kun sivulla on [data-rytmiharjoitus].
 //
 // Äänet ovat selaimessa Web Audiolla tuotettuja yksinkertaisia demoääniä (oskillaattorit ja kohina).
@@ -21,9 +21,15 @@ export const STEPS_PER_BAR = 8; // kahdeksasosat 4/4-tahdissa
 export const LOOP_STEPS = 16; // kahden tahdin kierto (G-tahti, Em-tahti)
 export const LOOKAHEAD = 0.16; // ajastusikkuna sekunteina
 export const START_DELAY = 0.1;
-export const TASKS = Object.freeze(['pulssi', 'hiljaisuus', 'tuntuma']);
+export const TASKS = Object.freeze(['pulssi', 'hiljaisuus', 'tuntuma', 'osanvaihto']);
+export const TRANSITIONS = Object.freeze({ A: 'A · D soi loppuun', B: 'B · Vaimenna D nelosella' });
+export const SILENCE_MODES = Object.freeze({
+  soi: 'A · Ääni jatkuu',
+  vaimenna: 'B · Vaimenna',
+  pois: 'C · Jätä isku pois'
+});
 export const GROOVES = Object.freeze({
-  A: 'A · Tasaiset vedot',
+  A: 'A · Painota 1 ja 3',
   B: 'B · Painota 2 ja 4',
   C: 'C · Iskujen välissä'
 });
@@ -39,6 +45,11 @@ export function harmonyAt(loopStep) {
   return loopStep < STEPS_PER_BAR ? 'G' : 'Em';
 }
 
+/** D:n soinnin päättymiskohta B-versiossa on nelosiskun alku, ei uusi isku. */
+export function transitionCells(mode) {
+  return ['Soita D', 'Anna soida', 'Anna soida', mode === 'B' ? 'Vaimenna' : 'Anna soida'];
+}
+
 /** Harjoituksen 03 kitaran rytmi kahdeksasosina: soitetaanko, korostetaanko ja millä voimakkuudella. */
 export function compLevel(mode, barStep) {
   const onBeat = barStep % 2 === 0;
@@ -46,6 +57,7 @@ export function compLevel(mode, barStep) {
   const played = mode === 'C' ? C_STEPS.includes(barStep) : onBeat;
   if (!played) return 0;
   if (mode === 'B') return beat === 1 || beat === 3 ? 0.18 : 0.065;
+  if (mode === 'A') return beat === 0 || beat === 2 ? 0.18 : 0.065;
   return 0.12;
 }
 
@@ -54,7 +66,7 @@ export function grooveCells(mode) {
     const onBeat = step % 2 === 0;
     const beat = Math.floor(step / 2) + 1;
     const played = compLevel(mode, step) > 0;
-    const emphasis = mode === 'B' && onBeat && (beat === 2 || beat === 4);
+    const emphasis = onBeat && ((mode === 'A' && (beat === 1 || beat === 3)) || (mode === 'B' && (beat === 2 || beat === 4)));
     return {
       label: onBeat ? String(beat) : 'ja',
       action: played ? (emphasis ? 'Korosta' : 'Soita') : 'Hiljaa',
@@ -69,7 +81,9 @@ function backing(task, example, loopStep) {
   const barStep = loopStep % STEPS_PER_BAR;
   if (barStep % 2) return [{ type: 'noise', role: 'hi-hat', duration: 0.045, level: 0.025, highpass: 6000 }];
   const beat = barStep / 2;
-  const bassFrequency = loopStep < STEPS_PER_BAR ? 98 : 82.4; // G2, E2
+  const bassFrequency = task === 'osanvaihto'
+    ? (loopStep < STEPS_PER_BAR ? 73.42 : 98) // D2, G2: sama tausta molemmissa versioissa
+    : (loopStep < STEPS_PER_BAR ? 98 : 82.4); // G2, E2
   const events = [];
   if (task === 'pulssi' && example === 'soft') {
     if (beat === 0 || beat === 2) events.push({ type: 'bass', role: 'basso', frequency: bassFrequency, level: 0.095 });
@@ -90,22 +104,41 @@ function backing(task, example, loopStep) {
  * @param {number} loopStep 0–15 kahden tahdin kierrossa
  * @param {{example?: string, revealed?: boolean, mode?: string}} options
  */
-export function stepEvents(task, loopStep, { example = 'rock', revealed = false, mode = 'A' } = {}) {
+export function stepEvents(task, loopStep, { example = 'rock', revealed = false, mode = 'A', drumGap = false, taukoMode = 'soi' } = {}) {
   const barStep = loopStep % STEPS_PER_BAR;
   const onBeat = barStep % 2 === 0;
   const beat = Math.floor(barStep / 2);
   const harmony = harmonyAt(loopStep);
+  // B-versio: toinen tahti on aidosti hiljainen myös paljastetulla pulssilla.
+  // Historiallinen drumGap-muuttujanimi tarkoittaa tässä nyt koko musiikin katkoa.
+  if (task === 'pulssi' && drumGap && loopStep >= STEPS_PER_BAR) return [];
   const events = backing(task, example, loopStep);
   if (task === 'pulssi') {
     if (onBeat && beat === 0) events.push({ type: 'chord', role: 'harmonia', harmony, level: 0.075 });
     if (onBeat && revealed) events.push({ type: 'click', role: 'pulssivihje', strong: beat === 0 });
   } else if (task === 'hiljaisuus') {
-    // Ensimmäisessä tahdissa taputukset kuuluvat, toisessa ne vaikenevat. Tausta jatkuu molemmissa.
+    // Taputukset lakkaavat toisessa tahdissa, mutta musiikkitausta jatkuu.
+    // A: sointi jatkuu; B: aktiivinen vaimennus nelosiskulla;
+    // C: kolmosiskun jälkeen uutta ääntä ei lyödä nelosella, sointi silti jatkuu.
     if (onBeat && loopStep < STEPS_PER_BAR) events.push({ type: 'noise', role: 'taputus', duration: 0.095, level: 0.19, highpass: 1300 });
+    const beatDuration = 60 / tempoFor('hiljaisuus');
+    if (loopStep === STEPS_PER_BAR) {
+      events.push({ type: 'held-chord', role: 'tauon-sointu', harmony: 'Em',
+        duration: beatDuration * (taukoMode === 'vaimenna' ? 3 : taukoMode === 'pois' ? 2 : 4),
+        level: 0.09 });
+    } else if (taukoMode === 'pois' && loopStep === STEPS_PER_BAR + 4) {
+      events.push({ type: 'held-chord', role: 'tauon-sointu', harmony: 'Em', duration: 2 * beatDuration, level: 0.09 });
+    }
   } else if (task === 'tuntuma') {
     if (onBeat && beat === 0) events.push({ type: 'chord', role: 'harmonia', harmony, level: 0.045 });
     const level = compLevel(mode, barStep);
     if (level) events.push({ type: 'chord', role: 'komppi', harmony, level });
+  } else if (task === 'osanvaihto' && loopStep % STEPS_PER_BAR === 0) {
+    // D jatkuu A:ssa nelosiskun yli, B:ssä värähtely katkeaa juuri nelosella.
+    // G alkaa seuraavan tahdin ykkösellä molemmissa. Taustaan ei puututa.
+    const duration = (60 / tempoFor(task)) * (loopStep === 0 && mode === 'B' ? 3 : 4);
+    events.push({ type: 'held-chord', role: 'osan-sointu', harmony: loopStep === 0 ? 'D' : 'G',
+      duration, level: 0.09 });
   }
   return events;
 }
@@ -114,16 +147,21 @@ export function stepEvents(task, loopStep, { example = 'rock', revealed = false,
 export function gridCell(task, loopStep) {
   const barStep = loopStep % STEPS_PER_BAR;
   if (task === 'tuntuma') return { bar: 0, index: barStep };
-  return { bar: task === 'hiljaisuus' ? Math.floor(loopStep / STEPS_PER_BAR) : 0, index: Math.floor(barStep / 2) };
+  return { bar: ['pulssi', 'hiljaisuus', 'osanvaihto'].includes(task) ? Math.floor(loopStep / STEPS_PER_BAR) : 0, index: Math.floor(barStep / 2) };
 }
 
 /** Toiston aikajana. Ei riipu selaimesta, joten ajastus ja versiovaihdot voidaan testata. */
-export function createTransport({ task, tempo, begin, mode = 'A' }) {
+export function createTransport({ task, tempo, begin, mode = 'A', drumGap = false, taukoMode = 'soi' }) {
   return {
     task, begin, mode, pending: null, step: 0, next: begin,
+    drumGap, pendingDrumGap: null,
+    taukoMode, pendingTaukoMode: null,
     stepDuration: 60 / tempo / 2,
     // Tosiasiallisesti soivan version muutokset: [{ time, step, mode }]
-    switches: [{ time: begin, step: 0, mode }]
+    switches: [{ time: begin, step: 0, mode }],
+    // Rumpukatko ja soinnin vaimennus vaihtuvat vain kahden tahdin kierron rajalla.
+    drumSwitches: [{ time: begin, step: 0, drumGap }],
+    taukoSwitches: [{ time: begin, step: 0, taukoMode }]
   };
 }
 
@@ -135,17 +173,51 @@ export function requestMode(transport, mode) {
   return true;
 }
 
+/** Pyydä A/B-rumpuversiota katkaisematta toistoa. Vaihto tapahtuu seuraavalla kierroksella. */
+export function requestDrumGap(transport, drumGap) {
+  if (transport.task !== 'pulssi') return false;
+  if (drumGap === (transport.pendingDrumGap ?? transport.drumGap)) return false;
+  transport.pendingDrumGap = drumGap === transport.drumGap ? null : drumGap;
+  return true;
+}
+
+/** Valitse tauon A/B/C-äänimalli katkaisematta kuuntelua. */
+export function requestTaukoMode(transport, mode) {
+  if (transport.task !== 'hiljaisuus' || !Object.hasOwn(SILENCE_MODES, mode)) return false;
+  if (mode === (transport.pendingTaukoMode ?? transport.taukoMode)) return false;
+  transport.pendingTaukoMode = mode === transport.taukoMode ? null : mode;
+  return true;
+}
+
 /** Ajasta kaikki kahdeksasosat, jotka alkavat ennen hetkeä horizon. */
 export function scheduleUntil(transport, horizon, options = {}) {
   const scheduled = [];
   while (transport.next < horizon) {
-    if (transport.step % STEPS_PER_BAR === 0 && transport.pending) {
+    // Osanvaihdossa ero on D-tahdissa: uusi A/B alkaa vasta seuraavan D:n ykkösellä.
+    const boundary = transport.task === 'osanvaihto' ? LOOP_STEPS : STEPS_PER_BAR;
+    if (transport.step % boundary === 0 && transport.pending) {
       transport.mode = transport.pending;
       transport.pending = null;
       transport.switches.push({ time: transport.next, step: transport.step, mode: transport.mode });
     }
+    // Vaihto ei saa muuttaa jo ajastetun tai kesken olevan kahden tahdin kierron rumpuja.
+    if (transport.task === 'pulssi' && transport.step % LOOP_STEPS === 0 &&
+        transport.pendingDrumGap !== null) {
+      transport.drumGap = transport.pendingDrumGap;
+      transport.pendingDrumGap = null;
+      transport.drumSwitches.push({ time: transport.next, step: transport.step, drumGap: transport.drumGap });
+    }
+    // Tauko A/B/C vaikuttaa pitkään soivaan sointuun: ei kesken tahdin tai kierron vaihtoa.
+    if (transport.task === 'hiljaisuus' && transport.step % LOOP_STEPS === 0 &&
+        transport.pendingTaukoMode !== null) {
+      transport.taukoMode = transport.pendingTaukoMode;
+      transport.pendingTaukoMode = null;
+      transport.taukoSwitches.push({ time: transport.next, step: transport.step, taukoMode: transport.taukoMode });
+    }
     const loopStep = transport.step % LOOP_STEPS;
-    for (const event of stepEvents(transport.task, loopStep, { ...options, mode: transport.mode })) {
+    const drumGap = transport.task === 'pulssi' ? transport.drumGap : options.drumGap;
+    const taukoMode = transport.task === 'hiljaisuus' ? transport.taukoMode : options.taukoMode;
+    for (const event of stepEvents(transport.task, loopStep, { ...options, mode: transport.mode, drumGap, taukoMode })) {
       scheduled.push({ ...event, time: transport.next, step: transport.step });
     }
     transport.step++;
@@ -163,7 +235,41 @@ export function positionAt(transport, time) {
   for (const change of transport.switches) {
     if (change.step <= step) mode = change.mode;
   }
-  return { step, loopStep: step % LOOP_STEPS, mode, cell: gridCell(transport.task, step % LOOP_STEPS) };
+  let drumGap = transport.drumSwitches[0].drumGap;
+  for (const change of transport.drumSwitches) {
+    if (change.step <= step) drumGap = change.drumGap;
+  }
+  let taukoMode = transport.taukoSwitches[0].taukoMode;
+  for (const change of transport.taukoSwitches) {
+    if (change.step <= step) taukoMode = change.taukoMode;
+  }
+  return { step, loopStep: step % LOOP_STEPS, mode, drumGap, taukoMode,
+    cell: gridCell(transport.task, step % LOOP_STEPS) };
+}
+
+/**
+ * #163: piilotettuna vain ylemmän tahtirivin ensimmäinen ruutu välähtää
+ * jokaisella neljäsosaiskulla (1, 2, 3, 4). Alempi rivi ei välähdä lainkaan.
+ * Paljastettuna korostus seuraa kaikkia neljää erillistä ruutua.
+ * Kello on sama ulostuloviiveellä korjattu AudioContext-aika kuin muissa ruudukoissa.
+ * Jokaisella iskulla korostus näkyy vain lyhyesti, välissä aina selvä tauko.
+ * Vähennetty liike: ei liikkuvaa animaatiota, lyhyt rauhallisempi värimuutos
+ * mutta ei koskaan koko iskun kestävää jatkuvaa vihreää korostusta.
+ */
+export function pulseCellAt(transport, time, revealed, reducedMotion = false) {
+  const position = positionAt(transport, time);
+  if (!position) return null;
+  // B-version toinen tahti on äänetön. Piilotettuna vihreä korostuskin
+  // katoaa; paljastettuna näytetään iskut 1–4 hiljaisessa tahdissa.
+  if (position.drumGap && position.cell.bar === 1 && !revealed) return null;
+  const beatStartStep = position.step - position.step % 2;
+  const elapsed = time - (transport.begin + beatStartStep * transport.stepDuration);
+  // Äänikellon neljäsosaisku kestää 2 * stepDuration. Korostus kestää
+  // vain 140 ms (vähennetty liike 200 ms), joten jokaisella iskulla on
+  // selvästi pidempi normaali/violetti osuus. Tämä koskee myös paljastettua tilaa.
+  const visibleFor = Math.min(reducedMotion ? 0.20 : 0.14, transport.stepDuration);
+  if (elapsed < 0 || elapsed >= visibleFor) return null;
+  return revealed ? position.cell : { bar: 0, index: 0 };
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -217,7 +323,27 @@ function tone(bus, time, frequency, duration, level, wave = 'sine') {
   oscillator.stop(time + duration + 0.02);
 }
 
-const CHORDS = { G: [196, 246.94, 293.66], Em: [164.81, 196, 246.94] };
+const CHORDS = { G: [196, 246.94, 293.66], Em: [164.81, 196, 246.94], D: [146.83, 185, 220] };
+
+function heldChord(bus, time, frequencies, duration, level) {
+  // Tasaisesti soiva sointu: A:n loppu ja B:n nelosiskulle ajoitettu vaimennus
+  // kuuluvat oikeasti, eivät ole vain vaihtuvaa tekstiä.
+  frequencies.forEach((frequency, index) => {
+    const oscillator = audio.createOscillator();
+    oscillator.type = 'triangle';
+    oscillator.frequency.setValueAtTime(frequency, time);
+    const gain = audio.createGain();
+    const amplitude = level / (index === 0 ? 3 : 4);
+    gain.gain.setValueAtTime(0.0001, time);
+    gain.gain.linearRampToValueAtTime(amplitude, time + 0.02);
+    gain.gain.setValueAtTime(amplitude, time + duration - 0.04);
+    gain.gain.linearRampToValueAtTime(0.0001, time + duration);
+    oscillator.connect(gain);
+    gain.connect(bus);
+    oscillator.start(time);
+    oscillator.stop(time + duration + 0.01);
+  });
+}
 
 function play(bus, event) {
   const { time } = event;
@@ -245,6 +371,7 @@ function play(bus, event) {
       break;
     }
     case 'bass': tone(bus, time, event.frequency, 0.33, event.level, 'triangle'); break;
+    case 'held-chord': heldChord(bus, time, CHORDS[event.harmony], event.duration, event.level); break;
     case 'tone': tone(bus, time, event.frequency, event.duration, event.level, event.wave); break;
     case 'click': tone(bus, time, event.strong ? 950 : 730, 0.065, event.strong ? 0.09 : 0.05); break;
     case 'chord':
@@ -266,10 +393,23 @@ function setupExercise(root) {
   const button = root.querySelector('[data-rytmi-toisto]');
   const status = root.querySelector('[data-rytmi-tila]');
   const exampleButtons = [...root.querySelectorAll('[data-esimerkki]')];
+  const drumButtons = [...root.querySelectorAll('[data-rumpumalli]')];
+  const silenceButtons = [...root.querySelectorAll('[data-tauko-mode]')];
   const grooveButtons = [...root.querySelectorAll('[data-versio]')];
   const reveal = root.querySelector('[data-rytmi-vihje]');
   const grooveGrid = root.querySelector('[data-rytmi-ruudukko="tuntuma"]');
-  const state = { example: 'rock', revealed: false, mode: 'A' };
+  const isTransition = task === 'osanvaihto';
+  const versionNames = isTransition ? TRANSITIONS : GROOVES;
+  const reducedMotion = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)');
+  const state = { example: 'rock', revealed: false, mode: 'A', drumGap: false, taukoMode: 'soi' };
+  // Erillinen ruudunlukijan tilaviesti ei muuta soiton tilatekstin korkeutta eikä siirrä ruudukkoa.
+  const pulseStatus = task === 'pulssi' ? document.createElement('span') : null;
+  if (pulseStatus) {
+    pulseStatus.className = 'rytmi-pulssi-status';
+    pulseStatus.setAttribute('role', 'status');
+    pulseStatus.setAttribute('aria-live', 'polite');
+    root.append(pulseStatus);
+  }
   let session = null;
   let starting = false;
   let token = 0;
@@ -310,10 +450,51 @@ function setupExercise(root) {
     grooveGrid.dataset.versio = mode;
   }
 
-  function drawReveal() {
-    cells(0).forEach((element, index) => {
-      element.querySelector('.rytmi-isku-nimi').textContent = state.revealed ? String(index + 1) : '•';
+  function drawTransition(mode) {
+    if (!isTransition || mode === shownMode) return;
+    shownMode = mode;
+    transitionCells(mode).forEach((action, index) => {
+      const cell = cells(0)[index];
+      cell.querySelector('.rytmi-isku-teko').textContent = action;
+      cell.classList.toggle('is-silent', index === 3 && mode === 'B');
     });
+  }
+
+  function drawSilence(mode = state.taukoMode) {
+    if (task !== 'hiljaisuus') return;
+    const secondBar = cells(1);
+    const actions = ['Soita Em', 'Anna soida', mode === 'pois' ? 'Uusi isku' : 'Anna soida',
+      mode === 'vaimenna' ? 'Vaimenna' : mode === 'pois' ? 'Ei uutta iskua' : 'Ääni jatkuu'];
+    secondBar.forEach((cell, index) => {
+      cell.querySelector('.rytmi-isku-teko').textContent = actions[index];
+      cell.classList.toggle('is-silent', index === 3 && mode === 'vaimenna');
+    });
+  }
+
+  function setDrumCaption(drumGap) {
+    const caption = root.querySelector('[data-rummut-tahti]');
+    if (caption) caption.textContent = drumGap
+      ? 'Tahti 2 · Täysi hiljaisuus, pidä pulssi itse'
+      : 'Tahti 2 · Musiikki jatkuu';
+  }
+
+  function drawReveal() {
+    if (task !== 'pulssi') return;
+    [0, 1].forEach(bar => {
+      cells(bar).forEach((element, index) => {
+        const name = element.querySelector('.rytmi-isku-nimi');
+        const action = element.querySelector('.rytmi-isku-teko');
+        // visibility ei poista elementtejä asettelusta: kaikki 4 ruutua pysyvät saman kokoisina.
+        name.textContent = state.revealed ? String(index + 1) : '•';
+        name.style.visibility = state.revealed ? 'visible' : 'hidden';
+        action.style.visibility = state.revealed ? 'visible' : 'hidden';
+      });
+    });
+    // Tyhjät ruudut eivät ole ruudunlukijalle kahdeksan nimetöntä listakohtaa.
+    for (const grid of root.querySelectorAll('.rytmi-ruudukko')) {
+      grid.setAttribute('aria-hidden', String(!state.revealed));
+    }
+    clearActive();
     reveal.textContent = state.revealed ? 'Piilota pulssivihje' : 'Paljasta pulssi';
   }
 
@@ -325,14 +506,30 @@ function setupExercise(root) {
     const position = positionAt(session.transport, now);
     if (position) {
       drawGroove(position.mode);
-      const target = cells(position.cell.bar)[position.cell.index];
-      if (!target?.classList.contains('is-active')) {
+      drawTransition(position.mode);
+      const visualCell = task === 'pulssi'
+        ? pulseCellAt(session.transport, now, state.revealed, Boolean(reducedMotion?.matches))
+        : position.cell;
+      const target = visualCell ? cells(visualCell.bar)[visualCell.index] : null;
+      if (root.querySelector('.rytmi-isku.is-active') !== target) {
         clearActive();
         target?.classList.add('is-active');
       }
-      if (task === 'tuntuma' && session.announced !== position.mode) {
+      if (task === 'hiljaisuus' && session.announcedTaukoMode !== position.taukoMode) {
+        session.announcedTaukoMode = position.taukoMode;
+        drawSilence(position.taukoMode);
+        status.textContent = `Nyt soi ${SILENCE_MODES[position.taukoMode]}.`;
+      }
+      if (task === 'pulssi' && session.announcedDrumGap !== position.drumGap) {
+        session.announcedDrumGap = position.drumGap;
+        setDrumCaption(position.drumGap);
+        status.textContent = position.drumGap
+          ? 'Nyt soi B · Toinen tahti hiljaa.'
+          : 'Nyt soi A · Musiikki koko ajan.';
+      }
+      if ((task === 'tuntuma' || isTransition) && session.announced !== position.mode) {
         session.announced = position.mode;
-        status.textContent = `Nyt soi ${GROOVES[position.mode]}.`;
+        status.textContent = `Nyt soi ${versionNames[position.mode]}.`;
       }
     }
     frame = requestAnimationFrame(draw);
@@ -362,6 +559,9 @@ function setupExercise(root) {
     button.removeAttribute('aria-busy');
     setButton(false);
     drawGroove(state.mode);
+    drawTransition(state.mode);
+    drawSilence(state.taukoMode);
+    if (task === 'pulssi') setDrumCaption(state.drumGap);
   }
 
   async function start() {
@@ -396,13 +596,15 @@ function setupExercise(root) {
     bus.gain.value = 0.8;
     bus.connect(context.destination);
     const transport = createTransport({
-      task, tempo: tempoFor(task, state.example), begin: context.currentTime + START_DELAY, mode: state.mode
+      task, tempo: tempoFor(task, state.example), begin: context.currentTime + START_DELAY,
+      mode: state.mode, drumGap: state.drumGap, taukoMode: state.taukoMode
     });
     const tick = () => {
       if (session?.transport !== transport) return;
       for (const event of scheduleUntil(transport, context.currentTime + LOOKAHEAD, state)) play(bus, event);
     };
-    session = { transport, bus, timer: setInterval(tick, 25), announced: state.mode };
+    session = { transport, bus, timer: setInterval(tick, 25),
+      announced: state.mode, announcedDrumGap: state.drumGap, announcedTaukoMode: state.taukoMode };
     tick();
     setButton(true);
     status.textContent = MESSAGES.playing;
@@ -424,9 +626,49 @@ function setupExercise(root) {
     });
   }
 
+  for (const choice of drumButtons) {
+    choice.addEventListener('click', () => {
+      const drumGap = choice.dataset.rumpumalli === 'katko';
+      if (drumGap === state.drumGap) return;
+      state.drumGap = drumGap;
+      setPressed(drumButtons, button => (button.dataset.rumpumalli === 'katko') === drumGap);
+      if (!session) {
+        setDrumCaption(drumGap);
+        return;
+      }
+      requestDrumGap(session.transport, drumGap);
+      // Painike ilmaisee valinnan heti, mutta selitys seuraa tosiasiallisesti soivaa versiota.
+      status.textContent = session.transport.pendingDrumGap !== null
+        ? `Valittu ${drumGap ? 'B · Toinen tahti hiljaa' : 'A · Musiikki koko ajan'}. Musiikin hiljaisuus vaihtuu seuraavan kahden tahdin kierron alussa.`
+        : `Nyt soi ${session.announcedDrumGap ? 'B · Toinen tahti hiljaa' : 'A · Musiikki koko ajan'}.`;
+    });
+  }
+
+  for (const choice of silenceButtons) {
+    choice.addEventListener('click', () => {
+      const mode = choice.dataset.taukoMode;
+      if (mode === state.taukoMode) return;
+      state.taukoMode = mode;
+      setPressed(silenceButtons, button => button.dataset.taukoMode === mode);
+      if (!session) {
+        drawSilence();
+        return;
+      }
+      requestTaukoMode(session.transport, mode);
+      // Valinta näkyy heti, mutta soiva esimerkki ja ruudukko vaihtuvat yhdessä.
+      status.textContent = session.transport.pendingTaukoMode !== null
+        ? `Valittu ${SILENCE_MODES[mode]}. Esimerkki vaihtuu seuraavan kahden tahdin kierron alussa.`
+        : `Nyt soi ${SILENCE_MODES[session.announcedTaukoMode]}.`;
+    });
+  }
+
   reveal?.addEventListener('click', () => {
     state.revealed = !state.revealed;
     drawReveal();
+    // Tilasta ilmoitetaan vain käyttäjän valinnalla, ei jokaisesta animaatioruudusta.
+    pulseStatus.textContent = state.revealed
+      ? 'Pulssi paljastettu. Vihreä korostus näyttää iskut 1–4 myös hiljaisessa tahdissa, mutta ääniä ei soiteta.'
+      : 'Pulssi piilotettu. Vain ylemmän rivin ensimmäinen ruutu välähtää jokaisella iskulla.';
   });
 
   for (const choice of grooveButtons) {
@@ -436,13 +678,14 @@ function setupExercise(root) {
       setPressed(grooveButtons, other => other.dataset.versio === mode);
       if (!session) {
         drawGroove(mode);
+        drawTransition(mode);
         return;
       }
       requestMode(session.transport, mode);
       // Valittu versio ei vielä soi: ruudukko ja ilmoitus "Nyt soi" vaihtuvat vasta tahdin rajalla.
       status.textContent = session.transport.pending
-        ? `Valittu ${GROOVES[mode]}. Versio vaihtuu seuraavan tahdin alussa.`
-        : `Nyt soi ${GROOVES[session.announced]}.`;
+        ? `Valittu ${versionNames[mode]}. Versio vaihtuu ${isTransition ? 'seuraavan D–G-kierron' : 'seuraavan tahdin'} alussa.`
+        : `Nyt soi ${versionNames[session.announced]}.`;
     });
   }
 
@@ -460,7 +703,10 @@ function setupExercise(root) {
 
   setButton(false);
   if (reveal) drawReveal();
+  if (task === 'pulssi') setDrumCaption(state.drumGap);
   drawGroove(state.mode);
+  drawTransition(state.mode);
+  drawSilence();
 }
 
 if (typeof document !== 'undefined') {

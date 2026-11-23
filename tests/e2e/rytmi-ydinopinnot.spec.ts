@@ -7,9 +7,10 @@ import { expect, test, type Page } from '@playwright/test';
 const topicPath = '/oppi/rytmi/index.html';
 const readingKey = 'musiikin-kartta:luvut';
 const lessons = [
-  ['loyda-pulssi-ja-ykkonen', 'Löydä pulssi ja ykkönen', 'Kokeile myös itse'],
-  ['hiljaisuus-kuuluu-rytmiin', 'Hiljaisuus kuuluu rytmiin', 'Kokeile myös kitaralla'],
-  ['sama-musiikki-eri-tuntuma', 'Sama musiikki, eri tuntuma', 'Kokeile myös äänten eri paikkoja'],
+  ['loyda-pulssi-ja-ykkonen', 'Pulssi jatkuu, vaikka musiikki vaikenee', 'Kokeile myös itse'],
+  ['sama-musiikki-eri-tuntuma', 'Samat iskut, eri fiilis', 'Kokeile myös äänten eri paikkoja'],
+  ['hiljaisuus-kuuluu-rytmiin', 'Tauko ei aina tarkoita hiljaisuutta', 'Kokeile myös kitaralla'],
+  ['valmistaudu-seuraavaan-osaan', 'Valmistaudu seuraavaan osaan', 'Vaimennustapa on vapaa'],
 ] as const;
 const legacy = [
   ['pulssi-ja-komppi', 'pulssi-ja-komppi'], ['kuuntele-pulssi', 'harjoitus:kuuntele-pulssi'],
@@ -34,7 +35,7 @@ test.describe('aihesivu', () => {
     await core(page).locator(':scope > summary').click();
     await expect(core(page)).toHaveAttribute('open', '');
     await expect(core(page).locator(':scope > summary')).toContainText('Ydinopinnot');
-    await expect(core(page).locator(':scope > summary')).toContainText('3 sisältöä');
+    await expect(core(page).locator(':scope > summary')).toContainText('4 sisältöä');
     for (const [slug, title] of lessons) {
       const summary = page.locator(`#valinta-${slug}`);
       await expect(summary).toContainText(title);
@@ -52,7 +53,7 @@ test.describe('aihesivu', () => {
 
 
   for (const { width, largeText } of [{ width: 390, largeText: false }, { width: 320, largeText: true }]) {
-    test('kolmen avattavan oppitunnin välit ja +/- eivät veny (' + width + ' px' + (largeText ? ', 200 %' : '') + ')', async ({ page }) => {
+    test('neljän avattavan oppitunnin välit ja +/- eivät veny (' + width + ' px' + (largeText ? ', 200 %' : '') + ')', async ({ page }) => {
       await page.setViewportSize({ width, height: 640 });
       await page.goto(topicPath);
       if (largeText) {
@@ -61,7 +62,7 @@ test.describe('aihesivu', () => {
       await core(page).locator(':scope > summary').click();
       const cards = core(page).locator('.study-inline-choices > li > details.study-inline');
       const summaries = cards.locator(':scope > summary');
-      await expect(cards).toHaveCount(3);
+      await expect(cards).toHaveCount(4);
       await expect(summaries.locator('.study-arrow').first()).toHaveAttribute('aria-hidden', 'true');
 
       const verify = async (openIndex: number | null) => {
@@ -75,7 +76,7 @@ test.describe('aihesivu', () => {
             mark: getComputedStyle(arrow, '::before').content,
           };
         }));
-        expect(measurements).toHaveLength(3);
+        expect(measurements).toHaveLength(4);
         measurements.forEach((value, index) => {
           expect(value.open).toBe(index === openIndex);
           expect(value.mark).toContain(index === openIndex ? '−' : '+');
@@ -89,7 +90,7 @@ test.describe('aihesivu', () => {
       };
 
       await verify(null);
-      for (const index of [0, 1, 2, 1]) {
+      for (const index of [0, 1, 2, 3, 1]) {
         await summaries.nth(index).click();
         await expect(cards.nth(index)).toHaveAttribute('open', '');
         await verify(index);
@@ -104,7 +105,7 @@ test.describe('aihesivu', () => {
     await page.goto(topicPath);
     const old = ['pulssi-ja-komppi', 'harjoitus:kuuntele-pulssi', 'harmoninen-kentta'];
     await page.evaluate(([key, value]) => localStorage.setItem(key, value), [readingKey, JSON.stringify(old)]);
-    await page.goto(`/oppi/rytmi/${lessons[1][0]}.html`);
+    await page.goto('/oppi/rytmi/hiljaisuus-kuuluu-rytmiin.html');
     const mark = page.locator('.done-toggle');
     await expect(mark).toHaveText('Merkitse kokeilluksi');
     await expect(mark).toHaveAttribute('aria-pressed', 'false');
@@ -115,7 +116,7 @@ test.describe('aihesivu', () => {
     expect(saved).toEqual([...old, 'oppitunti:hiljaisuus-kuuluu-rytmiin']);
 
     await page.goto(topicPath);
-    await expect(core(page).locator('[data-unit-progress]')).toHaveText('1/3 kokeiltu');
+    await expect(core(page).locator('[data-unit-progress]')).toHaveText('1/4 kokeiltu');
     await expect(core(page).locator('#valinta-hiljaisuus-kuuluu-rytmiin [data-study-attempt-status]')).toHaveText('✓ Kokeiltu');
     // Aiempien laskuri: kaksi neljästä kuten ennenkin; uutta kokeilua ei lasketa aiempiin.
     await expect(earlier(page).locator('[data-study-total]')).toHaveText('2/4 aiemmista sisällöistä tehty');
@@ -123,7 +124,7 @@ test.describe('aihesivu', () => {
     await expect(page.locator('#valinta-kuuntele-pulssi [data-study-status]')).toHaveText('✓ Tehty');
 
     // Merkinnän voi perua.
-    await page.goto(`/oppi/rytmi/${lessons[1][0]}.html`);
+    await page.goto('/oppi/rytmi/hiljaisuus-kuuluu-rytmiin.html');
     await page.locator('.done-toggle').click();
     await expect(page.locator('.done-toggle')).toHaveText('Merkitse kokeilluksi');
     expect(JSON.parse((await page.evaluate(key => localStorage.getItem(key), readingKey))!)).toEqual(old);
@@ -138,7 +139,7 @@ test.describe('aiempien sisältöjen laskuri (progress_text, sama kuin Soinnuiss
     await page.evaluate(([key, value]) => localStorage.setItem(key, value), [readingKey, JSON.stringify(allOld)]);
     await page.reload();
     await expect(earlier(page).locator('[data-study-total]')).toHaveText('✓ Aiemmat sisällöt tehty');
-    await expect(core(page).locator('[data-unit-progress]')).toHaveText('0/3 kokeiltu');
+    await expect(core(page).locator('[data-unit-progress]')).toHaveText('0/4 kokeiltu');
     for (const [slug] of lessons) {
       await expect(core(page).locator(`#valinta-${slug} [data-study-attempt-status]`)).toHaveText('Kokeilematta');
     }
@@ -155,22 +156,22 @@ test.describe('aiempien sisältöjen laskuri (progress_text, sama kuin Soinnuiss
     await page.goto(topicPath);
     await page.evaluate(([key, value]) => localStorage.setItem(key, value), [readingKey, JSON.stringify(saved)]);
     await page.reload();
-    await expect(core(page).locator('[data-unit-progress]')).toHaveText('1/3 kokeiltu');
-    await expect(core(page).locator('[data-study-attempt-status]')).toHaveText(['✓ Kokeiltu', 'Kokeilematta', 'Kokeilematta']);
+    await expect(core(page).locator('[data-unit-progress]')).toHaveText('1/4 kokeiltu');
+    await expect(core(page).locator('[data-study-attempt-status]')).toHaveText(['✓ Kokeiltu', 'Kokeilematta', 'Kokeilematta', 'Kokeilematta']);
     await expect(earlier(page).locator('[data-study-total]')).toHaveText('✓ Aiemmat sisällöt tehty');
 
-    await page.goto(`/oppi/rytmi/${lessons[2][0]}.html`);
+    await page.goto('/oppi/rytmi/sama-musiikki-eri-tuntuma.html');
     await page.getByRole('button', { name: 'Merkitse kokeilluksi' }).click();
     await page.goto(topicPath);
-    await expect(core(page).locator('[data-unit-progress]')).toHaveText('2/3 kokeiltu');
-    await expect(core(page).locator('[data-study-attempt-status]')).toHaveText(['✓ Kokeiltu', 'Kokeilematta', '✓ Kokeiltu']);
+    await expect(core(page).locator('[data-unit-progress]')).toHaveText('2/4 kokeiltu');
+    await expect(core(page).locator('[data-study-attempt-status]')).toHaveText(['✓ Kokeiltu', '✓ Kokeiltu', 'Kokeilematta', 'Kokeilematta']);
     expect(JSON.parse((await page.evaluate(key => localStorage.getItem(key), readingKey))!))
       .toEqual([...saved, 'oppitunti:sama-musiikki-eri-tuntuma']);
 
-    await page.goto(`/oppi/rytmi/${lessons[2][0]}.html`);
+    await page.goto('/oppi/rytmi/sama-musiikki-eri-tuntuma.html');
     await page.getByRole('button', { name: '✓ Kokeiltu' }).click();
     await page.goto(topicPath);
-    await expect(core(page).locator('[data-unit-progress]')).toHaveText('1/3 kokeiltu');
+    await expect(core(page).locator('[data-unit-progress]')).toHaveText('1/4 kokeiltu');
     expect(JSON.parse((await page.evaluate(key => localStorage.getItem(key), readingKey))!)).toEqual(saved);
     // Sointujen etenemistieto (harmoninen-kentta) ja Rytmin aiemmat merkinnät pysyvät ennallaan.
     await page.goto('/oppi/soinnut/index.html');
@@ -203,11 +204,11 @@ test.describe('suljettu Ydinopinnot ja paluu', () => {
   });
 
   test('viimeisen harjoituksen ”Palaa aihesivulle” avaa Ydinopinnot', async ({ page }) => {
-    await page.goto(`/oppi/rytmi/${lessons[2][0]}.html`);
+    await page.goto(`/oppi/rytmi/${lessons[3][0]}.html`);
     await page.locator('.study-up .study-back').click();
-    await expect(page).toHaveURL(/index\.html#valinta-sama-musiikki-eri-tuntuma$/);
+    await expect(page).toHaveURL(/index\.html#valinta-valmistaudu-seuraavaan-osaan$/);
     await expect(core(page)).toHaveAttribute('open', '');
-    await expect(page.locator('#valinta-sama-musiikki-eri-tuntuma')).toBeVisible();
+    await expect(page.locator('#valinta-valmistaudu-seuraavaan-osaan')).toBeVisible();
   });
 });
 
@@ -298,7 +299,7 @@ test.describe('harjoitussivut', () => {
   }
 
   test('03: avautuvat kohdat 3 ja 4 tässä järjestyksessä', async ({ page }) => {
-    await page.goto(`/oppi/rytmi/${lessons[2][0]}.html`);
+    await page.goto('/oppi/rytmi/sama-musiikki-eri-tuntuma.html');
     await info(page).locator('summary').click();
     await expect(info(page).locator('h3')).toHaveText(['3 · Kokeile myös äänten eri paikkoja', '4 · Kokeile myös kitaralla']);
     await expect(info(page).getByRole('button', { name: 'C · Iskujen välissä' })).toBeVisible();
@@ -325,20 +326,247 @@ test.describe('harjoitussivut', () => {
     await expect(page.locator('[data-rytmi-tila]')).toHaveText('Pysäytetty.');
   });
 
+  test('01: piilotettuna vain ylemmän rivin ensimmäinen ruutu välähtää myös toisen tahdin aikana', async ({ page }) => {
+    await page.goto('/oppi/rytmi/loyda-pulssi-ja-ykkonen.html');
+    await playButton(page).click();
+    await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
+    const observed = await page.evaluate(() => new Promise<{ cells: string[]; counts: Record<string, number> }>(resolve => {
+      const found = new Set<string>();
+      const counts: Record<string, number> = { '0': 0, '1': 0 };
+      const root = document.querySelector('[data-rytmiharjoitus="pulssi"]')!;
+      const watcher = new MutationObserver(changes => {
+        for (const change of changes) {
+          const cell = change.target as HTMLElement;
+          if (!cell.matches('[data-rytmi-isku].is-active')) continue;
+          const index = [...cell.parentElement!.children].indexOf(cell);
+          const bar = cell.dataset.tahti!;
+          found.add(`${bar}:${index}`);
+          counts[bar] = (counts[bar] ?? 0) + 1;
+        }
+      });
+      watcher.observe(root, { attributes: true, subtree: true, attributeFilter: ['class'] });
+      window.setTimeout(() => { watcher.disconnect(); resolve({ cells: [...found], counts }); }, 5500);
+    }));
+    expect(observed.cells.sort()).toEqual(['0:0']);
+    // 96 BPM: 5,5 sekunnissa kahdeksan iskua; välähdyksiä vain ylärivillä.
+    expect(observed.counts['0']).toBeGreaterThanOrEqual(6);
+    expect(observed.counts['1']).toBe(0);
+    await playButton(page).click();
+    await expect(page.locator('.rytmi-isku.is-active')).toHaveCount(0);
+  });
+
+  test('01: vihreä välähdys sammuu iskujen välillä myös vähennetyllä liikkeellä iPhonessa', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/oppi/rytmi/loyda-pulssi-ja-ykkonen.html');
+    const sampleFlashes = () => page.evaluate(() => new Promise<{ on: number; off: number; lengths: number[] }>(resolve => {
+      const root = document.querySelector('[data-rytmiharjoitus="pulssi"]')!;
+      let started: number | null = null;
+      let on = 0;
+      let off = 0;
+      const lengths: number[] = [];
+      const observe = () => {
+        const green = Boolean(root.querySelector('.rytmi-isku.is-active'));
+        if (green && started === null) { started = performance.now(); on++; }
+        if (!green && started !== null) {
+          lengths.push(performance.now() - started);
+          started = null;
+          off++;
+        }
+      };
+      const watcher = new MutationObserver(observe);
+      watcher.observe(root, { subtree: true, attributes: true, attributeFilter: ['class'] });
+      observe();
+      window.setTimeout(() => { watcher.disconnect(); resolve({ on, off, lengths }); }, 3200);
+    }));
+    await playButton(page).click();
+    await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
+    const hidden = await sampleFlashes();
+    expect(hidden.on).toBeGreaterThanOrEqual(3);
+    expect(hidden.off).toBeGreaterThanOrEqual(3);
+    expect(Math.max(...hidden.lengths)).toBeLessThan(400);
+    await page.getByRole('button', { name: 'Paljasta pulssi' }).click();
+    const revealed = await sampleFlashes();
+    expect(revealed.on).toBeGreaterThanOrEqual(3);
+    expect(revealed.off).toBeGreaterThanOrEqual(3);
+    expect(Math.max(...revealed.lengths)).toBeLessThan(400);
+    await playButton(page).click();
+    await expect(page.locator('.rytmi-isku.is-active')).toHaveCount(0);
+  });
+
+  test('01: B:n toinen tahti on ilman visuaalista tukea eikä ylimääräisiä valintanappeja näy', async ({ page }) => {
+    await page.goto('/oppi/rytmi/loyda-pulssi-ja-ykkonen.html');
+    const b = page.getByRole('button', { name: 'B · Toinen tahti hiljaa' });
+    await expect(page.getByRole('button', { name: 'Vihje hiljaisuudessa' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Ilman vihjettä' })).toHaveCount(0);
+    await expect(page.locator('[data-hiljaisuusvihje]')).toHaveCount(0);
+    await b.click();
+    await expect(page.locator('[data-rummut-tahti]')).toContainText('Täysi hiljaisuus');
+    await page.getByRole('button', { name: 'Paljasta pulssi' }).click();
+    await expect(page.locator('.rytmi-isku-nimi')).toHaveText(['1','2','3','4','1','2','3','4']);
+    await expect(page.locator('.rytmi-pulssi-status')).toContainText('myös hiljaisessa tahdissa');
+  });
+
+  test('01: B piilotettuna katkaisee kaikki välähdykset toisen tahdin ajaksi', async ({ page }) => {
+    await page.goto('/oppi/rytmi/loyda-pulssi-ja-ykkonen.html');
+    await page.getByRole('button', { name: 'B · Toinen tahti hiljaa' }).click();
+    await page.getByRole('button', { name: 'Uusi esimerkki · 108 BPM' }).click();
+    await playButton(page).click();
+    await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
+    const observed = await page.evaluate(() => new Promise<{ times: number[]; cells: string[] }>(resolve => {
+      const root = document.querySelector('[data-rytmiharjoitus="pulssi"]')!;
+      const times: number[] = [];
+      const cells = new Set<string>();
+      const watcher = new MutationObserver(changes => {
+        for (const change of changes) {
+          const cell = change.target as HTMLElement;
+          if (!cell.matches('[data-rytmi-isku].is-active')) continue;
+          times.push(performance.now());
+          cells.add(`${cell.dataset.tahti}:${[...cell.parentElement!.children].indexOf(cell)}`);
+        }
+      });
+      watcher.observe(root, { subtree: true, attributes: true, attributeFilter: ['class'] });
+      window.setTimeout(() => { watcher.disconnect(); resolve({ times, cells: [...cells].sort() }); }, 5900);
+    }));
+    expect(observed.cells).toEqual(['0:0']);
+    expect(observed.times.length).toBeGreaterThanOrEqual(5);
+    const gaps = observed.times.slice(1).map((time, i) => time - observed.times[i]);
+    // 108 BPM: neljä peräkkäistä iskua ja sitten yksi 4 iskun mittainen hiljainen tahti.
+    // Vihreiden välähdysten väli kasvaa hiljaisen tahdin yli noin 2,8 sekuntiin.
+    expect(Math.max(...gaps)).toBeGreaterThan(1600);
+    await playButton(page).click();
+  });
+
+  test('01: B:n paljastettu pulssi korostaa myös hiljaisen tahdin iskut ilman ääniä', async ({ page }) => {
+    await page.goto('/oppi/rytmi/loyda-pulssi-ja-ykkonen.html');
+    await page.getByRole('button', { name: 'B · Toinen tahti hiljaa' }).click();
+    await page.getByRole('button', { name: 'Uusi esimerkki · 108 BPM' }).click();
+    await page.getByRole('button', { name: 'Paljasta pulssi' }).click();
+    await playButton(page).click();
+    await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
+    const observed = await page.evaluate(() => new Promise<string[]>(resolve => {
+      const root = document.querySelector('[data-rytmiharjoitus="pulssi"]')!;
+      const seen = new Set<string>();
+      const watcher = new MutationObserver(changes => {
+        for (const change of changes) {
+          const cell = change.target as HTMLElement;
+          if (!cell.matches('[data-rytmi-isku].is-active')) continue;
+          seen.add(`${cell.dataset.tahti}:${[...cell.parentElement!.children].indexOf(cell)}`);
+        }
+      });
+      watcher.observe(root, { subtree: true, attributes: true, attributeFilter: ['class'] });
+      window.setTimeout(() => { watcher.disconnect(); resolve([...seen].sort()); }, 5300);
+    }));
+    expect(observed).toEqual(['0:0', '0:1', '0:2', '0:3', '1:0', '1:1', '1:2', '1:3']);
+    await playButton(page).click();
+    await expect(page.locator('.rytmi-isku.is-active')).toHaveCount(0);
+  });
+
   test('01: pulssivihje näyttää iskujen numerot ja piilottaa ne', async ({ page }) => {
     await page.goto(`/oppi/rytmi/${lessons[0][0]}.html`);
     const names = page.locator('.rytmi-isku-nimi');
-    await expect(names).toHaveText(['•', '•', '•', '•']);
+    await expect(names).toHaveText(Array(8).fill('•'));
+    await expect(names.first()).toBeHidden();
+    const boxes = page.locator('[data-rytmiharjoitus="pulssi"] [data-rytmi-isku]');
+    await expect(boxes).toHaveCount(8);
+    const placements = () => boxes.evaluateAll(nodes => nodes.map(node => {
+      const rect = node.getBoundingClientRect();
+      return [Math.round(rect.x + window.scrollX), Math.round(rect.y + window.scrollY), Math.round(rect.width), Math.round(rect.height)];
+    }));
+    const initial = await placements();
+    await expect(page.locator('[data-rytmiharjoitus="pulssi"] .rytmi-ruudukko').first()).toHaveAttribute('aria-hidden', 'true');
     await page.getByRole('button', { name: 'Paljasta pulssi' }).click();
-    await expect(names).toHaveText(['1', '2', '3', '4']);
+    await expect(names).toHaveText(['1', '2', '3', '4', '1', '2', '3', '4']);
+    await expect(names.first()).toBeVisible();
+    await expect(page.locator('.rytmi-pulssi-status')).toContainText('Pulssi paljastettu');
+    await expect(page.locator('.rytmi-pulssi-status')).toHaveAttribute('role', 'status');
+    await expect(page.locator('[data-rytmiharjoitus="pulssi"] .rytmi-ruudukko').first()).toHaveAttribute('aria-hidden', 'false');
+    expect(await placements()).toEqual(initial);
+    // Rumpukatkon vertailu ei muuta tempoa, mutta kertoo toisen tahdin rummuttomuuden.
+    const gap = page.getByRole('button', { name: 'B · Toinen tahti hiljaa' });
+    const continuous = page.getByRole('button', { name: 'A · Musiikki koko ajan' });
+    await gap.click();
+    await expect(gap).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('[data-rummut-tahti]')).toContainText('Täysi hiljaisuus');
+    await continuous.click();
+    await expect(continuous).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('[data-rummut-tahti]')).toContainText('Musiikki jatkuu');
     await page.getByRole('button', { name: 'Piilota pulssivihje' }).click();
-    await expect(names).toHaveText(['•', '•', '•', '•']);
+    await expect(names).toHaveText(Array(8).fill('•'));
+    await expect(names.first()).toBeHidden();
+    await expect(page.locator('.rytmi-pulssi-status')).toContainText('Pulssi piilotettu');
+    expect(await placements()).toEqual(initial);
+  });
+});
+
+
+test.describe('03 Tauko ei aina tarkoita hiljaisuutta', () => {
+  test('kolme tilannetta voi vertailla vapaasti, eikä kuuntelu merkitse opituksi', async ({ page }) => {
+    await page.goto('/oppi/rytmi/hiljaisuus-kuuluu-rytmiin.html');
+    const sounds = page.locator('[data-tahti="1"] .rytmi-isku-teko');
+    await expect(page.locator('#rytmi-02-tahti-1')).toHaveText('Tahti 1 · Pidä pulssi');
+    await expect(page.locator('[data-tahti="0"] .rytmi-isku-teko')).toHaveText(Array(4).fill('Laske mielessä'));
+    await expect(page.locator('.rytmi-ohje')).toContainText('pidä liike käynnissä myös tauon aikana');
+    const a = page.getByRole('button', { name: 'A · Ääni jatkuu' });
+    const b = page.getByRole('button', { name: 'B · Vaimenna' });
+    const c = page.getByRole('button', { name: 'C · Jätä isku pois' });
+    await expect(sounds).toHaveText(['Soita Em', 'Anna soida', 'Anna soida', 'Ääni jatkuu']);
+    await b.click();
+    await expect(b).toHaveAttribute('aria-pressed', 'true');
+    await expect(sounds).toHaveText(['Soita Em', 'Anna soida', 'Anna soida', 'Vaimenna']);
+    await playButton(page).click();
+    await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
+    await c.click();
+    await expect(c).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('[data-rytmi-tila]')).toContainText(
+      'Esimerkki vaihtuu seuraavan kahden tahdin kierron alussa.');
+    // Jo soiva B-kierto jatkuu loppuun, eikä ruudukko esitä ennenaikaisesti C:tä.
+    await expect(sounds).toHaveText(['Soita Em', 'Anna soida', 'Anna soida', 'Vaimenna']);
+    await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
+    await expect(sounds).toHaveText(['Soita Em', 'Anna soida', 'Uusi isku', 'Ei uutta iskua'],
+      { timeout: 10000 });
+    await expect(page.locator('[data-rytmi-tila]')).toHaveText('Nyt soi C · Jätä isku pois.');
+
+    await a.click();
+    await expect(a).toHaveAttribute('aria-pressed', 'true');
+    await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
+    await expect(sounds).toHaveText(['Soita Em', 'Anna soida', 'Uusi isku', 'Ei uutta iskua']);
+    await expect(sounds).toHaveText(['Soita Em', 'Anna soida', 'Anna soida', 'Ääni jatkuu'],
+      { timeout: 10000 });
+    await expect(page.locator('[data-rytmi-tila]')).toHaveText('Nyt soi A · Ääni jatkuu.');
+    await playButton(page).click();
+    await expect(playButton(page)).toHaveAccessibleName('Kuuntele');
+    await expect(page.locator('.done-toggle')).toHaveAttribute('aria-pressed', 'false');
+  });
+});
+
+test.describe('04 Valmistaudu seuraavaan osaan', () => {
+  test('D→G: A antaa D:n soida, B vaimentaa nelosiskulla, molemmissa G alkaa ykkösellä', async ({ page }) => {
+    await page.goto('/oppi/rytmi/valmistaudu-seuraavaan-osaan.html');
+    const first = page.locator('[data-tahti="0"] .rytmi-isku-teko');
+    const second = page.locator('[data-tahti="1"] .rytmi-isku-teko');
+    await expect(first).toHaveText(['Soita D', 'Anna soida', 'Anna soida', 'Anna soida']);
+    await expect(second).toHaveText(['Soita G', 'Anna soida', 'Anna soida', 'Anna soida']);
+    const a = page.getByRole('button', { name: 'A · D soi loppuun' });
+    const b = page.getByRole('button', { name: 'B · Vaimenna D nelosella' });
+    await expect(a).toHaveAttribute('aria-pressed', 'true');
+    await b.click();
+    await expect(b).toHaveAttribute('aria-pressed', 'true');
+    await expect(first).toHaveText(['Soita D', 'Anna soida', 'Anna soida', 'Vaimenna']);
+    await expect(second).toHaveText(['Soita G', 'Anna soida', 'Anna soida', 'Anna soida']);
+    await playButton(page).click();
+    await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
+    await expect(page.locator('.rytmi-isku.is-active')).toHaveCount(1);
+    await playButton(page).click();
+    await expect(playButton(page)).toHaveAccessibleName('Kuuntele');
+    await a.click();
+    await expect(first).toHaveText(['Soita D', 'Anna soida', 'Anna soida', 'Anna soida']);
+    await expect(page.locator('.done-toggle')).toHaveAttribute('aria-pressed', 'false');
   });
 });
 
 test.describe('toisto', () => {
   test('yksi tilan mukaan vaihtuva painike, nopeat painallukset eivät jätä toistoa päälle', async ({ page }) => {
-    await page.goto(`/oppi/rytmi/${lessons[1][0]}.html`);
+    await page.goto('/oppi/rytmi/hiljaisuus-kuuluu-rytmiin.html');
     const button = playButton(page);
     await expect(page.locator('[data-rytmi-toisto]')).toHaveCount(1);
     await expect(button).not.toHaveAttribute('aria-pressed', /.*/);
@@ -360,7 +588,7 @@ test.describe('toisto', () => {
   });
 
   test('02: korostus kulkee tahdin 1 iskuilta tahdin 2 iskuille', async ({ page }) => {
-    await page.goto(`/oppi/rytmi/${lessons[1][0]}.html`);
+    await page.goto('/oppi/rytmi/hiljaisuus-kuuluu-rytmiin.html');
     await playButton(page).click();
     const bars = new Set<string>();
     for (let i = 0; i < 40 && bars.size < 2; i++) {
@@ -373,14 +601,15 @@ test.describe('toisto', () => {
   });
 
   test('03: kesken tahdin valittu versio näkyy valittuna, ruudukko vaihtuu vasta tahdin rajalla', async ({ page }) => {
-    await page.goto(`/oppi/rytmi/${lessons[2][0]}.html`);
+    await page.goto('/oppi/rytmi/sama-musiikki-eri-tuntuma.html');
     const grid = page.locator('[data-rytmi-ruudukko="tuntuma"]');
     const status = page.locator('[data-rytmi-tila]');
-    // Ilman toistoa valinta päivittää ruudukon heti.
+    // Ilman toistoa A painottaa 1 ja 3, B painottaa 2 ja 4.
+    await expect(grid.locator('.rytmi-isku-teko')).toHaveText(['Korosta', 'Hiljaa', 'Soita', 'Hiljaa', 'Korosta', 'Hiljaa', 'Soita', 'Hiljaa']);
     await page.getByRole('button', { name: 'B · Painota 2 ja 4' }).click();
     await expect(grid).toHaveAttribute('data-versio', 'B');
     await expect(grid.locator('.rytmi-isku-teko')).toHaveText(['Soita', 'Hiljaa', 'Korosta', 'Hiljaa', 'Soita', 'Hiljaa', 'Korosta', 'Hiljaa']);
-    await page.getByRole('button', { name: 'A · Tasaiset vedot' }).click();
+    await page.getByRole('button', { name: 'A · Painota 1 ja 3' }).click();
     await expect(grid).toHaveAttribute('data-versio', 'A');
 
     await playButton(page).click();
@@ -401,6 +630,35 @@ test.describe('toisto', () => {
     expect(firstActive).toBeLessThanOrEqual(1);
     await expect(status).toHaveText('Nyt soi B · Painota 2 ja 4.');
     await playButton(page).click();
+  });
+
+  test('01: A/B-musiikkiversion vaihto jatkaa samaa soittoa ja näkyy vasta kierron alussa', async ({ page }) => {
+    await page.goto('/oppi/rytmi/loyda-pulssi-ja-ykkonen.html');
+    const status = page.locator('[data-rytmi-tila]');
+    const caption = page.locator('[data-rummut-tahti]');
+    const a = page.getByRole('button', { name: 'A · Musiikki koko ajan' });
+    const b = page.getByRole('button', { name: 'B · Toinen tahti hiljaa' });
+
+    await page.getByRole('button', { name: 'Paljasta pulssi' }).click();
+    await playButton(page).click();
+    await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
+    await expect(page.locator('.rytmi-isku.is-active')).toHaveCount(1);
+    await b.click();
+    await expect(b).toHaveAttribute('aria-pressed', 'true');
+    await expect(status).toContainText('Musiikin hiljaisuus vaihtuu seuraavan kahden tahdin kierron alussa.');
+    await expect(caption).toContainText('Musiikki jatkuu');
+    await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
+
+    // Soiva versio ja ruudukon kuvaus vaihtuvat yhdessä, toisto ei käynnisty uudelleen.
+    await expect(caption).toContainText('Täysi hiljaisuus', { timeout: 10000 });
+    await expect(status).toHaveText('Nyt soi B · Toinen tahti hiljaa.');
+    await a.click();
+    await expect(a).toHaveAttribute('aria-pressed', 'true');
+    await expect(playButton(page)).toHaveAccessibleName('Pysäytä');
+    await expect(caption).toContainText('Musiikki jatkuu', { timeout: 10000 });
+    await expect(status).toHaveText('Nyt soi A · Musiikki koko ajan.');
+    await playButton(page).click();
+    await expect(playButton(page)).toHaveAccessibleName('Kuuntele');
   });
 
   test('ilman Web Audiota painike on pois käytöstä ja tila kerrotaan', async ({ page }) => {
@@ -425,11 +683,11 @@ test.describe('ilman JavaScriptiä', () => {
     await expect(first.locator('xpath=..').getByRole('link', { name: 'Avaa omalla sivullaan' })).toBeVisible();
     await earlier(page).locator('summary').click();
     await expect(earlier(page).getByRole('link', { name: /Pulssi ja komppi/ })).toBeVisible();
-    await page.goto(`/oppi/rytmi/${lessons[2][0]}.html`);
+    await page.goto('/oppi/rytmi/sama-musiikki-eri-tuntuma.html');
     await expect(playButton(page)).toBeHidden();
-    await expect(page.getByRole('button', { name: 'A · Tasaiset vedot' })).toBeHidden();
+    await expect(page.getByRole('button', { name: 'A · Painota 1 ja 3' })).toBeHidden();
     await expect(page.locator('[data-rytmi-tila]')).toHaveText('Ääniesimerkki tarvitsee JavaScriptin ja selaimen äänituen.');
-    await expect(page.getByText('Tempo ja soinnut pysyvät samoina')).toBeVisible();
+    await expect(page.getByText(/Tempo, rumpu- ja bassotausta, soinnut sekä kitaran iskujen paikat pysyvät samoina/)).toBeVisible();
     await expect(page.locator('.rytmi-isku')).toHaveCount(8);
   });
 });

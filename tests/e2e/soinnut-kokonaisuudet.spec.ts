@@ -223,7 +223,7 @@ test.describe('ilman JavaScriptiä', () => {
 
   test('kaikki sisältölinkit löytyvät ja osiot aukeavat', async ({ page }) => {
     await page.goto(topicPath);
-    await expect(page.locator('.study-choice')).toHaveCount(24);
+    await expect(page.locator('.study-choice')).toHaveCount(27);
     await earlier(page).locator('summary').click();
     await expect(earlier(page).getByRole('link', { name: /Septimisoinnut/ }).first()).toBeVisible();
   });
@@ -458,9 +458,9 @@ test.describe('aiempien sisältöjen tilateksti (progress_text)', () => {
     await page.goto(topicPath);
     await expect(earlier(page).locator('summary [data-study-total]')).toHaveText('✓ Aiemmat sisällöt tehty');
     await expect(earlier(page).locator('summary')).toHaveAccessibleName(/^Aiemmat oppitunnit ja harjoitukset.*✓ Aiemmat sisällöt tehty$/);
-    await expect(page.locator('#ydinopinnot').locator('summary [data-unit-progress]')).toHaveText('0/3 kokeiltu');
-    await expect(page.locator('#ydinopinnot > summary')).toHaveAccessibleName(/0\/3 kokeiltu$/);
-    await expect(page.locator('#ydinopinnot').locator('[data-study-attempt-status]')).toHaveText(['Kokeilematta', 'Kokeilematta', 'Kokeilematta']);
+    await expect(page.locator('#ydinopinnot').locator('summary [data-unit-progress]')).toHaveText('0/6 kokeiltu');
+    await expect(page.locator('#ydinopinnot > summary')).toHaveAccessibleName(/0\/6 kokeiltu$/);
+    await expect(page.locator('#ydinopinnot').locator('[data-study-attempt-status]')).toHaveText(['Kokeilematta', 'Kokeilematta', 'Kokeilematta', 'Kokeilematta', 'Kokeilematta', 'Kokeilematta']);
     await expect(page.getByText(notWhole)).toHaveCount(0);
 
     // Vanhan sarjan viimeinen sivu: ylä- ja alareunan tila samalla tekstillä, alareunan tila ilmoitetaan (aria-live).
@@ -494,16 +494,425 @@ const ydinPages = [
   ['kuule-ja-kokoa-sointu', 'Kuule ja kokoa sointu'],
   ['yksi-savel-muuttaa-sointua', 'Yksi sävel muuttaa sointua'],
   ['mihin-kappale-haluaa-palata', 'Mihin kappale haluaa palata?'],
+  ['sointukierto-ja-asteet', 'Sointukierto ja sointuasteet'],
+  ['siirra-sama-rakenne', 'Siirrä sama rakenne'],
+  ['sama-kierto-vahemmilla-vihjeilla', 'Sama kierto, vähemmän apua'],
 ] as const;
 const ydinPath = (index: number) => `/oppi/soinnut/${ydinPages[index][0]}.html`;
 
-test.describe('Ydinopinnot v0.5', () => {
-  test('kolme korttia, suorat reitit, navigointi ja itsenäinen kokeiltu-merkintä', async ({ page }) => {
+test('02:n kahdessa erillisessä vertailussa D/Dm ja E/Em soivat oikeilla näytteillä', async ({ page }) => {
+  await recordAudio(page);
+  const files = new Set<string>();
+  page.on('response', response => {
+    if (response.ok() && response.url().includes('/assets/audio/soinnut/')) {
+      files.add(response.url().split('/').pop() ?? '');
+    }
+  });
+  await page.goto(ydinPath(1));
+  const section = page.locator('[data-sointuharjoitus="arvaa"]');
+  const d = section.getByRole('button', { name: 'Kuuntele D-duuri' });
+  const dm = section.getByRole('button', { name: 'Kuuntele D-molli' });
+  const e = section.getByRole('button', { name: 'Kuuntele E-duuri' });
+  const em = section.getByRole('button', { name: 'Kuuntele E-molli' });
+  await expect(section.getByRole('heading', { name: '1 · Kuuntele D ja Dm' })).toBeVisible();
+  await expect(section.getByRole('heading', { name: '2 · Kuuntele E ja Em' })).toBeVisible();
+  await expect(section.getByRole('heading', { name: '3 · Tunnista duuri ja molli kuuntelemalla' })).toBeVisible();
+  await expect(section.locator('.chord-diagrams').first().locator('figcaption')).toHaveText(['D', 'Dm']);
+  await expect(section.locator('[data-eem-kaaviot] figcaption')).toHaveText(['E', 'Em']);
+  await expect(section.locator('[data-eem-kaaviot]')).toBeVisible();
+  await expect(section.getByRole('group', { name: 'Vertaa D- ja Dm-sointuja' })).toBeVisible();
+  await expect(section.getByRole('group', { name: 'Vertaa E- ja Em-sointuja' })).toBeVisible();
+  await expect(section.locator('.chord-diagrams').first().locator('code')).toHaveText(['xx0232', 'xx0231']);
+  await expect(section).toContainText('D–F♯–A');
+  await expect(section).toContainText('D–F–A');
+
+  await d.click();
+  await expect(d).toHaveAttribute('data-playing', '');
+  await expect.poll(async () => (await starts(page)).length).toBe(4);
+  expect([...files].some(name => /INSGuitarSteel_StringHighE_Vel02_Fs4_01\.(m4a|ogg)$/.test(name))).toBe(true);
+
+  await dm.click();
+  await expect(dm).toHaveAttribute('data-playing', '');
+  await expect(d).not.toHaveAttribute('data-playing');
+  await expect.poll(async () => (await starts(page)).length).toBe(8);
+  expect([...files].some(name => /INSGuitarSteel_StringHighE_Vel02_F4_01\.(m4a|ogg)$/.test(name))).toBe(true);
+  const log = await starts(page);
+  close(log[4].when, log[5].when - 0.022);
+
+  await e.click();
+  await expect(e).toHaveAttribute('data-playing', '');
+  await expect(dm).not.toHaveAttribute('data-playing');
+  await expect.poll(async () => (await starts(page)).length).toBe(14);
+  await em.click();
+  await expect(em).toHaveAttribute('data-playing', '');
+  await expect.poll(async () => (await starts(page)).length).toBe(20);
+
+  // Kolmas vaihe ei toista nimettyjä sointuja tai paljasta tehtävän sisältöä ennakkoon.
+  await expect(section.locator('[data-suora-kuuntelu]')).toHaveCount(0);
+  await expect(section.locator('[data-arvaus-kysymys]')).toBeHidden();
+  await expect(section.locator('[data-arvaus-kuuntelu]')).toBeHidden();
+  await expect(section.locator('[data-arvaus-kaaviot]')).toBeHidden();
+  await expect(section.getByRole('button', { name: 'D / Dm' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(section.getByRole('button', { name: 'E / Em' })).toHaveAttribute('aria-pressed', 'false');
+  await expect(section.getByRole('button', { name: 'Tunnista', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Merkitse kokeilluksi' })).toHaveAttribute('aria-pressed', 'false');
+});
+
+test('02:n D/Dm-tunnistus toimii oletuksena ja E/Em-vaihtoehto samassa tehtävässä', async ({ page }) => {
+  await recordAudio(page);
+  await page.goto(ydinPath(1));
+  const section = page.locator('[data-sointuharjoitus="arvaa"]');
+  const pairD = section.getByRole('button', { name: 'D / Dm' });
+  const pairE = section.getByRole('button', { name: 'E / Em' });
+  const question = section.locator('[data-arvaus-kysymys]');
+  const charts = section.locator('[data-arvaus-kaaviot]');
+  const answers = section.getByRole('group', { name: 'Vastaa' });
+
+  await expect(pairD).toHaveAttribute('aria-pressed', 'true');
+  await expect(pairE).toHaveAttribute('aria-pressed', 'false');
+  await expect(question).toBeHidden();
+  await expect(section.locator('[data-arvaus-kuuntelu]')).toBeHidden();
+  await expect(charts).toBeHidden();
+
+  // Käänteinen järjestys Dm, D; tunnistetaan duuria, joten toinen vastaus on oikein.
+  await page.evaluate(() => { Math.random = () => 0.9; });
+  await section.getByRole('button', { name: 'Tunnista', exact: true }).click();
+  await expect(question).toBeVisible();
+  await expect(question.locator('[data-kysymys]')).toHaveText('Kumpi on duuri?');
+  await expect(section.locator('[data-arvaus-kuuntelu]')).toBeVisible();
+  await expect(answers.getByRole('button', { name: 'Sointu 2' })).toBeDisabled();
+  await expect(section.locator('[data-eem-kaaviot]')).toBeVisible();
+  await section.getByRole('button', { name: 'Kuuntele sointu 1' }).click();
+  await expect(section.locator('[data-arvaus-kuuntelu] [data-playing]')).toHaveCount(1);
+  await expect.poll(async () => (await starts(page)).length).toBe(4);
+  await answers.getByRole('button', { name: 'Sointu 2' }).click();
+  await expect(section.locator('[data-arvauspalaute]'))
+    .toHaveText('Oikein! Sointu 1 oli D-molli ja sointu 2 oli D-duuri.');
+  await expect(section.locator('[data-arvauspalaute] > .sointu-arvaus-tulos'))
+    .toHaveCSS('color', 'rgb(159, 228, 195)');
+  await expect(section.locator('[data-arvauspalaute]'))
+    .toHaveCSS('color', 'rgb(159, 228, 195)');
+  await expect(charts.locator('figcaption')).toHaveText(['Dm', 'D']);
+
+  // Vaihto E-pariin aloittaa uuden kysymyksen eikä palauta Tunnista-painiketta.
+  await page.evaluate(() => { Math.random = () => 0.1; });
+  await pairE.click();
+  await expect(pairE).toHaveAttribute('aria-pressed', 'true');
+  await expect(pairD).toHaveAttribute('aria-pressed', 'false');
+  await expect(question).toBeVisible();
+  await expect(section.locator('[data-arvaus-kuuntelu]')).toBeVisible();
+  await expect(charts).toBeHidden();
+  await expect(section.locator('[data-arvauspalaute]')).toHaveText('Saat palautteen heti. Aloita uusi tehtävä valitsemalla sointupari ylhäältä.');
+  await expect(section.locator('[data-eem-kaaviot] figcaption')).toHaveText(['E', 'Em']);
+  await expect(section.getByRole('button', { name: 'Tunnista', exact: true })).toBeHidden();
+  await expect(question.locator('[data-kysymys]')).toHaveText('Kumpi on duuri?');
+  await expect(answers.getByRole('button', { name: 'Sointu 1' })).toBeDisabled();
+  await section.getByRole('button', { name: 'Kuuntele sointu 2' }).click();
+  await expect(answers.getByRole('button', { name: 'Sointu 1' })).toBeEnabled();
+  await answers.getByRole('button', { name: 'Sointu 1' }).click();
+  await expect(section.locator('[data-arvauspalaute]'))
+    .toHaveText('Oikein! Sointu 1 oli E-duuri ja sointu 2 oli E-molli.');
+  await expect(charts.locator('figcaption')).toHaveText(['E', 'Em']);
+  // Vastauksen jälkeen valittu sama pari aloittaa uuden tehtävän ilman Tunnista-painiketta.
+  await pairE.click();
+  await expect(question.locator('[data-kysymys]')).toHaveText('Kumpi on molli?');
+  await expect(section.locator('[data-arvauspalaute]')).toHaveText('Saat palautteen heti. Aloita uusi tehtävä valitsemalla sointupari ylhäältä.');
+  await expect(charts).toBeHidden();
+  await expect(section.locator('[data-arvaus-teksti]')).toHaveText(['Sointu 1', 'Sointu 2']);
+  await expect(section.getByRole('button', { name: 'Tunnista', exact: true })).toBeHidden();
+  // Myös vastaamaton tehtävä voidaan vaihtaa uuteen kysymykseen valitsemalla toinen pari.
+  await pairD.click();
+  await expect(pairD).toHaveAttribute('aria-pressed', 'true');
+  await expect(question).toBeVisible();
+  await expect(question.locator('[data-kysymys]')).toHaveText('Kumpi on molli?');
+  await expect(section.locator('[data-arvaus-teksti]')).toHaveText(['Sointu 1', 'Sointu 2']);
+  await expect(section.locator('[data-arvauspalaute]')).toHaveText('Saat palautteen heti. Aloita uusi tehtävä valitsemalla sointupari ylhäältä.');
+  // Jo valitun D/Dm-parin uusi painallus palauttaa duurikysymyksen.
+  await pairD.click();
+  await expect(question.locator('[data-kysymys]')).toHaveText('Kumpi on duuri?');
+  await expect(section.locator('[data-arvaus-teksti]')).toHaveText(['Sointu 1', 'Sointu 2']);
+  await expect(page.locator('.done-toggle')).toHaveAttribute('aria-pressed', 'false');
+});
+
+test('02:n vastaus ei avaudu ennen käynnistynyttä sointua eikä epäonnistuneella latauksella', async ({ page }) => {
+  await recordAudio(page);
+  await page.goto(ydinPath(1));
+  const section = page.locator('[data-sointuharjoitus="arvaa"]');
+  const pairD = section.getByRole('button', { name: 'D / Dm' });
+  const answers = section.locator('[data-arvaus-vastaus] button');
+  const firstSound = section.getByRole('button', { name: 'Kuuntele sointu 1' });
+  await section.getByRole('button', { name: 'Tunnista', exact: true }).click();
+
+  await expect(answers.nth(0)).toBeDisabled();
+  await expect(answers.nth(1)).toBeDisabled();
+  await expect(section.locator('[data-arvaus-kaaviot]')).toBeHidden();
+
+  // Myös epäonnistunut lataus jättää vastaamisen kiinni.
+  await page.route('**/assets/audio/soinnut/*', route => route.fulfill({ status: 503, body: '' }));
+  await firstSound.click();
+  await expect(section.locator('[data-sointu-tila]')).toHaveText('Ääniä ei voitu ladata. Kokeile uudelleen.');
+  await expect(answers.nth(0)).toBeDisabled();
+  await expect(answers.nth(1)).toBeDisabled();
+  await expect(section.locator('[data-arvaus-kaaviot]')).toBeHidden();
+
+  // Kun ääni käynnistyy, kumpikin vastaus avautuu. Sen päätyttyä vastaaminen
+  // pysyy mahdollisena, kunnes annetaan vastaus tai vaihdetaan sointuparia.
+  await page.unrouteAll({ behavior: 'wait' });
+  await firstSound.click();
+  await expect(firstSound).toHaveAttribute('data-playing', '');
+  await expect(answers.nth(0)).toBeEnabled();
+  await expect(answers.nth(1)).toBeEnabled();
+  await expect.poll(async () => (await starts(page)).length).toBeGreaterThan(0);
+
+  // Uusi kierros vaatii jälleen uuden kuuntelun.
+  await pairD.click();
+  await expect(answers.nth(0)).toBeDisabled();
+  await expect(answers.nth(1)).toBeDisabled();
+  await expect(section.locator('[data-arvaus-kaaviot]')).toBeHidden();
+  await section.getByRole('button', { name: 'Kuuntele sointu 2' }).click();
+  await expect(answers.nth(0)).toBeEnabled();
+  await expect(answers.nth(1)).toBeEnabled();
+  await answers.nth(0).click();
+  await expect(answers.nth(0)).toHaveAttribute('aria-disabled', 'true');
+  await expect(answers.nth(1)).toHaveAttribute('aria-disabled', 'true');
+});
+
+test('02:n duuri/molli-vuorottelu on parikohtainen ja Sointu 1/2 -järjestys arvotaan', async ({ page }) => {
+  await recordAudio(page);
+  await page.goto(ydinPath(1));
+  const section = page.locator('[data-sointuharjoitus="arvaa"]');
+  const pairD = section.getByRole('button', { name: 'D / Dm' });
+  const pairE = section.getByRole('button', { name: 'E / Em' });
+  const heading = section.locator('[data-arvaus-kysymys] [data-kysymys]');
+  const diagrams = section.locator('[data-arvaus-kaaviot] figcaption');
+  const answers = section.getByRole('group', { name: 'Vastaa' });
+
+  // Duuri kysytään aluksi, mutta Sointu 1/2:n sijainti arvotaan.
+  await page.evaluate(() => { Math.random = () => 0.9; });
+  await section.getByRole('button', { name: 'Tunnista', exact: true }).click();
+  await expect(heading).toHaveText('Kumpi on duuri?');
+  await expect(answers.getByRole('button', { name: 'Sointu 2' })).toBeDisabled();
+  await section.getByRole('button', { name: 'Kuuntele sointu 1' }).click();
+  await expect(answers.getByRole('button', { name: 'Sointu 2' })).toBeEnabled();
+  await answers.getByRole('button', { name: 'Sointu 2' }).click();
+  await expect(diagrams).toHaveText(['Dm', 'D']);
+
+  // Uusi painallus samaan pariinkin vaihtaa kysymyksen molliksi ilman vastausta.
+  await page.evaluate(() => { Math.random = () => 0.1; });
+  await pairD.click();
+  await expect(heading).toHaveText('Kumpi on molli?');
+  await expect(answers.getByRole('button', { name: 'Sointu 2' })).toBeDisabled();
+  await section.getByRole('button', { name: 'Kuuntele sointu 2' }).click();
+  await expect(answers.getByRole('button', { name: 'Sointu 2' })).toBeEnabled();
+  await answers.getByRole('button', { name: 'Sointu 2' }).click();
+  await expect(diagrams).toHaveText(['D', 'Dm']);
+  await expect(section.locator('[data-arvauspalaute]')).toContainText('Oikein!');
+
+  // Ensimmäinen E/Em on duuri, mutta D/Dm:n oma vuorottelu jatkuu.
+  await pairE.click();
+  await expect(heading).toHaveText('Kumpi on duuri?');
+  await pairD.click();
+  await expect(heading).toHaveText('Kumpi on duuri?');
+  await pairD.click();
+  await expect(heading).toHaveText('Kumpi on molli?');
+  await expect(section.getByRole('button', { name: 'Tunnista', exact: true })).toBeHidden();
+});
+
+test('02:n kolmas A/Am-pari: aidot sävelet, kuuntelulukko, palaute ja vuorottelu', async ({ page }) => {
+  await recordAudio(page);
+  const sounds = new Set<string>();
+  page.on('response', response => {
+    if (response.ok() && response.url().includes('/assets/audio/soinnut/'))
+      sounds.add(decodeURIComponent(response.url().split('/').pop() ?? ''));
+  });
+  await page.goto(ydinPath(1));
+  const section = page.locator('[data-sointuharjoitus="arvaa"]');
+  const a = section.getByRole('button', { name: 'A / Am' });
+  const d = section.getByRole('button', { name: 'D / Dm' });
+  const e = section.getByRole('button', { name: 'E / Em' });
+  const heading = section.locator('[data-kysymys]');
+  const listening = section.locator('[data-arvaus-kuuntelu]');
+  const answers = section.locator('[data-arvaus-vastaus] button');
+  const charts = section.locator('[data-arvaus-kaaviot]');
+
+  await expect(a).toHaveAttribute('aria-pressed', 'false');
+  await a.click();
+  await expect(a).toHaveAttribute('aria-pressed', 'true');
+  await expect(d).toHaveAttribute('aria-pressed', 'false');
+  await expect(section.locator('[data-arvaus-kysymys]')).toBeHidden();
+  await page.evaluate(() => { Math.random = () => 0.1; });
+  await section.getByRole('button', { name: 'Tunnista', exact: true }).click();
+  await expect(heading).toHaveText('Kumpi on duuri?');
+  await expect(answers.nth(0)).toBeDisabled();
+  await expect(answers.nth(1)).toBeDisabled();
+  await expect(section.locator('[data-aam-kaaviot]')).toBeHidden();
+
+  await listening.getByRole('button', { name: 'Kuuntele sointu 1' }).click();
+  await expect(answers.nth(0)).toBeEnabled();
+  await expect(answers.nth(1)).toBeEnabled();
+  await expect.poll(async () => (await starts(page)).length).toBe(5);
+  expect([...sounds].some(name => /^INSGuitarSteel_StringA_Vel02_A2_01\.(m4a|ogg)$/.test(name))).toBe(true);
+  expect([...sounds].some(name => /^INSGuitarSteel_StringB_Vel02_Cs4_01\.(m4a|ogg)$/.test(name))).toBe(true);
+  await answers.nth(1).click();
+  await expect(section.locator('[data-arvauspalaute]'))
+    .toHaveText('Tällä kertaa ei. Sointu 1 oli A-duuri ja sointu 2 oli A-molli.');
+  await expect(section.locator('[data-arvauspalaute]')).toHaveCSS('color', 'rgb(255, 224, 138)');
+  await expect(answers.nth(1)).toHaveClass(/is-wrong/);
+  await expect(answers.nth(0)).not.toHaveClass(/is-(correct|wrong)/);
+  await expect(answers.nth(0)).toHaveAttribute('aria-disabled', 'true');
+  await expect(answers.nth(1)).toHaveAttribute('aria-disabled', 'true');
+  await expect(charts.locator('figcaption')).toHaveText(['A', 'Am']);
+  await expect(charts.locator('figure').first()).toHaveAttribute('aria-label', 'Sointu 1: A-duuri');
+  await expect(charts.locator('figure').nth(1)).toHaveAttribute('aria-label', 'Sointu 2: A-molli');
+  await expect(charts.locator('code')).toHaveText(['x02220', 'x02210']);
+  await listening.getByRole('button', { name: 'Kuuntele sointu 2, A-molli' }).click();
+  await expect(listening.locator('button').nth(1)).toHaveClass(/is-wrong/);
+  await listening.getByRole('button', { name: 'Kuuntele sointu 1, A-duuri' }).click();
+  await expect(listening.locator('button').first()).toHaveClass(/is-correct/);
+  await expect(listening.locator('button').nth(1)).not.toHaveClass(/is-(correct|wrong)/);
+
+  // Sama pari avaa mollikysymyksen, aloituspainike ei palaudu.
+  await page.evaluate(() => { Math.random = () => 0.9; });
+  await a.click();
+  await expect(heading).toHaveText('Kumpi on molli?');
+  await expect(answers.nth(0)).toBeDisabled();
+  await expect(charts).toBeHidden();
+  await expect(listening.locator('button').first()).not.toHaveClass(/is-(correct|wrong)/);
+  await listening.getByRole('button', { name: 'Kuuntele sointu 2' }).click();
+  await expect(answers.nth(0)).toBeEnabled();
+  await answers.nth(0).click();
+  await expect(section.locator('[data-arvauspalaute]'))
+    .toHaveText('Oikein! Sointu 1 oli A-molli ja sointu 2 oli A-duuri.');
+  await expect(charts.locator('code')).toHaveText(['x02210', 'x02220']);
+  await expect(section.locator('[data-arvauspalaute]')).toHaveCSS('color', 'rgb(159, 228, 195)');
+
+  // Kysymyksen vuorottelu on parikohtainen eikä muuta E/D-tehtävien painikkeita.
+  await e.click();
+  await expect(heading).toHaveText('Kumpi on duuri?');
+  await d.click();
+  await expect(heading).toHaveText('Kumpi on duuri?');
+  await a.click();
+  await expect(heading).toHaveText('Kumpi on duuri?');
+  await expect(answers.nth(1)).toBeDisabled();
+  await expect(section.getByRole('button', { name: 'Tunnista', exact: true })).toBeHidden();
+});
+
+test('02:n kolme sointuparia pysyvät näkyvissä ja ilman vaakavierintää iPhone-zoomissa', async ({ page }) => {
+  for (const width of [390, 201]) {
+    await page.setViewportSize({ width, height: 760 });
+    await page.goto(ydinPath(1));
+    const section = page.locator('[data-sointuharjoitus="arvaa"]');
+    const choices = section.getByRole('group', { name: 'Valitse tunnistustehtävän sointupari' });
+    await expect(choices.locator('button')).toHaveText(['D / Dm', 'E / Em', 'A / Am']);
+    if (width === 390) {
+      const positions = await choices.locator('button').evaluateAll(buttons =>
+        buttons.map(button => {
+          const box = button.getBoundingClientRect();
+          return { left: box.left, right: box.right, top: box.top };
+        }));
+      expect(positions[1].top).toBeCloseTo(positions[0].top, 0);
+      expect(positions[2].top).toBeCloseTo(positions[0].top, 0);
+      // Sointuparit ovat tiivis vasempaan reunaan ryhmitelty valinta,
+      // eivät kolme tasaisesti koko riville levitettyä vaihtoehtoa.
+      for (let i = 1; i < positions.length; i++) {
+        expect(positions[i].left - positions[i - 1].right).toBeGreaterThanOrEqual(0);
+        expect(positions[i].left - positions[i - 1].right).toBeLessThanOrEqual(8);
+      }
+    }
+    await expect(section.getByRole('button', { name: 'A / Am' })).toBeVisible();
+    await section.getByRole('button', { name: 'A / Am' }).click();
+    await section.getByRole('button', { name: 'Tunnista', exact: true }).click();
+    await expect(section.getByRole('button', { name: 'A / Am' })).toBeInViewport();
+    await expect(section.getByRole('button', { name: 'D / Dm' })).toBeInViewport();
+    await expect(section.getByRole('button', { name: 'E / Em' })).toBeInViewport();
+    await expect(section.locator('[data-kysymys]')).toHaveText('Kumpi on duuri?');
+    expect(await noHorizontalScroll(page), `width=${width}`).toBe(true);
+  }
+});
+
+test('04 sointukierto ja asteet: G–D–Em–C neljän tahdin kitaranäytteillä', async ({ page }) => {
+  await recordAudio(page);
+  await page.goto(ydinPath(3));
+  const bars = page.locator('[data-asteet-bar]');
+  await expect(bars).toHaveCount(4);
+  await expect(bars).toContainText(['G', 'D', 'Em', 'C']);
+  await expect(page.locator('figure.chord-diagram figcaption')).toHaveText(['G', 'D', 'Em', 'C']);
+  await expect(page.locator('[data-sointuharjoitus="asteet"]')).toContainText('I–V–vi–IV');
+  const play = page.locator('[data-asteet-play]');
+  await play.click();
+  await expect(play).toHaveAttribute('data-playing', '');
+  const notes = await starts(page);
+  expect(notes).toHaveLength(16);
+  for (let bar = 0; bar < 4; bar++) close(notes[bar * 4].when - notes[0].when, bar * 2.25);
+  await expect(bars.first()).toHaveAttribute('aria-current', 'step');
+  await page.getByRole('button', { name: '■ Pysäytä' }).click();
+  await expect(page.locator('[data-asteet-bar][aria-current]')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '▶ Kuuntele neljä tahtia' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Merkitse kokeilluksi' })).toHaveAttribute('aria-pressed', 'false');
+});
+
+test('05 transponointi G-duurista C-duuriin näyttää oikean F-duurin otteen', async ({ page }) => {
+  await page.goto(ydinPath(4));
+  await expect(page.getByRole('heading', { level: 1, name: 'Siirrä sama rakenne' })).toBeVisible();
+  const progression = page.locator('.sointu-kierto');
+  await expect(progression).toHaveCount(2);
+  await expect(progression.nth(0).locator('li strong')).toHaveText(['G', 'D', 'Em', 'C']);
+  await expect(progression.nth(1).locator('li strong')).toHaveText(['C', 'G', 'Am', 'F']);
+  await expect(page.locator('figure.chord-diagram figcaption')).toHaveText(['C', 'G', 'Am', 'F']);
+  await expect(page.locator('figure.chord-diagram').last()).toContainText('xx3211');
+  await expect(page.locator('.done-toggle')).toHaveAttribute('aria-pressed', 'false');
+  await page.getByRole('button', { name: 'Merkitse kokeilluksi' }).click();
+  await expect(page.locator('.done-toggle')).toHaveAttribute('aria-pressed', 'true');
+  await page.goto('/oppi/soinnut/index.html');
+  await expect(page.locator('#ydinopinnot [data-unit-progress]')).toHaveText('1/6 kokeiltu');
+  await expect(page.locator('#aiemmat [data-study-total]')).toHaveText('0/18 aiemmista sisällöistä tehty');
+});
+
+test('06 vihjeitä saa vähentää ja palauttaa myös neljän kierron aikana', async ({ page }) => {
+  await recordAudio(page);
+  await page.goto(ydinPath(5));
+  const unit = page.locator('[data-sointuharjoitus="vihjeet"]');
+  const modes = unit.locator('[data-vihje-mode]');
+  const texts = unit.locator('[data-vihje-teksti]');
+  const area = unit.locator('[data-vihje-kartta]');
+  await expect(modes).toHaveCount(4);
+  await expect(texts).toHaveText(['G', 'D', 'Em', 'C']);
+  await modes.nth(1).click();
+  await expect(modes.nth(1)).toHaveAttribute('aria-pressed', 'true');
+  await expect(texts).toHaveText(['I', 'V', 'vi', 'IV']);
+  await modes.nth(2).click();
+  await expect(texts).toHaveText(['1', '2', '3', '4']);
+  await modes.nth(3).click();
+  await expect(area).toBeHidden();
+  await expect(modes.nth(3)).toHaveAttribute('aria-pressed', 'true');
+
+  const play = unit.locator('[data-vihje-play]');
+  await play.click();
+  await expect(play).toHaveAttribute('data-playing', '');
+  const played = await starts(page);
+  expect(played).toHaveLength(64);
+  for (let cycle = 0; cycle < 4; cycle++) {
+    close(played[cycle * 16].when - played[0].when, cycle * 9);
+  }
+  await modes.nth(0).click();
+  await expect(area).toBeVisible();
+  await expect(texts).toHaveText(['G', 'D', 'Em', 'C']);
+  await expect(play).toHaveAttribute('data-playing', '');
+  await play.click();
+  await expect(play).not.toHaveAttribute('data-playing');
+  await expect(play).toHaveText('▶ Aloita soittoharjoitus');
+  await expect(page.getByRole('button', { name: 'Merkitse kokeilluksi' })).toHaveAttribute('aria-pressed', 'false');
+});
+
+test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
+  test('kuusi korttia, suorat reitit, navigointi ja itsenäinen kokeiltu-merkintä', async ({ page }) => {
     await page.goto(topicPath);
     const unit = page.locator('#ydinopinnot');
     const summary = unit.locator(':scope > summary');
     await expect(unit).not.toHaveAttribute('open', '');
-    await expect(unit.locator('.study-choice').first()).toBeHidden();
+    // Suljetun yksikön sisältö: Playwrightin WebKit pitää sisäkkäistä <summary>-elementtiä
+    // näkyvänä suljetussakin <details>issä, joten tarkistetaan sisältölaatikko.
+    await expect(unit.locator(':scope > .study-unit-body')).toBeHidden();
     await summary.click();
     await expect(unit.locator('.study-choice').first()).toBeVisible();
     await summary.click();
@@ -511,7 +920,7 @@ test.describe('Ydinopinnot v0.5', () => {
     await expect(page.locator('.study-units > details').first()).toHaveId('ydinopinnot');
     await expect(core(page)).not.toHaveAttribute('open', '');
     await expect(earlier(page)).not.toHaveAttribute('open', '');
-    await expect(unit.locator('[data-unit-progress]')).toHaveText('0/3 kokeiltu');
+    await expect(unit.locator('[data-unit-progress]')).toHaveText('0/6 kokeiltu');
     expect(await storage(page)).toBeNull();
     await page.evaluate(key => localStorage.setItem(key, JSON.stringify(['oppitunti:kuule-mika-on-sointu', 'harmoninen-kentta'])), readingKey);
     await page.goto(topicPath + '#ydinopinnot');
@@ -539,13 +948,13 @@ test.describe('Ydinopinnot v0.5', () => {
     await page.getByRole('button', { name: 'Merkitse kokeilluksi' }).click();
     await expect(page.getByRole('button', { name: '✓ Kokeiltu' })).toHaveAttribute('aria-pressed', 'true');
     await page.goBack();
-    await expect(unit.locator('[data-unit-progress]')).toHaveText('1/3 kokeiltu');
+    await expect(unit.locator('[data-unit-progress]')).toHaveText('1/6 kokeiltu');
     await expect(firstHeader).toBeFocused();
     await expect(first).toHaveAttribute('open', '');
     await expect(earlier(page).locator('[data-study-total]')).toHaveText('1/18 aiemmista sisällöistä tehty');
     await first.getByRole('button', { name: '✓ Kokeiltu' }).click();
     await expect(firstHeader.locator('[data-study-attempt-status]')).toHaveText('Kokeilematta');
-    await expect(unit.locator('[data-unit-progress]')).toHaveText('0/3 kokeiltu');
+    await expect(unit.locator('[data-unit-progress]')).toHaveText('0/6 kokeiltu');
     expect(JSON.parse(await storage(page) ?? '[]')).toEqual(['oppitunti:kuule-mika-on-sointu', 'harmoninen-kentta']);
     await first.getByRole('link', { name: 'Avaa omalla sivullaan' }).click();
     // Keskittymistila ei näytä aiempaa päällekkäistä Edellinen/Seuraava-navigaatiota.
@@ -554,7 +963,7 @@ test.describe('Ydinopinnot v0.5', () => {
     await expect(page).toHaveURL(topicPath + '#valinta-' + ydinPages[0][0]);
   });
 
-  test('kolme harjoitusta toimivat laatikon sisällä ja sulkeminen pysäyttää äänen', async ({ page, isMobile }) => {
+  test('ydinharjoitukset toimivat laatikon sisällä ja sulkeminen pysäyttää äänen', async ({ page, isMobile }) => {
     await recordAudio(page);
     await page.goto(topicPath);
     const unit = page.locator('#ydinopinnot');
@@ -580,14 +989,14 @@ test.describe('Ydinopinnot v0.5', () => {
     await expect(cards.nth(0).locator('[data-playing]')).toHaveCount(0);
     expect(await page.evaluate(() => window.__audioLog.some(entry => entry.type === 'stop' && entry.when <= entry.at + 0.026))).toBe(true);
 
-    await cards.nth(1).getByRole('button', { name: 'Arvaa' }).click();
+    await cards.nth(1).getByRole('button', { name: 'Tunnista' }).click();
     await cards.nth(1).getByRole('button', { name: 'Kuuntele sointu 1' }).click();
     await expect(cards.nth(1).locator('[data-playing]')).toHaveCount(1);
     await cards.nth(1).getByRole('group', { name: 'Vastaa' }).getByRole('button', { name: 'Sointu 1' }).click();
     await expect(cards.nth(1).locator('[data-arvauspalaute]')).toContainText('Sointu 1 oli');
     await expect(cards.nth(1).locator('[data-arvaus-kaaviot] svg')).toHaveCount(2);
     await cards.nth(1).getByRole('button', { name: 'Merkitse kokeilluksi' }).click();
-    await expect(unit.locator('[data-unit-progress]')).toHaveText('1/3 kokeiltu');
+    await expect(unit.locator('[data-unit-progress]')).toHaveText('1/6 kokeiltu');
     await expect(header(1).locator('[data-study-attempt-status]')).toHaveText('✓ Kokeiltu');
     await expect(earlier(page).locator('[data-study-total]')).toHaveText('0/18 aiemmista sisällöistä tehty');
 
@@ -609,7 +1018,7 @@ test.describe('Ydinopinnot v0.5', () => {
     await page.goto(topicPath + '#valinta-mihin-kappale-haluaa-palata');
     await expect(unit).toHaveAttribute('open', '');
     await expect(cards.nth(2)).toHaveAttribute('open', '');
-    await expect(unit.locator('[data-unit-progress]')).toHaveText('1/3 kokeiltu');
+    await expect(unit.locator('[data-unit-progress]')).toHaveText('1/6 kokeiltu');
   });
 
   test('asteikon mikä tahansa kolmen sävelen valinta soi ja G–B–D käyttää samaa rekisteriä molemmissa esimerkeissä', async ({ page }) => {
@@ -661,37 +1070,60 @@ test.describe('Ydinopinnot v0.5', () => {
     expect(await storage(page)).toBeNull();
   });
 
-  test('arvaustilan vaihto pitää kuuntelupainikkeet ja Arvaa-painikkeen samoissa kohdissa', async ({ page }) => {
+  test('tunnistus alkaa suoraan parin valinnasta ja kuuntelupainikkeet näkyvät vasta aloituksesta', async ({ page }) => {
+    await recordAudio(page);
     await page.setViewportSize({ width: 390, height: 760 });
     await page.goto(ydinPath(1));
     const section = page.locator('[data-sointuharjoitus="arvaa"]');
     const question = section.locator('[data-arvaus-kysymys]');
-    const normal = section.locator('[data-suora-kuuntelu] button');
     const guessing = section.locator('[data-arvaus-kuuntelu] button');
-    const start = section.getByRole('button', { name: 'Arvaa', exact: true });
-    const layout = async (buttons: typeof normal) => Promise.all(
-      (await buttons.all()).map(button => button.evaluate(node => {
-        const b = node.getBoundingClientRect();
-        return { x: Math.round(b.left), y: Math.round(b.top + window.scrollY),
-          width: Math.round(b.width), height: Math.round(b.height) };
-      })),
-    );
-    await expect(question).toBeVisible();
-    await expect(question.locator('[data-kysymys]')).toHaveText('Kuuntele ensin E ja Em');
-    const startPosition = (await layout(start))[0];
-    const initial = await layout(normal);
-    expect(initial).toHaveLength(2);
-    expect(initial[1].y).toBeGreaterThan(initial[0].y);
-
+    const start = section.getByRole('button', { name: 'Tunnista', exact: true });
+    // Kysymykseen siirtymistä mitataan fokuksella ja näkyvyydellä.
+    await expect(section.getByRole('button', { name: 'D / Dm' })).toHaveAttribute('aria-pressed', 'true');
+    await expect(question).toBeHidden();
+    await expect(section.locator('[data-arvaus-kuuntelu]')).toBeHidden();
+    await expect(start).toBeVisible();
     await start.click();
     await expect(question.locator('[data-kysymys]')).toHaveText(/Kumpi on (duuri|molli)\?/);
     await expect(question).toHaveClass(/is-active/);
+    await expect(question).toBeVisible();
     await expect(section.getByRole('group', { name: 'Vastaa' })).toBeVisible();
-    const active = await layout(guessing);
-    expect(active).toEqual(initial);
-    expect((await layout(section.getByRole('button', { name: 'Uusi arvaus' })))[0])
-      .toEqual(startPosition);
+    await expect(guessing).toHaveCount(2);
+    await expect(section.locator('[data-arvaus-teksti]')).toHaveText(['Sointu 1', 'Sointu 2']);
+    await expect(start).toBeHidden();
+    await expect(section.getByRole('button', { name: 'Uusi tehtävä' })).toHaveCount(0);
+    await expect(question.locator('[data-kysymys]')).toBeFocused();
     await expect(question.locator('[data-kysymys]')).toBeInViewport();
+    // Vieritys ei saa piilottaa sointuparin valintaa kysymyskortin yläpuolelle.
+    const pairSelection = section.getByRole('group', { name: 'Valitse tunnistustehtävän sointupari' });
+    await expect(pairSelection).toBeInViewport({ ratio: 0.95 });
+    const pairBox = await pairSelection.boundingBox();
+    const questionBox = await question.boundingBox();
+    expect(pairBox).not.toBeNull();
+    expect(questionBox).not.toBeNull();
+    expect(questionBox!.y).toBeGreaterThan(pairBox!.y);
+
+    const answer = section.getByRole('group', { name: 'Vastaa' }).getByRole('button', { name: 'Sointu 1' });
+    await expect(answer).toBeDisabled();
+    await guessing.nth(0).click();
+    await expect(answer).toBeEnabled();
+    await answer.click();
+    await expect(answer).toHaveAttribute('aria-disabled', 'true');
+    await answer.dispatchEvent('click');
+    await expect(pairSelection).toBeInViewport({ ratio: 0.95 });
+    await expect(question.locator('[data-kysymys]')).toBeInViewport();
+  });
+
+  test('200 % iPhone-zoomissa Tunnista näyttää myös sointuparin valinnan', async ({ page }) => {
+    await page.setViewportSize({ width: 201, height: 760 });
+    await page.goto(ydinPath(1));
+    const section = page.locator('[data-sointuharjoitus="arvaa"]');
+    const selection = section.getByRole('group', { name: 'Valitse tunnistustehtävän sointupari' });
+    await section.getByRole('button', { name: 'Tunnista', exact: true }).click();
+    await expect(selection).toBeInViewport({ ratio: 0.95 });
+    await expect(section.locator('[data-arvaus-kysymys]')).toBeInViewport({ ratio: 0.1 });
+    await expect(section.getByRole('button', { name: 'D / Dm' })).toBeInViewport();
+    await expect(section.getByRole('button', { name: 'E / Em' })).toBeInViewport();
   });
 
   // PR #141, iOS Simulator -auditointi 22.11.2026: Safarin sivuzoomaus kaventaa CSS-näkymää
@@ -710,10 +1142,10 @@ test.describe('Ydinopinnot v0.5', () => {
         await page.goto(url);
         const section = page.locator('.sointuharjoitus[data-sointuharjoitus="arvaa"]:visible');
         const next = section.locator('[data-uusi-arvaus]');
-        // Näkyvien ohjainten dokumenttisijainnit: kysymyskortti, kaksi kuuntelupainiketta, Arvaa.
+        // Tunnista-painike pysyy paikallaan; kysymyskortti ja nimetön kuuntelu ilmestyvät vasta tehtävän alussa.
         const controls = () => section.evaluate(root => {
           const shown = [...root.querySelectorAll<HTMLElement>(
-            '[data-arvaus-kysymys], [data-suora-kuuntelu] button, [data-arvaus-kuuntelu] button, [data-uusi-arvaus]',
+            '[data-arvaus-kysymys], [data-arvaus-kuuntelu] button, [data-uusi-arvaus]',
           )].filter(element => element.offsetParent);
           return shown.map(element => {
             const box = element.getBoundingClientRect();
@@ -747,15 +1179,17 @@ test.describe('Ydinopinnot v0.5', () => {
           return { top: Math.round(box.top), height: Math.round(box.height), clipped: button.scrollWidth > button.clientWidth + 1 };
         }));
 
-        // Arvaa/Uusi arvaus -nimi on painikkeen keskellä, vaikka painike varaa pidemmän nimen tilan.
+        // Tunnista/Uusi tehtävä -nimi pysyy keskellä vaihtuvasta painiketekstistä huolimatta.
         const labelOffCenter = () => next.evaluate(button => {
           const box = button.getBoundingClientRect();
-          const label = button.querySelector('[data-uusi-arvaus-teksti]')!.getBoundingClientRect();
+          const range = document.createRange();
+          range.selectNodeContents(button);
+          const label = range.getBoundingClientRect();
           return Math.abs((label.left + label.right) / 2 - (box.left + box.right) / 2);
         });
         // Kuuntelupainikkeen nimi on kuvakkeen tasalla, vaikka painike varaa kaksirivisen nimen tilan.
         const labelsBesideIcons = () => section.evaluate(root => [...root.querySelectorAll<HTMLElement>(
-          '[data-suora-kuuntelu] button, [data-arvaus-kuuntelu] button',
+          '[data-arvaus-kuuntelu] button',
         )].filter(button => button.offsetParent).every(button => {
           const icon = button.querySelector('svg')!.getBoundingClientRect();
           const text = document.createRange();
@@ -767,7 +1201,7 @@ test.describe('Ydinopinnot v0.5', () => {
         expect(await labelOffCenter(), testCase).toBeLessThan(2);
         expect(await labelsBesideIcons(), testCase).toBe(true);
         const initial = await controls();
-        expect(initial, testCase).toHaveLength(4);
+        expect(initial, testCase).toHaveLength(1);
         expect(await brokenWords(), testCase).toEqual([]);
 
         // 201 px:ssa Knoppitiedon 44 px:n osuma-alue ja otsikkoteksti eivät saa peittää toisiaan.
@@ -786,10 +1220,11 @@ test.describe('Ydinopinnot v0.5', () => {
 
         await next.click();
         await expect(section.locator('[data-kysymys]')).toHaveText(/Kumpi on (duuri|molli)\?/);
-        await expect(next).toHaveAccessibleName('Uusi arvaus');
-        expect(await labelOffCenter(), testCase).toBeLessThan(2);
+        await expect(next).toBeHidden();
+        const active = await controls();
+        expect(active, testCase).toHaveLength(3);
         expect(await labelsBesideIcons(), `${testCase}: Arvaa`).toBe(true);
-        expect(await controls(), `${testCase}: Arvaa`).toEqual(initial);
+        expect(await controls(), `${testCase}: Tunnista`).toEqual(active);
         expect(await brokenWords(), `${testCase}: Arvaa`).toEqual([]);
         const [first, second] = await answers();
         expect([first.clipped, second.clipped], testCase).toEqual([false, false]);
@@ -798,50 +1233,68 @@ test.describe('Ydinopinnot v0.5', () => {
         // 100 %:ssa vastaukset rinnakkain, zoomattuna allekkain.
         expect(first.top === second.top, testCase).toBe(width === 402);
 
-        await section.getByRole('group', { name: 'Vastaa' }).getByRole('button', { name: 'Sointu 1' }).click();
-        await expect(section.locator('[data-arvaus-teksti]').first()).toContainText(' · ');
+        const answer = section.getByRole('group', { name: 'Vastaa' }).getByRole('button', { name: 'Sointu 1' });
+        await expect(answer).toBeDisabled();
+        await section.locator('[data-arvaus-kuuntelu] button').first().click();
+        await expect(answer).toBeEnabled();
+        await answer.click();
+        await expect(section.locator('[data-arvaus-teksti]').first()).toHaveText(/^(?:D|Dm|E|Em|A|Am)$/);
         await expect(section.locator('[data-arvauspalaute]')).toHaveAttribute('role', 'status');
         expect(await noHorizontalScroll(page), `${testCase}: palaute`).toBe(true);
-        expect(await controls(), `${testCase}: vastattu`).toEqual(initial);
+        expect(await controls(), `${testCase}: vastattu`).toEqual(active);
         expect(await brokenWords(), `${testCase}: vastattu`).toEqual([]);
 
-        await next.click();
-        await expect(section.locator('[data-arvaus-teksti]').first()).not.toContainText(' · ');
-        expect(await controls(), `${testCase}: Uusi arvaus`).toEqual(initial);
+        // Molemmat vastauspainikkeet jäävät lukkoon vastauksen jälkeen.
+        for (const choice of await section.locator('[data-arvaus-vastaus] button').all()) {
+          await expect(choice).toHaveAttribute('aria-disabled', 'true');
+          await choice.dispatchEvent('click');
+          await expect(section.locator('[data-arvaus-teksti]').first()).toHaveText(/^(?:D|Dm|E|Em|A|Am)$/);
+          expect(await controls(), `${testCase}: vastauksen lukitus`).toEqual(active);
+        }
+        // Ylhäältä saman parin valinta nollaa tehtävän.
+        await section.getByRole('button', { name: 'D / Dm' }).click();
+        await expect(section.locator('[data-arvaus-teksti]').first()).toHaveText('Sointu 1');
+        expect(await controls(), `${testCase}: parilla uusi kysymys`).toEqual(active);
         expect(await noHorizontalScroll(page), testCase).toBe(true);
       }
     });
   }
 
-  test('arvauksessa kuuntelu ja vastaus ovat erillisiä, järjestys ja kysymys arvotaan', async ({ page, isMobile }) => {
+  test('tunnistuksen paikat arvotaan mutta kysymykset vuorottelevat ja vain valittu vastaus värittyy', async ({ page, isMobile, browserName }) => {
     await recordAudio(page);
     await page.goto(ydinPath(1));
     const charts = page.locator('[data-arvaus-kaaviot]');
     const tip = page.locator('details.study-knoppi');
-    await expect(charts.getByRole('img')).toHaveCount(2);
-    const normal = page.getByRole('group', { name: 'Kuuntele soinnut' });
-    await normal.getByRole('button', { name: 'E', exact: true }).click();
-    await expect(normal.getByRole('button', { name: 'E', exact: true })).toHaveAttribute('data-playing', '');
+    await expect(charts.getByRole('img')).toHaveCount(0);
+    await expect(charts).toBeHidden();
+    const eComparison = page.getByRole('group', { name: 'Vertaa E- ja Em-sointuja' });
+    await eComparison.getByRole('button', { name: 'Kuuntele E-duuri' }).click();
+    await expect(eComparison.getByRole('button', { name: 'Kuuntele E-duuri' })).toHaveAttribute('data-playing', '');
     await tip.locator('summary').click();
+    await page.getByRole('button', { name: 'E / Em' }).click();
+    await expect(page.getByRole('button', { name: 'E / Em' })).toHaveAttribute('aria-pressed', 'true');
     await page.evaluate(() => {
-      const values = [0.9, 0.1, 0.1, 0.9];
+      const values = [0.1, 0.9, 0.1, 0.9];
       Math.random = () => values.shift() ?? 0;
     });
-    await page.getByRole('button', { name: 'Arvaa' }).click();
-    await expect(page.getByRole('heading', { name: 'Kumpi on molli?' })).toBeFocused();
+    await page.getByRole('button', { name: 'Tunnista' }).click();
+    await expect(page.getByRole('heading', { name: 'Kumpi on duuri?' })).toBeFocused();
     await expect(charts).toBeHidden();
-    await expect(tip).toBeHidden();
-    await expect(normal).toBeHidden();
+    await expect(tip).toBeVisible();
+    await expect(eComparison).toBeVisible();
     const listen = page.getByRole('button', { name: 'Kuuntele sointu 1' });
     const bounds = await sizeOf(listen);
     if (isMobile) await listen.click();
     else {
-      await page.keyboard.press('Tab');
+      // Safari (WebKit) kiertää painikkeet oletuksena vain Option+Tabilla.
+      await page.keyboard.press(browserName === 'webkit' ? 'Alt+Tab' : 'Tab');
       await expect(listen).toBeFocused();
       await expect(listen).toHaveCSS('outline-style', 'solid');
       await page.keyboard.press('Enter');
     }
     await expect(listen).toHaveAttribute('data-playing', '');
+    await expect(listen).not.toHaveClass(/is-(correct|wrong)/);
+    await expect(listen).toHaveCSS('background-color', 'rgb(45, 36, 68)');
     expect(await sizeOf(listen)).toEqual(bounds);
     const ordinaryTextColor = await page.locator('[data-arvauspalaute]').evaluate(element => getComputedStyle(element).color);
     expect(ordinaryTextColor).not.toBe('rgb(159, 228, 195)');
@@ -862,73 +1315,114 @@ test.describe('Ydinopinnot v0.5', () => {
     expect(await choicePositions()).toEqual(beforeChoicePositions);
     const feedback = page.locator('[data-arvauspalaute]');
     await expect(feedback).toHaveAttribute('role', 'status');
-    await expect(feedback).toHaveText('Oikein! Sointu 1 oli E-molli ja sointu 2 oli E-duuri.');
-    await expect(feedback).toHaveCSS('color', 'rgb(159, 228, 195)');
-    await expect(feedback.locator('strong')).toHaveText('Oikein!');
-    await expect(feedback.locator('strong')).toHaveCSS('color', 'rgb(159, 228, 195)');
-    await expect(feedback.locator('strong')).toHaveCSS('font-weight', '800');
-    await expect(charts.locator('figcaption')).toHaveText(['Sointu 1 = Em', 'Sointu 2 = E']);
+    await expect(page.locator('[data-arvauspalaute]')).toHaveText('Oikein! Sointu 1 oli E-duuri ja sointu 2 oli E-molli.');
+    await expect(page.locator('[data-arvauspalaute] > .sointu-arvaus-tulos')).toHaveText('Oikein!');
+    await expect(page.locator('[data-arvauspalaute] > .sointu-arvaus-tulos')).toHaveCSS('color', 'rgb(159, 228, 195)');
+    await expect(page.locator('[data-arvauspalaute]')).toHaveCSS('color', 'rgb(159, 228, 195)');
+    await expect(feedback.locator(':scope > strong')).toHaveText('Oikein!');
+    await expect(charts.locator('figcaption')).toHaveText(['E', 'Em']);
     await expect(reply.getByRole('button', { name: 'Sointu 1' })).toHaveAttribute('aria-disabled', 'true');
     expect(await storage(page)).toBeNull();
 
     // Vastauksen jälkeen nimet näkyvät samoissa kuuntelupainikkeissa arvotussa järjestyksessä,
     // painikkeiden koko ei muutu ja molempia voi kuunnella uudelleen. Paluuvalikkoa ei ole.
-    const listenRow = page.getByRole('group', { name: 'Arvaustehtävän ääniesimerkit' });
+    const listenRow = page.getByRole('group', { name: 'Tunnistustehtävän ääniesimerkit' });
     const listenButtons = listenRow.getByRole('button');
     const labels = listenRow.locator('[data-arvaus-teksti]');
     const listenSizes = async () => Promise.all((await listenButtons.all()).map(sizeOf));
-    await expect(labels).toHaveText(['Sointu 1 · Em', 'Sointu 2 · E']);
-    await expect(listenButtons.nth(0)).toHaveAccessibleName('Kuuntele sointu 1, E-molli');
-    await expect(listenButtons.nth(1)).toHaveAccessibleName('Kuuntele sointu 2, E-duuri');
+    await expect(labels).toHaveText(['E', 'Em']);
+    await expect(listenButtons.nth(0)).toHaveAccessibleName('Kuuntele sointu 1, E-duuri');
+    await expect(listenButtons.nth(1)).toHaveAccessibleName('Kuuntele sointu 2, E-molli');
     expect(await sizeOf(listen)).toEqual(bounds);
     const revealedSizes = await listenSizes();
-    await expect(page.locator('[data-sointu-tila]')).toHaveText('Voit kuunnella molemmat soinnut uudelleen nimineen.');
-    await expect(page.locator('[data-sointu-tila]')).toHaveCSS('color', ordinaryTextColor);
-    await expect(normal).toBeHidden();
+    await expect(page.locator('[data-sointu-tila]')).toHaveText('Palaute jää näkyviin. Valitse ylhäältä sointupari aloittaaksesi uuden tehtävän.');
+    await expect(page.locator('[data-sointu-tila]')).not.toHaveCSS('color', 'rgb(159, 228, 195)');
+    await expect(page.locator('[data-sointu-tila]')).not.toHaveCSS('color', 'rgb(255, 224, 138)');
+    // #158: toimintaohje on tavallista tekstiä, ei vastausta edeltävän ohjeen himmeää väriä.
+    await expect(page.locator('[data-sointu-tila]')).not.toHaveCSS('color', ordinaryTextColor);
+    await expect(eComparison).toBeVisible();
     const played = (await starts(page)).length;
+    // Vasta vastauksen JÄLKEEN kuunneltu väärä sointu on punainen.
+    await expect(listenButtons.nth(0)).not.toHaveClass(/is-(correct|wrong)/);
+    await expect(listenButtons.nth(1)).not.toHaveClass(/is-(correct|wrong)/);
     await listenButtons.nth(1).click();
     await expect(listenButtons.nth(1)).toHaveAttribute('data-playing', '');
+    await expect(listenButtons.nth(1)).toHaveClass(/is-wrong/);
+    await expect(listenButtons.nth(1)).toHaveCSS('background-color', 'rgb(129, 44, 61)');
+    await expect(listenButtons.nth(1)).toHaveAccessibleName('Kuuntele sointu 2, E-molli, väärä vastaus');
+    await expect(listenButtons.nth(0)).not.toHaveClass(/is-(correct|wrong)/);
     await expect.poll(async () => (await starts(page)).length - played).toBe(6);
+    // Kun kuunnellaan oikea vaihtoehto, väri siirtyy juuri siihen.
     await listenButtons.nth(0).click();
     await expect(listenButtons.nth(0)).toHaveAttribute('data-playing', '');
-    // Vastatut painikkeet pysyvät fokusoitavina (aria-disabled), eikä uusi painallus muuta palautetta.
+    await expect(listenButtons.nth(0)).toHaveClass(/is-correct/);
+    await expect(listenButtons.nth(0)).toHaveCSS('background-color', 'rgb(22, 99, 63)');
+    await expect(listenButtons.nth(0)).toHaveAccessibleName('Kuuntele sointu 1, E-duuri, oikea vastaus');
+    await expect(listenButtons.nth(1)).not.toHaveClass(/is-(correct|wrong)/);
+    await expect(listenButtons.nth(1)).toHaveAccessibleName('Kuuntele sointu 2, E-molli');
+    // Kumpikaan vastauspainike ei saa nollata tulosta, ei kosketuksella
+    // eikä näppäimistön Enter-painalluksella.
+    await expect(page.locator('[data-arvauspalaute]')).toHaveText('Oikein! Sointu 1 oli E-duuri ja sointu 2 oli E-molli.');
+    await expect(page.getByRole('button', { name: 'Uusi tehtävä', exact: true })).toHaveCount(0);
+    for (const choice of await choiceButtons.all()) {
+      await expect(choice).toHaveAttribute('aria-disabled', 'true');
+      await choice.dispatchEvent('click');
+      await expect(charts.locator('figcaption')).toHaveText(['E', 'Em']);
+      await expect(labels).toHaveText(['E', 'Em']);
+    }
     const answered = reply.getByRole('button', { name: 'Sointu 2' });
     await answered.focus();
     await expect(answered).toBeFocused();
     await page.keyboard.press('Enter');
-    await expect(answered).toBeFocused();
-    await expect(page.locator('[data-arvauspalaute]')).toHaveText('Oikein! Sointu 1 oli E-molli ja sointu 2 oli E-duuri.');
+    await expect(page.locator('[data-arvauspalaute]')).toHaveText('Oikein! Sointu 1 oli E-duuri ja sointu 2 oli E-molli.');
+    await expect(choiceButtons.nth(0)).toHaveClass(/is-correct/);
+    await expect(choiceButtons.nth(1)).not.toHaveClass(/is-(correct|wrong)/);
+    await expect(page.getByRole('heading', { name: 'Kumpi on duuri?' })).toBeVisible();
 
-    await page.getByRole('button', { name: 'Uusi arvaus' }).click();
+    // Vain yläpuolen sointuparivalinta avaa uuden kysymyksen.
+    await page.getByRole('button', { name: 'E / Em' }).click();
+    await expect(page.getByRole('heading', { name: 'Kumpi on molli?' })).toBeVisible();
     for (const [index, name] of ['Sointu 1', 'Sointu 2'].entries()) {
       await expect(choiceButtons.nth(index)).not.toHaveClass(/is-(correct|wrong)/);
       await expect(choiceButtons.nth(index)).toHaveAccessibleName(name);
       await expect(choiceButtons.nth(index)).not.toHaveAttribute('aria-disabled', 'true');
     }
     expect(await choicePositions()).toEqual(beforeChoicePositions);
-    await expect(page.getByRole('heading', { name: 'Kumpi on duuri?' })).toBeFocused();
     await expect(charts).toBeHidden();
     await expect(labels).toHaveText(['Sointu 1', 'Sointu 2']);
+    for (const button of await listenButtons.all()) await expect(button).not.toHaveClass(/is-(correct|wrong)/);
     await expect(listenButtons.nth(0)).toHaveAccessibleName('Kuuntele sointu 1');
     await expect(listenButtons.nth(1)).toHaveAccessibleName('Kuuntele sointu 2');
     expect(await listenSizes()).toEqual(revealedSizes);
-    await expect(reply.getByRole('button', { name: 'Sointu 1' })).not.toHaveAttribute('aria-disabled', 'true');
+    await expect(reply.getByRole('button', { name: 'Sointu 2' })).toBeDisabled();
+    await listenButtons.nth(1).click();
+    await expect(reply.getByRole('button', { name: 'Sointu 2' })).toBeEnabled();
     await reply.getByRole('button', { name: 'Sointu 2' }).click();
     await expect(choiceButtons.nth(0)).not.toHaveClass(/is-(correct|wrong)/);
-    await expect(choiceButtons.nth(0)).toHaveAccessibleName('Sointu 1');
+    await expect(choiceButtons.nth(0)).toHaveAccessibleName('Sointu 1, vastaus annettu');
     await expect(choiceButtons.nth(0)).not.toHaveCSS('background-color', 'rgb(22, 99, 63)');
     await expect(choiceButtons.nth(1)).toHaveClass(/is-wrong/);
     await expect(choiceButtons.nth(1)).toHaveAccessibleName('Sointu 2, väärä vastaus');
     await expect(choiceButtons.nth(1)).toHaveCSS('background-color', 'rgb(129, 44, 61)');
     await expect(choiceButtons.nth(1)).toHaveCSS('opacity', '1');
     expect(await choicePositions()).toEqual(beforeChoicePositions);
-    await expect(feedback).toHaveText('Tällä kertaa ei. Sointu 1 oli E-duuri ja sointu 2 oli E-molli.');
-    await expect(feedback).toHaveCSS('color', 'rgb(255, 214, 179)');
-    await expect(page.locator('[data-sointu-tila]')).toHaveCSS('color', ordinaryTextColor);
-    await expect(feedback.locator('strong')).toHaveCount(0);
+    await expect(page.locator('[data-arvauspalaute]')).toHaveText('Tällä kertaa ei. Sointu 1 oli E-molli ja sointu 2 oli E-duuri.');
     await expect(feedback).toHaveAttribute('role', 'status');
-    await expect(charts.locator('figcaption')).toHaveText(['Sointu 1 = E', 'Sointu 2 = Em']);
-    await expect(labels).toHaveText(['Sointu 1 · E', 'Sointu 2 · Em']);
+    await expect(page.locator('[data-arvauspalaute] > .sointu-arvaus-tulos')).toHaveText('Tällä kertaa ei.');
+    await expect(page.locator('[data-arvauspalaute] > .sointu-arvaus-tulos')).toHaveCSS('color', 'rgb(255, 224, 138)');
+    await expect(page.locator('[data-arvauspalaute]')).toHaveCSS('color', 'rgb(255, 224, 138)');
+    await expect(charts.locator('figcaption')).toHaveText(['Em', 'E']);
+    await expect(labels).toHaveText(['Em', 'E']);
+    // Väärän alavastauksen jälkeenkin kuuntelupainikkeen väri määräytyy
+    // SOINNUN, ei aiemmin painetun vastauksen mukaan.
+    await listenButtons.nth(0).click();
+    await expect(listenButtons.nth(0)).toHaveClass(/is-correct/);
+    await expect(listenButtons.nth(0)).toHaveCSS('background-color', 'rgb(22, 99, 63)');
+    await listenButtons.nth(1).click();
+    await expect(listenButtons.nth(1)).toHaveClass(/is-wrong/);
+    await expect(listenButtons.nth(1)).toHaveCSS('background-color', 'rgb(129, 44, 61)');
+    await expect(listenButtons.nth(0)).not.toHaveClass(/is-(correct|wrong)/);
+    await expect(page.locator('[data-arvauspalaute]')).toHaveText('Tällä kertaa ei. Sointu 1 oli E-molli ja sointu 2 oli E-duuri.');
     expect(await listenSizes()).toEqual(revealedSizes);
     expect(await storage(page)).toBeNull();
   });
@@ -1036,15 +1530,16 @@ test.describe('Ydinopinnot v0.5', () => {
     expect(await starts(page)).toHaveLength(16);
   });
 
-  // 02:n arvauksen kuuntelupainikkeet: koko sama ennen ja jälkeen vastauksen, teksti vasemmalla kuvakkeen
-  // vieressä, 4 px vaakarako. Rinnakkain 390 px:n omalla sivulla (2 px varaa) ja 768 px:ssä; aihesivun
-  // kortti on 390 px:ssä 4 px kapeampi, joten siinä ja 320–375 px:ssä allekkain (hyväksytty).
+  // 02:n kuuntelupainikkeet: kaksi samanlevyistä painiketta kuin Vastaa-rivillä.
+  // Teksti pysyy kuvakkeen vieressä eikä leveys muutu vastauksen jälkeen.
+  // 100 %:n mobiilinäkymässä rinnakkain, suurennettaessa tarvittaessa allekkain.
   const guessSideBySide: Record<number, { oma: boolean; aihesivu: boolean }> = {
-    320: { oma: false, aihesivu: false }, 360: { oma: false, aihesivu: false }, 375: { oma: false, aihesivu: false },
-    390: { oma: false, aihesivu: false }, 768: { oma: true, aihesivu: true },
+    320: { oma: true, aihesivu: true }, 360: { oma: true, aihesivu: true }, 375: { oma: true, aihesivu: true },
+    390: { oma: true, aihesivu: true }, 768: { oma: true, aihesivu: true },
   };
   for (const [width, sideBySide] of Object.entries(guessSideBySide)) {
     test(`02:n arvauspainikkeet ${width} px: vakaat, ei leikkautumista 100/200 %:ssa`, async ({ page }) => {
+      await recordAudio(page);
       await page.setViewportSize({ width: Number(width), height: 900 });
       for (const [where, url] of [['aihesivu', topicPath + '#valinta-yksi-savel-muuttaa-sointua'], ['oma', ydinPath(1)]] as const) {
         for (const size of ['100%', '200%']) {
@@ -1066,12 +1561,21 @@ test.describe('Ydinopinnot v0.5', () => {
             };
           });
           const testCase = `${where} ${width}px ${size}`;
-          await section.getByRole('button', { name: 'Arvaa' }).click();
+          await section.getByRole('button', { name: 'Tunnista' }).click();
           const before = await measure();
-          await section.getByRole('group', { name: 'Vastaa' }).getByRole('button', { name: 'Sointu 1' }).click();
-          await expect(section.locator('[data-arvaus-teksti]').first()).toContainText(' · ');
+          const answer = section.getByRole('group', { name: 'Vastaa' }).getByRole('button', { name: 'Sointu 1' });
+          await expect(answer).toBeDisabled();
+          await section.locator('[data-arvaus-kuuntelu] button').first().click();
+          await expect(answer).toBeEnabled();
+          await answer.click();
+          await expect(section.locator('[data-arvaus-teksti]').first()).toHaveText(/^(?:D|Dm|E|Em|A|Am)$/);
           const after = await measure();
           expect(after, testCase).toEqual(before);
+          // Kuuntelun ja vastaamisen palstaleveydet ovat samat.
+          const answerWidths = await section.locator('[data-arvaus-vastaus] button')
+            .evaluateAll(buttons => buttons.map(button => Math.round(button.getBoundingClientRect().width)));
+          const listenWidths = before.sizes.map(dimension => Number(dimension.split('x')[0]));
+          expect(listenWidths, testCase).toEqual(answerWidths);
           expect(before.clipped, testCase).toBe(false);
           expect(before.labelAfterIcon, testCase).toBeGreaterThan(0);
           expect(before.labelAfterIcon, testCase).toBeLessThan(size === '100%' ? 10 : 18);
@@ -1149,7 +1653,16 @@ test.describe('Ydinopinnot v0.5', () => {
             if (await tip.evaluate(element => (element as HTMLDetailsElement).open)) await summary.click();
             await expect(tip).not.toHaveAttribute('open', '');
             const before = await mainControls();
-            expect(before.length, testCase).toBeGreaterThan(1);
+            if (await active.getAttribute('data-sointuharjoitus')) {
+              expect(before.length, testCase).toBeGreaterThan(1);
+            } else {
+              // 05 Siirrä sama rakenne käyttää olemassa olevia sointukaavioita ja
+              // oppijan omaa kitaraa, ei äänisoitinta. Tarkista varsinainen
+              // opetusmateriaalin sisältö, älä keksi sille turhia painikkeita.
+              expect(before, testCase).toHaveLength(0);
+              await expect(active.locator('.sointu-kierto > li')).toHaveCount(8);
+              await expect(active.locator('.chord-diagrams svg')).toHaveCount(4);
+            }
             await summary.click();
             await expect(tip).toHaveAttribute('open', '');
             expect(await mainControls(), testCase).toEqual(before);
