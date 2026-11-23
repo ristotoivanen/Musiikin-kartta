@@ -283,10 +283,14 @@ export class BufferSongPlayer {
 }
 
 /** Toistoon tarkoitettu AudioContext. iOS:n Web Audio noudattaa muuten äänetön-kytkintä (istunto 'ambient'). */
-export function createPlaybackContext(): AudioContext {
+export function createPlaybackContext(options?: AudioContextOptions): AudioContext {
   const session = (globalThis.navigator as { audioSession?: { type: string } } | undefined)?.audioSession;
   if (session && session.type !== 'playback') session.type = 'playback';
   const Context = globalThis.AudioContext ?? (globalThis as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
   if (!Context) throw new Error('Web Audio API puuttuu');
+  if (options) {
+    // Pyydetty taajuus (D2) ei ole pakollinen: jos selain ei tue sitä, soitin käyttää laitteen taajuutta.
+    try { return new Context(options); } catch { /* oletuskonteksti alla */ }
+  }
   return new Context();
 }

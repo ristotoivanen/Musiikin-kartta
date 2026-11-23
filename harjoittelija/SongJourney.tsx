@@ -7,12 +7,21 @@ import {
 } from './songAudio';
 import { DEFAULT_SONG_VERSION, chordAt, isSongLink, songLink, versionFromSongLink, type SongVersion } from './songChart';
 import { BufferSongPlayer, createPlaybackContext, type BufferPlayerState } from './bufferPlayer';
+import { ChunkSongPlayer } from './chunkPlayer';
 
 /**
- * KOKEILU (issue #9, D1-prototyyppi, ei julkaisuun): ?soitin=d1 soittaa raidat puretuista AudioBuffereista
- * (bufferPlayer.ts). Oletuksena käytetään nykyistä mediaelementtisoitinta ja sen kylmäkäynnistystä (PR #155).
+ * KOKEILU (issue #9, ei julkaisuun): ?soitin=d1 soittaa raidat kokonaan puretuista AudioBuffereista (bufferPlayer.ts),
+ * ?soitin=d2 paloittain puretuista 10 s:n paloista kiinteän puskurialtaan kautta (chunkPlayer.ts). Molemmat käyttävät
+ * samaa Web Audio -polkua (D1_MODE). Oletuksena käytetään nykyistä mediaelementtisoitinta ja sen kylmäkäynnistystä (PR #155).
  */
-const D1_MODE = typeof location !== 'undefined' && new URLSearchParams(location.search).get('soitin') === 'd1';
+const PLAYER_MODE = typeof location !== 'undefined' ? new URLSearchParams(location.search).get('soitin') : null;
+const D2_MODE = PLAYER_MODE === 'd2';
+const D1_MODE = PLAYER_MODE === 'd1' || D2_MODE;
+/**
+ * D2: raitojen MP3:t ovat 48 kHz; sama kontekstin taajuus pitää palat näytetarkkoina ilman uudelleennäytteistystä.
+ * Testausta varten ?naytetaajuus=44100 pyytää toisen taajuuden (soitin kohdistaa palat silloin ruudukkoon).
+ */
+const D2_SAMPLE_RATE = (typeof location !== 'undefined' && Number(new URLSearchParams(location.search).get('naytetaajuus'))) || 48000;
 
 // Käyttäjän itse valitsema versio säilyy, vaikka hän käy välillä oppimispoluissa.
 let chosenVersion: SongVersion | null = null;
@@ -73,7 +82,7 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   const aligner = useRef(new StemAligner());
   const pendingSeek = useRef<number | null>(null);
   // D1-kokeilu: puretut raidat ja oma AudioContext. Pyyntötunniste ohittaa vanhentuneen latauksen.
-  const d1 = useRef<{ context: AudioContext; player: BufferSongPlayer } | null>(null);
+  const d1 = useRef<{ context: AudioContext; player: BufferSongPlayer | ChunkSongPlayer } | null>(null);
   const d1Request = useRef(0);
   const [d1State, setD1State] = useState<BufferPlayerState>('tyhja');
   const [version, setVersion] = useState<SongVersion>(initialVersion);
@@ -224,9 +233,14 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   function ensureD1() {
     if (d1.current) return d1.current;
     try {
-      const context = createPlaybackContext();
-      const player = new BufferSongPlayer(context);
+      const context = createPlaybackContext(D2_MODE ? { sampleRate: D2_SAMPLE_RATE } : undefined);
+      const player = D2_MODE ? new ChunkSongPlayer(context) : new BufferSongPlayer(context);
       player.onStateChange = setD1State;
+      if (player instanceof ChunkSongPlayer) player.onError = message => {
+        setPlaying(false);
+        setPosition(player.position());
+        setError(`Toisto keskeytyi (${message}). Paina Soita uudelleen.`);
+      };
       player.onEnded = () => { setPlaying(false); setPosition(player.duration); };
       // Lukitus tai muu keskeytys pysäyttää kontekstin: lähteet pysäytetään ja kohta tallennetaan, jotta jatko alkaa
       // samasta kohdasta uusilla lähteillä (PR #92:n palautus kytkeytyy tähän).
@@ -261,7 +275,14 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
     if (player.state !== 'valmis') {
       const result = await player.load({ backing: song.backing, guitar: song.guitar, vocals: song.vocals });
       if (request !== d1Request.current) return;
-      if (result === 'virhe') { setError('Kappaleen lataus epäonnistui. Tarkista yhteys ja paina Soita uudelleen.'); return; }
+      if (result === 'virhe') {
+        const kind = player instanceof ChunkSongPlayer ? player.errorKind : 'lataus';
+        // Kalibrointi- ja taajuusvirhe eivät korjaannu uudella yrityksellä: kerrotaan syy eikä neuvota yhteydestä.
+        setError(kind === 'kalibrointi' || kind === 'naytetaajuus'
+          ? `Kokeilusoitin ei voi soittaa tässä selaimessa (${player.error}). Käytä tavallista soitinta.`
+          : 'Kappaleen lataus epäonnistui. Tarkista yhteys ja paina Soita uudelleen.');
+        return;
+      }
       if (result !== 'valmis') return;
       setDuration(player.duration);
     }
