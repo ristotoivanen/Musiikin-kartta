@@ -405,6 +405,15 @@ function createPlayer(base) {
   return { play, stop, show };
 }
 
+// Vastauksen jälkeen painike lukitaan aria-disabled-tilaan eikä disabled-tilaan, jotta juuri
+// painettu painike säilyttää näppäimistöfokuksen (ei pudotusta sivun alkuun).
+function lock(buttons, locked) {
+  for (const button of buttons) {
+    if (locked) button.setAttribute('aria-disabled', 'true');
+    else button.removeAttribute('aria-disabled');
+  }
+}
+
 function pressOnly(buttons, chosen) {
   for (const button of buttons) button.setAttribute('aria-pressed', String(button === chosen));
 }
@@ -438,7 +447,10 @@ function setupContour(section, player) {
   let answers = [];
   let checked = false;
 
-  const update = () => { check.disabled = checked || answers.filter(Boolean).length !== groups.length || groups[0].disabled; };
+  const update = () => {
+    check.disabled = !checked && (answers.filter(Boolean).length !== groups.length || groups[0].disabled);
+    lock([check], checked);
+  };
   const round = () => {
     index = pickIndex(CONTOUR_MOTIFS.length, index);
     answers = groups.map(() => null);
@@ -446,6 +458,7 @@ function setupContour(section, player) {
     for (const group of groups) {
       group.disabled = true;
       pressOnly(group.querySelectorAll('[data-suunta]'), null);
+      lock(group.querySelectorAll('[data-suunta]'), false);
     }
     feedback.textContent = '';
     feedback.classList.remove('is-error', 'is-answered');
@@ -472,10 +485,11 @@ function setupContour(section, player) {
     }
   });
   check.addEventListener('click', () => {
+    if (checked) return;
     const motif = CONTOUR_MOTIFS[index];
     const result = checkContour(motif, answers);
     checked = true;
-    for (const group of groups) group.disabled = true;
+    for (const group of groups) lock(group.querySelectorAll('[data-suunta]'), true);
     feedback.textContent = contourFeedback(motif, answers);
     feedback.classList.add('is-answered');
     feedback.classList.toggle('is-error', !result.correct);
@@ -509,6 +523,7 @@ function setupHome(section, player) {
     answered = false;
     answerGroup.disabled = true;
     pressOnly(answers, null);
+    lock(answers, false);
     feedback.textContent = '';
     feedback.classList.remove('is-error', 'is-answered');
     compare.hidden = true;
@@ -532,7 +547,7 @@ function setupHome(section, player) {
       const { phrase, ending, notes } = homeRound(index);
       const result = homeFeedback(phrase, ending, button.dataset.koti);
       pressOnly(answers, button);
-      answerGroup.disabled = true;
+      lock(answers, true);
       feedback.textContent = result.text;
       feedback.classList.add('is-answered');
       feedback.classList.toggle('is-error', !result.correct);
@@ -581,7 +596,8 @@ function setupEcho(section, player) {
       slot.classList.toggle('is-empty', !id);
     });
     const ready = !board.disabled;
-    check.disabled = checked || !ready || chosen.length !== slots.length;
+    check.disabled = !checked && (!ready || chosen.length !== slots.length);
+    lock([check], checked);
     clear.disabled = checked || !chosen.length;
   };
   const round = () => {
@@ -617,6 +633,7 @@ function setupEcho(section, player) {
     player.show(status, 'Valinnat tyhjennetty. Etsi sävelet 2 ja 3 uudelleen.');
   });
   check.addEventListener('click', () => {
+    if (checked) return;
     const motif = ECHO_MOTIFS[index];
     const result = checkEcho(motif, chosen);
     checked = true;

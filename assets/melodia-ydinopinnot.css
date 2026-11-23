@@ -28,6 +28,8 @@
 .melodia-ydin .melodia-ensisijainen:hover { background: #d5c6ff; }
 .melodia-ydin button:focus-visible { outline: 3px solid #75e5c6; outline-offset: 2px; }
 .melodia-ydin button:disabled { opacity: .6; cursor: default; }
+.melodia-ydin button[aria-disabled="true"] { cursor: default; }
+.melodia-ydin button[aria-disabled="true"]:not([aria-pressed="true"]) { opacity: .6; }
 .melodia-ydin button:disabled:hover { border-color: #71638c; background: #2d2444; }
 .melodia-ydin button[data-playing] { border-color: var(--accent); background: #234133; box-shadow: inset 0 0 0 1px currentColor; }
 .melodia-ydin .melodia-ensisijainen[data-playing] { color: var(--text); }

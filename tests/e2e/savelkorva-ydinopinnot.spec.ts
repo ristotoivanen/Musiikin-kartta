@@ -190,7 +190,11 @@ test.describe('01 · Ylös, alas vai sama?', () => {
     await expect(feedback).toHaveClass(/is-answered/);
     await expect(feedback).not.toHaveClass(/is-error/);
     await expect(reveal.locator('li')).toHaveText(['GG-kieli, vapaa', 'BB-kieli, vapaa', 'DB-kieli, 3. nauha']);
-    await expect(first.locator('button').first()).toBeDisabled();
+    // Vastaus lukittu: painikkeet aria-disabled, toinen painallus ei muuta vastausta.
+    await expect(first.getByRole('button', { name: 'Alas' })).toHaveAttribute('aria-disabled', 'true');
+    await first.getByRole('button', { name: 'Alas' }).click({ force: true });
+    await expect(first.getByRole('button', { name: 'Ylös' })).toHaveAttribute('aria-pressed', 'true');
+    await expect(section.getByRole('button', { name: 'Tarkista' })).toHaveAttribute('aria-disabled', 'true');
     await expect(listen).toHaveText('▶ Kuuntele melodia', { timeout: 6000 });
     await expect(status).toHaveText('Esimerkki päättyi. Voit kuunnella uudelleen.');
 
@@ -268,6 +272,29 @@ test.describe('01 · Ylös, alas vai sama?', () => {
     await expect(up).toHaveAttribute('aria-pressed', 'true');
     await page.keyboard.press('Tab');
     await expect(page.locator('[data-suunta-vaihe="0"] [data-suunta="alas"]')).toBeFocused();
+    await page.locator('[data-suunta-vaihe="1"] [data-suunta="sama"]').focus();
+    await page.keyboard.press('Enter');
+    const check = page.getByRole('button', { name: 'Tarkista' });
+    await check.focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('[data-melodia-palaute]')).toHaveText(/^(Oikein!|Ei vielä aivan\.)/);
+    // Fokus ei putoa sivun alkuun, kun vastaus lukitaan.
+    await expect(check).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(page.locator('[data-melodia-kaari]')).toBeVisible();
+  });
+
+  test('02: vastauspainike pitää näppäimistöfokuksen vastaamisen jälkeen', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Näppäimistö testataan työpöytäkoossa.');
+    await page.goto('/oppi/korva/kotiin-vai-kesken.html');
+    await page.locator('[data-melodia-kuuntele]').click();
+    const answer = page.getByRole('button', { name: 'Palasi kotiin' });
+    await expect(answer).toBeEnabled();
+    await answer.focus();
+    await page.keyboard.press('Space');
+    await expect(page.locator('[data-melodia-palaute]')).toHaveText(/Kuuntele vertailun vuoksi molemmat loput\.$/);
+    await expect(answer).toBeFocused();
+    await expect(answer).toHaveAttribute('aria-disabled', 'true');
   });
 });
 
@@ -304,7 +331,8 @@ test.describe('02 · Kotiin vai kesken?', () => {
     await section.getByRole('button', { name: 'Jäi kesken' }).click();
     await expect(feedback).toHaveText('Ei tällä kertaa. Melodia palasi kotisävel G:hen, samannimiseen säveleen kuin alussa soinut matala G. Siksi loppu tuntuu valmiilta. Kuuntele vertailun vuoksi molemmat loput.');
     await expect(feedback).toHaveClass(/is-error/);
-    await expect(answers.locator('button').first()).toBeDisabled();
+    await expect(section.getByRole('button', { name: 'Palasi kotiin' })).toHaveAttribute('aria-disabled', 'true');
+    await expect(section.getByRole('button', { name: 'Jäi kesken' })).toHaveAttribute('aria-pressed', 'true');
     await expect(section.locator('[data-melodia-kaari] li strong')).toHaveText(['G', 'B', 'D', 'C', 'A', 'B', 'G']);
     await section.getByRole('button', { name: 'Kesken jäävä loppu' }).click();
     await expect(status).toHaveText('Kesken jäävä loppu soi.');
@@ -357,7 +385,7 @@ test.describe('03 · Kuule ja etsi kitaralta', () => {
     await check.click();
     await expect(feedback).toHaveText('Oikein! Kuulit G → A → B. Melodia nousi G:stä askeleella A:han. Melodia nousi A:sta askeleella B:hen. '
       + 'Soita sama kitaralla: G-kieli, vapaa → G-kieli, 2. nauha → B-kieli, vapaa.');
-    await expect(check).toBeDisabled();
+    await expect(check).toHaveAttribute('aria-disabled', 'true');
     await expect(clear).toBeDisabled();
 
     await section.getByRole('button', { name: 'Uusi sävelkulku' }).click();
