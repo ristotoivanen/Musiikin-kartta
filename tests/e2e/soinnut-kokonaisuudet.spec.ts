@@ -1222,7 +1222,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
         await section.locator('[data-arvaus-kuuntelu] button').first().click();
         await expect(answer).toBeEnabled();
         await answer.click();
-        await expect(section.locator('[data-arvaus-teksti]').first()).toContainText(' · ');
+        await expect(section.locator('[data-arvaus-teksti]').first()).toHaveText(/^(?:D|Dm|E|Em|A|Am)$/);
         expect(await controls(), `${testCase}: vastattu`).toEqual(active);
         expect(await brokenWords(), `${testCase}: vastattu`).toEqual([]);
 
@@ -1230,12 +1230,12 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
         for (const choice of await section.locator('[data-arvaus-vastaus] button').all()) {
           await expect(choice).toHaveAttribute('aria-disabled', 'true');
           await choice.dispatchEvent('click');
-          await expect(section.locator('[data-arvaus-teksti]').first()).toContainText(' · ');
+          await expect(section.locator('[data-arvaus-teksti]').first()).toHaveText(/^(?:D|Dm|E|Em|A|Am)$/);
           expect(await controls(), `${testCase}: vastauksen lukitus`).toEqual(active);
         }
         // Ylhäältä saman parin valinta nollaa tehtävän.
         await section.getByRole('button', { name: 'D / Dm' }).click();
-        await expect(section.locator('[data-arvaus-teksti]').first()).not.toContainText(' · ');
+        await expect(section.locator('[data-arvaus-teksti]').first()).toHaveText('Sointu 1');
         expect(await controls(), `${testCase}: parilla uusi kysymys`).toEqual(active);
         expect(await noHorizontalScroll(page), testCase).toBe(true);
       }
@@ -1306,7 +1306,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     const listenButtons = listenRow.getByRole('button');
     const labels = listenRow.locator('[data-arvaus-teksti]');
     const listenSizes = async () => Promise.all((await listenButtons.all()).map(sizeOf));
-    await expect(labels).toHaveText(['Sointu 1 · E', 'Sointu 2 · Em']);
+    await expect(labels).toHaveText(['E', 'Em']);
     await expect(listenButtons.nth(0)).toHaveAccessibleName('Kuuntele sointu 1, E-duuri');
     await expect(listenButtons.nth(1)).toHaveAccessibleName('Kuuntele sointu 2, E-molli');
     expect(await sizeOf(listen)).toEqual(bounds);
@@ -1342,7 +1342,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
       await expect(choice).toHaveAttribute('aria-disabled', 'true');
       await choice.dispatchEvent('click');
       await expect(charts.locator('figcaption')).toHaveText(['E', 'Em']);
-      await expect(labels).toHaveText(['Sointu 1 · E', 'Sointu 2 · Em']);
+      await expect(labels).toHaveText(['E', 'Em']);
     }
     const answered = reply.getByRole('button', { name: 'Sointu 2' });
     await answered.focus();
@@ -1384,7 +1384,7 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     await expect(page.locator('[data-arvauspalaute] > .sointu-arvaus-tulos')).toHaveCSS('color', 'rgb(255, 224, 138)');
     await expect(page.locator('[data-arvauspalaute]')).toHaveCSS('color', 'rgb(255, 224, 138)');
     await expect(charts.locator('figcaption')).toHaveText(['Em', 'E']);
-    await expect(labels).toHaveText(['Sointu 1 · Em', 'Sointu 2 · E']);
+    await expect(labels).toHaveText(['Em', 'E']);
     // Väärän alavastauksen jälkeenkin kuuntelupainikkeen väri määräytyy
     // SOINNUN, ei aiemmin painetun vastauksen mukaan.
     await listenButtons.nth(0).click();
@@ -1502,12 +1502,12 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
     expect(await starts(page)).toHaveLength(16);
   });
 
-  // 02:n arvauksen kuuntelupainikkeet: koko sama ennen ja jälkeen vastauksen, teksti vasemmalla kuvakkeen
-  // vieressä, 4 px vaakarako. Rinnakkain 390 px:n omalla sivulla (2 px varaa) ja 768 px:ssä; aihesivun
-  // kortti on 390 px:ssä 4 px kapeampi, joten siinä ja 320–375 px:ssä allekkain (hyväksytty).
+  // 02:n kuuntelupainikkeet: kaksi samanlevyistä painiketta kuin Vastaa-rivillä.
+  // Teksti pysyy kuvakkeen vieressä eikä leveys muutu vastauksen jälkeen.
+  // 100 %:n mobiilinäkymässä rinnakkain, suurennettaessa tarvittaessa allekkain.
   const guessSideBySide: Record<number, { oma: boolean; aihesivu: boolean }> = {
-    320: { oma: false, aihesivu: false }, 360: { oma: false, aihesivu: false }, 375: { oma: false, aihesivu: false },
-    390: { oma: false, aihesivu: false }, 768: { oma: true, aihesivu: true },
+    320: { oma: true, aihesivu: true }, 360: { oma: true, aihesivu: true }, 375: { oma: true, aihesivu: true },
+    390: { oma: true, aihesivu: true }, 768: { oma: true, aihesivu: true },
   };
   for (const [width, sideBySide] of Object.entries(guessSideBySide)) {
     test(`02:n arvauspainikkeet ${width} px: vakaat, ei leikkautumista 100/200 %:ssa`, async ({ page }) => {
@@ -1540,9 +1540,14 @@ test.describe('Ydinopinnot v0.5 + sointuasteet ja vihjeet', () => {
           await section.locator('[data-arvaus-kuuntelu] button').first().click();
           await expect(answer).toBeEnabled();
           await answer.click();
-          await expect(section.locator('[data-arvaus-teksti]').first()).toContainText(' · ');
+          await expect(section.locator('[data-arvaus-teksti]').first()).toHaveText(/^(?:D|Dm|E|Em|A|Am)$/);
           const after = await measure();
           expect(after, testCase).toEqual(before);
+          // Kuuntelun ja vastaamisen palstaleveydet ovat samat.
+          const answerWidths = await section.locator('[data-arvaus-vastaus] button')
+            .evaluateAll(buttons => buttons.map(button => Math.round(button.getBoundingClientRect().width)));
+          const listenWidths = before.sizes.map(dimension => Number(dimension.split('x')[0]));
+          expect(listenWidths, testCase).toEqual(answerWidths);
           expect(before.clipped, testCase).toBe(false);
           expect(before.labelAfterIcon, testCase).toBeGreaterThan(0);
           expect(before.labelAfterIcon, testCase).toBeLessThan(size === '100%' ? 10 : 18);
