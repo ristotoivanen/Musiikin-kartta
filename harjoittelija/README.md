@@ -302,6 +302,18 @@ perustuvat iPhonen Safarilla 12.11.2026 tehtyihin mittauksiin (iOS 18.7):
 - **Äänitiedostot tarvitsevat HTTP Range -tuen.** Ilman 206-vastauksia
   selain ei voi kelata lainkaan. Cloudflare Pagesissa sen hoitaa
   `functions/assets/audio/[[path]].ts`.
+- **Toiston aloitus (issue #9, korjausehdokas 22.11.2026).** Soita-painallus
+  ei kelaa raitaa, joka on jo kohdassa tai alle 0,12 s:n päässä säestyksestä.
+  Lataus käynnistetään kaikille raidoille samasta painalluksesta, ja toisto
+  alkaa vasta, kun jokaisella raidalla on dataa eikä kelaus ole kesken
+  (enintään 4 s). Korjauskelaukset pidätetään 1,5 s toiston alusta.
+  Mittaukset ja jäljellä olevat riskit:
+  `docs/qa/ios-kaynnistys-issue9-2026-11-22/raportti.md`.
+
+**Tunnettu rajoitus (simulaattori 22.11.2026, ei vielä todennettu laitteella):**
+tauon jälkeinen jatko ja kelaus kesken soiton voivat jättää raidan kuulumaan
+0,1–1 s väärästä kohdasta. Sama tapahtuu betassa, eikä aloituksen korjaus
+poista sitä.
 
 **Tunnettu rajoitus:** kun raita kytketään iPhonella takaisin päälle kesken
 soiton, se voi nykäistä hetken ja asettua tahtiin vasta yhden korjauksen
