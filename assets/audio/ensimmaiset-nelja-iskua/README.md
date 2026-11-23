@@ -74,7 +74,7 @@ Lähtöaineisto: suunnittelukeskustelussa hyväksytty
   (A vastaa alkuperäistä häviötöntä komppia noin 19 dB:n signaali-kohinasuhteella). Häviötöntä B-masteria ei ollut
   saatavilla. WAV-muunnos ei paranna eikä heikennä hyväksyttyä ääntä.
 - **Alkuperä:** omistaja vahvisti 23.11.2026, että B-säestys tehtiin itse projektia varten erillisessä ChatGPT-keskustelussa. B yhdistää aiemman bassottoman Em-kompin (rummut, komppikitara, sama lähtölasku) ja erikseen syntetisoidun E1/G1/B1-bassolinjan. Aiemman suunnittelutiedon perusteella alkuperäisen kompin äänet tuotettiin **todennäköisesti FluidSynthillä ja TimGM6mb SoundFontilla**, mutta tuotantoskripti ja käytetyt presetit puuttuvat. Tämä on lähteen tunnistamista koskeva oletus, ei tiedostoista varmistettu tieto. MP3→WAV-ketju on dokumentoitu.
-- **Käyttöoikeudet:** TimGM6mb-äänipankin **GPL-2.0**-lisenssi on lähteistä varmistettu, mutta sen käyttöä juuri tässä B:ssä ei ole varmistettu alkuperäisellä skriptillä. Valmiin äänitteen jakeluehtoja ei ole vielä ratkaistu; ks. `RIGHTS-REVIEW.md`. Kyse ei ole Suno-tuotoksesta todennetun näytön perusteella. FreePatsin E2-mallikitara ei kuulu tähän B-MP3-tiedostoon.
+- **Käyttöoikeudet:** TimGM6mb-äänipankin **GPL-2.0**-lisenssi on lähteistä varmistettu, mutta sen käyttöä juuri tässä B:ssä ei ole varmistettu alkuperäisellä skriptillä. Valmiin äänitteen jakeluehtoja ei ole vielä ratkaistu; ks. `RIGHTS-REVIEW.md`. Suno-alkuperästä ei ole näyttöä. FreePatsin E2-mallikitara ei kuulu tähän B-MP3-tiedostoon.
 
 
 ## M2: väliaikainen mallikitara ja yhteinen B-säestys (20.11.2026)
