@@ -22,6 +22,28 @@ const D1_MODE = PLAYER_MODE === 'd1' || D2_MODE;
  * Testausta varten ?naytetaajuus=44100 pyytää toisen taajuuden (soitin kohdistaa palat silloin ruudukkoon).
  */
 const D2_SAMPLE_RATE = (typeof location !== 'undefined' && Number(new URLSearchParams(location.search).get('naytetaajuus'))) || 48000;
+const PARAMS = typeof location !== 'undefined' ? new URLSearchParams(location.search) : new URLSearchParams();
+/** KOKEILU (ensilataus): D2 lukee raidat virtana ja aloittaa ennen koko latausta; ?lataus=koko = hyväksytty D2-lataus. */
+const D2_PROGRESSIVE = D2_MODE && PARAMS.get('lataus') !== 'koko';
+/** KOKEILU: ?diag=1 näyttää latauksen vaiheet laitetestiä varten. */
+const D2_DIAG = D2_MODE && PARAMS.get('diag') === '1';
+
+/** Latauksen vaiheet ja selaimen omat verkkoluvut MP3:ille (Resource Timing). */
+function d2Diagnostics(player: ChunkSongPlayer): string {
+  const events = player.events, start = events.find(e => e.kind === 'lataus-alku')?.ms;
+  if (start === undefined) return 'Ei latausta vielä.';
+  const lines = [`ladattu ${Math.round(player.downloadProgress * 100)} %${player.waiting ? ', odottaa latausta' : ''}`];
+  const firstPala = events.find(e => e.kind === 'pala'), firstPlay = events.find(e => e.kind === 'soitto');
+  for (const e of events) {
+    if (!['ensitavut', 'kalibroitu', 'alku-valmis', 'valmis', 'ladattu', 'virhe', 'odottaa-latausta', 'alivuoto'].includes(e.kind) && e !== firstPala && e !== firstPlay) continue;
+    lines.push(`${String(e.ms - start).padStart(6)} ms ${e.kind}${e.track ? ' ' + e.track : ''}${typeof e.kesto === 'number' && e.kind === 'pala' ? ` (purku ${e.kesto} ms)` : ''}`);
+  }
+  const resources = typeof performance !== 'undefined' && performance.getEntriesByType ? performance.getEntriesByType('resource') as PerformanceResourceTiming[] : [];
+  for (const r of resources.filter(r => /\.mp3(\?|$)/.test(r.name)).slice(-6)) {
+    lines.push(`${r.name.split('/').pop()}: ${r.nextHopProtocol || '?'} ${Math.round(r.transferSize / 1024)} kt, vastaus ${Math.round(r.responseStart - r.startTime)} ms, kesto ${Math.round(r.duration)} ms`);
+  }
+  return lines.join('\n');
+}
 
 // Käyttäjän itse valitsema versio säilyy, vaikka hän käy välillä oppimispoluissa.
 let chosenVersion: SongVersion | null = null;
@@ -85,6 +107,13 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   const d1 = useRef<{ context: AudioContext; player: BufferSongPlayer | ChunkSongPlayer } | null>(null);
   const d1Request = useRef(0);
   const [d1State, setD1State] = useState<BufferPlayerState>('tyhja');
+  const [d2Waiting, setD2Waiting] = useState(false);
+  const [d2Diag, setD2Diag] = useState('');
+  useEffect(() => {
+    if (!D2_DIAG) return;
+    const id = setInterval(() => { const player = d1.current?.player; if (player instanceof ChunkSongPlayer) setD2Diag(d2Diagnostics(player)); }, 500);
+    return () => clearInterval(id);
+  }, []);
   const [version, setVersion] = useState<SongVersion>(initialVersion);
   const song = VERSIONS[version];
   const [playing, setPlaying] = useState(false);
@@ -234,8 +263,9 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
     if (d1.current) return d1.current;
     try {
       const context = createPlaybackContext(D2_MODE ? { sampleRate: D2_SAMPLE_RATE } : undefined);
-      const player = D2_MODE ? new ChunkSongPlayer(context) : new BufferSongPlayer(context);
+      const player = D2_MODE ? new ChunkSongPlayer(context, { progressive: D2_PROGRESSIVE }) : new BufferSongPlayer(context);
       player.onStateChange = setD1State;
+      if (player instanceof ChunkSongPlayer) player.onWaitingChange = setD2Waiting;
       if (player instanceof ChunkSongPlayer) player.onError = message => {
         setPlaying(false);
         setPosition(player.position());
@@ -496,6 +526,8 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
       {error && <p className="backing-error" role="alert">{error}</p>}
       {D1_MODE && (d1State === 'ladataan' || d1State === 'puretaan') && <p className="tools-note" role="status">
         {d1State === 'ladataan' ? 'Ladataan kappaleen raitoja…' : 'Valmistellaan raitoja soittoa varten…'}</p>}
+      {D1_MODE && d2Waiting && <p className="tools-note" role="status">Ladataan kappaletta tähän kohtaan…</p>}
+      {D2_DIAG && <pre className="tools-note" style={{ whiteSpace: 'pre-wrap', fontSize: '0.75rem' }}>{d2Diag}</pre>}
       {!D1_MODE && <>
       <audio key={version + '-backing'} ref={backingRef} src={song.backing} preload="metadata" loop={loopOn}
         onLoadedMetadata={event => {

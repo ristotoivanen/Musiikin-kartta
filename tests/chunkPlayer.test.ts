@@ -98,7 +98,7 @@ function fakeContext(totalFrames: number, { extra = 0, silent = false, silentFra
 }
 
 type SetupOptions = { fetch?: (url: string, init?: RequestInit) => Promise<Response>; decoderDelay?: number; silent?: boolean;
-  silentFrames?: number; noise?: boolean; rate?: number; files?: Record<string, Uint8Array> };
+  silentFrames?: number; noise?: boolean; rate?: number; files?: Record<string, Uint8Array>; progressive?: boolean; clock?: { t: number } };
 function setup(frames = 8842, extra: SetupOptions = {}) {
   const fake = fakeContext(frames, { extra: extra.decoderDelay ?? 0, silent: extra.silent, silentFrames: extra.silentFrames, noise: extra.noise, rate: extra.rate });
   const mp3 = synthMp3(frames);
@@ -106,6 +106,8 @@ function setup(frames = 8842, extra: SetupOptions = {}) {
   const player = new ChunkSongPlayer(fake.context, {
     fetch: extra.fetch ?? (async (url: string) => new Response((extra.files?.[url] ?? mp3).slice())),
     decoderFor: () => fake.context,
+    progressive: extra.progressive,
+    ...(extra.clock ? { now: () => extra.clock!.t, sleep: () => new Promise<void>(resolve => setTimeout(resolve, 0)) } : {}),
     setInterval: callback => { tick = callback; return 1; }, clearInterval: () => { tick = null; },
   });
   const flush = async () => { for (let i = 0; i < 20; i++) await Promise.resolve(); };
@@ -512,6 +514,116 @@ describe('D2: katselmoinnin korjaukset (loopin alku, näytetaajuus, kilpailutila
     player.play(0); await settle(fake, flush);
     const src = fake.sources.at(-1)!;
     expect(src.buffer!.data[1][10]).toBe(10 + delay);
+  });
+});
+
+/** Virtoina tarjoiltavat tiedostot: testi syöttää tavuja käsin (push) ja voi katkaista virran. */
+function streamingFiles(files: Record<string, Uint8Array>, { contentLength = true } = {}) {
+  const state: Record<string, { c: ReadableStreamDefaultController<Uint8Array>; sent: number; aborted: boolean }> = {};
+  const fetch = async (url: string, init?: RequestInit) => {
+    const bytes = files[url];
+    const entry = { c: null as unknown as ReadableStreamDefaultController<Uint8Array>, sent: 0, aborted: false };
+    const body = new ReadableStream<Uint8Array>({ start(c) { entry.c = c; }, cancel() { entry.aborted = true; } });
+    state[url] = entry;
+    init?.signal?.addEventListener('abort', () => { entry.aborted = true; try { entry.c.error(new DOMException('keskeytetty', 'AbortError')); } catch { /* suljettu */ } });
+    return new Response(body, contentLength ? { headers: { 'Content-Length': String(bytes.length) } } : {});
+  };
+  const push = (n: number) => {
+    for (const [url, entry] of Object.entries(state)) {
+      if (entry.aborted || entry.sent >= files[url].length) continue;
+      const end = Math.min(files[url].length, entry.sent + n);
+      entry.c.enqueue(files[url].slice(entry.sent, end));
+      entry.sent = end;
+      if (end === files[url].length) entry.c.close();
+    }
+  };
+  return { fetch, push, state };
+}
+const macro = () => new Promise(resolve => setTimeout(resolve, 0));
+
+describe('Ensilataus (kokeilu): virtalataus D2:n syötteenä', () => {
+  const mp3 = synthMp3(8842);
+  const files = { 'b.mp3': mp3, 'g.mp3': mp3, 'v.mp3': mp3 };
+  const progressiveUrls = { backing: 'b.mp3', guitar: 'g.mp3', vocals: 'v.mp3' };
+  async function startPartial(extra: SetupOptions = {}) {
+    const clock = { t: 0 }, net = streamingFiles(files);
+    const fake = setup(8842, { fetch: net.fetch, progressive: true, clock, ...extra });
+    const loading = fake.player.load(progressiveUrls);
+    // 64 kt / 100 ms / raita ≈ 640 kt/s (selvästi toistoa nopeampi).
+    for (let i = 0; i < 300 && fake.player.state !== 'valmis' && fake.player.state !== 'virhe'; i++) { net.push(65536); clock.t += 100; await macro(); await fake.flush(); }
+    return { ...fake, net, clock, loading };
+  }
+
+  it('toisto voi alkaa ennen koko latausta, ja palat ovat samat aikajanan näytteet kuin koko latauksessa', async () => {
+    const { player, sources, net, loading, flush } = await startPartial();
+    await expect(loading).resolves.toBe('valmis');
+    const sent = Object.values(net.state).map(e => e.sent);
+    expect(Math.max(...sent)).toBeLessThan(mp3.length * 0.25);
+    expect(player.downloadProgress).toBeLessThan(0.25);
+    expect(player.events.some(e => e.kind === 'alku-valmis')).toBe(true);
+    expect(player.duration).toBeCloseTo((8842 * 1152 - 1656) / RATE, 6);
+    player.play(0); await flush();
+    expect(sources).toHaveLength(3);
+    for (const i of [0, 1151, SEG - 1]) expect(sources[0].buffer!.data[0][i]).toBe(i + delay);
+  });
+
+  it('kelaus lataamattomaan kohtaan odottaa tavuja (ilmoittaa odotuksesta) ja jatkaa täsmälleen oikeasta kohdasta', async () => {
+    const { player, sources, net, clock, flush } = await startPartial();
+    const waits: boolean[] = [];
+    player.onWaitingChange = waiting => { waits.push(waiting); };
+    player.play(0); await flush();
+    player.seek(150); await flush();
+    expect(sources.filter(s => s.started && !s.stopped)).toHaveLength(0);
+    expect(player.waiting).toBe(true);
+    for (let i = 0; i < 400 && player.waiting; i++) { net.push(65536); clock.t += 100; await macro(); await flush(); }
+    const scheduled = sources.filter(s => s.started && !s.stopped);
+    expect(scheduled).toHaveLength(3);
+    expect(scheduled[0].buffer!.data[0][0]).toBe(150 * RATE + delay);
+    expect(waits).toEqual([true, false]);
+  });
+
+  it('versionvaihto kesken taustalatauksen keskeyttää virrat ilman virhettä', async () => {
+    const { player, net, flush } = await startPartial();
+    player.play(0); await flush();
+    player.release(); await flush(); await macro();
+    expect(player.state).toBe('tyhja');
+    expect(Object.values(net.state).every(e => e.aborted)).toBe(true);
+    expect(player.events.some(e => e.kind === 'virhe')).toBe(false);
+  });
+
+  it('virran katkeaminen kesken soiton → hallittu virhe, kun puuttuvia tavuja tarvitaan', async () => {
+    const { player, net, flush } = await startPartial();
+    let message = '';
+    player.onError = m => { message = m; };
+    player.play(0); await flush();
+    net.state['g.mp3'].c.error(new Error('yhteys katkesi'));
+    player.seek(180); await flush(); await macro(); await flush();
+    expect(message).toBe('yhteys katkesi');
+    expect(player.state).toBe('virhe');
+    expect(player.playing).toBe(false);
+  });
+
+  it('ilman Content-Lengthiä ladataan koko tiedosto ensin kuten hyväksytyssä D2:ssa', async () => {
+    const clock = { t: 0 }, net = streamingFiles(files, { contentLength: false });
+    const { player, flush } = setup(8842, { fetch: net.fetch, progressive: true, clock });
+    const loading = player.load(progressiveUrls);
+    for (let i = 0; i < 400 && player.state !== 'valmis'; i++) { net.push(262144); clock.t += 100; await macro(); await flush(); }
+    await expect(loading).resolves.toBe('valmis');
+    expect(player.events.filter(e => e.kind === 'ladattu').every(e => e.virta === false)).toBe(true);
+    expect(Object.values(net.state).every(e => e.sent === mp3.length)).toBe(true);
+  });
+
+  it('kun kaikki tavut ovat heti saatavilla (välimuisti), ajastus ja sisältö ovat samat kuin ilman virtaa', async () => {
+    const run = async (progressive: boolean) => {
+      const clock = { t: 0 }, net = streamingFiles(files);
+      const fake = setup(8842, { fetch: progressive ? net.fetch : undefined, progressive, clock });
+      const loading = fake.player.load(progressiveUrls);
+      for (let i = 0; i < 20; i++) { net.push(mp3.length); clock.t += 100; await macro(); await fake.flush(); }
+      await loading;
+      fake.player.play(12.5); await fake.flush();
+      return fake.sources.map(s => [s.started, s.buffer!.data[0][1000], s.buffer!.data[1][1000]]);
+    };
+    expect(await run(true)).toEqual(await run(false));
   });
 });
 
