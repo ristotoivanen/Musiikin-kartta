@@ -116,8 +116,10 @@ test.describe('aihesivu', () => {
   });
 
   test('aiemmat 14 osoitetta, tunnistetta ja Edellinen/Seuraava-ketju toimivat ennallaan', async ({ page }) => {
+    // 14 sivua peräkkäin; WebKit odottaa load-tapahtumassa myös äänitteiden latausta.
+    test.setTimeout(90000);
     for (const [index, [slug, id]] of legacy.entries()) {
-      const response = await page.goto(`/oppi/korva/${slug}.html`);
+      const response = await page.goto(`/oppi/korva/${slug}.html`, { waitUntil: 'domcontentloaded' });
       expect(response?.status(), slug).toBe(200);
       await expect(page.locator('main')).toHaveAttribute('data-study-item', id);
       await expect(page.locator('.study-meta').first()).toContainText(`${String(index + 1).padStart(2, '0')} / 14`);
