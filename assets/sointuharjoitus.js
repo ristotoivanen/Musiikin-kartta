@@ -430,13 +430,14 @@
         });
       });
     }
-    // Vastauksen jälkeen nimet näkyvät samoissa painikkeissa arvotussa järjestyksessä. Varattu
-    // leveys (.sointu-varaus) pitää painikkeen koon samana nimettynä ja nimettömänä.
+    // Vastauksen jälkeen näkyy vain sointumerkki (D, Dm, E, Em, A, Am).
+    // Sointu 1/2 -järjestys säilyy saavutettavassa nimessä ja sointukaavioissa.
+    // Piilotettu Sointu 1/2 -varaus pitää painikkeen koon vakaana.
     function nameListening(reveal) {
       listenButtons.forEach((button, index) => {
         const number = index + 1;
         const chord = pair[Number(button.dataset.arvaaKuuntele)];
-        button.querySelector('[data-arvaus-teksti]').textContent = reveal ? `Sointu ${number} · ${chord}` : `Sointu ${number}`;
+        button.querySelector('[data-arvaus-teksti]').textContent = reveal ? chord : `Sointu ${number}`;
         button.setAttribute('aria-label', reveal ? `Kuuntele sointu ${number}, ${fullName[chord]}` : `Kuuntele sointu ${number}`);
       });
     }
