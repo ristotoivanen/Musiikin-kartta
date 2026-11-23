@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 
+// Issue #9: kolme kappaletestiä käyttää vanhaa mediaelementtisoitinta (?soitin=vanha); D2:n vastineet: song-d2-kaytto.spec.ts.
 test.describe('Uudet oppimispolut', () => {
   test('etusivulla näkyy neljä polkua eikä vanhaa pudotusvalikkoa', async ({ page }) => {
     await page.goto('/kitaraharjoittelija.html');
@@ -21,8 +22,11 @@ test.describe('Uudet oppimispolut', () => {
       const file = (el: HTMLMediaElement) => el.getAttribute('src')?.split('/').pop() ?? '';
       HTMLMediaElement.prototype.play = function () { w.__plays.push(file(this)); return Promise.resolve(); };
       HTMLMediaElement.prototype.pause = function () { w.__pauses.push(file(this)); };
+      // Raidoilla on dataa (kuten PR #161): muuten PR #155:n kylmäkäynnistys käynnistää latauksen play()+pause()-parilla,
+      // ja kutsulista riippuisi siitä, ehtiikö headless-selain ladata raidat ennen painallusta.
+      Object.defineProperty(HTMLMediaElement.prototype, 'readyState', { configurable: true, get: () => 4 });
     });
-    await page.goto('/kitaraharjoittelija.html');
+    await page.goto('/kitaraharjoittelija.html?soitin=vanha');
     await page.getByRole('button', { name: /Kappaleharjoittelu/ }).click();
 
     await expect(page.getByRole('heading', { name: 'Yksi sointu, kaksi askelta' })).toBeVisible();
@@ -87,7 +91,7 @@ test.describe('Uudet oppimispolut', () => {
         this.dataset.pauseCount = String(Number(this.dataset.pauseCount ?? '0') + 1);
       };
     });
-    await page.goto('/kitaraharjoittelija.html');
+    await page.goto('/kitaraharjoittelija.html?soitin=vanha');
     await page.getByRole('button', { name: /Kappaleharjoittelu/ }).click();
 
     const version = page.getByRole('combobox', { name: 'Versio' });
@@ -159,7 +163,7 @@ test.describe('Uudet oppimispolut', () => {
 
   test('käyttäjän valitsemaa versiota ei vaihdeta automaattisesti kesken harjoittelun', async ({ page }) => {
     test.setTimeout(60_000); // Useita media- ja sivulatauksia hitaalla CI-ympäristöllä.
-    await page.goto('/kitaraharjoittelija.html');
+    await page.goto('/kitaraharjoittelija.html?soitin=vanha');
     await page.getByRole('button', { name: /Kappaleharjoittelu/ }).click();
     const version = page.getByRole('combobox', { name: 'Versio' });
     await expect(version).toHaveValue('normal');
@@ -175,7 +179,7 @@ test.describe('Uudet oppimispolut', () => {
     await expect(page.locator('.song-player audio').first()).toHaveAttribute('src', /akustinen-saestys\.mp3$/);
 
     // Kappalelinkillä avattu sivu pitää linkin samassa versiossa kuin valinnan.
-    await page.goto('/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen');
+    await page.goto('/kitaraharjoittelija.html?soitin=vanha&kappale=yksi-sointu-kaksi-askelta-akustinen');
     await version.selectOption('normal');
     await expect(page).toHaveURL(/kappale=yksi-sointu-kaksi-askelta-normaali/);
     await page.reload();
