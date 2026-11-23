@@ -41,9 +41,10 @@ describe('Soinnut ja harmonia: oma oppimiskokonaisuus', () => {
     expect(path.some(id => unitIds.includes(id))).toBe(false);
   });
 
-  it('aiempien sisältöjen oma laskuriteksti on vain Soinnut-aiheen kolmessa laskurissa', () => {
+  it('aiempien sisältöjen oma laskuriteksti on vain Ydinopintoaiheiden laskureissa', () => {
     const attrs = 'data-progress-count="aiemmista sisällöistä tehty" data-progress-done="✓ Aiemmat sisällöt tehty"';
-    expect(read('index.html').match(/data-progress-count=/g)).toHaveLength(2);
+    // Rytmi, Sävelkorva ja melodia (#116, vaihe 2) sekä Soinnut ja harmonia.
+    expect(read('index.html').match(/data-progress-count=/g)).toHaveLength(3);
     expect(read('index.html')).toMatch(new RegExp(`id="aihe-soinnut"[^]*?<span class="topic-status" ${attrs} hidden>`));
     expect(read('oppi/soinnut/index.html')).toContain(`data-study-total ${attrs} hidden`);
     expect(read('oppi/soinnut/ii-v-i-kahdessa-savellajissa.html').match(new RegExp(`data-boundary-progress( aria-live="polite")? ${attrs} hidden`, 'g'))).toHaveLength(2);

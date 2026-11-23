@@ -77,8 +77,8 @@ async function expectTopicMark(page: Page, topic: Topic, item: Item, done: boole
   await expect(marker).toBeVisible();
   await expect(marker).toHaveText(done ? '✓ Tehty' : 'Tekemättä');
   await expect(page.locator('[data-study-total]')).toHaveText(
-    // Rytmi: laskuri kattaa vain aiemmat sisällöt kuten Soinnuissa (#116, progress_text).
-    `${done ? 1 : 0}/${topic.pages.length} ${['rytmi', 'soinnut'].includes(topic.name) ? 'aiemmista sisällöistä' : 'sisältöä'} tehty`,
+    // Rytmi ja Sävelkorva: laskuri kattaa vain aiemmat sisällöt kuten Soinnuissa (#116, progress_text).
+    `${done ? 1 : 0}/${topic.pages.length} ${['rytmi', 'korva', 'soinnut'].includes(topic.name) ? 'aiemmista sisällöistä' : 'sisältöä'} tehty`,
   );
 }
 

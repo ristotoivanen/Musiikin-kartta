@@ -244,8 +244,8 @@ for (const [index, [, slug, title]] of topics.slice(0, -1).entries()) {
     for (const steps of [topSteps(page), bottomSteps(page)]) {
       const progress = steps.locator('[data-boundary-progress]');
       if (slug === 'kitara') await expect(progress).toHaveCount(0);
-      // Rytmi: aiempien sisältöjen laskurin oma teksti kuten Soinnuissa (#116, progress_text).
-      else await expect(progress).toHaveText(`0/${total} ${['rytmi', 'soinnut'].includes(slug) ? 'aiemmista sisällöistä' : 'sisältöä'} tehty`);
+      // Rytmi ja Sävelkorva: aiempien sisältöjen laskurin oma teksti kuten Soinnuissa (#116, progress_text).
+      else await expect(progress).toHaveText(`0/${total} ${['rytmi', 'korva', 'soinnut'].includes(slug) ? 'aiemmista sisällöistä' : 'sisältöä'} tehty`);
       await steps.getByRole('link', { name: 'Seuraava aihe: ' + nextTitle, exact: true }).click();
       await expect(page).toHaveURL(nextPath);
       await expect(page.getByRole('heading', { level: 1, name: nextTitle, exact: true })).toBeVisible();
@@ -255,7 +255,7 @@ for (const [index, [, slug, title]] of topics.slice(0, -1).entries()) {
     expect(await page.evaluate(key => localStorage.getItem(key), readingKey)).toBeNull();
     await page.goto('/index.html');
     await expect(mapCard).toBeVisible();
-    await expect(mapCard.locator('.topic-status')).toHaveText(['rytmi', 'soinnut'].includes(nextSlug) ? /^0\/\d+ aiemmista sisällöistä tehty$/ : /^0\/\d+ sisältöä tehty$/);
+    await expect(mapCard.locator('.topic-status')).toHaveText(['rytmi', 'korva', 'soinnut'].includes(nextSlug) ? /^0\/\d+ aiemmista sisällöistä tehty$/ : /^0\/\d+ sisältöä tehty$/);
     await page.reload();
     await expect(mapCard).toBeVisible();
   });

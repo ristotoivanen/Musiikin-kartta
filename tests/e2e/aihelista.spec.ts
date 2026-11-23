@@ -127,10 +127,10 @@ test('kaikki teorialuvut tehnyt käyttäjä näkee säilyneet merkinnät ja kesk
   await page.reload();
   await expect(topic(page, 'aihe-kitara').locator('.topic-status')).toHaveCount(0);
   await expect(list(page).locator('.topic-status')).toHaveText([
-    // Rytmi: laskuri kattaa vain aiemmat sisällöt kuten Soinnuissa (#116, progress_text).
+    // Rytmi ja Sävelkorva: laskuri kattaa vain aiemmat sisällöt kuten Soinnuissa (#116, progress_text).
     '1/4 aiemmista sisällöistä tehty',
     '1/3 sisältöä tehty',
-    '6/14 sisältöä tehty',
+    '6/14 aiemmista sisällöistä tehty',
     '3/8 sisältöä tehty',
     '7/18 aiemmista sisällöistä tehty',
     '3/7 sisältöä tehty',
