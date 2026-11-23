@@ -49,7 +49,10 @@ Paikallinen ympäristö: Linux-kontti, Chromium 1243 (`/opt/pw-browsers/chromium
 | `python3 tools/linkit/tarkista-linkit.py` | 121 sivua, 2 988 viittausta, 0 ongelmaa |
 | `npx playwright test tests/e2e/otelauta-ydinopinnot.spec.ts` (desktop + phone) | **40/40**; `--repeat-each=3` satunnaisten tehtävien varalta **120/120** |
 | Koko `npx playwright test` (Chromium desktop + phone) | **1 128 läpi, 49 ohitettu, 1 epäonnistui**: `responsive.spec.ts` ”pehmeä vieritys … positio 1” (Kitaraharjoittelija). Sama testi epäonnistuu 2/6 ajossa myös muuttamattomassa betassa `454aee5` (`--repeat-each=3`) → lähtötilan epävakaa testi, ei liity tähän muutokseen |
-| CI `#116 Otelauta Ydinopinnot QA` (static, Chromium-regressio, WebKit Safari + iPhone 13 -emulaatio) | Kirjataan PR:ään uusimman commitin ajosta |
+| CI `#116 Otelauta Ydinopinnot QA`, commit `0ce7f64`, [ajo 45241360344](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/45241360344) | static-and-unit OK · **koko Chromium-regressio 1 129 läpi, 0 epäonnistui, 49 ohitettu** · **WebKit (Safari + iPhone 13 -emulaatio) 52/52** |
+| PR:n muut tarkistukset samalla commitilla (PDF `static`, `fresh-pdf`, `pdf-source`, `static-and-storage`, `browser-legacy`, Cloudflare Pages) | Kaikki onnistuivat |
+
+**WebKit-korjaus:** commitin `8c84532` WebKit-ajossa 2/52 epäonnistui. Tahmea palautepaneeli perustui `:has(> .otelauta-palaute:empty)`-valitsimeen, jota WebKit ei päivittänyt palautteen ilmestyessä. Korjattu commitissa `0ce7f64` skriptin asettamalla `is-tahmea`-luokalla.
 
 ## Riippumaton lähtötilan havainto: Riffikaiun aikakatkaisu
 
