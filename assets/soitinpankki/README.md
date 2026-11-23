@@ -82,6 +82,21 @@ Taustan ja mallikitaran osat käyttävät samaa `AudioContext`-aikaorigonaa.
 M3:n WAV:ia ei lisätä tähän PR:ään, koska lähde- ja edelleenjakeluoikeuksien
 selvitys on vielä erikseen avoin #130:ssä.
 
+## Formaattivalinta ja välimuisti
+
+`SteelSampleBank` kokeilee muotoja selaimen `canPlayType`-arvion mukaisessa järjestyksessä
+(OGG ensin, jos selain ilmoittaa tukevansa sitä). Arvio ei aina vastaa `decodeAudioData`-tukea:
+iOS 27.2 Safari ilmoittaa OGG:n arvolla "probably", mutta purku epäonnistuu. Siksi:
+
+- **purkuvirhe** merkitsee muodon pankin elinajaksi (sivuistunto) käyttökelvottomaksi, eikä sitä
+  haeta uudelleen; HTTP- ja verkkovirheet eivät merkitse muotoa;
+- jo purettu näyte käytetään välimuistista missä tahansa sallitussa muodossa;
+- saman tiedoston samanaikaiset haut jaetaan, eikä yhden pyynnön keskeytys peru jaettua hakua;
+- jos kaikki muodot epäonnistuvat, `prepare` hylätään ja harjoitus käyttää näkyvästi ilmoitettua
+  FreePats-varatilaa. Käyttäjäagenttia ei tunnisteta.
+
+Testit: `tests/steel-sampler-formats.test.ts` ja `tests/e2e/ensimmaiset-viimeistely.spec.ts`.
+
 ## Suoritetut ja tekemättömät testit
 
 - Paikallinen Node-mockkoe: näytevalinta, puuttuvien tasojen ja artikulaatioiden

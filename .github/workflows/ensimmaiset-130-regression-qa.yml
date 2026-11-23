@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - chatgpt/130-regression-and-rights-review
+      - claude/170-viimeistely
   workflow_dispatch:
 
 permissions:
@@ -34,12 +35,14 @@ jobs:
           tests/e2e/ensimmaiset-nelja-iskua.spec.ts
           tests/e2e/ensimmaiset-nelja-iskua-steel.spec.ts
           tests/e2e/ensimmaiset-mobile-guidance-qa.spec.ts
+          tests/e2e/ensimmaiset-viimeistely.spec.ts
           --project=desktop --project=phone --workers=2
       - name: WebKit physical-size emulation and Steel smoke tests
         run: >
           npx playwright test
           tests/e2e/ensimmaiset-nelja-iskua-steel.spec.ts
           tests/e2e/ensimmaiset-mobile-guidance-qa.spec.ts
+          tests/e2e/ensimmaiset-viimeistely.spec.ts
           --config=playwright.webkit-m2-assembly.config.ts
           --workers=2
       - name: Save traces on failure

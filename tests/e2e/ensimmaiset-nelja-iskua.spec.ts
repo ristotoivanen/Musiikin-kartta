@@ -157,7 +157,8 @@ test('M2 toistaa B-säestyksen ja 16 E2-malli-iskua, M3 saman taustan ilman mall
   await expect(page.locator('#phase')).toHaveText(/Lähtölasku · [1-4]\/4|Soita/, { timeout: 4000 });
 
   await modeButton(page, 'M3').click();
-  await expect(message(page)).toHaveText('Musiikki soi: kuuntele mallikitaraa.');
+  // #170-viimeistely: tilan vaihto pysäyttää M2:n, eikä viesti saa enää väittää musiikin soivan.
+  await expect(message(page)).toHaveText('Pysäytetty, koska vaihdoit harjoitusta. Paina Käynnistä, kun olet valmis.');
   await expect(page.locator('#phase')).toHaveText('Lähtölasku');
   await clearEvents(page);
   await start(page).click();
