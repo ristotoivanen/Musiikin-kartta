@@ -41,11 +41,19 @@ function legacyPlayerHref(): string {
   return url.pathname + url.search + url.hash;
 }
 
-/** Latauksen vaiheet ja selaimen omat verkkoluvut MP3:ille (Resource Timing). */
-function d2Diagnostics(player: ChunkSongPlayer): string {
+type AudioSessionLike = { type?: string; state?: string; addEventListener?: (type: string, listener: () => void) => void;
+  removeEventListener?: (type: string, listener: () => void) => void };
+const audioSession = (): AudioSessionLike | undefined =>
+  (typeof navigator !== 'undefined' ? (navigator as unknown as { audioSession?: AudioSessionLike }).audioSession : undefined);
+
+/** Latauksen vaiheet, äänikontekstin ja -session tila sekä selaimen omat verkkoluvut MP3:ille (Resource Timing). */
+function d2Diagnostics(player: ChunkSongPlayer, context: AudioContext, lifecycle: readonly string[]): string {
+  const session = audioSession();
+  const lines = [`konteksti ${context.state}, kello ${context.currentTime.toFixed(2)} s, outputLatency ${((context.outputLatency ?? 0) * 1000).toFixed(0)} ms` +
+    `, äänisessio ${session ? `${session.type ?? '?'}/${session.state ?? '?'}` : 'ei tukea'}`, ...lifecycle.slice(-10)];
   const events = player.events, start = events.find(e => e.kind === 'lataus-alku')?.ms;
-  if (start === undefined) return 'Ei latausta vielä.';
-  const lines = [`ladattu ${Math.round(player.downloadProgress * 100)} %${player.waiting ? ', odottaa latausta' : ''}`];
+  if (start === undefined) return [...lines, 'Ei latausta vielä.'].join('\n');
+  lines.push(`ladattu ${Math.round(player.downloadProgress * 100)} %${player.waiting ? ', odottaa latausta' : ''}`);
   const firstPala = events.find(e => e.kind === 'pala'), firstPlay = events.find(e => e.kind === 'soitto');
   for (const e of events) {
     if (!['ensitavut', 'kalibroitu', 'alku-valmis', 'valmis', 'ladattu', 'virhe', 'odottaa-latausta', 'alivuoto'].includes(e.kind) && e !== firstPala && e !== firstPlay) continue;
@@ -123,6 +131,14 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   const clockWatch = useRef(new ContextClockWatch());
   const clockStalled = useRef(false);
   const recovering = useRef(false);
+  // Sovellusvaihto, lukitus tai äänisession keskeytys (PR #181 B7): iOS voi palauttaa kontekstin tilaan, jossa kello
+  // etenee mutta ääntä ei kuulu. Seuraava Soita luo kontekstin uudelleen samaan kohtaan.
+  const freshContextNeeded = useRef(false);
+  const lifecycle = useRef<string[]>([]);
+  const logLifecycle = (text: string) => {
+    lifecycle.current.push(`${new Date().toLocaleTimeString('fi-FI')} ${text}`);
+    if (lifecycle.current.length > 40) lifecycle.current.shift();
+  };
   const [recoveryNote, setRecoveryNote] = useState('');
   const [legacyOffer, setLegacyOffer] = useState(false);
   const [d1State, setD1State] = useState<BufferPlayerState>('tyhja');
@@ -130,7 +146,7 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   const [d2Diag, setD2Diag] = useState('');
   useEffect(() => {
     if (!D2_DIAG) return;
-    const id = setInterval(() => { const player = d1.current?.player; if (player instanceof ChunkSongPlayer) setD2Diag(d2Diagnostics(player)); }, 500);
+    const id = setInterval(() => { const current = d1.current; setD2Diag(current ? d2Diagnostics(current.player, current.context, lifecycle.current) : lifecycle.current.join('\n')); }, 500);
     return () => clearInterval(id);
   }, []);
   const [version, setVersion] = useState<SongVersion>(initialVersion);
@@ -294,12 +310,17 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
       // Lukitus tai muu keskeytys pysäyttää kontekstin: lähteet pysäytetään ja kohta tallennetaan, jotta jatko alkaa
       // samasta kohdasta uusilla lähteillä (PR #92:n palautus kytkeytyy tähän).
       context.onstatechange = () => {
+        logLifecycle(`konteksti ${context.state}`);
+        // iOS:n keskeytys (puhelu, Siri, toinen sovellus): uusi konteksti seuraavasta painalluksesta.
+        if ((context.state as string) === 'interrupted') freshContextNeeded.current = true;
         if (context.state !== 'running' && player.playing) { setPosition(player.pause()); setPlaying(false); }
       };
       clockWatch.current.reset();
       clockStalled.current = false;
       d1.current = { context, player };
-      if (EXPOSE_PLAYER_HOOK) (window as unknown as { __kappaleD1?: unknown }).__kappaleD1 = { context, player };
+      freshContextNeeded.current = false;
+      logLifecycle(`uusi konteksti ${context.sampleRate} Hz`);
+      if (EXPOSE_PLAYER_HOOK) (window as unknown as { __kappaleD1?: unknown }).__kappaleD1 = { context, player, lifecycle: lifecycle.current };
       return d1.current;
     } catch (cause) {
       setError('Web Audio ei ole käytettävissä tässä selaimessa. ' + (cause instanceof Error ? cause.message : ''));
@@ -350,9 +371,26 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
     }
   }
 
+  /**
+   * Sovellusvaihdon tai keskeytyksen jälkeen (PR #181 B7) vanha konteksti voi soittaa äänettömästi, eikä sitä voi
+   * havaita sivulta. Se suljetaan ja uusi luodaan tästä painalluksesta (iOS:n ele). Kohta, mykistykset, äänenvoimakkuus
+   * ja looppi säilyvät; raidat haetaan selaimen välimuistista ja vanhan kontekstin puskurit vapautuvat.
+   */
+  function rebuildContext() {
+    const player = d1.current?.player;
+    const at = pendingSeek.current ?? (player?.state === 'valmis' ? player.position() : position);
+    logLifecycle(`konteksti uusitaan kohdassa ${at.toFixed(1)} s`);
+    teardownD2();
+    pendingSeek.current = at > 0 ? at : null;
+    setPosition(at);
+    setD1State('tyhja');
+  }
+
   async function toggleD1() {
     // Palautus kesken: lisäpainallukset eivät käynnistä mitään rinnakkain.
     if (recovering.current) return;
+    setRecoveryNote('');
+    if (freshContextNeeded.current && d1.current && !playing) rebuildContext();
     const created = ensureD1();
     if (!created) return;
     const { context, player } = created;
@@ -386,6 +424,12 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
     }
     try { await resumed; } catch { /* tila tarkistetaan alla */ }
     if (request !== d1Request.current) return;
+    // Sivu kävi taustalla latauksen aikana: vanhaan kontekstiin ei soiteta (voi olla äänetön). Seuraava Soita uusii sen.
+    if (freshContextNeeded.current) {
+      logLifecycle('lataus valmis taustakäynnin jälkeen, odotetaan Soita');
+      setRecoveryNote('Soitin oli taustalla latauksen aikana. Paina Soita aloittaaksesi.');
+      return;
+    }
     if (context.state !== 'running') {
       setError(`Ääni ei käynnistynyt (Web Audio: ${context.state}). Paina Soita uudelleen.`);
       return;
@@ -520,8 +564,20 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
   useEffect(() => {
     if (!D2_MODE) return;
     const watch = clockWatch.current;
-    const visibility = () => watch.reset();
+    const visibility = () => {
+      watch.reset();
+      logLifecycle(document.hidden ? 'sivu piiloon' : 'sivu näkyviin');
+      // Piilossa (sovellusvaihto, lukitus) iOS voi deaktivoida äänen: seuraava Soita luo kontekstin uudelleen.
+      if (document.hidden && d1.current) freshContextNeeded.current = true;
+    };
     document.addEventListener('visibilitychange', visibility);
+    const session = audioSession();
+    const sessionChange = () => {
+      logLifecycle(`äänisessio ${session?.state ?? '?'}`);
+      // Vain keskeytys: tavallinen tauko voi jättää session tilaan inactive, eikä se saa johtaa uudelleenluontiin.
+      if (session?.state === 'interrupted' && d1.current) freshContextNeeded.current = true;
+    };
+    session?.addEventListener?.('statechange', sessionChange);
     const id = setInterval(() => {
       const current = d1.current;
       if (!current || document.hidden || current.context.state !== 'running' || recovering.current) { watch.reset(); return; }
@@ -532,7 +588,7 @@ export function SongJourney({ onBack }: { onBack: () => void }) {
       setPlaying(false);
       setError('Ääni pysähtyi (esimerkiksi näytön lukituksen jälkeen). Paina Soita jatkaaksesi samasta kohdasta.');
     }, 250);
-    return () => { clearInterval(id); document.removeEventListener('visibilitychange', visibility); };
+    return () => { clearInterval(id); document.removeEventListener('visibilitychange', visibility); session?.removeEventListener?.('statechange', sessionChange); };
   }, []);
 
   // Versionvaihdossa syntyvät uudet audioelementit saavat saman tason heti.
