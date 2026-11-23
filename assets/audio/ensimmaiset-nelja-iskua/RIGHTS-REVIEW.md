@@ -1,7 +1,7 @@
 # MK-20261117-01 – B-säestyksen alkuperä- ja käyttöoikeusselvitys
 
-**Päiväys:** 22.11.2026  
-**Johtopäätös:** **JULKAISUOIKEUTTA EI VIELÄ VOIDA VARMISTAA**. Tämä dokumentti ei ole lisenssin myöntäminen.
+**Päiväys:** 22.11.2026; täsmennetty omistajan vahvistuksella 23.11.2026  
+**Johtopäätös:** **OMAN PROJEKTITUOTANNON ALKUPERÄ VAHVISTETTU OMISTAJAN ILMOITUKSELLA.** Alkuperäisen B-MP3:n renderöintitapa ja mahdolliset kolmannen osapuolen soitinäänet on vielä yksilöitävä ennen laajaa jakeluoikeus-GO-päätöstä. Tämä dokumentti ei ole lisenssin myöntäminen.
 
 ## Tarkasteltava aineisto
 
@@ -11,9 +11,10 @@
 | `lahde/M3_AB_B_hillitty_basso_72bpm.mp3` | SHA-256 `b7ddbc97282147e299cd4179e155e3844624c71506394d971323e42d724d7910` |
 | B-WAV:n valmistus | MP3:sta `afconvert`-purku, 576 näytteen alkuviiveen poisto ja 670 320 näytteen katkaisu, dokumentoitu `README.md`-tiedostossa |
 | Musiikillinen rakenne | 72 BPM, 4 iskun sisäänlasku, 32 musiikki-iskua, lopun hiljaisuus |
-| Lähde/tekijätyökalu | `README.md`: hyväksytty B on tuotettu *erillisessä ChatGPT-keskustelussa*. Alkuperäisen sävellyksen tuotantotapaa, tekijää, lähdeprojekteja tai oikeuksien siirtoa ei ole kirjattu. |
+| Oma tuotanto (omistajan vahvistus) | Omistaja vahvisti 23.11.2026: **B-säestys tehtiin itse Musiikin karttaa varten**. `README.md` kertoo erillisestä ChatGPT-keskustelusta, jossa lähde-MP3 valmistettiin. |
+| Renderöintityökalu ja soitinäänet | **Ei yksilöity** säilyneessä projektidokumentaatiossa. MP3:n FFmpeg/Lavc-tunniste kertoo koodauksesta, ei yksin alkuperäisten soitinäänten lähdettä tai lisenssiä. |
 
-MP3/WAV-muunnoksen dokumentointi ja SHA-256-ketju osoittavat **tiedostojen jatkuvuuden**. Ne eivät yksin osoita musiikin tai alkuperäisen MP3-äänitteen oikeuksia.
+Omistajan vahvistus kertoo B:n olevan **oman projektityön tulos**; epäily ulkopuolisesta kappaleesta ei ole selvityksen lähtöoletus. MP3/WAV-muunnoksen SHA-256-ketju osoittaa tiedostojen jatkuvuuden. Oma tuotanto ei kuitenkaan yksin osoita mahdollisten kolmannen osapuolen samplien tai SoundFontien edelleenjakeluehtoja.
 
 ## Vahvistettu erillinen näytemateriaali
 
@@ -22,31 +23,26 @@ MP3/WAV-muunnoksen dokumentointi ja SHA-256-ketju osoittavat **tiedostojen jatku
 
 Näiden kahden ääninäytekokoelman oikeuksista **ei seuraa** oikeutta B-säestysäänitteeseen.
 
-## Sunon lisenssin rajoitettu merkitys
+## Suno ei ole B-säestyksen todennettu lähde
 
-Suno Pro/Premier -musiikin julkaisun yleiset ehdot on tarkistettu:
+Musiikin kartassa on muualla käytetty Sunoa, mutta **B-säestyksen ei ole osoitettu syntyneen Sunolla**, eikä kyseiselle MP3:lle ole Suno-tuotos-ID:tä. Siksi Pro-tilauksen olemassaolo tai Sunon 19.11.2026 saatu yleinen tukivastaus **ei ole tämän B-äänitteen oikeusperuste**. Suno-lisenssiselvitys koskee erikseen todennettuja Suno-tuotoksia, ei automaattisesti tätä omaa projektituotantoa.
 
-- <https://suno.com/terms> (voimaantulo 3.9.2026), erityisesti **Pro and Premier Accounts** ja **Permitted Commercial Use**.
-- <https://help.suno.com/en/articles/9601665> (päivitetty 3.9.2026): kaupallinen käyttöoikeus koskee tilaajana hyväksytysti ladattuja tuottamuksia.
-- <https://help.suno.com/en/articles/2416769>: oikeuksien pysyvyys tilauksen päättymisen jälkeen.
-- Suno-tuesta 19.11.2026 saadussa sähköpostivastauksessa vahvistettiin yleisesti musiikin julkaisu oppimissivustolla, tavanomainen editointi ja stemmien miksaus **oikeudellisesti kelvollisille tilaajatuotoksille**. Vastauksessa todettiin, että se oli tekoälytuen laatima ja voi sisältää virheitä; julkisen GitHub-koodivaraston erityistapaus jätettiin ratkaisematta.
+## Jäljellä oleva rajattu lähdeselvitys
 
-**Todisteketju puuttuu:** B-MP3:lle ei ole yhdistetty Suno-kappale-ID:tä, Sunon luontipäivää, hyväksytyn latauksen tietoja, käyttäjän tilaustilan ajankohtaa eikä Suno-lähteen tarkistetta. **B:tä ei saa merkitä Suno Pro -lisensoiduksi vain siksi, että projektissa on muualla käytetty Sunoa.** Jos B on tuotettu itse alkuperäisenä äänitteenä jollakin muulla työkalulla, oikeudet on osoitettava kyseisen tuotantotavan mukaisesti.
+Omistajan vahvistuksen jälkeen kysymys ei ole siitä, tunnistetaanko B oman projektin säestykseksi, vaan siitä, **mistä sen renderöinnissä käytetyt soitinäänet tulivat**.
 
-## Avoin todistusaineisto ennen julkaisua
+1. **Alkuperäinen tuotantokeskustelu / skripti / MIDI- tai nuottidata:** kirjaa todellinen renderöintiohjelma tai generaattori. Älä päättele sitä FFmpeg-kooderitunnisteesta.
+2. **Käytetyt soitinäänet:** selvitä, oliko ääni ohjelmallista synteesiä, omaa äänitystä vai ulkopuolisen näytepankin/SoundFontin näytteitä. Kirjaa lähde ja versio vain jos ne löytyvät todellisesta aineistosta. Esimerkiksi TimGM6mb:n käyttöä ei ole osoitettu tämän B-äänitteen kohdalla.
+3. **Jakeluehdot:** jos renderöinnissä käytettiin kolmannen osapuolen materiaalia, tarkista sen ehdot valmiin äänitteen julkaisemiselle ja edelleenjakelulle. Jos käytettiin vain omaa synteesiä tai soveltuvin oikeuksin tuotettuja ääniä, tallenna tämä todennettava peruste.
 
-Tarvitaan yksi luotettava alkuperäketju, joka yksilöi **juuri tämän B-äänitteen**:
+**Tässä tarkastuksessa löytyi** projektin `README.md`, hyväksytty B-lähde-MP3 ja dokumentoitu MP3→WAV-ketju. Erillistä B:n renderöintiskriptiä tai käytettyjen instrumenttiäänien yksilöintiä ei löytynyt tästä projektiaineistosta. Tämä on **dokumentaatioaukko, ei todettu oikeudenloukkaus**.
 
-1. **Oma syntetisoitu/sävelletty teos:** alkuperäisen MIDI-/nuottiaineiston, valmistusohjelman/scriptin ja käytettyjen soitinnäytteiden oikeuksien dokumentointi. Oikeus käyttää tuotettua äänitettä sekä mahdollisten kolmansien osapuolten näytteiden lisenssit.
-2. **Suno-äänite:** kappale-ID tai Suno-linkki, alkuperäinen hyväksytysti ladattu versio, luonti-/lataushetki ja tuolloin voimassa ollut Pro/Premier-oikeus. Vertailu lähde-MP3:n alkuperään ja mahdollisiin johdettuihin editointeihin.
-3. **Muu lähde:** alkuperäisen tekijän sekä master- ja sävellysoikeuksien käyttö-/jakelulupa verkkosivulle ja jakelutapa.
-
-Vasta tämän jälkeen voidaan päättää, saako B-äänitteen pitää **julkisella GitHubilla** ja Cloudflare Pages -jakelussa, sekä mitä erillistä `AUDIO-LICENSE`-tekstiä tarvitaan. Audion julkaiseminen verkossa ei tee siitä automaattisesti CC0- eikä muun lähdekoodilisenssin alaista.
+Oma äänite ei muutu automaattisesti CC0-aineistoksi tai lähdekoodin Unlicense-lisenssin alaiseksi. Äänitteen erilliset jakeluehdot voidaan kirjata, kun tarvittava lähdenäyttö on koossa. Jo olemassa oleva testiesikatselu ei itsessään todista laajempia edelleenjakeluoikeuksia.
 
 ## Portit
 
 - Tekninen toimivuus ja hyväksytty M2-kuuntelu **eivät poista** lisenssiporttia.
-- Ei B-äänitteen julkaisu- tai uudelleenjakeluoikeuden `GO`-merkintää ilman yllä olevia tietoja.
+- Ei B-äänitteen laajaa julkaisu- tai edelleenjakeluoikeuden `GO`-merkintää ennen kuin alkuperäisten soitinäänten jakeluehdot on tarpeellisin osin tarkistettu. Tätä ei pidä käsitellä Suno-lisenssin puuttumisena.
 - Älä muuta alkuperäisten WAV-/MP3-äänitiedostojen sisältöä selvityksen vuoksi.
 - Fyysiset iPhone/Safari- ja Android/Chrome-testit ovat **erillinen** tekninen hyväksyntäportti.
 
