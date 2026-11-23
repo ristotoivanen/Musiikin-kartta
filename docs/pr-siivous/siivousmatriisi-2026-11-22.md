@@ -1,0 +1,192 @@
+# Avoimien Pull Requestien siivousmatriisi, 22.11.2026
+
+> **Lukittu PR-pisteauditointi, ei operatiivinen tehtävälista.** Tämä dokumentti täydentää [#54:n](https://github.com/ristotoivanen/Musiikin-kartta/issues/54) ja [PR #88:n auditoinnin](https://github.com/ristotoivanen/Musiikin-kartta/pull/88) PR-tasolla; prioriteetit ja hyväksymisportit pysyvät #54:ssä, pedagogiset päätökset #115:ssä ja UX-rakenne #116:ssa. Ei sulkemisia, mergejä, uudelleenkohdistuksia tai sovelluskoodin muutoksia tämän raportin perusteella.
+
+**Tarkistuspiste:** `main` [68b8a772ac22](https://github.com/ristotoivanen/Musiikin-kartta/commit/68b8a772ac22); `beta` [5a8905694e0b](https://github.com/ristotoivanen/Musiikin-kartta/commit/5a8905694e0b); **59 avointa PR:ää raportin lopputarkistuksessa, oma Draft-PR #149 mukaan lukien** (21.11. raportissa 54, uudet #145, #146, #147, #148 ja tämä #149). **Kaikki 58 muuta avointa PR:ää** näkyvät alla; yhdistetty #128 esitetään vain vertailukohtana. Kaikkien avoimien PR:ien nykytilat ja muuttuneet tiedostopolut haettiin GitHubista; syvälliset blob/patch-vertailut painottuvat ensisijaisiin kohteisiin. **Avoin PR tai historiassa erillinen commit ei yksin tarkoita puuttuvaa toiminnallisuutta; yhteinen tiedostopolku ei yksin osoita saman sisältöistä toteutusta.**
+
+**Luokat:** (A) *Jo sisältyy betaan* = HEAD on betan Git-esi-isä; sisältöä on voitu myöhemmin muuttaa. (B) *Korvattu toisella PR:llä* = uusi integraatio sisältää tai uusii toteutuksen, mutta voi edelleen odottaa hyväksyntää. (C) *Sisältää edelleen tarpeellisen muutoksen* = beta ei sisällä erillistä deltatoteutusta tai päätösaineistoa tarvitaan. (D) *Vaatii sisältöeron tarkistusta* = riittämätön näyttö turvalliseen arkistointiin. (E) *Suositellaan suljettavaksi ilman yhdistämistä* = vanhentunut tai historiallinen, ei nykyinen integraatiolähde. Luokat B/D/E eivät itsessään valtuuta sulkemista.
+
+## 1. Ensisijaiset PR:t, HEAD- ja tiedostotason näyttö
+
+| PR (HEAD) | Todellinen tila / luokka | Näyttö betasta tai korvaajasta | Mahdollinen puuttuva delta | Riippuvuudet | Toimenpide |
+| --- | --- | --- | --- | --- | --- |
+| [#57](https://github.com/ristotoivanen/Musiikin-kartta/pull/57) · [ec153952d025](https://github.com/ristotoivanen/Musiikin-kartta/commit/ec153952d025) | A · avoin Draft | HEAD→beta +101/−0; `assets/oppimiskartta.js`, vanhat linkit ja navigaatiotestit integraatiohistoriassa | Ei yksilöityä puuttuvaa commit-deltaa; myöhemmät muutokset voivat korvata UI:n | #56, #61, #119 | **Sulje ilman mergeä** historiallisen integraation merkinnällä |
+| [#58](https://github.com/ristotoivanen/Musiikin-kartta/pull/58) · [d48d90fa7f4c](https://github.com/ristotoivanen/Musiikin-kartta/commit/d48d90fa7f4c) | A · avoin Draft | HEAD→beta +101/−0; `otelautaharjoittelija.html` ja navigaatiotestit | Ei erillistä koodideltaa; reitit varmistetaan nykyisillä testeillä | #44, #61 | **Sulje ilman mergeä** |
+| [#59](https://github.com/ristotoivanen/Musiikin-kartta/pull/59) · [f1b1e1ca3e3b](https://github.com/ristotoivanen/Musiikin-kartta/commit/f1b1e1ca3e3b) | A · avoin Draft | HEAD→beta +101/−0; `ensikeikka/GigPlayer.tsx` ja `tests/e2e/ensikeikka.spec.ts` | Ei erillistä commit-deltaa; myöhemmän Ensikeikka-jatkokehityksen tila eri asia | #47, #61, #76/#80/#86 | **Sulje ilman mergeä** |
+| [#60](https://github.com/ristotoivanen/Musiikin-kartta/pull/60) · [a0bc88ee3d2a](https://github.com/ristotoivanen/Musiikin-kartta/commit/a0bc88ee3d2a) | A · avoin Draft | HEAD→beta +101/−0; `riffikaiku/Riffikaiku.tsx`, `riffikaiku/game.ts`, testi | Ei erillistä commit-deltaa; myöhemmät Riffikaiku-luonnokset erillisiä | #51, #61, #64 | **Sulje ilman mergeä** |
+| [#61](https://github.com/ristotoivanen/Musiikin-kartta/pull/61) · [e897f86270b2](https://github.com/ristotoivanen/Musiikin-kartta/commit/e897f86270b2) | A · avoin Draft | HEAD→beta +92/−0; integroitu navigaatio, Ensikeikka, Riffikaiku, linkkitestit | Ei erillistä commit-deltaa | #57–#60, #62/#63 | **Sulje ilman mergeä** historiallisena integraationa |
+| [#62](https://github.com/ristotoivanen/Musiikin-kartta/pull/62) · [3a985d12a5ca](https://github.com/ristotoivanen/Musiikin-kartta/commit/3a985d12a5ca) | D · avoin Draft, erkaantunut | HEAD→beta +92/−60, merge-base `e897f86270b2`; beta sisältää 8 `oppi/<aihe>/index.html`-sivua ja nykyisen Python-generaattorin | **Ei betassa sellaisenaan:** 8 `aiheet/*.html`-sivua, 28 `book/luku-*.html`-sivua, `assets/aihesivut.css`, linkki-/murupolkumalli. 28 lukua vastaavat semanttisesti nykyistä erillisrakennetta, eivät ole samat URL:t | #63, #65, #116, #117 | **Älä mergeä**. Vahvista vaaditaanko mitään vanhaa `aiheet/`-/`book/luku-`-osoitetta; tämän jälkeen sulje korvattuna |
+| [#63](https://github.com/ristotoivanen/Musiikin-kartta/pull/63) · [f210a74a083c](https://github.com/ristotoivanen/Musiikin-kartta/commit/f210a74a083c) | D · avoin Draft, erkaantunut | HEAD→beta +92/−103; sama vanha merge-base kuin #62; betassa 8 aihetta, `tools/oppimiskartta/rakenna.py` ja `tools/oppimiskartta/aiheet.json` | **Ei betassa sellaisenaan:** `assets/oppimiskartan-aiheet.json`, `assets/oppimiskartan-ankkurit.json` (85 kartoitettua ankkuria), `tools/oppimiskartta-sivut.mjs` ja 28 `book/luku-*.html`-polkua. Vanhan ankkuriparin/tulosteen vastaavuus tarkistettava, ennen kuin erillinen JS-generaattori hylätään | #62, #65, #116, #117 | **Ei mergeä**, säilytä vertailtavana ja sulje vasta linkki-/ankkuritarkistuksen jälkeen |
+| [#64](https://github.com/ristotoivanen/Musiikin-kartta/pull/64) · [ce78b17eeeff](https://github.com/ristotoivanen/Musiikin-kartta/commit/ce78b17eeeff) | A · avoin Draft | HEAD→beta +98/−0; `riffikaiku/PracticeView.tsx`, `GameView.tsx` ja testit ovat commit-historiassa | Ei omaa puuttuvaa commit-deltaa; #75/#81 erillisiä jatkokehityksiä | #60, #75, #81 | **Sulje ilman mergeä** |
+| [#65](https://github.com/ristotoivanen/Musiikin-kartta/pull/65) · [49865f8a3cbe](https://github.com/ristotoivanen/Musiikin-kartta/commit/49865f8a3cbe) | A · avoin Draft | HEAD→beta +85/−0; `oppi/kitara`-polku ja `tools/oppimiskartta/rakenna.py` historiassa | Vanha viiden sivun aloittelijapolku myöhemmin korvattu #83:n lyhyellä kertauksella; älä palauta vanhaa sisältöä | #72, #83, #111, #116 | **Sulje ilman mergeä**; viittaa #83:een |
+| [#109](https://github.com/ristotoivanen/Musiikin-kartta/pull/109) · [99eaf2f00586](https://github.com/ristotoivanen/Musiikin-kartta/commit/99eaf2f00586) | B · avoin Draft | #128:n kaikki kuusi muutettua tiedostoa täsmäävät blobi-SHA:ltaan betaan: intervallimuistin CSS/JS, `book/osa-2.html`, opetussivu ja kaksi testiä. #109:n CSS ja kaksi testiä jo samoja; JS ja HTML ovat #128:ssa edelleen muokattuja | Ei löydetty #109:stä betasta puuttuvaa itsenäistä ydintoimintoa; #110:n ero on eri PR | #128 yhdistetty, #110, #143/#145 | **Sulje korvattuna #128:lla**, ei toista mergeä |
+| [#110](https://github.com/ristotoivanen/Musiikin-kartta/pull/110) · [eed5e7eebe42](https://github.com/ristotoivanen/Musiikin-kartta/commit/eed5e7eebe42) | C · avoin pinottu Draft | Beta sisältää yhä H/B-historian `book/osa-2.html`:ssa ja `oppi/savelnimet/savelet-ja-intervallit.html`:ssa, vaikka #110 poistaa kertauksen ulkopuolisen historiatekstin | **Todellinen puuttuva delta:** teorialuvun kaksi muutoskohtaa, `book/index.html`-erillislinkin poisto, Kitaran perusteiden `id=b-ja-h` ja lisälinkki, `assets/oppimiskartta.js`:n suljetun `details`-osion avaaminen ankkurilla, testivarmistus | #109, #128, #72, #117 | **Säilytä** kunnes rajattu uusi sovitus nykyiseen betaan tai päätös jättää osa tekemättä; älä mergeä vanhaa pinottua haaraa |
+| [#111](https://github.com/ristotoivanen/Musiikin-kartta/pull/111) · [794d106a9824](https://github.com/ristotoivanen/Musiikin-kartta/commit/794d106a9824) | E · avoin Draft, vanhentunut pilotti | Beta ei sisällä `rytmi/ensimmaiset-nelja-iskua`-sivua; nykyinen aloitus `rytmi/kuuntele-pulssi` ja #141 sisältää erilliset Rytmin Ydinopinnot | Ainoa erillinen tekninen yleismekanismi on numeroimaton johdantokortti, oma `harjoitus:ensimmaiset-nelja-iskua`-merkintä ja generaattorilisä. Varsinainen sisältö on vain teksti `Harjoitus on vielä tekeillä`. Ei hyväksyttyä opetussisältöä | #115, #116, #130, #141 | **Sulje ilman mergeä** vanhentuneena paikkamerkkinä; tarvittaessa numeroimattoman sisältötyypin vaatimus erikseen |
+| [#133](https://github.com/ristotoivanen/Musiikin-kartta/pull/133) · [25712ed4655b](https://github.com/ristotoivanen/Musiikin-kartta/commit/25712ed4655b) | B · avoin Draft | HEAD→#141 +113/−0, esi-isä; #133:n kaikkien 118 tiedostopolun nimet ovat #141:n diffissä | #141:n korjattu toteutus/QA poikkeaa sisällöltään, joten omaa vanhaa HEADia ei pidä yhdistää | #137, #141, #115/#116 | **Älä mergeä erikseen. Sulje korvattuna vasta #141:n hyväksymisen jälkeen** |
+| [#134](https://github.com/ristotoivanen/Musiikin-kartta/pull/134) · [84fe183f9912](https://github.com/ristotoivanen/Musiikin-kartta/commit/84fe183f9912) | B/D · avoin erillinen Draft | HEAD→#141 +119/−7, **ei esi-isä**. Kaikki 102 #134:n muutettua polkua ovat #141:n diffissä; Rytmin CSS:n blob sama (1c342c497aaf). #141:n `assets/rytmi-ydinopinnot.js` on päivitetty (4ba1afa9021c vs 04ac62f1a6cd) | #141:n JS-diffissä `button.disabled=true` korvattu `aria-busy`-tilalla ja lisätty `details.study-inline`-sulkuun `stop()`. Kolme harjoituksen lähde-HTML:ää ja testit eroavat myös, mm. yhteinen SVG-knoppitieto ja inline-esitystapa. **Ei todettu säilytettävää puuttuvaa toiminnallisuutta tutkituissa keskeisissä lähteissä; täysi käyttäjätesti avoin** | #141, #69, #115/#116 | **Ei erillistä mergeä**. Ehdollinen sulkeminen vasta #141:n Rytmi-QA:n ja sisällön hyväksynnän jälkeen |
+| [#137](https://github.com/ristotoivanen/Musiikin-kartta/pull/137) · [d4e547fe429f](https://github.com/ristotoivanen/Musiikin-kartta/commit/d4e547fe429f) | B · avoin pinottu Draft | HEAD→#141 +103/−0, esi-isä. Kaikki 169 #137:n muutettua tiedostopolkua #141:n diffissä; QA-aineisto on säilytetty jälkimmäisessä haarassa | #141:n Sointujen toiminnallisuus ja testit voivat olla uudistettuja; ei erillistä vanhaa cherry-pickiä | #133, #141, #115/#116 | **Ei erillistä mergeä. Sulje korvattuna vasta #141:n hyväksymisen jälkeen** |
+| [#141](https://github.com/ristotoivanen/Musiikin-kartta/pull/141) · [cd264d674b2c](https://github.com/ristotoivanen/Musiikin-kartta/commit/cd264d674b2c) | C · avoin Draft, EI betassa | Beta→HEAD +119/−0; 210 tiedostoa, Soinnut+Rytmi, ikonit, editoriin kuulumattomat QA-aineistot | Koko testaus ja hyväksyntä ovat auki; auditoinnin vanha CI failure ei ole GO. Ei saa käyttää sulkemisen sijaisena ennen hyväksyttyä integraatiota | #115, #116, #125, #9, #142–#144 | **Säilytä aktiivisena integraatioehdokkaana; ei mergeä tämän auditoinnin perusteella** |
+| [#145](https://github.com/ristotoivanen/Musiikin-kartta/pull/145) · [35b9a389966e](https://github.com/ristotoivanen/Musiikin-kartta/commit/35b9a389966e) | C · avoin Draft, EI betassa | Beta→HEAD +6/−0; `assets/intervallimuisti.css`, kaksi HTML-sivua, kohdetestit ja QA-workflow | #143:n mobiili-/kosketuskorjaus arvioitava; ei vanha duplikaatti | #143, #109/#128 | **Säilytä; ei kosketa työhaaraan** |
+| [#146](https://github.com/ristotoivanen/Musiikin-kartta/pull/146) · [a1eae1b615e1](https://github.com/ristotoivanen/Musiikin-kartta/commit/a1eae1b615e1) | C · avoin Draft, EI betassa | Beta→HEAD +1/−0; `docs/oppiminen/sisaltoinventaario-115-2026-11-21.md` | Täydentää #115:n vanha→uusi-aineistoa; ei osoitettu #138:n suoraksi korvaajaksi | #115, #138 | **Säilytä; ei kosketa työhaaraan** |
+| [#147](https://github.com/ristotoivanen/Musiikin-kartta/pull/147) · [bcc6abea6f59](https://github.com/ristotoivanen/Musiikin-kartta/commit/bcc6abea6f59) | C · avoin Draft, EI betassa | Beta→HEAD +4/−0; `assets/osiot.css`, `tests/e2e/musapelit-142.spec.ts` ja QA-workflow | #142:n korjauksen hyväksyntä kesken | #142, #141 | **Säilytä; ei kosketa työhaaraan** |
+
+| [#148](https://github.com/ristotoivanen/Musiikin-kartta/pull/148) · [320cb617f6f6](https://github.com/ristotoivanen/Musiikin-kartta/commit/320cb617f6f6) | C · avoin Draft, EI betassa | Beta→HEAD +8/−0; `assets/kitara-kertaus.css`, `oppi/kitara/index.html`, `tests/e2e/kitaran-otelaudan-geometria-144.spec.ts`, `docs/qa/kitara-144/raportti.md` ja QA-workflow | #144:n otelaudan luettavuuskorjauksen katselmointi ja QA kesken | #144, #83, #141 | **Säilytä; ei kosketa työhaaraan** |
+
+## 2. Muut avoimet PR:t, rajattu turvallisuusluokitus
+
+Nämä rivit perustuvat nykyiseen PR-tilaan, HEAD-commitin kuvaukseen ja muutettuihin tiedostopolkuihin sekä #88:n taustaraporttiin. **Merkintä D ei ole osoitus siitä, että koodia puuttuisi tai ettei puuttuisi.** Näistä ei tehty täydellistä semanttista blob-vertailua, joten sulkemissuositukset ovat tarkoituksella varovaisia.
+
+| PR (HEAD) | Todellinen tila / luokka | Näyttö | Mahdollinen puuttuva delta | Riippuvuudet | Toimenpide |
+| --- | --- | --- | --- | --- | --- |
+| [#34](https://github.com/ristotoivanen/Musiikin-kartta/pull/34) · [b454601eb87a](https://github.com/ristotoivanen/Musiikin-kartta/commit/b454601eb87a) | E · historiallinen docs | `reviews/beta-julkaisuvalmius-2026-11-13.md`; ei runtime-koodia | Aikaan sidottu raportti, ei nykyinen GO | #54, #88 | Sulkemisehdokas ilman mergeä, säilytä PR-historia |
+| [#37](https://github.com/ristotoivanen/Musiikin-kartta/pull/37) · [a019e9a296](https://github.com/ristotoivanen/Musiikin-kartta/commit/a019e9a296) | C/D · koodipinon alku | Mobiilin K2–K7-korjaukset, pinon #38/#39 pohja | Ei auditoitu betan nykyistä UX-deltaa | #38, #39, #9 | Säilytä kunnes nykybeta vs mobiilitoiminnallisuus verrattu |
+| [#38](https://github.com/ristotoivanen/Musiikin-kartta/pull/38) · [9c3798122bd](https://github.com/ristotoivanen/Musiikin-kartta/commit/9c3798122bd) | C/D · pinottu koodi | Pentatonisen positioiden 2–3 melodiatehtävät | Ei vahvistettua sisältövastinetta betassa | #37, #31, #115 | Säilytä, pedagoginen ja fyysinen soittotesti |
+| [#39](https://github.com/ristotoivanen/Musiikin-kartta/pull/39) · [513e7d78cfb](https://github.com/ristotoivanen/Musiikin-kartta/commit/513e7d78cfb) | C/D · pinottu koodi | Sävelpaikan ja moodieron kuunteluharjoitukset | Ei vahvistettua sisällön korvautumista | #38, #30, #115 | Säilytä, ei automaattista mergeä |
+| [#40](https://github.com/ristotoivanen/Musiikin-kartta/pull/40) · [6d173ee62b32](https://github.com/ristotoivanen/Musiikin-kartta/commit/6d173ee62b32) | E · historiallinen docs | `reviews/seuraava-kehitysversio-2026-11-13.md`; ei runtime-koodia | Raportti vanhasta kehityspohjasta | #34, #54 | Sulkemisehdokas ilman mergeä, säilytä PR-historia |
+| [#46](https://github.com/ristotoivanen/Musiikin-kartta/pull/46) · [5d741eee8f50](https://github.com/ristotoivanen/Musiikin-kartta/commit/5d741eee8f50) | C · koodidelta | `harjoittelija/NoteJourney.tsx` ja `tests/e2e/note-journey-audio.spec.ts` | Sävelen toisto valinnassa ei todistettu betan toiminnoksi | #43, #9 | Säilytä; tee rajattu sovitus, älä mergeä sokkona |
+| [#53](https://github.com/ristotoivanen/Musiikin-kartta/pull/53) · [df160b0477b4](https://github.com/ristotoivanen/Musiikin-kartta/commit/df160b0477b4) | D · 17 docs-tiedostoa | Oppimisarkkitehtuurin auditointi, katselmoinnit ja päätöshistoria | Osa pedagogiikasta voi olla #115:n jälkeen vanhentunutta, mutta päätöshistoria yksilöllinen | #115, #116, #88 | Säilytä dokumenttilähteenä; päätä arkistointi vasta sisällön siirron jälkeen |
+| [#66](https://github.com/ristotoivanen/Musiikin-kartta/pull/66) · [723255e0273f](https://github.com/ristotoivanen/Musiikin-kartta/commit/723255e0273f) | D/E · vanha docs | `docs/ensikeikka/kehityspolku-2026-11.md` | Päätöslinja sidottu vanhaan Ensikeikka-pinoon | #76, #80, #86 | Ehdollinen arkistointi #79:n päätöksen jälkeen |
+| [#67](https://github.com/ristotoivanen/Musiikin-kartta/pull/67) · [ad1b32d4400b](https://github.com/ristotoivanen/Musiikin-kartta/commit/ad1b32d4400b) | D · suunnittelu | Kaksi `harjoittelija/suunnitelmat/sointujen-maailma*`-tiedostoa | Ei runtime-koodia, osa edelleen pedagoginen lähde | #115, #116 | Säilytä lähdeaineistona, ei automaattista mergeä |
+| [#70](https://github.com/ristotoivanen/Musiikin-kartta/pull/70) · [8656f27665bd](https://github.com/ristotoivanen/Musiikin-kartta/commit/8656f27665bd) | D · Rytmi-suunnittelu | Kaksi `docs/oppiminen/rytmi`-tutkimus-/toteutusdokumenttia | Suunnitelma varhaisempi kuin #134/#141 ja #69:n tarkennus | #69, #134, #141 | Säilytä historiaksi, arkistoi vasta sisältösiirron jälkeen |
+| [#73](https://github.com/ristotoivanen/Musiikin-kartta/pull/73) · [83e7d3ced44](https://github.com/ristotoivanen/Musiikin-kartta/commit/83e7d3ced44) | E · vanhentunut ehdotus | `docs/oppiminen/oppimiskartan-aiheiden-laajennus-ja-julkaisukynnys-2026-11.md`; 11 aiheen suunnitelma | 8 aihetta on nykyinen linja; mahdollinen ideapankki ei nykyinen toteutus | #71, #115/#116 | Ehdota sulkemista ilman mergeä, historiamerkintä |
+| [#74](https://github.com/ristotoivanen/Musiikin-kartta/pull/74) · [35249744b314](https://github.com/ristotoivanen/Musiikin-kartta/commit/35249744b314) | E · vanhentunut docs | `docs/oppiminen/kitaran-perusteet-lahtoruutu-20261115.md`; vanha laajempi suunnitelma | #83:n 2–5 minuutin pikakertaus korvasi aiemman laajan lähtötason | #72, #83, #144 | Ehdota sulkemista ilman mergeä, viittaa #83 |
+| [#75](https://github.com/ristotoivanen/Musiikin-kartta/pull/75) · [ec50a94da4a2](https://github.com/ristotoivanen/Musiikin-kartta/commit/ec50a94da4a2) | C · Riffikaiku-koodi | `riffikaiku/GameRound.tsx` ja `audioAdapter.ts` sekä testit | #64 on betassa, mutta #75:n peli-/audiodelta erillinen | #64, #81, #51 | Säilytä kunnes jatkoprioriteetti päätetty |
+| [#76](https://github.com/ristotoivanen/Musiikin-kartta/pull/76) · [23ebb3dbef10](https://github.com/ristotoivanen/Musiikin-kartta/commit/23ebb3dbef10) | C · Ensikeikka-koodi | `ensikeikka/first-gig.ts`, `tasks.ts` ja omat e2e-testit | Ei betan hyväksytty integraatio; vanha navigointi | #79, #80/#86, #127 | Säilytä päätettäväksi, ei mergeä |
+| [#77](https://github.com/ristotoivanen/Musiikin-kartta/pull/77) · [7a1f0d341513](https://github.com/ristotoivanen/Musiikin-kartta/commit/7a1f0d341513) | D · docs ja tekninen koe | Mikrofonin rytmiarvion 8 dokumenttia/koetiedostoa | Ei valmis loppukäyttäjäominaisuus | #69, #87/#132 | Säilytä tutkimusnäyttönä |
+| [#80](https://github.com/ristotoivanen/Musiikin-kartta/pull/80) · [ceb5aa88b032](https://github.com/ristotoivanen/Musiikin-kartta/commit/ceb5aa88b032) | C · pinottu Ensikeikka-koodi | `ensikeikka/catalog.ts`, `tasks.ts`, `tests/ensikeikka-order.test.ts` | A/B/C-arvonnan delta vanhassa pinossa | #76, #86, #78/#79 | Säilytä päätettäväksi |
+| [#81](https://github.com/ristotoivanen/Musiikin-kartta/pull/81) · [625b98232c35](https://github.com/ristotoivanen/Musiikin-kartta/commit/625b98232c35) | C · pinottu Riffikaiku-koodi | `riffikaiku/GameRound.tsx`, `game.ts` ja testit | Korvakuulo oletuksena ei todistettu betaan | #75, #51/#89 | Säilytä päätettäväksi |
+| [#85](https://github.com/ristotoivanen/Musiikin-kartta/pull/85) · [bef04078588e](https://github.com/ristotoivanen/Musiikin-kartta/commit/bef04078588e) | D · docs/auditointi | Kuusi `docs/oppiminen/rytmi/oss-auditointi`-dokumenttia/koetta | Arvokasta omaa lähdeaineistoa, ei betan ominaisuus | #82, #69, #139 | Säilytä toimituksena; sulje vasta historioinnin/siirron jälkeen |
+| [#86](https://github.com/ristotoivanen/Musiikin-kartta/pull/86) · [4017a3379ef5](https://github.com/ristotoivanen/Musiikin-kartta/commit/4017a3379ef5) | C · Ensikeikka-pino | `ensikeikka/second-night.ts` ja `harjoittelija/LearningPaths.tsx`, 30 tiedostoa | Kokonaisuuden uusi navigaatio vaatii #127-yhteensovituksen | #76/#80, #79, #127 | Säilytä päätettäväksi |
+| [#88](https://github.com/ristotoivanen/Musiikin-kartta/pull/88) · [58e78cb0f340](https://github.com/ristotoivanen/Musiikin-kartta/commit/58e78cb0f340) | D · kanoninen raportti-Draft | `docs/projektiauditointi-2026-11-16/tilanne-2026-11-21.md` on #54:n linkitetty snapshot | Tämä erillinen siivousraportti ei korvaa eikä päivitä sitä | #54 | Säilytä koskemattomana |
+| [#90](https://github.com/ristotoivanen/Musiikin-kartta/pull/90) · [1b9db418acd2](https://github.com/ristotoivanen/Musiikin-kartta/commit/1b9db418acd2) | D · äänidiagnostiikka | iPhone/Safari paikallisen äänitestin aineisto | Juurisyy avoin | #9, #92/#100 | Säilytä #9:n tutkimusnäyttönä |
+| [#91](https://github.com/ristotoivanen/Musiikin-kartta/pull/91) · [bf90797b0bb0](https://github.com/ristotoivanen/Musiikin-kartta/commit/bf90797b0bb0) | D/E · vanha G1-docs | Neljän oppimisjakson katselmusdokumentin luonnos | Aloittelija-G1 vaihtunut #115:n lähtötason suunnitelmaksi | #115, #111/#130 | Ehdota arkistointia vasta päätöslähteiden tarkistuksen jälkeen |
+| [#92](https://github.com/ristotoivanen/Musiikin-kartta/pull/92) · [6f5647e4a80e](https://github.com/ristotoivanen/Musiikin-kartta/commit/6f5647e4a80e) | D · iOS-korjausehdokas | AudioContext palautus ja myöhemmän testipinon pohja | Ei fyysisesti hyväksytty korjaus | #9, #100 | Säilytä tutkimus-/testiaineistona |
+| [#93](https://github.com/ristotoivanen/Musiikin-kartta/pull/93) · [1fdecc864f11](https://github.com/ristotoivanen/Musiikin-kartta/commit/1fdecc864f11) | D · docs v0.3 | `docs/oppiminen/intervallit/intervallit-suunnitelma-v0.3.md` ja löydökset | Ei uusi hyväksytty koodiominaisuus | #95/#128, #114 | Säilytä pedagogisena dokumenttilähteenä |
+| [#100](https://github.com/ristotoivanen/Musiikin-kartta/pull/100) · [8134b5ac7d55](https://github.com/ristotoivanen/Musiikin-kartta/commit/8134b5ac7d55) | D · äänitesti | Kaksiraitainen MP3/WAV-synkronointikoe | #9:n tutkimuspino, ei tuotannon korjaus | #92, #101 | Säilytä tutkimusnäyttönä |
+| [#101](https://github.com/ristotoivanen/Musiikin-kartta/pull/101) · [bf201a6cc9e7](https://github.com/ristotoivanen/Musiikin-kartta/commit/bf201a6cc9e7) | D · äänitesti | Kaksiraitatestin tahdistuskorjausehdokas | Vain testinäkymän ratkaisu | #100, #106 | Säilytä tutkimusnäyttönä |
+| [#106](https://github.com/ristotoivanen/Musiikin-kartta/pull/106) · [c8a2da966753](https://github.com/ristotoivanen/Musiikin-kartta/commit/c8a2da966753) | D · äänitesti | AAC/MP3-koodauksen ja latauksen testipino | Ei tuotantopäätös | #101, #121 | Säilytä tutkimusnäyttönä |
+| [#113](https://github.com/ristotoivanen/Musiikin-kartta/pull/113) · [56f253ae9ea0](https://github.com/ristotoivanen/Musiikin-kartta/commit/56f253ae9ea0) | D · docs suunnitelma | `docs/mita-uutta-beta-ja-tuotanto.md` | Beta-/tuotantotiedotteen vaiheistus ei toteutettu | #112, #54 | Säilytä suunnitelmana, ei nykyinen merge-vaatimus |
+| [#121](https://github.com/ristotoivanen/Musiikin-kartta/pull/121) · [fecdfc1d3092](https://github.com/ristotoivanen/Musiikin-kartta/commit/fecdfc1d3092) | D · äänitesti | H3-jaksoanalyysi ja mittausraportit | Ei tuotantointegraatio | #106, #122 | Säilytä #9:n näyttönä |
+| [#122](https://github.com/ristotoivanen/Musiikin-kartta/pull/122) · [4a1f6657a3b8](https://github.com/ristotoivanen/Musiikin-kartta/commit/4a1f6657a3b8) | D · äänitesti | H4-näyttö–ääni-säätökoe | Ei yleinen korjaus | #121, #126 | Säilytä #9:n näyttönä |
+| [#126](https://github.com/ristotoivanen/Musiikin-kartta/pull/126) · [d15c244a9fa6](https://github.com/ristotoivanen/Musiikin-kartta/commit/d15c244a9fa6) | D · äänitesti | Kelaussarjan kilpatilanteiden ajoituskoe | Ei hyväksytty tuotantokorjaus | #122, #129 | Säilytä #9:n näyttönä |
+| [#129](https://github.com/ristotoivanen/Musiikin-kartta/pull/129) · [26e71ac61ae3](https://github.com/ristotoivanen/Musiikin-kartta/commit/26e71ac61ae3) | D · äänidokumentaatio | H4-videomittaus, P0–P2-mittaus-/päätösohje | Ei runtime-koodin yleismerge | #126, #9 | Säilytä #9:n näyttönä |
+| [#130](https://github.com/ristotoivanen/Musiikin-kartta/pull/130) · [ce0cf17cbed5](https://github.com/ristotoivanen/Musiikin-kartta/commit/ce0cf17cbed5) | C · erillinen prototyyppi | `/testit/` M0–M3 HTTPS-näkymä | Varsinainen hyväksytty opetussijoittelu vielä avoin | #115, #132, #111 | Säilytä riippumattomana esikatseluna |
+| [#131](https://github.com/ristotoivanen/Musiikin-kartta/pull/131) · [f99df5327ed5](https://github.com/ristotoivanen/Musiikin-kartta/commit/f99df5327ed5) | C · docs-ohjepäivitys | `docs/suunnittelu/suunnittelu-ja-pr-katselmointi.md` | Uudet esikatselu-/knoppitieto-ohjeet eivät ole betassa | #120, #116 | Säilytä oma hyväksyntäportti |
+| [#135](https://github.com/ristotoivanen/Musiikin-kartta/pull/135) · [e764caa30168](https://github.com/ristotoivanen/Musiikin-kartta/commit/e764caa30168) | C · äänipankkikoe | A/B/C-äänipankkien koe | #132:n arkkitehtuuripäätös avoin | #87, #132, #136 | Säilytä |
+| [#136](https://github.com/ristotoivanen/Musiikin-kartta/pull/136) · [51ef160c165e](https://github.com/ristotoivanen/Musiikin-kartta/commit/51ef160c165e) | C · soitinäänipilotti | Meta Steel -äänikirjastopilotti ja M2-preview | Ei nykyisen äänimoottorin korvaus | #132, #135, #130 | Säilytä |
+| [#138](https://github.com/ristotoivanen/Musiikin-kartta/pull/138) · [7b9d15005b59](https://github.com/ristotoivanen/Musiikin-kartta/commit/7b9d15005b59) | D · sisältösuunnitelma | Kohderyhmän ja 31 tehtävän docs-ehdotus | #146 tuo sisältöinventaarion, mutta ei osoitettu saman suunnitelman kopioiksi | #115, #146 | Säilytä päätösaineistona |
+| [#140](https://github.com/ristotoivanen/Musiikin-kartta/pull/140) · [96d47bb0ad56](https://github.com/ristotoivanen/Musiikin-kartta/commit/96d47bb0ad56) | D · UI-auditointi | `docs`-raportti #141:n ikoneista ja Ydinopinnot-UI:sta | Osa löydöksistä jo #141:ssä; muut raporttipäätökset pitää tarkistaa | #141, #125 | Säilytä auditointilähteenä |
+
+## 3. Semanttiset erot ja riskit, joita pelkkä Git-vertailu ei näytä
+
+**#62 / #63.** Molemmat lähtevät #61:n commitista `e897f862`, eivätkä ne ole keskenään sama PR. #62 loi 8 `aiheet/*.html`-sivua, 28 `book/luku-*.html`-sivua ja `assets/aihesivut.css`:n. #63 loi saman sivuidean lisäksi `assets/oppimiskartan-aiheet.json`-manifestin (28 teorialukua), 85 ankkurin `oppimiskartan-ankkurit.json`-indeksin ja Node-pohjaisen `tools/oppimiskartta-sivut.mjs`-generaattorin. Betassa ei ole näitä polkuja; siellä on 8 `oppi/<aihe>/index.html`-reittiä, yksi `tools/oppimiskartta/aiheet.json`-manifesti ja `tools/oppimiskartta/rakenna.py`, jonka teoriaosien kattavuustarkistus vertaa tuotettuja lukuja `book/osa-*.html`-lähteisiin. Betan aihekonfiguraation nykyisissä ryhmissä on 32 oppituntimerkintää tai harjoitusta, mikä ei ole suora 28 vanhan teoriakappaleen kopio. **Tulos:** sama pedagoginen navigaatioajatus on toteutettu uudella arkkitehtuurilla; vanha URL- ja ankkurikartta ei ole 1:1-portattu. Ei pidä palauttaa kahta kilpailevaa generaattoria. Ennen historiallista arkistointia #117 tarkistaa vaaditaanko vanhan prototyypin `/aiheet/`-/`/book/luku-`-URL:eja tai pelkkää `book/osa-N.html#ankkuri`-tukea. Vanhoja prototyyppireittejä ei ole osoitettu julkisesti julkaistuiksi.
+
+**#109 / #110 / #128.** #128 on *sisällöllinen squash/sovitus*, ei #109:n eikä #110:n Git-esi-isä. #128:n kuusi muuttunutta tiedostoa ovat nykybetassa täsmälleen samat blobeina (`assets/intervallimuisti.css` 7bd941d4523a, `assets/intervallimuisti.js` 28f6dd90f565, `book/osa-2.html` 2f6762ec9cf0, `oppi/savelnimet/savelet-ja-intervallit.html` b1db2aa712c9, `tests/e2e/intervallimuisti.spec.ts` 09b5ea74ef5c, `tests/intervallimuisti.test.ts` 4c8ae841e3fc). #109:n JS/HTML eroaa, koska #128:ssa on mm. kvintin pedagoginen täsmennys. #110:n H/B-nimien toisto on betassa edelleen `book/osa-2.html:115` ja `oppi/savelnimet/savelet-ja-intervallit.html:52`; `book/index.html` linkittää yhä erilliseen H-selvitykseen, `tools/oppimiskartta/sisallot/kitara/pikakertaus.html`:n `details`-osiolta puuttuu #110:n `b-ja-h`-ankkuri. Historiallinen `h-savelnimi`-ankkuri tulee säilyttää, mutta tekstin keskittäminen yhteen paikkaan on itsenäinen korjaus. **Älä sulje #110:tä korvattuna.**
+
+**#133 / #137 / #134 / #141.** #133 (118 polkua) ja #137 (169) ovat #141:n esi-isiä. #134:n 102 polkua ovat kaikki #141:n tiedostolistassa, mutta historia erkaantuu 7 commitilla. Keskeisessä `assets/rytmi-ydinopinnot.js`:ssä sisältövertailu löysi vain seuraavat tarkoitukselliset muutoskohdat: (1) toiston aloituksessa käytetään `aria-busy`-tilaa `disabled`-tilan sijaan, jottei Enter-/näppäimistöfokus häviä; (2) `aria-busy`-tilan purku pysäytys-/virhepoluissa; (3) `details.study-inline`-sulkeminen kutsuu `stop()`. Rytmin CSS on sama blob (1c342c497aaf). Kolmen Rytmi-harjoituksen HTML-lähteisiin on lisätty yhteinen SVG-Knoppitieto; myös testit ovat #141:ssä uudistettuja. **Tämä on vahva korvaavuusnäyttö, ei hyväksytty koko #141:n QA.**
+
+**#111.** Patch todistaa, että uusi `oppi/rytmi/ensimmaiset-nelja-iskua.html`-polku olisi vain paikkamerkki. Generaattoriin lisätään `intro_page`, suoritustunniste ja laskurin ulkopuolinen kortti. Nykyisen 1–2 vuotta soittaneen kohderyhmän hyväksytyn rakenteen kannalta tämä muuttaisi aloituksen takaisin liian alkeelliseksi. `#130`-testisivu ja `#115`:n Perustaidot-valinnainen sisältö eivät tarvitse tätä keskeneräistä sivua automaattisesti.
+
+**#145 / #146 / #147 / #148.** Nämä ovat #88:n 21.11. snapshotin jälkeen avattuja, erillisiä PR:iä. Ne ovat kaikki beta-pohjaisia ja vielä betasta erillisiä (beta→HEAD: vastaavasti +6, +1, +4 ja +8 committia). Niiden työhaarat ja hyväksyntäportit eivät kuulu tähän siivoukseen. Myös #141:n HEAD ja sen QA-tila tulee tarkistaa uudelleen silloin, kun mahdollisesta integraatiosta päätetään.
+
+## 4. Valmiiksi muotoillut PR-kommentit (ehdotuksia, EI julkaistu)
+
+Alla olevat kommentit ovat tarkoituksella PR-kohtaisia, jotta sulkemismerkinnästä jää perustelu. **Yhtään kommenttia, sulkemista tai mergeä ei tehty tämän pisteauditoinnin yhteydessä.**
+
+### PR #57
+
+> PR:n HEAD ec153952 on beta-haaran Git-esi-isä (compare ec153952...beta: +101/−0). Oppimiskartan navigaatio ja paluut ovat sittemmin edenneet, eikä tätä vanhaa branchia tule yhdistää uudelleen. Suosittelen sulkemista historiallisesti integroituna; #56:n mahdolliset nykyaikaiset regressiot käsitellään erikseen.
+
+### PR #58
+
+> HEAD d48d90fa on jo beta-haaran historiassa (+101/−0), mukaan lukien otelautaharjoittelija.html:n alavalikon muutos. Ei uutta mergeä. Sulkemissuositus: toteutettu historiassa; nykyiset reitti-/mobiilitestit erillisen QA:n piirissä.
+
+### PR #59
+
+> HEAD f1b1e1ca on jo beta-haaran historiassa (+101/−0). Ensikeikan kuuntelu- ja valintatoteutus on historiassa; myöhempi #76/#80/#86-kokonaisuus on erillinen. Sulje vanha PR ilman mergeä.
+
+### PR #60
+
+> HEAD a0bc88ee on jo betan historiassa (+101/−0), joten Riffikaiun kotitreenivalintojen vanhaa haaraa ei tarvitse integroida uudelleen. #75/#81 ovat erillisiä jatkotehtäviä. Sulje vanha PR ilman mergeä.
+
+### PR #61
+
+> HEAD e897f862 on betan Git-esi-isä (+92/−0). #57–#60:n yhdistetty historiallinen integraatio on siten jo mukana commit-historiassa. #62/#63:n sivuprototyypit ovat erillisiä eivätkä estä tämän PR:n historiallista sulkemista.
+
+### PR #62
+
+> #62:n HEAD 3a985d12 erkaantuu betasta (compare HEAD...beta: +92/−60). Beta käyttää nykyisiä oppi/<aihe>/index.html-sivuja ja Python-generaattoria, ei tässä luotuja aiheet/*.html- ja book/luku-*.html-sivuja. Pidetään toistaiseksi auki vain vanhojen URL-/ankkuritarpeiden #117-tarkistusta varten. Ei vanhan haaran mergeä; tarkistuksen jälkeen arkistoidaan korvattuna.
+
+### PR #63
+
+> #63:n HEAD f210a74a erkaantuu betasta (+92/−103). Tiedostoissa on itsenäinen 85 ankkurin JSON-kartta ja JS-generaattori; nykybeta käyttää tools/oppimiskartta/rakenna.py:tä ja säilyttää book/osa-*.html-lähteet. Varmista #117:n kanssa, ettei mikään vanha ulkoinen linkki tarvitse /book/luku-*.html-reittiä. Älä yhdistä rinnakkaista generaattoria; arkistointi vasta reittiselvityksen jälkeen.
+
+### PR #64
+
+> HEAD ce78b17e on betan historiassa (+98/−0). Oikean kitaran harjoittelun ja virtuaalipelin erottelu on historiallisesti integroitu. #75/#81 ovat erillisiä jatkomuutoksia. Sulje tämä vanha PR ilman mergeä.
+
+### PR #65
+
+> HEAD 49865f8a on betan historiassa (+85/−0), mutta #83 on jo korvannut laajan vanhan aloittelijapolun lyhyellä Kitaran perusteiden kertauksella. Ei paluuta vanhaan sisältöön. Sulje ilman mergeä historiallisena toteutuksena; #72/#144:n QA jää erikseen.
+
+### PR #109
+
+> PR #128 on yhdistetty betaan ja sen kuuden muutetun tiedoston blob-SHA:t täsmäävät nykyisen betan tiedostoihin. #109:n CSS ja molemmat testit ovat samat; JS ja HTML ovat #128:n tarkoituksella muokkaamia. #110:n erillinen H/B-rajaus ei sisälly tähän sulkemiseen. Suositus: sulje #109 korvattuna #128:lla, ei uutta mergeä.
+
+### PR #110
+
+> #110:ssä on edelleen olennainen puuttuva H/B-rajauksen delta. Nykybeta sisältää H/B-historiakappaleen sekä book/osa-2.html:ssa että oppi/savelnimet/savelet-ja-intervallit.html:ssa; #110 poistaa ne. Mukana on myös Kitaran perusteiden #b-ja-h-ankkuri ja suljetun details-osion linkkituki. Ei saa merkitä betaan integroiduksi. Säilytä sisältöpäätökseen ja rajattuun sovitukseen asti; ei pinotun vanhan haaran mergeä.
+
+### PR #111
+
+> #111 lisää numeroimattoman Ensimmäiset neljä iskua -johdannon, mutta varsinainen lähdesisältö on vain 'Harjoitus on vielä tekeillä'. #115:n kohderyhmä ja #141:n Rytmin Ydinopinnot korvaavat tämän alkeisaloituksen; #130 on erillinen M0–M3-kokeilusivu. Suositus: sulje tämä vanhentunut paikkamerkki ilman mergeä. Numeroimattoman kortin yleisominaisuutta ei pidä ottaa tuotantoon vailla hyväksyttyä opetussisältöä.
+
+### PR #133
+
+> HEAD 25712ed4 on #141:n Git-esi-isä (+113/−0), ja kaikki 118 muuttunutta tiedostopolkua löytyvät #141:n diffistä. Älä yhdistä erikseen. Kun #141:n kokonaisuus on hyväksytty ja integroitu, tämän PR:n voi sulkea korvattuna; ei vielä automaattista sulkemista.
+
+### PR #134
+
+> #134 ei ole #141:n Git-esi-isä (HEAD...#141 +119/−7), mutta kaikki sen 102 polkua esiintyvät #141:n diffissä. Vertailin varsinaista Rytmin JS-lähdettä ja kolmen harjoituksen lähde-HTML:ää: #141 korjaa näppäimistöfokuksen menetyksen, pysäyttää äänen inline-sulussa ja yhtenäistää Knoppitiedon. Erillistä säilytettävää ydintoimintoa ei havaittu näissä lähteissä; täysi Rytmi-QA on vielä hyväksymättä. Ei mergeä; sulkeminen korvattuna vasta #141:n hyväksynnän jälkeen.
+
+### PR #137
+
+> HEAD d4e547fe on #141:n esi-isä (+103/−0) ja kaikki 169 muutettua tiedostopolkua ovat #141:n diffissä. Erillinen yhdistäminen loisi päällekkäisen integraation. Säilytä historiatieto; sulje korvattuna vasta #141:n hyväksymisen jälkeen.
+
+### PR #141
+
+> #141 on edelleen betasta erillinen Draft (HEAD cd264d67), ja kokonaisuuden hyväksymisportit ovat avoimia. Tämä on suunniteltu yhdistetty Soinnut/Rytmi-integraatioehdokas, ei vanha siivouskohde. #133/#137/#134 voidaan ratkaista vasta tämän valitun toteutuksen katselmoinnin jälkeen.
+
+### PR #145
+
+> #145 korjaa #143:n mobiili-/kosketusregressiota. HEAD 35b9a389 ei ole betassa. Tämä ei ole vanha sulkemisehdokas; oma QA ja omistajan hyväksyntä erikseen.
+
+### PR #146
+
+> #146 toimittaa yhden sisältöinventaarion #115:een. HEAD a1eae1b6 ei ole betassa, eikä #138:n eri suunnitteludokumentin tarpeettomuutta ole osoitettu. Säilytä omassa sisältökatselmoinnissa.
+
+### PR #147
+
+> #147 on uusi #142:n Musapelit-reflow/saavutettavuuskorjaus (HEAD bcc6abea), ei betassa. Ei kuulu vanhojen PR:ien sulkemisiin.
+
+### PR #148
+
+> #148 on uusi #144:n Kitaran perusteiden otelaudan luettavuuskorjaus (HEAD 320cb617), ei betassa. Muutokset sisältävät otelautatyylin ja sen erilliset selain-/QA-testit. Ei kuulu vanhojen PR:ien sulkemisiin.
+
+
+## 5. Turvallinen käsittelyjärjestys
+
+1. **Itsenäinen historiakatselmointi:** hyväksy #57/#58/#59/#60/#61/#64/#65 sulkemismerkinnät; ne ovat betan esi-isiä. Merkitse erilliseen sulkemisviestiin, ettei myöhempien #75/#81/#76/#80/#86-ominaisuuksien tilaa kuitata samalla.
+2. **#109:** sulje korvattuna integroidulla #128:lla (kuusi tiedostoa SHA-tarkistettu); **#110 jää auki**. Kirjaa #110:n puuttuva H/B-delta rajattuun tulevaan sisältö-/linkkitarkistukseen ennen mitään mergeä.
+3. **#111:** sulje vanhentuneena paikkamerkkinä, kun päätös kirjattu; ei pedagogista sisältöä menetetä betasta, koska se ei ole siellä. #130 ja #115 pysyvät itsenäisinä.
+4. **#62/#63 ja #117:** tarkista 8 aiheen, 28 luvun ja 85 ankkurin vanhan prototyypin todellinen reittitarve. Kirjaa jokainen tarvittava URL-siirtymä nykyiseen generaattoriin omassa toteutustehtävässään, **ei** tätä siivoushaaraa muuttaen. Vasta sitten sulje prototyypit korvattuina ilman mergeä.
+5. **#141:n oma hyväksymisprosessi ensin:** #133/#137 voidaan sulkea korvattuina sen jälkeen, kun #141:n hyväksytty kokonaisuus on integroitu. #134 tarvitsee erityisesti Rytmi-toiston regressiokuittauksen ja sisällön hyväksynnän. Siihen asti kaikki kolme pysyvät avoimina historiatodisteina.
+6. **Vanhojen dokumenttien erillinen arkistointipäätös:** #34/#40/#73/#74 ovat vahvoja sulkemisehdokkaita ilman runtime-deltaa. #53/#67/#70/#77/#85/#91/#93/#140 sisältävät ainutkertaista katselmointiaineistoa, joten niitä ei pidä massakäsitellä ennen #115/#116/#69/#118:n päätösten yksilöintiä. Älä muuta PR #88:n raporttia tämän vuoksi.
+7. **Ei siivousta aktiivisiin korjaus- ja tutkimusketjuihin:** #37→#38→#39, #46, #75→#81, #76→#80→#86, #90/#92→#100→#101→#106→#121→#122→#126→#129, #130/#135/#136 sekä #145/#146/#147/#148. Nämä eivät ole osoitetusti pelkkää päällekkäistä historiaa.
+
+## 6. Turva- ja näyttörajoitukset
+
+- Kaikki GitHub-luennat tehty 22.11.2026; haarat voivat siirtyä. Suositukset pätevät vain yllä mainitulla HEAD-/beta-tarkistuspisteellä. Tämä auditointi ei ajanut paikallista testikokonaisuutta eikä tehnyt fyysisiä laite-/VoiceOver-/kuuntelukokeita.
+- Gitin ancestor-todiste **ei** takaa, että jokainen vanhan PR:n näkymä on nykyisessä käyttöliittymässä identtinen. Vastaavasti identtinen tiedostopolku ei takaa samaa toiminnallisuutta. Blob-SHA on sisällöllisen identtisyyden vahvempi näyttö.
+- PR:n sulkeminen ei yhdistä sen koodia. Varmista ennen dokumentti-PR:n sulkemista, että haluttu historiallinen aineisto jää luettavaksi PR:n commit-viitteistä eikä lähdehaaraa poisteta vahingossa. Ehdotus *sulje ilman mergeä* ei väitä näiden dokumenttien olevan betan tiedostoissa.
+- Älä muokkaa `main`-, `beta`-, #141-, #145-, #146-, #147- tai muiden kehittäjien haaroja. Tämän dokumentaation Draft-PR ei ole julkaisulupa eikä #54:n kilpaileva tehtävälista.
