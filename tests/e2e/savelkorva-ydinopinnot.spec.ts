@@ -200,14 +200,15 @@ test.describe('01 · Ylös, alas vai sama?', () => {
     await expect(listen).toHaveText('▶ Kuuntele melodia', { timeout: 6000 });
     await expect(status).toHaveText('Esimerkki päättyi. Voit kuunnella uudelleen.');
 
-    // Uusi melodia nollaa vastaukset ja piilottaa edellisen vastauksen.
+    // Uusi melodia nollaa vastaukset, piilottaa edellisen vastauksen ja soittaa uuden melodian heti.
+    await clearLog(page);
     await section.getByRole('button', { name: 'Uusi melodia' }).click();
-    await expect(status).toHaveText('Uusi melodia on valittu. Kuuntele se ja vastaa.');
     await expect(reveal).toBeHidden();
     await expect(feedback).toHaveText('');
-    await expect(first.locator('button').first()).toBeDisabled();
     await expect(first.getByRole('button', { name: 'Ylös' })).toHaveAttribute('aria-pressed', 'false');
-    await listen.click();
+    await expect(status).toHaveText('Melodia soi.');
+    await expect(listen).toHaveText('■ Pysäytä');
+    expect(await starts(page)).toHaveLength(3);
     await expect(first.locator('button').first()).toBeEnabled();
     await first.getByRole('button', { name: 'Alas' }).click();
     await second.getByRole('button', { name: 'Ylös' }).click();
@@ -339,9 +340,12 @@ test.describe('02 · Kotiin vai kesken?', () => {
     await section.getByRole('button', { name: 'Kesken jäävä loppu' }).click();
     await expect(status).toHaveText('Kesken jäävä loppu soi.');
 
+    await clearLog(page);
     await section.getByRole('button', { name: 'Uusi melodia' }).click();
     await expect(section.locator('[data-koti-vertailu]')).toBeHidden();
-    await section.locator('[data-melodia-kuuntele]').click();
+    // Uusi melodia soi heti: matala G + seitsemän säveltä.
+    await expect(status).toHaveText('Melodia soi. Kuuntele, mihin se pysähtyy.');
+    expect(await starts(page)).toHaveLength(8);
     await expect(answers.locator('button').first()).toBeEnabled();
     await section.getByRole('button', { name: 'Jäi kesken' }).click();
     await expect(feedback).toHaveText(/^Oikein\. Melodia pysähtyi A:han\. Se on asteikon toinen sävel/);
@@ -350,7 +354,7 @@ test.describe('02 · Kotiin vai kesken?', () => {
 });
 
 test.describe('03 · Kuule ja etsi kitaralta', () => {
-  test('paikat avautuvat kuuntelun jälkeen, soittavat oman sävelensä ja tarkistus kertoo kitaran paikat', async ({ page }) => {
+  test('tapailu: paikat soittavat sävelensä, kolme viimeksi soitettua tarkistetaan ja palaute kertoo kitaran paikat', async ({ page }) => {
     await recordAudio(page);
     await fixRandom(page, 0);
     await page.goto('/oppi/korva/kuule-ja-etsi-kitaralta.html');
@@ -359,9 +363,11 @@ test.describe('03 · Kuule ja etsi kitaralta', () => {
     const slots = section.locator('[data-etsi-vastaus]');
     const feedback = section.locator('[data-melodia-palaute]');
     const check = section.getByRole('button', { name: 'Tarkista' });
-    const clear = section.getByRole('button', { name: 'Tyhjennä valinnat' });
+    const empty = ['ei vielä soitettu', 'ei vielä soitettu', 'ei vielä soitettu'];
+    // Aloitussäveltä ei ole valmiiksi täytetty: oppija tapailee koko kulun G:stä alkaen.
+    await expect(slots).toHaveText(empty);
+    await expect(section.getByRole('button', { name: 'Tyhjennä valinnat' })).toHaveCount(0);
     await expect(board.locator('button').first()).toBeDisabled();
-    await expect(slots).toHaveText(['ei vielä valittu', 'ei vielä valittu']);
 
     await section.locator('[data-melodia-kuuntele]').click();
     await expect(section.locator('[data-melodia-tila]')).toHaveText('Sävelkulku soi. Hyräile mukana.');
@@ -371,34 +377,37 @@ test.describe('03 · Kuule ja etsi kitaralta', () => {
     await expect(board.locator('button').first()).toBeEnabled();
 
     await clearLog(page);
-    await board.locator('[data-paikka="D4"]').click();
-    await expect(section.locator('[data-melodia-tila]')).toHaveText('D soi (B-kieli, 3. nauha).');
+    await board.locator('[data-paikka="G3"]').click();
+    await expect(section.locator('[data-melodia-tila]')).toHaveText('G soi (G-kieli, vapaa).');
     expect(await starts(page)).toHaveLength(1);
-    await expect(slots).toHaveText(['D · B-kieli, 3. nauha', 'ei vielä valittu']);
-    await clear.click();
-    await expect(slots).toHaveText(['ei vielä valittu', 'ei vielä valittu']);
-
-    await board.locator('[data-paikka="A3"]').click();
-    await board.locator('[data-paikka="B3"]').click();
-    await expect(slots).toHaveText(['A · G-kieli, 2. nauha', 'B · B-kieli, vapaa']);
-    // Kolmas valinta ei mahdu, mutta paikka soi edelleen kuunneltavaksi.
-    await board.locator('[data-paikka="C4"]').click();
-    await expect(slots).toHaveText(['A · G-kieli, 2. nauha', 'B · B-kieli, vapaa']);
+    await expect(slots).toHaveText(['G · G-kieli, vapaa', 'ei vielä soitettu', 'ei vielä soitettu']);
+    await expect(check).toBeDisabled();
+    // Väärät kokeilut matkalla eivät haittaa: vain kolme viimeisintä jäävät näkyviin.
+    for (const id of ['D4', 'C4', 'G3', 'A3', 'B3']) await board.locator(`[data-paikka="${id}"]`).click();
+    await expect(slots).toHaveText(['G · G-kieli, vapaa', 'A · G-kieli, 2. nauha', 'B · B-kieli, vapaa']);
     await check.click();
     await expect(feedback).toHaveText('Oikein! Kuulit G → A → B. Melodia nousi G:stä askeleella A:han. Melodia nousi A:sta askeleella B:hen. '
       + 'Soita sama kitaralla: G-kieli, vapaa → G-kieli, 2. nauha → B-kieli, vapaa.');
     await expect(check).toHaveAttribute('aria-disabled', 'true');
-    await expect(clear).toBeDisabled();
-
-    await section.getByRole('button', { name: 'Uusi sävelkulku' }).click();
-    await expect(board.locator('button').first()).toBeDisabled();
-    await section.locator('[data-melodia-kuuntele]').click();
+    // Tarkistuksen jälkeen paikat soivat yhä, mutta tarkistettu vastaus pysyy.
     await board.locator('[data-paikka="D4"]').click();
-    await board.locator('[data-paikka="A3"]').click();
+    await expect(section.locator('[data-melodia-tila]')).toHaveText('D soi (B-kieli, 3. nauha).');
+    await expect(slots).toHaveText(['G · G-kieli, vapaa', 'A · G-kieli, 2. nauha', 'B · B-kieli, vapaa']);
+
+    await clearLog(page);
+    await section.getByRole('button', { name: 'Uusi sävelkulku' }).click();
+    await expect(slots).toHaveText(empty);
+    // Uusi sävelkulku soi heti kerran, ja paikat ovat käytettävissä ilman erillistä kuuntelua.
+    await expect(section.locator('[data-melodia-tila]')).toHaveText('Sävelkulku soi. Hyräile mukana.');
+    expect(await starts(page)).toHaveLength(3);
+    await expect(board.locator('button').first()).toBeEnabled();
+    for (const id of ['G3', 'D4', 'A3']) await board.locator(`[data-paikka="${id}"]`).click();
     await check.click();
-    await expect(feedback).toHaveText('Ei vielä aivan. Kuulit G → B → A. Sävel 2: valitsit D, mutta kuului B (B-kieli, vapaa). '
-      + 'Melodia nousi G:stä hypyllä B:hen. Sävel 3 oikein: A (G-kieli, 2. nauha). '
+    await expect(feedback).toHaveText('Ei vielä aivan. Kuulit G → B → A. Sävel 1 oikein: G (G-kieli, vapaa). '
+      + 'Sävel 2: soitit D, mutta kuului B (B-kieli, vapaa). Melodia nousi G:stä hypyllä B:hen. '
+      + 'Sävel 3 oikein: A (G-kieli, 2. nauha). '
       + 'Soita koko kulku kitaralla: G-kieli, vapaa → B-kieli, vapaa → G-kieli, 2. nauha.');
+    await expect(feedback).toHaveClass(/is-error/);
     await expect(section.locator('[data-melodia-kaari] li')).toHaveCount(3);
   });
 });

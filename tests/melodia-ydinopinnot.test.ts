@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
   BASS_GAIN, CONTOUR_MOTIFS, ECHO_MOTIFS, ECHO_POSITIONS, HOME_PHRASES, HOME_ROUNDS, HOME_TONE_PLAN, NOTES, TIMING,
-  checkContour, checkEcho, contourFeedback, contourOf, direction, echoFeedback, homeFeedback, homePlan, homeRound,
+  checkContour, checkEcho, recentNotes, contourFeedback, contourOf, direction, echoFeedback, homeFeedback, homePlan, homeRound,
   melodyPlan, moveKind, moveSentence, pickIndex, planEnd, position, singleNotePlan,
 // @ts-expect-error Testattu selainmoduuli palvellaan suoraan JavaScriptinä.
 } from '../assets/melodia-ydinopinnot.js';
@@ -184,17 +184,28 @@ describe('03 · Kuule ja etsi kitaralta', () => {
     expect(moves).toEqual(new Set(['ylos', 'alas', 'sama']));
   });
 
-  it('tarkistus vertaa säveliä 2 ja 3; palaute antaa kitaran paikat', () => {
+  it('tapailussa vastaus on kolme viimeksi soitettua säveltä, aloitus-G mukaan lukien', () => {
+    expect(recentNotes([])).toEqual([]);
+    expect(recentNotes(['G3', 'A3'])).toEqual(['G3', 'A3']);
+    // Väärät kokeilut ennen oikeaa kulkua eivät haittaa.
+    expect(recentNotes(['G3', 'A3', 'C4', 'G3', 'B3', 'A3'])).toEqual(['G3', 'B3', 'A3']);
+    expect(checkEcho(['G3', 'B3', 'A3'], recentNotes(['G3', 'A3', 'C4', 'G3', 'B3', 'A3'])).correct).toBe(true);
+  });
+
+  it('tarkistus vertaa kaikkia kolmea säveltä; palaute antaa kitaran paikat', () => {
     const motif = ['G3', 'B3', 'A3'];
-    expect(checkEcho(motif, ['B3', 'A3']).correct).toBe(true);
-    expect(checkEcho(motif, ['A3', 'B3']).correct).toBe(false);
-    expect(echoFeedback(motif, ['B3', 'A3'])).toBe(
+    expect(checkEcho(motif, ['G3', 'B3', 'A3']).correct).toBe(true);
+    expect(checkEcho(motif, ['B3', 'A3']).correct).toBe(false);
+    expect(checkEcho(motif, ['A3', 'B3', 'A3']).steps.map((step: { ok: boolean }) => step.ok)).toEqual([false, true, true]);
+    expect(echoFeedback(motif, ['G3', 'B3', 'A3'])).toBe(
       'Oikein! Kuulit G → B → A. Melodia nousi G:stä hypyllä B:hen. Melodia laski B:stä askeleella A:han. '
       + 'Soita sama kitaralla: G-kieli, vapaa → B-kieli, vapaa → G-kieli, 2. nauha.');
-    const wrong = echoFeedback(motif, ['B3', 'C4']);
+    const wrong = echoFeedback(motif, ['G3', 'B3', 'C4']);
+    expect(wrong).toContain('Sävel 1 oikein: G (G-kieli, vapaa).');
     expect(wrong).toContain('Sävel 2 oikein: B (B-kieli, vapaa).');
-    expect(wrong).toContain('Sävel 3: valitsit C, mutta kuului A (G-kieli, 2. nauha). Melodia laski B:stä askeleella A:han.');
+    expect(wrong).toContain('Sävel 3: soitit C, mutta kuului A (G-kieli, 2. nauha). Melodia laski B:stä askeleella A:han.');
     expect(wrong).toMatch(/Soita koko kulku kitaralla: G-kieli, vapaa → B-kieli, vapaa → G-kieli, 2\. nauha\.$/);
+    expect(echoFeedback(motif, ['A3', 'B3', 'A3'])).toContain('Sävel 1: soitit A, mutta kulku alkaa G (G-kieli, vapaa).');
   });
 });
 

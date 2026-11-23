@@ -2,7 +2,7 @@
 //
 // Kolmen harjoituksen sivukohtainen toiminta: 01 Ylös, alas vai sama? (melodian suunta),
 // 02 Kotiin vai kesken? (kotisävel ja melodian loppu) ja 03 Kuule ja etsi kitaralta (kolmen
-// sävelen kulku G- ja B-kieleltä). Sivut muodostaa tools/oppimiskartta/rakenna.py, joka lataa
+// sävelen kulku G- ja B-kieleltä tapaillen). Sivut muodostaa tools/oppimiskartta/rakenna.py, joka lataa
 // tämän moduulin vain, kun sivulla on [data-melodiaharjoitus].
 //
 // Äänet ovat Soinnut ja harmonia -aiheen jo repossa olevia Meta Steel Guitar -kielinäytteitä
@@ -151,8 +151,13 @@ export const ECHO_MOTIFS = Object.freeze([
   ['G3', 'B3', 'C4'], ['G3', 'G3', 'B3'], ['G3', 'A3', 'C4'], ['G3', 'C4', 'D4'],
 ].map(motif => Object.freeze(motif)));
 
+// Tapailu: oppija voi painaa paikkoja vapaasti. Vastaukseksi tulkitaan kolme viimeksi soitettua.
+export function recentNotes(history, size = 3) {
+  return history.slice(-size);
+}
+
 export function checkEcho(motif, chosen) {
-  const steps = motif.slice(1).map((id, index) => ({ expected: id, given: chosen[index] ?? null, ok: chosen[index] === id }));
+  const steps = motif.map((id, index) => ({ expected: id, given: chosen[index] ?? null, ok: chosen[index] === id }));
   return { correct: steps.every(step => step.ok), steps };
 }
 
@@ -162,11 +167,12 @@ export function echoFeedback(motif, chosen) {
   const moves = motif.slice(1).map((id, index) => moveSentence(motif[index], id));
   if (correct) return `Oikein! Kuulit ${names(motif)}. ${moves.join(' ')} Soita sama kitaralla: ${route}.`;
   const parts = steps.map((step, index) => {
-    const label = `Sävel ${index + 2}`;
+    const label = `Sävel ${index + 1}`;
     const heard = `${NOTES[step.expected].name} (${position(step.expected)})`;
     if (step.ok) return `${label} oikein: ${heard}.`;
-    const given = step.given ? `valitsit ${NOTES[step.given].name}, mutta kuului ` : 'kuului ';
-    return `${label}: ${given}${heard}. ${moves[index]}`;
+    const given = step.given ? `soitit ${NOTES[step.given].name}, mutta ` : '';
+    if (index === 0) return `${label}: ${given}kulku alkaa ${heard}.`;
+    return `${label}: ${given}kuului ${heard}. ${moves[index - 1]}`;
   });
   return `Ei vielä aivan. Kuulit ${names(motif)}. ${parts.join(' ')} Soita koko kulku kitaralla: ${route}.`;
 }
@@ -500,7 +506,8 @@ function setupContour(section, player) {
   section.querySelector('[data-melodia-uusi]').addEventListener('click', () => {
     player.stop();
     round();
-    player.show(status, 'Uusi melodia on valittu. Kuuntele se ja vastaa.');
+    // Uusi tehtävä soi heti kerran saman painalluksen aikana (käyttäjän ele, ei automaattinen toisto).
+    listen.click();
   });
   round();
   player.show(status, 'Paina Kuuntele melodia. Näytteet on äänitetty oikeasta akustisesta kitarasta.');
@@ -568,7 +575,8 @@ function setupHome(section, player) {
   section.querySelector('[data-melodia-uusi]').addEventListener('click', () => {
     player.stop();
     round();
-    player.show(status, 'Uusi melodia on valittu. Kuuntele se ja vastaa.');
+    // Uusi tehtävä soi heti kerran saman painalluksen aikana (käyttäjän ele, ei automaattinen toisto).
+    listen.click();
   });
   round();
   player.show(status, 'Kuuntele ensin kotisävel tai suoraan melodia. Näytteet on äänitetty oikeasta akustisesta kitarasta.');
@@ -580,29 +588,27 @@ function setupEcho(section, player) {
   const board = section.querySelector('[data-etsi-paikat]');
   const buttons = [...board.querySelectorAll('[data-paikka]')];
   const slots = [...section.querySelectorAll('[data-etsi-vastaus]')];
-  const clear = section.querySelector('[data-etsi-tyhjenna]');
   const check = section.querySelector('[data-melodia-tarkista]');
   const feedback = section.querySelector('[data-melodia-palaute]');
   const reveal = section.querySelector('[data-melodia-kaari]');
   const list = reveal.querySelector('ol');
   let index = -1;
-  let chosen = [];
+  let history = [];
   let checked = false;
 
   const draw = () => {
+    const chosen = recentNotes(history, slots.length);
     slots.forEach((slot, step) => {
       const id = chosen[step];
-      slot.textContent = id ? `${NOTES[id].name} · ${position(id)}` : 'ei vielä valittu';
+      slot.textContent = id ? `${NOTES[id].name} · ${position(id)}` : 'ei vielä soitettu';
       slot.classList.toggle('is-empty', !id);
     });
-    const ready = !board.disabled;
-    check.disabled = !checked && (!ready || chosen.length !== slots.length);
+    check.disabled = !checked && (board.disabled || chosen.length !== slots.length);
     lock([check], checked);
-    clear.disabled = checked || !chosen.length;
   };
   const round = () => {
     index = pickIndex(ECHO_MOTIFS.length, index);
-    chosen = [];
+    history = [];
     checked = false;
     board.disabled = true;
     feedback.textContent = '';
@@ -622,19 +628,16 @@ function setupEcho(section, player) {
     button.addEventListener('click', () => {
       const id = button.dataset.paikka;
       player.play(button, status, singleNotePlan(id), { label: `${NOTES[id].name} soi (${position(id)}).` });
-      if (checked || chosen.length >= slots.length) return;
-      chosen.push(id);
+      // Tarkistuksen jälkeen paikkoja voi yhä kuunnella, mutta tarkistettu vastaus pysyy näkyvissä.
+      if (checked) return;
+      history = recentNotes([...history, id], slots.length);
       draw();
     });
   }
-  clear.addEventListener('click', () => {
-    chosen = [];
-    draw();
-    player.show(status, 'Valinnat tyhjennetty. Etsi sävelet 2 ja 3 uudelleen.');
-  });
   check.addEventListener('click', () => {
     if (checked) return;
     const motif = ECHO_MOTIFS[index];
+    const chosen = recentNotes(history, slots.length);
     const result = checkEcho(motif, chosen);
     checked = true;
     feedback.textContent = echoFeedback(motif, chosen);
@@ -647,7 +650,8 @@ function setupEcho(section, player) {
   section.querySelector('[data-melodia-uusi]').addEventListener('click', () => {
     player.stop();
     round();
-    player.show(status, 'Uusi sävelkulku on valittu. Kuuntele se ja etsi sävelet.');
+    // Uusi tehtävä soi heti kerran saman painalluksen aikana (käyttäjän ele, ei automaattinen toisto).
+    listen.click();
   });
   round();
   player.show(status, 'Paina Kuuntele sävelkulku. Näytteet on äänitetty oikeasta akustisesta kitarasta.');
