@@ -729,11 +729,14 @@ function setFeedback(shell, result) {
   shell.feedback.textContent = result.message;
   if (result.ok === undefined) delete shell.feedback.dataset.tulos;
   else shell.feedback.dataset.tulos = result.ok ? 'oikein' : 'yrita';
+  // Ennen ensimmäistä palautetta paneeli on laudan alla eikä peitä mitään.
+  shell.panel.classList.add('is-tahmea');
 }
 
 function clearFeedback(shell) {
   shell.feedback.textContent = '';
   delete shell.feedback.dataset.tulos;
+  shell.panel.classList.remove('is-tahmea');
 }
 
 async function sound(shell, notes, { force = false } = {}) {

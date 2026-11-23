@@ -103,17 +103,17 @@
 .otelauta-tila-huomautus { margin: .2rem 0 .5rem; color: #ffd6b3; font-size: .9rem; }
 .otelauta-vaihto { margin: .2rem 0 0; }
 /* Palaute ja seuraava toiminto pysyvät näkyvissä pitkän laudan alla puhelimessa. */
+/* Paneeli tarttuu näkymän alareunaan vasta, kun siinä on palautetta (skripti asettaa is-tahmea).
+ * Ei :has(:empty) -valitsinta: WebKit ei päivittänyt sitä tekstin vaihtuessa. */
 .otelauta-paneeli {
-  position: sticky;
+  position: static;
   bottom: 0;
   z-index: 1;
   margin-inline: -.25rem;
   padding: .1rem .25rem .2rem;
   background: var(--panel);
-  box-shadow: 0 -.5rem .6rem -.4rem rgba(0, 0, 0, .55);
 }
-/* Ennen ensimmäistä palautetta paneeli on tavallisessa järjestyksessä laudan alla eikä peitä mitään. */
-.otelauta-paneeli:has(> .otelauta-palaute:empty) { position: static; box-shadow: none; }
+.otelauta-paneeli.is-tahmea { position: sticky; box-shadow: 0 -.5rem .6rem -.4rem rgba(0, 0, 0, .55); }
 .otelauta-lauta td > button { scroll-margin-block: 4rem 10rem; }
 .otelauta-tehtava:focus { outline: none; }
 .otelauta-tehtava:focus-visible { outline: 2px solid #75e5c6; outline-offset: 3px; }
