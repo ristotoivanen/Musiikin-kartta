@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Sointipaja – katselmointiversio</title>
+<title>Sointipaja – Taso 1</title>
 <link rel="stylesheet" href="assets/otelauta.css">
 <link rel="stylesheet" href="assets/harjoittelija/app.css">
 <style>
@@ -60,17 +60,33 @@ main.practice-main {max-width: 700px; padding: 14px 10px 30px}
 .proto .chord-answers button[aria-disabled=true]:not(.right):not(.wrong) {opacity:.8}
 .proto .chord-answers button.wrong {text-decoration:none;border-color:#ffe08a}
 .proto .feedback strong {font-weight:750}
+.proto .level-head {border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:10px}
+.proto #level-title {font-size:clamp(16px,3vw,20px)}
+.proto #level-progress {font-size:12px;color:var(--muted)}
+.proto .round-steps {display:flex;gap:5px;flex-wrap:wrap;margin:8px 0}
+.proto .round-step {flex:1 1 120px;border:1px solid var(--line);border-radius:7px;padding:5px 8px;font-size:12px;color:var(--muted)}
+.proto .round-step[aria-current=step] {color:var(--text);border-color:var(--lavender);font-weight:750}
+.proto .round-step.done::after {content:" ✓";color:#9fe4c3}
+.proto #round-results ul {padding-left:20px}
+.proto #feedback:empty,.proto #audio-status:empty {display:none}
+.proto #summary .toolbar button {min-height:44px}
+.proto #round-context {font-weight:650}
 @media(max-width:365px){.proto .toolbar button {font-size:13px;padding-inline:6px}.proto .chord-answers {gap:4px;grid-template-columns:repeat(auto-fit,minmax(50px,1fr))}}
 </style>
 </head>
 <body>
 <main class="practice-main">
 <a href="kitaraharjoittelija.html?polku=soinnut">← Nykyinen harjoitus</a>
-<p class="eyebrow">SOINTIPAJA · KATSELMOINTIVERSIO · #48</p>
-<h1>Tunnista avoin sointu</h1>
+<p class="eyebrow">SOINTIPAJA · TASON 1 DEMO · #48</p>
+<h1>Sointipaja</h1>
 <noscript><p>Kokeilu tarvitsee JavaScriptin. <a href="oppi/soinnut/">Sointujen teoria</a> on käytettävissä myös ilman sitä.</p></noscript>
 <p id="load-error" role="status" hidden>Harjoituksen lataus ei onnistunut. <a href="sointipaja-prototyyppi.html">Kokeile uudelleen</a> tai <a href="kitaraharjoittelija.html?polku=soinnut">avaa nykyinen harjoitus</a>.</p>
 <section class="proto chord-journey" aria-label="Avosointujen tunnistus" id="prototype" hidden>
+<header class="level-head">
+<div class="question-head"><h2 id="level-title">Taso 1 · Seitsemän tavallista avosointua</h2><span id="level-progress"></span></div>
+<div id="round-steps" class="round-steps" role="group" aria-label="Kierrokset"></div>
+<p id="round-context" class="tools-note"></p>
+</header>
 <div id="round">
 <div class="question-head"><h2 id="question" tabindex="-1">Mikä sointu?</h2><span id="progress"></span></div>
 <p>Katso otetta ja valitse soinnun nimi.</p>
@@ -94,22 +110,34 @@ main.practice-main {max-width: 700px; padding: 14px 10px 30px}
 </div>
 </div>
 </div>
-<div id="summary" hidden><h2 id="done-heading" tabindex="-1">Avosointukierros valmis</h2><p id="result"></p><button type="button" id="restart" class="primary">Harjoittele uudelleen</button></div>
+<div id="summary" hidden>
+<h2 id="done-heading" tabindex="-1"></h2>
+<p id="result"></p>
+<div id="round-results"></div>
+<p id="difficult" class="tools-note"></p>
+<div class="toolbar" role="group" aria-label="Jatka harjoittelua">
+<button type="button" class="primary" id="continue" hidden>Seuraava kierros →</button>
+<button type="button" id="restart">Harjoittele taso uudelleen</button>
+<button type="button" id="retry-round" hidden>Harjoittele kierros uudelleen</button>
+</div>
+<p id="future" class="tools-note" hidden>Taso 2 on suunnitteilla. Se ei ole vielä pelattavissa.</p>
+</div>
 <details id="settings">
-<summary>Harjoituksen asetukset</summary>
-<fieldset><legend>Soinnut</legend><label><input type="radio" name="count" value="4" checked>4 sointua (C, G, D, Em)</label><label><input type="radio" name="count" value="7">7 sointua (lisäksi Am, E, A)</label><p class="tools-note">Vaihto aloittaa uuden kierroksen.</p></fieldset>
-<label class="tools-note"><input type="checkbox" id="auto"> Soita sointu oikean vastauksen jälkeen</label>
-<p class="tools-note">Voit kuunnella myös painamalla otteen merkkejä. Kuuntelu ei ole pakollista.</p>
+<summary>Harjoittele vapaasti</summary>
+<p class="tools-note">Voit harjoitella mitä tahansa kierrosta ilman etenemislukkoja. Valinta päättää nykyisen kierroksen ja aloittaa erillisen harjoituksen.</p>
+<div id="free-rounds" class="toolbar" role="group" aria-label="Valitse kierros"></div>
+<button type="button" id="start-level">Aloita koko taso alusta</button>
 </details>
 </section>
 <p><a href="oppi/soinnut/">Soinnut ja harmonia – Ydinopinnot</a></p>
-<p class="tools-note">Ääninäytteet: <a href="assets/audio/soinnut/LAHTEET.md">Meta Steel Guitar, CC0 1.0</a>. Erillinen kokeilusivu (#187:n yhteinen otelauta), ei korvaa nykyistä harjoitusta eikä tallenna tuloksia.</p>
+<p class="tools-note">Ääninäytteet: <a href="assets/audio/soinnut/LAHTEET.md">Meta Steel Guitar, CC0 1.0</a>. Erillinen tason 1 demo (#187:n yhteinen otelauta), ei korvaa nykyistä harjoitusta. Tulokset säilyvät tämän sivuistunnon ajan.</p>
 </main>
 <script src="assets/otelauta.js" onerror="document.getElementById('load-error').hidden=false"></script>
+<script src="assets/sointipaja-levels.js"></script>
 <script>
 (() => {
 'use strict';
-if (!globalThis.MusicMapFretboard?.neckSurface) { document.getElementById('load-error').hidden=false; return; }
+if (!globalThis.MusicMapFretboard?.neckSurface || !globalThis.SointipajaLevelModel) { document.getElementById('load-error').hidden=false; return; }
 // Kokeilua varten kopioitu olemassa oleva, sivukohtainen näytesoitin sellaisenaan
 // assets/sointuharjoitus.js @ 9526b701e5d63a5af4bd2407ca65b71e9a60fd27. Ei uusi äänimoottori.
 // Integraatiossa sovitaan yhteinen rajapinta, eikä tätä kopiota jätetä ylläpidettäväksi.
@@ -299,12 +327,14 @@ const longStrings = ['ohut e','B','G','D','A','paksu E'];
 const sampleStrings = ['HighE','B','G','D','A','LowE'];
 const chrom = ['C','Cs','D','Ds','E','F','Fs','G','Gs','A','As','B'];
 const open = globalThis.MusicMapFretboard.OPEN_PITCHES;
-const basic = ['C','G','D','Em'], extended = [...basic,'Am','E','A'];
+const {levels,orderFor}=globalThis.SointipajaLevelModel;
+const level=levels[0];
 const roots = { C:0,G:7,D:2,Em:4,Am:9,E:4,A:9 };
 const names = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
 const byId = id => document.getElementById(id);
 const el = (tag,text,cls) => {const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
-let count=4, order=[], index=0, answered=false, mistakes=0, firstTry=0, wrong=new Set();
+let roundIndex=0, mode='level', order=[], index=0, answered=false, mistakes=0, firstTry=0, wrong=new Set();
+let results=[], missed={}, previous=null;
 let current;
 const audioStatus=byId('audio-status'), stopButton=byId('stop');
 const pitch = (s,f) => open[s]+f;
@@ -394,41 +424,87 @@ function select(name){
   if(answered||wrong.has(name))return;
   const feedback=byId('feedback');
   if(name!==current){wrong.add(name);mistakes++;feedback.className='feedback bad';feedback.textContent='Ei aivan. Tarkista otteen avoimet ja painetut kielet.';updateAnswers();return;}
-  answered=true;if(!wrong.size)firstTry++;feedback.className='feedback good';
+  answered=true;if(!wrong.size)firstTry++;else missed[current]=(missed[current]||0)+1;
+  feedback.className='feedback good';
   feedback.replaceChildren(el('strong','Oikein!'),document.createTextNode(' Tämä on '+current+'-sointu.'));
   const root=roots[current];const third=current.endsWith('m')?3:4;
   byId('notes').textContent='Sointusävelet: '+[0,third,7].map(n=>names[(root+n)%12]).join(' – ')+'. Otteessa soi matalasta korkeaan: '+voiced().map(({s,f})=>nameOf(pitch(s,f))).join(' · ')+'.';
   byId('note-detail').textContent='Paina otteen merkkejä ja kuuntele säveliä.';
   byId('explain').hidden=false;byId('next').hidden=false;
-  byId('next').textContent=index===order.length-1?'Näytä yhteenveto':'Seuraava sointu →';
+  byId('next').textContent=index===order.length-1?'Kierroksen tulos →':'Seuraava sointu →';
   updateAnswers();for(const b of byId('board').querySelectorAll('.mark')){
     const fret=Number(b.dataset.fret),n=pitch(Number(b.dataset.string),fret);
     b.classList.add('revealed');if(fret!==0)b.textContent=names[n%12];
     b.setAttribute('aria-label',b.getAttribute('aria-label')+', '+nameOf(n)+', '+roleOf(n));
   }
-  if(byId('auto').checked)listen(byId('listen'),'chord');
+  listen(byId('listen'),'chord');
+}
+function roundDef(){return level.rounds[roundIndex];}
+function totalQuestions(){return level.rounds.reduce((n,r)=>n+r.targets.length*r.repeats,0);}
+function updateHeader(){
+  byId('level-title').textContent='Taso 1 · '+level.title;
+  const completed=mode==='level'?results.reduce((n,r)=>n+r.total,0):0;
+  byId('level-progress').textContent=mode==='level'?completed+'/'+totalQuestions()+' tehtävää valmiissa kierroksissa':'Vapaa harjoittelu';
+  const steps=level.rounds.map((r,i)=>{
+    const item=el('span',(i+1)+' · '+r.title,'round-step');
+    if(i===roundIndex)item.setAttribute('aria-current','step');
+    if(mode==='level'&&results.some(x=>x.id===r.id))item.classList.add('done');
+    return item;
+  });
+  byId('round-steps').replaceChildren(...steps);
+  byId('round-context').textContent=mode==='free'?'Vapaa harjoittelu · '+roundDef().title:'Kierros '+(roundIndex+1)+' / '+level.rounds.length+' · '+roundDef().title;
+}
+function renderSummary(focus){
+  neckObserver?.disconnect();
+  byId('round').hidden=true;byId('summary').hidden=false;
+  const result={id:roundDef().id,title:roundDef().title,total:order.length,firstTry,mistakes,missed:{...missed}};
+  if(mode==='level')results.push(result);
+  const final=mode==='level'&&roundIndex===level.rounds.length-1;
+  const shown=final?results:[result];
+  const total=shown.reduce((n,r)=>n+r.total,0),first=shown.reduce((n,r)=>n+r.firstTry,0),errors=shown.reduce((n,r)=>n+r.mistakes,0);
+  byId('done-heading').textContent=final?'Taso 1 valmis':mode==='free'?'Harjoituskierros valmis':'Kierros '+(roundIndex+1)+' valmis';
+  byId('result').textContent=first+'/'+total+' oikein ensimmäisellä yrityksellä. '+errors+' väärää valintaa. Kaikki '+total+' tehtävää ratkaistu.';
+  const report=shown.map(r=>el('li',r.title+': '+r.firstTry+'/'+r.total+' oikein ensimmäisellä yrityksellä.'));
+  const list=el('ul');list.append(...report);byId('round-results').replaceChildren(list);
+  const misses={};for(const r of shown)for(const [n,c] of Object.entries(r.missed))misses[n]=(misses[n]||0)+c;
+  const difficult=Object.entries(misses).sort((a,b)=>b[1]-a[1]).map(([n,c])=>n+' ('+c+')');
+  byId('difficult').textContent=difficult.length?'Kertaa vielä: '+difficult.join(', ')+'. Luku kertoo tehtävät, joissa tarvitsit uuden yrityksen.':'Kaikki tehtävät oikein ensimmäisellä yrityksellä.';
+  byId('continue').hidden=mode!=='level'||final;
+  byId('retry-round').hidden=mode!=='free';
+  byId('restart').textContent=final?'Harjoittele taso uudelleen':'Aloita koko taso alusta';
+  byId('future').hidden=!final;
+  updateHeader();
+  if(focus)byId('done-heading').focus();
 }
 function show(focus=false){
   stop();audioStatus.textContent='';audioStatus.classList.remove('is-error');highlight([]);answered=false;wrong=new Set();
-  if(index>=order.length){
-    neckObserver?.disconnect();
-    byId('round').hidden=true;byId('summary').hidden=false;
-    byId('result').textContent='Tunnistit kaikki '+count+' sointua. '+firstTry+'/'+count+' oikein ensimmäisellä yrityksellä. '+(mistakes?'Vääriä valintoja yhteensä '+mistakes+'.':'');
-    if(focus)byId('done-heading').focus();return;
-  }
+  if(index>=order.length){renderSummary(focus);return;}
   current=order[index];byId('summary').hidden=true;byId('round').hidden=false;
   byId('progress').textContent='Sointu '+(index+1)+' / '+order.length;
   byId('feedback').textContent='';byId('feedback').className='feedback';byId('explain').hidden=true;byId('next').hidden=true;
-  const buttons=(count===4?basic:extended).map(n=>{const b=el('button',n);b.type='button';b.addEventListener('click',()=>select(n));return b;});
-  byId('answers').replaceChildren(...buttons);renderBoard();if(focus)byId('question').focus();
+  const buttons=roundDef().options.map(n=>{const b=el('button',n);b.type='button';b.addEventListener('click',()=>select(n));return b;});
+  byId('answers').replaceChildren(...buttons);renderBoard();updateHeader();if(focus)byId('question').focus();
 }
-function reset(focus=false){order=[...(count===4?basic:extended)];for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]];}index=0;mistakes=0;firstTry=0;show(focus);}
+function startRound(i,kind,focus=true){
+  roundIndex=i;mode=kind;
+  order=orderFor(roundDef(),Math.random,kind==='level'?previous:null);
+  index=0;mistakes=0;firstTry=0;missed={};
+  byId('settings').open=false;show(focus);
+}
+function reset(focus=false){results=[];previous=null;startRound(0,'level',focus);}
+function startFree(i){results=[];previous=null;startRound(i,'free');}
 byId('listen').addEventListener('click',e=>listen(e.currentTarget,'chord',undefined,true));
 byId('arpeggio').addEventListener('click',e=>listen(e.currentTarget,'arpeggio',undefined,true));
 stopButton.addEventListener('click',()=>{stop('Kuuntelu pysäytetty.');byId('listen').focus();});
-byId('next').addEventListener('click',()=>{if(answered){index++;show(true);}});
+byId('next').addEventListener('click',()=>{if(answered){previous=current;index++;show(true);}});
 byId('restart').addEventListener('click',()=>reset(true));
-document.querySelectorAll('[name=count]').forEach(b=>b.addEventListener('change',()=>{count=Number(b.value);reset();}));
+byId('continue').addEventListener('click',()=>{if(mode==='level'&&roundIndex<level.rounds.length-1)startRound(roundIndex+1,'level');});
+byId('retry-round').addEventListener('click',()=>startFree(roundIndex));
+byId('start-level').addEventListener('click',()=>reset(true));
+for(const [i,r] of level.rounds.entries()){
+  const b=el('button',(i+1)+' · '+r.title);b.type='button';
+  b.addEventListener('click',()=>startFree(i));byId('free-rounds').append(b);
+}
 try {byId('prototype').hidden=false;reset();} catch(error) {console.error('Sointipajan lataus epäonnistui',error);byId('prototype').hidden=true;byId('load-error').hidden=false;}
 })();
 </script>
