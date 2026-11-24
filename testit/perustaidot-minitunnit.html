@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Perustaitojen minitunnit – kokeilu | Musiikin kartta</title>
+<style>
+:root{color-scheme:light dark;--bg:#f3f5f3;--panel:#fff;--ink:#182620;--muted:#46584e;--line:#9caea3;--accent:#195b42;--active:#e0f1e5;--focus:#245ea8}
+@media(prefers-color-scheme:dark){:root{--bg:#131c18;--panel:#202d26;--ink:#f1f5f2;--muted:#c2d2c8;--line:#829a8b;--accent:#a0e0bd;--active:#304d3e;--focus:#a9c8ff}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.55 system-ui,sans-serif}main{max-width:48rem;margin:auto;padding:1rem}h1,h2,h3,p{overflow-wrap:anywhere}h1{font-size:1.65rem;line-height:1.2;margin:.5rem 0}h2{font-size:1.3rem;margin:.2rem 0 .5rem}h3{font-size:1rem;margin:.25rem 0}p{margin:.5rem 0}a{color:var(--accent)}.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:1rem;margin:1rem 0;min-width:0}.muted{color:var(--muted);font-size:.92rem}.choices{display:flex;flex-wrap:wrap;gap:.5rem;margin:.75rem 0}.choices button{flex:1 1 10rem}button,summary{font:inherit;color:inherit;cursor:pointer;min-height:44px}button{border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:.55rem .75rem;overflow-wrap:anywhere;text-align:left}button[aria-pressed=true]{border:2px solid var(--accent);background:var(--active);font-weight:650}button:disabled{opacity:.6;cursor:default}button:focus-visible,a:focus-visible,summary:focus-visible,audio:focus-visible{outline:3px solid var(--focus);outline-offset:3px}.play{background:var(--accent);color:var(--bg);font-weight:bold}.play:disabled{opacity:.6}audio{display:block;width:100%;max-width:100%;margin:.8rem 0}.beats{list-style:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.35rem;padding:0;margin:.5rem 0}.beats li{border:1px solid var(--line);border-radius:7px;text-align:center;padding:.45rem .15rem;min-width:0;overflow-wrap:anywhere}.beats strong{display:block;font-size:1.15rem}.beats .first{border:2px solid var(--accent);background:var(--active)}.strum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.35rem}.strum>div{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:1px solid var(--line);border-radius:7px;padding:.25rem;text-align:center}.strum span{display:block}.strum b{font-size:1.25rem}.ghost{color:var(--muted)}.chords{display:grid;grid-template-columns:1fr 1fr;gap:.35rem;font-weight:bold;text-align:center}.chords span{background:var(--active);border-radius:6px;padding:.25rem}.tag{font-size:.8rem;letter-spacing:.04em;color:var(--muted)}[hidden]{display:none!important}details{border-top:1px solid var(--line);margin-top:.8rem;padding-top:.3rem}summary{padding:.45rem 0}#status{min-height:1.6em}.back{display:inline-block;padding:.5rem 0}
+@media(max-width:22rem){.beats,.strum{grid-template-columns:repeat(2,minmax(0,1fr))}.chords{grid-template-columns:1fr}.panel{padding:.75rem}main{padding:.75rem}}
+</style>
+</head>
+<body><main>
+<a class="back" href="../oppi/kitara/index.html">← Kitaran perusteisiin</a>
+<p class="tag">KATSELMOITAVA PROTOTYYPPI · 01 JA 03</p>
+<h1>Perustaitojen minitunnit</h1>
+<p>Valitse tarvitsemasi harjoitus. Voit vaihtaa vapaasti kuuntelun ja oman soiton välillä.</p>
+<div class="choices" role="group" aria-label="Minitunti" id="lessons" hidden>
+<button type="button" data-lesson="pulse" aria-pressed="true">01 · Löydä pulssi ja ykkönen</button>
+<button type="button" data-lesson="strum" aria-pressed="false">03 · Pidä komppikäsi liikkeessä</button>
+</div>
+<section class="panel" id="pulse" aria-labelledby="pulse-title">
+<h2 id="pulse-title">Löydä pulssi ja ykkönen</h2>
+<p>Kuuntele ensin naksutusta. Naputa jalalla jokainen isku ja laske ääneen neljään. Taputa lisäksi käsillä aina ykkösellä.</p>
+<ol class="beats" aria-label="Neljä iskua">
+<li class="first"><strong>1</strong>Naputa ja taputa</li><li><strong>2</strong>Naputa</li><li><strong>3</strong>Naputa</li><li><strong>4</strong>Naputa</li>
+</ol>
+<p>Kun kitara tulee mukaan, jatka laskemista samassa tahdissa. Ykkönen aloittaa uuden tahdin; sen ei tarvitse olla voimakkain isku.</p>
+</section>
+<section class="panel" id="strum" aria-labelledby="strum-title">
+<h2 id="strum-title">Pidä komppikäsi liikkeessä</h2>
+<p>Liikuta komppikättä tasaisesti myös silloin, kun et osu kieliin.</p>
+<div class="choices" role="group" aria-label="Komppiharjoituksen vaihe" id="stages" hidden>
+<button type="button" data-stage="muted" aria-pressed="true">Vaimennetut kielet</button>
+<button type="button" data-stage="chord" aria-pressed="false">Yksi tuttu sointu</button>
+<button type="button" data-stage="change" aria-pressed="false">Kaksi sointua</button>
+</div>
+<div id="muted"><h3>Vaimennetut kielet</h3><p>Kosketa kieliä kevyesti otelaudan kädellä painamatta niitä nauhoihin. Tee tasaiset alas- ja ylösvedot. Laske 1 ja 2 ja 3 ja 4 ja.</p></div>
+<div id="chord"><h3>Yksi tuttu sointu</h3><p>Valitse mikä tahansa tuttu sointu. Soita ensin alasvedoilla numeroilla. Anna käden nousta jokaisella ja:lla osumatta kieliin. Kun liike pysyy tasaisena, lisää ylösvedot.</p></div>
+<div id="change"><h3>Kaksi sointua</h3><p>Valitse kaksi tuttua sointua ja vaihda ensin tahdin ykkösellä pelkän pulssin mukana. Kokeile sitten G–D-mallia: G iskuilla 1–2 ja D iskuilla 3–4. Voit jättää vaihdon edeltävän ylösvedon soittamatta, mutta pidä käsi liikkeessä.</p></div>
+<div id="strum-pattern" aria-label="Alasvedot numeroilla, ylösvedot ja-tavuilla" class="strum">
+<div><span>1<b>↓</b></span><span>ja<b>↑</b></span></div><div><span>2<b>↓</b></span><span>ja<b>↑</b></span></div><div><span>3<b>↓</b></span><span>ja<b>↑</b></span></div><div><span>4<b>↓</b></span><span>ja<b>↑</b></span></div>
+</div>
+<p class="muted" id="pattern-note">Nuolet kuvaavat käden liikettä. Vaimennetuista kielistä saa kuulua rytmikäs rahahdus.</p>
+<div class="chords" id="chord-pattern" hidden><span>G · 1 ja 2 ja</span><span>D · 3 ja 4 ja</span></div>
+<details><summary>ⓘ Knoppitieto: Harjaaminen</summary><p>Aluksi voit pyyhkäistä kieliä tasaisesti kuin harjalla. Myöhemmin voit painottaa alasvedolla matalampia ja ylösvedolla ohuempia kieliä. Tarkkaa kieliryhmien painottamista ei vielä tarvitse osata.</p></details>
+</section>
+<section class="panel" aria-labelledby="audio-title">
+<h2 id="audio-title">Kuuntele ja kokeile</h2>
+<p class="muted">Nykyinen Musiikin kartan 84 BPM:n äänite. Valitse jakso ja käynnistä. Voit toistaa jakson uudelleen.</p>
+<div class="choices" id="cues" role="group" aria-label="Äänitteen jakso" hidden>
+<button type="button" data-cue="full" aria-pressed="true">Koko äänite</button>
+<button type="button" data-cue="pulse" aria-pressed="false">Pulssi · 4 tahtia</button>
+<button type="button" data-cue="g" aria-pressed="false">G-komppi · 4 tahtia</button>
+<button type="button" data-cue="gd" aria-pressed="false">G–D-malli · 2 tahtia</button>
+</div>
+<p id="cue-note">Koko äänite: pulssi, kahdeksasosat, G-komppi ja G–D-vaihto.</p>
+<div class="choices" id="transport" hidden>
+<button class="play" id="play" type="button">▶ Aloita jakso</button><button type="button" id="stop">■ Pysäytä</button>
+</div>
+<audio id="audio" controls preload="metadata" aria-label="Pulssi ja komppi, 84 BPM"><source src="../assets/audio/osa-1/pulssi-ja-komppi.m4a" type="audio/mp4"><source src="../assets/audio/osa-1/pulssi-ja-komppi.wav" type="audio/wav"><a href="../assets/audio/osa-1/pulssi-ja-komppi.m4a">Avaa äänite</a></audio>
+<p id="status" role="status">Valmis.</p>
+<p class="muted">Jakson lopetus on selaimen ohjaama, ei saumaton luuppi. Kuvio näyttää laskennan, ei reaaliaikaista soivaa iskua.</p>
+<noscript><p>Jakson valinta vaatii JavaScriptin. Koko äänite toimii selaimen omalla soittimella; molemmat harjoitusohjeet näkyvät yllä.</p></noscript>
+</section>
+<p><strong>Mitä huomaat?</strong> Pysyikö pulssi tasaisena, kun kitara tuli mukaan tai vaihdoit sointua? Kokeile uudelleen tarvittaessa. Sivulla ei mitata soittotaitoa.</p>
+<p class="muted">Lähteet: <a href="../oppi/rytmi/kuuntele-pulssi.html">Löydä pulssi ja ykkönen</a>, <a href="../oppi/rytmi/alas-ylos-yhdella-soinnulla.html">Alas–ylös yhdellä soinnulla</a>, <a href="../oppi/rytmi/kaksi-sointua-yhdessa-tahdissa.html">Kaksi sointua yhdessä tahdissa</a>.</p>
+<a class="back" href="../oppi/kitara/index.html">← Kitaran perusteisiin</a>
+</main>
+<script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id), audio=$('audio'), beat=60/84, bar=4*beat;
+const cues={
+full:{start:0,end:Infinity,description:'Koko äänite: pulssi, kahdeksasosat, G-komppi ja G–D-vaihto.'},
+pulse:{start:0,end:4*bar,description:'Kaksi tahtia pelkkää pulssia, sitten kaksi tahtia kahdeksasosien kanssa. Sopii vaimennettuihin kieliin ja vapaasti valittuun sointuun.'},
+g:{start:4*bar,end:8*bar,description:'Kuuntele G-komppia tai soita G-soinnulla mallin mukana.'},
+gd:{start:8*bar,end:10*bar,description:'Kaksi tahtia: G vaihtuu D:hen kolmosella.'}
+};
+let cue='full', request=0, pending=null, atEnd=false, frame=0;
+const status=message=>{$('status').textContent=message;};
+const pressed=(selector,key,value)=>document.querySelectorAll(selector).forEach(b=>b.setAttribute('aria-pressed',String(b.dataset[key]===value)));
+function stop(message='Pysäytetty.'){
+request++;pending=null;audio.pause();cancelAnimationFrame(frame);status(message);
+}
+function selectCue(value){
+stop('Jakso valittu. Aloita, kun olet valmis.');cue=value;atEnd=false;pressed('[data-cue]','cue',value);$('cue-note').textContent=cues[value].description;
+}
+function selectStage(value){
+pressed('[data-stage]','stage',value);
+for(const id of ['muted','chord','change'])$(id).hidden=id!==value;
+$('chord-pattern').hidden=value!=='change';
+$('pattern-note').textContent=value==='muted'?'Nuolet kuvaavat käden liikettä. Vaimennetuista kielistä saa kuulua rytmikäs rahahdus.':value==='chord'?'Nuolet kuvaavat käden liikettä. Aluksi ylösvedot voivat kulkea ilmassa.':'Käsi liikkuu myös sointuvaihdon aikana. G–D-malli vaihtuu kolmosella.';
+selectCue('pulse');
+}
+function selectLesson(value){
+pressed('[data-lesson]','lesson',value);$('pulse').hidden=value!=='pulse';$('strum').hidden=value!=='strum';
+if(value==='pulse')selectCue('full');else selectStage('muted');
+}
+function seekStart(){audio.currentTime=cues[cue].start;atEnd=false;}
+function finish(){atEnd=true;stop('Jakso päättyi. Voit aloittaa sen uudelleen.');}
+function checkEnd(){if(!audio.paused&&audio.currentTime>=cues[cue].end)finish();}
+function tick(){checkEnd();if(!audio.paused)frame=requestAnimationFrame(tick);}
+async function start(){
+const id=++request;audio.pause();cancelAnimationFrame(frame);pending=null;
+if(audio.readyState<1){pending=id;status('Ladataan äänitettä. Paina Aloita jakso uudelleen, kun lataus on valmis.');audio.load();return;}
+try{seekStart();await audio.play();if(id!==request)return;status('Äänite soi.');}catch(e){if(id===request)status('Toisto ei käynnistynyt. Kokeile uudelleen tai käytä selaimen soitinta.');}
+}
+audio.addEventListener('loadedmetadata',()=>{if(pending===request){pending=null;status('Äänite valmis. Paina Aloita jakso.');}});
+audio.addEventListener('play',()=>{
+const s=cues[cue];if(atEnd||audio.currentTime<s.start||audio.currentTime>=s.end)seekStart();status('Äänite soi.');cancelAnimationFrame(frame);frame=requestAnimationFrame(tick);
+});
+audio.addEventListener('pause',()=>{cancelAnimationFrame(frame);if(!atEnd&&$('status').textContent==='Äänite soi.')status('Pysäytetty.');});
+audio.addEventListener('timeupdate',checkEnd);
+audio.addEventListener('ended',finish);
+audio.addEventListener('error',()=>{pending=null;status('Äänite ei latautunut. Tarkista verkkoyhteys ja yritä uudelleen.');});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)stop('Pysäytetty, koska sivu siirtyi taustalle.');});
+window.addEventListener('pagehide',()=>stop());
+for(const b of document.querySelectorAll('[data-lesson]'))b.addEventListener('click',()=>selectLesson(b.dataset.lesson));
+for(const b of document.querySelectorAll('[data-stage]'))b.addEventListener('click',()=>selectStage(b.dataset.stage));
+for(const b of document.querySelectorAll('[data-cue]'))b.addEventListener('click',()=>selectCue(b.dataset.cue));
+$('play').addEventListener('click',start);$('stop').addEventListener('click',()=>stop());
+for(const id of ['lessons','stages','cues','transport'])$(id).hidden=false;
+selectLesson('pulse');status('Valmis.');
+})();
+</script></body></html>
