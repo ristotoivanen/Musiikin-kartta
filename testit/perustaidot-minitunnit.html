@@ -15,7 +15,7 @@
 </head>
 <body><main>
 <a class="back" href="../oppi/kitara/index.html">← Kitaran perusteisiin</a>
-<p class="tag">KATSELMOITAVA PROTOTYYPPI v0.6</p>
+<p class="tag">KATSELMOITAVA PROTOTYYPPI v0.7</p>
 <h1>Perustaitojen minitunnit</h1>
 <div class="choices" role="group" aria-label="Valitse harjoitus" id="lessons" hidden>
 <button type="button" data-lesson="pulse" aria-pressed="true">Löydä pulssi ja ykkönen</button>
@@ -138,12 +138,11 @@ const strum=lesson==='strum';
 $('exercise').dataset.lesson=lesson;pressed('[data-lesson]','lesson',lesson);pressed('[data-stage]','stage',stage);pressed('[data-mode]','mode',mode);
 $('exercise-title').textContent=strum?'Pidä komppikäsi liikkeessä':'Löydä pulssi ja ykkönen';
 $('stages').hidden=!strum;$('brushing').hidden=!strum;$('clap-guide').hidden=strum;$('clap-nav').hidden=strum;
-$('modes').hidden=strum&&stage==='muted';
+$('modes').hidden=!strum||stage==='muted';
 $('chord-now').hidden=!(strum&&stage==='change');
 if(!strum){
 $('instruction').textContent='Naputa jalalla jokainen isku ja laske neljään. Taputa käsillä vain merkityillä iskuilla. Vaihda taputuskuviota nuolilla, kun olet valmis. Kaikki iskut -painikkeella palaat perusrytmiin.';
-$('basic').textContent='Pelkkä pulssi';$('model').textContent='Kitaran mukana';
-$('hint').textContent=mode==='basic'?'Pidä jalalla tasainen pulssi, vaikka taputus vaihtuu.':'Pidä sama pulssi kitaran mukana, vaikka taputus vaihtuu.';
+$('hint').textContent='Pidä jalalla tasainen pulssi, vaikka taputus vaihtuu.';
 $('pattern-text').textContent='Ykkönen aloittaa uuden tahdin. Sen ei tarvitse olla voimakkain isku.';
 }else if(stage==='muted'){
 $('instruction').textContent='Vaimenna kielet kevyesti otelaudan kädellä. Liikuta komppikättä alas numeroilla ja ylös ja-tavuilla.';
@@ -169,7 +168,7 @@ $('beats').append(cell);
 paint(-1);
 }
 function chooseCue(){
-if(lesson==='pulse')return mode==='basic'?'pulse':'g';
+if(lesson==='pulse')return 'pulse';
 if(stage==='muted')return 'eighth';
 if(stage==='chord')return mode==='basic'?'eighth':'g';
 return mode==='basic'?'eighth':'gd';
