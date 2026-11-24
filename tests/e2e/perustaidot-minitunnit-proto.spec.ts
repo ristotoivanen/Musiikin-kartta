@@ -244,3 +244,35 @@ test('taputus vain numeroiskuilla, ja-tavut näkyvät kompin hahmottamiseksi', a
   await expect(page.locator('.half')).toHaveCount(0);
   await expect(guide).toHaveAttribute('data-pattern', '0');
 });
+
+test('aktiivinen isku ei siirrä jalan ohjetta eikä taputusmerkkiä', async ({ page }) => {
+  await page.goto(url);
+  await page.getByRole('button', { name: 'Pidä komppikäsi liikkeessä' }).click();
+  for (const width of [720, 390, 320]) {
+    await page.setViewportSize({ width, height: 900 });
+    if (width === 320) await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
+    const movement = await page.evaluate(() => {
+      const cards = [...document.querySelectorAll('.beat')];
+      const items = [...document.querySelectorAll('.beat, .half, .foot, .foot-arrow, .clap-symbol, .tap-label')];
+      const measure = () => items.map(el => {
+        const r = el.getBoundingClientRect();
+        return [r.x, r.y, r.width, r.height];
+      });
+      const original = measure();
+      let max = 0;
+      for (const card of cards) {
+        card.classList.add('on');
+        for (const half of card.querySelectorAll('.half')) {
+          half.classList.add('now');
+          const current = measure();
+          current.forEach((r, i) => r.forEach((v, j) => { max = Math.max(max, Math.abs(v - original[i][j])); }));
+          half.classList.remove('now');
+        }
+        card.classList.remove('on');
+      }
+      return max;
+    });
+    expect(movement).toBeLessThanOrEqual(0.5);
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  }
+});
