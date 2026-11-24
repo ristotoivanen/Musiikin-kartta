@@ -6,6 +6,10 @@
   const all = [...basic,...added];
   const newChords = ['Dm','D7','A7','E7'];
   const cumulative = [...all,...newChords];
+  const sevenths=['B7','C7','G7','Am7','Em7','Dm7'];
+  const through3=[...cumulative,...sevenths];
+  const colours=['Cmaj7','Fmaj7','Dsus2','Dsus4','Asus2','Asus4','Cadd9'];
+  const through4=[...through3,...colours];
   const levels = [{
     id: 'open-1', title: 'Seitsemän tavallista avosointua',
     rounds: [
@@ -19,6 +23,20 @@
       {id:'new-chords', title:'Neljä uutta sointua', targets:newChords, options:['D','Dm','D7','A','A7','E','E7'], repeats:2},
       {id:'mixed', title:'Uudet ja tutut soinnut', targets:cumulative, options:cumulative, repeats:1},
       {id:'cumulative', title:'Kaikki yksitoista sointua', targets:cumulative, options:cumulative, repeats:1},
+    ],
+  },{
+    id:'open-3', title:'Duuri- ja molliseiskat',
+    rounds:[
+      {id:'new-sevenths',title:'Kuusi uutta seiskasointua',targets:sevenths,options:['B7','C','C7','G','G7','Am','Am7','Em','Em7','Dm','Dm7'],repeats:1},
+      {id:'seventh-review',title:'Seiskojen erot',targets:[...sevenths,'C','G','Am','Em','Dm','E7'],options:through3,repeats:1},
+      {id:'cumulative',title:'Kaikki 17 sointua',targets:through3,options:through3,repeats:1},
+    ],
+  },{
+    id:'open-4', title:'Maj7, sus ja add9',
+    rounds:[
+      {id:'new-colours',title:'Seitsemän uutta sointua',targets:colours,options:['C','C7','Cmaj7','Cadd9','Fmaj7','D','Dm','Dsus2','Dsus4','A','Am','Asus2','Asus4'],repeats:1},
+      {id:'colour-review',title:'Sointujen erot',targets:[...colours,'C','C7','D','Dm','A','Am','G'],options:through4,repeats:1},
+      {id:'cumulative',title:'Kaikki 24 sointua',targets:through4,options:through4,repeats:1},
     ],
   }];
   function orderFor(round, random=Math.random, previous=null) {
