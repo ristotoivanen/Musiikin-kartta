@@ -1,0 +1,30 @@
+name: Minitunnit 186 prototype QA
+on:
+  push:
+    branches: [chatgpt/116-perustaidot-minitunnit-proto]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  prototype:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Verify source audio and prototype script
+        run: |
+          python3 - <<'PY'
+          import wave
+          p = 'assets/audio/osa-1/pulssi-ja-komppi.wav'
+          with wave.open(p) as w:
+              duration = w.getnframes() / w.getframerate()
+              print('WAV seconds:', duration, 'sample rate:', w.getframerate())
+              assert duration >= 10 * 4 * 60 / 84
+          PY
+      - run: npx playwright test tests/e2e/perustaidot-minitunnit-proto.spec.ts --workers=2
