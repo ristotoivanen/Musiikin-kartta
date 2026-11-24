@@ -175,7 +175,9 @@ test('level 2: contrasts, seventh roles, all eleven chords and free navigation',
   await page.getByRole('button', { name: /Taso 2 ·/ }).click();
   const answers = page.getByRole('group', { name: 'Valitse soinnun nimi' });
   const board = page.locator('#board');
+  const roots = page.getByRole('group', { name: 'Valitse perussävel' });
   const solve = async (name: string) => {
+    await roots.getByRole('button', { name: name[0], exact: true }).click();
     await answers.getByRole('button', { name, exact: true }).click();
     if(name==='D7'){
       await expect(page.locator('#notes')).toContainText('D – F♯ – A – C');
@@ -187,14 +189,17 @@ test('level 2: contrasts, seventh roles, all eleven chords and free navigation',
     await page.locator('#next').click();
   };
   await expect(page.locator('#progress')).toHaveText('Sointu 1 / 8');
-  await expect(answers.locator('button')).toHaveCount(7);
+  await expect(roots.locator('button')).toHaveText(['D','E','A']);
+  await expect(answers.locator('button')).toHaveCount(0);
   for(const n of ['Dm','D7','Dm','D7','A7','E7','A7','E7'])await solve(n);
   await page.locator('#continue').click();
   await expect(page.locator('#progress')).toHaveText('Sointu 1 / 11');
-  await expect(answers.locator('button')).toHaveCount(11);
+  await expect(roots.locator('button')).toHaveText(['C','D','E','G','A']);
+  await expect(answers.locator('button')).toHaveCount(0);
   for(const n of ['C','G','D','Em','Am','E','A','Dm','D7','A7','E7'])await solve(n);
   await page.locator('#continue').click();
-  await expect(answers.locator('button')).toHaveCount(11);
+  await expect(roots.locator('button')).toHaveText(['C','D','E','G','A']);
+  await expect(answers.locator('button')).toHaveCount(0);
   await expect(page.locator('#progress')).toHaveText('Sointu 1 / 11');
   for(const n of ['C','G','D','Em','Am','E','A','Dm','D7','A7','E7'])await solve(n);
   await expect(page.locator('#done-heading')).toHaveText('Taso 2 valmis');
@@ -209,4 +214,35 @@ test('level 2: contrasts, seventh roles, all eleven chords and free navigation',
   await expect(page.locator('#level-progress')).toHaveText('Vapaa harjoittelu');
   await page.getByRole('button', { name: /Taso 1 ·/ }).click();
   await expect(page.locator('#progress')).toHaveText('Sointu 1 / 4');
+});
+
+test('root choice alone is neutral, wrong chord remains marked after switching roots', async ({ page }) => {
+  const requests: string[] = [];
+  await page.route('**/assets/audio/soinnut/*', async route => {
+    requests.push(route.request().url());
+    await route.abort();
+  });
+  await page.getByRole('button', { name: /Taso 2 ·/ }).click();
+  const roots=page.getByRole('group', {name:'Valitse perussävel'});
+  const answers=page.getByRole('group', {name:'Valitse soinnun nimi'});
+  await expect(answers.locator('button')).toHaveCount(0);
+  await roots.getByRole('button',{name:'E',exact:true}).click();
+  await expect(answers.locator('button')).toHaveText(['E','E7']);
+  await expect(page.locator('#feedback')).toBeEmpty();
+  await expect(page.locator('#level-progress')).toHaveText('0/30 tehtävää ratkaistu');
+  expect(requests).toHaveLength(0);
+  await answers.getByRole('button',{name:'E7',exact:true}).click();
+  await expect(page.locator('#feedback')).toContainText('Ei aivan');
+  await roots.getByRole('button',{name:'D',exact:true}).click();
+  await expect(answers.locator('button')).toHaveText(['D','Dm','D7']);
+  await roots.getByRole('button',{name:'E',exact:true}).click();
+  await expect(answers.locator('.wrong')).toHaveText('E7');
+  await roots.getByRole('button',{name:'D',exact:true}).click();
+  await answers.getByRole('button',{name:'Dm',exact:true}).click();
+  await expect(page.locator('#feedback')).toContainText('Oikein');
+  await expect(roots.getByRole('button',{name:'D',exact:true})).toHaveAttribute('aria-pressed','true');
+  await expect(roots.getByRole('button',{name:'E',exact:true})).toHaveAttribute('aria-disabled','true');
+  await page.locator('#next').click();
+  await expect(answers.locator('button')).toHaveCount(0);
+  await expect(roots.locator('[aria-pressed="true"]')).toHaveCount(0);
 });
