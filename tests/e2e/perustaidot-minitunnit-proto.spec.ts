@@ -78,3 +78,36 @@ test('ohjeet ja alkuperäinen äänite ilman JavaScriptiä', async ({ browser })
     await context.close();
   }
 });
+
+test('taputuskuviot vaihtuvat neljän tahdin rajalla ilman äänen pysäyttämistä', async ({ page }) => {
+  test.setTimeout(100000);
+  await page.goto(url);
+  const guide = page.locator('#clap-guide');
+  const card = page.locator('#exercise');
+  const labels = page.locator('.beat small');
+  await expect(labels).toHaveText(['Taputa', 'Taputa', 'Taputa', 'Taputa']);
+  await page.locator('#play').click();
+  await expect(card).toHaveAttribute('data-state', 'playing', { timeout: 15000 });
+  await expect(guide).toHaveAttribute('data-bar', '4', { timeout: 12000 });
+  await expect(page.locator('#clap-next')).toHaveText('Seuraavassa tahdissa: 1 ja 3');
+  await expect(labels).toHaveText(['Taputa', 'Taputa', 'Taputa', 'Taputa']);
+  const patterns = [
+    ['1', ['Taputa', 'Vain jalka', 'Taputa', 'Vain jalka']],
+    ['2', ['Vain jalka', 'Taputa', 'Vain jalka', 'Taputa']],
+    ['3', ['Taputa', 'Taputa', 'Taputa', 'Taputa']],
+    ['4', ['Taputa', 'Vain jalka', 'Vain jalka', 'Vain jalka']],
+    ['0', ['Taputa', 'Taputa', 'Taputa', 'Taputa']]
+  ] as const;
+  for (const [index, expected] of patterns) {
+    await expect(guide).toHaveAttribute('data-pattern', index, { timeout: 15000 });
+    await expect(labels).toHaveText([...expected]);
+    await expect(card).toHaveAttribute('data-state', 'playing');
+  }
+  await page.locator('#play').click();
+  await expect(card).toHaveAttribute('data-state', 'idle');
+  await expect(guide).toHaveAttribute('data-pattern', '0');
+  await page.getByRole('button', { name: 'Kitaran mukana' }).click();
+  await expect(labels).toHaveText(['Taputa', 'Taputa', 'Taputa', 'Taputa']);
+  await page.getByRole('button', { name: 'Pidä komppikäsi liikkeessä' }).click();
+  await expect(guide).toBeHidden();
+});
