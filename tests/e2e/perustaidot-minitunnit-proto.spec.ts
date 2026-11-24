@@ -179,3 +179,24 @@ test('neljä yksilöllistä taputuskuviota, nuolten kierto ja suora perusrytmi e
   await expect(all).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('#exercise')).toHaveAttribute('data-state', 'idle');
 });
+
+test('komppikaavio erottaa kahdeksasosat sekä jalan ja käden liikkeet', async ({ page }) => {
+  await page.goto(url);
+  await expect(page.locator('#strum-explanation')).toBeHidden();
+  await page.getByRole('button', { name: 'Pidä komppikäsi liikkeessä' }).click();
+  await expect(page.locator('#strum-explanation')).toBeVisible();
+  await expect(page.locator('#strum-explanation')).toContainText('Älä napauta jalalla uudelleen');
+  await expect(page.locator('.half b')).toHaveText(['1', 'ja', '2', 'ja', '3', 'ja', '4', 'ja']);
+  await expect(page.locator('.half .direction')).toHaveText(['↓', '↑', '↓', '↑', '↓', '↑', '↓', '↑']);
+  await expect(page.locator('.half .foot')).toHaveText(['Jalka alas', 'Jalka nousee', 'Jalka alas', 'Jalka nousee', 'Jalka alas', 'Jalka nousee', 'Jalka alas', 'Jalka nousee']);
+  await page.locator('#play').click();
+  await expect(page.locator('#exercise')).toHaveAttribute('data-state', 'playing', { timeout: 15000 });
+  await expect(page.locator('.half.now')).toHaveCount(1);
+  await expect(page.locator('.half.now .mark')).toHaveText('Nyt');
+  await expect.poll(() => page.locator('.half.now b').textContent(), {timeout: 4000}).toBe('ja');
+  await page.locator('#play').click();
+  await expect(page.locator('.half.now')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Löydä pulssi ja ykkönen' }).click();
+  await expect(page.locator('#strum-explanation')).toBeHidden();
+  await expect(page.locator('.half')).toHaveCount(0);
+});
