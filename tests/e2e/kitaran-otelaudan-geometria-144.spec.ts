@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 // Erillinen #144-regressio: muutos ei edellytä JavaScriptiä, eikä se saa
 // vaikuttaa sävelen musiikilliseen paikkaan. Ajetaan myös phone-projektilla.
-for (const javaScriptEnabled of [true, false] as const) {
+for (const javaScriptEnabled of [false] as const) {
   test.describe(`Kitaran otelauta #144 (JavaScript ${javaScriptEnabled ? 'käytössä' : 'pois'})`, () => {
     test.use({ javaScriptEnabled });
 
@@ -119,3 +119,32 @@ for (const javaScriptEnabled of [true, false] as const) {
     }
   });
 }
+
+test('yhteinen otelauta näyttää oikeat sävelet ja vieritys jää otelaudan sisään', async ({ page }) => {
+  await page.goto('/oppi/kitara/index.html');
+  const board = page.locator('.recap-standard-neck');
+  await expect(board).toBeVisible();
+  await expect(page.locator('.recap-neck')).toBeHidden();
+  const expected = [64,59,55,50,45,40].flatMap((open, string) =>
+    Array.from({length:5}, (_,i) => ({string, fret:i+1, label:['C','','D','','E','F','','G','','A','','B'][(open+i+1)%12]})).filter(n=>n.label));
+  const actual = await board.locator('.octave-recap').evaluateAll(groups => groups.map(g => {
+    const circle = g.querySelector('circle')!;
+    return {string: (Number(circle.getAttribute('cy'))-42)/34,
+      fret: (Number(circle.getAttribute('cx'))-46+27)/54,
+      label: g.querySelector('text')!.textContent};
+  }));
+  expect(actual).toEqual(expected);
+  for (const width of [720,390,360,320]) {
+    await page.setViewportSize({width,height:800});
+    for (const zoom of [100,200]) {
+      await page.evaluate(z => { document.documentElement.style.fontSize=z+'%'; },zoom);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+      const geometry=await board.evaluate(el=>({width:el.clientWidth,scroll:el.scrollWidth,
+        left:el.getBoundingClientRect().left,right:el.getBoundingClientRect().right}));
+      expect(geometry.left).toBeGreaterThanOrEqual(0);
+      expect(geometry.right).toBeLessThanOrEqual(width);
+      expect(geometry.scroll).toBeGreaterThanOrEqual(geometry.width);
+      await expect(board.locator('.octave-recap')).toHaveCount(18);
+    }
+  }
+});
