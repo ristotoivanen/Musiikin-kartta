@@ -40,7 +40,13 @@ test('level 1: 4 + 6 + 14, cumulative summary, retry and free rounds', async ({ 
   await expect(page.locator('#done-heading')).toHaveText('Taso 1 valmis');
   await expect(page.locator('#result')).toContainText('23/24 oikein ensimmäisellä yrityksellä');
   await expect(page.locator('#difficult')).toContainText('C (1)');
-  await expect(page.locator('#future')).toBeVisible();
+  await expect(page.locator('#future')).toBeHidden();
+  await expect(page.locator('#next-level')).toBeVisible();
+  await page.locator('#next-level').click();
+  await expect(page.locator('#level-title')).toContainText('Taso 2');
+  await expect(page.locator('#level-progress')).toHaveText('0/25 tehtävää ratkaistu');
+  await page.getByRole('button', { name: /Taso 1 ·/ }).click();
+  await expect(page.locator('#level-title')).toContainText('Taso 1');
   await expect(page.locator('#continue')).toBeHidden();
   await page.locator('#restart').click();
   await expect(page.locator('#progress')).toHaveText('Sointu 1 / 4');
@@ -163,4 +169,45 @@ test('automatic chord playback cannot delay progression and uses the same stop c
     await expect(page.locator('#stop')).toBeDisabled();
     await expect(page.locator('#audio-status')).toBeEmpty();
   } finally { release(); }
+});
+
+test('level 2: contrasts, seventh roles, all eleven chords and free navigation', async ({ page }) => {
+  await page.route('**/assets/audio/soinnut/*', route => route.abort());
+  await page.getByRole('button', { name: /Taso 2 ·/ }).click();
+  const answers = page.getByRole('group', { name: 'Valitse soinnun nimi' });
+  const board = page.locator('#board');
+  const solve = async (name: string) => {
+    await answers.getByRole('button', { name, exact: true }).click();
+    if(name==='D7'){
+      await expect(page.locator('#notes')).toContainText('D – F♯ – A – C');
+      await expect(board.locator('.mark[data-string="1"]')).toHaveAttribute('aria-label', /C4, pieni septimi/);
+    }
+    if(name==='A7')await expect(board.locator('.mark[data-string="2"]')).toHaveAttribute('aria-label', /G3, pieni septimi/);
+    if(name==='E7')await expect(board.locator('.mark[data-string="3"]')).toHaveAttribute('aria-label', /D3, pieni septimi/);
+    if(name==='Dm')await expect(board.locator('.mark[data-string="0"]')).toHaveAttribute('aria-label', /F4, pieni terssi/);
+    await page.locator('#next').click();
+  };
+  await expect(page.locator('#progress')).toHaveText('Sointu 1 / 6');
+  await expect(answers.locator('button')).toHaveCount(3);
+  for(const n of ['D','Dm','D','D7','Dm','D7'])await solve(n);
+  await page.locator('#continue').click();
+  await expect(page.locator('#progress')).toHaveText('Sointu 1 / 8');
+  await expect(answers.locator('button')).toHaveCount(6);
+  for(const n of ['A','A7','A','A7','E','E7','E','E7'])await solve(n);
+  await page.locator('#continue').click();
+  await expect(answers.locator('button')).toHaveCount(11);
+  await expect(page.locator('#progress')).toHaveText('Sointu 1 / 11');
+  for(const n of ['C','G','D','Em','Am','E','A','Dm','D7','A7','E7'])await solve(n);
+  await expect(page.locator('#done-heading')).toHaveText('Taso 2 valmis');
+  await expect(page.locator('#result')).toContainText('25/25 oikein ensimmäisellä yrityksellä');
+  await expect(page.locator('#next-level')).toBeHidden();
+  await expect(page.locator('#future')).toBeVisible();
+  await page.locator('#restart').click();
+  await expect(page.locator('#progress')).toHaveText('Sointu 1 / 6');
+  await page.locator('#settings summary').click();
+  await page.getByRole('button', { name:'3 · Kaikki yksitoista sointua', exact:true }).click();
+  await expect(page.locator('#progress')).toHaveText('Sointu 1 / 11');
+  await expect(page.locator('#level-progress')).toHaveText('Vapaa harjoittelu');
+  await page.getByRole('button', { name: /Taso 1 ·/ }).click();
+  await expect(page.locator('#progress')).toHaveText('Sointu 1 / 4');
 });
