@@ -693,6 +693,7 @@ def render(topic, content, nav, page=None, *, path_items=()):
     stylesheets = ['book/reader.css', 'assets/paavalikko.css', 'assets/oppi.css']
     if recap:
         stylesheets.append('assets/kitara-kertaus.css')
+        stylesheets.append('assets/perustaitojen-minitunnit.css')
     # Rytmin Ydinopinnot (#116): harjoitusten tyylit ja moduuli.
     rhythm_practice = 'data-rytmiharjoitus=' in (page.markup if page else content)
     if rhythm_practice:
@@ -703,7 +704,7 @@ def render(topic, content, nav, page=None, *, path_items=()):
     # Avattavat oppimiskokonaisuudet ja ⓘ Knoppitieto (#116) sekä Soinnut-aiheen kitaranäyteharjoitukset.
     units = getattr(page, 'unit', None) if page else topic.get('layout') == 'kokonaisuudet'
     chord_practice = 'data-sointuharjoitus=' in (page.markup if page else content)
-    if units:
+    if units or recap:
         stylesheets.append('assets/kokonaisuudet.css')
     if chord_practice:
         stylesheets.append('assets/sointuharjoitus.css')
@@ -734,7 +735,10 @@ def render(topic, content, nav, page=None, *, path_items=()):
     # Musapeleistä ja Kitaratreenistä avattu sivu palaa samaan oppimistapaan (?tapa=…), ja aihesivulla
     # näkyy saman aiheen vaihto. Muodostetaan komennolla tools/oppimiskartta/rakenna-osiot.py.
     scripts.append(rel('assets/oppimistapa.js', output))
-    if units:
+    if recap:
+        scripts += [versioned_url(path, output) for path in (
+            'assets/otelauta.js', 'assets/kitara-kertaus.js', 'assets/perustaitojen-minitunnit.js')]
+    if units or recap:
         scripts.append(versioned_url('assets/kokonaisuudet.js', output))
     if chord_practice:
         scripts.append(versioned_url('assets/sointuharjoitus.js', output))

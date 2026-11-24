@@ -1,0 +1,25 @@
+name: Kitaran perusteet 116 integration QA
+on:
+  push:
+    branches: [chatgpt/116-kitara-perusteet-integraatio]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  integration:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: python3 tools/oppimiskartta/rakenna.py --tarkista
+      - run: npm run typecheck
+      - run: npm test
+      - if: ${{ !cancelled() }}
+        run: npx playwright install --with-deps chromium
+      - if: ${{ !cancelled() }}
+        run: npx playwright test tests/e2e/kitaran-lahtosivu.spec.ts tests/e2e/kitaran-otelaudan-geometria-144.spec.ts tests/e2e/kitaran-minitunnit.spec.ts --workers=3
