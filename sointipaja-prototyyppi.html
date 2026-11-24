@@ -311,33 +311,51 @@ function marker(s,f) {
   b.setAttribute('aria-label',longStrings[s]+'-kieli, '+(f===0?'vapaa':f+'. nauha')+', kuuntele'+(answered?', '+nameOf(pitch(s,f)):''));
   b.addEventListener('click',()=>listen(b,'single',s));return b;
 }
+let neckObserver;
 function renderBoard(){
-  // #187:n yhteinen kaulapinta; ei omaa satulan, nauhojen, kielten tai asemamerkkien piirtologiikkaa.
+  // #187:n yhteinen kaulapinta. Kaikki kielet piirretään normaalisti myös silloin,
+  // kun jokin niistä jätetään soittamatta. Vain × kertoo soittamatta jättämisestä.
   const library=globalThis.MusicMapFretboard;
-  const frets=grips[current], count=Math.max(3,...frets.filter(f=>f!==null));
-  const rail=library.neckStyle.rail, cell=66, row=44, firstY=42;
-  const width=rail+count*cell+4, height=304;
+  const frets=grips[current], count=5;
+  const rail=library.neckStyle.rail, row=44, firstY=42, height=304;
   const board=el('div',undefined,'chord-neck');
   board.setAttribute('role','group');
-  board.setAttribute('aria-label','Otelauta, ohut e ylhäällä');
+  board.setAttribute('aria-label','Otelauta, nauhat 0–5, ohut e ylhäällä');
   board.style.minWidth=(rail+count*44+4)+'px';
   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
-  svg.setAttribute('viewBox','0 0 '+width+' '+height);
-  svg.setAttribute('preserveAspectRatio','none');
   svg.setAttribute('aria-hidden','true');
-  svg.innerHTML=library.neckSurface({count,cell,row,firstY,dimmed:frets.map(f=>f===null)});
-  const railBg=el('div',undefined,'rail-bg');railBg.style.width=(rail/width*100)+'%';
+  const railBg=el('div',undefined,'rail-bg');railBg.style.width=rail+'px';
   board.append(railBg,svg);
-  function place(n,x,y){n.style.left=(x/width*100)+'%';n.style.top=y+'px';board.append(n);}
+  const items=[];
+  function place(n,f,y){n.style.top=y+'px';items.push({n,f});board.append(n);}
   for(let s=0;s<6;s++){
     const f=frets[s],y=firstY+s*row;
-    if(f===0){place(marker(s,0),rail/2,y);continue;}
+    if(f===0){place(marker(s,0),0,y);continue;}
     const label=el('span',strings[s]+(f===null?' ×':''),'rail-label'+(f===null?' mute':''));
     label.setAttribute('aria-label',longStrings[s]+'-kieli'+(f===null?', ei soiteta':''));
-    place(label,rail/2,y);
-    if(f!==null)place(marker(s,f),rail+(f-.5)*cell,y);
+    place(label,0,y);
+    if(f!==null)place(marker(s,f),f,y);
   }
+  // Satula ja painikkeet eivät kutistu mobiilissa: vain nauhavälin leveys joustaa.
+  // Näin sama kaulapinta ja paikkalogiikka voivat palvella myöhemmin pidempiäkin alueita.
+  let lastWidth=0;
+  function layout(){
+    const width=board.clientWidth;
+    if(!width||width===lastWidth)return;
+    lastWidth=width;
+    const cell=(width-rail-4)/count;
+    svg.setAttribute('viewBox','0 0 '+width+' '+height);
+    svg.innerHTML=library.neckSurface({count,cell,row,firstY})+
+      '<text x="'+(rail/2)+'" y="'+(firstY-row*.46-10)+'" fill="#afc1c9" font-size="12" font-weight="550" text-anchor="middle">0</text>';
+    for(const {n,f} of items)n.style.left=(f===0?rail/2:rail+(f-.5)*cell)+'px';
+  }
+  neckObserver?.disconnect();
   byId('board').replaceChildren(board);
+  layout();
+  if(typeof ResizeObserver!=='undefined'){
+    neckObserver=new ResizeObserver(layout);
+    neckObserver.observe(board);
+  }
 }
 function updateAnswers(){
   for(const b of byId('answers').children){const n=b.textContent;
@@ -360,6 +378,7 @@ function select(name){
 function show(focus=false){
   stop();audioStatus.textContent='';audioStatus.classList.remove('is-error');highlight([]);answered=false;wrong=new Set();
   if(index>=order.length){
+    neckObserver?.disconnect();
     byId('round').hidden=true;byId('summary').hidden=false;
     byId('result').textContent='Tunnistit kaikki '+count+' sointua. '+(mistakes?'Vääriä valintoja yhteensä '+mistakes+'.':'Kaikki oikein ensimmäisellä yrityksellä.');
     if(focus)byId('done-heading').focus();return;
