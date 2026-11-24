@@ -110,17 +110,21 @@ test('nuolet vaihtavat taputuskuvion vasta tahtirajalla ilman toiston uudelleenk
   await expect(page.locator('.beat.on')).toHaveCount(1);
   await next.click();
   await expect(guide).toHaveAttribute('data-pattern', '2', { timeout: 4000 });
-  await expect(labels).toHaveText(['Taputa', 'Taputa', 'Taputa', 'Taputa']);
+  await expect(labels).toHaveText(['Vain jalka', 'Taputa', 'Vain jalka', 'Taputa']);
   await next.click();
   await expect(guide).toHaveAttribute('data-pattern', '3', { timeout: 4000 });
-  await expect(labels).toHaveText(['Vain jalka', 'Taputa', 'Vain jalka', 'Taputa']);
+  await expect(labels).toHaveText(['Taputa', 'Vain jalka', 'Vain jalka', 'Vain jalka']);
   await prev.click();
   await expect(guide).toHaveAttribute('data-pattern', '2', { timeout: 4000 });
+  await page.getByRole('button', { name: 'Kaikki iskut', exact: true }).click();
+  await expect(guide).toHaveAttribute('data-pattern', '0', { timeout: 4000 });
+  await expect(labels).toHaveText(['Taputa', 'Taputa', 'Taputa', 'Taputa']);
+  await expect(page.locator('#clap-position')).toHaveText('1 / 4');
   await expect(card).toHaveAttribute('data-state', 'playing');
   await expect.poll(() => page.evaluate(() => (window as unknown as { prototypeAudioStarts: { count: number } }).prototypeAudioStarts.count)).toBe(1);
   await page.locator('#play').click();
   await expect(card).toHaveAttribute('data-state', 'idle');
-  await expect(guide).toHaveAttribute('data-pattern', '2');
+  await expect(guide).toHaveAttribute('data-pattern', '0');
   await page.getByRole('button', { name: 'Pidä komppikäsi liikkeessä' }).click();
   await expect(guide).toBeHidden();
   await expect(page.locator('#clap-nav')).toBeHidden();
@@ -147,4 +151,28 @@ test('odottava taputusvalinta peruutetaan palaamalla nykyiseen kuvioon', async (
   await page.waitForTimeout(3200);
   await expect(guide).toHaveAttribute('data-pattern', '1');
   await expect(page.locator('#exercise')).toHaveAttribute('data-state', 'playing');
+});
+
+test('neljä yksilöllistä taputuskuviota, nuolten kierto ja suora perusrytmi ennen toistoa', async ({ page }) => {
+  await page.goto(url);
+  const guide = page.locator('#clap-guide');
+  const labels = page.locator('.beat small');
+  const prev = page.getByRole('button', { name: 'Edellinen taputuskuvio' });
+  const next = page.getByRole('button', { name: 'Seuraava taputuskuvio' });
+  const all = page.getByRole('button', { name: 'Kaikki iskut', exact: true });
+  const seen = new Set<string>();
+  for (let i = 0; i < 4; i++) {
+    await expect(guide).toHaveAttribute('data-pattern', String(i));
+    await expect(page.locator('#clap-position')).toHaveText(String(i+1) + ' / 4');
+    seen.add((await labels.allTextContents()).join('|'));
+    await next.click();
+  }
+  expect(seen.size).toBe(4);
+  await expect(guide).toHaveAttribute('data-pattern', '0');
+  await prev.click();
+  await expect(guide).toHaveAttribute('data-pattern', '3');
+  await all.click();
+  await expect(guide).toHaveAttribute('data-pattern', '0');
+  await expect(all).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#exercise')).toHaveAttribute('data-state', 'idle');
 });
