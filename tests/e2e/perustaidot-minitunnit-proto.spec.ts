@@ -200,7 +200,8 @@ test('taputus vain numeroiskuilla, ja-tavut näkyvät kompin hahmottamiseksi', a
   await expect(page.locator('#strum-explanation')).toBeHidden();
   await page.getByRole('button', { name: 'Pidä komppikäsi liikkeessä' }).click();
   await expect(page.locator('#strum-explanation')).toBeVisible();
-  await expect(page.locator('#strum-explanation')).toContainText('Älä napauta jalalla uudelleen');
+  await expect(page.locator('#strum-foot + #beats')).toHaveCount(1);
+  await expect(page.locator('#strum-foot')).toBeVisible();
   await expect(page.locator('#strum-hand')).toContainText('Ja-tavuilla ei taputeta');
   await expect(page.locator('.beat')).toHaveCount(4);
   await expect(page.locator('.half b')).toHaveText(['1', 'ja', '2', 'ja', '3', 'ja', '4', 'ja']);
@@ -242,6 +243,7 @@ test('taputus vain numeroiskuilla, ja-tavut näkyvät kompin hahmottamiseksi', a
   await expect(guide).toBeHidden();
   await page.getByRole('button', { name: 'Löydä pulssi ja ykkönen' }).click();
   await expect(page.locator('#strum-explanation')).toBeHidden();
+  await expect(page.locator('#strum-foot')).toBeHidden();
   await expect(page.locator('.half')).toHaveCount(0);
   await expect(guide).toHaveAttribute('data-pattern', '0');
 });
