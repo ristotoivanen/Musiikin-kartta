@@ -1,19 +1,19 @@
-# Sointipaja #48 – tason 2 kokeilusuunnitelma v0.1
+# Sointipaja #48 – tason 2 kokeilusuunnitelma v0.2
 
-24.11.2026. Ehdotus, ei lukittu sisältö eikä julkaisu- tai yhdistämislupa.
+24.11.2026. Käyttäjäkokeessa v0.1:n ensimmäinen kierros koettiin liian helpoksi. v0.2:ssa vaikeutta kasvatetaan vastausvaihtoehtojen ja sekoittamisen kautta. Ehdotus, ei lukittu sisältö eikä julkaisu- tai yhdistämislupa.
 Pohja: [taso 1 v0.3](sointipaja-taso-1-v03.md), #189 @ e088460081a6843629f4999a23906379837bbd1e, mukaan lukien omistajan hyväksymä kumuloituva kieli kerrallaan -kuuntelu. #187 on edelleen riippuvuus. Taso 1 jää omaan katselmointiin. Projektin [katselmointiohje](suunnittelu-ja-pr-katselmointi.md) pätee.
 
 ## Pedagogiikka
 
-Taso 2 lisää Dm:n, D7:n, A7:n ja E7:n. Ei vielä erillistä teoriapäättelytehtävää; tunnistus yhdistetään yhden sävelen muutosten ymmärtämiseen oikean vastauksen jälkeen. D/Dm/D7 on kontrastiperhe; A/A7 ja E/E7 vastaavasti. Am ja Em ovat toisessa kierroksessa myös häiriövaihtoehtoina ja kerrataan kolmannessa. Dm:ssä F♯ vaihtuu F:ksi; dominanttiseiskassa duurikolmisointuun liittyy pieni septimi. Eri sointuotteissa yksittäisen kielen muutos voi korvata sävelen toiston, ei välttämättä kasvattaa soivien kielten määrää. Älä väitä, että sointulaatu tunnistetaan absoluuttisesti kuulosta tai että otteen nimeäminen todistaa soittotaidon.
+Taso 2 lisää Dm:n, D7:n, A7:n ja E7:n. Ei vielä erillistä teoriapäättelytehtävää; tunnistus yhdistetään yhden sävelen muutosten ymmärtämiseen oikean vastauksen jälkeen. D/Dm/D7, A/A7 ja E/E7 ovat edelleen palautteen kontrastiperheitä, mutta niitä ei enää eroteta omiksi helpoiksi tunnistuskierroksikseen. Uudet soinnut sekoitetaan heti ensimmäisellä kierroksella. Myöhemmät sointujen muuntamistehtävät ovat erillinen jatkokehityskohde. Dm:ssä F♯ vaihtuu F:ksi; dominanttiseiskassa duurikolmisointuun liittyy pieni septimi. Eri sointuotteissa yksittäisen kielen muutos voi korvata sävelen toiston, ei välttämättä kasvattaa soivien kielten määrää. Älä väitä, että sointulaatu tunnistetaan absoluuttisesti kuulosta tai että otteen nimeäminen todistaa soittotaidon.
 
 | Kierros | Kysytty | Vaihtoehdot | Määrä |
 |---|---|---|---:|
-| 1 | D, Dm, D7 kahdesti | samat 3 | 6 |
-| 2 | A, A7, E, E7 kahdesti | A, Am, A7, E, Em, E7 | 8 |
+| 1 | Dm, D7, A7, E7 kahdesti | D, Dm, D7, A, A7, E, E7 | 8 |
+| 2 | kaikki tason 1 ja 2 soinnut kerran | kaikki 11 | 11 |
 | 3 | kaikki tason 1 ja 2 soinnut kerran | kaikki 11 | 11 |
 
-Yhteensä 25 tehtävää; tason 1 rakenne 4+6+14 säilyy. Kumulatiivinen kertaus takaa kaikki 11 kohdetta, ei peräkkäisiä identtisiä. Ei väitetä sokkomittaukseksi. Tason valinta aina vapaa; vaihto aloittaa valitun tason alusta ja päättää aiemman yrityksen. Tason lopussa seuraava taso, uusinta tai vapaa kierros. Ei pistelukkoja, pysyvää tallennusta, uutta otelautaa tai äänimoottoria. Tulevien tasojen kertaus voidaan myöhemmin rajata kiertävään otantaan ja erilliseen kattavaan harjoitteluun.
+Yhteensä 30 tehtävää; tason 1 rakenne 4+6+14 säilyy. Kumulatiivinen kertaus takaa kaikki 11 kohdetta, ei peräkkäisiä identtisiä. Kierrokset 2 ja 3 käyttävät samaa sointuvalikoimaa, mutta järjestys arvotaan uudelleen. Kierros 3 on vahvistavaa toistoa eikä uusi vaikeusporras. Ensimmäisellä kierroksella vanhat duurisoinnut ovat uskottavia häiriövaihtoehtoja. Ei väitetä sokkomittaukseksi. Tason valinta aina vapaa; vaihto aloittaa valitun tason alusta ja päättää aiemman yrityksen. Tason lopussa seuraava taso, uusinta tai vapaa kierros. Ei pistelukkoja, pysyvää tallennusta, uutta otelautaa tai äänimoottoria. Tulevien tasojen kertaus voidaan myöhemmin rajata kiertävään otantaan ja erilliseen kattavaan harjoitteluun.
 
 ## Sointutieto
 
@@ -28,6 +28,6 @@ Kaikki otteet perusmuotoisia, 0–5-näkymä. Dominantti-7 = 0,4,7,10 puoliaskel
 
 ## Katselmointi
 
-Aja npm run check, npx playwright test tests/e2e/sointipaja-prototype.spec.ts tests/e2e/learning-paths.spec.ts sekä WebKit-kohdennus playwright.musapelit-142-webkit.config.ts -konfiguraatiolla. Testaa tason 1 säilyminen, seuraava taso, suora pääsy tasolle 2, takaisin tasolle 1, vapaa kierros, tasojen tulosten erillisyys, 25 tehtävää, 11 vastausvaihtoehdon reflow 320/360/390 px, 200 % teksti, fokus, ruudunlukija, kaikki 11 otetta ja näytteet, pieni septimi sekä kumuloituva kuuntelu. Käyttäjäkokeessa arvioi erityisesti kontrastitehtävien vaikeus ja se, onko pelin toistaminen mielekästä. Fyysiset iPhone/Android ja oikea kuuntelu tarvitaan. Päätökset: hyväksytäänkö 4 uutta sointua, 6+8+11, kontrastitekstit ja tasovalinnan sijainti. Taso 1:n riippumaton katselmointi edelleen erillinen. Ei mergeä.
+Aja npm run check, npx playwright test tests/e2e/sointipaja-prototype.spec.ts tests/e2e/learning-paths.spec.ts sekä WebKit-kohdennus playwright.musapelit-142-webkit.config.ts -konfiguraatiolla. Testaa tason 1 säilyminen, seuraava taso, suora pääsy tasolle 2, takaisin tasolle 1, vapaa kierros, tasojen tulosten erillisyys, 30 tehtävää, 11 vastausvaihtoehdon reflow 320/360/390 px, 200 % teksti, fokus, ruudunlukija, kaikki 11 otetta ja näytteet, pieni septimi sekä kumuloituva kuuntelu. Käyttäjäkokeessa arvioi erityisesti sekoitettujen tunnistustehtävien vaikeus ja se, onko pelin toistaminen mielekästä. Fyysiset iPhone/Android ja oikea kuuntelu tarvitaan. Päätökset: hyväksytäänkö 4 uutta sointua, 8+11+11, kontrastitekstit ja tasovalinnan sijainti. Taso 1:n riippumaton katselmointi edelleen erillinen. Ei mergeä.
 
 Tulevaisuudessa erilliset rakennus- ja päättelytehtävät sekä mahdolliset useat oikeat sointunimet asiayhteydestä riippuen; ei laajenneta nykyistä rajattua tunnistusta sellaisenaan loputtomiin.
