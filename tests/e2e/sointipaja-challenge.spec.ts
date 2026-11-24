@@ -11,6 +11,8 @@ test('challenge: select cohorts, neutral root, real freeze, deadline, record and
   await page.route('**/assets/audio/soinnut/*',async route=>{requests.push(route.request().url());await route.abort();});
   await page.locator('#mode-challenge').click();
   await expect(page.locator('#challenge-pool')).toHaveText('11 eri sointua pelissä.');
+  await expect(page.locator('#challenge-penalty')).toHaveCount(0);
+  await expect(page.locator('#challenge-setup')).toContainText('neljäksi sekunniksi');
   const checks=page.locator('#challenge-levels input');
   await checks.nth(0).uncheck();
   await expect(page.locator('#challenge-pool')).toHaveText('4 eri sointua pelissä.');
@@ -18,7 +20,6 @@ test('challenge: select cohorts, neutral root, real freeze, deadline, record and
   await expect(page.locator('#challenge-start')).toBeDisabled();
   await checks.nth(0).check();
   await page.locator('#challenge-duration').selectOption('30');
-  await page.locator('#challenge-penalty').selectOption('4');
   await page.locator('#challenge-start').click();
   const roots=page.locator('#roots'),answers=page.locator('#answers');
   await expect(roots.locator('button')).toHaveText(['C','D','E','F','G','A','B']);
@@ -58,7 +59,7 @@ test('challenge: select cohorts, neutral root, real freeze, deadline, record and
   await page.locator('#challenge-stop').click();
   await expect(page.locator('#challenge-best')).toContainText('2 pistettä');
   await expect(page.locator('#challenge-setup-note')).toContainText('ei tallennettu');
-  await page.locator('#challenge-penalty').selectOption('5');
+  await page.locator('#challenge-duration').selectOption('60');
   await expect(page.locator('#challenge-best')).toContainText('Ei tallennettua');
   await page.locator('#mode-practice').click();
   await expect(page.locator('#progress')).toHaveText('Sointu 1 / 4');
@@ -83,7 +84,6 @@ test('challenge: all 24 chords selectable, mobile layout, expiry during penalty'
   await checks.nth(2).check();await checks.nth(3).check();
   await expect(page.locator('#challenge-pool')).toHaveText('24 eri sointua pelissä.');
   await page.locator('#challenge-duration').selectOption('30');
-  await page.locator('#challenge-penalty').selectOption('5');
   await page.locator('#challenge-start').click();
   const roots=page.locator('#roots');
   await roots.getByRole('button',{name:'C',exact:true}).click();
