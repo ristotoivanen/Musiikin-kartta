@@ -66,8 +66,11 @@ import { createChordsBeta } from './soinnut-beta.js';
   let ready = false;
 
   let { rootPC, scaleId } = selectionFromURL(9, 'mp');
-  let view = location.hash === '#oktaavit' ? 'octaves'
-    : location.hash === '#soinnut' ? 'chords' : 'scale';
+  // BETA-sivulla Soinnut avautuu oletuksena; Asteikot-näkymän osoite on #asteikot.
+  const viewFromHash = () => location.hash === '#oktaavit' ? 'octaves'
+    : location.hash === '#soinnut' ? 'chords'
+      : betaNav ? (location.hash === '#asteikot' ? 'scale' : 'chords') : 'scale';
+  let view = viewFromHash();
   // Soinnut eivät riipu muualla valitusta asteikosta.
   const params = new URLSearchParams(location.search);
   const initialQuality = params.get('sointu');
@@ -109,7 +112,7 @@ import { createChordsBeta } from './soinnut-beta.js';
       url.searchParams.delete('ote');
       ['kielet', 'nro'].forEach(name => url.searchParams.delete(name));
     }
-    url.hash = view === 'octaves' ? 'oktaavit' : view === 'chords' ? 'soinnut' : '';
+    url.hash = view === 'octaves' ? 'oktaavit' : view === 'chords' ? 'soinnut' : betaNav ? 'asteikot' : '';
     history.replaceState(null, '', url.pathname + url.search + url.hash);
   }
 
@@ -464,8 +467,7 @@ import { createChordsBeta } from './soinnut-beta.js';
   }
 
   window.addEventListener('hashchange', () => {
-    setView(location.hash === '#oktaavit' ? 'octaves'
-      : location.hash === '#soinnut' ? 'chords' : 'scale', false);
+    setView(viewFromHash(), false);
   });
   if (typeof ResizeObserver !== 'undefined') new ResizeObserver(updateScrollHint).observe(board);
   setView(view, false);

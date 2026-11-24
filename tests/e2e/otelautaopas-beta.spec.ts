@@ -45,6 +45,17 @@ test.describe('Otelautaopas BETA', () => {
     await expect(page.locator('.beta-badge')).toHaveCount(0);
   });
 
+  test('Soinnut on ensimmäinen välilehti ja avautuu oletuksena ilman osoitteen osaa', async ({ page }) => {
+    await page.goto(PAGE);
+    await expect(page.locator('.visualizer-views button')).toHaveText(['Soinnut', 'Asteikot', 'Oktaavit']);
+    await expect(page.getByRole('button', { name: 'Soinnut', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('#chord-beta')).toBeVisible();
+    await page.getByRole('button', { name: 'Asteikot' }).click();
+    expect(page.url()).toContain('#asteikot');
+    await page.reload();
+    await expect(page.getByRole('button', { name: 'Asteikot' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
   test('Soinnut-näkymässä on 12 perussävelpainiketta ja kaikki sointulaadut suorina painikkeina, ei valikkoa', async ({ page }) => {
     await page.goto(PAGE + '#soinnut');
     await advanced(page);
@@ -133,7 +144,7 @@ test.describe('Otelautaopas BETA', () => {
   });
 
   test('Asteikot ja Oktaavit käyttävät samaa sävelnavigointia ja Perus/Laaja-näkymää kuin Soinnut', async ({ page }) => {
-    await page.goto(PAGE);
+    await page.goto(PAGE + '#asteikot');
     // Perus: vain luonnolliset sävelet, kaksi pentatonista asteikkoa, ei sormitusbokseja.
     await expect(page.locator('#beta-roots [data-root]:visible')).toHaveText(['C', 'D', 'E', 'F', 'G', 'A', 'B']);
     await expect(page.locator('#beta-scales, #beta-pent button:visible')).toHaveText(['Mollipentatoninen', 'Duuripentatoninen']);
@@ -325,7 +336,7 @@ test.describe('Otelautaopas BETA', () => {
   });
 
   test('Asteikot ja Oktaavit toimivat ennallaan ja perussävelen valinta säilyy näkymien välillä', async ({ page }) => {
-    await page.goto(PAGE + '?toonikka=A&asteikko=mp');
+    await page.goto(PAGE + '?toonikka=A&asteikko=mp#asteikot');
     await expect(page.locator('#selection-title')).toHaveText('A-mollipentatoninen');
     await expect(page.locator('#beta-roots')).toBeVisible();
     await expect(page.locator('#chord-settings')).toBeHidden();
