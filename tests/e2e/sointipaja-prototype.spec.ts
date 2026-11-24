@@ -22,12 +22,17 @@ test('recognition, shared neck, seven chords and round summary', async ({ page }
   await expect(page.locator('#feedback')).toContainText('Ei aivan');
   await answers.getByRole('button', { name: 'C', exact: true }).click();
   await expect(page.locator('#notes')).toContainText('C3 · E3 · G3 · C4 · E4');
+  await expect(board.locator('.mark[data-string="4"]')).toHaveText('C');
+  await expect(board.locator('.mark[data-string="4"]')).toHaveAttribute('aria-label', /C3, perussävel/);
+  await expect(board.locator('.mark[data-string="3"]')).toHaveAttribute('aria-label', /E3, suuri terssi/);
+  await expect(board.locator('.mark.open[data-string="0"]')).toHaveText('e');
   for (const name of ['G','D','Em']) {
     await page.locator('#next').click();
     await answers.getByRole('button', { name, exact: true }).click();
   }
   await page.locator('#next').click();
   await expect(page.locator('#result')).toContainText('Vääriä valintoja yhteensä 1');
+  await expect(page.locator('#result')).toContainText('3/4 oikein ensimmäisellä yrityksellä');
   await page.locator('#settings summary').click();
   await page.getByRole('radio', { name: '7 sointua' }).check();
   await expect(answers.locator('button')).toHaveCount(7);
@@ -36,6 +41,7 @@ test('recognition, shared neck, seven chords and round summary', async ({ page }
     await page.locator('#next').click();
   }
   await expect(page.locator('#result')).toContainText('Tunnistit kaikki 7 sointua');
+  await expect(page.locator('#result')).toContainText('7/7 oikein ensimmäisellä yrityksellä');
 });
 
 test('audio request includes correct C voicing, failure does not prevent answering', async ({ page }) => {
@@ -78,3 +84,73 @@ for (const width of [320, 360, 390]) {
     await expect(page.getByRole('group', { name: 'Valitse soinnun nimi' })).toBeVisible();
   });
 }
+
+test('answers remain silent by default; note exploration reveals the role only after answering', async ({ page }) => {
+  const requests: string[] = [];
+  await page.route('**/assets/audio/soinnut/*', async route => {
+    requests.push(route.request().url());
+    await route.abort();
+  });
+  const board = page.locator('#board');
+  const root = board.locator('.mark[data-string="4"]');
+  await expect(root).toHaveText('●');
+  await expect(root).not.toHaveAttribute('aria-label', /C3|perussävel/);
+  const answers = page.getByRole('group', { name: 'Valitse soinnun nimi' });
+  await answers.getByRole('button', { name: 'G', exact: true }).click();
+  await answers.getByRole('button', { name: 'C', exact: true }).click();
+  expect(requests).toHaveLength(0);
+  await expect(page.locator('#explain')).toBeVisible();
+  await root.click();
+  await expect(page.locator('#note-detail')).toContainText('C3 · perussävel');
+  await expect(page.locator('#audio-status')).toContainText('Ääniä ei voitu ladata');
+  expect(requests.length).toBeGreaterThan(0);
+  expect(requests.every(url => url.includes('StringA_Vel02_C3_01'))).toBe(true);
+  await page.locator('#next').click();
+  await expect(page.locator('#question')).toBeFocused();
+  await expect(page.locator('#explain')).toBeHidden();
+  await expect(board.locator('.mark.revealed')).toHaveCount(0);
+  await expect(page.locator('#audio-status')).toBeEmpty();
+});
+
+test('audio controls cancel a pending download without late playback', async ({ page }) => {
+  let release!: () => void;
+  const pending = new Promise<void>(resolve => { release = resolve; });
+  await page.route('**/assets/audio/soinnut/*', async route => {
+    await pending;
+    await route.abort().catch(() => {});
+  });
+  try {
+    const listen = page.locator('#listen');
+    await listen.click();
+    await expect(listen).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('#stop')).toBeEnabled();
+    await listen.click();
+    await expect(listen).toHaveAttribute('aria-pressed', 'false');
+    await expect(page.locator('#stop')).toBeDisabled();
+    release();
+    await expect(page.locator('#audio-status')).toHaveText('Kuuntelu pysäytetty.');
+    await expect(page.locator('#board .sounding')).toHaveCount(0);
+  } finally { release(); }
+});
+
+test('automatic chord playback is opt-in and uses the same stop control', async ({ page }) => {
+  let release!: () => void;
+  const pending = new Promise<void>(resolve => { release = resolve; });
+  await page.route('**/assets/audio/soinnut/*', async route => {
+    await pending;
+    await route.abort().catch(() => {});
+  });
+  try {
+    await page.locator('#settings summary').click();
+    await expect(page.locator('#auto')).not.toBeChecked();
+    await page.locator('#auto').check();
+    await page.locator('#settings summary').click();
+    await page.getByRole('group', { name: 'Valitse soinnun nimi' }).getByRole('button', { name: 'C', exact: true }).click();
+    await expect(page.locator('#listen')).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('#stop')).toBeEnabled();
+    await page.locator('#next').click();
+    await expect(page.locator('#listen')).toHaveAttribute('aria-pressed', 'false');
+    await expect(page.locator('#stop')).toBeDisabled();
+    await expect(page.locator('#audio-status')).toBeEmpty();
+  } finally { release(); }
+});
