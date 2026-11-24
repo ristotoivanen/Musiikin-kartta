@@ -1,0 +1,656 @@
+Ydinopinnot-suunnitelman riippumaton auditointi (PR #138)
+21.11.2026 · @Risto
+Kohde: Musiikin kartta – Ydinopintojen kohderyhmä-, sisältö- ja toteutussuunnitelma v1.0 (21.11.2026), sen auditointitoimeksianto ja betan 68 oppitunnin reittikartta. Riippumaton pedagoginen, musiikillinen ja tekninen katselmus. Ei koodimuutoksia. Ei merge- eikä julkaisulupa.
+1. Tuomio: HYVÄKSY KORJAUKSIN
+Suunnitelma hyväksytään suunnittelun lähtöaineistoksi korjauksin. Pilotin koodia ei pidä aloittaa ennen kolmea porttia (alla). Kohderyhmälinjaus on lähteisiin nähden perusteltu, tarkistettu musiikkiteoria on virheetöntä ja ensimmäinen pilotti on oikea valinta. Suunnitelma on kuitenkin jäänyt jälkeen repon nykytilasta, ja siinä on neljä tehtäväparia, joissa sama asia opetetaan ensimmäistä kertaa kahdessa paikassa.
+Neljä keskeistä syytä korjauksille:
+1.  Generaattorikerros on kolmena kopiona. Draft-PR:t #133, #134 ja #137 lisäävät kukin oman versionsa samasta layout: "kokonaisuudet" -rakenteesta tiedostoon rakenna.py (+177, +182 ja +213 riviä) ja muuttavat aiheet.json:ia. Ilman yhteistä pohjaa pilotista tulisi neljäs kopio.
+2.  Suunnitelma ei tunne kahta olennaista PR:ää. Rytmin v0.9 on Draft-PR #134, ei vain paikallinen HTML-tiedosto. PR #137 (Soinnut v0.5) on pinottu #133:n päälle ja arkistoi ne kolme G-tuntia, joihin 06A nojaa.
+3.  Kohderyhmän vaihto on ristiriidassa #116:n kanssa. Omistajan 20.11. hyväksymän linjauksen mukaan Ydinopinnot on koko aiheen johdanto ja selkeä aloitusreitti. Rytmin hahmotelmassa mainitaan pulssi, ykkönen ja ensimmäinen komppikokemus. Päätös tulee kirjata #116:een, ei pelkästään #115:een.
+4.  Ensiopetus on päällekkäinen. 03C ja 05A ovat lähes sanatarkasti sama tehtävä, 06E ≈ 08C ja 02D ≈ 08D, ja terssi opetetaan neljässä tehtävässä (03A, 03D, 04C, 06A).
+Luokka
+Sisältö
+Toteutuskelpoista nyt
+Dokumenttikorjaukset (osio 11). P0-päätökset. Pilotin musiikkidata (G–D–Em–C → C–G–Am–F, I–V–vi–IV) sellaisenaan: faktat on tarkistettu.
+Ei saa aloittaa
+Pilottikoodia ennen kuin (a) generaattorin kokonaisuusrakenne on yhdessä haarassa, (b) #116/#115-päätös kohderyhmästä on kirjattu ja (c) on päätetty, kumpi PR (#133 vai #137) on 06A:n lähde. Ei myöskään vanhojen sisältöjen piilotusta, aiheet.json:n start-arvon muutosta ilman päätöstä eikä kahdeksan aiheen massatoteutusta.
+Ei todistettu
+Hyöty yhdellekään oikealle soittajalle. Äänen ja kuvan tahdistus oikealla iPhonella. Se, että avun häivytys kehittää muistista soittoa tai korvakuuloa. Kohderyhmän osuus sivuston muista käyttäjistä.
+2. Lähde- ja varmuusrekisteri
+Kaikki repo-havainnot on tehty haaroista sellaisina kuin ne olivat 21.11.2026. Testejä, generaattoria, selaintestejä tai käyttäjä-, laite- tai kuulotestejä ei ajettu.
+Lähde
+Mitä tarkistettiin
+Varmuus
+Suunnitelma, haara docs/ydinopinnot-kohderyhma-2026-11-21, commit c63086fb
+Luettu kokonaan. Sisältö on identtinen liitetyn v1.0:n kanssa (diff: vain tiedoston viimeinen rivinvaihto).
+Varmistettu
+Auditointitoimeksianto ja oma ennakkoauditointi
+Luettu kokonaan.
+Varmistettu
+68 oppitunnin reittikartta
+Rivit laskettu: 4+3+14+8+18+7+14 = 68. Kaikki 68 URL:ia löytyvät betasta.
+Varmistettu
+beta, commit 5a890569 (19.11., #128)
+406 tiedostoa, 81 oppi/*.html (68 korttia + 8 aihesivua + 5 kitara-sivua). Luettu aiheet.json, sisaltorekisteri.json, rakenna.py:n rakenne ja assets/edistyminen.js:n avaimet. Teksti luettu yhdeksältä sivulta: pulssi-ja-komppi, roomalaiset-numerot, sointujen-tehtavat, savellajin-tunnistaminen, transponointi, basso, kolme-sointua-g-duurista, siirra-kierto-c-duuriin, soita-ensin-basso.
+Varmistettu (luettu koodi)
+Suunnitelman reitit
+Kaikki 30 täyttä reittiä ja 25 lyhennettyä .../-reittiä löytyvät betasta.
+Varmistettu
+PR:t (GitHub API 21.11.)
+#138 (tämä suunnitelma), #137, #134, #133, #135, #136, #130, #111, #109, #93 ja #91: kaikki avoimia drafteja. Haarojen #133, #134 ja #137 diff-tilasto merge-basesta 5a890569.
+Metadata ja diff varmistettu. PR-kuvausten testitulokset = PR-pohjainen väite, ei ajettu.
+Issuet
+#115: runko ja 5 kommenttia. #116: kolme viimeisintä kommenttia. #69: runko. #54 ja #132: vain metadata (#54:n 43 kommenttia lukematta).
+Osittain varmistettu
+Rytmin v0.9 HTML (SHA 977e…) ja sen auditointi
+Ei saatavilla. Vain PR #134:n haara nähty tiedostotasolla. A/B/C-tilavirhettä ei ole tarkistettu koodista.
+Dokumentoitu, tarkistamatta
+RSL Rockschool
+Grade 1–3:n kuvaukset luettu alkuperäiseltä sivulta.
+Varmistettu
+JustinGuitar, sivukartta
+Gradejen 1–6 rakenne luettu.
+Varmistettu
+Trinity, Guitar Tricks, Fender, UCL, Berklee, Chordify
+Ei tarkistettu uudelleen tässä auditoinnissa.
+Suunnitelman väite
+3. Kohderyhmän ja vaikeustason korjattu määritelmä
+Suunnitelman profiili pitää: soittotekniikaltaan suunnilleen RSL Grade 1–2 / JustinGuitar Grade 2–3, teoriassa ja korvakuulossa nollasta. RSL:n aikahaarukat pitävät paikkansa: Grade 2 on suunnattu noin vuoden–puolentoista vuoden ja Grade 3 noin 18–24 kk harjoitelleille. Molemmat ovat kuitenkin tutkintotavoitteita, eivät väestön keskiarvoja.
+Lähteiden kuvaama taso on vaativampi kuin tämän käyttäjän itsekuvaus. RSL Grade 2 sisältää F-soinnun, maj7- ja m7-soinnut, palm mutingin, pentatoniikkaa ja kahden tahdin melodisen toistokokeen. Grade 3 sisältää barré-soinnut ja blues-asteikon. JustinGuitarissa F-sointu tulee Grade 2:ssa, barré ja 16-osakomppi vasta Grade 4:ssä. Siksi suunnitelman linjaus „barrétä ei oleteta“ on oikea tälle käyttäjälle, mutta varovainen RSL G3:een nähden.
+Taso
+Korjattu määritelmä (havaittavina taitoina, ei soittovuosina)
+Soitollinen lähtö
+Vaihtaa neljän avosoinnun välillä (G, C, D, Em, Am, E, A, Dm) tahdin rajalla noin 80–100 BPM pysähtymättä. Hallitsee 1–2 kahdeksasosakomppia. F ja Bm voivat olla esteitä.
+Teoria- ja korvakuulolähtö
+Nollaoletus: ei asteita, ei otelaudan sävelnimiä, ei intervalleja. Duurin ja mollin erottaminen korvalla on epävarmaa.
+Heti ohitettavat alkeet
+Plektran ote, ensimmäinen alasveto, neljä taputusta, ensimmäinen G-ote, kielten nimet (kertaus aiheessa 01).
+Sopiva haaste
+Tuttu ote + yksi uusi käsite (aste, perusääni, aksentti, kesto). Seuraava rytminen askel on 16-osat ja shuffle-tuntuma.
+Vapaaehtoinen kertaus
+01A/01B, Rytmin v0.9:n pulssitehtävät ja nykyiset alkeisharjoitukset.
+Ristiriita sivuston nykyrakenteen kanssa (omistajan päätös, ks. M2): aiheet.json:n "start": "rytmi/kuuntele-pulssi" tekee alkeistehtävästä Taputa tahdin ensimmäisellä iskulla koko sivuston aloituksen. Betan Rytmi- ja Sävelnimet-aiheet opettavat yhä alas–ylös-komppia ja ensimmäistä G-otetta. Sivustolla on myös aloittelijoille tehtyä työtä: Ensitreenit sekä neljän iskun pilotti (#91 ja #130). Jos Ydinopinnot nostetaan 1–2 vuoden tasolle, aloittelijan reitti on nimettävä erikseen. Muuten #116:n „selkeä aloitusreitti“ katoaa juuri sieltä, missä sitä eniten tarvitaan.
+4. Auditointitaulukko: kaikki 31 tehtävää
+Taso on 25 tehtävässä sopiva sellaisenaan, yksi on liian kuormittava (02C) ja viidessä on ehto tai rajaus (01A, 01B, 06A, 06D, 08B). Musiikillisia virheitä ei löytynyt, kieliasun epätarkkuuksia löytyi kaksi (05B, 05C). „P“ = suositeltu toteutusvaihe osiossa 8. M = major, m = minor.
+ID
+Tavoite (tiivis)
+Taso
+Musiikillinen oikeellisuus
+Siirtotehtävä
+Korjaus
+P
+01A
+Merkinnät: kaavio, x/0, nauha vs. sormi, tabi, capo
+Sopiva kertauksena
+OK
+Hyvä (soivat kielet toisesta otteesta)
+Capo vain mainintana; ensiopetus 06D:ssä
+P5
+01B
+Oma sointupakki
+Sopiva, valinnainen
+OK
+Heikko
+Lisää helppojen korvaajien taulukko: F xx3211, Bm xx4432, capo-strategia. Fmaj7 xx3210 merkitään eri soinnuksi. Pilotti ja 06D linkittävät tähän. (M)
+P1
+02A
+Pysynkö tahdissa ilman mallikitaraa
+Sopiva
+OK (ykkönen ei aina kovin)
+Hyvä (oma äänite)
+Havaittava testi: taustassa 2 tahdin hiljaisuus. Palaako soittaja ykköselle yhtä aikaa bändin kanssa? Mallikitaran poistuminen on heikompi testi, koska basso ja rummut jatkavat.
+P3
+02B
+Samat soinnut, eri painotus 1/3 vs. 2/4
+Sopiva
+OK
+Hyvä
+Lisää valinnainen B-versio: straight vs. shuffle samalla kierrolla (kattaa kolmijakoisuuden aukon)
+P3
+02C
+Tauot, kesto, vaimennus, synkopoinnin alkeet
+Liian kuormittava (4 uutta käsitettä)
+OK, kolmijako soittamatta / soimaan jäävä / vaimennettu on erinomainen
+Hyvä
+Rajaa tauko + vaimennus. Synkopointi 02D:hen tai syventävään. Noudattaa suunnitelman omaa 1–2 käsitteen sääntöä. (M)
+P3
+02D
+Bändin mukana, A/B-osan energia
+Sopiva
+OK
+Äänitys
+Päällekkäinen 08D:n ja vanhan vaihda-saestysta-tehtävän kanssa. Ydin = osan vaihdon ennakointi ajassa (viimeisen tahdin täyte, vaihto ykköselle); dynamiikka vain sovelletaan.
+P3
+03A
+E vs. Em, terssi
+Sopiva
+E–G♯–B / E–G–B ✓
+A/Am uudessa näytteessä
+Terssin ensiopetus. 03D, 04C ja 06A viittaavat tähän.
+P2
+03B
+Sointumerkki osina
+Sopiva
+D, Dsus4, D7, Dmaj7, E7, Em7 ✓
+Hyvä
+Lisää slash-merkintä (G/B, D/F♯) ja 5 (voimasointu): lukeminen, ei kuulotunnistus. Chordify-käyttäjä näkee näitä jatkuvasti. (M)
+P2
+03C
+Sävelnimet kitaralla
+Sopiva
+OK
+–
+Sovellus „etsi G, A, C ja D matalilta kieliltä“ = 05A. Poista tästä. 03C:n ydin = ♯/♭ ja kromaattinen nimeäminen.
+P4
+03D
+Intervallit 0/3/4/7/12 kuultuina
+Sopiva
+C–E, C–E♭ ✓
+OK
+Terssit = 03A. 03D:n ydin = kvintti ja oktaavi; terssit vain kertauksena. Älä tee rinnakkaista #109/#114:n intervallikorttien kanssa.
+P4
+04A
+Kotisävel, ei arvausta
+Sopiva
+OK, varoitus bassosta ✓
+Uusi sävellaji
+Hyödynnä valmista savellajin-tunnistaminen-sivua (G vs. Em samalla kierrolla): se on jo hyvä.
+P2
+04B
+Kuule ja löydä basso
+Sopiva
+Basso ≠ aina perusääni ✓
+OK
+Basson ensiopetus; 08B soveltaa. Hyödynnä kitara/soita-ensin-basso (puuttuu molemmista kartoista) ja kuuntele-bassolinja.
+P2
+04C
+Duuri vai molli
+Sopiva
+OK
+OK
+Ei uutta teoriaa, viittaus 03A:han. Kahdesta vaihtoehdosta arvaa 50 %: vaadi esim. 4/5 peräkkäin uusilla näytteillä, tai kerro tuloksen olleen arvaustasoa.
+P2
+04D
+Kuule fraasi ja toista
+Sopiva
+OK
+OK
+Käytä Riffikaikua, älä tee uutta moottoria.
+P4
+05A
+Soinnun perusääni matalilla kielillä
+Sopiva
+OK
+OK
+Omistaa sävelten sijainnit (siirretty 03C:stä). Linkki barré-strategiaan.
+P4
+05B
+Sama sävel eri kielillä
+Sopiva
+Kieliasu epäselvä (ks. osio 6)
+OK
+Korjaa sanamuoto. (m)
+P4
+05C
+Sointusävelet lähellä kättä
+Sopiva
+„G-duuri“ / „C-duurin säveliä“ sekoittaa soinnun ja sävellajin
+OK
+„G-duurisointu G–B–D“, „C-duurisoinnun sävelet C–E–G“. (m)
+P4
+05D
+Valitse toinen otelautakohta tarkoituksella
+Sopiva
+OK
+OK
+–
+P4
+06A
+Sointu syntyy sävelistä
+Soittotasolla liian helppo, teoriatasolla sopiva. Lähde vanhentunut.
+G–B–D, 320003 = G–B–D–G–B–G ✓
+–
+#137 on arkistoinut #133:n G-ryhmän ja korvannut sen kolmella uudella tehtävällä: Kuule ja kokoa sointu, Yksi sävel muuttaa sointua (= 03A/04C) ja Mihin kappale haluaa palata? (= 06C). Päätä kumpi on lähde. (M)
+P5
+06B
+Miksi neljä sointua sopivat yhteen
+Sopiva
+G A B C D E F♯, I–V–vi–IV ✓
+OK
+Pilotin vaihe 2. Valmiit lähteet: roomalaiset-numerot (sama C/G-taulukko) ja kappale-asteina.
+P1
+06C
+Kotona, matkalla, paluu
+Sopiva
+G–C–D–G, C–F–G7–C, V→vi ✓
+Hyvä
+sointujen-tehtavat on jo kontekstuaalinen ja oikein: älä kirjoita uudelleen.
+P5
+06D
+Sama rakenne toiseen sävellajiin
+Sopiva, mutta otteet sellaisenaan liian vaikeita
+C–G–Am–F, D–A–Bm–G, G-muoto capo 2 = A ✓
+„Valitse uusi aloitusääni“ vapaasti johtaa barréihin
+Rajaa: G, C, D (+ A capolla). D:lle Bm xx4432 tai capo 7 + G–D–Em–C-muodot (soivat D–A–Bm–G). (M)
+P1
+06E
+Tuttu kierto ilman näyttöä
+Sopiva
+OK
+Uusi tausta, uusi sävellaji
+Ainoa häivytysmekanismi; 08C käyttää samaa. Asteet-tila ei ole teorian aloittelijalle helpompi kuin „vain rakenne“: tilat valittavia, ei vaikeusjärjestystä.
+P1
+07A
+Em-pentatoniikka fraaseina
+Sopiva
+E–G–A–B–D ✓
+OK
+–
+P4
+07B
+Kysymys ja vastaus
+Sopiva
+OK
+OK
+Päällekkäinen vanhojen improvisointi, soita-kysymys-ja-vastaus ja kysymys-ja-vastaus-koko-boksilla kanssa: yhdistä.
+P4
+07C
+Miksi tämä sävel toimii tällä soinnulla
+Sopiva (vaativin aiheessa 07)
+E ja G yhteisiä ✓; C ei kuulu Em-pentatoniseen ✓
+OK
+Lisää: B C-soinnun päällä = maj7-väri, ei „väärä“. Estää virheellisen säännön „vain sointusäveliä“.
+P4
+07D
+Oma lyhyt improvisaatio
+Sopiva
+OK
+OK
+–
+P4
+08A
+Kuule kappaleen kartta
+Sopiva
+OK
+OK
+kappale (Paluumatka) ja kappale-asteina ovat valmiina.
+P5
+08B
+Tee oma neljän tahdin sointukartta
+Sopiva vasta 04B:n ja 04C:n jälkeen
+Basson rajoitukset ✓
+OK
+Esitaito näkyviin (ei lukkoa).
+P2
+08C
+Soita kertauksen jälkeen ilman ruutua
+Sopiva
+Chunking ✓
+Oma kappale
+Lähes sama kuin 06E. Ei uutta käyttöliittymää: „käytä 06E:n työkalua omaan kappaleeseen“ + ohje oman 8 tahdin paperikartan tekoon. (M)
+P1 (teksti)
+08D
+Sovita ja tee omaksi
+Sopiva
+OK
+Äänitys
+Dynamiikan ensiopetus tässä; 02D vain ajoitus.
+P5
+5. Kahdeksan aihetta kokonaisuuksina
+Suunnitelma kattaa kunkin aiheen ytimen, mutta rytmistä puuttuu kolmijakoisuus ja 16-osat, ja kuudessa kohdassa sama asia opetetaan ensimmäistä kertaa kahdesti. Ydinopintojen ei tarvitse kattaa kaikkea; alla on erotettu, mikä kuuluu ytimeen ja mikä syventäviin.
+Aihe
+Ytimeen kuuluu
+Syventäviin
+Päällekkäisyys
+Jäljelle jäävä aukko
+01 Kitaran perusteet
+Merkinnät, helppojen korvaajien taulukko
+Barré-alkeet (rakenna-barre)
+–
+Korvaavien otteiden taulukko puuttuu (M)
+02 Rytmi
+Tarkkuus, aksentti, tauko ja vaimennus, osan vaihdon ajoitus, straight vs. shuffle
+16-osakomppi, 6/8 ja 3/4, synkopointi laajasti
+02D ↔ 08D
+Kolmijakoisuus ja 16-osat puuttuvat koko suunnitelmasta (M). Betan pulssi-ja-komppi väittää ykkösen olevan „muita painokkaampi“: korjaa tai rajaa (m).
+03 Sävelnimet
+Terssi kirjoitettuna ja kuultuna, sointumerkki osina + slash ja 5
+Kaikkien intervallien nimet, add9/sus2
+03A ↔ 03D ↔ 04C ↔ 06A (terssi); 03C ↔ 05A
+Slash-soinnut (M)
+04 Sävelkorva
+Kotisävel, basso, duuri/molli, lyhyt fraasi
+Asteiden tunnistus, septimit
+04B → 08B (soveltaa, OK)
+Ei olennaista aukkoa ytimessä
+05 Otelauta
+Perusäänet, oktaavit, sointusävelet, kaksi otekohtaa
+CAGED, barré-muodot
+05A ↔ 03C
+Barré-strategia on näkymättömissä (m)
+06 Soinnut ja harmonia
+I–V–vi–IV, funktio kontekstissa, transponointi, häivytys
+Septimit, ii–V–I, lainasoinnut (♭VII, iv), kvinttiympyrä
+06E ↔ 08C; #137 ↔ 03A/06C
+Lainasoinnut vain varoituksena (m, syventävä)
+07 Asteikot
+Em-pentatoniikka musiikkina, kohdesävelet, oma fraasi
+Moodit, duuripentatoniikka, blues
+07B ↔ kolme vanhaa tehtävää
+Duuripentatoniikka (m, syventävä)
+08 Kappaleet
+Kartta, oma sointukartta, ilman ruutua, sovitus
+Laulajalle sovittaminen, oma kappale
+08C ↔ 06E; 08D ↔ 02D
+–
+Ensiopetuksen paikka. Kukin asia opetetaan yhdessä tehtävässä ja muut vain muistuttavat lyhyesti ja soveltavat.
+Asia
+Ensiopetus
+Sovelletaan
+Terssi (duuri/molli)
+03A
+04C, 05C, 06A
+Kvintti ja oktaavi
+03D
+05A, 05B
+Perusäänen sijainti otelaudalla
+05A
+03C, 04B, 08B
+Basson kuuleminen
+04B
+08B
+Asteet I–V–vi–IV
+06B
+06D, 06E, 08A
+Capo ja soiva sävellaji
+06D
+01A (maininta)
+Avun häivytys
+06E
+08C
+Dynamiikka osan mukaan
+08D
+02D (vain ajoitus)
+Pitäisikö 06D/06E olla näkyvin aloitus (kysymys 18)? Kyllä, mutta yhtenä oppituntina eikä uutena valikkona. Soinnut-aiheen Ydinopintojen ensimmäinen kortti on pilotti Sama rakenne, vähemmän apua (06B+06D+06E). 06A näkyy sen alla linkkinä „Jos haluat teorian aivan alusta“. Ei uutta päävalikkoa eikä asetuksia.
+Painottuuko suunnitelma yhteen käyttäjään (kysymys 20)? Vain priorisoinnissa, ja se on hyväksyttävää, koska P1 on yksi pilotti. Todellinen riski on aloittelijan aloitusreitin katoaminen (M2), ei aiheiden kattavuus.
+6. Musiikinteorian ja harjoitusesimerkkien faktantarkistus
+Suunnitelman 17 tarkistetussa musiikkiesimerkissä ei ole virheitä. Korjattavaa on kuusi epätarkkuutta, joista yksi on pedagoginen (capo-reitti) ja kaksi koskee betan nykyisiä sivuja.
+Tarkistettu ja oikein:
+Esimerkki
+Tarkistus
+G-duuri I–V–vi–IV
+G–D–Em–C ✓ (asteikko G A B C D E F♯)
+C-duuri I–V–vi–IV
+C–G–Am–F ✓
+D-duuri I–V–vi–IV
+D–A–Bm–G ✓
+Em–C–G–D
+G-duurissa vi–IV–I–V, e-mollissa i–VI–III–VII ✓. Suunnitelman varaus kontekstista on oikea.
+E / Em
+E–G♯–B / E–G–B ✓
+D, Dsus4, D7, Dmaj7
+D–F♯–A; D–G–A; D–F♯–A–C; D–F♯–A–C♯ ✓
+E7 / Em7
+E–G♯–B–D / E–G–B–D ✓
+G-avoin 320003
+Kielet matalasta: G–B–D–G–B–G ✓
+F xx3211
+F–A–C–F ✓
+Capo 5 + G–D–Em–C-muodot
+Soivat C–G–Am–F ✓
+G-muoto capo 2
+Soi A ✓
+Capo 7 + G–D–Em–C-muodot (oma lisäys)
+Soivat D–A–Bm–G ✓
+E- ja A-mollipentatoninen
+E–G–A–B–D; A–C–D–E–G ✓
+G–C–D–G, C–F–G7–C
+I–IV–V–I ✓; G7 = G–B–D–F ✓
+G–C–D–Em
+Loppu V→vi = petollinen lopuke ✓
+07C Em–C-tausta
+E ja G yhteisiä ✓; C kuuluu E-luonnolliseen molliin, ei E-pentatoniseen ✓
+03D ankkurit
+0, 3, 4, 7, 12 puolisävelaskelta; C–E suuri terssi, C–E♭ pieni terssi ✓
+Korjattavat epätarkkuudet:
+1.  Capo-reitti pilotissa ei harjoita siirtoa (M). Capo 5 + G-muodot = sormet tekevät täsmälleen samat otteet kuin G-duurissa. Oppija ei harjoittele asteiden kuvaamista uusiksi sointunimiksi, vaan oppii vain, että soiva sävellaji vaihtuu. Siksi capo-reitin tehtävä on nimetä soivat soinnut (C, G, Am, F), ei vain soittaa.
+2.  „G-duuri“ soinnun nimenä (m). 05C: „tuttu G-duuri sisältää G–B–D“ ja „C-duurin säveliä“ sekoittavat soinnun ja sävellajin. Korjaa: „G-duurisointu“ ja „C-duurisoinnun sävelet C–E–G“.
+3.  05B:n sanamuoto (m). „erota saman korkuinen unisono ja oktaavi, jotka soivat eri korkeudella“ → „erota unisono (sama korkeus eri kielellä) ja oktaavi (sama nimi, eri korkeus)“.
+4.  Lähtötasokokeilun kierto vaihtuu (m). Kohta 1 on G–D–Em–C, mutta kohdan 4 basso E–C–G–D kuuluu kiertoon Em–C–G–D, siis juuri siihen monitulkintaiseen. Käytä saman kierron bassoa G–D–E–C.
+5.  Fmaj7 xx3210 ei ole F (m). Se on yleinen helpotus, mutta jos sitä tarjotaan, se nimetään Fmaj7:ksi ja kerrotaan, että säväys muuttuu.
+6.  Betan nykyiset sivut. pulssi-ja-komppi sanoo: „Tahdin ensimmäinen isku eli ykkönen on muita painokkaampi.“ Tämä on yleistys, jonka suunnitelman kriteeri 14 kieltää. siirra-kierto-c-duuriin opettaa siirron barré-otteella (I-sointu E-kielen 8. nauhalla), mikä on liian vaikeaa kohderyhmälle. Pilotti korvaa tämän käytännön version; vanha sivu säilyy.
+Hyvä uutinen: betan teoriatekstit ovat jo linjassa suunnitelman tarkennusten kanssa. roomalaiset-numerot selittää slash-soinnun G/B oikein („numero seuraa soinnun perusääntä“), sointujen-tehtavat sanoo funktioiden riippuvan ympäristöstä ja savellajin-tunnistaminen käsittelee G/Em-monitulkintaisuuden kuuntelemalla. Näitä ei tarvitse kirjoittaa uudelleen.
+Vaikeat kysymykset lyhyesti:
+• Saako soinnun päätellä bassosävelestä? Ei slash-soinnuissa: G/B:n bassossa soi B, mutta sointu on G. Basso kertoo basson, ei soinnun laatua. 04B aloittaa perusäänibasson tapauksista ja kertoo poikkeuksen; 03B opettaa merkinnän.
+• Miten Em–C–G–D:n monitulkintaisuus vältetään? Pilotin tausta alkaa G:stä ja päättyy lopukkeeseen D–G, ja melodia lepää G:ssä. E-mollin versio on vertailuesimerkki 04A:ssa, ei pilotissa.
+• Aksentti vs. iskun siirto, hiljaisuus vs. vaimennus: 02B ja 02C erottavat nämä jo oikein. A/B-äänitteiden todelliset erot on tarkistettava äänitiedostoista, kun ne ovat olemassa.
+• Kappale-esimerkit ja oikeudet: betan sivut perustuvat kaupallisten kappaleiden sointutranskriptioihin ja omiin synteettisiin taustoihin. En ota kantaa oikeudelliseen arvioon. Pilotin oma, kappaleeseen sitomaton tausta on näistä vaihtoehdoista vähiten riskialtis.
+7. Top 5 riskiä ja löydöstä
+Neljä viidestä on uusia löydöksiä; vain M5 oli jo suunnitelman omassa riskilistassa (A2/A3). C1 estää pilottikoodin aloittamisen, mutta ei suunnitelman hyväksymistä.
+Tunnus
+Löydös
+Todennettu näyttö
+Vaikutus käyttäjälle
+Ratkaisu
+C1 (uusi; blocker toteutukselle)
+Generaattorin kokonaisuusrakenne on kolmena kopiona
+#133, #134 ja #137 lisäävät kukin layout: "kokonaisuudet", own_unit() ja unit() -funktiot rakenna.py:hyn (+177/+182/+213 riviä) ja muuttavat aiheet.json:ia; diffit koskevat 101–175 tiedostoa. #137:n kuvaus itse mainitsee yhteensovitustarpeen #111:n ja #134:n kanssa.
+Konfliktit ja edistymisregressiot; pilotista tulisi neljäs kopio
+Uusi vaihe P0.5: yksi rakennepohja-PR (generaattori + edistyminen + kokeiltu-merkintä) ennen aihesisältöä. #133, #134 ja #137 rebasetaan sen päälle.
+M2 (uusi)
+Kohderyhmän vaihto on ristiriidassa #116:n hyväksymän linjauksen kanssa
+#116, 20.11.: Ydinopinnot on aiheen johdanto ja „selkeä aloitusreitti“; Rytmin hahmotelmassa pulssi, ykkönen ja ensimmäinen komppikokemus. aiheet.json start = kuuntele-pulssi. PR #134:n avoin Ydinopinnot on juuri nämä alkeistehtävät.
+Aloittelija menettää aloitusreitin tai kokenut turhautuu; molemmat eivät voi olla oletus
+Omistajan päätös #116:ssa. Suositus: Ydinopinnot = 1–2 v taso, ja jokaisen Ydinopinnot-osion alussa yksi rivi „Uusi kitaran kanssa? Aloita Kitaran perusteista ja Rytmin kertauksesta.“ start-arvo muutetaan vasta päätöksen jälkeen.
+M3 (uusi)
+Suunnitelma ei vastaa PR-tilaa
+Puuttuvat: #134 (= v0.9), #137, #109/#114 ja #93 (intervallit, päällekkäin 03D:n kanssa), #117 (teoriaoppaan alasajo). Kaikki vanhat oppitunnit ovat kirjan katkelmia: generaattori lukee osa-N#… -lähteitä. Repossa on jo sisaltorekisteri.json, jota suunnitelma ei mainitse.
+Väärät riippuvuudet ja päällekkäistä työtä
+Päivitä osiot 0, 13 ja 16 (osio 11, kohdat 1 ja 15).
+M4 (uusi)
+Ensiopetus on päällekkäinen
+03C/05A lähes sanatarkasti; 06E ≈ 08C; 02D ≈ 08D; terssi neljässä tehtävässä (03A, 03D, 04C, 06A).
+Sama asia opetetaan eri tavoin ja merkinnät riitelevät; 31 tehtävästä tulee käytännössä noin 27 erillistä opetusta
+Ensiopetuksen taulukko (osio 5) suunnitelmaan.
+M5 (alkuperäinen A2+A3, vahvistettu)
+Ääni ja iPhone-tahdistus
+#132 avoin; #135 ja #136 drafteja; v0.9:n A/B/C-tilavirhe on dokumentoitu mutta tarkistamatta. #129:ssä on jo H4-videomittausmenetelmä.
+Pilotti nojaa ääneen; synkkavirhe rikkoo häivytyksen
+Pilotti käyttää vain olemassa olevaa synteettistä kitaraääntä tai #133:n CC0-pankkia. Ei uutta äänimoottoria. Tahdistus mitataan #129:n menetelmällä. JS:tön tekstikartta.
+Minor-löydökset: m1 02C:n kuormitus. m2 kitara/soita-ensin-basso ja kitara/sointukierrot puuttuvat molemmista kartoista, vaikka edellinen on juuri 04B/05A:n „soita basso ensin“ -harjoitus. m3 kieliasu 05B ja 05C. m4 terminologia: #115:n Lisäopinnot vs. suunnitelman syventävät kokonaisuudet. m5 lähtötasokokeilun bassokierto.
+Suunnitelman alkuperäiset riskit A1–A6: A1 (inventaario): 68 kortin kartta edistää mutta ei sulje. A2: vahvistettu, v0.9 on PR #134. A3 ja A4: auki. A5: auki, vain käyttäjäkoe sulkee. A6: RSL:n luvut pitävät paikkansa, rajaus on oikein kirjattu.
+8. Suositeltu toteutusjärjestys
+Pilotti säilyy ensimmäisenä sisältönä, mutta sen eteen tulee uusi rakennevaihe P0.5. Etenemisjärjestys on suora: kukin vaihe alkaa vasta edellisen portin jälkeen.
+1.  P0 – Päätökset ja dokumentti (ei koodia). Osion 11 korjaukset suunnitelmaan. Omistajan päätös M2:sta #116:ssa. #115:een kirjaus pilottiaiheesta ja siitä, kumpi PR (#133 vai #137) on Soinnut-aiheen Ydinopintojen pohja. Termit #115:n mukaisiksi.
+    ◦ Portti: päätökset kirjattu issueihin.
+2.  P0.5 – Yhteinen rakennepohja (ensimmäinen koodi-Draft-PR, ei sisältöä). layout: "kokonaisuudet" -tuki rakenna.py:hyn yhtenä versiona, Aiemmat-osio, kokeiltu-merkintä omana avaimenaan erillään musiikin-kartta:luvut-joukosta sekä testit. Pohjana #137:n laajin versio. #133, #134 ja #137 rebasetaan tämän päälle.
+    ◦ Portti: kaikki 81 oppi-sivua generoituvat ilman tahattomia muutoksia, vanhat suoritusmerkinnät säilyvät ja linkkitarkistus menee läpi.
+3.  P1 – Pilotti Sama rakenne, vähemmän apua. Yksi standalone-sivu Soinnut-aiheen Ydinopintoihin (06B + 06D + 06E, lisäksi 08C:n teksti ja 01B:n korvaajataulukko). Oma Draft-PR. Uudelleenkäyttö: roomalaiset-numerot (teksti), sointukaaviot ja olemassa oleva synteettinen ääni. siirra-kierto-c-duuriin säilyy vanhana sivuna.
+    ◦ Portti: osion 9 hyväksymisehdot ja omistajan oma 15 minuutin koe oikealla kitaralla. Ei automaattista beta-mergea.
+4.  P2 – Basso ja soinnun laatu (04B, 04C, 08B, 03A). Hyödyntää soita-ensin-basso, kuuntele-bassolinja ja kumpi-on-molli.
+    ◦ Portti: äänilaatu hyväksytty #132:n mukaisesti.
+5.  P3 – Rytmi (02A–02D). v0.9 siirtyy kertaukseksi; shuffle 02B:hen, 16-osat ja 6/8 syventäviin.
+6.  P4 – Otelauta ja melodia (05, 07) sekä 03C/03D-yhdistämiset.
+7.  P5 – Loput (06A, 06C, 08A, 08D, 01). Vanhojen sisältöjen piilotus vain #115:n rivikohtaisilla päätöksillä.
+Haaste pilotin valinnalle (kysymys 29). Pilotti vastaa suoraan neljään käyttäjän seitsemästä tavoitteesta: asteet, muistista soitto, transponointi ja näytön vähentäminen. Bassokuuntelu ensin vastaisi kahteen ja nojaisi äänilaatuun, jonka #132 on vielä auki. Rytmin tarkkuus ensin antaisi ilman mikrofonia vain heikon palautteen. Pilotti myös hyödyntää eniten valmista sisältöä. Pilotti pysyy P1:nä.
+Ei tehdä nyt: mikrofoniarvio, Chordify-API, transkriptio, personointimoottori, uusi äänimoottori, kaikki sävellajit, start-arvon muutos ilman päätöstä, vanhojen sisältöjen poisto.
+9. Ensimmäisen pilotin vaatimusmäärittely
+Pilotti Sama rakenne, vähemmän apua vie G–D–Em–C:n asteiksi, muistista soitettavaksi ja C-duuriin 15–20 minuutissa, yhdellä sivulla ja yhdellä musiikkidatalla. Ehdotettu tunniste on soinnut/sama-rakenne-vahemman-apua (standalone). Merkintä kokeiltu tallennetaan omana tietonaan, ei vanhaan musiikin-kartta:luvut-joukkoon.
+Kohderyhmä ja tilat. Oppija osaa otteet G, D, Em, C ja Am; teoriaa ei oleteta. Alkutila: soittaa G–D–Em–C:tä näytöltä. Lopputila: (a) selittää I–V–vi–IV:n omin sanoin, (b) soittaa 8 tahtia osakartalta, (c) nimeää ja soittaa C–G–Am–F:n tuettuna, (d) tietää, että muistista soittaminen ja korvalla tunnistaminen ovat eri taitoja.
+Käyttäjäpolku:
+1.  Kuuntele (1 min): 8 tahdin tausta, kartta näkyvissä.
+2.  Ymmärrä (2–3 min): G-duuriasteikko, asteet I, V, vi ja IV, kunkin soinnun perusääni. Lyhyt maininta, että kaikki toimivat soinnut eivät tule samasta asteikosta.
+3.  Soita (2 min): kaksi kierrosta soinnut näkyvissä.
+4.  Piilota (5 min): käyttäjä valitsee tilan: Soinnut ja tahdit, Asteet ja tahdit, Vain osat ja tahdit tai Ei sointutietoja. Tilat ovat valittavia, eivät vaikeusjärjestys. Vaihto tulee voimaan seuraavan tahdin alussa. Näytä soinnut on aina yhden painalluksen päässä.
+5.  Siirrä (5 min): „Mitkä ovat I, V, vi ja IV C-duurissa?“ Vastaus paljastuu vasta yrityksen jälkeen. Soitto: F xx3211 (01B:n taulukko). Capo-reitti (capo 5 + G-muodot) on tarjolla, ja silloin tehtävänä on nimetä soivat soinnut.
+6.  Sovella (valinnainen): sama data, uusi järjestys I–vi–IV–V (G–Em–C–D) korvalla ilman näyttöä. Merkintä on vain kokeilin korvalla, ei läpäisyä.
+Minimaalinen musiikkidata. Yksi kanoninen rakenne, josta sointunimet, asteet, basso ja otteet johdetaan:
+{
+  "id": "sama-rakenne",
+  "savellaji": "G",
+  "tahtilaji": "4/4",
+  "tempo": 92,
+  "osat": [{ "nimi": "A", "asteet": ["I", "V", "vi", "IV"], "toisto": 2 }],
+  "loppu": "I"
+}
+C-versio on sama data arvolla "savellaji": "C". Loppu I:ssä ratkaisee Em–C–G–D:n monitulkintaisuuden. Ääni: olemassa oleva synteettinen kitara, basso ja rummut, 2 sävellajia × 92 BPM. Toinen tempo (80) vain erillisenä tiedostona, ellei nykyinen toisto tue temposäätöä.
+Merkinnät erotettuina: kokeiltu = käyttäjän painallus. Osasi vastata = C-duurin aste→sointu-kysymys oikein ilman paljastusta, uusi kysymys virheen jälkeen. Soitti todella = vain käyttäjän oma ilmoitus ja valinnainen oma äänite; ei tallenneta osaamiseksi.
+Kielletyt oikopolut: satunnainen klikkaus → „tehty“; capo transponoinnin korvikkeena; mikrofoni; Chordify; lukitus; soittovuosiin perustuva luokittelu.
+Hyväksymisehdot (13, testattavia):
+#
+Alue
+Ehto
+1
+Pedagogiikka
+Sivu ei opeta G-, D-, Em- tai C-otetta eikä komppiliikettä; otekaaviot vain avattavana muistutuksena.
+2
+Pedagogiikka
+C-duurin sointunimet eivät näy ennen yritystä; paljastus yhdellä painalluksella.
+3
+Pedagogiikka
+Väärän vastauksen jälkeen tulee uusi kysymys, ei sama uudelleen.
+4
+Musiikki
+Yksikkötesti: I–V–vi–IV → G–D–Em–C ja C–G–Am–F; basso G–D–E–C ja C–G–A–F, kaikki samasta datasta.
+5
+Musiikki
+Capo-vaihtoehdon teksti: „Otteet G–D–Em–C, soivat C–G–Am–F.“
+6
+Audio ja synkka
+Näkymän sointukorostus ja äänen sointuvaihto mitataan #129:n H4-menetelmällä iPhone Safarilla ja Android Chromella (kaiutin ja kuulokkeet). Raja-arvo on omistajan päätös, ei suunnitelman lupaus.
+7
+Audio
+Tilan vaihto kesken tahdin 3 näkyy vasta tahdin 4 alussa.
+8
+Audio
+Näytön lukitus tai välilehden vaihto pysäyttää äänen; jatko käyttäjän painalluksesta ilman tilaristiriitaa (vrt. issue #9).
+9
+Mobiili ja saavutettavuus
+320 px ja 200 % zoom ilman vaakavieritystä; kaikki ohjaimet näppäimistöllä; tilan vaihto ilmoitetaan ruudunlukijalle; kosketusalue vähintään 44 × 44 px; Knoppitieto-painikkeella saavutettava nimi (ei pelkkä „plektra“).
+10
+Ilman JS:ää / ääntä
+Tekstikartta (G–D–Em–C, asteet, C-versio) on luettavissa.
+11
+Regressio
+68 korttia, 5 kitara-sivua ja 8 aihesivua toimivat entisillä URL:eilla; musiikin-kartta:luvut ennallaan; kokeiltu ei kasvata vanhoja laskureita.
+12
+Tallennus
+localStorage estetty (yksityinen ikkuna) → sivu toimii, merkintä vain istunnon ajan.
+13
+Käyttäjäkoe
+Omistaja ja vähintään yksi muu kohderyhmän soittaja oikealla kitaralla. Kirjataan aika, missä vaiheessa apu palautettiin ja soittiko 8 tahtia osakartalta.
+Negatiiviset testitapaukset:
+• Sujuva komppaaja: pääsee vaiheeseen 4 ilman pakollisia esivaiheita; vaiheet 1–3 ovat ohitettavissa.
+• Teorian täysi aloittelija ei ymmärrä vi-astetta: vaihe 2 näyttää asteikon numeroituna ja Em:n kuudentena sävelenä; „pieni kirjain = molli“ yhdellä lauseella.
+• Muistista kyllä, korvalla ei: vaiheen 6 tulos tallennetaan erikseen, eikä vaiheen 4 onnistuminen näytä korvakuulolta.
+• Näkymän vaihto kesken tahdin: ehto 7.
+• Vanha laskuri: ehto 11; pilotin kokeiltu ei näy Soinnut-aiheen vanhojen sisältöjen laskurissa.
+10. Vastaus henkilökohtaisesta hyödystä
+Ensimmäisellä 15–30 minuutin kerralla kahden vuoden soittaja oppii lukemaan tutun kierron asteina ja soittamaan sen kevyeltä kartalta kahdessa sävellajissa. Hän ei vielä opi tunnistamaan uusia kiertoja korvalla.
+Mitä opitaan ensimmäisellä kerralla:
+• Miksi G–D–Em–C on I–V–vi–IV ja mitä pieni kirjain tarkoittaa.
+• Että sama asteiden järjestys on C-duurissa C–G–Am–F, ja miten F soitetaan ilman barréta.
+• Miten soittaminen sujuu, kun sointunimet korvautuvat asteilla tai pelkällä tahtikartalla.
+• Että capo vaihtaa soivan sävellajin, vaikka otteet pysyvät samoina.
+Todellinen soittokoe ennen ja jälkeen (ilman sivustoa):
+1.  Valitse oma kappale, jossa on toistuva neljän soinnun kierto.
+2.  Soita säkeistö ja kertosäe ensin Chordifyn kanssa.
+3.  Kirjoita kierto paperille asteina (esim. I–V–vi–IV) ja soita ilman Chordifya.
+4.  Kirjaa, montako tahtia menee ennen kuin katsot ruutua tai pysähdyt, ja onnistuuko sama kierto toisessa sävellajissa.
+Mittari on havaittava ja toistettava, mutta yhden ihmisen mittaus ei todista menetelmän tehoa.
+Mitä jää opettelematta: uusien kiertojen tunnistaminen korvalla, basson kuuleminen (P2), rytminen tarkkuus ja kompin vaihtelu (P3), otelaudan sävelet ja melodinen soitto (P4) sekä asteikon ulkopuoliset soinnut kuten ♭VII.
+Harjoittelurutiinin realismi (kysymys 31). Suunnitelman 20–30 min 4–5 kertaa viikossa on harrastajalle kohtuullinen suositus. En esitä harjoittelututkimuksen perusteella oppimistulosta enkä aikataulua. Kuuden viikon ohjelma on pidettävä suunnitelmana, kuten suunnitelma itsekin sanoo.
+11. Täsmälliset muutosesitykset suunnitelmaan
+Esitän 16 kohdistettua muutosta; kosmeettisia muutoksia ei ole mukana. Viittaukset ovat suunnitelman v1.0 lukuihin.
+#
+Kohta
+Ennen
+Jälkeen
+1
+§0 Projektilähtö
+„Soinnut-Draft-PR #133:n metadata ja kolme uutta G-kolmisointutuntia sekä paikallinen Rytmin v0.9:n HTML“
+„Draft-PR #133 ja sen päälle pinottu #137 (Soinnut v0.5; arkistoi #133:n G-ryhmän). Rytmin v0.9 = Draft-PR #134 (haara claude/rytmi-ydinopinnot-v09); paikallinen HTML vertailuaineistona.“
+2
+§1 suunnittelusäännöt
+–
+Uusi sääntö: „Kukin käsite opetetaan ensimmäisen kerran yhdessä tehtävässä; muut muistuttavat yhdellä lauseella ja soveltavat.“ + osion 5 ensiopetustaulukko.
+3
+§2 kokeilu, kohta 4
+„Kuuntele yksinkertainen basso E–C–G–D“
+„Kuuntele saman G–D–Em–C-kierron basso G–D–E–C“
+4
+§4 02B
+–
+Lisäys: „Valinnainen B-versio: sama kierto straight- ja shuffle-tuntumalla.“
+5
+§4 02C
+Teoria: kahdeksasosa, synkopoinnin alkeet, kesto, vaimennus
+„Teoria: tauko vs. vaimennus. Synkopointi 02D:ssä.“
+6
+§4 02D
+–
+„Ydin: osan vaihdon ennakointi ajassa. Dynamiikan ensiopetus 08D:ssä.“
+7
+§5 03B
+–
+Lisäys: „Slash-merkintä (G/B, D/F♯) ja 5; merkinnän lukeminen, ei kuulotunnistus.“
+8
+§5 03C
+„Sovellus: etsi G, A, C ja D matalilta kieliltä“
+„Sovellus: nimeä F♯ D-soinnussa ja B♭ otelaudalla; sijainnit 05A:ssa.“
+9
+§7 05B ja 05C
+„saman korkuinen unisono ja oktaavi, jotka soivat eri korkeudella“; „tuttu G-duuri sisältää“; „C-duurin säveliä“
+„unisono (sama korkeus) ja oktaavi (eri korkeus)“; „tuttu G-duurisointu sisältää“; „C-duurisoinnun säveliä C–E–G“
+10
+§8 06A
+„olemassa oleva PR #133 … osana ensimmäistä ydinoivallusta“
+„Lähde päätetään P0:ssa: #133:n G-ryhmä tai #137:n v0.5. #137:n tehtävät ovat päällekkäisiä 03A/04C:n ja 06C:n kanssa.“
+11
+§8 06D
+„valitse uusi aloitusääni ja rakenna kierto opastetusti“
+„valitse G, C tai D (A capolla). D:ssä Bm xx4432 tai capo 7 + G–D–Em–C-muodot.“
+12
+§11 vaihe 4
+–
+Lisäys: „Tilat ovat valittavia, eivät vaikeusjärjestys.“
+13
+§11 vaihe 5
+–
+Lisäys: „Capo-reitillä tehtävä on nimetä soivat soinnut, koska otteet eivät muutu.“
+14
+§10 08C
+„aloita näkyvästä 8 tahdin kartasta … piilota sointunimet“
+„Käyttää 06E:n häivytystä; ei uutta käyttöliittymää. Uutta on vain oman kappaleen paperikartta.“
+15
+§12 taulukko
+–
+Lisää rivit: oppi/kitara/soita-ensin-basso.html → 04B/05A; oppi/soinnut/siirra-kierto-c-duuriin.html → pilotti korvaa käytännön version (barré); oppi/korva/savellajin-tunnistaminen.html → 04A; oppi/kappaleet/kappale-asteina.html → 06B/08A. Huomautus: pulssi-ja-komppi sisältää lauseen „ykkönen on muita painokkaampi“.
+16
+§13 ja §16
+–
+Lisää P0.5 (osio 8). Avoimiin asioihin: #117, #109/#114, #93, sisaltorekisteri.json, aiheet.json:n start, termit #115:n mukaan (syventävät = #115:n Lisäopinnot).
+12. Loppupäätös ja avoimet portit
+HYVÄKSY KORJAUKSIN. Mikään tässä raportissa ei ole beta-merge- eikä julkaisuvaltuutus. Suunnitelma on hyvä lähtöaineisto; pilotin koodi alkaa vasta, kun C1 ja M2 on ratkaistu.
+Tila
+Asiat
+Suljettu tällä auditoinnilla
+Suunnitelman musiikkiesimerkit (17 tarkistettua). Reittien olemassaolo betassa (55/55). 68 kortin kartan täydellisyys korttitasolla. RSL:n aikahaarukat. Suunnitelman ja liitteen identtisyys.
+Vaatii omistajan päätöksen
+Kohderyhmä ja aloittelijan reitti #116:ssa (M2). #133 vai #137 Soinnut-aiheen pohjana. start-arvo. Termit (syventävät vs. Lisäopinnot). Kappalepohjaisten esimerkkien oikeudet. Synkan raja-arvo.
+Vaatii teknistä työtä ennen pilottia
+Yhteinen rakennepohja P0.5 (C1).
+Vaatii käytännön testin
+Pilotin hyöty oikealla kitaralla (A5). iPhone- ja Android-tahdistus (M5). Äänen laatu ja kuultavuus (A3). Turhautuminen ja vaikeustaso. Rytmiharjoitusten hyöty (A4).
+Ei tarkistettu tässä
+Rytmin v0.9 -HTML ja sen A/B/C-virhe koodista. Trinity, Guitar Tricks, Fender, UCL, Berklee ja Chordify. #54:n kommentit. Testiajot.
+Seuraava askel: omistaja tekee P0-päätökset #116:ssa ja #115:ssä ja vie osion 11 korjaukset PR #138:aan; sen jälkeen P0.5:n rakennepohja-PR voidaan rajata.
+Lähteet
+• Ydinopintojen suunnitelma (PR #138)
+• Riippumattoman auditoinnin toimeksianto
+• Betan 68 oppitunnin reittikartta
+• Musiikin kartta, beta-haara
+• PR #133, PR #134, PR #137, PR #138
+• Issue #115, #116, #69
+• RSL Rockschool – Learn Electric Guitar
+• JustinGuitar – Site map and lesson structure
