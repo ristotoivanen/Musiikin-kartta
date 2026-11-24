@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Sointipaja (beta) – Musiikin kartta</title>
+<title>Sointupaja (beta) – Musiikin kartta</title>
 <link rel="stylesheet" href="assets/otelauta.css?v=36a704ebe6">
 <link rel="stylesheet" href="assets/harjoittelija/app.css?v=41991f8ecc">
 <link rel="stylesheet" href="assets/paavalikko.css?v=4e5c7fbf95">
@@ -132,13 +132,13 @@ main.practice-main {max-width: 700px; padding: 14px 10px 30px}
 </header>
 <main class="practice-main" id="sisalto">
 <a href="musapelit.html#aihe-soinnut">← Musapelit: Soinnut ja harmonia</a>
-<p class="eyebrow">SOINTIPAJA · TASOT 1–4</p>
-<h1>Sointipaja <span class="mode-badge">beta</span></h1>
+<p class="eyebrow">SOINTUPAJA · TASOT 1–4</p>
+<h1>Sointupaja <span class="mode-badge">beta</span></h1>
 <p class="tools-note">Kokeiluversio. <a href="kitaraharjoittelija.html?polku=soinnut">Avaa myös aiempi Tunnista avoin sointu -harjoitus.</a></p>
 <noscript><p>Kokeilu tarvitsee JavaScriptin. <a href="oppi/soinnut/">Sointujen teoria</a> on käytettävissä myös ilman sitä.</p></noscript>
 <p id="load-error" role="status" hidden>Harjoituksen lataus ei onnistunut. <a href="sointipaja-prototyyppi.html">Kokeile uudelleen</a> tai <a href="kitaraharjoittelija.html?polku=soinnut">avaa nykyinen harjoitus</a>.</p>
 <section class="proto chord-journey" aria-label="Avosointujen tunnistus" id="prototype" hidden>
-<div class="toolbar" id="prototype-mode" role="group" aria-label="Sointipajan tila">
+<div class="toolbar" id="prototype-mode" role="group" aria-label="Sointupajan tila">
 <button type="button" id="mode-practice" aria-pressed="true">Harjoittele</button>
 <button type="button" id="mode-challenge" aria-pressed="false">Pelaa · Sointuhaaste</button>
 </div>
@@ -870,7 +870,7 @@ byId('challenge-return').addEventListener('click',returnPractice);
 document.addEventListener('visibilitychange',()=>{if(inGame())syncGame();});
 window.addEventListener('pagehide',()=>{if(inGame())openChallenge('Peli keskeytettiin sivulta poistuttaessa.');});
 
-try {byId('prototype').hidden=false;chooseLevel(0,false);} catch(error) {console.error('Sointipajan lataus epäonnistui',error);byId('prototype').hidden=true;byId('load-error').hidden=false;}
+try {byId('prototype').hidden=false;chooseLevel(0,false);} catch(error) {console.error('Sointupajan lataus epäonnistui',error);byId('prototype').hidden=true;byId('load-error').hidden=false;}
 })();
 </script>
 </body>
