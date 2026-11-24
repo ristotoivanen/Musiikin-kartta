@@ -1,7 +1,7 @@
 // Sointuhaaste #48: selainriippumaton, testattava pelitila. Aika annetaan millisekunteina.
 (() => {
   'use strict';
-  const times=[30,60,120,180], penalties=[3,4,5];
+  const times=[30,60,120,180], penaltySeconds=4;
   function cohorts(levels) {
     const seen=new Set();
     return levels.map(level=>{
@@ -15,7 +15,7 @@
   }
   function createGame({pool,duration,penalty,now,orderFor,random=Math.random}){
     const names=[...new Set(pool)];
-    if(names.length<2||!times.includes(duration)||!penalties.includes(penalty)||!Number.isFinite(now))throw new Error('Virheelliset peliasetukset');
+    if(names.length<2||!times.includes(duration)||penalty!==penaltySeconds||!Number.isFinite(now))throw new Error('Virheelliset peliasetukset');
     const deadline=now+duration*1000;
     let deck=[],current=null,lockedUntil=now,score=0,firstTry=0,errors=0,penaltyMs=0;
     let wrong=new Set(),missed={},lastNow=now;
@@ -63,5 +63,5 @@
     try{storage.setItem(key,JSON.stringify(best));return {best,previous,saved:true,newRecord:previous===null||score>previous};}
     catch{return {best,previous,saved:false,newRecord:false};}
   }
-  globalThis.SointipajaChallenge={times,penalties,cohorts,poolFor,createGame,recordKey,readRecord,saveRecord};
+  globalThis.SointipajaChallenge={times,penaltySeconds,cohorts,poolFor,createGame,recordKey,readRecord,saveRecord};
 })();
