@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Sointipaja – Tasot 1–2</title>
+<title>Sointipaja – Tasot 1–4</title>
 <link rel="stylesheet" href="assets/otelauta.css">
 <link rel="stylesheet" href="assets/harjoittelija/app.css">
 <style>
@@ -93,7 +93,7 @@ main.practice-main {max-width: 700px; padding: 14px 10px 30px}
 <body>
 <main class="practice-main">
 <a href="kitaraharjoittelija.html?polku=soinnut">← Nykyinen harjoitus</a>
-<p class="eyebrow">SOINTIPAJA · TASOJEN 1–2 DEMO · #48</p>
+<p class="eyebrow">SOINTIPAJA · TASOJEN 1–4 DEMO · #48</p>
 <h1>Sointipaja</h1>
 <noscript><p>Kokeilu tarvitsee JavaScriptin. <a href="oppi/soinnut/">Sointujen teoria</a> on käytettävissä myös ilman sitä.</p></noscript>
 <p id="load-error" role="status" hidden>Harjoituksen lataus ei onnistunut. <a href="sointipaja-prototyyppi.html">Kokeile uudelleen</a> tai <a href="kitaraharjoittelija.html?polku=soinnut">avaa nykyinen harjoitus</a>.</p>
@@ -157,7 +157,7 @@ main.practice-main {max-width: 700px; padding: 14px 10px 30px}
 </details>
 </section>
 <p><a href="oppi/soinnut/">Soinnut ja harmonia – Ydinopinnot</a></p>
-<p class="tools-note">Ääninäytteet: <a href="assets/audio/soinnut/LAHTEET.md">Meta Steel Guitar, CC0 1.0</a>. Erillinen tasojen 1–2 demo (#187:n yhteinen otelauta), ei korvaa nykyistä harjoitusta. Tulokset säilyvät tämän sivuistunnon ajan.</p>
+<p class="tools-note">Ääninäytteet: <a href="assets/audio/soinnut/LAHTEET.md">Meta Steel Guitar, CC0 1.0</a>. Erillinen tasojen 1–4 demo (#187:n yhteinen otelauta), ei korvaa nykyistä harjoitusta. Tulokset säilyvät tämän sivuistunnon ajan.</p>
 </main>
 <script src="assets/otelauta.js" onerror="document.getElementById('load-error').hidden=false"></script>
 <script src="assets/sointipaja-levels.js"></script>
@@ -347,7 +347,7 @@ const base = new URL('assets/audio/soinnut/', location.href);
   }, true);
 
 
-const grips = {"C":[0,1,0,2,3,null],"G":[3,0,0,0,2,3],"D":[2,3,2,0,null,null],"Em":[0,0,0,2,2,0],"Am":[0,1,2,2,0,null],"E":[0,0,1,2,2,0],"A":[0,2,2,2,0,null],"Dm":[1,3,2,0,null,null],"D7":[2,1,2,0,null,null],"A7":[0,2,0,2,0,null],"E7":[0,0,1,0,2,0]};
+const grips = {"C":[0,1,0,2,3,null],"G":[3,0,0,0,2,3],"D":[2,3,2,0,null,null],"Em":[0,0,0,2,2,0],"Am":[0,1,2,2,0,null],"E":[0,0,1,2,2,0],"A":[0,2,2,2,0,null],"Dm":[1,3,2,0,null,null],"D7":[2,1,2,0,null,null],"A7":[0,2,0,2,0,null],"E7":[0,0,1,0,2,0],"B7":[2,0,2,1,2,null],"C7":[0,1,3,2,3,null],"G7":[1,0,0,0,2,3],"Am7":[0,1,0,2,0,null],"Em7":[0,0,0,0,2,0],"Dm7":[1,1,2,0,null,null],"Cmaj7":[0,0,0,2,3,null],"Fmaj7":[0,1,2,3,null,null],"Dsus2":[0,3,2,0,null,null],"Dsus4":[3,3,2,0,null,null],"Asus2":[0,0,2,2,0,null],"Asus4":[0,3,2,2,0,null],"Cadd9":[3,3,0,2,3,null]};
 const strings = globalThis.MusicMapFretboard.STRING_NAMES;
 const longStrings = ['ohut e','B','G','D','A','paksu E'];
 const sampleStrings = ['HighE','B','G','D','A','LowE'];
@@ -355,11 +355,15 @@ const chrom = ['C','Cs','D','Ds','E','F','Fs','G','Gs','A','As','B'];
 const open = globalThis.MusicMapFretboard.OPEN_PITCHES;
 const {levels,orderFor}=globalThis.SointipajaLevelModel;
 let levelIndex=0, level=levels[levelIndex];
-const major=[0,4,7], minor=[0,3,7], dominant7=[0,4,7,10];
+const major=[0,4,7], minor=[0,3,7], dominant7=[0,4,7,10], minor7=[0,3,7,10], major7=[0,4,7,11], sus2=[0,2,7], sus4=[0,5,7], add9=[0,4,7,14];
 const chords = {
   C:{root:0,intervals:major}, G:{root:7,intervals:major}, D:{root:2,intervals:major},
   Em:{root:4,intervals:minor}, Am:{root:9,intervals:minor}, E:{root:4,intervals:major}, A:{root:9,intervals:major},
   Dm:{root:2,intervals:minor}, D7:{root:2,intervals:dominant7}, A7:{root:9,intervals:dominant7}, E7:{root:4,intervals:dominant7},
+  B7:{root:11,intervals:dominant7}, C7:{root:0,intervals:dominant7,spell:{10:'B♭'},omitted:[7]}, G7:{root:7,intervals:dominant7},
+  Am7:{root:9,intervals:minor7}, Em7:{root:4,intervals:minor7}, Dm7:{root:2,intervals:minor7},
+  Cmaj7:{root:0,intervals:major7}, Fmaj7:{root:5,intervals:major7},
+  Dsus2:{root:2,intervals:sus2}, Dsus4:{root:2,intervals:sus4}, Asus2:{root:9,intervals:sus2}, Asus4:{root:9,intervals:sus4}, Cadd9:{root:0,intervals:add9},
 };
 const contrasts={
   D:'D-duurissa on suuri terssi F♯. Dm:ssä se vaihtuu F:ksi, D7:ssä mukaan tulee C.',
@@ -370,7 +374,20 @@ const contrasts={
   E:'E-duurissa on G♯. E7:ssä mukaan tulee D, pieni septimi.',
   E7:'E-duurin sävelten E, G♯ ja B lisäksi mukana on D, pieni septimi.',
   Am:'Am:ssä on C, kun A-duurissa on C♯.',
-  Em:'Em:ssä on G, kun E-duurissa on G♯.'
+  Em:'Em:ssä on G, kun E-duurissa on G♯.',
+  B7:'B-duurin sävelten B, D♯ ja F♯ lisäksi A on pieni septimi.',
+  C7:'C7:n pieni septimi on B♭. Tästä tavallisesta avoimesta otteesta puuttuu kvintti G, mutta perussävel, suuri terssi ja pieni septimi säilyvät.',
+  G7:'G-duurin sävelten G, B ja D lisäksi F on pieni septimi.',
+  Am7:'Am-soinnun A, C ja E lisäksi G on pieni septimi.',
+  Em7:'Em-soinnun E, G ja B lisäksi D on pieni septimi.',
+  Dm7:'Dm-soinnun D, F ja A lisäksi C on pieni septimi.',
+  Cmaj7:'C-duurin sävelten C, E ja G lisäksi B on suuri septimi. C7:ssä se olisi B♭.',
+  Fmaj7:'F-duurin sävelten F, A ja C lisäksi E on suuri septimi.',
+  Dsus2:'D-duurin terssi F♯ korvautuu suurella sekunnilla E. Sus-soinnussa ei ole terssiä.',
+  Dsus4:'D-duurin terssi F♯ korvautuu kvartilla G. Sus-soinnussa ei ole terssiä.',
+  Asus2:'A-duurin terssi C♯ korvautuu suurella sekunnilla B. Sus-soinnussa ei ole terssiä.',
+  Asus4:'A-duurin terssi C♯ korvautuu kvartilla D. Sus-soinnussa ei ole terssiä.',
+  Cadd9:'C-duurin C, E ja G säilyvät; mukaan tulee D, nooni. Septimiä ei lisätä.'
 };
 const names = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
 const byId = id => document.getElementById(id);
@@ -380,9 +397,10 @@ let results=[], missed={}, previous=null;
 let current, rootChoice=null;
 const audioStatus=byId('audio-status'), stopButton=byId('stop');
 const pitch = (s,f) => open[s]+f;
-const nameOf = n => names[n%12]+(Math.floor(n/12)-1);
-const roles={0:'perussävel',3:'pieni terssi',4:'suuri terssi',7:'kvintti',10:'pieni septimi'};
-const roleOf = n => roles[(n-chords[current].root+12)%12] || 'sointusävel';
+const spelledName = pc => chords[current].spell?.[pc] || names[pc];
+const nameOf = n => spelledName(n%12)+(Math.floor(n/12)-1);
+const roles={0:'perussävel',2:'suuri sekunti',3:'pieni terssi',4:'suuri terssi',5:'puhdas kvartti',7:'kvintti',10:'pieni septimi',11:'suuri septimi',14:'suuri nooni'};
+const roleOf = n => {const def=chords[current],pc=(n-def.root+12)%12;return roles[def.intervals.find(i=>i%12===pc)] || 'sointusävel';};
 const sampleOf = (s,f) => {const n=pitch(s,f);return sampleStrings[s]+':'+chrom[n%12]+(Math.floor(n/12)-1);};
 function voiced() {return grips[current].flatMap((f,s)=>f===null?[]:[{s,f}]).reverse();}
 function highlight(indices) {document.querySelectorAll('#board .mark').forEach(b=>b.classList.toggle('sounding',indices.includes(Number(b.dataset.string))));}
@@ -520,14 +538,14 @@ function select(name){
   feedback.className='feedback good';
   feedback.replaceChildren(el('strong','Oikein!'),document.createTextNode(' Tämä on '+current+'-sointu.'));
   const {root,intervals}=chords[current];
-  byId('notes').textContent='Sointusävelet: '+intervals.map(n=>names[(root+n)%12]).join(' – ')+'. Otteessa soi matalasta korkeaan: '+voiced().map(({s,f})=>nameOf(pitch(s,f))).join(' · ')+'.';
+  byId('notes').textContent='Sointusävelet: '+intervals.map(n=>spelledName((root+n)%12)).join(' – ')+'. Otteessa soi matalasta korkeaan: '+voiced().map(({s,f})=>nameOf(pitch(s,f))).join(' · ')+'.';
   byId('contrast').hidden=levelIndex===0||!contrasts[current];byId('contrast').textContent=contrasts[current]||'';
   byId('note-detail').textContent='Paina otteen merkkejä ja kuuntele säveliä.';
   byId('explain').hidden=false;byId('next').hidden=false;
   byId('next').textContent=index===order.length-1?'Kierroksen tulos →':'Seuraava sointu →';
   updateAnswers();for(const b of byId('board').querySelectorAll('.mark')){
     const fret=Number(b.dataset.fret),n=pitch(Number(b.dataset.string),fret);
-    b.classList.add('revealed');if(fret!==0)b.textContent=names[n%12];
+    b.classList.add('revealed');if(fret!==0)b.textContent=spelledName(n%12);
     b.setAttribute('aria-label',b.getAttribute('aria-label')+', '+nameOf(n)+', '+roleOf(n));
   }
   updateHeader();listen(byId('listen'),'chord');

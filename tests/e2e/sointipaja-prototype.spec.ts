@@ -207,8 +207,8 @@ test('level 2: contrasts, seventh roles, all eleven chords and free navigation',
   for(const n of ['C','G','D','Em','Am','E','A','Dm','D7','A7','E7'])await solve(n);
   await expect(page.locator('#done-heading')).toHaveText('Taso 2 valmis');
   await expect(page.locator('#result')).toContainText('30/30 oikein ensimmäisellä yrityksellä');
-  await expect(page.locator('#next-level')).toBeHidden();
-  await expect(page.locator('#future')).toBeVisible();
+  await expect(page.locator('#next-level')).toBeVisible();
+  await expect(page.locator('#future')).toBeHidden();
   await page.locator('#restart').click();
   await expect(page.locator('#progress')).toHaveText('Sointu 1 / 8');
   await page.locator('#settings summary').click();
@@ -289,4 +289,42 @@ test('natural root positions stay fixed between rounds and unavailable roots are
   await expect(page.locator('#answers button')).toHaveCount(0);
   await roots.getByRole('button',{name:'E',exact:true}).click();
   await expect(page.locator('#answers button')).toHaveText(['Em','E','E7']);
+});
+
+test('levels 3 and 4: new chords, complete review, and theory spelling', async ({ page }) => {
+  test.setTimeout(120000);
+  await page.route('**/assets/audio/soinnut/*', route => route.abort());
+  const roots=page.locator('#roots');
+  const answers=page.locator('#answers');
+  const plan=await page.evaluate(()=>{
+    const model=(globalThis as unknown as {SointipajaLevelModel:{levels:{rounds:{targets:string[],options:string[],repeats:number}[]}[],orderFor:(r:unknown,rng:()=>number,p:string|null)=>string[]}}).SointipajaLevelModel;
+    return model.levels.slice(2).map(l=>{
+      let p:string|null=null;
+      return l.rounds.map(r=>{const order=model.orderFor(r,()=>0,p);p=order[order.length-1];return order;});
+    });
+  });
+  expect(plan.map(l=>l.map(r=>r.length))).toEqual([[6,12,17],[7,14,24]]);
+  for(const [i,rounds] of plan.entries()){
+    await page.getByRole('button',{name:new RegExp('Taso '+(i+3)+' ·')}).click();
+    for(const [j,order] of rounds.entries()){
+      for(const name of order){
+        await roots.getByRole('button',{name:name[0],exact:true}).click();
+        await answers.getByRole('button',{name,exact:true}).click();
+        await expect(page.locator('#feedback')).toContainText('Oikein');
+        if(name==='C7'){
+          await expect(page.locator('#notes')).toContainText('C – E – G – B♭');
+          await expect(page.locator('#contrast')).toContainText('puuttuu kvintti G');
+        }
+        if(name==='Cmaj7')await expect(page.locator('#notes')).toContainText('C – E – G – B');
+        if(name==='Cadd9')await expect(page.locator('#notes')).toContainText('C – E – G – D');
+        if(name==='Dsus4')await expect(page.locator('#notes')).toContainText('D – G – A');
+        await page.locator('#next').click();
+      }
+      if(j<rounds.length-1)await page.locator('#continue').click();
+    }
+    await expect(page.locator('#done-heading')).toHaveText('Taso '+(i+3)+' valmis');
+    const n=i===0?35:45;
+    await expect(page.locator('#result')).toContainText(n+'/'+n+' oikein ensimmäisellä yrityksellä');
+  }
+  await expect(page.locator('#next-level')).toBeHidden();
 });
