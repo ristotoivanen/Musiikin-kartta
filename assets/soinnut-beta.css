@@ -1,0 +1,82 @@
+/* Otelautaopas BETA (issue #193): uudistettu Soinnut-näkymä. Värit ja pyöristykset seuraavat visualizer.css:ää. */
+.beta-badge {
+  display: inline-block; vertical-align: .18em; margin-left: 6px; padding: 2px 9px;
+  border-radius: 999px; background: var(--gold); color: #1a1430;
+  font-size: .42em; font-weight: 800; letter-spacing: .12em;
+}
+.visualizer .beta-note {
+  margin: 12px 0 0; padding: 10px 14px; max-width: 740px; font-size: 15px; line-height: 1.5;
+  color: var(--text); border: 1px solid var(--gold); border-left-width: 5px; border-radius: 8px; background: #2a2236;
+}
+
+/* Valinnat */
+.chords-beta { padding-top: 16px; }
+.cb-block { display: flex; flex-wrap: wrap; gap: 12px 24px; margin-bottom: 14px; }
+.cb-block:last-of-type { margin-bottom: 8px; }
+.cb-family { display: grid; gap: 5px; min-width: 0; }
+.cb-label { color: var(--muted); font-size: 13px; font-weight: 650; }
+.cb-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.cb-row button { min-height: 44px; min-width: 44px; padding: 8px 12px; font-size: 14px; }
+.cb-row button[aria-pressed="true"] { color: #fff; background: var(--purple-dark); border-color: var(--lavender); }
+.cb-roots { gap: 5px; }
+.cb-roots button { flex: 0 0 auto; min-width: 48px; padding-inline: 8px; }
+.cb-roots button[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: #1a1430; }
+/* Duuri–molli ja muut vierekkäin: yhtenäinen segmenttirivi. */
+.cb-joined { gap: 0; }
+.cb-joined button { border-radius: 0; margin-left: -1px; }
+.cb-joined button:first-child { border-radius: 8px 0 0 8px; margin-left: 0; }
+.cb-joined button:last-child { border-radius: 0 8px 8px 0; }
+.cb-joined button[aria-pressed="true"] { position: relative; z-index: 1; }
+.cb-row button:disabled { opacity: .45; cursor: not-allowed; }
+.cb-qualities { padding-top: 12px; border-top: 1px solid #453854; }
+.cb-qualities .cb-row { max-width: 100%; }
+.cb-options { align-items: end; }
+.cb-facts { min-height: 24px; }
+.cb-facts dl { display: flex; flex-wrap: wrap; gap: 6px 26px; margin: 0; }
+.cb-facts dl > div { display: grid; gap: 1px; }
+.cb-facts dt { color: var(--muted); font-size: 12px; font-weight: 650; }
+.cb-facts dd { margin: 0; font-size: 15px; font-weight: 650; }
+.cb-frets { font-family: ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: .05em; }
+#cb-help { margin: 8px 0 0; }
+.cb-details { margin-top: 14px; }
+.cb-details[hidden] { display: none; }
+#cb-groups[hidden] { display: none; }
+
+/* Aktiivisten kielten korostus otelaudalla */
+.string-group-band { fill: #b5a3ff; fill-opacity: .18; stroke: #b5a3ff; stroke-opacity: .6; stroke-width: 1; pointer-events: none; }
+
+/* Otelauta ja nelisuuntainen ohjaus */
+.board-layout { display: grid; gap: 10px; }
+.chord-pad {
+  display: grid; grid-template-columns: repeat(3, 56px); grid-template-rows: repeat(3, 52px); gap: 6px;
+  justify-content: center; align-content: center; margin-top: 8px;
+}
+.chord-pad[hidden] { display: none; }
+.chord-pad button { min-width: 0; min-height: 0; width: 100%; height: 100%; padding: 0; font-size: 24px; line-height: 1; }
+.chord-pad button:disabled { opacity: .35; cursor: not-allowed; }
+.chord-pad [data-pad="up"] { grid-column: 2; grid-row: 1; }
+.chord-pad [data-pad="left"] { grid-column: 1; grid-row: 2; }
+.chord-pad [data-pad="count"] { grid-column: 2; grid-row: 2; align-self: center; text-align: center; color: var(--muted); font-size: 14px; font-weight: 650; }
+.chord-pad [data-pad="right"] { grid-column: 3; grid-row: 2; }
+.chord-pad [data-pad="down"] { grid-column: 2; grid-row: 3; }
+@media (min-width: 1000px) {
+  .board-layout:has(.chord-pad:not([hidden])) { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+  .board-layout .chord-pad { margin: 0; }
+  /* Lauta ulottuu kortin vasempaan reunaan mutta ei ohjauksen alle. */
+  .visualizer .board-layout:has(.chord-pad:not([hidden])) #board { margin-right: 0; }
+}
+@media (max-width: 600px) {
+  .cb-roots button { min-width: 44px; flex: 1 1 44px; }
+  .cb-family { width: 100%; }
+  .cb-row button { flex: 1 1 auto; }
+  .cb-joined button { flex: 1 1 0; }
+  .chord-pad { grid-template-columns: repeat(3, 64px); grid-template-rows: repeat(3, 52px); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .cb-row button { transition: background-color .12s; }
+}
+
+/* Perusnäkymä: yleisimmät sointulaadut, Koko ote ja Triadit. */
+.cb-level { margin-bottom: 10px; }
+.cb-row button[hidden], .cb-family[hidden], #cb-groups[hidden] { display: none; }
+.cb-basic .cb-joined [data-quality="min"] { border-radius: 0 8px 8px 0; }

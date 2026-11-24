@@ -85,7 +85,7 @@ test.describe('Otelautakartta, vain visualisointi', () => {
     await expect(toolkit).toBeVisible();
     await expect(toolkit).toHaveAttribute('href', 'soittopakki.html');
     await toolkit.click();
-    await expect(page.getByRole('link', { name: 'Avaa Otelautaopas' })).toHaveAttribute('href', 'otelautaharjoittelija.html');
+    await expect(page.getByRole('link', { name: 'Avaa Otelautaopas', exact: true })).toHaveAttribute('href', 'otelautaharjoittelija.html');
     await page.goto('/index.html');
     await expect(page.getByRole('link', { name: 'Soita taustan mukana' })).toHaveCount(0);
   });

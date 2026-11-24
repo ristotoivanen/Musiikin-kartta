@@ -1,5 +1,6 @@
 /* Otelautakartta: vain visualisointi, ei harjoitustehtäviä tai ääniraitoja. */
 import { getSeventhVoicings, hasSeventhVoicing } from './seventh-voicings.js';
+import { createChordsBeta } from './soinnut-beta.js';
 
 (() => {
   'use strict';
@@ -55,6 +56,15 @@ import { getSeventhVoicings, hasSeventhVoicing } from './seventh-voicings.js';
     octaves: $('octave-legend')
   };
 
+  // Otelautaopas BETA (otelautaopas-beta.html) korvaa vanhan Soinnut-paneelin uudella (assets/soinnut-beta.js).
+  // Vanha sivu ei sisällä #chord-beta-elementtiä ja toimii ennallaan.
+  const betaPanel = $('chord-beta');
+  const betaPad = $('chord-pad');
+  const betaDetails = $('chord-details');
+  const rootField = $('root-field');
+  let chordsBeta = null;
+  let ready = false;
+
   let { rootPC, scaleId } = selectionFromURL(9, 'mp');
   let view = location.hash === '#oktaavit' ? 'octaves'
     : location.hash === '#soinnut' ? 'chords' : 'scale';
@@ -85,13 +95,16 @@ import { getSeventhVoicings, hasSeventhVoicing } from './seventh-voicings.js';
     const url = new URL(location.href);
     url.searchParams.set('toonikka', CHROM[rootPC]);
     url.searchParams.set('asteikko', scaleId);
-    if (view === 'chords') {
+    if (view === 'chords' && chordsBeta) {
+      chordsBeta.writeParams(url.searchParams);
+    } else if (view === 'chords') {
       url.searchParams.set('sointu', chordGroup === 'sevenths' ? seventhQuality : triadQuality);
       url.searchParams.set('ote', chordGroup !== 'sevenths' ? chordMode
         : hasSeventhVoicing(seventhQuality) ? formParam(seventhRoot) : 'all');
     } else {
       url.searchParams.delete('sointu');
       url.searchParams.delete('ote');
+      ['kielet', 'nro', 'taso'].forEach(name => url.searchParams.delete(name));
     }
     url.hash = view === 'octaves' ? 'oktaavit' : view === 'chords' ? 'soinnut' : '';
     history.replaceState(null, '', url.pathname + url.search + url.hash);
@@ -103,6 +116,11 @@ import { getSeventhVoicings, hasSeventhVoicing } from './seventh-voicings.js';
     scaleField.hidden = next !== 'scale';
     rootLabel.textContent = next === 'chords' ? 'Soinnun perussävel'
       : next === 'octaves' ? 'Näytettävä sävel' : 'Kotisävel';
+    // BETA: Soinnut-näkymässä perussävel valitaan suorilla painikkeilla, ei valikosta.
+    if (chordsBeta) {
+      if (rootField) rootField.hidden = next === 'chords';
+      chordsBeta.setActive(next === 'chords');
+    }
     scaleSettings.hidden = next !== 'scale';
     chordSettings.hidden = next !== 'chords';
     octaveSettings.hidden = next !== 'octaves';
@@ -320,18 +338,35 @@ import { getSeventhVoicings, hasSeventhVoicing } from './seventh-voicings.js';
     rootSelect.value = String(rootPC);
     scaleSelect.value = scaleId;
     Object.entries(legends).forEach(([name, element]) => { element.hidden = name !== view; });
-    if (view === 'chords') renderChords();
+    if (view === 'chords' && chordsBeta) {
+      chordsBeta.render();
+      if (ready) syncUrl();
+    } else if (view === 'chords') renderChords();
     else if (view === 'octaves') renderOctaves();
     else renderScale();
   }
 
   CHROM.forEach((name, index) => rootSelect.add(new Option(name, String(index))));
-  updateChordOptions();
+  if (betaPanel && betaPad && betaDetails) {
+    chordsBeta = createChordsBeta({
+      panel: betaPanel, board, pad: betaPad, details: betaDetails,
+      getRoot: () => rootPC,
+      setRoot: pitchClass => { rootPC = pitchClass; },
+      fretCount, automatic,
+      change: render,
+      summary: ({ title: heading, notes }) => { title.textContent = heading; notesLabel.textContent = notes; },
+      afterRender: grip => { updateScrollHint(); if (grip) revealPositions(board, '.grip-notes'); },
+    });
+    chordsBeta.readParams(params);
+  } else {
+    updateChordOptions();
+  }
   pentatonicBoxes.innerHTML = boxOptions('pentatonic');
   threeNoteBoxes.innerHTML = boxOptions('3nps');
 
   rootSelect.addEventListener('change', () => {
     rootPC = Number(rootSelect.value);
+    chordsBeta?.rootChanged();
     gripIndex.full = 0; gripIndex.triad = 0;
     syncUrl();
     render();
@@ -346,40 +381,42 @@ import { getSeventhVoicings, hasSeventhVoicing } from './seventh-voicings.js';
   [pentatonicBoxes, threeNoteBoxes].forEach(group =>
     group.addEventListener('change', render));
   onlyBoxNotes.addEventListener('change', render);
-  chordGroupSelect.addEventListener('change', () => {
-    chordGroup = chordGroupSelect.value;
-    updateChordOptions();
-    syncUrl();
-    render();
-  });
-  qualitySelect.addEventListener('change', () => {
-    if (chordGroup === 'sevenths') {
-      seventhQuality = qualitySelect.value;
-    } else {
-      triadQuality = qualitySelect.value;
-      gripIndex.full = 0; gripIndex.triad = 0;
-    }
-    syncUrl();
-    render();
-  });
-  chordModes.forEach(button => button.addEventListener('click', () => {
-    chordMode = button.dataset.chordMode;
-    syncUrl();
-    render();
-  }));
-  seventhFormButtons.forEach(button => button.addEventListener('click', () => {
-    seventhRoot = Number(button.dataset.seventhRoot);
-    syncUrl();
-    render();
-  }));
-  prevGrip.addEventListener('click', () => {
-    gripIndex[chordMode] = Math.max(0, gripIndex[chordMode] - 1);
-    render();
-  });
-  nextGrip.addEventListener('click', () => {
-    gripIndex[chordMode] += 1;
-    render();
-  });
+  if (!chordsBeta) {
+    chordGroupSelect.addEventListener('change', () => {
+      chordGroup = chordGroupSelect.value;
+      updateChordOptions();
+      syncUrl();
+      render();
+    });
+    qualitySelect.addEventListener('change', () => {
+      if (chordGroup === 'sevenths') {
+        seventhQuality = qualitySelect.value;
+      } else {
+        triadQuality = qualitySelect.value;
+        gripIndex.full = 0; gripIndex.triad = 0;
+      }
+      syncUrl();
+      render();
+    });
+    chordModes.forEach(button => button.addEventListener('click', () => {
+      chordMode = button.dataset.chordMode;
+      syncUrl();
+      render();
+    }));
+    seventhFormButtons.forEach(button => button.addEventListener('click', () => {
+      seventhRoot = Number(button.dataset.seventhRoot);
+      syncUrl();
+      render();
+    }));
+    prevGrip.addEventListener('click', () => {
+      gripIndex[chordMode] = Math.max(0, gripIndex[chordMode] - 1);
+      render();
+    });
+    nextGrip.addEventListener('click', () => {
+      gripIndex[chordMode] += 1;
+      render();
+    });
+  }
 
   window.addEventListener('hashchange', () => {
     setView(location.hash === '#oktaavit' ? 'octaves'
@@ -387,4 +424,5 @@ import { getSeventhVoicings, hasSeventhVoicing } from './seventh-voicings.js';
   });
   if (typeof ResizeObserver !== 'undefined') new ResizeObserver(updateScrollHint).observe(board);
   setView(view, false);
+  ready = true;
 })();
