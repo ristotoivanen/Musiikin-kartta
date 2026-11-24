@@ -12,6 +12,8 @@ test('yksi harjoituskortti, valinnan mukaan muuttuvat ohjeet ja yksi toistopaini
   await expect(page.locator('#play')).toHaveText('▶ Aloita');
   await expect(page.locator('audio:visible')).toHaveCount(0);
   await page.getByRole('button', { name: 'Pidä komppikäsi liikkeessä' }).click();
+  await expect(page.getByRole('button', { name: 'Taputa rytmi' })).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: 'Vaimennetut kielet' }).click();
   await expect(page.locator('#instruction')).toContainText('Vaimenna kielet');
   await expect(page.locator('#modes')).toBeHidden();
   await page.getByRole('button', { name: 'Yksi sointu', exact: true }).click();
@@ -129,6 +131,9 @@ test('nuolet vaihtavat taputuskuvion vasta tahtirajalla ilman toiston uudelleenk
   await expect(card).toHaveAttribute('data-state', 'idle');
   await expect(guide).toHaveAttribute('data-pattern', '0');
   await page.getByRole('button', { name: 'Pidä komppikäsi liikkeessä' }).click();
+  await expect(guide).toBeVisible();
+  await expect(guide).toHaveAttribute('data-pattern', '0');
+  await page.getByRole('button', { name: 'Vaimennetut kielet' }).click();
   await expect(guide).toBeHidden();
   await expect(page.locator('#clap-nav')).toBeHidden();
 });
@@ -180,23 +185,58 @@ test('neljä yksilöllistä taputuskuviota, nuolten kierto ja suora perusrytmi e
   await expect(page.locator('#exercise')).toHaveAttribute('data-state', 'idle');
 });
 
-test('komppikaavio erottaa kahdeksasosat sekä jalan ja käden liikkeet', async ({ page }) => {
+test('taputus jakaa iskun kahteen: neljä pääruutua, kahdeksan kohtaa ja sama pulssi', async ({ page }) => {
+  test.setTimeout(60000);
+  await page.addInitScript(() => {
+    const starts: { offset: number | undefined; rate: number; loopStart: number; loopEnd: number }[] = [];
+    Object.defineProperty(window, 'prototypeSources', { value: starts });
+    const original = AudioBufferSourceNode.prototype.start;
+    AudioBufferSourceNode.prototype.start = function (...args: Parameters<AudioBufferSourceNode['start']>) {
+      starts.push({ offset: args[1], rate: this.playbackRate.value, loopStart: this.loopStart, loopEnd: this.loopEnd });
+      return original.apply(this, args);
+    };
+  });
   await page.goto(url);
   await expect(page.locator('#strum-explanation')).toBeHidden();
   await page.getByRole('button', { name: 'Pidä komppikäsi liikkeessä' }).click();
   await expect(page.locator('#strum-explanation')).toBeVisible();
   await expect(page.locator('#strum-explanation')).toContainText('Älä napauta jalalla uudelleen');
+  await expect(page.locator('.beat')).toHaveCount(4);
   await expect(page.locator('.half b')).toHaveText(['1', 'ja', '2', 'ja', '3', 'ja', '4', 'ja']);
-  await expect(page.locator('.half .direction')).toHaveText(['↓', '↑', '↓', '↑', '↓', '↑', '↓', '↑']);
-  await expect(page.locator('.half .foot')).toHaveText(['Jalka alas', 'Jalka nousee', 'Jalka alas', 'Jalka nousee', 'Jalka alas', 'Jalka nousee', 'Jalka alas', 'Jalka nousee']);
+  await expect(page.locator('.half.tap-target b')).toHaveText(['1', '2', '3', '4']);
+  const next = page.getByRole('button', { name: 'Seuraava taputuskuvio' });
+  const guide = page.locator('#clap-guide');
+  await next.click();
+  await expect(page.locator('.half.tap-target')).toHaveCount(8);
+  await next.click();
+  await expect(page.locator('.half.tap-target b')).toHaveText(['ja', 'ja', 'ja', 'ja']);
+  await next.click();
+  await expect(page.locator('.half.tap-target b')).toHaveText(['1', 'ja', '3', 'ja']);
+  await page.getByRole('button', { name: 'Peruspulssi' }).click();
+  await expect(page.locator('.half.tap-target b')).toHaveText(['1', '2', '3', '4']);
   await page.locator('#play').click();
   await expect(page.locator('#exercise')).toHaveAttribute('data-state', 'playing', { timeout: 15000 });
   await expect(page.locator('.half.now')).toHaveCount(1);
-  await expect(page.locator('.half.now .mark')).toHaveText('Nyt');
+  await expect(page.locator('.beat.on .mark')).toHaveText('Nyt');
   await expect.poll(() => page.locator('.half.now b').textContent(), {timeout: 4000}).toBe('ja');
+  await next.click();
+  await expect(guide).toHaveAttribute('data-pattern', '1', {timeout: 4000});
+  await next.click();
+  await expect(guide).toHaveAttribute('data-pattern', '2', {timeout: 4000});
+  await expect(page.locator('.half.tap-target b')).toHaveText(['ja', 'ja', 'ja', 'ja']);
+  const starts = await page.evaluate(() => (window as unknown as { prototypeSources: {offset:number;rate:number;loopStart:number;loopEnd:number}[] }).prototypeSources);
+  expect(starts).toHaveLength(1);
+  expect(starts[0].offset).toBe(0);
+  expect(starts[0].rate).toBe(1);
+  expect(starts[0].loopStart).toBe(0);
+  expect(starts[0].loopEnd).toBeCloseTo(8*60/84, 3);
   await page.locator('#play').click();
   await expect(page.locator('.half.now')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Vaimennetut kielet' }).click();
+  await expect(page.locator('.half .direction')).toHaveText(['↓', '↑', '↓', '↑', '↓', '↑', '↓', '↑']);
+  await expect(guide).toBeHidden();
   await page.getByRole('button', { name: 'Löydä pulssi ja ykkönen' }).click();
   await expect(page.locator('#strum-explanation')).toBeHidden();
   await expect(page.locator('.half')).toHaveCount(0);
+  await expect(guide).toHaveAttribute('data-pattern', '0');
 });
