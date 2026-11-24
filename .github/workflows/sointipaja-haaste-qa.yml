@@ -1,0 +1,24 @@
+name: Sointuhaaste isolated QA
+on:
+  push:
+    branches: [chatgpt/48-sointipaja-haaste]
+permissions:
+  contents: read
+concurrency:
+  group: sointipaja-haaste
+  cancel-in-progress: true
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/chatgpt/48-sointipaja-haaste'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium webkit
+      - run: npx playwright test tests/e2e/sointipaja-prototype.spec.ts tests/e2e/sointipaja-challenge.spec.ts --workers=2
+      - run: npx playwright test tests/e2e/sointipaja-prototype.spec.ts tests/e2e/sointipaja-challenge.spec.ts --config=playwright.musapelit-142-webkit.config.ts --workers=2
