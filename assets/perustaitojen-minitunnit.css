@@ -1,0 +1,65 @@
+/* #186 v0.17 – rajattu kitaran pikakertauksen minitunteihin. */
+#perustaitojen-minitunnit .minitunti-content { --ink:var(--text); --active:color-mix(in srgb,var(--accent) 16%,var(--panel)); --focus:#75e5c6; min-width:0; line-height:1.5; }
+#perustaitojen-minitunnit .minitunti-content h1, #perustaitojen-minitunnit .minitunti-content h2, #perustaitojen-minitunnit .minitunti-content h3, #perustaitojen-minitunnit .minitunti-content p {overflow-wrap:anywhere}
+#perustaitojen-minitunnit .minitunti-content h2 {font-size:1.35rem;line-height:1.3;margin:0 0 .5rem}
+#perustaitojen-minitunnit .minitunti-content p {margin:.5rem 0}
+#perustaitojen-minitunnit .minitunti-content a {color:var(--accent)}
+#perustaitojen-minitunnit .minitunti-content .panel {background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:1rem;margin:1rem 0;min-width:0}
+#perustaitojen-minitunnit .minitunti-content .muted {color:var(--muted);font-size:.9rem}
+#perustaitojen-minitunnit .minitunti-content .choices {display:flex;flex-wrap:wrap;gap:.5rem;margin:.75rem 0}
+#perustaitojen-minitunnit .minitunti-content .choices button {flex:1 1 9rem;min-width:0}
+#perustaitojen-minitunnit .minitunti-content button, #perustaitojen-minitunnit .minitunti-content summary {font:inherit;color:inherit;cursor:pointer;min-height:44px}
+#perustaitojen-minitunnit .minitunti-content button {border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:.6rem .75rem;overflow-wrap:anywhere;text-align:left;touch-action:manipulation}
+#perustaitojen-minitunnit .minitunti-content button[aria-pressed=true] {border:2px solid var(--accent);background:var(--active);font-weight:650}
+#perustaitojen-minitunnit .minitunti-content button:focus-visible, #perustaitojen-minitunnit .minitunti-content a:focus-visible, #perustaitojen-minitunnit .minitunti-content summary:focus-visible {outline:3px solid var(--focus);outline-offset:3px}
+#perustaitojen-minitunnit .minitunti-content .play {background:var(--accent);color:var(--bg);font-weight:bold;text-align:center;width:100%;min-height:52px;margin:.8rem 0 .1rem}
+#perustaitojen-minitunnit .minitunti-content .beats {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,3.9rem),1fr));gap:.35rem;margin:.75rem 0}
+#perustaitojen-minitunnit .minitunti-content .beat {border:2px solid var(--line);border-radius:8px;text-align:center;min-width:0;padding:.5rem .12rem;overflow-wrap:anywhere}
+#perustaitojen-minitunnit .minitunti-content .beat b {display:block;font-size:1.3rem}
+#perustaitojen-minitunnit .minitunti-content .beat small {display:block;font-size:.75rem;min-height:1.2em}
+#perustaitojen-minitunnit .minitunti-content .beat.clap:not(.on) {border-style:solid;border-color:var(--accent)}
+#perustaitojen-minitunnit .minitunti-content #exercise[data-lesson=pulse] .beat:not(.clap):not(.on) {border-style:dashed}
+#perustaitojen-minitunnit .minitunti-content .beat.on {background:var(--active);border-color:var(--accent)}
+#perustaitojen-minitunnit .minitunti-content .beat.on small {font-weight:700}
+#perustaitojen-minitunnit .minitunti-content .beat .count {font-size:.8rem}
+#perustaitojen-minitunnit .minitunti-content #exercise[data-lesson=strum] .beats {grid-template-columns:repeat(auto-fit,minmax(min(100%,8.5rem),1fr))}
+#perustaitojen-minitunnit .minitunti-content .sub {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.2rem}
+#perustaitojen-minitunnit .minitunti-content .sub .half {min-width:0;line-height:1.35;text-align:center;padding:.2rem .05rem}
+#perustaitojen-minitunnit .minitunti-content .sub .half.now b {text-decoration:underline;text-underline-offset:.15em}
+#perustaitojen-minitunnit .minitunti-content .sub .half .direction {display:block;font-size:1.3rem;line-height:1.3}
+#perustaitojen-minitunnit .minitunti-content .sub .half small {font-size:.7rem;min-height:1.2em}
+#perustaitojen-minitunnit .minitunti-content .sub .half .tap-label {font-weight:400}
+#perustaitojen-minitunnit .minitunti-content .sub .half .tap-label:empty {visibility:hidden}
+#perustaitojen-minitunnit .minitunti-content .sub .half.now .tap-label {color:var(--ink)}
+#perustaitojen-minitunnit .minitunti-content .sub .half .clap-symbol {display:block;min-height:1.5em;font-size:1.1rem;line-height:1.5;color:var(--accent)}
+#perustaitojen-minitunnit .minitunti-content .sub .half.tap-target .clap-symbol {font-weight:bold}
+#perustaitojen-minitunnit .minitunti-content .sub .half.now.tap-target .clap-symbol {color:var(--ink);text-decoration:underline}
+#perustaitojen-minitunnit .minitunti-content .foot-reminder {margin:.5rem 0 .15rem;font-size:.95rem}
+#perustaitojen-minitunnit .minitunti-content .foot-reminder + .beats {margin-top:.4rem}
+#perustaitojen-minitunnit .minitunti-content .strum-explanation {margin:.5rem 0 .25rem}
+#perustaitojen-minitunnit .minitunti-content .strum-explanation p {margin:.3rem 0}
+#perustaitojen-minitunnit .minitunti-content .strum-explanation strong {color:var(--ink)}
+#perustaitojen-minitunnit .minitunti-content .beat .mark {font-size:.8rem;min-height:1.2em;color:var(--accent)}
+#perustaitojen-minitunnit .minitunti-content .clap-guide {margin:.75rem 0 .25rem}
+#perustaitojen-minitunnit .minitunti-content .clap-guide p {margin:.25rem 0}
+#perustaitojen-minitunnit .minitunti-content .clap-current {font-weight:700;font-size:1.1rem}
+#perustaitojen-minitunnit .minitunti-content .clap-nav {display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:.5rem;margin:.6rem 0}
+#perustaitojen-minitunnit .minitunti-content .clap-nav button {padding:.25rem;text-align:center;font-size:1.5rem}
+#perustaitojen-minitunnit .minitunti-content .clap-nav p {text-align:center;margin:0;overflow-wrap:anywhere}
+#perustaitojen-minitunnit .minitunti-content .clap-middle {display:flex;flex-direction:column;align-items:center;gap:.25rem;min-width:0}
+#perustaitojen-minitunnit .minitunti-content .clap-nav #clap-all {font-size:.9rem;max-width:100%;padding:.35rem .7rem;line-height:1.3}
+#perustaitojen-minitunnit .minitunti-content .next-guide {color:var(--muted);font-size:.9rem}
+#perustaitojen-minitunnit .minitunti-content details {border-top:1px solid var(--line);margin-top:.8rem;padding-top:.3rem}
+#perustaitojen-minitunnit .minitunti-content summary {padding:.45rem 0}
+#perustaitojen-minitunnit .minitunti-content #status {min-height:1.5em;margin-top:.4rem}
+#perustaitojen-minitunnit .minitunti-content [hidden] {display:none!important}
+#perustaitojen-minitunnit .minitunti-content audio {width:100%}
+@media(max-width:22rem){
+#perustaitojen-minitunnit .minitunti-content .panel {padding:.75rem}
+#perustaitojen-minitunnit .minitunti-content .beat {padding:.4rem .05rem}
+#perustaitojen-minitunnit .minitunti-content .beat b {font-size:1.05rem}
+#perustaitojen-minitunnit .minitunti-content .beat small, #perustaitojen-minitunnit .minitunti-content .beat .mark {font-size:.65rem}
+}
+#perustaitojen-minitunnit .minitunti-content h3 {margin:0 0 .5rem;font-size:1.35rem;line-height:1.3}
+#perustaitojen-minitunnit .minitunti-content .panel {background:var(--bg)}
+#perustaitojen-minitunnit .minitunti-content .play {color:var(--bg)}
