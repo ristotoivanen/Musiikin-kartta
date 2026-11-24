@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Sointipaja – kokeilu 2</title>
+<link rel="stylesheet" href="assets/otelauta.css">
+<link rel="stylesheet" href="assets/harjoittelija/app.css">
+<style>
+main.practice-main {max-width: 700px; padding: 14px 10px 30px}
+.proto {padding: clamp(8px,2vw,20px); margin: 8px 0; background:var(--panel);border:1px solid var(--line);border-radius:14px}
+.proto h2,.proto h3,.proto p {margin: 6px 0}
+.proto .toolbar {display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:8px 0}
+.proto fieldset {min-width:0;border:0;padding:0;margin:8px 0}
+.proto fieldset label {display:inline-flex;align-items:center;gap:5px;min-height:44px;margin-right:12px}
+.proto button {touch-action:manipulation}
+.proto [hidden] {display:none!important}
+.proto .question-head {display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.proto .question-head h2 {margin:0}
+.proto #board {min-width:0; margin:8px 0; overflow-x:auto; overscroll-behavior-x:contain}
+.proto .chord-neck {position:relative;width:100%;min-width:222px;height:304px;isolation:isolate;background:#182c36;border-radius:9px;overflow:hidden}
+.proto .chord-neck svg {position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.proto .chord-neck .rail-bg {position:absolute;inset:0 auto 0 0;background:#182c36;box-shadow:inset -1px 0 #48606b;pointer-events:none}
+.proto .chord-neck .rail-label {position:absolute;transform:translate(-50%,-50%);color:#dce9eb;font-weight:700;font-size:15px;white-space:nowrap}
+.proto .chord-neck .mute {color:#ffe08a}
+.proto .chord-neck .mark {position:absolute;transform:translate(-50%,-50%);width:44px;height:44px;min-height:44px;padding:0;display:grid;place-items:center;border:0;background:transparent;color:#f1f9f8;font-weight:750;line-height:1;border-radius:50%;touch-action:manipulation;z-index:1}
+.proto .chord-neck .mark::before {content:"";position:absolute;inset:5px;border-radius:50%;background:#6d4aff;border:1px solid #cbbdff;z-index:-1}
+.proto .chord-neck .mark.open::before {background:#243d46;border:2px solid #b9e6db}
+.proto .chord-neck .mark.sounding {color:#10292b}
+.proto .chord-neck .mark.sounding::before {background:#9fe4c3;border:2px solid #f2fff9}
+.proto .chord-neck .mark.sounding::after {content:"";position:absolute;inset:1px;border:2px solid #9fe4c3;border-radius:50%}
+.proto .chord-neck .mark:focus-visible {outline-offset:-1px}
+.proto .chord-neck .mark.open {font-size:13px}
+.proto .chord-answers {display:grid;grid-template-columns:repeat(auto-fit,minmax(58px,1fr));gap:6px;margin:8px 0}
+.proto .chord-answers button {min-width:0;min-height:48px;font-size:18px}
+.proto .chord-answers button[aria-disabled=true] {cursor:default}
+.proto .chord-answers button.wrong {color:#ffe08a;opacity:1}
+.proto .chord-answers button.right {background:#9fe4c3;color:#16121f}
+.proto .feedback {margin:6px 0;min-height:2.5em}
+.proto #audio-status {min-height:1.5em;font-size:13px;color:var(--muted)}
+.proto #audio-status.is-error {color:#ffe08a}
+.proto #next {width:100%}
+.proto .notes {font-size:14px;line-height:1.5}
+.proto .caption {font-size:13px;color:var(--muted);text-align:center}
+.proto #settings {margin-top:10px}
+.proto summary {color:var(--lavender)}
+.proto :focus-visible {outline:3px solid #ffe08a;outline-offset:2px}
+.proto .exercise-grid {display:block}
+</style>
+</head>
+<body>
+<main class="practice-main">
+<a href="kitaraharjoittelija.html?polku=soinnut">← Nykyinen harjoitus</a>
+<p class="eyebrow">SOINTIPAJA · KOKEILU 2 · #48</p>
+<h1>Tunnista avoin sointu</h1>
+<noscript><p>Kokeilu tarvitsee JavaScriptin. <a href="oppi/soinnut/">Sointujen teoria</a> on käytettävissä myös ilman sitä.</p></noscript>
+<section class="proto chord-journey" aria-label="Avosointujen tunnistus" id="prototype" hidden>
+<div id="round">
+<div class="question-head"><h2 id="question" tabindex="-1">Mikä sointu?</h2><span id="progress"></span></div>
+<p>Katso otetta ja valitse soinnun nimi.</p>
+<div class="exercise-grid">
+<div>
+<div id="board"></div>
+<p class="caption">Rengastettu kirjain = vapaa · ● painettu · × ei soiteta</p>
+<div class="toolbar" role="group" aria-label="Kuuntelu">
+<button type="button" id="listen">▶ Kuuntele sointu</button>
+<button type="button" id="arpeggio">Kieli kerrallaan</button>
+<button type="button" id="stop" disabled>Pysäytä</button>
+</div>
+<p id="audio-status" role="status" aria-live="polite"></p>
+</div>
+<div>
+<div class="chord-answers" id="answers" role="group" aria-label="Valitse soinnun nimi"></div>
+<p id="feedback" class="feedback" role="status" aria-live="polite"></p>
+<div id="explain" hidden><p id="notes" class="notes"></p><p class="tools-note">Kokeile samaa otetta omalla kitaralla.</p></div>
+<button type="button" class="primary" id="next" hidden>Seuraava sointu →</button>
+</div>
+</div>
+</div>
+<div id="summary" hidden><h2 id="done-heading" tabindex="-1">Avosointukierros valmis</h2><p id="result"></p><button type="button" id="restart" class="primary">Harjoittele uudelleen</button></div>
+<details id="settings">
+<summary>Harjoituksen asetukset</summary>
+<fieldset><legend>Soinnut</legend><label><input type="radio" name="count" value="4" checked>4 sointua</label><label><input type="radio" name="count" value="7">7 sointua</label><p class="tools-note">Vaihto aloittaa uuden kierroksen.</p></fieldset>
+<label class="tools-note"><input type="checkbox" id="auto"> Soita sointu oikean vastauksen jälkeen</label>
+<p class="tools-note">Voit kuunnella myös painamalla otteen merkkejä. Kuuntelu ei ole pakollista.</p>
+</details>
+</section>
+<p><a href="oppi/soinnut/">Soinnut ja harmonia – Ydinopinnot</a></p>
+<p class="tools-note">Ääninäytteet: <a href="assets/audio/soinnut/LAHTEET.md">Meta Steel Guitar, CC0 1.0</a>. Erillinen kokeilusivu (#187:n yhteinen otelauta), ei korvaa nykyistä harjoitusta eikä tallenna tuloksia.</p>
+</main>
+<script src="assets/otelauta.js"></script>
+<script>
+(() => {
+'use strict';
+// Kokeilua varten kopioitu olemassa oleva, sivukohtainen näytesoitin sellaisenaan
+// assets/sointuharjoitus.js @ 9526b701e5d63a5af4bd2407ca65b71e9a60fd27. Ei uusi äänimoottori.
+// Integraatiossa sovitaan yhteinen rajapinta, eikä tätä kopiota jätetä ylläpidettäväksi.
+const base = new URL('assets/audio/soinnut/', location.href);
+  const formats = new Audio().canPlayType('audio/mp4; codecs="mp4a.40.2"') ? ['m4a', 'ogg'] : ['ogg', 'm4a'];
+  const buffers = new Map();
+  let audio;
+  let session;
+
+  function showStatus(status, message, error = false) {
+    status.textContent = message;
+    status.classList.toggle('is-error', error);
+  }
+
+  function stop(message) {
+    const last = session;
+    if (!last) return;
+    session = null;
+    clearTimeout(last.timeout);
+    cancelAnimationFrame(last.frame);
+    last.abort.abort();
+    if (last.bus) {
+      const now = audio.currentTime;
+      const cutoff = now + 0.025;
+      last.bus.gain.setValueAtTime(1, now);
+      last.bus.gain.linearRampToValueAtTime(0, cutoff);
+      for (const { source, envelope, when, end } of last.sources) {
+        if (end > now && audio.state !== 'closed') source.stop(when > now ? 0 : Math.min(end, cutoff));
+        if (audio.state !== 'running') {
+          source.disconnect();
+          envelope.disconnect();
+        }
+      }
+      if (audio.state !== 'running') last.bus.disconnect();
+    }
+    delete last.trigger.dataset.playing;
+    last.onPosition?.(-1);
+    last.onStop?.();
+    if (message) showStatus(last.status, message);
+  }
+
+  function context() {
+    if (!audio || audio.state === 'closed') {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) throw new Error('Web Audio ei ole käytettävissä');
+      audio = new AudioContextClass();
+      audio.addEventListener('statechange', () => {
+        if (session?.bus && audio.state !== 'running') stop('Kuuntelu keskeytyi. Voit kuunnella uudelleen.');
+      });
+    }
+    return audio;
+  }
+
+  function decode(ctx, data) {
+    // Vanhempi Safari tukee vain takaisinkutsumuotoa.
+    return new Promise((resolve, reject) => {
+      const result = ctx.decodeAudioData(data, resolve, reject);
+      result?.then?.(resolve, reject);
+    });
+  }
+
+  async function sample(ctx, pitch, signal) {
+    if (buffers.has(pitch)) return buffers.get(pitch);
+    const [string, note] = pitch.split(':');
+    const file = `INSGuitarSteel_String${string}_Vel02_${note}_01`;
+    let failure;
+    for (const format of formats) {
+      try {
+        const response = await fetch(new URL(`${file}.${format}`, base), { signal });
+        if (!response.ok) throw new Error(`${pitch}: HTTP ${response.status}`);
+        const buffer = await decode(ctx, await response.arrayBuffer());
+        if (signal.aborted) throw signal.reason;
+        buffers.set(pitch, buffer);
+        return buffer;
+      } catch (error) {
+        if (signal.aborted) throw error;
+        failure = error;
+      }
+    }
+    throw failure;
+  }
+
+  function schedule(own, buffer, { at, duration, gain }) {
+    const when = own.start + at;
+    const end = when + duration + 0.02;
+    const source = audio.createBufferSource();
+    source.buffer = buffer;
+    const envelope = audio.createGain();
+    const fade = duration > 2 ? 0.55 : 0.22;
+    envelope.gain.setValueAtTime(0.0001, when);
+    envelope.gain.linearRampToValueAtTime(gain, when + 0.014);
+    envelope.gain.setValueAtTime(gain, when + duration - fade);
+    envelope.gain.exponentialRampToValueAtTime(0.0001, when + duration);
+    source.connect(envelope).connect(own.bus);
+    const event = { source, envelope, when, end };
+    own.sources.add(event);
+    source.onended = () => {
+      source.disconnect();
+      envelope.disconnect();
+      own.sources.delete(event);
+      if (!own.sources.size) own.bus.disconnect();
+    };
+    source.start(when);
+    source.stop(end);
+  }
+
+  async function play(trigger, status, plan, { label = 'Kuuntelu käynnissä.', onPosition, onStop, onStart } = {}) {
+    stop();
+    const own = { trigger, status, onPosition, onStop, abort: new AbortController(), sources: new Set() };
+    session = own;
+    showStatus(status, 'Ladataan kitaran ääninäytteitä…');
+    own.timeout = setTimeout(() => {
+      if (session !== own) return;
+      stop();
+      showStatus(status, 'Äänen käynnistys kesti liian kauan. Kokeile uudelleen.', true);
+    }, 12000);
+
+    let ctx;
+    try {
+      // Käyttäjäeleen aikana, ennen yhtään odotusta. audioSession on valinnainen Safari-rajapinta.
+      try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch { /* valinnainen */ }
+      ctx = context();
+      await ctx.resume();
+    } catch {
+      if (session === own) {
+        stop();
+        showStatus(status, 'Ääntä ei saatu käynnistettyä. Kokeile uudelleen.', true);
+      }
+      return;
+    }
+    if (session !== own) return;
+    try {
+      const pitches = [...new Set(plan.map(event => event.pitch))];
+      const loaded = await Promise.all(pitches.map(pitch => sample(ctx, pitch, own.abort.signal)));
+      if (session !== own) return;
+      if (ctx.state !== 'running' || trigger.closest('details:not([open])')) {
+        stop('Kuuntelu keskeytyi. Voit kuunnella uudelleen.');
+        return;
+      }
+      clearTimeout(own.timeout);
+      const loadedByPitch = new Map(pitches.map((pitch, index) => [pitch, loaded[index]]));
+      own.bus = ctx.createGain();
+      own.bus.connect(ctx.destination);
+      own.start = ctx.currentTime + 0.10;
+      const end = Math.max(...plan.map(event => event.at + event.duration + 0.02));
+      for (const event of plan) schedule(own, loadedByPitch.get(event.pitch), event);
+      trigger.dataset.playing = '';
+      showStatus(status, label);
+      // Kutsu vasta kun Web Audio -lähteet on ladattu ja käynnistys ajastettu.
+      // Epäonnistunut lataus tai keskeytynyt toisto ei avaa tunnistuksen vastaamista.
+      onStart?.();
+      function followClock() {
+        if (session !== own) return;
+        const elapsed = ctx.currentTime - own.start;
+        if (elapsed >= end) {
+          stop('Esimerkki päättyi. Voit kuunnella uudelleen.');
+          return;
+        }
+        onPosition?.(elapsed);
+        own.frame = requestAnimationFrame(followClock);
+      }
+      followClock();
+    } catch {
+      if (session === own) {
+        stop();
+        showStatus(status, 'Ääniä ei voitu ladata. Kokeile uudelleen.', true);
+      }
+    }
+  }
+
+  const silence = () => stop('Kuuntelu keskeytyi. Voit kuunnella uudelleen.');
+  window.addEventListener('pagehide', silence);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) silence();
+  });
+  document.addEventListener('toggle', event => {
+    const details = event.target;
+    if (session && details instanceof HTMLDetailsElement && !details.open && details.contains(session.trigger)) silence();
+  }, true);
+
+
+const grips = {"C":[0,1,0,2,3,null],"G":[3,0,0,0,2,3],"D":[2,3,2,0,null,null],"Em":[0,0,0,2,2,0],"Am":[0,1,2,2,0,null],"E":[0,0,1,2,2,0],"A":[0,2,2,2,0,null]};
+const strings = globalThis.MusicMapFretboard.STRING_NAMES;
+const longStrings = ['ohut e','B','G','D','A','paksu E'];
+const sampleStrings = ['HighE','B','G','D','A','LowE'];
+const chrom = ['C','Cs','D','Ds','E','F','Fs','G','Gs','A','As','B'];
+const open = globalThis.MusicMapFretboard.OPEN_PITCHES;
+const basic = ['C','G','D','Em'], extended = [...basic,'Am','E','A'];
+const roots = { C:0,G:7,D:2,Em:4,Am:9,E:4,A:9 };
+const names = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+const byId = id => document.getElementById(id);
+const el = (tag,text,cls) => {const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
+let count=4, order=[], index=0, answered=false, mistakes=0, wrong=new Set();
+let current;
+const audioStatus=byId('audio-status'), stopButton=byId('stop');
+const pitch = (s,f) => open[s]+f;
+const nameOf = n => names[n%12]+(Math.floor(n/12)-1);
+const sampleOf = (s,f) => {const n=pitch(s,f);return sampleStrings[s]+':'+chrom[n%12]+(Math.floor(n/12)-1);};
+function voiced() {return grips[current].flatMap((f,s)=>f===null?[]:[{s,f}]).reverse();}
+function highlight(indices) {document.querySelectorAll('#board .mark').forEach(b=>b.classList.toggle('sounding',indices.includes(Number(b.dataset.string))));}
+function listen(trigger, mode, string) {
+  const positions=mode==='single'?voiced().filter(p=>p.s===string):voiced();
+  if(!positions.length)return;
+  const step=mode==='arpeggio' ? .58 : mode==='chord' ? .027 : 0;
+  const duration=mode==='arpeggio' ? .52 : mode==='chord' ? 2.15 : 1.35;
+  const gain=mode==='single' ? .40 : mode==='arpeggio' ? .27 : .19;
+  const plan=positions.map(({s,f},i)=>({pitch:sampleOf(s,f),at:i*step,duration,gain}));
+  void play(trigger,audioStatus,plan,{
+    label:mode==='single'?'Kieli soi.':mode==='arpeggio'?'Kielet soivat järjestyksessä.':'Sointu soi.',
+    onPosition: t=>highlight(t<0?[]:positions.filter((_,i)=>t>=plan[i].at&&t<plan[i].at+duration).map(p=>p.s)),
+    onStop:()=>{stopButton.disabled=true;highlight([]);}
+  });
+  stopButton.disabled=false;
+}
+function marker(s,f) {
+  const b=el('button',f===0?strings[s]:'●','mark'+(f===0?' open':''));b.type='button';b.dataset.string=s;b.dataset.fret=f;
+  b.setAttribute('aria-label',longStrings[s]+'-kieli, '+(f===0?'vapaa':f+'. nauha')+', kuuntele'+(answered?', '+nameOf(pitch(s,f)):''));
+  b.addEventListener('click',()=>listen(b,'single',s));return b;
+}
+function renderBoard(){
+  // #187:n yhteinen kaulapinta; ei omaa satulan, nauhojen, kielten tai asemamerkkien piirtologiikkaa.
+  const library=globalThis.MusicMapFretboard;
+  const frets=grips[current], count=Math.max(3,...frets.filter(f=>f!==null));
+  const rail=library.neckStyle.rail, cell=66, row=44, firstY=42;
+  const width=rail+count*cell+4, height=304;
+  const board=el('div',undefined,'chord-neck');
+  board.setAttribute('role','group');
+  board.setAttribute('aria-label','Otelauta, ohut e ylhäällä');
+  board.style.minWidth=(rail+count*44+4)+'px';
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox','0 0 '+width+' '+height);
+  svg.setAttribute('preserveAspectRatio','none');
+  svg.setAttribute('aria-hidden','true');
+  svg.innerHTML=library.neckSurface({count,cell,row,firstY,dimmed:frets.map(f=>f===null)});
+  const railBg=el('div',undefined,'rail-bg');railBg.style.width=(rail/width*100)+'%';
+  board.append(railBg,svg);
+  function place(n,x,y){n.style.left=(x/width*100)+'%';n.style.top=y+'px';board.append(n);}
+  for(let s=0;s<6;s++){
+    const f=frets[s],y=firstY+s*row;
+    if(f===0){place(marker(s,0),rail/2,y);continue;}
+    const label=el('span',strings[s]+(f===null?' ×':''),'rail-label'+(f===null?' mute':''));
+    label.setAttribute('aria-label',longStrings[s]+'-kieli'+(f===null?', ei soiteta':''));
+    place(label,rail/2,y);
+    if(f!==null)place(marker(s,f),rail+(f-.5)*cell,y);
+  }
+  byId('board').replaceChildren(board);
+}
+function updateAnswers(){
+  for(const b of byId('answers').children){const n=b.textContent;
+    b.classList.toggle('right',answered&&n===current);b.classList.toggle('wrong',wrong.has(n));
+    b.setAttribute('aria-disabled',String(answered||wrong.has(n)));
+  }
+}
+function select(name){
+  if(answered||wrong.has(name))return;
+  const feedback=byId('feedback');
+  if(name!==current){wrong.add(name);mistakes++;feedback.className='feedback bad';feedback.textContent='Ei aivan. Tarkista otteen avoimet ja painetut kielet.';updateAnswers();return;}
+  answered=true;feedback.className='feedback good';feedback.textContent='Oikein! Tämä on '+current+'-sointu.';
+  const root=roots[current];const third=current.endsWith('m')?3:4;
+  byId('notes').textContent='Sointusävelet: '+[0,third,7].map(n=>names[(root+n)%12]).join(' – ')+'. Otteessa soi matalasta korkeaan: '+voiced().map(({s,f})=>nameOf(pitch(s,f))).join(' · ')+'.';
+  byId('explain').hidden=false;byId('next').hidden=false;
+  byId('next').textContent=index===order.length-1?'Näytä yhteenveto':'Seuraava sointu →';
+  updateAnswers();for(const b of byId('board').querySelectorAll('.mark'))b.setAttribute('aria-label',b.getAttribute('aria-label')+', '+nameOf(pitch(Number(b.dataset.string),Number(b.dataset.fret))));
+  if(byId('auto').checked)listen(byId('listen'),'chord');
+}
+function show(focus=false){
+  stop();audioStatus.textContent='';audioStatus.classList.remove('is-error');highlight([]);answered=false;wrong=new Set();
+  if(index>=order.length){
+    byId('round').hidden=true;byId('summary').hidden=false;
+    byId('result').textContent='Tunnistit kaikki '+count+' sointua. '+(mistakes?'Vääriä valintoja yhteensä '+mistakes+'.':'Kaikki oikein ensimmäisellä yrityksellä.');
+    if(focus)byId('done-heading').focus();return;
+  }
+  current=order[index];byId('summary').hidden=true;byId('round').hidden=false;
+  byId('progress').textContent='Sointu '+(index+1)+' / '+order.length;
+  byId('feedback').textContent='';byId('feedback').className='feedback';byId('explain').hidden=true;byId('next').hidden=true;
+  const buttons=(count===4?basic:extended).map(n=>{const b=el('button',n);b.type='button';b.addEventListener('click',()=>select(n));return b;});
+  byId('answers').replaceChildren(...buttons);renderBoard();if(focus)byId('question').focus();
+}
+function reset(focus=false){order=[...(count===4?basic:extended)];for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]];}index=0;mistakes=0;show(focus);}
+byId('listen').addEventListener('click',e=>listen(e.currentTarget,'chord'));
+byId('arpeggio').addEventListener('click',e=>listen(e.currentTarget,'arpeggio'));
+stopButton.addEventListener('click',()=>{stop('Kuuntelu pysäytetty.');byId('listen').focus();});
+byId('next').addEventListener('click',()=>{if(answered){index++;show(true);}});
+byId('restart').addEventListener('click',()=>reset(true));
+document.querySelectorAll('[name=count]').forEach(b=>b.addEventListener('change',()=>{count=Number(b.value);reset();}));
+byId('prototype').hidden=false;reset();
+})();
+</script>
+</body>
+</html>
