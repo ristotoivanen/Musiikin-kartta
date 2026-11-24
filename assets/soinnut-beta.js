@@ -10,6 +10,8 @@ import {
 
 // Perusnäkymä: yleisimmät soinnut, Koko ote ja Triadit. Laaja näkymä: kaikki laadut, Sointusävelet ja Sävelet/Asteet-vaihto.
 const BASIC_QUALITIES = new Set(['maj', 'min', '7', 'maj7', 'm7']);
+// Perusnäkymässä vain nuotit ilman etumerkkejä (ylennykset ja alennukset vain Laajassa).
+const NATURAL_ROOTS = new Set([0, 2, 4, 5, 7, 9, 11]);
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const escapeHtml = text => String(text).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 
@@ -40,7 +42,7 @@ export function createChordsBeta(ctx) {
     <div class="cb-block">
       <span class="cb-label" id="cb-root-label">Perussävel</span>
       <div class="cb-row cb-roots" role="group" aria-labelledby="cb-root-label">
-        ${CHROM.map((name, pc) => `<button type="button" data-root="${pc}" aria-pressed="false">${name}</button>`).join('')}
+        ${CHROM.map((name, pc) => `<button type="button" data-root="${pc}" ${NATURAL_ROOTS.has(pc) ? '' : 'data-adv '}aria-pressed="false">${name}</button>`).join('')}
       </div>
     </div>
     <div class="cb-block cb-qualities">
@@ -160,6 +162,8 @@ export function createChordsBeta(ctx) {
       if (!BASIC_QUALITIES.has(state.quality)) state.quality = 'maj';
       if (state.mode === 'all') state.mode = 'full';
       state.labels = 'names';
+      const root = ctx.getRoot();
+      if (!NATURAL_ROOTS.has(root)) ctx.setRoot(root - 1);
     }
     ctx.panel.classList.toggle('cb-basic', !advanced);
     qa('[data-adv]').forEach(element => { element.hidden = !advanced; });
@@ -213,7 +217,7 @@ export function createChordsBeta(ctx) {
       }
     });
     qa('[data-labels]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.labels === state.labels)));
-    q('#cb-groups').hidden = mode !== 'triad';
+    q('#cb-groups').hidden = mode !== 'triad' || state.level !== 'advanced';
     qa('[data-group]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.group === state.group)));
 
     // Tiedot
@@ -319,7 +323,7 @@ export function createChordsBeta(ctx) {
       state.quality = parsed.quality;
       state.mode = parsed.mode;
       state.group = parsed.group;
-      state.level = params.get('taso') === 'laaja' || !BASIC_QUALITIES.has(parsed.quality) || parsed.mode === 'all' ? 'advanced' : 'basic';
+      state.level = params.get('taso') === 'laaja' || !BASIC_QUALITIES.has(parsed.quality) || parsed.mode === 'all' || (params.get('toonikka') ?? '').match(/[♯♭]/) ? 'advanced' : 'basic';
       state.rule = { type: 'initial', form: parsed.form, number: parsed.number };
     },
     writeParams(params) {

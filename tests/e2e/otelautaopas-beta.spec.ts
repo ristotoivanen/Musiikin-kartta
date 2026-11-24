@@ -99,14 +99,20 @@ test.describe('Otelautaopas BETA', () => {
     await expect(panel(page).locator('[data-level="basic"]')).toHaveAttribute('aria-pressed', 'true');
     for (const id of ['maj', 'min', '7', 'maj7', 'm7']) await expect(quality(page, id)).toBeVisible();
     for (const id of ['dim', 'aug', 'sus2', 'sus4', 'm7b5', 'dim7', '7#5', '7b5', 'mMaj7']) await expect(quality(page, id)).toBeHidden();
+    await expect(panel(page).locator('[data-root]:visible')).toHaveText(['C', 'D', 'E', 'F', 'G', 'A', 'B']);
     await expect(mode(page, 'full')).toBeVisible();
     await expect(mode(page, 'triad')).toBeVisible();
     await expect(mode(page, 'all')).toBeHidden();
     await expect(panel(page).locator('[data-labels]').first()).toBeHidden();
     await mode(page, 'triad').click();
-    await expect(panel(page).locator('[data-group]')).toHaveCount(4);
-    await expect(group(page, 'dgb')).toBeVisible();
+    await expect(panel(page).locator('#cb-groups')).toBeHidden();
     await expect(pad(page, 'down')).toBeEnabled();
+    await pad(page, 'down').click();
+    await expect(pad(page, 'up')).toBeEnabled();
+    await advanced(page);
+    await expect(group(page, 'dgb')).toBeVisible();
+    await expect(group(page, 'dgb')).toHaveAttribute('aria-pressed', 'true');
+    await panel(page).locator('[data-level="basic"]').click();
     await mode(page, 'full').click();
     await advanced(page);
     for (const id of Object.keys(QUALITIES)) await expect(quality(page, id)).toBeVisible();
@@ -128,7 +134,7 @@ test.describe('Otelautaopas BETA', () => {
   });
 
   test('Triadit: neljä kieliryhmää, aktiiviset kielet korostuvat ja nuolet toimivat rajoille asti', async ({ page }) => {
-    await page.goto(PAGE + '?toonikka=C&sointu=maj&ote=triad#soinnut');
+    await page.goto(PAGE + '?toonikka=C&sointu=maj&ote=triad&taso=laaja#soinnut');
     await expect(panel(page).getByRole('group', { name: 'Kielet' }).getByRole('button')).toHaveText(['G–B–e', 'D–G–B', 'A–D–G', 'E–A–D']);
     await expect(group(page, 'gbe')).toHaveAttribute('aria-pressed', 'true');
     // Ylin ryhmä: ↑ pois käytöstä, ↓ käytössä.
@@ -158,7 +164,7 @@ test.describe('Otelautaopas BETA', () => {
   });
 
   test('← ja → selaavat otteita nauhasijainnin mukaan; rajalla painike on pois käytöstä', async ({ page }) => {
-    await page.goto(PAGE + '?toonikka=G&sointu=maj&ote=triad&kielet=dgb#soinnut');
+    await page.goto(PAGE + '?toonikka=G&sointu=maj&ote=triad&kielet=dgb&taso=laaja#soinnut');
     await expect(pad(page, 'left')).toBeDisabled();
     const seen: number[] = [];
     let guard = 0;
@@ -176,7 +182,7 @@ test.describe('Otelautaopas BETA', () => {
   });
 
   test('ryhmän vaihto valitsee lähimmän otteen ja duuri–molli säilyttää käännöksen ja kaksi muuta säveltä', async ({ page }) => {
-    await page.goto(PAGE + '?toonikka=C&sointu=maj&ote=triad&kielet=gbe#soinnut');
+    await page.goto(PAGE + '?toonikka=C&sointu=maj&ote=triad&kielet=gbe&taso=laaja#soinnut');
     // Siirry G–B–e-ryhmässä toiseen otteeseen ja merkitse paikka.
     await pad(page, 'right').click();
     const before = await dots(page);
@@ -207,7 +213,7 @@ test.describe('Otelautaopas BETA', () => {
 
   test('duuri–molli-vaihto ei muodosta negatiivista nauhaa avointen kielten kohdalla', async ({ page }) => {
     for (const name of ROOTS) {
-      await page.goto(PAGE + '?sointu=maj&ote=triad#soinnut');
+      await page.goto(PAGE + '?sointu=maj&ote=triad&taso=laaja#soinnut');
       await root(page, name).click();
       for (const id of ['gbe', 'dgb', 'adg', 'ead']) {
         await group(page, id).click();
@@ -256,7 +262,7 @@ test.describe('Otelautaopas BETA', () => {
     await expect(page.locator('#selection-notes')).toHaveText('Sointusävelet: F♯ (1) · A (♭3) · C♯ (5)');
     await expect(mode(page, 'all')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('#board svg circle[r="11"]').first()).toBeVisible();
-    await page.goto(PAGE + '?sointu=sus4&ote=triad&kielet=adg&nro=2#soinnut');
+    await page.goto(PAGE + '?sointu=sus4&ote=triad&kielet=adg&nro=2&taso=laaja#soinnut');
     await expect(group(page, 'adg')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('#chord-pad [data-pad="count"]')).toHaveText(/^2\//);
   });
@@ -294,6 +300,7 @@ test.describe('Otelautaopas BETA', () => {
     await expect(page.locator('#selection-title')).toContainText('A · sijainnit otelaudalla');
     await expect(page.locator('#board .octave-note').first()).toBeVisible();
     await page.getByRole('button', { name: 'Soinnut', exact: true }).click();
+    await advanced(page);
     await expect(root(page, 'A')).toHaveAttribute('aria-pressed', 'true');
     await root(page, 'E♭').click();
     await page.getByRole('button', { name: 'Asteikot' }).click();
