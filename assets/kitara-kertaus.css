@@ -232,10 +232,10 @@
 .recap-standard-neck {
   width: 100%;
   min-width: 0;
-  max-width: min(100%, 34rem);
+  max-width: min(100%, 42rem);
   overflow-x: auto;
   border-radius: .5rem;
-  background: #16121f;
+  background: transparent;
 }
 .recap-standard-neck svg {
   display: block;
@@ -243,8 +243,15 @@
   height: auto;
   min-width: 20rem !important;
 }
-.recap-standard-neck .octave-recap circle { fill: #b5a3ff; stroke: #1a1430; stroke-width: 1; }
-.recap-standard-neck .octave-recap text { fill: #1a1430; font-size: 12px; }
+/* Puupinta ja metalliset nauhat, rajattu vain tähän näkymään. */
+.recap-standard-neck linearGradient[id$="-wood"] stop:first-child { stop-color: #50382b; }
+.recap-standard-neck linearGradient[id$="-wood"] stop:nth-child(2) { stop-color: #35251d; }
+.recap-standard-neck linearGradient[id$="-wood"] stop:last-child { stop-color: #231913; }
+.recap-standard-neck svg > rect:first-of-type { stroke: #80634e; }
+.recap-standard-neck svg > line[x1][x2]:not([stroke-dasharray]) { stroke: #d5cfc5; opacity: .82; }
+.recap-standard-neck svg > circle { fill: #e1d9c9; opacity: .65; r: 4px; }
+.recap-standard-neck .octave-recap circle { fill: #f3dfb8; stroke: #38261a; stroke-width: .8; r: 8px; }
+.recap-standard-neck .octave-recap text { fill: #2c1d14; font-size: 10px; font-weight: 650; }
 .recap-neck[hidden], .recap-standard-neck[hidden] { display: none; }
 .recap-minitunnit { margin-block-start: .85rem; }
 .recap-minitunnit summary { min-height: 44px; font-size: 1.15rem; font-weight: 750; }
