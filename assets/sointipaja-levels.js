@@ -4,12 +4,21 @@
   const basic = ['C','G','D','Em'];
   const added = ['Am','E','A'];
   const all = [...basic,...added];
+  const newChords = ['Dm','D7','A7','E7'];
+  const cumulative = [...all,...newChords];
   const levels = [{
     id: 'open-1', title: 'Seitsemän tavallista avosointua',
     rounds: [
       {id:'first', title:'Ensimmäiset soinnut', targets:basic, options:basic, repeats:1},
       {id:'added', title:'Kolme uutta sointua', targets:added, options:all, repeats:2},
       {id:'review', title:'Kaikki yhdessä', targets:all, options:all, repeats:2},
+    ],
+  }, {
+    id:'open-2', title:'Molli ja seiskasoinnut',
+    rounds:[
+      {id:'new-chords', title:'Neljä uutta sointua', targets:newChords, options:['D','Dm','D7','A','A7','E','E7'], repeats:2},
+      {id:'mixed', title:'Uudet ja tutut soinnut', targets:cumulative, options:cumulative, repeats:1},
+      {id:'cumulative', title:'Kaikki yksitoista sointua', targets:cumulative, options:cumulative, repeats:1},
     ],
   }];
   function orderFor(round, random=Math.random, previous=null) {
