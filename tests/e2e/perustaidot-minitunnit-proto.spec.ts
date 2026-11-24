@@ -185,7 +185,7 @@ test('neljä yksilöllistä taputuskuviota, nuolten kierto ja suora perusrytmi e
   await expect(page.locator('#exercise')).toHaveAttribute('data-state', 'idle');
 });
 
-test('taputus jakaa iskun kahteen: neljä pääruutua, kahdeksan kohtaa ja sama pulssi', async ({ page }) => {
+test('taputus vain numeroiskuilla, ja-tavut näkyvät kompin hahmottamiseksi', async ({ page }) => {
   test.setTimeout(60000);
   await page.addInitScript(() => {
     const starts: { offset: number | undefined; rate: number; loopStart: number; loopEnd: number }[] = [];
@@ -201,17 +201,19 @@ test('taputus jakaa iskun kahteen: neljä pääruutua, kahdeksan kohtaa ja sama 
   await page.getByRole('button', { name: 'Pidä komppikäsi liikkeessä' }).click();
   await expect(page.locator('#strum-explanation')).toBeVisible();
   await expect(page.locator('#strum-explanation')).toContainText('Älä napauta jalalla uudelleen');
+  await expect(page.locator('#strum-hand')).toContainText('Ja-tavuilla ei taputeta');
   await expect(page.locator('.beat')).toHaveCount(4);
   await expect(page.locator('.half b')).toHaveText(['1', 'ja', '2', 'ja', '3', 'ja', '4', 'ja']);
   await expect(page.locator('.half.tap-target b')).toHaveText(['1', '2', '3', '4']);
   const next = page.getByRole('button', { name: 'Seuraava taputuskuvio' });
   const guide = page.locator('#clap-guide');
   await next.click();
-  await expect(page.locator('.half.tap-target')).toHaveCount(8);
+  await expect(page.locator('.half.tap-target b')).toHaveText(['1', '3']);
   await next.click();
-  await expect(page.locator('.half.tap-target b')).toHaveText(['ja', 'ja', 'ja', 'ja']);
+  await expect(page.locator('.half.tap-target b')).toHaveText(['2', '4']);
   await next.click();
-  await expect(page.locator('.half.tap-target b')).toHaveText(['1', 'ja', '3', 'ja']);
+  await expect(page.locator('.half.tap-target b')).toHaveText(['1']);
+  await expect(page.locator('.half.tap-target b').filter({hasText:'ja'})).toHaveCount(0);
   await page.getByRole('button', { name: 'Peruspulssi' }).click();
   await expect(page.locator('.half.tap-target b')).toHaveText(['1', '2', '3', '4']);
   await page.locator('#play').click();
@@ -223,7 +225,7 @@ test('taputus jakaa iskun kahteen: neljä pääruutua, kahdeksan kohtaa ja sama 
   await expect(guide).toHaveAttribute('data-pattern', '1', {timeout: 4000});
   await next.click();
   await expect(guide).toHaveAttribute('data-pattern', '2', {timeout: 4000});
-  await expect(page.locator('.half.tap-target b')).toHaveText(['ja', 'ja', 'ja', 'ja']);
+  await expect(page.locator('.half.tap-target b')).toHaveText(['2', '4']);
   const starts = await page.evaluate(() => (window as unknown as { prototypeSources: {offset:number;rate:number;loopStart:number;loopEnd:number}[] }).prototypeSources);
   expect(starts).toHaveLength(1);
   expect(starts[0].offset).toBe(0);
