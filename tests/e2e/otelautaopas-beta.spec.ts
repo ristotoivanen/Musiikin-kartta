@@ -99,13 +99,18 @@ test.describe('Otelautaopas BETA', () => {
     await expect(panel(page).locator('[data-level="basic"]')).toHaveAttribute('aria-pressed', 'true');
     for (const id of ['maj', 'min', '7', 'maj7', 'm7']) await expect(quality(page, id)).toBeVisible();
     for (const id of ['dim', 'aug', 'sus2', 'sus4', 'm7b5', 'dim7', '7#5', '7b5', 'mMaj7']) await expect(quality(page, id)).toBeHidden();
-    await expect(mode(page, 'triad')).toBeHidden();
+    await expect(mode(page, 'full')).toBeVisible();
+    await expect(mode(page, 'triad')).toBeVisible();
+    await expect(mode(page, 'all')).toBeHidden();
     await expect(panel(page).locator('[data-labels]').first()).toBeHidden();
-    await expect(pad(page, 'up')).toBeHidden();
-    await expect(pad(page, 'right')).toBeVisible();
+    await mode(page, 'triad').click();
+    await expect(panel(page).locator('[data-group]')).toHaveCount(4);
+    await expect(group(page, 'dgb')).toBeVisible();
+    await expect(pad(page, 'down')).toBeEnabled();
+    await mode(page, 'full').click();
     await advanced(page);
     for (const id of Object.keys(QUALITIES)) await expect(quality(page, id)).toBeVisible();
-    await mode(page, 'triad').click();
+    await mode(page, 'all').click();
     expect(page.url()).toContain('taso=laaja');
     await panel(page).locator('[data-level="basic"]').click();
     await expect(mode(page, 'full')).toHaveAttribute('aria-pressed', 'true');
@@ -312,7 +317,7 @@ test.describe('Otelautaopas BETA', () => {
   });
 
   test('näppäimistö: painikkeet tavoitetaan Tabilla ja nuolinäppäimet toimivat nuoliohjauksessa', async ({ page }) => {
-    await page.goto(PAGE + '?toonikka=C&sointu=maj&ote=triad&kielet=dgb#soinnut');
+    await page.goto(PAGE + '?toonikka=C&sointu=maj&ote=triad&kielet=dgb&taso=laaja#soinnut');
     await pad(page, 'right').focus();
     await page.keyboard.press('ArrowRight');
     await expect(page.locator('#chord-pad [data-pad="count"]')).toHaveText(/^2\//);
@@ -338,7 +343,7 @@ test.describe('Otelautaopas BETA', () => {
   for (const width of [320, 390, 640]) {
     test(`${width} px leveys: ei vaakavieritystä, ohjaus otelaudan alapuolella ja lauta täyttää leveyden`, async ({ page }) => {
       await page.setViewportSize({ width, height: 780 });
-      await page.goto(PAGE + '?toonikka=C&sointu=maj&ote=triad&kielet=dgb#soinnut');
+      await page.goto(PAGE + '?toonikka=C&sointu=maj&ote=triad&kielet=dgb&taso=laaja#soinnut');
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
       const board = await page.locator('#board').boundingBox();
       const controls = await page.locator('#chord-pad').boundingBox();

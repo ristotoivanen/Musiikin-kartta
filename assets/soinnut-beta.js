@@ -8,7 +8,7 @@ import {
   writeChordParams,
 } from './sointuotteet.js';
 
-// Perusnäkymä: yleisimmät soinnut ja ote. Laaja näkymä: kaikki laadut, triadit, kieliryhmät ja merkintävaihto.
+// Perusnäkymä: yleisimmät soinnut, Koko ote ja Triadit. Laaja näkymä: kaikki laadut, Sointusävelet ja Sävelet/Asteet-vaihto.
 const BASIC_QUALITIES = new Set(['maj', 'min', '7', 'maj7', 'm7']);
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const escapeHtml = text => String(text).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -57,7 +57,7 @@ export function createChordsBeta(ctx) {
       <div class="cb-family">
         <span class="cb-label" id="cb-mode-label">Esitystapa</span>
         <div class="cb-row" role="group" aria-labelledby="cb-mode-label">
-          ${MODES.map(mode => `<button type="button" data-mode="${mode.id}" ${mode.id === 'triad' ? 'data-adv ' : ''}aria-pressed="false">${mode.label}</button>`).join('')}
+          ${MODES.map(mode => `<button type="button" data-mode="${mode.id}" ${mode.id === 'all' ? 'data-adv ' : ''}aria-pressed="false">${mode.label}</button>`).join('')}
         </div>
       </div>
       <div class="cb-family" data-adv>
@@ -158,11 +158,10 @@ export function createChordsBeta(ctx) {
     const advanced = state.level === 'advanced';
     if (!advanced) {
       if (!BASIC_QUALITIES.has(state.quality)) state.quality = 'maj';
-      if (state.mode === 'triad') state.mode = 'full';
+      if (state.mode === 'all') state.mode = 'full';
       state.labels = 'names';
     }
     ctx.panel.classList.toggle('cb-basic', !advanced);
-    ctx.pad.classList.toggle('chord-pad-basic', !advanced);
     qa('[data-adv]').forEach(element => { element.hidden = !advanced; });
     qa('[data-family="sus"]').forEach(element => { element.hidden = !advanced; });
     qa('[data-level]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.level === state.level)));
@@ -214,7 +213,7 @@ export function createChordsBeta(ctx) {
       }
     });
     qa('[data-labels]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.labels === state.labels)));
-    q('#cb-groups').hidden = mode !== 'triad' || state.level !== 'advanced';
+    q('#cb-groups').hidden = mode !== 'triad';
     qa('[data-group]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.group === state.group)));
 
     // Tiedot
@@ -320,7 +319,7 @@ export function createChordsBeta(ctx) {
       state.quality = parsed.quality;
       state.mode = parsed.mode;
       state.group = parsed.group;
-      state.level = params.get('taso') === 'laaja' || !BASIC_QUALITIES.has(parsed.quality) || parsed.mode === 'triad' ? 'advanced' : 'basic';
+      state.level = params.get('taso') === 'laaja' || !BASIC_QUALITIES.has(parsed.quality) || parsed.mode === 'all' ? 'advanced' : 'basic';
       state.rule = { type: 'initial', form: parsed.form, number: parsed.number };
     },
     writeParams(params) {

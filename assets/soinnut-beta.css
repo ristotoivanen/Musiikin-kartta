@@ -76,8 +76,7 @@
   .cb-row button { transition: background-color .12s; }
 }
 
-/* Perusnäkymä: vain yleisimmät valinnat ja ← →. */
+/* Perusnäkymä: yleisimmät sointulaadut, Koko ote ja Triadit. */
 .cb-level { margin-bottom: 10px; }
 .cb-row button[hidden], .cb-family[hidden], #cb-groups[hidden] { display: none; }
 .cb-basic .cb-joined [data-quality="min"] { border-radius: 0 8px 8px 0; }
-.chord-pad-basic [data-pad="up"], .chord-pad-basic [data-pad="down"] { visibility: hidden; }
