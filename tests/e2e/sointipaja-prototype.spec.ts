@@ -10,6 +10,9 @@ test('recognition, shared neck, seven chords and round summary', async ({ page }
   const board = page.locator('#board');
   await expect(board.locator('.mark')).toHaveCount(5);
   await expect(board.locator('.mute')).toHaveCount(1);
+  await expect(board.locator('svg text')).toHaveText(['1','2','3','4','5','0']);
+  // The muted low E is drawn at the shared neck's normal opacity, not .35.
+  await expect(board.locator('svg line[opacity=".35"]')).toHaveCount(0);
   await expect(page.locator('#progress')).toHaveText('Sointu 1 / 4');
   await expect(page.locator('#notes')).toBeHidden();
   await answers.getByRole('button', { name: 'D', exact: true }).click();
@@ -61,10 +64,16 @@ for (const width of [320, 360, 390]) {
     await expect(board.locator('.mark')).toHaveCount(5);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
     expect(await board.evaluate(el => el.scrollWidth)).toBeLessThanOrEqual(await board.evaluate(el=>el.clientWidth));
+    const neckRect = await board.locator('.chord-neck').boundingBox();
+    expect(neckRect).not.toBeNull();
+    await expect(board.locator('svg text')).toHaveText(['1','2','3','4','5','0']);
     for (const button of await board.locator('.mark').all()) {
       const rect=await button.boundingBox();
       expect(rect!.width).toBeGreaterThanOrEqual(44);
       expect(rect!.height).toBeGreaterThanOrEqual(44);
+      expect(rect!.x).toBeGreaterThanOrEqual(neckRect!.x);
+      expect(rect!.x + rect!.width).toBeLessThanOrEqual(neckRect!.x + neckRect!.width);
+      expect(rect!.y + rect!.height).toBeLessThanOrEqual(neckRect!.y + neckRect!.height);
     }
     await expect(page.getByRole('group', { name: 'Valitse soinnun nimi' })).toBeVisible();
   });
