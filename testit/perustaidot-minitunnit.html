@@ -16,7 +16,7 @@
 </head>
 <body><main>
 <a class="back" href="../oppi/kitara/index.html">← Kitaran perusteisiin</a>
-<p class="tag">KATSELMOITAVA PROTOTYYPPI v0.15</p>
+<p class="tag">KATSELMOITAVA PROTOTYYPPI v0.16</p>
 <h1>Perustaitojen minitunnit</h1>
 <div class="choices" role="group" aria-label="Valitse harjoitus" id="lessons" hidden>
 <button type="button" data-lesson="pulse" aria-pressed="true">Löydä pulssi ja ykkönen</button>
@@ -48,7 +48,7 @@
 <p id="recovery" hidden><a href="../assets/audio/osa-1/pulssi-ja-komppi.m4a">Avaa alkuperäinen äänite</a></p>
 <details id="brushing" hidden><summary>ⓘ Knoppitieto: Harjaaminen</summary><p>Aluksi voit pyyhkäistä kieliä tasaisesti. Myöhemmin voit painottaa alasvedolla matalampia ja ylösvedolla ohuempia kieliä. Sitä ei vielä tarvitse osata.</p></details>
 </section>
-<noscript><section class="panel"><h2>Löydä pulssi ja ykkönen</h2><p>Naputa jalalla jokainen isku ja laske neljään. Kokeile neljää taputuskuviota: kaikki iskut, 1 ja 3, 2 ja 4 tai vain ykkönen. Palaa tarvittaessa kaikkiin iskuihin. Vaihda kuviota, kun olet valmis. Pidä sama jalalla naputettava pulssi koko ajan.</p><h2>Pidä komppikäsi liikkeessä</h2><p>Kokeile ensin taputtaa valituilla numeroilla 1, 2, 3 ja 4. Ja-tavuilla ei taputeta. Jalka naputtaa aina numeroilla. Ota sitten kitara ja vaimenna kielet. Naputa jalalla numeroilla 1, 2, 3 ja 4, jolloin komppikäsi liikkuu alas. Ja-tavuilla, iskun puolivälissä, jalka nousee ja komppikäsi liikkuu ylös. Älä napauta jalalla ja-tavuilla. Soita vain valituilla numeroilla, muut käden liikkeet ilmassa. Voit käyttää vaimennettuja kieliä tai tuttua sointua. Interaktiivinen harjoittelu vaatii JavaScriptin. Voit kuunnella koko alkuperäisen äänitteen.</p><audio controls preload="none"><source src="../assets/audio/osa-1/pulssi-ja-komppi.m4a" type="audio/mp4"><source src="../assets/audio/osa-1/pulssi-ja-komppi.wav" type="audio/wav"></audio><p><a href="../oppi/rytmi/pulssi-ja-komppi.html">Pulssi ja komppi</a></p></section></noscript>
+<noscript><section class="panel"><h2>Löydä pulssi ja ykkönen</h2><p>Naputa jalalla jokainen isku ja laske neljään. Kokeile neljää taputuskuviota: kaikki iskut, 1 ja 3, 2 ja 4 tai vain ykkönen. Palaa tarvittaessa kaikkiin iskuihin. Vaihda kuviota, kun olet valmis. Pidä sama jalalla naputettava pulssi koko ajan.</p><h2>Pidä komppikäsi liikkeessä</h2><p>Kokeile ensin taputtaa valituilla numeroilla 1, 2, 3 ja 4. Ja-tavuilla ei taputeta. Jalka naputtaa aina numeroilla. Ota sitten kitara ja vaimenna kielet. Naputa jalalla numeroilla 1, 2, 3 ja 4, jolloin komppikäsi liikkuu alas. Ja-tavuilla, iskun puolivälissä, jalka nousee ja komppikäsi liikkuu ylös. Älä napauta jalalla ja-tavuilla. Soita vain valituilla numeroilla, muulloin liikuta kättä kieliin osumatta. Voit käyttää vaimennettuja kieliä tai tuttua sointua. Interaktiivinen harjoittelu vaatii JavaScriptin. Voit kuunnella koko alkuperäisen äänitteen.</p><audio controls preload="none"><source src="../assets/audio/osa-1/pulssi-ja-komppi.m4a" type="audio/mp4"><source src="../assets/audio/osa-1/pulssi-ja-komppi.wav" type="audio/wav"></audio><p><a href="../oppi/rytmi/pulssi-ja-komppi.html">Pulssi ja komppi</a></p></section></noscript>
 <a class="back" href="../oppi/kitara/index.html">← Kitaran perusteisiin</a>
 </main>
 <script>
@@ -98,7 +98,7 @@ for(const [j,part] of Array.from(cell.querySelectorAll('.half')).entries()){
 const clap=pattern.beats.includes(i*2+j);
 part.classList.toggle('tap-target',clap);
 part.querySelector('.clap-symbol').textContent=clap?'●':'·';
-part.querySelector('.tap-label').textContent=guitar?(clap?'Soita':'Ilmassa'):(clap?'Taputa':'');
+part.querySelector('.tap-label').textContent=guitar?(clap?'Soita':'Ei osumaa'):(clap?'Taputa':'');
 }
 }else{
 const clap=pattern.beats.includes(i+1);
@@ -152,7 +152,7 @@ $('stages').hidden=!strum;$('brushing').hidden=!guitar;$('strum-explanation').hi
 $('clap-all').textContent=strum?'Peruspulssi':'Kaikki iskut';
 $('clap-prev').setAttribute('aria-label',guitar?'Edellinen soittokuvio':'Edellinen taputuskuvio');
 $('clap-forward').setAttribute('aria-label',guitar?'Seuraava soittokuvio':'Seuraava taputuskuvio');
-$('strum-hand').textContent=guitar?'Käsi alas numeroilla ja ylös ja-tavuilla. Soita vain merkityillä numeroilla, muut vedot ilmassa.':'Taputa vain merkityillä numeroilla. Ja-tavuilla ei taputeta.';
+$('strum-hand').textContent=guitar?'Käsi alas numeroilla ja ylös ja-tavuilla. Soita vain merkityillä numeroilla, muulloin liikuta kättä kieliin osumatta.':'Taputa vain merkityillä numeroilla. Ja-tavuilla ei taputeta.';
 if(!strum){
 $('instruction').textContent='Naputa jalalla jokainen isku ja laske neljään. Taputa käsillä vain merkityillä iskuilla. Vaihda taputuskuviota nuolilla, kun olet valmis. Kaikki iskut -painikkeella palaat perusrytmiin.';
 $('hint').textContent='Pidä jalalla tasainen pulssi, vaikka taputus vaihtuu.';
@@ -160,7 +160,7 @@ $('pattern-text').textContent='Ykkönen aloittaa uuden tahdin. Sen ei tarvitse o
 }else if(guitar){
 $('instruction').textContent='Ota kitara. Vaimenna kielet kevyesti tai valitse tuttu sointu. Soita sama rytmi, jota äsken taputit.';
 $('hint').textContent='Laske 1 ja 2 ja 3 ja 4 ja. Pidä komppikäsi liikkeessä koko ajan.';
-$('pattern-text').textContent='Ilmassa tarkoittaa, että käsi liikkuu kieliin osumatta. Voit aloittaa vaimennetuilla kielillä ja kokeilla sitten omaa sointua.';
+$('pattern-text').textContent='Ei osumaa tarkoittaa, että käsi jatkaa liikettä kieliin osumatta. Voit aloittaa vaimennetuilla kielillä ja kokeilla sitten omaa sointua.';
 }else{
 $('instruction').textContent='Pidä sama jalalla naputettava pulssi kuin ensimmäisessä harjoituksessa. Laske ääneen 1 ja 2 ja 3 ja 4 ja.';
 $('hint').textContent='Taputa käsillä valittua rytmiä. Vaihda kuviota nuolilla, kun olet valmis.';
