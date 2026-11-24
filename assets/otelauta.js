@@ -44,13 +44,46 @@ const fretboard = (() => {
                  hint: 'Alennettu 7. aste on tuttu bluesista ja rockista.' }
   };
 
-  const OPEN_LEFT = 26, NUT_X = 72;
-  const PAD_T = 30, FW = 54, SS = 34, R = 11;
+  // Sama tabulatuurijärjestys, nauhamerkit ja satula kaikille vaakasuorille otelaudoille.
+  const neckStyle = {
+    rail: 46, wood: '#21343e', wire: '#8ca9b0', string: '#c4d2d3', nut: '#e2d1ad',
+    markers: [3, 5, 7, 9, 12, 15, 17, 19, 21, 24],
+  };
+
+  const OPEN_LEFT = 0, NUT_X = neckStyle.rail;
+  const PAD_T = 42, FW = 54, SS = 34, R = 11;
   const openCenter = (OPEN_LEFT + NUT_X) / 2;
   const height = PAD_T + (OPEN_PITCHES.length - 1) * SS + 30;
   const wireX = fret => NUT_X + fret * FW;
   const cellCX = fret => fret === 0 ? openCenter : wireX(fret) - FW / 2;
   const stringY = i => PAD_T + i * SS;
+
+  let surfaceCount = 0;
+  function neckSurface({ count, cell, row, firstY, dimmed = [] }) {
+    const nut = neckStyle.rail, end = nut + count * cell;
+    const top = firstY - row * .46, bottom = firstY + row * 5.46;
+    const middle = fret => nut + (fret - .5) * cell;
+    const id = 'neck-' + (++surfaceCount);
+    let svg = `<defs><linearGradient id="${id}-wood" x2="0" y2="1"><stop stop-color="#2b3f48"/><stop offset=".52" stop-color="${neckStyle.wood}"/><stop offset="1" stop-color="#142731"/></linearGradient>
+      <linearGradient id="${id}-nut"><stop stop-color="#938771"/><stop offset=".35" stop-color="#eee1c4"/><stop offset=".7" stop-color="${neckStyle.nut}"/><stop offset="1" stop-color="#998d76"/></linearGradient></defs>
+      <rect x="${nut}" y="${top}" width="${count * cell}" height="${bottom - top}" rx="3" fill="url(#${id}-wood)" stroke="#728895" stroke-opacity=".42"/>`;
+    for (let fret = 1; fret <= count; fret++) {
+      const x = nut + fret * cell, octave = fret % 12 === 0;
+      svg += `<text x="${middle(fret)}" y="${top - 10}" fill="${octave ? '#e7c78e' : '#afc1c9'}" font-size="${octave ? 13 : 12}" font-weight="${octave ? 750 : 550}" text-anchor="middle">${fret}</text>
+        <line x1="${x}" y1="${top}" x2="${x}" y2="${bottom}" stroke="${neckStyle.wire}" stroke-width="2" opacity=".57"/>`;
+    }
+    svg += `<rect x="${nut}" y="${top}" width="4" height="${bottom - top}" rx="1.5" fill="url(#${id}-nut)"/>`;
+    for (const fret of neckStyle.markers.filter(fret => fret <= count)) {
+      for (const offset of fret % 12 ? [2.5] : [1.5, 3.5]) {
+        svg += `<circle cx="${middle(fret)}" cy="${firstY + offset * row}" r="6" fill="#a5bdc6" opacity=".28"/>`;
+      }
+    }
+    STRING_NAMES.forEach((_, index) => {
+      const y = firstY + index * row;
+      svg += `<line x1="${nut}" x2="${end}" y1="${y}" y2="${y}" stroke="${neckStyle.string}" stroke-width="${1 + index * .32}" opacity="${dimmed[index] ? '.35' : .49 + index * .06}"/>`;
+    });
+    return svg;
+  }
 
   function noteName(root, interval, degree) {
     const index = LETTERS.indexOf(CHROM[root][0]) + Number(degree.slice(-1)) - 1;
@@ -334,11 +367,7 @@ const fretboard = (() => {
     muteFret = null,
   } = {}) {
     const fretboardEnd = wireX(fretCount);
-    const bridgeX = fretboardEnd + 48;
-    const width = bridgeX + 28;
-    const neckTop = PAD_T - 14;
-    const neckBottom = stringY(OPEN_PITCHES.length - 1) + 14;
-    const neckHeight = neckBottom - neckTop;
+    const width = fretboardEnd + 2;
     const minWidth = automatic ? 680 : Math.ceil(width * 0.64);
     const boxPositions = boxes.flatMap(box => box.positions);
     const ivMap = {};
@@ -355,33 +384,15 @@ const fretboard = (() => {
 
     let s = '<svg viewBox="0 0 ' + width + ' ' + height + '" style="min-width:' + minWidth + 'px" xmlns="http://www.w3.org/2000/svg" role="' + (targets ? 'group' : 'img') + '" aria-label="' +
       description + '">';
-    s += '<rect x="' + OPEN_LEFT + '" y="' + neckTop + '" width="' + (NUT_X - OPEN_LEFT) + '" height="' + neckHeight + '" rx="6" fill="#2a2338"/>';
-    s += '<rect x="' + NUT_X + '" y="' + neckTop + '" width="' + (fretboardEnd - NUT_X) + '" height="' + neckHeight + '" fill="#231a12"/>';
-    s += '<rect x="' + fretboardEnd + '" y="' + neckTop + '" width="' + (width - fretboardEnd - 4) + '" height="' + neckHeight + '" rx="8" fill="#32251e"/>';
-    for (let f = 1; f <= fretCount; f++)
-      s += '<line x1="' + wireX(f) + '" y1="' + neckTop + '" x2="' + wireX(f) + '" y2="' + neckBottom + '" stroke="#6f5b47" stroke-width="2"/>';
-    s += '<rect x="' + (NUT_X - 3) + '" y="' + neckTop + '" width="6" height="' + neckHeight + '" rx="2" fill="#d8cbb6"/>';
-    s += '<rect x="' + (bridgeX - 11) + '" y="' + (neckTop + 3) + '" width="22" height="' + (neckHeight - 6) + '" rx="7" fill="#49434f" stroke="#a49b9d"/>';
-    s += '<rect x="' + (bridgeX - 4) + '" y="' + (neckTop + 7) + '" width="3" height="' + (neckHeight - 14) + '" rx="1.5" fill="#d8cbb6"/>';
-    const midY = (neckTop + neckBottom) / 2;
-    [3, 5, 7, 9, 15, 17, 19, 21].filter(f => f <= fretCount).forEach(f =>
-      s += '<circle cx="' + cellCX(f) + '" cy="' + midY + '" r="5.5" fill="#7a6550"/>');
-    for (let fret = 12; fret <= fretCount; fret += 12) {
-      s += '<circle cx="' + cellCX(fret) + '" cy="' + (midY - SS) + '" r="5.5" fill="#7a6550"/>';
-      s += '<circle cx="' + cellCX(fret) + '" cy="' + (midY + SS) + '" r="5.5" fill="#7a6550"/>';
-    }
-    s += '<text x="' + openCenter + '" y="' + (height - 6) + '" font-size="12" fill="#a89fc4" text-anchor="middle">Vapaa</text>';
-    s += '<text x="' + NUT_X + '" y="12" font-size="12" fill="#a89fc4" text-anchor="middle">Satula</text>';
-    s += '<text x="' + bridgeX + '" y="' + (height - 6) + '" font-size="12" fill="#a89fc4" text-anchor="middle">Talla</text>';
-    for (let f = 1; f <= fretCount; f++)
-      s += '<text x="' + cellCX(f) + '" y="' + (height - 6) + '" font-size="11" fill="#a89fc4" text-anchor="middle">' + f + '</text>';
+    s += neckSurface({ count: fretCount, cell: FW, row: SS, firstY: PAD_T,
+      dimmed: muted.map(value => value && !muteAtGrip) });
     boxes.forEach(({ number, positions }) => {
       positions.forEach(position => {
         const classes = position.partial ? 'box-highlight box-partial' : 'box-highlight';
         s += '<g class="' + classes + '" data-box="' + number + '" aria-hidden="true">';
         const topFrets = position.strings.find(frets => frets.length);
         const labelX = (cellCX(topFrets[0]) + cellCX(topFrets.at(-1))) / 2;
-        s += '<text class="box-number" x="' + labelX + '" y="12">' + number + '</text>';
+        s += '<text class="box-number" x="' + labelX + '" y="' + (height - 2) + '">' + number + '</text>';
         position.strings.forEach((frets, i) => {
           if (!frets.length) return;
           const left = cellCX(frets[0]) - 16;
@@ -392,7 +403,6 @@ const fretboard = (() => {
       });
     });
     OPEN_PITCHES.forEach((_, i) => {
-      const th = 1 + (i * 0.45);
       const y = stringY(i);
       const dimmed = muted[i] && !muteAtGrip;
       if (dimmed) {
@@ -400,11 +410,7 @@ const fretboard = (() => {
       } else if (!(muted[i] && muteFret === 0)) {
         s += '<line x1="' + (OPEN_LEFT + 4) + '" y1="' + y + '" x2="' + (NUT_X - 4) + '" y2="' + y + '" stroke="#8b809d" stroke-dasharray="3 3"/>';
       }
-      s += '<g' + (dimmed ? ' opacity=".35"' : '') + '>';
-      s += '<line x1="' + NUT_X + '" y1="' + y + '" x2="' + (bridgeX + 5) + '" y2="' + y + '" stroke="#b9b9c4" stroke-width="' + th.toFixed(2) + '"/>';
-      s += '<circle cx="' + (bridgeX + 5) + '" cy="' + y + '" r="3" fill="#211c26" stroke="#b9b9c4"/>';
-      s += '</g>';
-      s += '<text x="13" y="' + (y + 4) + '" font-size="14" fill="#efeaff" text-anchor="middle">' + STRING_NAMES[i] + '</text>';
+      s += '<text x="7" y="' + (y + 4) + '" font-size="14" fill="#efeaff" text-anchor="middle">' + STRING_NAMES[i] + '</text>';
     });
     // Korosta koko barré-otteen etusormella painettava nauha merkkien takana.
     if (grip && barre && barre.fret >= 1 && barre.fret <= fretCount) {
@@ -421,7 +427,7 @@ const fretboard = (() => {
       OPEN_PITCHES.forEach((openPitch, si) => {
         for (let f = 0; f <= fretCount; f++) {
           const place = f ? SPOKEN_STRING_NAMES[si] + '-kieli, ' + f + '. nauha' : 'vapaa ' + SPOKEN_STRING_NAMES[si] + '-kieli';
-          const cellWidth = f ? FW : NUT_X - OPEN_LEFT - 6;
+          const cellWidth = f ? FW : NUT_X;
           s += '<rect class="fret-target" role="button" tabindex="0" data-string="' + si + '" data-fret="' + f +
             '" data-midi="' + (openPitch + f) + '" aria-label="' + place + '" x="' + (cellCX(f) - cellWidth / 2) +
             '" y="' + (stringY(si) - SS / 2) + '" width="' + cellWidth + '" height="' + SS + '" fill="transparent"/>';
@@ -472,7 +478,7 @@ const fretboard = (() => {
   }
 
   return {
-    CHROM, OPEN_PITCHES, PENT_MAJ, SCALES, noteName, scaleNotes, scaleTriads, triadGrips,
+    neckStyle, neckSurface, STRING_NAMES, CHROM, OPEN_PITCHES, PENT_MAJ, SCALES, noteName, scaleNotes, scaleTriads, triadGrips,
     chordGrip, renderChordDiagram,
     selectionFromURL, selectionHref, renderBoard,
     BOX_FRETS, supportsThreeNoteBoxes, syncBoxSystem, fingeringBoxes, boxOptions, revealPositions

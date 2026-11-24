@@ -47,7 +47,7 @@
 .riff-instruction { font-weight: 650; margin: 8px 0 0; padding: 8px 12px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); }
 .riff-cleared h2 { font-size: clamp(22px, 5vw, 30px); color: var(--good); outline: none; }
 /* Kosketus: nopea toinen napautus on uusi näppäys, ei zoomaus. */
-.riff-board .practice-board td button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; }
+.riff-board .practice-board button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; }
 .riff-board .practice-board .playing .dot { background: var(--gold); color: #16121f; }
 /* Kuvateksti rivittyy, ettei se työnnä otelautaa sivusuunnassa. */
 .riff-board .practice-board caption { white-space: normal; }
@@ -120,22 +120,22 @@
 .riff-board { --focus-row: #3b2a10; --focus-edge: var(--gold); --focus-head: color-mix(in srgb, var(--gold) 28%, var(--panel)); }
 .riff-board.has-focus tbody tr { opacity: .55; }
 .riff-board.focus-s0 tbody tr:nth-child(1) { opacity: 1; }
-.riff-board.focus-s0 tbody tr:nth-child(1) > td { --string-thickness: 4px; background-color: var(--focus-row); box-shadow: inset 0 2px 0 var(--focus-edge), inset 0 -2px 0 var(--focus-edge); }
+.riff-board.focus-s0 tbody tr:nth-child(1) > td { --string-thickness: 4px; background-color: color-mix(in srgb, var(--focus-row) 60%, transparent); box-shadow: inset 0 2px 0 var(--focus-edge), inset 0 -2px 0 var(--focus-edge); }
 .riff-board.focus-s0 tbody tr:nth-child(1) > th { background: var(--focus-head); color: var(--text); box-shadow: inset 4px 0 0 var(--focus-edge); }
 .riff-board.focus-s1 tbody tr:nth-child(2) { opacity: 1; }
-.riff-board.focus-s1 tbody tr:nth-child(2) > td { --string-thickness: 4px; background-color: var(--focus-row); box-shadow: inset 0 2px 0 var(--focus-edge), inset 0 -2px 0 var(--focus-edge); }
+.riff-board.focus-s1 tbody tr:nth-child(2) > td { --string-thickness: 4px; background-color: color-mix(in srgb, var(--focus-row) 60%, transparent); box-shadow: inset 0 2px 0 var(--focus-edge), inset 0 -2px 0 var(--focus-edge); }
 .riff-board.focus-s1 tbody tr:nth-child(2) > th { background: var(--focus-head); color: var(--text); box-shadow: inset 4px 0 0 var(--focus-edge); }
 .riff-board.focus-s2 tbody tr:nth-child(3) { opacity: 1; }
-.riff-board.focus-s2 tbody tr:nth-child(3) > td { --string-thickness: 4px; background-color: var(--focus-row); box-shadow: inset 0 2px 0 var(--focus-edge), inset 0 -2px 0 var(--focus-edge); }
+.riff-board.focus-s2 tbody tr:nth-child(3) > td { --string-thickness: 4px; background-color: color-mix(in srgb, var(--focus-row) 60%, transparent); box-shadow: inset 0 2px 0 var(--focus-edge), inset 0 -2px 0 var(--focus-edge); }
 .riff-board.focus-s2 tbody tr:nth-child(3) > th { background: var(--focus-head); color: var(--text); box-shadow: inset 4px 0 0 var(--focus-edge); }
 .riff-board.focus-s3 tbody tr:nth-child(4) { opacity: 1; }
-.riff-board.focus-s3 tbody tr:nth-child(4) > td { --string-thickness: 4px; background-color: var(--focus-row); box-shadow: inset 0 2px 0 var(--focus-edge), inset 0 -2px 0 var(--focus-edge); }
+.riff-board.focus-s3 tbody tr:nth-child(4) > td { --string-thickness: 4px; background-color: color-mix(in srgb, var(--focus-row) 60%, transparent); box-shadow: inset 0 2px 0 var(--focus-edge), inset 0 -2px 0 var(--focus-edge); }
 .riff-board.focus-s3 tbody tr:nth-child(4) > th { background: var(--focus-head); color: var(--text); box-shadow: inset 4px 0 0 var(--focus-edge); }
 .riff-board.focus-s4 tbody tr:nth-child(5) { opacity: 1; }
-.riff-board.focus-s4 tbody tr:nth-child(5) > td { --string-thickness: 4px; background-color: var(--focus-row); box-shadow: inset 0 2px 0 var(--focus-edge), inset 0 -2px 0 var(--focus-edge); }
+.riff-board.focus-s4 tbody tr:nth-child(5) > td { --string-thickness: 4px; background-color: color-mix(in srgb, var(--focus-row) 60%, transparent); box-shadow: inset 0 2px 0 var(--focus-edge), inset 0 -2px 0 var(--focus-edge); }
 .riff-board.focus-s4 tbody tr:nth-child(5) > th { background: var(--focus-head); color: var(--text); box-shadow: inset 4px 0 0 var(--focus-edge); }
 .riff-board.focus-s5 tbody tr:nth-child(6) { opacity: 1; }
-.riff-board.focus-s5 tbody tr:nth-child(6) > td { --string-thickness: 4px; background-color: var(--focus-row); box-shadow: inset 0 2px 0 var(--focus-edge), inset 0 -2px 0 var(--focus-edge); }
+.riff-board.focus-s5 tbody tr:nth-child(6) > td { --string-thickness: 4px; background-color: color-mix(in srgb, var(--focus-row) 60%, transparent); box-shadow: inset 0 2px 0 var(--focus-edge), inset 0 -2px 0 var(--focus-edge); }
 .riff-board.focus-s5 tbody tr:nth-child(6) > th { background: var(--focus-head); color: var(--text); box-shadow: inset 4px 0 0 var(--focus-edge); }
 .riff-focus-legend { display: flex; align-items: center; gap: 8px; margin: 6px 0 0; font-weight: 650; }
 .riff-focus-legend .swatch { width: 22px; height: 8px; border-radius: 4px; background: var(--gold); }

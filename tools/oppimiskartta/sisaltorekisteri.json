@@ -45,7 +45,9 @@
     "kitaratreeni.html": "kitara",
     "kitaraharjoittelija.html": "kitara",
     "soittopakki.html": "pakki",
-    "otelautaharjoittelija.html": "pakki"
+    "otelautaharjoittelija.html": "pakki",
+    "savelverkko.html": "pelit",
+    "sointipaja-prototyyppi.html": "pelit"
   },
   "tavat": {
     "pelit": {
@@ -160,6 +162,24 @@
       "tuloksen_laji": null
     },
     {
+      "id": "peli:savelverkko",
+      "nimi": "Sävelverkko",
+      "tavat": [
+        "pelit"
+      ],
+      "aiheet": [
+        "otelauta"
+      ],
+      "osoite": "savelverkko.html",
+      "aiheparametri": true,
+      "kuvaus": "Etsi yhtä korkeat sävelet ja niiden oktaavit. Rakenna lopuksi verkko muistista ja soita se omalla kitaralla.",
+      "taito": "Saman sävelkorkeuden ja oktaavimuotojen löytäminen eri kieliltä",
+      "valine": "virtuaalikitara",
+      "saatavuus": "beta",
+      "tulos": null,
+      "tuloksen_laji": null
+    },
+    {
       "id": "harjoittelija:avosoinnut",
       "nimi": "Tunnista avoin sointu",
       "tavat": [
@@ -177,6 +197,24 @@
       "taito": "Tavallisten avoimien sointuotteiden tunnistaminen",
       "valine": "otelautakuva",
       "saatavuus": "valmis",
+      "tulos": null,
+      "tuloksen_laji": null
+    },
+    {
+      "id": "peli:sointipaja",
+      "nimi": "Sointipaja",
+      "tavat": [
+        "pelit"
+      ],
+      "aiheet": [
+        "soinnut"
+      ],
+      "osoite": "sointipaja-prototyyppi.html",
+      "aiheparametri": true,
+      "kuvaus": "Harjoittele 24 avosointua neljällä tasolla tai haasta itsesi ajastetussa Sointuhaasteessa.",
+      "taito": "Sointuotteiden tunnistaminen ja tunnistamisen sujuvuus",
+      "valine": "virtuaalikitara",
+      "saatavuus": "beta",
       "tulos": null,
       "tuloksen_laji": null
     },
