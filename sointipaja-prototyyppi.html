@@ -221,13 +221,12 @@ const base = new URL('assets/audio/soinnut/', location.href);
     throw failure;
   }
 
-  function schedule(own, buffer, { at, duration, gain }) {
+  function schedule(own, buffer, { at, duration, gain, fade = duration > 2 ? 0.55 : 0.22 }) {
     const when = own.start + at;
     const end = when + duration + 0.02;
     const source = audio.createBufferSource();
     source.buffer = buffer;
     const envelope = audio.createGain();
-    const fade = duration > 2 ? 0.55 : 0.22;
     envelope.gain.setValueAtTime(0.0001, when);
     envelope.gain.linearRampToValueAtTime(gain, when + 0.014);
     envelope.gain.setValueAtTime(gain, when + duration - fade);
@@ -347,17 +346,23 @@ function listen(trigger, mode, string, toggle=false) {
   if(toggle&&session?.trigger===trigger){stop('Kuuntelu pysäytetty.');return;}
   const positions=mode==='single'?voiced().filter(p=>p.s===string):voiced();
   if(!positions.length)return;
-  const step=mode==='arpeggio' ? .58 : mode==='chord' ? .027 : 0;
-  const duration=mode==='arpeggio' ? .52 : mode==='chord' ? 2.15 : 1.35;
-  const gain=mode==='single' ? .40 : mode==='arpeggio' ? .27 : .19;
-  const plan=positions.map(({s,f},i)=>({pitch:sampleOf(s,f),at:i*step,duration,gain}));
+  const step=mode==='arpeggio' ? .45 : mode==='chord' ? .027 : 0;
+  // Arpeggio: anna kielten soida päällekkäin ja sammua luonnollisesti yhdessä.
+  // Ei luuppia eikä sävelen keinotekoista pidentämistä.
+  const arpeggioEnd=(positions.length-1)*step+1.5;
+  const gain=mode==='single' ? .40 : mode==='arpeggio' ? .16 : .19;
+  const plan=positions.map(({s,f},i)=>({
+    pitch:sampleOf(s,f),at:i*step,
+    duration:mode==='arpeggio'?arpeggioEnd-i*step:mode==='chord'?2.15:1.35,
+    gain,...(mode==='arpeggio'?{fade:.55}:{})
+  }));
   if(answered&&mode==='single'){
     const {s,f}=positions[0];const n=pitch(s,f);
     byId('note-detail').textContent=longStrings[s]+'-kieli, '+(f===0?'vapaa':f+'. nauha')+' · '+nameOf(n)+' · '+roleOf(n)+'.';
   }
   void play(trigger,audioStatus,plan,{
-    label:mode==='single'?'Kieli soi.':mode==='arpeggio'?'Kielet soivat järjestyksessä.':'Sointu soi.',
-    onPosition: t=>highlight(t<0?[]:positions.filter((_,i)=>t>=plan[i].at&&t<plan[i].at+duration).map(p=>p.s)),
+    label:mode==='single'?'Kieli soi.':mode==='arpeggio'?'Sointu rakentuu kieli kerrallaan.':'Sointu soi.',
+    onPosition: t=>highlight(t<0?[]:positions.filter((_,i)=>t>=plan[i].at&&t<plan[i].at+plan[i].duration).map(p=>p.s)),
     onStop:()=>{if(document.activeElement===stopButton)byId('listen').focus();stopButton.disabled=true;highlight([]);}
   });
   stopButton.disabled=!session;
