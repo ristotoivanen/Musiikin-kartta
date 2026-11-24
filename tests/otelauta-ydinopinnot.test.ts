@@ -314,20 +314,30 @@ describe('03 · Etsi perussävel E- ja A-kieleltä', () => {
   it('palaute opettaa päättelyn', () => {
     expect(checkRootName({ type: 'nimea', at: ['E', 8] }, 'C').message).toBe('Oikein. Paksun E-kielen 8. nauha on C. Löydät sen B:n vierestä (7. nauha).');
     // Virhepalaute ei paljasta vastausta eikä kiintopisteen sävelnimeä.
-    expect(checkRootName({ type: 'nimea', at: ['E', 8] }, 'B')).toMatchObject({ ok: false, message: 'Ei B. Lähde lähimmästä kiintopisteestä ja laske nauhat siitä.' });
-    expect(checkRootName({ type: 'nimea', at: ['E', 8] }, 'B', 2)).toMatchObject({ ok: false, message: 'Ei B. Laske 7. nauhasta. Muista: E–F ja B–C ovat vierekkäin.' });
+    expect(checkRootName({ type: 'nimea', at: ['E', 8] }, 'B')).toMatchObject({ ok: false, message: 'Ei B. Päättele lähimmästä kiintopisteestä ja laske nauhat siitä.' });
+    expect(checkRootName({ type: 'nimea', at: ['E', 8] }, 'B', 2)).toMatchObject({ ok: false, message: 'Ei B. Lähin kiintopiste on 7. nauha; kysytty paikka on siitä yksi nauha ylempänä. Muista: E–F ja B–C ovat vierekkäin.' });
+    expect(checkRootName({ type: 'nimea', at: ['A', 10] }, 'F', 2).message).toContain('kysytty paikka on siitä kaksi nauhaa alempana');
+    // N3: kiintopisteessä ei ohjata päättelemään samasta kohdasta, vaan muistamaan tai käyttämään Vihjettä.
+    for (const at of [['E', 12], ['A', 5], ['E', 3]] as const) {
+      for (const attempt of [1, 2]) {
+        const message = checkRootName({ type: 'nimea', at }, 'C♯', attempt).message;
+        expect(message).toBe('Ei C♯. Tämä on kiintopiste, joka kannattaa muistaa. Vihje näyttää kiintopisteet.');
+      }
+    }
     for (const position of ALL_POSITIONS.filter(item => ROOT_STRINGS.includes(item.string) && item.fret > 0 && NATURALS.includes(noteName(item.midi)))) {
       const round = { type: 'nimea' as const, at: [position.string, position.fret] as const };
       for (const wrong of NATURALS.filter(name => name !== noteName(position.midi))) {
         for (const attempt of [1, 2, 3]) {
-          const message = checkRootName(round, wrong, attempt).message.replace(`Ei ${wrong}.`, '').replace('Muista: E–F ja B–C ovat vierekkäin.', '');
+          const message = checkRootName(round, wrong, attempt).message.replace(`Ei ${wrong}.`, '').replace('Muista: E–F ja B–C ovat vierekkäin.', '').replace('Vihje näyttää', '');
           expect(message, `${position.string} ${position.fret}`).not.toMatch(/[A-G]/);
         }
       }
     }
     expect(checkRootFind({ type: 'etsi', note: 'F♯', string: 'A' }, 'A', 9).message).toBe('Oikein. A-kielen 9. nauha on F♯. Se on kaksi nauhaa E:n yläpuolella (7. nauha).');
     expect(checkRootFind({ type: 'etsi', note: 'D', string: 'E' }, 'E', 8).message).toBe('E 8 on C. D on ylempänä.');
-    expect(checkRootFind({ type: 'etsi', note: 'D', string: 'E' }, 'A', 5)).toMatchObject({ ok: false, kind: 'vaara-kieli' });
+    // Oikea sävelnimi väärällä kielellä tunnustetaan, mutta kielirajaus pysyy.
+    expect(checkRootFind({ type: 'etsi', note: 'D', string: 'E' }, 'A', 5)).toMatchObject({ ok: false, kind: 'toinen-kieli', message: 'Sekin on D, mutta etsi paksulta E-kieleltä.' });
+    expect(checkRootFind({ type: 'etsi', note: 'D', string: 'E' }, 'A', 4)).toMatchObject({ ok: false, kind: 'vaara-kieli' });
   });
 });
 

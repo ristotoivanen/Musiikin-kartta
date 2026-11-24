@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
-import { FIND_LEVELS, STRINGS, findPositions, frequency, noteName, pitchAt, positionsOf, unisonAnswer } from '../../assets/otelauta-ydinopinnot.js';
+import { FIND_LEVELS, LANDMARKS, STRINGS, findPositions, frequency, noteName, pitchAt, positionsOf, unisonAnswer } from '../../assets/otelauta-ydinopinnot.js';
 
 // Otelaudan Ydinopinnot (#116, vaihe 3). Tehtävät arvotaan, joten testi lukee tehtävän näkyvästä
 // sisällöstä ja laskee vastauksen samalla moduulilla. 02:n arvoitussävel tunnistetaan soitetusta
@@ -31,7 +31,9 @@ const exercise = (page: Page, kind: string) => page.locator(`[data-otelautaharjo
 const cell = (scope: Locator, string: string, fret: number) => scope.locator(`button[data-kieli="${string}"][data-nauha="${fret}"]`);
 const feedback = (scope: Locator) => scope.locator('.otelauta-palaute');
 const prompt = (scope: Locator) => scope.locator('.otelauta-tehtava');
-const next = (scope: Locator) => scope.getByRole('button', { name: /^Uusi (tehtävä|sävel) →$/ });
+// Uusi tehtävä -painike on laudan yläpuolella ja ratkaisun jälkeen myös laudan alla.
+const next = (scope: Locator) => scope.getByRole('button', { name: /^Uusi (tehtävä|sävel) →$/ }).first();
+const nextBottom = (scope: Locator) => scope.locator('.otelauta-alatoiminnot').getByRole('button', { name: /^Uusi (tehtävä|sävel) →$/ });
 const noHorizontalScroll = (page: Page) =>
   page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
 const stringFrom = (text: string) => STRINGS.find(string => text.includes(` ${string.from}.`))!.id;
@@ -132,6 +134,9 @@ test.describe('01 · Sama sävel toiselta kieleltä', () => {
     await expect(cell(root, 'A', 0)).toHaveAccessibleName('vapaa A-kieli, lähtösävel A2');
     await cell(root, 'E', 7).click();
     await expect(feedback(root)).toHaveText('B2 – liian korkea. Siirry kaksi nauhaa alemmas.');
+    // Suunta ja nauhamäärä näkyvät myös napautetussa ruudussa (satula ylhäällä: ↑ = alemmas).
+    await expect(cell(root, 'E', 7)).toHaveText('↑2');
+    await expect(cell(root, 'E', 7)).toHaveAccessibleName(/siirry kaksi nauhaa alemmas/);
     await cell(root, 'E', 5).click();
     await expect(feedback(root)).toHaveText('Oikein. Molemmat ovat A2.');
     await expect.poll(() => frequencies(page)).toEqual([hz(47), hz(45)]);
@@ -148,6 +153,10 @@ test.describe('01 · Sama sävel toiselta kieleltä', () => {
         await expect(feedback(root)).toContainText('Vihje:');
         await root.getByRole('button', { name: 'Näytä vastaus' }).click();
         await expect(feedback(root)).toContainText('Vastaus:');
+        // Näytetty vastaus ei saa omin voimin ratkaistun tehtävän onnistumismerkintää.
+        await expect(feedback(root)).not.toHaveAttribute('data-tulos', 'oikein');
+        await expect(root.locator('button.is-naytetty')).toHaveCount(1);
+        await expect(root.locator('button.is-oikein')).toHaveCount(0);
         continue;
       }
       const answer = await solveUnison(root);
@@ -161,7 +170,8 @@ test.describe('01 · Sama sävel toiselta kieleltä', () => {
   test('näppäimistö: yksi sarkainpysähdys laudalla, nuolet ja Enter', async ({ page }) => {
     await page.goto('/oppi/otelauta/sama-savel-toiselta-kielelta.html');
     const root = exercise(page, 'unisono');
-    await root.getByRole('button', { name: '▶ Lähtösävel' }).focus();
+    // Sarkainjärjestys: tehtävä → toiminnot (Vihje, Näytä vastaus) → lauta → Uusi tehtävä laudan alla.
+    await root.getByRole('button', { name: 'Näytä vastaus' }).focus();
     await page.keyboard.press('Tab');
     await expect(cell(root, 'A', 0)).toBeFocused();
     await expect(root.locator('table[role="grid"] button[tabindex="0"]')).toHaveCount(1);
@@ -171,7 +181,8 @@ test.describe('01 · Sama sävel toiselta kieleltä', () => {
     await expect(cell(root, 'E', 5)).toBeFocused();
     await page.keyboard.press('Enter');
     await expect(feedback(root)).toHaveText('Oikein. Molemmat ovat A2.');
-    await next(root).focus();
+    await page.keyboard.press('Tab');
+    await expect(nextBottom(root)).toBeFocused();
     await page.keyboard.press('Enter');
     await expect(prompt(root)).toBeFocused();
     await expect(root.locator('table[role="grid"] button[tabindex="0"]')).toHaveCount(1);
@@ -277,7 +288,9 @@ test.describe('03 · Etsi perussävel E- ja A-kieleltä', () => {
         const wrong = ['C', 'D', 'E', 'F', 'G', 'A', 'B'].find(other => other !== name)!;
         const names = root.getByRole('group', { name: 'Sävelen nimi' });
         await names.getByRole('button', { name: wrong, exact: true }).click();
-        await expect(feedback(root)).toHaveText(`Ei ${wrong}. Lähde lähimmästä kiintopisteestä ja laske nauhat siitä.`);
+        await expect(feedback(root)).toHaveText(LANDMARKS.includes(fret)
+          ? `Ei ${wrong}. Tämä on kiintopiste, joka kannattaa muistaa. Vihje näyttää kiintopisteet.`
+          : `Ei ${wrong}. Päättele lähimmästä kiintopisteestä ja laske nauhat siitä.`);
         await names.getByRole('button', { name, exact: true }).click();
         await expect(feedback(root)).toContainText(`on ${name}.`);
       } else {
@@ -306,7 +319,7 @@ test.describe('04 · Liiku otelaudalla', () => {
     for (const level of ['ea', 'kaikki', 'kromaattinen'] as const) {
       if (level !== 'ea') await select.selectOption(level);
       await expect(root.locator('thead th[data-kieli]')).toHaveCount(FIND_LEVELS[level].strings.length);
-      const target = (await prompt(root).textContent())!.match(/^Etsi kaikki (\S+)-sävelet\. Niitä on \d+\.$/)![1];
+      const target = (await prompt(root).textContent())!.match(/^Etsi kaikki (\S+)-sävelet .+, nauhat 0–12\. Niitä on \d+\.$/)![1];
       expect(FIND_LEVELS[level].notes).toContain(target);
       const positions = findPositions(target, level);
       await expect(prompt(root)).toContainText(`Niitä on ${positions.length}.`);
@@ -335,7 +348,7 @@ test('aihesivun neljä harjoitusta toimivat samalla sivulla toisistaan riippumat
   await expect(feedback(first)).toHaveText('Oikein. Molemmat ovat A2.');
   await page.locator('#valinta-liiku-otelaudalla').click();
   const last = exercise(page, 'liiku');
-  const target = (await prompt(last).textContent())!.match(/^Etsi kaikki (\S+)-sävelet\. Niitä on \d+\.$/)![1];
+  const target = (await prompt(last).textContent())!.match(/^Etsi kaikki (\S+)-sävelet .+, nauhat 0–12\. Niitä on \d+\.$/)![1];
   const position = findPositions(target, 'ea')[0];
   await cell(last, position.string, position.fret).click();
   await expect(feedback(last)).toContainText('Löydetty 1/');
@@ -357,6 +370,8 @@ for (const width of [320, 375, 390, 402, 430]) {
       await page.goto(`/oppi/otelauta/${slug}.html`);
       expect(await noHorizontalScroll(page), slug).toBe(true);
       const root = exercise(page, kind);
+      // 02: lauta tulee näkyviin vasta paikanetsintävaiheessa.
+      if (kind === 'oktaavi') await root.getByRole('button', { name: 'Yhtä korkea' }).click();
       const frame = root.locator('.otelauta-kehys');
       // Laudan levitys kapeaan näkymään tehdään ResizeObserverilla ensimmäisen asettelun jälkeen.
       await expect.poll(() => frame.evaluate(node => node.scrollWidth <= node.clientWidth + 1), { message: slug }).toBe(true);
@@ -461,6 +476,7 @@ for (const [label, width, size] of [['200 % tekstikoko', 360, '200%'], ['400 %:n
       expect(await noHorizontalScroll(page), slug).toBe(true);
       const root = exercise(page, kind);
       await expect(prompt(root)).toBeVisible();
+      if (kind === 'oktaavi') await root.getByRole('button', { name: 'Yhtä korkea' }).click();
       const far = root.locator('.otelauta-lauta tbody tr').first().locator('td').last().locator('button');
       await far.scrollIntoViewIfNeeded();
       await expect(far).toBeInViewport();
@@ -494,4 +510,86 @@ test('aiemmat kahdeksan sivua avautuvat ennallaan ilman uutta moduulia', async (
     await expect(page.locator('main'), slug).toHaveAttribute('data-study-item', id);
     await expect(page.locator('[data-otelautaharjoitus]'), slug).toHaveCount(0);
   }
+});
+
+// Kierros 2 (uusintatesti N1/N2, löydös 6): palaute siellä, missä oppija toimii; ei hyppyjä.
+test.describe('palaute aktiivisen vastausalueen lähellä (390 × 664)', () => {
+  test.use({ viewport: { width: 390, height: 664 } });
+
+  test('02: vaihe A ilman lautaa, suhteen palaute heti vastauspainikkeiden alla, sitten lauta', async ({ page }) => {
+    await page.goto('/oppi/otelauta/kuule-oktaavi.html');
+    const root = exercise(page, 'oktaavi');
+    await expect(root.locator('.otelauta-laudan-alue')).toBeHidden();
+    const relations = root.getByRole('group', { name: 'Arvoitussävel on' });
+    await relations.scrollIntoViewIfNeeded();
+    const scroll = await page.evaluate(() => window.scrollY);
+    await relations.getByRole('button', { name: 'Yhtä korkea' }).click();
+    await expect(feedback(root)).toBeInViewport();
+    const gap = await root.evaluate(section => section.querySelector('.otelauta-palaute')!.getBoundingClientRect().top
+      - section.querySelector('.otelauta-suhteet')!.getBoundingClientRect().bottom);
+    expect(gap).toBeGreaterThanOrEqual(0);
+    expect(gap).toBeLessThan(40);
+    expect(await page.evaluate(() => window.scrollY)).toBe(scroll);
+    await expect(root.locator('.otelauta-laudan-alue')).toBeVisible();
+    // Paikan valinnan palaute ja Uusi tehtävä ovat paikkapainikkeiden vieressä.
+    await root.getByRole('group', { name: 'Missä arvoitussävel soi?' }).getByRole('button').first().click();
+    await expect(feedback(root)).toBeInViewport();
+    await expect(next(root)).toBeInViewport();
+  });
+
+  test('03 nimeä: palaute sävelnimipainikkeiden alla ilman vieritystä', async ({ page }) => {
+    await page.goto('/oppi/otelauta/perussavel-e-ja-a-kielelta.html');
+    const root = exercise(page, 'perussavel');
+    for (let guard = 0; guard < 12 && !(await prompt(root).textContent())!.startsWith('Mikä sävel'); guard++) {
+      await root.getByRole('button', { name: 'Näytä vastaus' }).click();
+      await next(root).click();
+    }
+    const names = root.getByRole('group', { name: 'Sävelen nimi' });
+    await names.evaluate(node => node.scrollIntoView({ block: 'center' }));
+    const scroll = await page.evaluate(() => window.scrollY);
+    const [string, fret] = await marked(root, 'kysytty');
+    const wrong = ['C', 'D', 'E', 'F', 'G', 'A', 'B'].find(name => name !== noteName(pitchAt(string, fret)))!;
+    await names.getByRole('button', { name: wrong, exact: true }).click();
+    await expect(feedback(root)).toBeInViewport();
+    await expect(feedback(root)).toContainText(`Ei ${wrong}.`);
+    expect(await page.evaluate(() => window.scrollY)).toBe(scroll);
+  });
+
+  for (const [slug, kind] of [['sama-savel-toiselta-kielelta', 'unisono'], ['liiku-otelaudalla', 'liiku']] as const) {
+    test(`${kind}: laudan alaosan napautus ei siirrä ruutua, ja ruudussa näkyy tulos`, async ({ page }) => {
+      await page.goto(`/oppi/otelauta/${slug}.html`);
+      const root = exercise(page, kind);
+      if (kind === 'liiku') await root.getByLabel('Laajuus').selectOption('kaikki');
+      const target = kind === 'liiku' ? (await prompt(root).textContent())!.match(/^Etsi kaikki (\S+)-sävelet/)![1] : 'A';
+      const low = kind === 'liiku'
+        ? findPositions(target, 'kaikki').filter(position => position.fret >= 7).at(-1)!
+        : { string: 'E', fret: 10 };
+      const tapped = cell(root, low.string, low.fret);
+      await tapped.evaluate(node => node.scrollIntoView({ block: 'center' }));
+      const before = await tapped.evaluate(node => node.getBoundingClientRect().top);
+      await tapped.click();
+      await expect(feedback(root)).not.toBeEmpty();
+      const after = await tapped.evaluate(node => node.getBoundingClientRect().top);
+      expect(Math.abs(after - before)).toBeLessThanOrEqual(1);
+      await expect(tapped).toBeInViewport();
+      await expect(tapped.locator('.otelauta-merkki')).not.toBeEmpty();
+      if (kind === 'unisono') await expect(tapped).toHaveText('↑5');
+      if (kind === 'liiku') {
+        await expect(root.locator('.otelauta-laskuri')).toBeInViewport();
+        await expect(root.locator('.otelauta-laskuri')).toHaveText(`Löydetty 1/${findPositions(target, 'kaikki').length}`);
+      }
+    });
+  }
+
+  test('Uusi tehtävä laudan alta tuo uuden tehtävälauseen näkyviin ja fokukseen', async ({ page }) => {
+    await page.goto('/oppi/otelauta/sama-savel-toiselta-kielelta.html');
+    const root = exercise(page, 'unisono');
+    await cell(root, 'E', 5).click();
+    await nextBottom(root).scrollIntoViewIfNeeded();
+    await nextBottom(root).click();
+    await expect(prompt(root)).toBeFocused();
+    await expect(prompt(root)).toBeInViewport();
+    await expect(root.locator('.otelauta-kierros')).toHaveText('Tehtävä 2');
+    await expect(nextBottom(root)).toBeHidden();
+  });
 });

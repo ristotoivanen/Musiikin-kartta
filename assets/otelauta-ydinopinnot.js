@@ -409,15 +409,23 @@ export function checkRootName(round, name, attempt = 1) {
   const correct = rootAnswer(round);
   const [string, fret] = round.at;
   if (name === correct) return { ok: true, kind: 'oikein', message: `Oikein. ${capital(longPosition(string, fret))} on ${correct}. ${landmarkReason(string, fret)}` };
-  if (attempt <= 1) return { ok: false, kind: 'vaara', message: `Ei ${name}. Lähde lähimmästä kiintopisteestä ja laske nauhat siitä.` };
+  // Kysytty paikka on itse kiintopiste: päättely samasta kohdasta olisi kehäpäätelmä.
+  if (LANDMARKS.includes(fret)) {
+    return { ok: false, kind: 'vaara', message: `Ei ${name}. Tämä on kiintopiste, joka kannattaa muistaa. Vihje näyttää kiintopisteet.` };
+  }
+  if (attempt <= 1) return { ok: false, kind: 'vaara', message: `Ei ${name}. Päättele lähimmästä kiintopisteestä ja laske nauhat siitä.` };
   const mark = nearestLandmark(fret);
-  const at = mark === 0 ? 'vapaasta kielestä' : `${mark}. nauhasta`;
-  return { ok: false, kind: 'vaara', message: `Ei ${name}. Laske ${at}. Muista: E–F ja B–C ovat vierekkäin.` };
+  const at = mark === 0 ? 'vapaa kieli' : `${mark}. nauha`;
+  const steps = Math.abs(fret - mark);
+  return { ok: false, kind: 'vaara', message: `Ei ${name}. Lähin kiintopiste on ${at}; kysytty paikka on siitä ${countWords(steps, 'nauha', 'nauhaa')} ${fret > mark ? 'ylempänä' : 'alempana'}. Muista: E–F ja B–C ovat vierekkäin.` };
 }
 
 export function checkRootFind(round, string, fret) {
   const midi = pitchAt(string, fret);
-  if (string !== round.string) return { ok: false, kind: 'vaara-kieli', message: `Etsi ${stringInfo(round.string).from}.` };
+  if (string !== round.string) {
+    if (noteName(midi) === round.note) return { ok: false, kind: 'toinen-kieli', message: `Sekin on ${round.note}, mutta etsi ${stringInfo(round.string).from}.` };
+    return { ok: false, kind: 'vaara-kieli', message: `Etsi ${stringInfo(round.string).from}.` };
+  }
   if (noteName(midi) === round.note) {
     return { ok: true, kind: 'oikein', message: `Oikein. ${capital(longPosition(string, fret))} on ${round.note}. ${landmarkReason(string, fret)}` };
   }
@@ -660,7 +668,7 @@ function createBoard({ strings, label, onSelect }) {
     const target = event.target instanceof Element ? event.target.closest('button[data-kieli]') : null;
     if (!target) return;
     focusCell(target, false);
-    onSelect(target.dataset.kieli, Number(target.dataset.nauha));
+    onSelect(target.dataset.kieli, Number(target.dataset.nauha), target);
   });
   table.addEventListener('keydown', event => {
     const target = event.target instanceof Element ? event.target.closest('button[data-kieli]') : null;
@@ -738,6 +746,7 @@ function exerciseShell(root) {
     sound: el('p', { className: 'otelauta-aanitila', role: 'status', 'aria-live': 'polite' }),
     actions: el('div', { className: 'otelauta-toiminnot' }),
     next: button('Uusi tehtävä →', { className: 'otelauta-ensisijainen', hidden: true }),
+    nextBottom: button('Uusi tehtävä →', { className: 'otelauta-ensisijainen', hidden: true }),
     soundOn: true,
   };
   const toggle = button('Ääni', { 'aria-pressed': 'true', className: 'otelauta-aani' });
@@ -748,14 +757,31 @@ function exerciseShell(root) {
   });
   shell.toggle = toggle;
   shell.header = el('div', { className: 'otelauta-otsake' }, shell.prompt, el('div', { className: 'otelauta-sivupalkki' }, shell.counter, toggle));
+  // Palaute ja toiminnot ovat laudan yläpuolella heti harjoituksen omien ohjaimien alla, eivät laudan päällä.
   shell.panel = el('div', { className: 'otelauta-paneeli' }, shell.feedback, shell.sound, shell.actions);
   return shell;
 }
 
-function setFeedback(shell, result) {
+/** Suuntamerkki ruutuun: satula on ruudulla ylhäällä, joten ↑ = alemmas kohti satulaa. */
+function towards(fret, targets) {
+  const nearest = targets.reduce((best, candidate) => Math.abs(candidate - fret) < Math.abs(best - fret) ? candidate : best);
+  return nearest < fret ? { arrow: '↑', words: 'alempana kohti satulaa' } : { arrow: '↓', words: 'ylempänä kohti runkoa' };
+}
+
+/**
+ * Palaute laudan yläpuolella voi muuttaa korkeuttaan. Jos oppija napautti laudan ruutua (anchor),
+ * näkymää kompensoidaan niin, että ruutu pysyy paikallaan eikä näkymä hypi (Safari ei tue
+ * selaimen omaa vierityksen ankkurointia; CSS:ssä overflow-anchor: none estää kaksinkertaisen siirron).
+ */
+function setFeedback(shell, result, anchor = null) {
+  const before = anchor?.getBoundingClientRect().top;
   shell.feedback.textContent = result.message;
   if (result.ok === undefined) delete shell.feedback.dataset.tulos;
   else shell.feedback.dataset.tulos = result.ok ? 'oikein' : 'yrita';
+  if (anchor) {
+    const delta = anchor.getBoundingClientRect().top - before;
+    if (Math.abs(delta) > 0.5) window.scrollBy(0, delta);
+  }
 }
 
 function clearFeedback(shell) {
@@ -770,11 +796,32 @@ async function sound(shell, notes, { force = false } = {}) {
   return started;
 }
 
+/**
+ * Uuden tehtävän aloitus näkyviin vain käyttäjän omasta Uusi tehtävä -painalluksesta. Vastaukset ja
+ * laudan napautukset eivät vieritä. Vähennetty liike → välitön vieritys.
+ */
+function revealStart(shell) {
+  const box = shell.prompt.getBoundingClientRect();
+  if (box.top < 0 || box.top > window.innerHeight * 0.35) {
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    shell.prompt.scrollIntoView({ block: 'start', behavior: reduce ? 'auto' : 'smooth' });
+  }
+  shell.prompt.focus({ preventScroll: true });
+}
+
+/** Uusi tehtävä -painike laudan yläpuolella ja ratkaisun jälkeen myös laudan alla. */
+function showNext(shell, visible) {
+  shell.next.hidden = !visible;
+  shell.nextBottom.hidden = !visible;
+}
+
 function wireNext(shell, start) {
-  shell.next.addEventListener('click', () => {
-    start();
-    shell.prompt.focus();
-  });
+  for (const control of [shell.next, shell.nextBottom]) {
+    control.addEventListener('click', () => {
+      start();
+      revealStart(shell);
+    });
+  }
 }
 
 const rand = createRandom();
@@ -786,13 +833,20 @@ function setupUnison(root, shell) {
   const board = createBoard({
     strings: STRINGS.map(string => string.id),
     label: 'Otelauta, nauhat 0–12',
-    onSelect: (string, fret) => {
+    onSelect: (string, fret, cell) => {
       sound(shell, [{ midi: pitchAt(string, fret) }]);
       if (state.solved) return;
       const result = checkUnison(round, string, fret);
-      setFeedback(shell, result);
+      setFeedback(shell, result, cell);
       if (!result.ok) {
-        if (result.kind !== 'lahto') board.mark(string, fret, { kind: 'yritys', text: pitchName(pitchAt(string, fret)), label: `kokeiltu, ${pitchName(pitchAt(string, fret))}` });
+        const pitch = pitchName(pitchAt(string, fret));
+        if (result.kind === 'eri') {
+          // Suunta ja nauhamäärä näkyvät siinä ruudussa, jota oppija juuri napautti.
+          const diff = pitchAt(string, fret) - pitchAt(...round.from);
+          board.mark(string, fret, { kind: 'yritys', text: `${diff > 0 ? '↑' : '↓'}${Math.abs(diff)}`, label: `kokeiltu, ${pitch}, siirry ${countWords(Math.abs(diff), 'nauha', 'nauhaa')} ${diff > 0 ? 'alemmas' : 'ylemmäs'}` });
+        } else if (result.kind !== 'lahto') {
+          board.mark(string, fret, { kind: 'yritys', text: pitch, label: `kokeiltu, ${pitch}` });
+        }
         return;
       }
       solve(string, fret);
@@ -802,13 +856,15 @@ function setupUnison(root, shell) {
   const hint = button('Vihje');
   const show = button('Näytä vastaus', { className: 'otelauta-toissijainen' });
 
-  function solve(string, fret) {
+  function solve(string, fret, shown = false) {
     state.solved = true;
     const midi = pitchAt(string, fret);
-    board.mark(string, fret, { kind: 'oikein', text: pitchName(midi), label: `sama korkeus, ${pitchName(midi)}` });
+    board.mark(string, fret, shown
+      ? { kind: 'naytetty', text: pitchName(midi), label: `näytetty vastaus, ${pitchName(midi)}` }
+      : { kind: 'oikein', text: pitchName(midi), label: `sama korkeus, ${pitchName(midi)}` });
     hint.hidden = true;
     show.hidden = true;
-    shell.next.hidden = false;
+    showNext(shell, true);
   }
 
   function start() {
@@ -825,19 +881,19 @@ function setupUnison(root, shell) {
     clearFeedback(shell);
     hint.hidden = false;
     show.hidden = false;
-    shell.next.hidden = true;
+    showNext(shell, false);
   }
 
   listen.addEventListener('click', () => sound(shell, [{ midi: pitchAt(...round.from) }], { force: true }));
   hint.addEventListener('click', () => setFeedback(shell, { message: unisonHint(round) }));
   show.addEventListener('click', () => {
     const answer = unisonAnswer(round);
-    setFeedback(shell, { ok: true, message: `Vastaus: ${shortPosition(answer.string, answer.fret)} (${pitchName(answer.midi)}). ${unisonHint(round).replace('Vihje: ', '')}` });
-    solve(answer.string, answer.fret);
+    setFeedback(shell, { message: `Vastaus: ${shortPosition(answer.string, answer.fret)} (${pitchName(answer.midi)}). ${unisonHint(round).replace('Vihje: ', '')}` });
+    solve(answer.string, answer.fret, true);
   });
   wireNext(shell, start);
   shell.actions.append(hint, show, shell.next);
-  shell.app.append(shell.header, el('div', { className: 'otelauta-toiminnot' }, listen), board.element, shell.panel);
+  shell.app.append(shell.header, el('div', { className: 'otelauta-toiminnot' }, listen), shell.panel, board.element, el('div', { className: 'otelauta-toiminnot otelauta-alatoiminnot' }, shell.nextBottom));
   start();
 }
 
@@ -849,14 +905,14 @@ function setupOctave(root, shell) {
   const board = createBoard({
     strings: STRINGS.map(string => string.id),
     label: 'Otelauta, nauhat 0–12',
-    onSelect: (string, fret) => {
+    onSelect: (string, fret, cell) => {
       if (state.step === 'paikka') {
         const index = round.places.findIndex(place => samePosition(place.position, [string, fret]));
         if (index < 0) {
-          setFeedback(shell, { message: 'Valitse jokin numeroiduista paikoista 1–3.' });
+          setFeedback(shell, { message: 'Valitse jokin numeroiduista paikoista 1–3.' }, cell);
           return;
         }
-        choosePlace(index);
+        choosePlace(index, cell);
         return;
       }
       sound(shell, [{ midi: pitchAt(string, fret) }]);
@@ -897,8 +953,10 @@ function setupOctave(root, shell) {
     }
     relationRow.hidden = false;
     placeRow.hidden = true;
+    // Vaihe A: vain kuuntelu ja suhteen valinta. Lauta tulee näkyviin paikanetsintävaiheessa.
+    board.element.hidden = true;
     listenMystery.hidden = textMode;
-    shell.next.hidden = true;
+    showNext(shell, false);
   }
 
   function chooseRelation(key, choice) {
@@ -915,14 +973,15 @@ function setupOctave(root, shell) {
       return place;
     }));
     placeRow.hidden = false;
+    board.element.hidden = false;
     shell.prompt.textContent = 'Missä arvoitussävel soi? Valitse paikka 1, 2 tai 3.';
   }
 
-  function choosePlace(index) {
+  function choosePlace(index, cell = null) {
     if (state.step !== 'paikka') return;
     state.step = 'valmis';
     const result = checkOctavePlace(round, index);
-    setFeedback(shell, result);
+    setFeedback(shell, result, cell);
     const ref = pitchAt(...round.ref);
     round.places.forEach(({ position }, other) => {
       const midi = pitchAt(...position);
@@ -935,7 +994,7 @@ function setupOctave(root, shell) {
     for (const place of placeRow.querySelectorAll('button')) place.setAttribute('aria-disabled', 'true');
     shell.prompt.textContent = 'Napauta paikkoja ja vertaa korkeuksia.';
     sound(shell, [{ midi: ref }, { midi: mysteryPitch(round), at: 0.8 }]);
-    shell.next.hidden = false;
+    showNext(shell, true);
   }
 
   listenRef.addEventListener('click', () => sound(shell, [{ midi: pitchAt(...round.ref) }], { force: true }));
@@ -954,7 +1013,7 @@ function setupOctave(root, shell) {
   });
   wireNext(shell, start);
   shell.actions.append(placeRow, shell.next);
-  shell.app.append(shell.header, modeNote, listenRow, relationRow, board.element, shell.panel, el('p', { className: 'otelauta-vaihto' }, textToggle));
+  shell.app.append(shell.header, modeNote, listenRow, relationRow, shell.panel, board.element, el('div', { className: 'otelauta-toiminnot otelauta-alatoiminnot' }, shell.nextBottom), el('p', { className: 'otelauta-vaihto' }, textToggle));
   start();
 }
 
@@ -965,13 +1024,19 @@ function setupRoot(root, shell) {
   const board = createBoard({
     strings: ROOT_STRINGS,
     label: 'Paksu E-kieli ja A-kieli, nauhat 0–12',
-    onSelect: (string, fret) => {
+    onSelect: (string, fret, cell) => {
       sound(shell, [{ midi: pitchAt(string, fret) }]);
       if (state.solved || round.type !== 'etsi') return;
       const result = checkRootFind(round, string, fret);
-      setFeedback(shell, result);
+      setFeedback(shell, result, cell);
       if (!result.ok) {
-        board.mark(string, fret, { kind: 'yritys', text: noteName(pitchAt(string, fret)), label: `kokeiltu, ${noteName(pitchAt(string, fret))}` });
+        const name = noteName(pitchAt(string, fret));
+        if (result.kind === 'eri') {
+          const way = towards(fret, rootAnswer(round));
+          board.mark(string, fret, { kind: 'yritys', text: `${name}${way.arrow}`, label: `kokeiltu, ${name}, ${round.note} on ${way.words}` });
+        } else {
+          board.mark(string, fret, { kind: 'yritys', text: name, label: `kokeiltu, ${name}` });
+        }
         return;
       }
       solve(string, fret);
@@ -986,13 +1051,14 @@ function setupRoot(root, shell) {
   const hint = button('Vihje');
   const show = button('Näytä vastaus', { className: 'otelauta-toissijainen' });
 
-  function solve(string, fret) {
+  function solve(string, fret, shown = false) {
     state.solved = true;
-    board.mark(string, fret, { kind: 'oikein', text: noteName(pitchAt(string, fret)), label: `${noteName(pitchAt(string, fret))}, oikein` });
+    const name = noteName(pitchAt(string, fret));
+    board.mark(string, fret, shown ? { kind: 'naytetty', text: name, label: `näytetty vastaus, ${name}` } : { kind: 'oikein', text: name, label: `${name}, oikein` });
     for (const choice of names.querySelectorAll('button')) choice.setAttribute('aria-disabled', 'true');
     hint.hidden = true;
     show.hidden = true;
-    shell.next.hidden = false;
+    showNext(shell, true);
   }
 
   function chooseName(name, choice) {
@@ -1028,23 +1094,23 @@ function setupRoot(root, shell) {
     clearFeedback(shell);
     hint.hidden = false;
     show.hidden = false;
-    shell.next.hidden = true;
+    showNext(shell, false);
   }
 
   hint.addEventListener('click', () => setFeedback(shell, { message: rootHint(round) }));
   show.addEventListener('click', () => {
     if (round.type === 'nimea') {
-      setFeedback(shell, { ok: true, message: `Vastaus: ${rootAnswer(round)}. ${landmarkReason(...round.at)}` });
-      solve(...round.at);
+      setFeedback(shell, { message: `Vastaus: ${rootAnswer(round)}. ${landmarkReason(...round.at)}` });
+      solve(...round.at, true);
     } else {
       const fret = rootAnswer(round)[0];
-      setFeedback(shell, { ok: true, message: `Vastaus: ${shortPosition(round.string, fret)}. ${landmarkReason(round.string, fret)}` });
-      solve(round.string, fret);
+      setFeedback(shell, { message: `Vastaus: ${shortPosition(round.string, fret)}. ${landmarkReason(round.string, fret)}` });
+      solve(round.string, fret, true);
     }
   });
   wireNext(shell, start);
   shell.actions.append(hint, show, shell.next);
-  shell.app.append(shell.header, names, board.element, shell.panel);
+  shell.app.append(shell.header, names, shell.panel, board.element, el('div', { className: 'otelauta-toiminnot otelauta-alatoiminnot' }, shell.nextBottom));
   start();
 }
 
@@ -1055,8 +1121,11 @@ function setupFindAll(root, shell) {
   let found;
   let hintStep;
   let board;
+  let lastCell = null;
   const boardSlot = el('div');
   const list = el('ul', { className: 'otelauta-loydot', 'aria-label': 'Löydetyt paikat korkeuksittain' });
+  // Laskuri myös laudan alla, jotta määrä ja valmistuminen näkyvät laudan alaosassa työskenneltäessä.
+  const tally = el('p', { className: 'otelauta-laskuri', 'aria-hidden': 'true' });
   const select = el('select', { id: `otelauta-laajuus-${++boardCount}` },
     ...Object.entries(FIND_LEVELS).map(([key, value]) => el('option', { value: key, text: value.label })));
   const levelRow = el('p', { className: 'otelauta-laajuus' }, el('label', { for: select.id, text: 'Laajuus' }), select);
@@ -1067,20 +1136,25 @@ function setupFindAll(root, shell) {
     board = createBoard({
       strings: FIND_LEVELS[level].strings,
       label: `Otelauta, ${FIND_LEVELS[level].label}, nauhat 0–12`,
-      onSelect: (string, fret) => {
+      onSelect: (string, fret, cell) => {
         sound(shell, [{ midi: pitchAt(string, fret) }]);
         const all = findPositions(target, level);
         if (found.size === all.length) return;
         const result = checkFindAll(target, found, string, fret, level);
-        setFeedback(shell, result);
+        setFeedback(shell, result, cell);
         if (!result.ok) {
-          // Kompakti palaute napautetussa kohdassa: näkyy, vaikka tekstipalaute olisi laudan alla.
-          if (result.kind === 'vaara') board.mark(string, fret, { kind: 'yritys', text: noteName(pitchAt(string, fret)), label: `kokeiltu, ${noteName(pitchAt(string, fret))}` });
+          // Kompakti palaute napautetussa kohdassa: sävelnimi ja suunta lähimpään etsittävään.
+          if (result.kind === 'vaara') {
+            const name = noteName(pitchAt(string, fret));
+            const way = towards(fret, all.filter(position => position.string === string).map(position => position.fret));
+            board.mark(string, fret, { kind: 'yritys', text: `${name}${way.arrow}`, label: `kokeiltu, ${name}, tällä kielellä ${target} on ${way.words}` });
+          }
           return;
         }
         found.set(`${string}${fret}`, { string, fret, midi: pitchAt(string, fret) });
         board.mark(string, fret, { kind: 'oikein', text: pitchName(pitchAt(string, fret)), label: `löydetty, ${pitchName(pitchAt(string, fret))}` });
         drawList();
+        lastCell = cell;
         if (result.kind === 'valmis') complete();
       },
     });
@@ -1088,6 +1162,9 @@ function setupFindAll(root, shell) {
   }
 
   function drawList() {
+    const total = findPositions(target, level).length;
+    tally.textContent = found.size === total ? `✓ Kaikki ${total} löytyi` : `Löydetty ${found.size}/${total}`;
+    tally.classList.toggle('is-valmis', found.size === total);
     list.replaceChildren(...[...octaveGroups(found.values())].map(([pitch, items]) =>
       el('li', {}, el('strong', { text: `${pitch}: ` }), items.map(item => shortPosition(item.string, item.fret)).join(', '))));
   }
@@ -1095,9 +1172,9 @@ function setupFindAll(root, shell) {
   function complete() {
     hint.hidden = true;
     listenAll.hidden = false;
-    shell.next.hidden = false;
+    showNext(shell, true);
     const done = history.filter(entry => entry.level === level).length;
-    if (level === 'ea' && done >= 2) shell.feedback.textContent += ' Valmis laajempaan? Valitse laajuudeksi kaikki kuusi kieltä.';
+    if (level === 'ea' && done >= 2) setFeedback(shell, { ok: true, message: `${shell.feedback.textContent} Valmis laajempaan? Valitse laajuudeksi kaikki kuusi kieltä.` }, lastCell);
   }
 
   function start() {
@@ -1106,13 +1183,14 @@ function setupFindAll(root, shell) {
     found = new Map();
     hintStep = 0;
     board.clear();
-    drawList();
     shell.counter.textContent = `Sävel ${history.length}`;
-    shell.prompt.textContent = `Etsi kaikki ${target}-sävelet. Niitä on ${findPositions(target, level).length}.`;
+    const where = level === 'ea' ? 'E- ja A-kieleltä' : 'kaikilta kuudelta kieleltä';
+    shell.prompt.textContent = `Etsi kaikki ${target}-sävelet ${where}, nauhat 0–12. Niitä on ${findPositions(target, level).length}.`;
+    drawList();
     clearFeedback(shell);
     hint.hidden = false;
     listenAll.hidden = true;
-    shell.next.hidden = true;
+    showNext(shell, false);
   }
 
   select.addEventListener('change', () => {
@@ -1132,9 +1210,10 @@ function setupFindAll(root, shell) {
   });
   wireNext(shell, start);
   shell.next.textContent = 'Uusi sävel →';
+  shell.nextBottom.textContent = 'Uusi sävel →';
   shell.actions.append(hint, listenAll, shell.next);
   makeBoard();
-  shell.app.append(shell.header, levelRow, boardSlot, shell.panel, list);
+  shell.app.append(shell.header, levelRow, shell.panel, boardSlot, tally, list, el('div', { className: 'otelauta-toiminnot otelauta-alatoiminnot' }, shell.nextBottom));
   start();
 }
 
@@ -1153,7 +1232,11 @@ export function setupExercise(root) {
 }
 
 if (typeof document !== 'undefined') {
-  for (const root of document.querySelectorAll('[data-otelautaharjoitus]')) setupExercise(root);
+  const roots = document.querySelectorAll('[data-otelautaharjoitus]');
+  // Selaimen oma vierityksen ankkurointi (Chrome) siirsi näkymää laudan alla kasvavan löytölistan
+  // vuoksi. Safari ei tue sitä, joten vakaus hoidetaan kaikissa selaimissa setFeedbackin kompensoinnilla.
+  if (roots.length) document.documentElement.style.overflowAnchor = 'none';
+  for (const root of roots) setupExercise(root);
   document.addEventListener('visibilitychange', () => { if (document.hidden) stopSound(); });
   window.addEventListener('pagehide', () => stopSound());
 }

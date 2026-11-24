@@ -106,6 +106,11 @@
  * 24.11.2026: tahmea paneeli peitti valitun paikan, lähtösävelen ja löydöt). Välitön palaute
  * näkyy myös napautetussa ruudussa. */
 .otelauta-paneeli { margin-top: .2rem; }
+/* Napautettu ruutu pidetään paikallaan skriptillä (setFeedback); selaimen oma ankkurointi on pois
+ * (skripti asettaa sen juurielementille). Varattu korkeus vähentää siirtymiä. */
+.otelauta-sovellus .otelauta-palaute { min-height: 3.2em; }
+.otelauta-laskuri { margin: .5rem 0 .2rem; font-weight: 800; }
+.otelauta-laskuri.is-valmis { color: #9fe4c3; }
 .otelauta-lauta td > button { scroll-margin-block: 1rem; }
 .otelauta-tehtava:focus { outline: none; }
 .otelauta-tehtava:focus-visible { outline: 2px solid #75e5c6; outline-offset: 3px; }
@@ -116,7 +121,7 @@
   border-radius: .5rem;
   background: var(--bg);
 }
-.otelauta-palaute:empty { padding: 0; background: none; }
+.otelauta-palaute:empty { padding-block: 0; background: none; }
 .otelauta-palaute[data-tulos="oikein"] { border-inline-start: 4px solid #9fe4c3; }
 .otelauta-palaute[data-tulos="oikein"]::before { content: "✓ "; content: "✓ " / ""; color: #9fe4c3; font-weight: 800; }
 .otelauta-palaute[data-tulos="yrita"] { border-inline-start: 4px solid #ffd6b3; }
@@ -134,7 +139,7 @@
 @media (max-width: 480px) {
   .otelauta-laudan-alue .otelauta-kehys { max-inline-size: none; }
   .otelauta-laudan-alue .otelauta-lauta { max-width: none; }
-  .otelauta-laudan-alue .otelauta-lauta--kapea { max-width: 15rem; }
+  .otelauta-laudan-alue .otelauta-lauta--kapea { max-width: 15rem; margin-inline: auto; }
 }
 .otelauta-ohje { margin: .2rem 0 .4rem; }
 .otelauta-kehys {
@@ -157,7 +162,8 @@
 .otelauta-lauta th, .otelauta-lauta td { padding: 0; border: 0; text-align: center; }
 .otelauta-lauta thead th { padding-block: .2rem; color: var(--muted); font-size: .9rem; font-weight: 800; }
 .otelauta-lauta thead th:first-child, .otelauta-lauta tbody th { width: 1.4rem; }
-.otelauta-lauta--kapea { max-width: 15rem; }
+/* Kaksikielinen lauta keskitetään; sarakkeet pysyvät leveinä (≥ 44 px). */
+.otelauta-lauta--kapea { max-width: 15rem; margin-inline: auto; }
 .otelauta-lauta tbody th {
   color: var(--muted);
   font-size: .78rem;
@@ -212,6 +218,7 @@
 .is-paljastettu .otelauta-merkki { border: 2px dashed var(--accent); background: #2d2444; color: var(--text); }
 .is-yritys .otelauta-merkki { border: 2px dashed #ffd6b3; background: #3a2a2a; color: #ffe8d6; }
 .is-kysytty .otelauta-merkki { border: 2px solid var(--gold); background: #3a2f1c; color: #ffe3b8; }
+.is-naytetty .otelauta-merkki { border: 2px dotted #d6c7ff; background: #2d2444; color: var(--text); }
 .is-vihje .otelauta-merkki { border: 2px dashed #9fe4c3; background: transparent; color: #9fe4c3; }
 
 /* Kiintopistetaulukko (03) */
