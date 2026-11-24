@@ -6,24 +6,21 @@ test('yksi harjoituskortti, valinnan mukaan muuttuvat ohjeet ja yksi toistopaini
   await page.goto(url);
   await expect(page.locator('#exercise')).toBeVisible();
   await expect(page.locator('#exercise-title')).toHaveText('Löydä pulssi ja ykkönen');
-  await expect(page.locator('#modes')).toBeHidden();
+  await expect(page.locator('#modes')).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Kitaran mukana' })).toHaveCount(0);
   await expect(page.locator('#stages')).toBeHidden();
   await expect(page.locator('#play')).toHaveText('▶ Aloita');
   await expect(page.locator('audio:visible')).toHaveCount(0);
   await page.getByRole('button', { name: 'Pidä komppikäsi liikkeessä' }).click();
   await expect(page.getByRole('button', { name: 'Taputa rytmi' })).toHaveAttribute('aria-pressed', 'true');
-  await page.getByRole('button', { name: 'Vaimennetut kielet' }).click();
+  await expect(page.locator('#stages button')).toHaveCount(2);
+  await page.getByRole('button', { name: 'Kokeile omalla kitaralla' }).click();
   await expect(page.locator('#instruction')).toContainText('Vaimenna kielet');
-  await expect(page.locator('#modes')).toBeHidden();
-  await page.getByRole('button', { name: 'Yksi sointu', exact: true }).click();
-  await expect(page.locator('#instruction')).toContainText('mikä tahansa tuttu sointu');
-  await expect(page.locator('#basic')).toHaveText('Oma sointu');
-  await expect(page.getByRole('button', { name: 'G-komppi', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Kaksi sointua', exact: true }).click();
-  await expect(page.locator('#chord-now')).toHaveText('1. sointu → 2. sointu');
-  await page.getByRole('button', { name: 'G–D-malli' }).click();
-  await expect(page.locator('#chord-now')).toHaveText('G → D');
+  await expect(page.locator('#instruction')).toContainText('valitse tuttu sointu');
+  await expect(page.locator('#clap-current')).toHaveText('Soita kaikilla iskuilla');
+  await expect(page.locator('.half.tap-target .tap-label')).toHaveText(['Soita','Soita','Soita','Soita']);
+  await expect(page.locator('.half:not(.tap-target) .tap-label')).toHaveText(['Ilmassa','Ilmassa','Ilmassa','Ilmassa']);
+  await expect(page.locator('#brushing')).toBeVisible();
 });
 
 test('jatkuva pulssi ylittää luuppirajan ja harjoituksen vaihto pysäyttää', async ({ page }) => {
@@ -65,7 +62,7 @@ test('320 px ja 200 prosentin tekstikoko, ei vaakavieritystä', async ({ page })
   await page.goto(url);
   await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
   await page.getByRole('button', { name: 'Pidä komppikäsi liikkeessä' }).click();
-  await page.getByRole('button', { name: 'Kaksi sointua', exact: true }).click();
+  await page.getByRole('button', { name: 'Kokeile omalla kitaralla' }).click();
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await expect(page.getByRole('button', { name: 'Aloita' })).toBeVisible();
 });
@@ -133,9 +130,9 @@ test('nuolet vaihtavat taputuskuvion vasta tahtirajalla ilman toiston uudelleenk
   await page.getByRole('button', { name: 'Pidä komppikäsi liikkeessä' }).click();
   await expect(guide).toBeVisible();
   await expect(guide).toHaveAttribute('data-pattern', '0');
-  await page.getByRole('button', { name: 'Vaimennetut kielet' }).click();
-  await expect(guide).toBeHidden();
-  await expect(page.locator('#clap-nav')).toBeHidden();
+  await page.getByRole('button', { name: 'Kokeile omalla kitaralla' }).click();
+  await expect(guide).toBeVisible();
+  await expect(page.locator('#clap-nav')).toBeVisible();
 });
 
 test('odottava taputusvalinta peruutetaan palaamalla nykyiseen kuvioon', async ({ page }) => {
@@ -236,11 +233,23 @@ test('taputus vain numeroiskuilla, ja-tavut näkyvät kompin hahmottamiseksi', a
   expect(starts[0].rate).toBe(1);
   expect(starts[0].loopStart).toBe(0);
   expect(starts[0].loopEnd).toBeCloseTo(8*60/84, 3);
+  await page.getByRole('button', { name: 'Kokeile omalla kitaralla' }).click();
+  await expect(page.locator('#exercise')).toHaveAttribute('data-state', 'playing');
+  await expect(guide).toHaveAttribute('data-pattern', '2');
+  await expect(page.locator('.half.tap-target b')).toHaveText(['2', '4']);
+  await expect(page.locator('.half.tap-target .tap-label')).toHaveText(['Soita', 'Soita']);
+  await expect(page.locator('.half:not(.tap-target) .tap-label')).toHaveText(Array(6).fill('Ilmassa'));
+  await expect(page.locator('.half .direction')).toHaveText(['↓', '↑', '↓', '↑', '↓', '↑', '↓', '↑']);
+  await page.getByRole('button', { name: 'Seuraava soittokuvio' }).click();
+  await expect(guide).toHaveAttribute('data-pattern', '3', {timeout: 4000});
+  await expect(page.locator('.half.tap-target b')).toHaveText(['1']);
+  await expect.poll(() => page.evaluate(() => (window as unknown as { prototypeSources: unknown[] }).prototypeSources.length)).toBe(1);
+  await page.getByRole('button', { name: 'Taputa rytmi' }).click();
+  await expect(page.locator('#exercise')).toHaveAttribute('data-state', 'playing');
+  await expect(guide).toHaveAttribute('data-pattern', '3');
+  await expect(page.locator('.half.tap-target .tap-label')).toHaveText(['Taputa']);
   await page.locator('#play').click();
   await expect(page.locator('.half.now')).toHaveCount(0);
-  await page.getByRole('button', { name: 'Vaimennetut kielet' }).click();
-  await expect(page.locator('.half .direction')).toHaveText(['↓', '↑', '↓', '↑', '↓', '↑', '↓', '↑']);
-  await expect(guide).toBeHidden();
   await page.getByRole('button', { name: 'Löydä pulssi ja ykkönen' }).click();
   await expect(page.locator('#strum-explanation')).toBeHidden();
   await expect(page.locator('#strum-foot')).toBeHidden();
