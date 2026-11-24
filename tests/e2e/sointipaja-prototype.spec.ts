@@ -189,16 +189,19 @@ test('level 2: contrasts, seventh roles, all eleven chords and free navigation',
     await page.locator('#next').click();
   };
   await expect(page.locator('#progress')).toHaveText('Sointu 1 / 8');
-  await expect(roots.locator('button')).toHaveText(['D','E','A']);
+  await expect(roots.locator('button')).toHaveText(['C','D','E','F','G','A','B']);
+  await expect(roots.locator('button:not(:disabled)')).toHaveText(['D','E','A']);
   await expect(answers.locator('button')).toHaveCount(0);
   for(const n of ['Dm','D7','Dm','D7','A7','E7','A7','E7'])await solve(n);
   await page.locator('#continue').click();
   await expect(page.locator('#progress')).toHaveText('Sointu 1 / 11');
-  await expect(roots.locator('button')).toHaveText(['C','D','E','G','A']);
+  await expect(roots.locator('button')).toHaveText(['C','D','E','F','G','A','B']);
+  await expect(roots.locator('button:not(:disabled)')).toHaveText(['C','D','E','G','A']);
   await expect(answers.locator('button')).toHaveCount(0);
   for(const n of ['C','G','D','Em','Am','E','A','Dm','D7','A7','E7'])await solve(n);
   await page.locator('#continue').click();
-  await expect(roots.locator('button')).toHaveText(['C','D','E','G','A']);
+  await expect(roots.locator('button')).toHaveText(['C','D','E','F','G','A','B']);
+  await expect(roots.locator('button:not(:disabled)')).toHaveText(['C','D','E','G','A']);
   await expect(answers.locator('button')).toHaveCount(0);
   await expect(page.locator('#progress')).toHaveText('Sointu 1 / 11');
   for(const n of ['C','G','D','Em','Am','E','A','Dm','D7','A7','E7'])await solve(n);
@@ -262,11 +265,28 @@ test('root and chord choices have usable equal widths on desktop and mobile', as
       }));
       expect(sizes.length).toBeGreaterThan(0);
       for(const size of sizes){
-        expect(size.width).toBeGreaterThanOrEqual(48);
+        expect(size.width).toBeGreaterThanOrEqual(44);
         expect(size.height).toBeGreaterThanOrEqual(48);
         expect(size.width).toBeCloseTo(sizes[0].width,0);
       }
     }
     expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
   }
+});
+
+test('natural root positions stay fixed between rounds and unavailable roots are disabled', async ({ page }) => {
+  await page.getByRole('button', {name:/Taso 2 ·/}).click();
+  const roots=page.locator('#roots');
+  const labels=['C','D','E','F','G','A','B'];
+  await expect(roots.locator('button')).toHaveText(labels);
+  await expect(roots.locator('button:disabled')).toHaveText(['C','F','G','B']);
+  await roots.getByRole('button',{name:'E',exact:true}).click();
+  await expect(page.locator('#answers button')).toHaveText(['E','E7']);
+  await page.locator('#settings summary').click();
+  await page.getByRole('button',{name:'3 · Kaikki yksitoista sointua',exact:true}).click();
+  await expect(roots.locator('button')).toHaveText(labels);
+  await expect(roots.locator('button:disabled')).toHaveText(['F','B']);
+  await expect(page.locator('#answers button')).toHaveCount(0);
+  await roots.getByRole('button',{name:'E',exact:true}).click();
+  await expect(page.locator('#answers button')).toHaveText(['Em','E','E7']);
 });
