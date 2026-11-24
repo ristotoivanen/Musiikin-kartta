@@ -11,7 +11,7 @@ const QUALITIES: Record<string, string[]> = {
   '7#5': ['1', '3', '♯5', '♭7'], '7b5': ['1', '3', '♭5', '♭7'], mMaj7: ['1', '♭3', '5', '7'],
 };
 const panel = (page: Page) => page.locator('#chord-beta');
-const root = (page: Page, name: string) => panel(page).locator(`[data-root="${ROOTS.indexOf(name)}"]`);
+const root = (page: Page, name: string) => page.locator('#beta-roots').locator(`[data-root="${ROOTS.indexOf(name)}"]`);
 const quality = (page: Page, id: string) => panel(page).locator(`[data-quality="${id}"]`);
 const mode = (page: Page, id: string) => panel(page).locator(`[data-mode="${id}"]`);
 const group = (page: Page, id: string) => panel(page).locator(`[data-group="${id}"]`);
@@ -24,7 +24,7 @@ async function dots(page: Page) {
   })));
 }
 const labels = (page: Page) => page.locator('#board .grip-notes text[font-weight="700"]').allTextContents();
-const advanced = (page: Page) => page.locator('#chord-beta [data-level="advanced"]').click();
+const advanced = (page: Page) => page.locator('#beta-level [data-level="advanced"]').click();
 const OPEN = [64, 59, 55, 50, 45, 40];
 
 test.describe('Otelautaopas BETA', () => {
@@ -48,13 +48,12 @@ test.describe('Otelautaopas BETA', () => {
   test('Soinnut-näkymässä on 12 perussävelpainiketta ja kaikki sointulaadut suorina painikkeina, ei valikkoa', async ({ page }) => {
     await page.goto(PAGE + '#soinnut');
     await advanced(page);
-    await expect(panel(page).locator('[data-root]')).toHaveText(ROOTS);
+    await expect(page.locator('#beta-roots [data-root]')).toHaveText(ROOTS);
     for (const id of Object.keys(QUALITIES)) await expect(quality(page, id)).toBeVisible();
     await expect(panel(page).getByRole('group', { name: 'Kolmisoinnut' }).getByRole('button')).toHaveText(['Duuri', 'Molli', 'dim', 'aug']);
     await expect(panel(page).getByRole('group', { name: 'Sus-soinnut' }).getByRole('button')).toHaveText(['sus2', 'sus4']);
     await expect(panel(page).getByRole('group', { name: 'Septimisoinnut' }).getByRole('button')).toHaveCount(8);
     await expect(panel(page).locator('select')).toHaveCount(0);
-    await expect(page.locator('#root-field')).toBeHidden();
     await expect(page.locator('#fret-count')).toBeVisible();
     await expect(page.locator('#fret-count option')).toHaveText(['17 nauhaa (oletus)', '12 nauhaa', '19 nauhaa', '20 nauhaa', '22 nauhaa', '24 nauhaa']);
   });
@@ -96,10 +95,10 @@ test.describe('Otelautaopas BETA', () => {
 
   test('Perusnäkymä näyttää vain perusasiat ja Laaja-näkymä kaikki; valinta säilyy osoitteessa', async ({ page }) => {
     await page.goto(PAGE + '#soinnut');
-    await expect(panel(page).locator('[data-level="basic"]')).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('#beta-level [data-level="basic"]')).toHaveAttribute('aria-pressed', 'true');
     for (const id of ['maj', 'min', '7', 'maj7', 'm7']) await expect(quality(page, id)).toBeVisible();
     for (const id of ['dim', 'aug', 'sus2', 'sus4', 'm7b5', 'dim7', '7#5', '7b5', 'mMaj7']) await expect(quality(page, id)).toBeHidden();
-    await expect(panel(page).locator('[data-root]:visible')).toHaveText(['C', 'D', 'E', 'F', 'G', 'A', 'B']);
+    await expect(page.locator('#beta-roots [data-root]:visible')).toHaveText(['C', 'D', 'E', 'F', 'G', 'A', 'B']);
     await expect(mode(page, 'full')).toBeVisible();
     await expect(mode(page, 'triad')).toBeVisible();
     await expect(mode(page, 'all')).toBeHidden();
@@ -112,13 +111,13 @@ test.describe('Otelautaopas BETA', () => {
     await advanced(page);
     await expect(group(page, 'dgb')).toBeVisible();
     await expect(group(page, 'dgb')).toHaveAttribute('aria-pressed', 'true');
-    await panel(page).locator('[data-level="basic"]').click();
+    await page.locator('#beta-level [data-level="basic"]').click();
     await mode(page, 'full').click();
     await advanced(page);
     for (const id of Object.keys(QUALITIES)) await expect(quality(page, id)).toBeVisible();
     await mode(page, 'all').click();
     expect(page.url()).toContain('taso=laaja');
-    await panel(page).locator('[data-level="basic"]').click();
+    await page.locator('#beta-level [data-level="basic"]').click();
     await expect(mode(page, 'full')).toHaveAttribute('aria-pressed', 'true');
     expect(page.url()).not.toContain('taso=laaja');
   });
@@ -131,6 +130,45 @@ test.describe('Otelautaopas BETA', () => {
     expect(widths).toHaveLength(6);
     expect(widths).toEqual([...widths].sort((a, b) => a - b));
     expect(widths[5] / widths[0]).toBeGreaterThan(4);
+  });
+
+  test('Asteikot ja Oktaavit käyttävät samaa sävelnavigointia ja Perus/Laaja-näkymää kuin Soinnut', async ({ page }) => {
+    await page.goto(PAGE);
+    // Perus: vain luonnolliset sävelet, kaksi pentatonista asteikkoa, ei sormitusbokseja.
+    await expect(page.locator('#beta-roots [data-root]:visible')).toHaveText(['C', 'D', 'E', 'F', 'G', 'A', 'B']);
+    await expect(page.locator('#beta-scales, #beta-pent button:visible')).toHaveText(['Mollipentatoninen', 'Duuripentatoninen']);
+    await expect(page.locator('#beta-modes button:visible')).toHaveCount(0);
+    await expect(page.locator('#scale-settings')).toBeHidden();
+    await page.locator('#beta-pent [data-scale="majp"]').click();
+    await expect(page.locator('#selection-title')).toHaveText('A-duuripentatoninen');
+    await root(page, 'D').click();
+    await expect(page.locator('#selection-title')).toHaveText('D-duuripentatoninen');
+    expect(page.url()).toContain('toonikka=D');
+    // Laaja: kaikki moodit, etumerkilliset sävelet ja boksit.
+    await advanced(page);
+    expect(page.url()).toContain('taso=laaja');
+    await expect(page.locator('#beta-roots [data-root]:visible')).toHaveCount(12);
+    await expect(page.locator('#beta-modes button:visible')).toHaveCount(7);
+    await expect(page.locator('#scale-settings')).toBeVisible();
+    await page.locator('#beta-modes [data-scale="dorian"]').click();
+    await expect(page.locator('#selection-title')).toHaveText('D-doorinen');
+    await root(page, 'B♭').click();
+    // Oktaavit: sama sävelrivi ja taso, ei asteikkovalintoja.
+    await page.getByRole('button', { name: 'Oktaavit' }).click();
+    await expect(page.locator('#beta-roots')).toBeVisible();
+    await expect(page.locator('#beta-scale-block')).toBeHidden();
+    await expect(page.locator('#selection-title')).toContainText('B♭ · sijainnit otelaudalla');
+    await expect(page.locator('#beta-level [data-level="advanced"]')).toHaveAttribute('aria-pressed', 'true');
+    // Takaisin Perukseen: sävel ja asteikko siirtyvät lähimpään perusvaihtoehtoon.
+    await page.locator('#beta-level [data-level="basic"]').click();
+    await expect(page.locator('#beta-roots [data-root]:visible')).toHaveCount(7);
+    await expect(page.locator('#selection-title')).toContainText('A · sijainnit');
+    await page.getByRole('button', { name: 'Asteikot' }).click();
+    await expect(page.locator('#selection-title')).toHaveText('A-mollipentatoninen');
+    expect(page.url()).not.toContain('taso=laaja');
+    // Osoite avaa oikean tason: etumerkillinen sävel tai moodi vaatii Laajan.
+    await page.goto(PAGE + '?toonikka=F%E2%99%AF&asteikko=lydian#oktaavit');
+    await expect(page.locator('#beta-level [data-level="advanced"]')).toHaveAttribute('aria-pressed', 'true');
   });
 
   test('Triadit: neljä kieliryhmää, aktiiviset kielet korostuvat ja nuolet toimivat rajoille asti', async ({ page }) => {
@@ -289,10 +327,11 @@ test.describe('Otelautaopas BETA', () => {
   test('Asteikot ja Oktaavit toimivat ennallaan ja perussävelen valinta säilyy näkymien välillä', async ({ page }) => {
     await page.goto(PAGE + '?toonikka=A&asteikko=mp');
     await expect(page.locator('#selection-title')).toHaveText('A-mollipentatoninen');
-    await expect(page.locator('#root-field')).toBeVisible();
+    await expect(page.locator('#beta-roots')).toBeVisible();
     await expect(page.locator('#chord-settings')).toBeHidden();
     await expect(page.locator('#chord-pad')).toBeHidden();
     await expect(page.locator('#board .box-highlight')).toHaveCount(0);
+    await advanced(page);
     await page.locator('#box-details summary').click();
     await page.locator('#pentatonic-boxes input[value="1"]').check();
     await expect(page.locator('#board .box-highlight').first()).toBeAttached();
@@ -300,7 +339,6 @@ test.describe('Otelautaopas BETA', () => {
     await expect(page.locator('#selection-title')).toContainText('A · sijainnit otelaudalla');
     await expect(page.locator('#board .octave-note').first()).toBeVisible();
     await page.getByRole('button', { name: 'Soinnut', exact: true }).click();
-    await advanced(page);
     await expect(root(page, 'A')).toHaveAttribute('aria-pressed', 'true');
     await root(page, 'E♭').click();
     await page.getByRole('button', { name: 'Asteikot' }).click();

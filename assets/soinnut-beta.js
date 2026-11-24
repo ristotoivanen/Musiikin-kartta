@@ -10,8 +10,6 @@ import {
 
 // Perusnäkymä: yleisimmät soinnut, Koko ote ja Triadit. Laaja näkymä: kaikki laadut, Sointusävelet ja Sävelet/Asteet-vaihto.
 const BASIC_QUALITIES = new Set(['maj', 'min', '7', 'maj7', 'm7']);
-// Perusnäkymässä vain nuotit ilman etumerkkejä (ylennykset ja alennukset vain Laajassa).
-const NATURAL_ROOTS = new Set([0, 2, 4, 5, 7, 9, 11]);
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const escapeHtml = text => String(text).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 
@@ -24,7 +22,7 @@ const escapeHtml = text => String(text).replace(/[&<>"]/g, c => ({ '&': '&amp;',
 export function createChordsBeta(ctx) {
   const { CHROM } = globalThis.MusicMapFretboard;
   const state = {
-    quality: 'maj', mode: 'full', group: 'gbe', labels: 'names', level: 'basic',
+    quality: 'maj', mode: 'full', group: 'gbe', labels: 'names',
     anchor: null, rule: { type: 'initial', form: null, number: null },
     view: { grips: [], index: -1 },
   };
@@ -32,19 +30,6 @@ export function createChordsBeta(ctx) {
 
   // --- Rakenne -------------------------------------------------------------------------------
   ctx.panel.innerHTML = `
-    <div class="cb-block cb-level">
-      <span class="cb-label" id="cb-level-label">Näkymä</span>
-      <div class="cb-row cb-joined" role="group" aria-labelledby="cb-level-label">
-        <button type="button" data-level="basic" aria-pressed="true">Perus</button>
-        <button type="button" data-level="advanced" aria-pressed="false">Laaja</button>
-      </div>
-    </div>
-    <div class="cb-block">
-      <span class="cb-label" id="cb-root-label">Perussävel</span>
-      <div class="cb-row cb-roots" role="group" aria-labelledby="cb-root-label">
-        ${CHROM.map((name, pc) => `<button type="button" data-root="${pc}" ${NATURAL_ROOTS.has(pc) ? '' : 'data-adv '}aria-pressed="false">${name}</button>`).join('')}
-      </div>
-    </div>
     <div class="cb-block cb-qualities">
       ${FAMILIES.map(family => `
         <div class="cb-family" data-family="${family.id}">
@@ -157,18 +142,15 @@ export function createChordsBeta(ctx) {
   }
 
   function applyLevel() {
-    const advanced = state.level === 'advanced';
+    const advanced = ctx.level() === 'advanced';
     if (!advanced) {
       if (!BASIC_QUALITIES.has(state.quality)) state.quality = 'maj';
       if (state.mode === 'all') state.mode = 'full';
       state.labels = 'names';
-      const root = ctx.getRoot();
-      if (!NATURAL_ROOTS.has(root)) ctx.setRoot(root - 1);
     }
     ctx.panel.classList.toggle('cb-basic', !advanced);
     qa('[data-adv]').forEach(element => { element.hidden = !advanced; });
     qa('[data-family="sus"]').forEach(element => { element.hidden = !advanced; });
-    qa('[data-level]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.level === state.level)));
   }
 
   function render() {
@@ -207,7 +189,6 @@ export function createChordsBeta(ctx) {
     }
 
     // Valinnat
-    qa('[data-root]').forEach(button => button.setAttribute('aria-pressed', String(Number(button.dataset.root) === root)));
     qa('[data-quality]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.quality === state.quality)));
     qa('[data-mode]').forEach(button => {
       button.setAttribute('aria-pressed', String(button.dataset.mode === mode));
@@ -217,7 +198,7 @@ export function createChordsBeta(ctx) {
       }
     });
     qa('[data-labels]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.labels === state.labels)));
-    q('#cb-groups').hidden = mode !== 'triad' || state.level !== 'advanced';
+    q('#cb-groups').hidden = mode !== 'triad' || ctx.level() !== 'advanced';
     qa('[data-group]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.group === state.group)));
 
     // Tiedot
@@ -276,10 +257,8 @@ export function createChordsBeta(ctx) {
   ctx.panel.addEventListener('click', event => {
     const button = event.target.closest('button');
     if (!button || button.disabled) return;
-    const { root, quality, mode, labels, group, level } = button.dataset;
-    if (level) go(keep, () => { state.level = level; });
-    else if (root !== undefined) go(keep, () => ctx.setRoot(Number(root)));
-    else if (quality) go({ type: 'quality' }, () => { state.quality = quality; });
+    const { quality, mode, labels, group } = button.dataset;
+    if (quality) go({ type: 'quality' }, () => { state.quality = quality; });
     else if (mode) go(keep, () => { state.mode = mode; });
     else if (labels) go(keep, () => { state.labels = labels; });
     else if (group) go(keep, () => { state.group = group; });
@@ -323,17 +302,18 @@ export function createChordsBeta(ctx) {
       state.quality = parsed.quality;
       state.mode = parsed.mode;
       state.group = parsed.group;
-      state.level = params.get('taso') === 'laaja' || !BASIC_QUALITIES.has(parsed.quality) || parsed.mode === 'all' || (params.get('toonikka') ?? '').match(/[♯♭]/) ? 'advanced' : 'basic';
+      state.needsAdvanced = !BASIC_QUALITIES.has(parsed.quality) || parsed.mode === 'all';
       state.rule = { type: 'initial', form: parsed.form, number: parsed.number };
     },
     writeParams(params) {
-      if (state.level === 'advanced') params.set('taso', 'laaja'); else params.delete('taso');
       writeChordParams(params, {
         quality: state.quality, mode: effectiveMode(), group: state.group,
         grip: state.view.grips[state.view.index] ?? null,
         number: state.view.index >= 0 ? state.view.index + 1 : null,
       });
     },
+    /** Osoitteen valinta (laatu tai esitystapa) vaatii Laaja-näkymän. */
+    get needsAdvanced() { return Boolean(state.needsAdvanced); },
     get quality() { return qualityById(state.quality); },
   };
 }

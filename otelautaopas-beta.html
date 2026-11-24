@@ -8,7 +8,7 @@
   <title>Otelautaopas BETA – Musiikin kartta</title>
   <link rel="stylesheet" href="assets/otelauta.css?v=36a704ebe6">
   <link rel="stylesheet" href="assets/visualizer.css?v=890639ac73">
-  <link rel="stylesheet" href="assets/soinnut-beta.css?v=19951bebc2">
+  <link rel="stylesheet" href="assets/soinnut-beta.css?v=a090ae7dc7">
   <link rel="stylesheet" href="assets/paavalikko.css?v=4e5c7fbf95">
 <script defer src="assets/oppimiskartta.js"></script>
 <script defer src="assets/oppimistapa.js"></script>
@@ -42,7 +42,31 @@
       </div>
     </div>
 
-    <div class="visualizer-controls" role="group" aria-label="Otelaudan valinnat">
+    <div class="beta-nav" id="beta-nav">
+      <div class="cb-block cb-level">
+        <span class="cb-label" id="beta-level-label">Näkymä</span>
+        <div class="cb-row cb-joined" id="beta-level" role="group" aria-labelledby="beta-level-label">
+          <button type="button" data-level="basic" aria-pressed="true">Perus</button>
+          <button type="button" data-level="advanced" aria-pressed="false">Laaja</button>
+        </div>
+      </div>
+      <div class="cb-block">
+        <span class="cb-label" id="beta-root-label">Kotisävel</span>
+        <div class="cb-row cb-roots" id="beta-roots" role="group" aria-labelledby="beta-root-label"></div>
+      </div>
+      <div class="cb-block" id="beta-scale-block">
+        <div class="cb-family">
+          <span class="cb-label" id="beta-pent-label">Pentatoniset</span>
+          <div class="cb-row" id="beta-pent" role="group" aria-labelledby="beta-pent-label"></div>
+        </div>
+        <div class="cb-family" id="beta-modes-family" data-adv>
+          <span class="cb-label" id="beta-modes-label">Moodit</span>
+          <div class="cb-row" id="beta-modes" role="group" aria-labelledby="beta-modes-label"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="visualizer-controls" role="group" aria-label="Otelaudan valinnat" hidden>
       <div class="visualizer-field" id="root-field">
         <label for="root-select" id="root-label">Kotisävel</label>
         <select id="root-select"></select>
