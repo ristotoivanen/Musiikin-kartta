@@ -265,7 +265,7 @@ test.describe('Kolme oppimistapaa ja Soittopakki', () => {
 
   test('Soittopakki näyttää vain käytettävissä olevat työkalut', async ({ page }) => {
     await page.goto('/soittopakki.html');
-    await expect(page.getByRole('heading', { level: 2 })).toHaveText(['Otelautaopas', 'Viritin']);
+    await expect(page.getByRole('heading', { level: 2 })).toHaveText(['Otelautaopas', 'Otelautaopas BETA', 'Viritin']);
     await expect(page.getByText('Metronomi')).toHaveCount(0);
     await expect(page.getByRole('link', { name: 'Avaa Riffiharjoitus ja viritin' })).toHaveAttribute('href', 'riffikaiku.html?tila=harjoitus');
     await page.getByRole('link', { name: 'Sointukartta' }).click();
@@ -448,7 +448,7 @@ test.describe('Pääosiot puhelimessa, näppäimistöllä, ilman JavaScriptiä j
       await page.goto('/oppi/kappaleet/mika-sointu-tulee.html?aihe=aihe-soinnut');
       await expect(page.locator('.study-up .study-back')).toHaveAttribute('href', 'index.html');
       await page.goto('/soittopakki.html');
-      await expect(page.getByRole('link', { name: 'Avaa Otelautaopas' })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'Avaa Otelautaopas', exact: true })).toBeVisible();
     });
   });
 

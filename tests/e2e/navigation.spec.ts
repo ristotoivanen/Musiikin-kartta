@@ -503,7 +503,7 @@ test.describe('Vanhat osoitteet ja osioiden välinen jatkuvuus', () => {
       await page.goto('/index.html');
       await mainNav(page).getByRole('link', { name: LABELS.pakki }).click();
       await expect(page).toHaveURL(/\/soittopakki\.html$/);
-      await page.getByRole('link', { name: 'Avaa Otelautaopas' }).click();
+      await page.getByRole('link', { name: 'Avaa Otelautaopas', exact: true }).click();
       await expect(page).toHaveURL(/\/otelautaharjoittelija\.html$/);
       await expect(mainNav(page).getByRole('link', { name: LABELS.pakki })).toHaveAttribute('aria-current', 'true');
       await expect(page.getByRole('navigation', { name: 'Otelautaopas' })).toHaveCount(0);

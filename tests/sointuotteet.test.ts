@@ -178,7 +178,7 @@ describe('ryhmien ja otteiden selaus', () => {
     }
   });
 
-  it('duuri ↔ molli säilyttää käännöksen ja liikuttaa tersssiä puoliaskeleen, kun se on mahdollista', () => {
+  it('duuri ↔ molli säilyttää käännöksen ja liikuttaa terssiä puoliaskeleen, kun se on mahdollista', () => {
     let exact = 0, total = 0;
     for (const root of ROOTS) {
       for (const group of STRING_GROUPS) {
