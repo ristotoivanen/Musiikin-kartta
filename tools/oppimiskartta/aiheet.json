@@ -221,7 +221,7 @@
         },
         {
           "title": "Tutki otelautakarttaa",
-          "href": "otelautaharjoittelija.html"
+          "href": "otelautaopas-beta.html#oktaavit"
         }
       ],
       "related": [
@@ -372,7 +372,7 @@
         },
         {
           "title": "Tutki sointukarttaa",
-          "href": "otelautaharjoittelija.html#soinnut"
+          "href": "otelautaopas-beta.html#soinnut"
         }
       ],
       "related": [
@@ -419,7 +419,7 @@
         },
         {
           "title": "Näytä asteikot otelaudalla",
-          "href": "otelautaharjoittelija.html"
+          "href": "otelautaopas-beta.html#asteikot"
         }
       ],
       "related": [

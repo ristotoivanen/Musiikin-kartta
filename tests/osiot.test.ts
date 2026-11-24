@@ -106,7 +106,7 @@ describe('pääosiot ja sisältörekisteri', () => {
       expect(read(entry.sivu), entry.sivu).toMatch(/data-study-item="[a-z0-9:-]+"/);
     }
     // Soittopakin aiheeseen rajatut näkymät säilyvät aiheen sisällä.
-    expect(block(html, 'aihe-asteikot')).toContain('otelautaharjoittelija.html?toonikka=A&amp;asteikko=mp&amp;aihe=aihe-asteikot&amp;tapa=kitara');
+    expect(block(html, 'aihe-asteikot')).toContain('otelautaopas-beta.html?toonikka=A&amp;asteikko=mp&amp;aihe=aihe-asteikot&amp;tapa=kitara#asteikot');
   });
 
   it('suunniteltuja työkaluja ei näytetä valmiina eikä sivuilla ole tulossa-kortteja', () => {
@@ -190,7 +190,7 @@ describe('pääosiot ja sisältörekisteri', () => {
     expect(games).toContain('href="pelit/ensikeikka/index.html?aihe=aihe-korva&amp;tapa=pelit"');
     expect(games).toContain('href="oppi/korva/mika-aste-soi.html?tapa=pelit"');
     expect(guitar).toContain('href="oppi/rytmi/alas-ylos-yhdella-soinnulla.html?tapa=kitara"');
-    expect(guitar).toContain('href="otelautaharjoittelija.html?toonikka=A&amp;aihe=aihe-otelauta&amp;tapa=kitara#oktaavit"');
+    expect(guitar).toContain('href="otelautaopas-beta.html?toonikka=A&amp;aihe=aihe-otelauta&amp;tapa=kitara#oktaavit"');
     // Oppimiskartan omat linkit pysyvät ilman parametria.
     expect(read('oppi/rytmi/index.html')).toContain('href="alas-ylos-yhdella-soinnulla.html"');
     expect(read('oppi/rytmi/index.html')).not.toContain('tapa=');
@@ -202,7 +202,7 @@ describe('pääosiot ja sisältörekisteri', () => {
     const modes = JSON.parse(block) as Record<string, { sivut: Record<string, Variant[]> }>;
     expect(modes.pelit.sivut['oppi/kappaleet/mika-sointu-tulee.html']).toEqual([{ ehdot: {}, aiheet: ['aihe-kappaleet', 'aihe-soinnut'] }]);
     expect(modes.kitara.sivut['oppi/rytmi/alas-ylos-yhdella-soinnulla.html']).toEqual([{ ehdot: {}, aiheet: ['aihe-rytmi'] }]);
-    expect(modes.kitara.sivut['otelautaharjoittelija.html']).toEqual([{ ehdot: {}, aiheet: ['aihe-otelauta', 'aihe-soinnut', 'aihe-asteikot'] }]);
+    expect(modes.kitara.sivut['otelautaopas-beta.html']).toEqual([{ ehdot: {}, aiheet: ['aihe-otelauta', 'aihe-soinnut', 'aihe-asteikot'] }]);
     // Sama tiedosto eri oppimistavoissa: sovelluksen tila ratkaisee (Riffikaiku, Kitaraharjoittelijan polut).
     expect(modes.pelit.sivut['riffikaiku.html']).toEqual([{ ehdot: { tila: 'peli' }, aiheet: ['aihe-korva'] }]);
     expect(modes.kitara.sivut['riffikaiku.html']).toEqual([{ ehdot: { tila: 'harjoitus' }, aiheet: ['aihe-korva'] }]);
@@ -244,7 +244,7 @@ describe('pääosiot ja sisältörekisteri', () => {
     expect(read('assets/osiot.js')).not.toMatch(/localStorage|sessionStorage/);
     // Oppimistavan säilyttävä skripti ei käytä tallennuksia.
     expect(read('assets/oppimistapa.js')).not.toMatch(/localStorage|sessionStorage/);
-    for (const page of ['riffikaiku.html', 'kitaraharjoittelija.html', 'otelautaharjoittelija.html', 'pelit/ensikeikka/index.html']) {
+    for (const page of ['riffikaiku.html', 'kitaraharjoittelija.html', 'otelautaopas-beta.html', 'pelit/ensikeikka/index.html']) {
       const html = read(page);
       expect(html.indexOf('oppimistapa.js'), page).toBeGreaterThan(html.indexOf('oppimiskartta.js'));
     }

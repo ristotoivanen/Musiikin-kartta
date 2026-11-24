@@ -29,7 +29,7 @@ EXTERNAL = re.compile(r'^(?:[a-z][a-z0-9+.-]*:|//)', re.I)
 PROGRESS = ROOT / 'assets' / 'edistyminen.js'
 # Näkymävalinnat käsitellään assets/visualizer.js:ssä.
 VIEW_ROUTES = {ROOT / 'otelautaharjoittelija.html': {'soinnut', 'oktaavit'},
-               ROOT / 'otelautaopas-beta.html': {'soinnut', 'oktaavit'}}
+               ROOT / 'otelautaopas-beta.html': {'soinnut', 'oktaavit', 'asteikot'}}
 # Jokaisella osasivulla toistuvat tunnisteet ja kuvatekstien tunnisteet eivät kuulu ankkuritaulukkoon.
 GENERIC = {'luvut', 'lukulista', 'harjoitusrutiini', 'rutiini-otsikko', 'lisalukeminen'}
 

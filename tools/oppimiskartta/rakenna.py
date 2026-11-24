@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[2]
 CONFIG = Path(__file__).with_name('aiheet.json')
 GENERATED = '<!-- Muodostettu komennolla npm run build:oppimiskartta. -->'
 VOID = set('area base br col embed hr img input link meta param source track wbr'.split())
-TOOLS = {'kitaraharjoittelija.html', 'otelautaharjoittelija.html', 'riffikaiku.html', 'pelit/ensikeikka/index.html'}
+TOOLS = {'kitaraharjoittelija.html', 'otelautaharjoittelija.html', 'otelautaopas-beta.html', 'riffikaiku.html', 'pelit/ensikeikka/index.html'}
 SLUG = re.compile('[a-z0-9]+(?:-[a-z0-9]+)*')
 
 
