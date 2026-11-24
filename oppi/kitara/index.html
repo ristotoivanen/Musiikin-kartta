@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="../../assets/paavalikko.css?v=4e5c7fbf95">
   <link rel="stylesheet" href="../../assets/oppi.css?v=8a69bdc0e8">
   <link rel="stylesheet" href="../../assets/kitara-kertaus.css?v=45421c25a3">
-  <link rel="stylesheet" href="../../assets/perustaitojen-minitunnit.css?v=e212776cca">
+  <link rel="stylesheet" href="../../assets/perustaitojen-minitunnit.css?v=6115007697">
   <link rel="stylesheet" href="../../assets/kokonaisuudet.css?v=db6d10a623">
 </head>
 <body>
@@ -36,7 +36,7 @@
         <h2>Kielet ja otelauta</h2>
         <p>Vakiovire paksuimmasta kielestä ohuimpaan on <strong>E–A–D–G–B–e</strong>.</p>
         <figure class="recap-figure">
-          <div class="recap-standard-neck" role="region" aria-label="Kitaran otelauta, tarvittaessa vieritä sivusuunnassa" tabindex="0" hidden></div>
+          <div class="recap-standard-neck" role="region" aria-label="Kitaran otelauta, tarvittaessa vieritä sivusuunnassa nuolinäppäimillä" tabindex="0" hidden></div>
           <div class="recap-neck">
             <span class="recap-open">Vapaa</span>
             <ol class="recap-fret-numbers" role="list" aria-label="Nauhat vasemmalta oikealle">
@@ -173,8 +173,8 @@
           <p id="hint" class="muted"></p>
           <div id="strum-explanation" class="strum-explanation" hidden><p id="strum-hand" class="muted"></p></div>
           <div id="clap-guide" class="clap-guide">
-          <p id="clap-current" class="clap-current" role="status" aria-atomic="true">Taputa kaikilla iskuilla (1, 2, 3, 4)</p>
-          <p id="clap-next" class="next-guide" role="status" aria-atomic="true">Valitse taputuskuvio nuolilla.</p>
+          <p class="clap-current"><span id="clap-current" role="status" aria-atomic="true">Taputa kaikilla iskuilla</span></p>
+          <p class="next-guide"><span id="clap-next" role="status" aria-atomic="true">Valitse rytmikuvio nuolilla.</span></p>
           </div>
           <p id="strum-foot" class="foot-reminder" hidden><strong>Jalka:</strong> alas numeroilla (1, 2, 3, 4), ylös ja-tavuilla.</p>
           <div class="beats" id="beats" aria-hidden="true"></div>
@@ -189,7 +189,7 @@
           <p id="recovery" hidden><a href="../../assets/audio/osa-1/pulssi-ja-komppi.m4a">Avaa alkuperäinen äänite</a></p>
           <details id="brushing" hidden><summary>ⓘ Knoppitieto: Harjaaminen</summary><p>Aluksi voit pyyhkäistä kieliä tasaisesti. Myöhemmin voit painottaa alasvedolla matalampia ja ylösvedolla ohuempia kieliä. Sitä ei vielä tarvitse osata.</p></details>
           </section>
-          <section id="minitunti-fallback" class="panel"><h3>Löydä pulssi ja ykkönen</h3><p>Naputa jalalla jokainen isku ja laske neljään. Kokeile neljää taputuskuviota: kaikki iskut, 1 ja 3, 2 ja 4 tai vain ykkönen. Palaa tarvittaessa kaikkiin iskuihin. Vaihda kuviota, kun olet valmis. Pidä sama jalalla naputettava pulssi koko ajan.</p><h3>Pulssista komppiin</h3><p>Kokeile ensin taputtaa valituilla numeroilla 1, 2, 3 ja 4. Ja-tavuilla ei taputeta. Jalka naputtaa aina numeroilla. Ota sitten kitara ja vaimenna kielet. Naputa jalalla numeroilla 1, 2, 3 ja 4, jolloin komppikäsi liikkuu alas. Ja-tavuilla, iskun puolivälissä, jalka nousee ja komppikäsi liikkuu ylös. Älä napauta jalalla ja-tavuilla. Soita vain valituilla numeroilla, muulloin liikuta kättä kieliin osumatta. Voit käyttää vaimennettuja kieliä tai tuttua sointua. Jos interaktiivinen harjoittelu ei ole käytettävissä, voit kuunnella koko alkuperäisen äänitteen.</p><audio controls preload="none"><source src="../../assets/audio/osa-1/pulssi-ja-komppi.m4a" type="audio/mp4"><source src="../../assets/audio/osa-1/pulssi-ja-komppi.wav" type="audio/wav"></audio><p><a href="../rytmi/pulssi-ja-komppi.html">Pulssi ja komppi</a></p></section>
+          <section id="minitunti-fallback" class="panel"><h3>Löydä pulssi ja ykkönen</h3><p>Naputa jalalla jokainen isku ja laske neljään. Kokeile neljää taputuskuviota: kaikki iskut, 1 ja 3, 2 ja 4 tai vain ykkönen. Palaa tarvittaessa kaikkiin iskuihin. Vaihda kuviota, kun olet valmis. Pidä sama jalalla naputettava pulssi koko ajan.</p><h3>Pulssista komppiin</h3><p>Kokeile ensin taputtaa valituilla numeroilla 1, 2, 3 ja 4. Ja-tavuilla ei taputeta. Jalka naputtaa aina numeroilla. Ota sitten kitara ja vaimenna kielet. Naputa jalalla numeroilla 1, 2, 3 ja 4, jolloin komppikäsi liikkuu alas. Ja-tavuilla, iskun puolivälissä, jalka nousee ja komppikäsi liikkuu ylös. Älä napauta jalalla ja-tavuilla. Soita vain valituilla numeroilla, muulloin liikuta kättä kieliin osumatta. Voit käyttää vaimennettuja kieliä tai tuttua sointua. Jos interaktiivinen harjoittelu ei ole käytettävissä, voit kuunnella koko alkuperäisen äänitteen.</p><p><a href="../../assets/audio/osa-1/pulssi-ja-komppi.m4a">Avaa alkuperäinen äänite</a> · <a href="../../assets/audio/osa-1/pulssi-ja-komppi.wav">WAV</a></p><p><a href="../rytmi/pulssi-ja-komppi.html">Pulssi ja komppi</a></p></section>
         </div>
       </div>
     </details>
@@ -199,8 +199,8 @@
   <script src="../../assets/edistyminen.js?v=39bccb10a6"></script>
   <script src="../../assets/oppimistapa.js"></script>
   <script src="../../assets/otelauta.js?v=263d8a1e22"></script>
-  <script src="../../assets/kitara-kertaus.js?v=71d155c9d9"></script>
-  <script src="../../assets/perustaitojen-minitunnit.js?v=070e2c8570"></script>
+  <script src="../../assets/kitara-kertaus.js?v=91366f4a85"></script>
+  <script src="../../assets/perustaitojen-minitunnit.js?v=d8d2d40052"></script>
   <script src="../../assets/kokonaisuudet.js?v=326aed1a00"></script>
 </body>
 </html>

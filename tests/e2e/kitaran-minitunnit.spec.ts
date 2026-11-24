@@ -76,15 +76,22 @@ test('320 px ja 200 prosentin tekstikoko, ei vaakavieritystä', async ({ page })
   await expect(page.getByRole('button', { name: 'Aloita' })).toBeVisible();
 });
 
-test('ohjeet ja alkuperäinen äänite ilman JavaScriptiä', async ({ browser }) => {
-  const context = await browser.newContext({ javaScriptEnabled: false });
+test('ohjeet ja alkuperäinen äänite ilman JavaScriptiä', async ({ browser, baseURL }) => {
+  const context = await browser.newContext({ baseURL, javaScriptEnabled: false });
   try {
     const page = await context.newPage();
-    await page.goto('http://127.0.0.1:8765' + url);
+    await page.goto(url);
     await page.locator(summary).click();
-  await expect(page.getByRole('heading', { name: 'Löydä pulssi ja ykkönen' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Löydä pulssi ja ykkönen' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Pulssista komppiin' })).toBeVisible();
-    await expect(page.locator('audio')).toBeVisible();
+    for (const [name, extension] of [['Avaa alkuperäinen äänite', 'm4a'], ['WAV', 'wav']]) {
+      const link = page.getByRole('link', { name, exact: true });
+      const href = await link.getAttribute('href');
+      expect(href).toMatch(new RegExp('pulssi-ja-komppi\\.' + extension + '$'));
+      const response = await page.request.head(new URL(href!, page.url()).href);
+      expect(response.ok()).toBe(true);
+    }
+    await expect(page.locator('audio')).toHaveCount(0);
     await expect(page.locator('#exercise')).toBeHidden();
   } finally {
     await context.close();
@@ -333,6 +340,8 @@ test('suora ankkuri avaa harjoitusosion ja skriptivirhe jättää ohjeet näkyvi
   await page.goto(url+'#perustaitojen-minitunnit');
   await expect(page.locator('#perustaitojen-minitunnit')).toHaveAttribute('open','');
   await expect(page.locator('#minitunti-fallback')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Avaa alkuperäinen äänite' })).toBeVisible();
+  await expect(page.locator('audio')).toHaveCount(0);
   await expect(page.locator('#exercise')).toBeHidden();
 });
 
@@ -384,4 +393,87 @@ test('omat avattavat minitunnit: vain yksi auki, sulkupainike pysäyttää ja pa
   await expect(strum).not.toHaveAttribute('open','');
   await expect(page.locator('#exercise')).toHaveAttribute('data-state','idle');
   await expect(strum.locator('summary').first()).toBeFocused();
+});
+
+test('nopea sulku ja uudelleenavaus eivät jätä pulssia taustalle', async ({ page }) => {
+  await page.goto(url);
+  await page.locator(summary).click();
+  const heading = page.locator('#minitunti-pulse > summary');
+  await heading.click();
+  await page.locator('#play').click();
+  await expect(page.locator('#exercise')).toHaveAttribute('data-state', 'playing', { timeout: 15000 });
+
+  await heading.evaluate(el => {
+    const summary = el as HTMLElement;
+    summary.click();
+    summary.click();
+  });
+  await expect(page.locator('#minitunti-pulse')).toHaveAttribute('open', '');
+  await expect(page.locator('#exercise')).toHaveAttribute('data-state', 'idle');
+  await expect(page.locator('.beat.on')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Aloita' })).toBeVisible();
+});
+
+test('rytmin Nyt-merkki ei liikuta iskukortteja toiston aikana 320 px / 200 %', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 740 });
+  await page.goto(url);
+  await page.locator(summary).click();
+  await page.locator('#minitunti-pulse > summary').click();
+  await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
+  await page.locator('#play').click();
+  const { active, movement } = await page.locator('#beats').evaluate(async grid => {
+    const beats = [...grid.querySelectorAll('.beat')];
+    const offsets = () => {
+      const top = grid.getBoundingClientRect().top;
+      return beats.flatMap(beat => {
+        const rect = beat.getBoundingClientRect();
+        return [rect.top - top, rect.height];
+      });
+    };
+    const original = offsets();
+    const active = new Set<number>();
+    let movement = 0;
+    const end = performance.now() + 4000;
+    while (active.size < 4 && performance.now() < end) {
+      await new Promise(requestAnimationFrame);
+      const beat = beats.findIndex(el => el.querySelector('.mark')?.textContent === 'Nyt');
+      if (beat >= 0) active.add(beat);
+      offsets().forEach((value, i) => { movement = Math.max(movement, Math.abs(value - original[i])); });
+    }
+    return { active: active.size, movement };
+  });
+  expect(active).toBe(4);
+  expect(movement).toBeLessThanOrEqual(0.5);
+});
+
+test('jonoon asetettu ja käyttöön vaihtuva rytmikuvio pysyvät samassa kohdassa 320 px / 200 %', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 740 });
+  await page.goto(url + '#minitunti-strum');
+  await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
+  await page.locator('#play').click();
+  const guide = page.locator('#clap-guide');
+  const layout = () => page.locator('#exercise').evaluate(panel => {
+    const top = panel.getBoundingClientRect().top;
+    return ['#strum-foot', '#beats', '#clap-nav', '#play'].map(selector => {
+      const rect = panel.querySelector(selector)!.getBoundingClientRect();
+      return [rect.top - top, rect.height];
+    });
+  });
+  const baseline = await layout();
+  await expect(page.locator('.beat.on')).toHaveCount(1);
+  await page.getByRole('button', { name: 'Edellinen taputuskuvio' }).click();
+  await expect(guide).toHaveAttribute('data-pending', '3');
+  expect(await layout()).toEqual(baseline);
+  await expect(guide).toHaveAttribute('data-pattern', '3', { timeout: 4000 });
+  expect(await layout()).toEqual(baseline);
+});
+
+test('tulosteessa näkyvät staattiset ohjeet vaikka näyttöversiossa minitunnit ovat kiinni', async ({ page }) => {
+  await page.goto(url);
+  const fallbackHeading = page.locator('#minitunti-fallback').getByRole('heading', { name: 'Pulssista komppiin' });
+  await expect(fallbackHeading).toBeHidden();
+  await page.emulateMedia({ media: 'print' });
+  await page.evaluate(() => window.dispatchEvent(new Event('beforeprint')));
+  await expect(fallbackHeading).toBeVisible();
+  await expect(page.locator('#play')).toBeHidden();
 });

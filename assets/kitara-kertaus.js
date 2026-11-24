@@ -41,6 +41,13 @@
       // Korjaa pystysuuntainen litistys elementin oman keskipisteen ympäriltä.
       el.setAttribute('transform', 'translate(0 '+cy+') scale(1 '+ratio+') translate(0 '+(-cy)+')');
     });
+    target.addEventListener('keydown', event => {
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+      if (target.scrollWidth <= target.clientWidth) return;
+      event.preventDefault();
+      target.scrollLeft += event.key === 'ArrowRight' ? 40 : -40;
+    });
     target.hidden = false;
     fallback.hidden = true;
   } catch {

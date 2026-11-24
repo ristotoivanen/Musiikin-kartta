@@ -147,4 +147,11 @@ test('yhteinen otelauta näyttää oikeat sävelet ja vieritys jää otelaudan s
       await expect(board.locator('.octave-recap')).toHaveCount(18);
     }
   }
+  await board.focus();
+  await expect(board).toBeFocused();
+  await page.keyboard.press('ArrowRight');
+  await expect.poll(() => board.evaluate(el => el.scrollLeft)).toBeGreaterThan(0);
+  await expect.poll(() => page.evaluate(() => window.scrollX)).toBe(0);
+  await page.keyboard.press('ArrowLeft');
+  await expect.poll(() => board.evaluate(el => el.scrollLeft)).toBe(0);
 });

@@ -25,6 +25,26 @@ const asset='../../assets/audio/osa-1/pulssi-ja-komppi.wav';
 const pulseCue={start:0,end:2*bar};
 let lesson='pulse',stage='tap',phase='idle',generation=0,context=null,decoded=null,loading=null,source=null,frame=0,started=0,range=null;
 const pressed=(selector,key,value)=>root.querySelectorAll(selector).forEach(b=>b.setAttribute('aria-pressed',String(b.dataset[key]===value)));
+const currentMessage=pattern=>(guitarMode()?'Soita ':'Taputa ')+pattern.name;
+const nextMessage=pattern=>pattern?'Seuraavassa tahdissa: '+pattern.short:'Valitse rytmikuvio nuolilla.';
+function sizeClapMessages(){
+  const options=patterns();
+  for(const [id,messages] of [
+    ['clap-current', options.map(currentMessage)],
+    ['clap-next', [nextMessage(), ...options.map(nextMessage)]]
+  ]){
+    const paragraph=$(id).parentElement;
+    paragraph.querySelectorAll('.clap-sizing').forEach(item=>item.remove());
+    // Viestit jakavat saman rivin. Pisinkin teksti mahtuu siirtämättä iskukortteja.
+    for(const message of messages){
+      const sample=document.createElement('span');
+      sample.className='clap-sizing';
+      sample.setAttribute('aria-hidden','true');
+      sample.textContent=message;
+      paragraph.append(sample);
+    }
+  }
+}
 function paintClaps(elapsed){
 const selection=clapState(),options=patterns(),subdiv=lesson==='strum',guitar=guitarMode();
 const barIndex=elapsed>=0?Math.floor((elapsed+0.000001)/bar):-1;
@@ -34,9 +54,9 @@ selection.index=selection.pending;selection.pending=null;selection.at=null;
 const pattern=options[selection.index],key=String(subdiv)+':'+String(guitar)+':'+selection.index+':'+selection.pending;
 if(key===lastClapKey)return;
 lastClapKey=key;
-const current=(guitar?'Soita ':'Taputa ')+pattern.name;
+const current=currentMessage(pattern);
 if($('clap-current').textContent!==current)$('clap-current').textContent=current;
-$('clap-next').textContent=selection.pending===null?'Valitse rytmikuvio nuolilla.':'Seuraavassa tahdissa: '+options[selection.pending].short;
+$('clap-next').textContent=nextMessage(selection.pending===null?undefined:options[selection.pending]);
 $('clap-guide').dataset.pattern=String(selection.index);
 $('clap-guide').dataset.pending=selection.pending===null?'':String(selection.pending);
 $('clap-position').textContent=String(selection.index+1)+' / '+String(options.length);
@@ -115,6 +135,7 @@ $('instruction').textContent='Pidä sama jalalla naputettava pulssi kuin ensimm�
 $('hint').textContent='Taputa käsillä valittua rytmiä. Vaihda kuviota nuolilla, kun olet valmis.';
 $('pattern-text').textContent='Ja on iskun puolivälissä. Kitaralla siinä on ylösvetovuoro, mutta tässä taputetaan vain numeroilla.';
 }
+sizeClapMessages();
 $('beats').replaceChildren();lastClapKey=null;
 for(let i=0;i<4;i++){
 const cell=document.createElement('div');cell.className='beat';
@@ -163,9 +184,12 @@ setPhase('playing','84 BPM · Soi jatkuvasti.');tick();
 }
 const lessonCards=[...root.querySelectorAll('details[data-minitunti]')];
 let activeCard=null;
-function syncLesson(){
+function syncLesson(closedWhileOpen=false){
   const card=root.open?lessonCards.find(item=>item.open):null;
-  if(card===activeCard)return;
+  if(card===activeCard){
+    if(closedWhileOpen)stop();
+    return;
+  }
   stop();
   activeCard=card;
   if(!card){$('exercise').hidden=true;return;}
@@ -176,7 +200,18 @@ function syncLesson(){
   render();
   $('exercise').hidden=false;
 }
-for(const card of lessonCards)card.addEventListener('toggle',syncLesson);
+// Natiivi toggle voi yhdistää sulkemisen ja uudelleenavauksen samaan tapahtumaan.
+const disclosureObserver=new MutationObserver(changes=>{
+  const closed=changes.some(change=>change.oldValue!==null&&
+    (change.target===root||change.target===activeCard));
+  if(!root.open){
+    for(const card of lessonCards)card.open=false;
+  }
+  syncLesson(closed);
+});
+for(const disclosure of [root,...lessonCards]){
+  disclosureObserver.observe(disclosure,{attributeFilter:['open'],attributeOldValue:true});
+}
 for(const b of root.querySelectorAll('[data-stage]'))b.addEventListener('click',()=>{if(stage===b.dataset.stage)return;stage=b.dataset.stage;render();});
 $('clap-prev').addEventListener('click',()=>selectClap(-1));
 $('clap-forward').addEventListener('click',()=>selectClap(1));
@@ -184,13 +219,6 @@ $('clap-all').addEventListener('click',()=>selectClap(0,0));
 $('play').addEventListener('click',()=>{if(phase==='playing'||phase==='loading')stop();else void start();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stop('Pysäytetty. Aloita uudelleen, kun olet valmis.');});
 window.addEventListener('pagehide',()=>stop());
-root.addEventListener('toggle',()=>{
-  if(!root.open){
-    for(const card of lessonCards)card.open=false;
-    root.querySelectorAll('audio').forEach(a=>a.pause());
-  }
-  syncLesson();
-});
 $('lessons').hidden=false;render();setPhase('idle',idle);
 syncLesson();
 $('minitunti-fallback').hidden=true;

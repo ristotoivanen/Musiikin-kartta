@@ -27,7 +27,7 @@
 #perustaitojen-minitunnit .minitunti-content .sub .half {min-width:0;line-height:1.35;text-align:center;padding:.2rem .05rem}
 #perustaitojen-minitunnit .minitunti-content .sub .half.now b {text-decoration:underline;text-underline-offset:.15em}
 #perustaitojen-minitunnit .minitunti-content .sub .half .direction {display:block;font-size:1.3rem;line-height:1.3}
-#perustaitojen-minitunnit .minitunti-content .sub .half small {font-size:.7rem;min-height:1.2em}
+#perustaitojen-minitunnit .minitunti-content .sub .half small {font-size:.7rem;min-height:1.35em}
 #perustaitojen-minitunnit .minitunti-content .sub .half .tap-label {font-weight:400}
 #perustaitojen-minitunnit .minitunti-content .sub .half .tap-label:empty {visibility:hidden}
 #perustaitojen-minitunnit .minitunti-content .sub .half.now .tap-label {color:var(--ink)}
@@ -39,15 +39,18 @@
 #perustaitojen-minitunnit .minitunti-content .strum-explanation {margin:.5rem 0 .25rem}
 #perustaitojen-minitunnit .minitunti-content .strum-explanation p {margin:.3rem 0}
 #perustaitojen-minitunnit .minitunti-content .strum-explanation strong {color:var(--ink)}
-#perustaitojen-minitunnit .minitunti-content .beat .mark {font-size:.8rem;min-height:1.2em;color:var(--accent)}
+#perustaitojen-minitunnit .minitunti-content .beat .mark {font-size:.8rem;line-height:1.2;min-height:1.2em;color:var(--accent)}
 #perustaitojen-minitunnit .minitunti-content .clap-guide {margin:.75rem 0 .25rem}
-#perustaitojen-minitunnit .minitunti-content .clap-guide p {margin:.25rem 0}
+#perustaitojen-minitunnit .minitunti-content .clap-guide p {margin:.25rem 0;display:grid;grid-template-columns:minmax(0,1fr)}
+#perustaitojen-minitunnit .minitunti-content .clap-guide p > span {grid-area:1 / 1}
+#perustaitojen-minitunnit .minitunti-content .clap-guide .clap-sizing {visibility:hidden}
 #perustaitojen-minitunnit .minitunti-content .clap-current {font-weight:700;font-size:1.1rem}
 #perustaitojen-minitunnit .minitunti-content .clap-nav {display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:.5rem;margin:.6rem 0}
 #perustaitojen-minitunnit .minitunti-content .clap-nav button {padding:.25rem;text-align:center;font-size:1.5rem}
 #perustaitojen-minitunnit .minitunti-content .clap-nav p {text-align:center;margin:0;overflow-wrap:anywhere}
 #perustaitojen-minitunnit .minitunti-content .clap-middle {display:flex;flex-direction:column;align-items:center;gap:.25rem;min-width:0}
 #perustaitojen-minitunnit .minitunti-content .clap-nav #clap-all {font-size:.9rem;max-width:100%;padding:.35rem .7rem;line-height:1.3}
+#perustaitojen-minitunnit .minitunti-content .clap-nav #clap-all[aria-pressed=true] {border-width:1px;box-shadow:inset 0 0 0 1px var(--accent)}
 #perustaitojen-minitunnit .minitunti-content .next-guide {color:var(--muted);font-size:.9rem}
 #perustaitojen-minitunnit .minitunti-content details {border-top:1px solid var(--line);margin-top:.8rem;padding-top:.3rem}
 #perustaitojen-minitunnit .minitunti-content summary {padding:.45rem 0}
@@ -83,4 +86,9 @@
 @media(max-width:600px){
   #perustaitojen-minitunnit > .study-unit-body { padding-inline: .25rem; }
   #perustaitojen-minitunnit .study-unit-goal { padding-inline: .5rem; }
+}
+
+@media print {
+  #perustaitojen-minitunnit #lessons, #perustaitojen-minitunnit #exercise { display: none; }
+  #perustaitojen-minitunnit .minitunti-content #minitunti-fallback[hidden] { display: block !important; }
 }
