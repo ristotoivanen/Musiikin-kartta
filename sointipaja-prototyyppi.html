@@ -87,6 +87,29 @@ main.practice-main {max-width: 700px; padding: 14px 10px 30px}
 .proto #feedback:empty,.proto #audio-status:empty {display:none}
 .proto #summary .toolbar button {min-height:44px}
 .proto #round-context {font-weight:650}
+.proto #challenge-setup fieldset {border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+.proto #challenge-setup fieldset label {display:flex;align-items:center;gap:10px;margin:0;min-height:44px;cursor:pointer}
+.proto #challenge-setup input[type=checkbox] {width:20px;height:20px;flex:none;accent-color:#8d70ff}
+.proto #challenge-setup select {width:100%;min-height:44px}
+.proto .challenge-settings {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.proto .challenge-settings label {display:block;font-weight:650;font-size:14px}
+.proto .challenge-metrics {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}
+.proto .challenge-metrics div {border:1px solid var(--line);border-radius:8px;padding:8px;min-width:0}
+.proto .challenge-metrics span {display:block;font-size:12px;color:var(--muted)}
+.proto .challenge-metrics strong {font-size:clamp(20px,4vw,28px);font-variant-numeric:tabular-nums}
+.proto #challenge-progress {width:100%;height:8px;accent-color:var(--good)}
+.proto #challenge-lock {font-weight:750;color:var(--wrong);min-height:1.5em}
+.proto #challenge-feedback {min-height:1.5em;font-weight:650}
+.proto .challenge-result-score {font-size:36px;font-weight:800;color:var(--good);font-variant-numeric:tabular-nums}
+.proto .challenge-results {display:grid;grid-template-columns:1fr auto;gap:8px;margin:12px 0}
+.proto .challenge-results dt,.proto .challenge-results dd {margin:0}
+.proto #prototype-mode {margin-top:0}
+.proto #challenge-start {width:100%;margin-top:8px}
+.proto #challenge-stop {min-height:44px}
+.proto .challenge-active #roots button[aria-disabled=true]:not(:disabled),.proto .challenge-active #answers button[aria-disabled=true]:not(.wrong) {opacity:.6}
+.proto .challenge-active .chord-neck .mark {cursor:default;pointer-events:none}
+@media(max-width:350px){.proto .challenge-settings {grid-template-columns:1fr}}
+
 @media(max-width:365px){.proto .toolbar button {font-size:13px;padding-inline:6px}.proto .chord-answers {gap:4px;grid-template-columns:repeat(auto-fit,minmax(50px,1fr))}}
 </style>
 </head>
@@ -98,7 +121,54 @@ main.practice-main {max-width: 700px; padding: 14px 10px 30px}
 <noscript><p>Kokeilu tarvitsee JavaScriptin. <a href="oppi/soinnut/">Sointujen teoria</a> on käytettävissä myös ilman sitä.</p></noscript>
 <p id="load-error" role="status" hidden>Harjoituksen lataus ei onnistunut. <a href="sointipaja-prototyyppi.html">Kokeile uudelleen</a> tai <a href="kitaraharjoittelija.html?polku=soinnut">avaa nykyinen harjoitus</a>.</p>
 <section class="proto chord-journey" aria-label="Avosointujen tunnistus" id="prototype" hidden>
-<header class="level-head">
+<div class="toolbar" id="prototype-mode" role="group" aria-label="Sointipajan tila">
+<button type="button" id="mode-practice" aria-pressed="true">Harjoittele</button>
+<button type="button" id="mode-challenge" aria-pressed="false">Pelaa · Sointuhaaste</button>
+</div>
+<section id="challenge-setup" hidden aria-labelledby="challenge-heading">
+<h2 id="challenge-heading" tabindex="-1">Sointuhaaste</h2>
+<p>Tunnista mahdollisimman monta sointua ennen ajan loppumista. Väärä vastaus lukitsee valinnat hetkeksi, mutta kello käy.</p>
+<fieldset><legend>Valitse tasojen uudet soinnut</legend><div id="challenge-levels"></div></fieldset>
+<p id="challenge-pool"></p>
+<div class="challenge-settings">
+<label>Peliaika<select id="challenge-duration"><option value="30">30 sekuntia</option><option value="60" selected>1 minuutti</option><option value="120">2 minuuttia</option><option value="180">3 minuuttia</option></select></label>
+<label>Virhelukitus<select id="challenge-penalty"><option value="3">3 sekuntia</option><option value="4" selected>4 sekuntia</option><option value="5">5 sekuntia</option></select></label>
+</div>
+<p id="challenge-best" class="tools-note"></p>
+<p class="tools-note">Pelin aloittaminen päättää keskeneräisen harjoituskierroksen. Pelissä ei soiteta mallia automaattisesti. Voit aina palata ajattomaan harjoitteluun.</p>
+<button type="button" class="primary" id="challenge-start">Aloita peli</button>
+<p id="challenge-setup-note" role="status"></p>
+</section>
+<section id="challenge-live" hidden aria-label="Sointuhaasteen tilanne">
+<div class="question-head"><h2>Sointuhaaste</h2><button id="challenge-stop" type="button">Keskeytä peli</button></div>
+<div class="challenge-metrics">
+<div><span>Aikaa jäljellä</span><strong id="challenge-time">01:00</strong></div>
+<div><span>Oikein</span><strong id="challenge-score">0</strong></div>
+<div><span>Virheet</span><strong id="challenge-errors">0</strong></div>
+</div>
+<progress id="challenge-progress" aria-label="Peliaikaa jäljellä" max="60" value="60"></progress>
+<p id="challenge-lock" aria-hidden="true"></p>
+<p id="challenge-feedback" role="status" aria-live="polite"></p>
+</section>
+<section id="challenge-result" hidden aria-labelledby="challenge-result-heading">
+<h2 id="challenge-result-heading" tabindex="-1">Aika loppui!</h2>
+<p class="challenge-result-score" id="challenge-result-score"></p>
+<p id="challenge-result-config"></p>
+<dl class="challenge-results">
+<dt>Oikein ensimmäisellä yrityksellä</dt><dd id="challenge-result-first"></dd>
+<dt>Väärät vastaukset</dt><dd id="challenge-result-errors"></dd>
+<dt>Aikarangaistukset yhteensä</dt><dd id="challenge-result-penalty"></dd>
+<dt>Oma ennätys</dt><dd id="challenge-result-best"></dd>
+</dl>
+<p id="challenge-result-record" role="status"></p>
+<p id="challenge-result-review"></p>
+<div class="toolbar">
+<button id="challenge-replay" type="button" class="primary">Pelaa uudelleen</button>
+<button id="challenge-config" type="button">Muuta asetuksia</button>
+<button id="challenge-return" type="button">Harjoittele</button>
+</div>
+</section>
+<header class="level-head" id="practice-head">
 <div id="level-picker" class="toolbar" role="group" aria-label="Valitse taso"></div>
 <p class="tools-note level-switch-note">Voit vaihtaa tasoa vapaasti. Vaihto aloittaa valitun tason alusta.</p>
 <div class="question-head"><h2 id="level-title">Taso 1 · Seitsemän tavallista avosointua</h2><span id="level-progress"></span></div>
@@ -107,7 +177,7 @@ main.practice-main {max-width: 700px; padding: 14px 10px 30px}
 </header>
 <div id="round">
 <div class="question-head"><h2 id="question" tabindex="-1">Mikä sointu?</h2><span id="progress"></span></div>
-<p>Katso otetta ja valitse soinnun nimi.</p>
+<p id="practice-instruction">Katso otetta ja valitse soinnun nimi.</p>
 <div class="exercise-grid">
 <div id="board"></div>
 <p class="caption">Rengastettu kirjain = vapaa · ● painettu · × ei soiteta</p>
@@ -121,7 +191,7 @@ main.practice-main {max-width: 700px; padding: 14px 10px 30px}
 <p id="root-hint" class="tools-note" hidden>Valitse ensin perussävel.</p>
 <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
 <button type="button" class="primary" id="next" hidden>Seuraava sointu →</button>
-<div class="toolbar" role="group" aria-label="Kuuntelu">
+<div class="toolbar" id="practice-audio" role="group" aria-label="Kuuntelu">
 <button type="button" id="listen" aria-pressed="false">▶ Kuuntele sointu</button>
 <button type="button" id="arpeggio" aria-pressed="false">Kieli kerrallaan</button>
 <button type="button" id="stop" disabled>Pysäytä</button>
@@ -161,10 +231,11 @@ main.practice-main {max-width: 700px; padding: 14px 10px 30px}
 </main>
 <script src="assets/otelauta.js" onerror="document.getElementById('load-error').hidden=false"></script>
 <script src="assets/sointipaja-levels.js"></script>
+<script src="assets/sointipaja-challenge.js"></script>
 <script>
 (() => {
 'use strict';
-if (!globalThis.MusicMapFretboard?.neckSurface || !globalThis.SointipajaLevelModel) { document.getElementById('load-error').hidden=false; return; }
+if (!globalThis.MusicMapFretboard?.neckSurface || !globalThis.SointipajaLevelModel || !globalThis.SointipajaChallenge) { document.getElementById('load-error').hidden=false; return; }
 // Kokeilua varten kopioitu olemassa oleva, sivukohtainen näytesoitin sellaisenaan
 // assets/sointuharjoitus.js @ 9526b701e5d63a5af4bd2407ca65b71e9a60fd27. Ei uusi äänimoottori.
 // Integraatiossa sovitaan yhteinen rajapinta, eikä tätä kopiota jätetä ylläpidettäväksi.
@@ -395,6 +466,10 @@ const el = (tag,text,cls) => {const n=document.createElement(tag);if(text!==unde
 let roundIndex=0, mode='level', order=[], index=0, answered=false, mistakes=0, firstTry=0, wrong=new Set();
 let results=[], missed={}, previous=null;
 let current, rootChoice=null;
+let challengeView='practice', game=null, gameConfig=null, gameTimer=null, gameOptions=[], lastLock=false, practiceInterrupted=false;
+const challengeModel=globalThis.SointipajaChallenge;
+const challengeGroups=challengeModel.cohorts(levels);
+const inGame=()=>challengeView==='play';
 const audioStatus=byId('audio-status'), stopButton=byId('stop');
 const pitch = (s,f) => open[s]+f;
 const spelledName = pc => chords[current].spell?.[pc] || names[pc];
@@ -430,9 +505,11 @@ function listen(trigger, mode, string, toggle=false) {
   stopButton.disabled=!session;
 }
 function marker(s,f) {
-  const b=el('button',f===0?strings[s]:'●','mark'+(f===0?' open':''));b.type='button';b.dataset.string=s;b.dataset.fret=f;
-  b.setAttribute('aria-label',longStrings[s]+'-kieli, '+(f===0?'vapaa':f+'. nauha')+', kuuntele'+(answered?', '+nameOf(pitch(s,f)):''));
-  b.addEventListener('click',()=>listen(b,'single',s,true));return b;
+  const b=el(inGame()?'span':'button',f===0?strings[s]:'●','mark'+(f===0?' open':''));b.dataset.string=s;b.dataset.fret=f;
+  const label=longStrings[s]+'-kieli, '+(f===0?'vapaa':f+'. nauha');
+  if(inGame()){b.setAttribute('role','img');b.setAttribute('aria-label',label);}
+  else {b.type='button';b.setAttribute('aria-label',label+', kuuntele'+(answered?', '+nameOf(pitch(s,f)):''));b.addEventListener('click',()=>listen(b,'single',s,true));}
+  return b;
 }
 let neckObserver;
 function renderBoard(){
@@ -480,7 +557,7 @@ function renderBoard(){
     neckObserver.observe(board);
   }
 }
-function groupedAnswers(){return levelIndex>=1;}
+function groupedAnswers(){return inGame()||levelIndex>=1;}
 const rootLetters=['C','D','E','F','G','A','B'];
 // Valintaryhmä määräytyy kirjoitusasusta, ei enharmonisesta sävelkorkeudesta.
 const rootLetter = name => name[0];
@@ -496,7 +573,7 @@ function renderChordChoices(options){
   updateAnswers();
 }
 function chooseRoot(root){
-  if(answered||rootChoice===root||!rootsForRound().includes(root))return;
+  if((inGame()&&!canPlayGame())||answered||rootChoice===root||!rootsForRound().includes(root))return;
   rootChoice=root;
   byId('root-hint').hidden=true;
   renderChordChoices(choicesForRoot(root));
@@ -520,17 +597,19 @@ function renderAnswers(){
   renderChordChoices([]);
 }
 function updateAnswers(){
+  const locked=inGame()&&lastLock;
   for(const b of byId('roots').children){
     b.setAttribute('aria-pressed',String(b.dataset.root===rootChoice));
-    b.setAttribute('aria-disabled',String(answered||b.disabled));
+    b.setAttribute('aria-disabled',String(answered||locked||b.disabled));
   }
   for(const b of byId('answers').children){const n=b.textContent;
     b.classList.toggle('right',answered&&n===current);b.classList.toggle('wrong',wrong.has(n));
-    b.setAttribute('aria-disabled',String(answered||wrong.has(n)));
+    b.setAttribute('aria-disabled',String(answered||locked||wrong.has(n)));
     b.setAttribute('aria-label',n+(answered&&n===current?', oikein':wrong.has(n)?', väärä vastaus':''));
   }
 }
 function select(name){
+  if(inGame()){submitGame(name);return;}
   if(answered||wrong.has(name)||!roundDef().options.includes(name)||(groupedAnswers()&&rootLetter(name)!==rootChoice))return;
   const feedback=byId('feedback');
   if(name!==current){wrong.add(name);mistakes++;feedback.className='feedback bad';feedback.textContent='Ei aivan. Tarkista otteen avoimet ja painetut kielet.';updateAnswers();return;}
@@ -550,7 +629,7 @@ function select(name){
   }
   updateHeader();listen(byId('listen'),'chord');
 }
-function roundDef(){return level.rounds[roundIndex];}
+function roundDef(){return inGame()?{options:gameOptions}:level.rounds[roundIndex];}
 function totalQuestions(){return level.rounds.reduce((n,r)=>n+r.targets.length*r.repeats,0);}
 function updateHeader(){
   byId('level-title').textContent='Taso '+(levelIndex+1)+' · '+level.title;
@@ -618,7 +697,7 @@ function renderFreeRounds(){
   byId('free-rounds').replaceChildren(...buttons);
 }
 function chooseLevel(i,focus=true){
-  if(i<0||i>=levels.length)return;
+  if(challengeView!=='practice'||i<0||i>=levels.length)return;
   levelIndex=i;level=levels[i];renderFreeRounds();reset(focus);
 }
 for(const [i,l] of levels.entries()){
@@ -626,6 +705,156 @@ for(const [i,l] of levels.entries()){
   b.addEventListener('click',()=>{if(i!==levelIndex)chooseLevel(i);});byId('level-picker').append(b);
 }
 byId('next-level').addEventListener('click',()=>chooseLevel(levelIndex+1));
+
+function selection(){
+  const ids=Array.from(byId('challenge-levels').querySelectorAll('input:checked')).map(b=>b.value);
+  const duration=Number(byId('challenge-duration').value),penalty=Number(byId('challenge-penalty').value);
+  return {ids,duration,penalty,pool:challengeModel.poolFor(challengeGroups,ids)};
+}
+function recordStorage(){
+  try{return window.localStorage;}catch{return null;}
+}
+function refreshChallengeSetup(){
+  const c=selection();
+  byId('challenge-pool').textContent=c.pool.length+' eri sointua pelissä.';
+  byId('challenge-start').disabled=c.pool.length<2;
+  const best=challengeModel.readRecord(recordStorage(),challengeModel.recordKey(c.ids,c.duration,c.penalty));
+  byId('challenge-best').textContent=best===null?'Ei tallennettua ennätystä näillä asetuksilla.':'Oma ennätys näillä asetuksilla: '+best+' pistettä.';
+}
+function stopGameTimer(){if(gameTimer!==null){clearInterval(gameTimer);gameTimer=null;}}
+function setChallengeView(view){
+  challengeView=view;
+  const practice=view==='practice',playing=view==='play';
+  byId('mode-practice').setAttribute('aria-pressed',String(practice));
+  byId('mode-challenge').setAttribute('aria-pressed',String(!practice));
+  byId('prototype').classList.toggle('challenge-active',playing);
+  byId('practice-head').hidden=!practice;
+  byId('settings').hidden=!practice;
+  byId('practice-audio').hidden=!practice;
+  byId('practice-instruction').hidden=!practice;
+  byId('challenge-setup').hidden=view!=='setup';
+  byId('challenge-live').hidden=!playing;
+  byId('challenge-result').hidden=view!=='result';
+  if(!practice){byId('summary').hidden=true;byId('round').hidden=!playing;byId('progress').hidden=true;byId('next').hidden=true;byId('explain').hidden=true;byId('audio-status').textContent='';}
+  else {byId('progress').hidden=false;}
+}
+function openChallenge(note=''){
+  stop();stopGameTimer();game=null;lastLock=false;
+  neckObserver?.disconnect();
+  setChallengeView('setup');
+  byId('challenge-setup-note').textContent=note;
+  refreshChallengeSetup();
+  byId('challenge-heading').focus();
+}
+function returnPractice(){
+  if(challengeView==='practice')return;
+  stopGameTimer();game=null;lastLock=false;
+  const interrupted=practiceInterrupted;practiceInterrupted=false;
+  setChallengeView('practice');
+  // Aiempi harjoitus voidaan palauttaa, jos pelin asetuksissa vain käytiin.
+  // Pelin käynnistys muuttaa jaettua tehtävänäkymää; tällöin aloitetaan taso alusta.
+  if(interrupted){reset(true);}
+  else {
+    if(index>=order.length){byId('summary').hidden=false;byId('round').hidden=true;byId('done-heading').focus();}
+    else {byId('summary').hidden=true;byId('round').hidden=false;byId('explain').hidden=!answered;byId('next').hidden=!answered;byId('question').focus();}
+  }
+}
+function gameNow(){return performance.now();}
+function renderGameQuestion(state){
+  current=state.current;answered=false;wrong=new Set(state.wrong);lastLock=state.phase==='locked';
+  byId('feedback').textContent='';byId('feedback').className='feedback';
+  renderAnswers();renderBoard();
+}
+function displayGameState(state){
+  const seconds=Math.ceil(state.remainingMs/1000);
+  byId('challenge-time').textContent=String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');
+  byId('challenge-score').textContent=String(state.score);
+  byId('challenge-errors').textContent=String(state.errors);
+  byId('challenge-progress').value=state.remainingMs/1000;
+  byId('challenge-lock').textContent=state.phase==='locked'?'Lukitus · '+Math.ceil(state.lockMs/1000)+' s':'';
+}
+function finishGame(state){
+  if(!inGame())return;
+  stopGameTimer();neckObserver?.disconnect();lastLock=false;
+  setChallengeView('result');
+  const c=gameConfig;
+  const record=challengeModel.saveRecord(recordStorage(),challengeModel.recordKey(c.ids,c.duration,c.penalty),state.score);
+  byId('challenge-result-score').textContent=state.score+' pistettä';
+  byId('challenge-result-config').textContent=c.duration+' s · Tasot '+c.ids.map(id=>challengeGroups.findIndex(g=>g.id===id)+1).join(', ')+' · '+c.penalty+' s virhelukitus';
+  byId('challenge-result-first').textContent=String(state.firstTry);
+  byId('challenge-result-errors').textContent=String(state.errors);
+  byId('challenge-result-penalty').textContent=new Intl.NumberFormat('fi-FI',{maximumFractionDigits:1}).format(state.penaltyMs/1000)+' s';
+  byId('challenge-result-best').textContent=record.saved?String(record.best):record.previous===null?'Ei tallennettu':String(record.previous);
+  byId('challenge-result-record').textContent=!record.saved?'Ennätystä ei voitu tallentaa selaimeen.':record.newRecord?'Uusi oma ennätys!':'';
+  const misses=Object.entries(state.missed).sort((a,b)=>b[1]-a[1]).map(([name,n])=>name+' ('+n+')');
+  byId('challenge-result-review').textContent=misses.length?'Kertaa erityisesti: '+misses.join(', ')+'.':'Ei vääriä vastauksia.';
+  game=null;
+  byId('challenge-result-heading').focus();
+}
+function syncGame(){
+  if(!inGame()||!game)return null;
+  const state=game.state(gameNow());
+  displayGameState(state);
+  if(state.phase==='finished'){finishGame(state);return null;}
+  const locked=state.phase==='locked';
+  if(locked!==lastLock){
+    lastLock=locked;updateAnswers();
+    if(!locked)byId('challenge-feedback').textContent='Voit yrittää uudelleen.';
+  }
+  return state;
+}
+function canPlayGame(){return syncGame()?.phase==='playing';}
+function submitGame(name){
+  if(!canPlayGame()||rootLetter(name)!==rootChoice||!gameOptions.includes(name))return;
+  const outcome=game.submit(name,gameNow());
+  if(!outcome.accepted){syncGame();return;}
+  const state=outcome.state;
+  if(state.phase==='finished'){finishGame(state);return;}
+  if(outcome.correct){
+    renderGameQuestion(state);displayGameState(state);
+    byId('challenge-feedback').textContent='Oikein! Seuraava sointu.';
+    byId('roots').querySelector('button:not(:disabled)')?.focus({preventScroll:true});
+  }else{
+    wrong=new Set(state.wrong);lastLock=true;
+    updateAnswers();displayGameState(state);
+    byId('challenge-feedback').textContent='Väärin. Valinnat lukittu '+gameConfig.penalty+' sekunniksi. Yritä samaa sointua uudelleen lukituksen jälkeen.';
+  }
+}
+function startChallenge(config){
+  if(config.pool.length<2)return;
+  stop();stopGameTimer();practiceInterrupted=true;
+  gameConfig={...config,ids:[...config.ids],pool:[...config.pool]};
+  gameOptions=gameConfig.pool;
+  lastLock=false;
+  setChallengeView('play');
+  byId('challenge-progress').max=config.duration;
+  byId('challenge-feedback').textContent='Peli alkoi.';
+  // Ensimmäinen ote näkyy ennen kuin ajastimen ensimmäinen päivitys suoritetaan.
+  game=challengeModel.createGame({pool:gameOptions,duration:config.duration,penalty:config.penalty,now:gameNow(),orderFor});
+  renderGameQuestion(game.state(gameNow()));
+  syncGame();
+  byId('question').focus();
+  gameTimer=setInterval(syncGame,100);
+}
+for(const [i,g] of challengeGroups.entries()){
+  const label=el('label'),input=el('input');
+  input.type='checkbox';input.value=g.id;input.checked=i<2;
+  input.addEventListener('change',refreshChallengeSetup);
+  label.append(input,document.createTextNode('Taso '+(i+1)+' · '+g.title+' ('+g.names.length+' sointua)'));
+  byId('challenge-levels').append(label);
+}
+byId('challenge-duration').addEventListener('change',refreshChallengeSetup);
+byId('challenge-penalty').addEventListener('change',refreshChallengeSetup);
+byId('mode-challenge').addEventListener('click',()=>{if(challengeView==='practice')openChallenge();});
+byId('mode-practice').addEventListener('click',returnPractice);
+byId('challenge-start').addEventListener('click',()=>startChallenge(selection()));
+byId('challenge-stop').addEventListener('click',()=>openChallenge('Peli keskeytettiin. Tulosta ei tallennettu.'));
+byId('challenge-replay').addEventListener('click',()=>{if(gameConfig)startChallenge(gameConfig);});
+byId('challenge-config').addEventListener('click',()=>openChallenge());
+byId('challenge-return').addEventListener('click',returnPractice);
+document.addEventListener('visibilitychange',()=>{if(inGame())syncGame();});
+window.addEventListener('pagehide',()=>{if(inGame())openChallenge('Peli keskeytettiin sivulta poistuttaessa.');});
+
 try {byId('prototype').hidden=false;chooseLevel(0,false);} catch(error) {console.error('Sointipajan lataus epäonnistui',error);byId('prototype').hidden=true;byId('load-error').hidden=false;}
 })();
 </script>
