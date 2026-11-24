@@ -78,14 +78,14 @@ test('Musapelien aiherajaukset ja saavutettavat nimet säilyvät', async ({ page
   ] as const) {
     await expect(filter.locator(`a[href="${anchor}"]`)).toHaveAccessibleName(accessibleName);
   }
-  await expect(page.locator('#pelit .game-card')).toHaveCount(8);
+  await expect(page.locator('#pelit .game-card')).toHaveCount(9);
   await filter.locator('a[href="#aihe-korva"]').click();
   await expect(page).toHaveURL(/#aihe-korva$/);
   await expect(page.locator('#aihe-korva .game-card:visible')).toHaveCount(4);
   await expect(page.locator('#pelit')).toBeHidden();
   await expect(filter.locator('a[href="#aihe-korva"]')).toHaveAttribute('aria-current', 'true');
   await filter.locator('a[href="#pelit"]').click();
-  await expect(page.locator('#pelit .game-card:visible')).toHaveCount(8);
+  await expect(page.locator('#pelit .game-card:visible')).toHaveCount(9);
   await expect(filter.locator('a[href="#pelit"]')).toHaveAttribute('aria-current', 'true');
 });
 
@@ -111,7 +111,7 @@ test('Aiherajausta voi napauttaa mobiilin kosketusemuloinnilla', async ({ page, 
   await expect(page.locator('.game-filter a[href="#aihe-korva"]')).toHaveAttribute('aria-current', 'true');
   expect((await measureReflow(page)).scrollWidth).toBeLessThanOrEqual(320);
   await page.locator('.game-filter a[href="#pelit"]').tap();
-  await expect(page.locator('#pelit .game-card:visible')).toHaveCount(8);
+  await expect(page.locator('#pelit .game-card:visible')).toHaveCount(9);
 });
 
 test('Aiherajaus toimii Enterillä ja fokuksen näkyvyys säilyy', async ({ page, isMobile }) => {
@@ -147,7 +147,7 @@ test.describe('ilman JavaScriptiä', () => {
     await expect(page.locator('#aihe-korva .game-card:visible')).toHaveCount(4);
     expect((await measureReflow(page)).scrollWidth).toBeLessThanOrEqual(320);
     await page.locator('.game-filter a[href="#pelit"]').click();
-    await expect(page.locator('#pelit .game-card:visible')).toHaveCount(8);
+    await expect(page.locator('#pelit .game-card:visible')).toHaveCount(9);
     expect((await measureReflow(page)).scrollWidth).toBeLessThanOrEqual(320);
   });
 });
