@@ -201,12 +201,6 @@
   background: var(--gold);
 }
 
-.recap-help {
-  margin-top: 1.7rem;
-  padding-top: .65rem;
-  border-top: 1px solid var(--line);
-}
-
 .recap-next { margin-top: 1rem; }
 
 @media (min-width: 48rem) {
@@ -242,16 +236,15 @@
   display: block;
   width: 100%;
   height: auto;
-  min-width: 16rem !important;
+  min-width: 20rem !important;
 }
 .recap-standard-neck .octave-recap circle { fill: #b5a3ff; stroke: #1a1430; stroke-width: 1; }
 .recap-standard-neck .octave-recap text { fill: #1a1430; font-size: 12px; }
 .recap-neck[hidden], .recap-standard-neck[hidden] { display: none; }
 .recap-minitunnit { margin-block-start: .85rem; }
 .recap-minitunnit summary { min-height: 44px; font-size: 1.15rem; font-weight: 750; }
-.recap-minitunnit summary span { display: inline; }
-.recap-minitunnit .recap-lesson-links { display: grid; gap: .5rem; list-style: none; padding: 0; margin: .75rem 0 0; }
-.recap-lesson-links a { display: block; padding: .7rem .8rem; min-height: 44px; border: 1px solid var(--line); border-radius: .5rem; background: var(--bg); text-decoration: none; }
-.recap-lesson-links a strong { display: block; color: var(--accent); }
-.recap-lesson-links a span { display: block; color: var(--muted); font-size: .9rem; }
-.recap-lesson-links a:hover { border-color: var(--accent); }
+
+.recap-chord-info { margin-block: .5rem; }
+.recap-chord-info summary { min-height: 44px; }
+.recap-minitunnit > summary { padding-block: .4rem; }
+.recap-minitunnit .minitunti-content { min-width: 0; }
