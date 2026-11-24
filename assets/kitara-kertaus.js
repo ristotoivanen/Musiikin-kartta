@@ -29,6 +29,18 @@
     target.innerHTML = board.renderBoard(0, { name: 'Luonnolliset sävelet', base: [], add: [] }, 5,
       { automatic: false, notes, label });
     if (target.querySelectorAll('.octave-recap').length !== 18) throw new Error('Otelaudan sävelet puuttuvat');
+    // Sama komponentti ja samat sävelkoordinaatit, mutta kertauksessa
+    // pidempi, kitaramaisempi kuvasuhde. Tekstit ja pisteet eivät veny.
+    const svg = target.querySelector('svg');
+    const ratio = 1.65;
+    const [x, y, w, h] = svg.getAttribute('viewBox').split(/\s+/).map(Number);
+    svg.setAttribute('preserveAspectRatio', 'none');
+    svg.style.aspectRatio = w + ' / ' + (h / ratio);
+    svg.querySelectorAll('text, circle').forEach(el => {
+      const cy = Number(el.getAttribute(el.localName === 'circle' ? 'cy' : 'y'));
+      // Korjaa pystysuuntainen litistys elementin oman keskipisteen ympäriltä.
+      el.setAttribute('transform', 'translate(0 '+cy+') scale(1 '+ratio+') translate(0 '+(-cy)+')');
+    });
     target.hidden = false;
     fallback.hidden = true;
   } catch {
