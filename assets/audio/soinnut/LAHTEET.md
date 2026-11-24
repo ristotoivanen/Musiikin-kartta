@@ -119,3 +119,16 @@ Jos ensimmäisen muodon lataus tai purku epäonnistuu, käytetään toista.
 AAC-muoto ei yksin todista toimivuutta iPhonessa tai Safarissa. Fyysinen iPhone/Safari-kuuntelu
 (alku, kesto, häivytys, äänenvoimakkuus, äänetön tila, lukitus ja taustalta paluu) on erillinen
 hyväksyntäehto (#116).
+
+
+## Sointipajan tasojen 3–4 lisänäytteet (#48)
+
+Alkuperäiset OGG-tiedostot samasta kiinnitetystä Meta Steel Guitar -commitista 514c926efecdb3c7812bf00eedf8e5c8d61dd681; lähde- ja kohde-Git-blobit identtiset. Julkaisijan SHA-256:
+
+| Kieli / nauha | Sävel | Perusnimi | SHA-256 (OGG) |
+|---|---|---|---|
+| D / 1 | D♯3 | INSGuitarSteel_StringD_Vel02_Ds3_01 | 951a016cabcda492eed51b8a1d09b1183cb3b73b120bf7c88431d2ec1aca9bfd |
+| G / 3 | B♭3 | INSGuitarSteel_StringG_Vel02_As3_01 | a14225590cf32a782d6b4f07a48d05df28323b40903ac0fee706d08983f83021 |
+| D / 3 | F3 | INSGuitarSteel_StringD_Vel02_F3_01 | 52436f0c7d8f3b073d4d7833c63353eff1a52d9269f2d0394a64902602ee3198 |
+
+Tarvitaan B7-, C7- ja Fmaj7-otteisiin. AAC tehdään alkuperäisestä WAV:stä (ei OGG:stä eikä transponoinnilla) skriptillä tools/aanet/tuo-sointipaja-34.py: WAV-arkiston CRC32, 48 kHz mono, 5 s, loppuhäivytys 0,4 s, FFmpeg AAC 96 kbit/s, ffprobe-tarkistus. AAC-tiedostojen toteutunut tila ja tarkisteet tarkistetaan CI-ajosta; ennen sitä AAC-yhteensopivuutta ei väitetä todennetuksi. Fyysinen kuuntelu avoin.
