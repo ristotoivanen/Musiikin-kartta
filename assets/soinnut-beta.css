@@ -4,10 +4,6 @@
   border-radius: 999px; background: var(--gold); color: #1a1430;
   font-size: .42em; font-weight: 800; letter-spacing: .12em;
 }
-.visualizer .beta-note {
-  margin: 12px 0 0; padding: 10px 14px; max-width: 740px; font-size: 15px; line-height: 1.5;
-  color: var(--text); border: 1px solid var(--gold); border-left-width: 5px; border-radius: 8px; background: #2a2236;
-}
 
 /* Valinnat */
 .chords-beta { padding-top: 16px; }

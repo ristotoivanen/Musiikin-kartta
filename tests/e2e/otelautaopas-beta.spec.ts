@@ -36,7 +36,7 @@ test.describe('Otelautaopas BETA', () => {
     await beta.getByRole('link', { name: 'Avaa Otelautaopas BETA' }).click();
     await expect(page).toHaveURL(/otelautaopas-beta\.html#soinnut$/);
     await expect(page.locator('.beta-badge')).toHaveText('BETA');
-    await expect(page.getByRole('link', { name: 'avaa nykyinen Otelautaopas' })).toHaveAttribute('href', 'otelautaharjoittelija.html');
+    await expect(page.locator('.beta-note')).toHaveCount(0);
     await expect(page.getByRole('navigation', { name: 'Päävalikko' }).getByRole('link', { name: 'Soittopakki' })).toHaveAttribute('aria-current', 'true');
     // Nykyinen opas toimii ennallaan vanhoine valikkoineen.
     await page.goto('/otelautaharjoittelija.html#soinnut');
