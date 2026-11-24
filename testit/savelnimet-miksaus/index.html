@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="fi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Miksauksen kuuntelukoe – PR #205</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+    body { margin: 0 auto; padding: 1rem; max-width: 34rem; line-height: 1.5; }
+    h2 { margin-block: 1.6rem .4rem; font-size: 1.1rem; }
+    .rivi { display: flex; flex-wrap: wrap; gap: .5rem; margin-block: .5rem; }
+    button { min-block-size: 48px; min-inline-size: 48px; padding: .4rem .8rem; font: inherit; touch-action: manipulation; }
+    button[data-playing] { outline: 3px solid; }
+    .tila { min-block-size: 1.6em; color: GrayText; }
+  </style>
+</head>
+<body>
+  <h1>Miksauksen kuuntelukoe</h1>
+  <p>Väliaikainen testisivu PR #205:lle, ei osa tuotantosisältöä. Käytä samaa äänenvoimakkuutta kaikissa kokeissa. Kuuntele ensin A, sitten muut. Kirjaa mielipiteesi alla oleviin kysymyksiin.</p>
+  <ul>
+    <li><b>A</b> nykyinen miksaus.</li>
+    <li><b>B</b> kaikki +6 dB (kokonaisvoimakkuus ylös, suhteet samat).</li>
+    <li><b>C</b> vain lopetussointu +4 dB.</li>
+    <li><b>D</b> komppi +3 dB, kitara ennallaan.</li>
+  </ul>
+  <div id="koe"></div>
+  <h2>Kysymykset</h2>
+  <ol>
+    <li>Onko A riittävän kuuluva normaalilla puhelimen äänenvoimakkuudella?</li>
+    <li>Erottuuko melodian keskimmäinen sävel (C / C♯ / D)?</li>
+    <li>Erottuuko lopetus-D (A vs C)?</li>
+    <li>Onko komppi liian hiljainen tai liian hallitseva (A vs D)?</li>
+    <li>Erottuuko riffin toinen sävel (F / F♯ / ylempi D)?</li>
+  </ol>
+  <script type="module">
+    import { createPlayer, melodyPlan, riffPlan } from '../../assets/savelnimet-aanet.js';
+    const player = createPlayer();
+    const kaytto = {
+      A: plan => plan,
+      B: plan => ({ ...plan, events: plan.events.map(e => ({ ...e, gain: e.gain * 2 })) }),
+      C: plan => ({ ...plan, events: plan.events.map(e => ({ ...e, gain: e.gain * (e.at >= 2.4 && e.sample && plan.markers.some(m => m.value === 'D') ? 1.6 : 1) })) }),
+      D: plan => ({ ...plan, events: plan.events.map(e => ({ ...e, gain: e.gain * (e.voice ? 1.4 : 1) })) }),
+    };
+    const kohteet = [
+      ['Melodia C–C♯/D♭–D + lopetus-D', () => melodyPlan(4, 'xx0232'), ['A', 'B', 'C', 'D']],
+      ['Melodia C–D–D + lopetus-D', () => melodyPlan(5, 'xx0232'), ['A', 'C']],
+      ['Riffi D–F–A–D', () => riffPlan(3), ['A', 'B', 'D']],
+      ['Riffi D–F♯–A–D', () => riffPlan(4), ['A']],
+      ['Riffi D–ylempi D–A–D', () => riffPlan(12), ['A']],
+    ];
+    const koe = document.getElementById('koe');
+    for (const [nimi, plan, versiot] of kohteet) {
+      const osio = document.createElement('section');
+      osio.dataset.aaniosio = '';
+      osio.innerHTML = `<h2>${nimi}</h2><div class="rivi"></div><p class="tila" data-aanitila role="status"></p>`;
+      for (const v of versiot) {
+        const b = document.createElement('button');
+        b.type = 'button'; b.textContent = v;
+        b.addEventListener('click', () => player.play(b, kaytto[v](plan())));
+        osio.querySelector('.rivi').append(b);
+      }
+      const stop = document.createElement('button');
+      stop.type = 'button'; stop.textContent = 'Pysäytä';
+      stop.addEventListener('click', () => player.stop());
+      osio.querySelector('.rivi').append(stop);
+      koe.append(osio);
+    }
+  </script>
+</body>
+</html>
