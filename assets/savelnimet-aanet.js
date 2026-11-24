@@ -4,6 +4,7 @@ const tuning = [40, 45, 50, 55, 59, 64];
 const pitches = ['C', 'Cs', 'D', 'Ds', 'E', 'F', 'Fs', 'G', 'Gs', 'A', 'As', 'B'];
 const beat = 60 / 96;
 const pairGap = 0.8;
+const leadGain = 0.62;
 const strumGap = 1.55;
 
 export function guitarNote(string, fret, at = 0, duration = 0.6, gain = 0.45) {
@@ -60,15 +61,15 @@ function backing() {
   for (let step = 0; step < 8; step++) {
     const at = step * beat;
     const downbeat = step % 2 === 0;
-    events.push({ voice: downbeat ? 'kick' : 'snare', at, duration: 0.16, gain: 0.19 });
-    events.push({ voice: 'hat', at: at + beat / 2, duration: 0.11, gain: 0.08 });
-    if (downbeat) events.push({ voice: 'bass', midi: 38, at, duration: 0.52, gain: 0.21 });
+    events.push({ voice: downbeat ? 'kick' : 'snare', at, duration: 0.16, gain: 0.052 });
+    events.push({ voice: 'hat', at: at + beat / 2, duration: 0.11, gain: 0.023 });
+    if (downbeat) events.push({ voice: 'bass', midi: 38, at, duration: 0.52, gain: 0.058 });
   }
   return events;
 }
 
 export function melodyPlan(fret, dVoicing) {
-  const notes = [3, fret, 5].map((position, index) => guitarNote(1, position, (index + 1) * beat, 0.54, 0.49));
+  const notes = [3, fret, 5].map((position, index) => guitarNote(1, position, (index + 1) * beat, 0.54, leadGain));
   const ending = strum(dVoicing, 4 * beat, 1.2, 0.17);
   const markers = notes.map(({ at, duration }, value) => ({ at, duration, value }));
   markers.push({ at: 4 * beat, duration: 1.28, value: 'D' });
@@ -76,7 +77,7 @@ export function melodyPlan(fret, dVoicing) {
 }
 
 export function riffPlan(fret) {
-  const notes = [0, fret, 7, 0, 0, fret, 7, 0].map((position, index) => guitarNote(2, position, index * beat, 0.53, 0.49));
+  const notes = [0, fret, 7, 0, 0, fret, 7, 0].map((position, index) => guitarNote(2, position, index * beat, 0.53, leadGain));
   const markers = notes.map(({ at, duration }, index) => ({ at, duration, value: index % 4 }));
   return { events: [...backing(), ...notes], markers, duration: 8 * beat };
 }
