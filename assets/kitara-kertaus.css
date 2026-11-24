@@ -20,10 +20,12 @@
 
 .recap-sections {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: .85rem;
 }
 
 .recap-section {
+  min-width: 0;
   padding: clamp(.85rem, 3vw, 1.4rem);
   border: 1px solid var(--line);
   border-radius: .75rem;
@@ -48,6 +50,7 @@
 }
 
 .recap-figure {
+  min-width: 0;
   margin: .85rem 0 0;
 }
 
@@ -227,7 +230,9 @@
 
 /* Yhteisen otelaudan kompaktin kertausnäkymän tyylit. Ei globaaleja otelauta.css-sääntöjä. */
 .recap-standard-neck {
-  max-width: 34rem;
+  width: 100%;
+  min-width: 0;
+  max-width: min(100%, 34rem);
   overflow-x: auto;
   border-radius: .5rem;
   background: #16121f;
@@ -248,3 +253,7 @@
 .recap-chord-info summary { min-height: 44px; }
 .recap-minitunnit > summary { padding-block: .4rem; }
 .recap-minitunnit .minitunti-content { min-width: 0; }
+
+/* Estä SVG:n minimileveyttä kasvattamasta koko sivun ruudukkoa. */
+.recap-standard-neck { contain: inline-size; }
+.recap-minitunnit .minitunti-content .choices button { flex-basis: min(100%, 9rem); }
