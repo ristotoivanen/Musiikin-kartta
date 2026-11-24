@@ -124,7 +124,7 @@ main.practice-main {max-width: 700px; padding: 14px 10px 30px}
 </div>
 <details id="settings">
 <summary>Harjoittele vapaasti</summary>
-<p class="tools-note">Voit harjoitella mitä tahansa kierrosta ilman etenemislukkoja. Valinta päättää nykyisen kierroksen ja aloittaa erillisen harjoituksen.</p>
+<p class="tools-note">Voit harjoitella mitä tahansa kierrosta ilman etenemislukkoja. Valinta keskeyttää nykyisen tason ja aloittaa erillisen harjoituksen. Keskeneräisen tason tulokset eivät säily.</p>
 <div id="free-rounds" class="toolbar" role="group" aria-label="Valitse kierros"></div>
 <button type="button" id="start-level">Aloita koko taso alusta</button>
 </details>
@@ -437,14 +437,14 @@ function select(name){
     b.classList.add('revealed');if(fret!==0)b.textContent=names[n%12];
     b.setAttribute('aria-label',b.getAttribute('aria-label')+', '+nameOf(n)+', '+roleOf(n));
   }
-  listen(byId('listen'),'chord');
+  updateHeader();listen(byId('listen'),'chord');
 }
 function roundDef(){return level.rounds[roundIndex];}
 function totalQuestions(){return level.rounds.reduce((n,r)=>n+r.targets.length*r.repeats,0);}
 function updateHeader(){
   byId('level-title').textContent='Taso 1 · '+level.title;
-  const completed=mode==='level'?results.reduce((n,r)=>n+r.total,0):0;
-  byId('level-progress').textContent=mode==='level'?completed+'/'+totalQuestions()+' tehtävää valmiissa kierroksissa':'Vapaa harjoittelu';
+  const completed=mode==='level'?results.reduce((n,r)=>n+r.total,0)+(index<order.length?index+(answered?1:0):0):0;
+  byId('level-progress').textContent=mode==='level'?completed+'/'+totalQuestions()+' tehtävää ratkaistu':'Vapaa harjoittelu';
   const steps=level.rounds.map((r,i)=>{
     const item=el('span',(i+1)+' · '+r.title,'round-step');
     if(i===roundIndex)item.setAttribute('aria-current','step');
