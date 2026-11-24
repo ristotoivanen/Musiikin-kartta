@@ -95,7 +95,7 @@ setPhase('idle',message);paint(-1);
 function render(){
 const strum=lesson==='strum',guitar=guitarMode();
 $('exercise').dataset.lesson=lesson;$('exercise').dataset.stage=stage;
-pressed('[data-lesson]','lesson',lesson);pressed('[data-stage]','stage',stage);
+pressed('[data-stage]','stage',stage);
 $('exercise-title').textContent=strum?'Pulssista komppiin':'Löydä pulssi ja ykkönen';
 $('stages').hidden=!strum;$('brushing').hidden=!guitar;$('strum-explanation').hidden=!strum;$('strum-foot').hidden=!strum;
 $('clap-all').textContent=strum?'Peruspulssi':'Kaikki iskut';
@@ -161,7 +161,22 @@ source.start(started,range.start);
 setPhase('playing','84 BPM · Soi jatkuvasti.');tick();
 }catch(e){if(id!==generation)return;stop();setPhase('error','Ääni ei käynnistynyt. Kokeile uudelleen.');}
 }
-for(const b of root.querySelectorAll('[data-lesson]'))b.addEventListener('click',()=>{if(lesson===b.dataset.lesson)return;stop();lesson=b.dataset.lesson;stage='tap';render();});
+const lessonCards=[...root.querySelectorAll('details[data-minitunti]')];
+let activeCard=null;
+function syncLesson(){
+  const card=root.open?lessonCards.find(item=>item.open):null;
+  if(card===activeCard)return;
+  stop();
+  activeCard=card;
+  if(!card){$('exercise').hidden=true;return;}
+  for(const other of lessonCards)if(other!==card)other.open=false;
+  lesson=card.dataset.minitunti;
+  stage='tap';
+  card.querySelector('[data-minitunti-slot]').append($('exercise'));
+  render();
+  $('exercise').hidden=false;
+}
+for(const card of lessonCards)card.addEventListener('toggle',syncLesson);
 for(const b of root.querySelectorAll('[data-stage]'))b.addEventListener('click',()=>{if(stage===b.dataset.stage)return;stage=b.dataset.stage;render();});
 $('clap-prev').addEventListener('click',()=>selectClap(-1));
 $('clap-forward').addEventListener('click',()=>selectClap(1));
@@ -169,7 +184,14 @@ $('clap-all').addEventListener('click',()=>selectClap(0,0));
 $('play').addEventListener('click',()=>{if(phase==='playing'||phase==='loading')stop();else void start();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stop('Pysäytetty. Aloita uudelleen, kun olet valmis.');});
 window.addEventListener('pagehide',()=>stop());
-root.addEventListener('toggle',()=>{if(!root.open){stop();root.querySelectorAll('audio').forEach(a=>a.pause());}});
-$('lessons').hidden=false;$('exercise').hidden=false;render();setPhase('idle',idle);
+root.addEventListener('toggle',()=>{
+  if(!root.open){
+    for(const card of lessonCards)card.open=false;
+    root.querySelectorAll('audio').forEach(a=>a.pause());
+  }
+  syncLesson();
+});
+$('lessons').hidden=false;render();setPhase('idle',idle);
+syncLesson();
 $('minitunti-fallback').hidden=true;
 })();

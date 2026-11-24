@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="../../assets/paavalikko.css?v=4e5c7fbf95">
   <link rel="stylesheet" href="../../assets/oppi.css?v=8a69bdc0e8">
   <link rel="stylesheet" href="../../assets/kitara-kertaus.css?v=45421c25a3">
-  <link rel="stylesheet" href="../../assets/perustaitojen-minitunnit.css?v=614562d3d9">
+  <link rel="stylesheet" href="../../assets/perustaitojen-minitunnit.css?v=e212776cca">
   <link rel="stylesheet" href="../../assets/kokonaisuudet.css?v=db6d10a623">
 </head>
 <body>
@@ -147,10 +147,22 @@
       <div class="study-unit-body">
         <p class="study-unit-goal">Kokeile tarvittaessa pulssia ja komppia. Voit valita harjoituksen vapaasti.</p>
         <div class="minitunti-content">
-          <div class="choices" role="group" aria-label="Valitse harjoitus" id="lessons" hidden>
-          <button type="button" data-lesson="pulse" aria-pressed="true">Löydä pulssi ja ykkönen</button>
-          <button type="button" data-lesson="strum" aria-pressed="false">Pulssista komppiin</button>
-          </div>
+          <ol class="study-choices study-inline-choices" id="lessons" role="list" hidden>
+            <li><details class="study-inline" name="perustaitojen-harjoitukset" data-minitunti="pulse" id="minitunti-pulse">
+              <summary class="study-choice study-choice--unit"><strong class="study-title">Löydä pulssi ja ykkönen</strong><span class="study-choice-details"><span class="study-description">Pidä tasainen pulssi ja löydä tahdin ykkönen.</span></span><span class="study-arrow" aria-hidden="true"></span></summary>
+              <div class="study-inline-body">
+                <div data-minitunti-slot></div>
+                <p class="study-inline-end"><button type="button" class="study-inline-close" hidden>↑ Sulje minitunti</button></p>
+              </div>
+            </details></li>
+            <li><details class="study-inline" name="perustaitojen-harjoitukset" data-minitunti="strum" id="minitunti-strum">
+              <summary class="study-choice study-choice--unit"><strong class="study-title">Pulssista komppiin</strong><span class="study-choice-details"><span class="study-description">Siirrä taputettu rytmi kitaralle.</span></span><span class="study-arrow" aria-hidden="true"></span></summary>
+              <div class="study-inline-body">
+                <div data-minitunti-slot></div>
+                <p class="study-inline-end"><button type="button" class="study-inline-close" hidden>↑ Sulje minitunti</button></p>
+              </div>
+            </details></li>
+          </ol>
           <section class="panel" id="exercise" aria-labelledby="exercise-title" hidden>
           <h3 id="exercise-title">Löydä pulssi ja ykkönen</h3>
           <div class="choices" role="group" aria-label="Komppiharjoituksen vaihe" id="stages" hidden>
@@ -188,7 +200,7 @@
   <script src="../../assets/oppimistapa.js"></script>
   <script src="../../assets/otelauta.js?v=263d8a1e22"></script>
   <script src="../../assets/kitara-kertaus.js?v=71d155c9d9"></script>
-  <script src="../../assets/perustaitojen-minitunnit.js?v=4d478bc3d8"></script>
+  <script src="../../assets/perustaitojen-minitunnit.js?v=070e2c8570"></script>
   <script src="../../assets/kokonaisuudet.js?v=326aed1a00"></script>
 </body>
 </html>

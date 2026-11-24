@@ -6,6 +6,7 @@ const summary = '#perustaitojen-minitunnit > summary';
 test('yksi harjoituskortti, valinnan mukaan muuttuvat ohjeet ja yksi toistopainike', async ({ page }) => {
   await page.goto(url);
   await page.locator(summary).click();
+  await page.locator('#minitunti-pulse > summary').click();
   await expect(page.locator('#exercise')).toBeVisible();
   await expect(page.locator('#exercise-title')).toHaveText('Löydä pulssi ja ykkönen');
   await expect(page.locator('#modes')).toHaveCount(0);
@@ -13,7 +14,7 @@ test('yksi harjoituskortti, valinnan mukaan muuttuvat ohjeet ja yksi toistopaini
   await expect(page.locator('#stages')).toBeHidden();
   await expect(page.locator('#play')).toHaveText('▶ Aloita');
   await expect(page.locator('audio:visible')).toHaveCount(0);
-  await page.getByRole('button', { name: 'Pulssista komppiin' }).click();
+  await page.locator('#minitunti-strum > summary').click();
   await expect(page.getByRole('button', { name: 'Taputa rytmi' })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('#stages button')).toHaveCount(2);
   await page.getByRole('button', { name: 'Kokeile omalla kitaralla' }).click();
@@ -28,6 +29,7 @@ test('yksi harjoituskortti, valinnan mukaan muuttuvat ohjeet ja yksi toistopaini
 test('jatkuva pulssi ylittää luuppirajan ja harjoituksen vaihto pysäyttää', async ({ page }) => {
   await page.goto(url);
   await page.locator(summary).click();
+  await page.locator('#minitunti-pulse > summary').click();
   const card = page.locator('#exercise');
   await page.locator('#play').click();
   await expect(card).toHaveAttribute('data-state', 'playing', { timeout: 15000 });
@@ -36,7 +38,7 @@ test('jatkuva pulssi ylittää luuppirajan ja harjoituksen vaihto pysäyttää',
   await page.waitForTimeout(12500);
   await expect(card).toHaveAttribute('data-state', 'playing');
   await expect(page.locator('.beat.on')).toHaveCount(1);
-  await page.getByRole('button', { name: 'Pulssista komppiin' }).click();
+  await page.locator('#minitunti-strum > summary').click();
   await expect(card).toHaveAttribute('data-state', 'idle');
   await expect(page.locator('.beat.on')).toHaveCount(0);
   await page.locator('#play').click();
@@ -53,6 +55,7 @@ test('äänilatauksen peruminen ei käynnistä vanhaa harjoitusta', async ({ pag
   });
   await page.goto(url);
   await page.locator(summary).click();
+  await page.locator('#minitunti-pulse > summary').click();
   await page.locator('#play').click();
   await expect(page.locator('#exercise')).toHaveAttribute('data-state', 'loading');
   await page.locator('#play').click();
@@ -65,8 +68,9 @@ test('320 px ja 200 prosentin tekstikoko, ei vaakavieritystä', async ({ page })
   await page.setViewportSize({ width: 320, height: 568 });
   await page.goto(url);
   await page.locator(summary).click();
+  await page.locator('#minitunti-pulse > summary').click();
   await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
-  await page.getByRole('button', { name: 'Pulssista komppiin' }).click();
+  await page.locator('#minitunti-strum > summary').click();
   await page.getByRole('button', { name: 'Kokeile omalla kitaralla' }).click();
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await expect(page.getByRole('button', { name: 'Aloita' })).toBeVisible();
@@ -78,7 +82,7 @@ test('ohjeet ja alkuperäinen äänite ilman JavaScriptiä', async ({ browser })
     const page = await context.newPage();
     await page.goto('http://127.0.0.1:8765' + url);
     await page.locator(summary).click();
-    await expect(page.getByRole('heading', { name: 'Löydä pulssi ja ykkönen' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Löydä pulssi ja ykkönen' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Pulssista komppiin' })).toBeVisible();
     await expect(page.locator('audio')).toBeVisible();
     await expect(page.locator('#exercise')).toBeHidden();
@@ -100,6 +104,7 @@ test('nuolet vaihtavat taputuskuvion vasta tahtirajalla ilman toiston uudelleenk
   });
   await page.goto(url);
   await page.locator(summary).click();
+  await page.locator('#minitunti-pulse > summary').click();
   const guide = page.locator('#clap-guide');
   const card = page.locator('#exercise');
   const labels = page.locator('.beat small');
@@ -134,7 +139,7 @@ test('nuolet vaihtavat taputuskuvion vasta tahtirajalla ilman toiston uudelleenk
   await page.locator('#play').click();
   await expect(card).toHaveAttribute('data-state', 'idle');
   await expect(guide).toHaveAttribute('data-pattern', '0');
-  await page.getByRole('button', { name: 'Pulssista komppiin' }).click();
+  await page.locator('#minitunti-strum > summary').click();
   await expect(guide).toBeVisible();
   await expect(guide).toHaveAttribute('data-pattern', '0');
   await page.getByRole('button', { name: 'Kokeile omalla kitaralla' }).click();
@@ -145,6 +150,7 @@ test('nuolet vaihtavat taputuskuvion vasta tahtirajalla ilman toiston uudelleenk
 test('odottava taputusvalinta peruutetaan palaamalla nykyiseen kuvioon', async ({ page }) => {
   await page.goto(url);
   await page.locator(summary).click();
+  await page.locator('#minitunti-pulse > summary').click();
   await page.locator('#play').click();
   await expect(page.locator('#exercise')).toHaveAttribute('data-state', 'playing', { timeout: 15000 });
   await expect(page.locator('.beat.on').first()).toBeVisible();
@@ -169,6 +175,7 @@ test('odottava taputusvalinta peruutetaan palaamalla nykyiseen kuvioon', async (
 test('neljä yksilöllistä taputuskuviota, nuolten kierto ja suora perusrytmi ennen toistoa', async ({ page }) => {
   await page.goto(url);
   await page.locator(summary).click();
+  await page.locator('#minitunti-pulse > summary').click();
   const guide = page.locator('#clap-guide');
   const labels = page.locator('.beat small');
   const prev = page.getByRole('button', { name: 'Edellinen taputuskuvio' });
@@ -204,8 +211,9 @@ test('taputus vain numeroiskuilla, ja-tavut näkyvät kompin hahmottamiseksi', a
   });
   await page.goto(url);
   await page.locator(summary).click();
+  await page.locator('#minitunti-pulse > summary').click();
   await expect(page.locator('#strum-explanation')).toBeHidden();
-  await page.getByRole('button', { name: 'Pulssista komppiin' }).click();
+  await page.locator('#minitunti-strum > summary').click();
   await expect(page.locator('#strum-explanation')).toBeVisible();
   await expect(page.locator('#strum-foot + #beats')).toHaveCount(1);
   await expect(page.locator('#strum-foot')).toBeVisible();
@@ -260,7 +268,7 @@ test('taputus vain numeroiskuilla, ja-tavut näkyvät kompin hahmottamiseksi', a
   await expect(page.locator('.half.tap-target .tap-label')).toHaveText(['Taputa']);
   await page.locator('#play').click();
   await expect(page.locator('.half.now')).toHaveCount(0);
-  await page.getByRole('button', { name: 'Löydä pulssi ja ykkönen' }).click();
+  await page.locator('#minitunti-pulse > summary').click();
   await expect(page.locator('#strum-explanation')).toBeHidden();
   await expect(page.locator('#strum-foot')).toBeHidden();
   await expect(page.locator('.half')).toHaveCount(0);
@@ -270,7 +278,8 @@ test('taputus vain numeroiskuilla, ja-tavut näkyvät kompin hahmottamiseksi', a
 test('aktiivinen isku ei siirrä jalan ohjetta eikä taputusmerkkiä', async ({ page }) => {
   await page.goto(url);
   await page.locator(summary).click();
-  await page.getByRole('button', { name: 'Pulssista komppiin' }).click();
+  await page.locator('#minitunti-pulse > summary').click();
+  await page.locator('#minitunti-strum > summary').click();
   for (const width of [720, 390, 320]) {
     await page.setViewportSize({ width, height: 900 });
     if (width === 320) await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
@@ -308,11 +317,14 @@ test('minitunnit ovat oletuksena kiinni sivun lopussa ja sulkeminen pysäyttää
   await expect(page.locator('.recap-sections + #perustaitojen-minitunnit + .recap-next')).toHaveCount(1);
   await expect(page.locator('.recap-help')).toHaveCount(0);
   await page.locator(summary).click();
+  await page.locator('#minitunti-pulse > summary').click();
   await page.locator('#play').click();
   await expect(page.locator('#exercise')).toHaveAttribute('data-state','playing',{timeout:15000});
   await page.locator(summary).click();
   await expect(page.locator('#exercise')).toHaveAttribute('data-state','idle');
   await page.locator(summary).click();
+  await expect(page.locator('#exercise')).toBeHidden();
+  await page.locator('#minitunti-pulse > summary').click();
   await expect(page.locator('#play')).toHaveText('▶ Aloita');
   await expect(page.locator('.beat.on')).toHaveCount(0);
 });
@@ -338,10 +350,38 @@ test('minitunnit käyttävät Ydinopintojen yhteistä plus–miinus-avausta', as
   await page.keyboard.press('Enter');
   await expect(section).toHaveAttribute('open', '');
   expect(await marker()).toContain('−');
-  await expect(page.locator('#exercise')).toBeVisible();
+  await expect(page.locator('#exercise')).toBeHidden();
+  await expect(page.locator('#minitunti-pulse')).not.toHaveAttribute('open','');
+  await expect(page.locator('#minitunti-strum')).not.toHaveAttribute('open','');
   await expect(page.locator('#exercise')).toHaveAttribute('data-state', 'idle');
   await page.keyboard.press('Enter');
   await expect(section).not.toHaveAttribute('open', '');
   expect(await marker()).toContain('+');
   await expect(page.locator('#exercise')).toBeHidden();
+});
+
+test('omat avattavat minitunnit: vain yksi auki, sulkupainike pysäyttää ja palauttaa kohdistuksen', async ({ page }) => {
+  await page.goto(url);
+  await page.locator(summary).click();
+  const pulse=page.locator('#minitunti-pulse');
+  const strum=page.locator('#minitunti-strum');
+  await expect(page.locator('#lessons > li')).toHaveCount(2);
+  await expect(page.locator('#exercise')).toBeHidden();
+  await pulse.locator('summary').first().click();
+  await expect(pulse).toHaveAttribute('open','');
+  await expect(pulse.locator('#exercise')).toBeVisible();
+  await page.locator('#play').click();
+  await expect(page.locator('#exercise')).toHaveAttribute('data-state','playing',{timeout:15000});
+  await strum.locator('summary').first().click();
+  await expect(pulse).not.toHaveAttribute('open','');
+  await expect(strum).toHaveAttribute('open','');
+  await expect(strum.locator('#exercise')).toBeVisible();
+  await expect(page.locator('#exercise')).toHaveAttribute('data-state','idle');
+  await expect(page.locator('#exercise')).toHaveCount(1);
+  await strum.getByRole('button',{name:'Aloita'}).click();
+  await expect(page.locator('#exercise')).toHaveAttribute('data-state','playing',{timeout:15000});
+  await strum.getByRole('button',{name:'Sulje minitunti'}).click();
+  await expect(strum).not.toHaveAttribute('open','');
+  await expect(page.locator('#exercise')).toHaveAttribute('data-state','idle');
+  await expect(strum.locator('summary').first()).toBeFocused();
 });

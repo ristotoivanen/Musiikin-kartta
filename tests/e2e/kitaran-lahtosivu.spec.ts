@@ -209,7 +209,9 @@ test('vanhat harjoitusosoitteet ja merkinnät säilyvät ilman kartan tai kertau
   await page.evaluate(({ key, value }) => localStorage.setItem(key, value), { key: readingKey, value: saved });
   await page.reload();
   const main = page.getByRole('main');
-  await expect(main.locator('.study-choice, [data-study-total], [data-study-status], .done-toggle')).toHaveCount(0);
+  await expect(main.locator('[data-study-total], [data-study-status], .done-toggle')).toHaveCount(0);
+  await expect(main.locator('.study-choice')).toHaveCount(2);
+  await expect(main.locator('#perustaitojen-minitunnit .study-choice')).toHaveCount(2);
   await expect(main.getByRole('link')).toHaveCount(2);
 
   await page.locator('.recap-header').getByRole('link', { name: 'Siirry Oppimiskarttaan' }).click();
