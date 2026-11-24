@@ -3,6 +3,7 @@
     <h2>Kielet ja otelauta</h2>
     <p>Vakiovire paksuimmasta kielestä ohuimpaan on <strong>E–A–D–G–B–e</strong>.</p>
     <figure class="recap-figure">
+      <div class="recap-standard-neck" role="region" aria-label="Kitaran otelauta" hidden></div>
       <div class="recap-neck">
         <span class="recap-open">Vapaa</span>
         <ol class="recap-fret-numbers" role="list" aria-label="Nauhat vasemmalta oikealle">
@@ -49,14 +50,14 @@
       <p><strong>Musiikin kartassa käytetään kansainvälisiä sävelnimiä. B tarkoittaa siis samaa säveltä, jota perinteisessä suomalaisessa merkintätavassa kutsutaan H:ksi.</strong></p>
       <p><small><a href="https://archive.org/details/notationofpolyph1953apel">Willi Apel, <cite>The Notation of Polyphonic Music</cite>, s. 21–22</a> · <a href="https://www.researchcatalogue.net/view/532888/730341/0/0">Christina Kwon, saksalainen urkutabulatuuri</a></small></p>
     </details>
-    <p>Yksi nauha kitaran runkoa kohti nostaa säveltä puolisävelaskeleen. 12. nauhalla soi sama sävelnimi kuin vapaalla kielellä, oktaavia ylempänä.</p>
+    <p>Yksi nauha kohti kitaran runkoa nostaa säveltä puoliaskelen. 12. nauhalla on sama sävelnimi kuin vapaalla kielellä, oktaavia ylempänä.</p>
   </section>
   <section class="recap-section">
     <h2>Soinnut ja merkinnät</h2>
     <div class="recap-notation">
       <div>
-        <p>Tuttuja avosointuja ovat <strong>G, C ja D</strong> (duuri) sekä <strong>Am ja Em</strong> (molli). Kirjain kertoo perussävelen, ja <strong>m</strong> tarkoittaa mollia. Mollisoinnun terssi on puolisävelaskelen alempana kuin samalta säveleltä rakennetun duurisoinnun.</p>
-        <p><em>Terssi, puolisävelaskel ja duurin sekä mollin ero saattavat vielä kuulostaa vierailta. Ei haittaa, nämäkin tulevat tutuiksi soiton varrella.</em></p>
+        <p>Tuttuja avosointuja ovat <strong>G, C ja D</strong> (duuri) sekä <strong>Am ja Em</strong> (molli). Kirjain kertoo perussävelen, ja <strong>m</strong> tarkoittaa mollia.</p>
+        <details class="recap-note-names"><summary>Miten duuri ja molli eroavat?</summary><p>Mollikolmisoinnun terssi on puoliaskelen alempana kuin samalta perussäveleltä rakennetun duurikolmisoinnun. Tähän palataan Soinnut ja harmonia -aiheessa.</p></details>
         <p><strong>Sointukaaviossa</strong> pystyviivat ovat kieliä, vaakaviivat nauhoja. Piste näyttää painettavan kohdan, ○ vapaan kielen ja × soittamatta jätettävän kielen. Kultainen merkki näyttää perussävelen. Kaavion pienet numerot ovat sorminumeroita.</p>
         <div class="chord-diagrams" role="group" aria-label="Avosointujen kaaviot">
           <!-- sointukaaviot:osa-1#sointukierrot G C D Am -->
@@ -77,7 +78,7 @@
     <div class="recap-rhythm">
       <div>
         <p><strong>Pulssi</strong> on musiikin tasainen syke. Yksi sykkeen askel on <strong>isku</strong>. Iskut muodostavat <strong>tahteja</strong>.</p>
-        <p><strong>4/4-tahtilajissa</strong> tahdissa on neljä neljäsosaiskua, jotka voi laskea <strong>1, 2, 3, 4</strong>. Kun sointu vaihtuu tahdin rajalla, uusi sointu alkaa tahdin ensimmäisellä iskulla.</p>
+        <p><strong>4/4-tahtilajissa</strong> tahdissa on neljä neljäsosaiskua, jotka voi laskea <strong>1, 2, 3, 4</strong>. Ykkönen aloittaa uuden tahdin.</p>
       </div>
       <figure class="recap-figure">
         <ol class="recap-bar" aria-hidden="true">
@@ -88,6 +89,43 @@
     </div>
   </section>
 </div>
+<details class="recap-section recap-minitunnit" id="perustaitojen-minitunnit">
+  <summary>Perustaitojen minitunnit</summary>
+  <p>Kokeile tarvittaessa pulssia ja komppia. Voit valita harjoituksen vapaasti.</p>
+  <div class="minitunti-content">
+    <div class="choices" role="group" aria-label="Valitse harjoitus" id="lessons" hidden>
+    <button type="button" data-lesson="pulse" aria-pressed="true">Löydä pulssi ja ykkönen</button>
+    <button type="button" data-lesson="strum" aria-pressed="false">Pulssista komppiin</button>
+    </div>
+    <section class="panel" id="exercise" aria-labelledby="exercise-title" hidden>
+    <h3 id="exercise-title">Löydä pulssi ja ykkönen</h3>
+    <div class="choices" role="group" aria-label="Komppiharjoituksen vaihe" id="stages" hidden>
+    <button type="button" data-stage="tap" aria-pressed="true">Taputa rytmi</button>
+    <button type="button" data-stage="guitar" aria-pressed="false">Kokeile omalla kitaralla</button>
+    </div>
+    <p id="instruction"></p>
+    <p id="hint" class="muted"></p>
+    <div id="strum-explanation" class="strum-explanation" hidden><p id="strum-hand" class="muted"></p></div>
+    <div id="clap-guide" class="clap-guide">
+    <p id="clap-current" class="clap-current" role="status" aria-atomic="true">Taputa kaikilla iskuilla (1, 2, 3, 4)</p>
+    <p id="clap-next" class="next-guide" role="status" aria-atomic="true">Valitse taputuskuvio nuolilla.</p>
+    </div>
+    <p id="strum-foot" class="foot-reminder" hidden><strong>Jalka:</strong> alas numeroilla (1, 2, 3, 4), ylös ja-tavuilla.</p>
+    <div class="beats" id="beats" aria-hidden="true"></div>
+    <div class="clap-nav" id="clap-nav" role="group" aria-label="Rytmikuvion valinta">
+    <button type="button" id="clap-prev" aria-label="Edellinen taputuskuvio">‹</button>
+    <div class="clap-middle"><p id="clap-position" class="muted">1 / 4</p><button type="button" id="clap-all" aria-pressed="true">Kaikki iskut</button></div>
+    <button type="button" id="clap-forward" aria-label="Seuraava taputuskuvio">›</button>
+    </div>
+    <p class="muted" id="pattern-text"></p>
+    <button type="button" class="play" id="play">▶ Aloita</button>
+    <p class="muted" id="status" role="status">84 BPM · Jatkuu, kunnes pysäytät.</p>
+    <p id="recovery" hidden><a href="../../../../assets/audio/osa-1/pulssi-ja-komppi.m4a">Avaa alkuperäinen äänite</a></p>
+    <details id="brushing" hidden><summary>ⓘ Knoppitieto: Harjaaminen</summary><p>Aluksi voit pyyhkäistä kieliä tasaisesti. Myöhemmin voit painottaa alasvedolla matalampia ja ylösvedolla ohuempia kieliä. Sitä ei vielä tarvitse osata.</p></details>
+    </section>
+    <noscript><section class="panel"><h3>Löydä pulssi ja ykkönen</h3><p>Naputa jalalla jokainen isku ja laske neljään. Kokeile neljää taputuskuviota: kaikki iskut, 1 ja 3, 2 ja 4 tai vain ykkönen. Palaa tarvittaessa kaikkiin iskuihin. Vaihda kuviota, kun olet valmis. Pidä sama jalalla naputettava pulssi koko ajan.</p><h3>Pulssista komppiin</h3><p>Kokeile ensin taputtaa valituilla numeroilla 1, 2, 3 ja 4. Ja-tavuilla ei taputeta. Jalka naputtaa aina numeroilla. Ota sitten kitara ja vaimenna kielet. Naputa jalalla numeroilla 1, 2, 3 ja 4, jolloin komppikäsi liikkuu alas. Ja-tavuilla, iskun puolivälissä, jalka nousee ja komppikäsi liikkuu ylös. Älä napauta jalalla ja-tavuilla. Soita vain valituilla numeroilla, muulloin liikuta kättä kieliin osumatta. Voit käyttää vaimennettuja kieliä tai tuttua sointua. Interaktiivinen harjoittelu vaatii JavaScriptin. Voit kuunnella koko alkuperäisen äänitteen.</p><audio controls preload="none"><source src="../../../../assets/audio/osa-1/pulssi-ja-komppi.m4a" type="audio/mp4"><source src="../../../../assets/audio/osa-1/pulssi-ja-komppi.wav" type="audio/wav"></audio><p><a href="../../../../oppi/rytmi/pulssi-ja-komppi.html">Pulssi ja komppi</a></p></section></noscript>
+  </div>
+</details>
 <section class="recap-help study-group">
   <h2>Jos kaipaat tarkempaa kertausta</h2>
   <ul class="study-links">
