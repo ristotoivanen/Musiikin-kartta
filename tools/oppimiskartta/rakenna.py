@@ -693,6 +693,7 @@ def render(topic, content, nav, page=None, *, path_items=()):
     stylesheets = ['book/reader.css', 'assets/paavalikko.css', 'assets/oppi.css']
     if recap:
         stylesheets.append('assets/kitara-kertaus.css')
+        stylesheets.append('assets/perustaitojen-minitunnit.css')
     # Rytmin Ydinopinnot (#116): harjoitusten tyylit ja moduuli.
     rhythm_practice = 'data-rytmiharjoitus=' in (page.markup if page else content)
     if rhythm_practice:
@@ -734,6 +735,9 @@ def render(topic, content, nav, page=None, *, path_items=()):
     # Musapeleistä ja Kitaratreenistä avattu sivu palaa samaan oppimistapaan (?tapa=…), ja aihesivulla
     # näkyy saman aiheen vaihto. Muodostetaan komennolla tools/oppimiskartta/rakenna-osiot.py.
     scripts.append(rel('assets/oppimistapa.js', output))
+    if recap:
+        scripts += [versioned_url(path, output) for path in (
+            'assets/otelauta.js', 'assets/kitara-kertaus.js', 'assets/perustaitojen-minitunnit.js')]
     if units:
         scripts.append(versioned_url('assets/kokonaisuudet.js', output))
     if chord_practice:
