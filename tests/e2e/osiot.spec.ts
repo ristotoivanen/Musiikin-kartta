@@ -59,7 +59,7 @@ test.describe('Kolme oppimistapaa ja Soittopakki', () => {
     await page.goBack();
     await expect(page.locator('#aihe-soinnut')).toBeVisible();
     await filter.getByRole('link', { name: /Kaikki pelit/ }).click();
-    await expect(page.locator('#pelit .game-card')).toHaveCount(7);
+    await expect(page.locator('#pelit .game-card')).toHaveCount(8);
   });
 
   test('Musapeleistä avattu kuuntelutehtävä palaa Musapeleihin', async ({ page }) => {
@@ -424,7 +424,7 @@ test.describe('Pääosiot puhelimessa, näppäimistöllä, ilman JavaScriptiä j
     test.use({ javaScriptEnabled: false });
     test('F: pelit, aiherajaus ja harjoitukset toimivat ilman JavaScriptiä', async ({ page }) => {
       await page.goto('/musapelit.html');
-      await expect(page.locator('#pelit .game-card')).toHaveCount(7);
+      await expect(page.locator('#pelit .game-card')).toHaveCount(8);
       await expect(page.locator('#pelit .game-card').first()).toBeVisible();
       // Aiherajaus on CSS:n :target, ei JavaScript.
       await page.goto('/musapelit.html#aihe-soinnut');
@@ -466,7 +466,7 @@ test.describe('Pääosiot puhelimessa, näppäimistöllä, ilman JavaScriptiä j
     await page.goto('/musapelit.html#aihe-otelauta');
     await page.emulateMedia({ media: 'print' });
     await expect(page.locator('.game-filter')).toBeHidden();
-    await expect(page.locator('#pelit .game-card')).toHaveCount(7);
+    await expect(page.locator('#pelit .game-card')).toHaveCount(8);
     await expect(page.locator('#pelit')).toBeVisible();
   });
 

@@ -102,7 +102,7 @@ export function useFollowScroll(box: RefObject<HTMLElement | null>, activeSelect
     if (!el || !enabled || !activeKey) return;
     if (holding.current || Date.now() < pausedUntil.current) return;
     const target = el.querySelector<HTMLElement>(activeSelector);
-    if (!target) return;
+    if (!target || (stickySelector && target.closest(stickySelector))) return;
     const frame = el.getBoundingClientRect(), rect = target.getBoundingClientRect();
     const sticky = stickySelector ? el.querySelector<HTMLElement>(stickySelector) : null;
     const stickyLeft = sticky && getComputedStyle(sticky).position === 'sticky' ? sticky.getBoundingClientRect().width : 0;

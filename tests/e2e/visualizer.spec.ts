@@ -195,7 +195,7 @@ test.describe('Otelautakartta, vain visualisointi', () => {
     await expect(notes).toHaveCount(3);
     await expect(page.locator('#board .muted-mark')).toHaveCount(3);
     // Kolmisointujen × pysyy satulan vasemmalla puolella ja mykistetyt kielet himmennetään kuten ennen.
-    await expect(page.locator('#board text.muted-mark[x="49"]')).toHaveCount(3);
+    await expect(page.locator('#board text.muted-mark[x="23"]')).toHaveCount(3);
     await expect(page.locator('#board .grip-mute')).toHaveCount(0);
     await expect(page.locator('#board [opacity=".35"]')).toHaveCount(3);
     await expect(page.getByRole('group', { name: 'Ote', exact: true })).toBeHidden();

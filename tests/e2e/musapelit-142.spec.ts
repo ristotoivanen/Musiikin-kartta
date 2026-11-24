@@ -70,22 +70,22 @@ test('Musapelien aiherajaukset ja saavutettavat nimet säilyvät', async ({ page
   await expect(filter).toBeVisible();
   await expect(filter.locator('a')).toHaveCount(5);
   for (const [anchor, accessibleName] of [
-    ['#pelit', /Kaikki pelit.*7 peliä/],
+    ['#pelit', /Kaikki pelit.*8 peliä/],
     ['#aihe-korva', /04 Sävelkorva ja melodia.*4 peliä/],
-    ['#aihe-otelauta', /05 Otelauta.*1 peli/],
+    ['#aihe-otelauta', /05 Otelauta.*2 peliä/],
     ['#aihe-soinnut', /06 Soinnut ja harmonia.*2 peliä/],
     ['#aihe-kappaleet', /08 Kappaleet ja oma musiikki.*1 peli/],
   ] as const) {
     await expect(filter.locator(`a[href="${anchor}"]`)).toHaveAccessibleName(accessibleName);
   }
-  await expect(page.locator('#pelit .game-card')).toHaveCount(7);
+  await expect(page.locator('#pelit .game-card')).toHaveCount(8);
   await filter.locator('a[href="#aihe-korva"]').click();
   await expect(page).toHaveURL(/#aihe-korva$/);
   await expect(page.locator('#aihe-korva .game-card:visible')).toHaveCount(4);
   await expect(page.locator('#pelit')).toBeHidden();
   await expect(filter.locator('a[href="#aihe-korva"]')).toHaveAttribute('aria-current', 'true');
   await filter.locator('a[href="#pelit"]').click();
-  await expect(page.locator('#pelit .game-card:visible')).toHaveCount(7);
+  await expect(page.locator('#pelit .game-card:visible')).toHaveCount(8);
   await expect(filter.locator('a[href="#pelit"]')).toHaveAttribute('aria-current', 'true');
 });
 
@@ -111,7 +111,7 @@ test('Aiherajausta voi napauttaa mobiilin kosketusemuloinnilla', async ({ page, 
   await expect(page.locator('.game-filter a[href="#aihe-korva"]')).toHaveAttribute('aria-current', 'true');
   expect((await measureReflow(page)).scrollWidth).toBeLessThanOrEqual(320);
   await page.locator('.game-filter a[href="#pelit"]').tap();
-  await expect(page.locator('#pelit .game-card:visible')).toHaveCount(7);
+  await expect(page.locator('#pelit .game-card:visible')).toHaveCount(8);
 });
 
 test('Aiherajaus toimii Enterillä ja fokuksen näkyvyys säilyy', async ({ page, isMobile }) => {
@@ -147,7 +147,7 @@ test.describe('ilman JavaScriptiä', () => {
     await expect(page.locator('#aihe-korva .game-card:visible')).toHaveCount(4);
     expect((await measureReflow(page)).scrollWidth).toBeLessThanOrEqual(320);
     await page.locator('.game-filter a[href="#pelit"]').click();
-    await expect(page.locator('#pelit .game-card:visible')).toHaveCount(7);
+    await expect(page.locator('#pelit .game-card:visible')).toHaveCount(8);
     expect((await measureReflow(page)).scrollWidth).toBeLessThanOrEqual(320);
   });
 });
