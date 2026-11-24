@@ -11,7 +11,7 @@ test('yksi harjoituskortti, valinnan mukaan muuttuvat ohjeet ja yksi toistopaini
   await expect(page.locator('#stages')).toBeHidden();
   await expect(page.locator('#play')).toHaveText('▶ Aloita');
   await expect(page.locator('audio:visible')).toHaveCount(0);
-  await page.getByRole('button', { name: 'Pidä komppikäsi liikkeessä' }).click();
+  await page.getByRole('button', { name: 'Pulssista komppiin' }).click();
   await expect(page.getByRole('button', { name: 'Taputa rytmi' })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('#stages button')).toHaveCount(2);
   await page.getByRole('button', { name: 'Kokeile omalla kitaralla' }).click();
@@ -33,7 +33,7 @@ test('jatkuva pulssi ylittää luuppirajan ja harjoituksen vaihto pysäyttää',
   await page.waitForTimeout(12500);
   await expect(card).toHaveAttribute('data-state', 'playing');
   await expect(page.locator('.beat.on')).toHaveCount(1);
-  await page.getByRole('button', { name: 'Pidä komppikäsi liikkeessä' }).click();
+  await page.getByRole('button', { name: 'Pulssista komppiin' }).click();
   await expect(card).toHaveAttribute('data-state', 'idle');
   await expect(page.locator('.beat.on')).toHaveCount(0);
   await page.locator('#play').click();
@@ -61,7 +61,7 @@ test('320 px ja 200 prosentin tekstikoko, ei vaakavieritystä', async ({ page })
   await page.setViewportSize({ width: 320, height: 568 });
   await page.goto(url);
   await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
-  await page.getByRole('button', { name: 'Pidä komppikäsi liikkeessä' }).click();
+  await page.getByRole('button', { name: 'Pulssista komppiin' }).click();
   await page.getByRole('button', { name: 'Kokeile omalla kitaralla' }).click();
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await expect(page.getByRole('button', { name: 'Aloita' })).toBeVisible();
@@ -73,7 +73,7 @@ test('ohjeet ja alkuperäinen äänite ilman JavaScriptiä', async ({ browser })
     const page = await context.newPage();
     await page.goto('http://127.0.0.1:8765' + url);
     await expect(page.getByRole('heading', { name: 'Löydä pulssi ja ykkönen' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Pidä komppikäsi liikkeessä' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Pulssista komppiin' })).toBeVisible();
     await expect(page.locator('audio')).toBeVisible();
     await expect(page.locator('#exercise')).toBeHidden();
   } finally {
@@ -127,7 +127,7 @@ test('nuolet vaihtavat taputuskuvion vasta tahtirajalla ilman toiston uudelleenk
   await page.locator('#play').click();
   await expect(card).toHaveAttribute('data-state', 'idle');
   await expect(guide).toHaveAttribute('data-pattern', '0');
-  await page.getByRole('button', { name: 'Pidä komppikäsi liikkeessä' }).click();
+  await page.getByRole('button', { name: 'Pulssista komppiin' }).click();
   await expect(guide).toBeVisible();
   await expect(guide).toHaveAttribute('data-pattern', '0');
   await page.getByRole('button', { name: 'Kokeile omalla kitaralla' }).click();
@@ -195,7 +195,7 @@ test('taputus vain numeroiskuilla, ja-tavut näkyvät kompin hahmottamiseksi', a
   });
   await page.goto(url);
   await expect(page.locator('#strum-explanation')).toBeHidden();
-  await page.getByRole('button', { name: 'Pidä komppikäsi liikkeessä' }).click();
+  await page.getByRole('button', { name: 'Pulssista komppiin' }).click();
   await expect(page.locator('#strum-explanation')).toBeVisible();
   await expect(page.locator('#strum-foot + #beats')).toHaveCount(1);
   await expect(page.locator('#strum-foot')).toBeVisible();
@@ -259,7 +259,7 @@ test('taputus vain numeroiskuilla, ja-tavut näkyvät kompin hahmottamiseksi', a
 
 test('aktiivinen isku ei siirrä jalan ohjetta eikä taputusmerkkiä', async ({ page }) => {
   await page.goto(url);
-  await page.getByRole('button', { name: 'Pidä komppikäsi liikkeessä' }).click();
+  await page.getByRole('button', { name: 'Pulssista komppiin' }).click();
   for (const width of [720, 390, 320]) {
     await page.setViewportSize({ width, height: 900 });
     if (width === 320) await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
