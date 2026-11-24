@@ -169,6 +169,7 @@ $('clap-all').addEventListener('click',()=>selectClap(0,0));
 $('play').addEventListener('click',()=>{if(phase==='playing'||phase==='loading')stop();else void start();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stop('Pysäytetty. Aloita uudelleen, kun olet valmis.');});
 window.addEventListener('pagehide',()=>stop());
-root.addEventListener('toggle',()=>{if(!root.open)stop();});
+root.addEventListener('toggle',()=>{if(!root.open){stop();root.querySelectorAll('audio').forEach(a=>a.pause());}});
 $('lessons').hidden=false;$('exercise').hidden=false;render();setPhase('idle',idle);
+$('minitunti-fallback').hidden=true;
 })();
