@@ -24,6 +24,7 @@ async function dots(page: Page) {
   })));
 }
 const labels = (page: Page) => page.locator('#board .grip-notes text[font-weight="700"]').allTextContents();
+const advanced = (page: Page) => page.locator('#chord-beta [data-level="advanced"]').click();
 const OPEN = [64, 59, 55, 50, 45, 40];
 
 test.describe('Otelautaopas BETA', () => {
@@ -46,6 +47,7 @@ test.describe('Otelautaopas BETA', () => {
 
   test('Soinnut-näkymässä on 12 perussävelpainiketta ja kaikki sointulaadut suorina painikkeina, ei valikkoa', async ({ page }) => {
     await page.goto(PAGE + '#soinnut');
+    await advanced(page);
     await expect(panel(page).locator('[data-root]')).toHaveText(ROOTS);
     for (const id of Object.keys(QUALITIES)) await expect(quality(page, id)).toBeVisible();
     await expect(panel(page).getByRole('group', { name: 'Kolmisoinnut' }).getByRole('button')).toHaveText(['Duuri', 'Molli', 'dim', 'aug']);
@@ -59,6 +61,7 @@ test.describe('Otelautaopas BETA', () => {
 
   test('kaikki 12 säveltä ja 14 laatua: koko ote soittaa vain sointusävelet ja kaikki asteet', async ({ page }) => {
     await page.goto(PAGE + '#soinnut');
+    await advanced(page);
     for (const [rootIndex, name] of ROOTS.entries()) {
       await root(page, name).click();
       await expect(root(page, name)).toHaveAttribute('aria-pressed', 'true');
@@ -89,6 +92,34 @@ test.describe('Otelautaopas BETA', () => {
     expect(new Set(await labels(page))).toEqual(new Set(['1', '♭3', '♭5', '♭♭7']));
     await panel(page).locator('[data-labels="names"]').click();
     expect(new Set(await labels(page))).toEqual(new Set(['C', 'E♭', 'G♭', 'B♭♭']));
+  });
+
+  test('Perusnäkymä näyttää vain perusasiat ja Laaja-näkymä kaikki; valinta säilyy osoitteessa', async ({ page }) => {
+    await page.goto(PAGE + '#soinnut');
+    await expect(panel(page).locator('[data-level="basic"]')).toHaveAttribute('aria-pressed', 'true');
+    for (const id of ['maj', 'min', '7', 'maj7', 'm7']) await expect(quality(page, id)).toBeVisible();
+    for (const id of ['dim', 'aug', 'sus2', 'sus4', 'm7b5', 'dim7', '7#5', '7b5', 'mMaj7']) await expect(quality(page, id)).toBeHidden();
+    await expect(mode(page, 'triad')).toBeHidden();
+    await expect(panel(page).locator('[data-labels]').first()).toBeHidden();
+    await expect(pad(page, 'up')).toBeHidden();
+    await expect(pad(page, 'right')).toBeVisible();
+    await advanced(page);
+    for (const id of Object.keys(QUALITIES)) await expect(quality(page, id)).toBeVisible();
+    await mode(page, 'triad').click();
+    expect(page.url()).toContain('taso=laaja');
+    await panel(page).locator('[data-level="basic"]').click();
+    await expect(mode(page, 'full')).toHaveAttribute('aria-pressed', 'true');
+    expect(page.url()).not.toContain('taso=laaja');
+  });
+
+  test('otelaudalla ei ole tallaa ja kielten paksuudet kasvavat ohuesta paksuun', async ({ page }) => {
+    await page.goto(PAGE + '#soinnut');
+    await expect(page.locator('#board svg')).not.toContainText('Talla');
+    const widths = await page.locator('#board svg line[stroke="#b9b9c4"]').evaluateAll(nodes =>
+      nodes.filter(n => n.getAttribute('y1') === n.getAttribute('y2')).map(n => Number(n.getAttribute('stroke-width'))));
+    expect(widths).toHaveLength(6);
+    expect(widths).toEqual([...widths].sort((a, b) => a - b));
+    expect(widths[5] / widths[0]).toBeGreaterThan(4);
   });
 
   test('Triadit: neljä kieliryhmää, aktiiviset kielet korostuvat ja nuolet toimivat rajoille asti', async ({ page }) => {
@@ -189,7 +220,7 @@ test.describe('Otelautaopas BETA', () => {
   });
 
   test('Triadit eivät ole käytössä nelisävelisille soinnuille; koko ote näyttää E- ja A-juuriset otteet', async ({ page }) => {
-    await page.goto(PAGE + '?toonikka=C&sointu=maj7&ote=triad#soinnut');
+    await page.goto(PAGE + '?toonikka=C&sointu=maj7&ote=triad&taso=laaja#soinnut');
     await expect(mode(page, 'triad')).toBeDisabled();
     await expect(mode(page, 'full')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('#cb-groups')).toBeHidden();
@@ -227,6 +258,7 @@ test.describe('Otelautaopas BETA', () => {
 
   test('tila kirjoitetaan osoitteeseen ja latautuu samana', async ({ page }) => {
     await page.goto(PAGE + '#soinnut');
+    await advanced(page);
     await root(page, 'D').click();
     await quality(page, 'sus2').click();
     await mode(page, 'triad').click();

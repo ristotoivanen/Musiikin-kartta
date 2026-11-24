@@ -104,6 +104,7 @@ import { createChordsBeta } from './soinnut-beta.js';
     } else {
       url.searchParams.delete('sointu');
       url.searchParams.delete('ote');
+      ['kielet', 'nro', 'taso'].forEach(name => url.searchParams.delete(name));
     }
     url.hash = view === 'octaves' ? 'oktaavit' : view === 'chords' ? 'soinnut' : '';
     history.replaceState(null, '', url.pathname + url.search + url.hash);
