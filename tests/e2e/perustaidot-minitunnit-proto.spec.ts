@@ -6,6 +6,8 @@ test('yksi harjoituskortti, valinnan mukaan muuttuvat ohjeet ja yksi toistopaini
   await page.goto(url);
   await expect(page.locator('#exercise')).toBeVisible();
   await expect(page.locator('#exercise-title')).toHaveText('Löydä pulssi ja ykkönen');
+  await expect(page.locator('#modes')).toBeHidden();
+  await expect(page.getByRole('button', { name: 'Kitaran mukana' })).toHaveCount(0);
   await expect(page.locator('#stages')).toBeHidden();
   await expect(page.locator('#play')).toHaveText('▶ Aloita');
   await expect(page.locator('audio:visible')).toHaveCount(0);
@@ -15,6 +17,7 @@ test('yksi harjoituskortti, valinnan mukaan muuttuvat ohjeet ja yksi toistopaini
   await page.getByRole('button', { name: 'Yksi sointu', exact: true }).click();
   await expect(page.locator('#instruction')).toContainText('mikä tahansa tuttu sointu');
   await expect(page.locator('#basic')).toHaveText('Oma sointu');
+  await expect(page.getByRole('button', { name: 'G-komppi', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Kaksi sointua', exact: true }).click();
   await expect(page.locator('#chord-now')).toHaveText('1. sointu → 2. sointu');
   await page.getByRole('button', { name: 'G–D-malli' }).click();
