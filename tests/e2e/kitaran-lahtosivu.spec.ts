@@ -86,7 +86,7 @@ test.describe('Kitaran pikakertaus ilman JavaScriptiä', () => {
       await page.goto(intro);
       await expect(page.getByRole('heading', { level: 1, name: 'Kitaran perusteet' })).toBeVisible();
       await expect(page.getByRole('heading', { level: 2 })).toHaveText([
-        'Kielet ja otelauta', 'Soinnut ja merkinnät', 'Rytmin perusteet', 'Jos kaipaat tarkempaa kertausta',
+        'Kielet ja otelauta', 'Soinnut ja merkinnät', 'Rytmin perusteet',
       ]);
       const strings = page.getByRole('list', { name: 'Vapaat kielet ylhäältä alas, ohuimmasta paksuimpaan' });
       await expect(strings.getByRole('listitem')).toHaveText(['1. e', '2. B', '3. G', '4. D', '5. A', '6. E']);
@@ -146,12 +146,9 @@ test.describe('Kitaran pikakertaus ilman JavaScriptiä', () => {
       }
       await page.locator('.recap-note-names summary').click();
 
-      for (const [label, path] of [
-        ['Kitaran kielet ja sointumerkinnät', '/oppi/savelnimet/kitaran-kielet-ja-sointumerkinnat.html'],
-        ['Pulssi ja komppi', '/oppi/rytmi/pulssi-ja-komppi.html'],
-      ]) {
-        await page.getByRole('link', { name: label, exact: true }).press('Enter');
-        await expect(page).toHaveURL(path);
+      await expect(page.getByText('Jos kaipaat tarkempaa kertausta')).toHaveCount(0);
+      for (const path of ['/oppi/savelnimet/kitaran-kielet-ja-sointumerkinnat.html', '/oppi/rytmi/pulssi-ja-komppi.html']) {
+        expect((await page.goto(path))?.ok()).toBe(true);
         await page.goBack();
         await expect(page).toHaveURL(intro);
       }
@@ -213,7 +210,7 @@ test('vanhat harjoitusosoitteet ja merkinnät säilyvät ilman kartan tai kertau
   await page.reload();
   const main = page.getByRole('main');
   await expect(main.locator('.study-choice, [data-study-total], [data-study-status], .done-toggle')).toHaveCount(0);
-  await expect(main.getByRole('link')).toHaveCount(4);
+  await expect(main.getByRole('link')).toHaveCount(2);
 
   await page.locator('.recap-header').getByRole('link', { name: 'Siirry Oppimiskarttaan' }).click();
   const card = page.locator('#aihe-kitara');
