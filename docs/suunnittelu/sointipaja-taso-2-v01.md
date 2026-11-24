@@ -1,4 +1,4 @@
-# Sointipaja #48 – tason 2 kokeilusuunnitelma v0.2
+# Sointipaja #48 – tason 2 kokeilusuunnitelma v0.3
 
 24.11.2026. Käyttäjäkokeessa v0.1:n ensimmäinen kierros koettiin liian helpoksi. v0.2:ssa vaikeutta kasvatetaan vastausvaihtoehtojen ja sekoittamisen kautta. Ehdotus, ei lukittu sisältö eikä julkaisu- tai yhdistämislupa.
 Pohja: [taso 1 v0.3](sointipaja-taso-1-v03.md), #189 @ e088460081a6843629f4999a23906379837bbd1e, mukaan lukien omistajan hyväksymä kumuloituva kieli kerrallaan -kuuntelu. #187 on edelleen riippuvuus. Taso 1 jää omaan katselmointiin. Projektin [katselmointiohje](suunnittelu-ja-pr-katselmointi.md) pätee.
@@ -14,6 +14,14 @@ Taso 2 lisää Dm:n, D7:n, A7:n ja E7:n. Ei vielä erillistä teoriapäättelyte
 | 3 | kaikki tason 1 ja 2 soinnut kerran | kaikki 11 | 11 |
 
 Yhteensä 30 tehtävää; tason 1 rakenne 4+6+14 säilyy. Kumulatiivinen kertaus takaa kaikki 11 kohdetta, ei peräkkäisiä identtisiä. Kierrokset 2 ja 3 käyttävät samaa sointuvalikoimaa, mutta järjestys arvotaan uudelleen. Kierros 3 on vahvistavaa toistoa eikä uusi vaikeusporras. Ensimmäisellä kierroksella vanhat duurisoinnut ovat uskottavia häiriövaihtoehtoja. Ei väitetä sokkomittaukseksi. Tason valinta aina vapaa; vaihto aloittaa valitun tason alusta ja päättää aiemman yrityksen. Tason lopussa seuraava taso, uusinta tai vapaa kierros. Ei pistelukkoja, pysyvää tallennusta, uutta otelautaa tai äänimoottoria. Tulevien tasojen kertaus voidaan myöhemmin rajata kiertävään otantaan ja erilliseen kattavaan harjoitteluun.
+
+## Kaksivaiheinen vastausvalinta (v0.3)
+
+Omistajan käyttäjäkokeilu: yhdentoista yhtäaikaisen vastauspainikkeen määrä haittaa hahmottamista. Tasolla 2 valitaan ensin perussävel ja sitten sointu. Ensimmäisellä kierroksella perussävelet D, E, A (7 mahdollista sointua), kertauskierroksilla C, D, E, G, A (11 mahdollista sointua). Perussävelet järjestetään sävelluokan mukaan C:stä alkaen; F ja B ilmestyvät vasta, kun vastausjoukossa on niille sointuja. E-valinta avaa kierroksen mukaan E, Em ja E7 tai E ja E7. Yksikin mahdollinen sointu edellyttää toista painallusta: ei automaattivastausta eikä palautetta perussävelestä.
+
+Perussävelen vaihtaminen ei ole vastaus, ei lisää virheitä eikä käynnistä ääntä. Täysi väärä vastaus merkitään ja jää merkityksi ryhmää vaihdettaessa. Täysi oikea vastaus lukitsee molemmat valinnat, näyttää tutun palautteen ja käynnistää mallisoiton. Uusi tehtävä tyhjentää valinnat. Kaikki kierroksen vaihtoehdot ovat edelleen saavutettavissa; ei vihjettä oikeasta perussävelestä. Taso 1:n aiempi suora vastausmalli säilytetään kokeilussa. Uusi malli arvioidaan ennen mahdollista yhdenmukaistamista.
+
+Hyväksymiskokeet: väärän perussävelen valinta neutraali, paluu edelliseen ryhmään, kaikki 11 sointua valittavissa, yhden vaihtoehdon perussävel ei vastaa automaattisesti, väärän täyden vastauksen merkintä säilyy, oikea lukitsee, seuraava tyhjentää, näppäimistön fokus ja 320–390 px mobiilinäkymä. Kaksivaiheisuus ei vielä osoita, että oppija päättelee soinnun teoriasta; se jäsentää vastausvalikoimaa. Arvioi ylimääräisen painalluksen kustannus ja se, auttaako ryhmittely vai tekeekö se tunnistamisesta liian helppoa.
 
 ## Sointutieto
 
