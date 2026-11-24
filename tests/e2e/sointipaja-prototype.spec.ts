@@ -47,8 +47,7 @@ test('level 1: 4 + 6 + 14, cumulative summary, retry and free rounds', async ({ 
   await expect(page.locator('#level-progress')).toHaveText('0/25 tehtävää ratkaistu');
   await page.getByRole('button', { name: /Taso 1 ·/ }).click();
   await expect(page.locator('#level-title')).toContainText('Taso 1');
-  await expect(page.locator('#continue')).toBeHidden();
-  await page.locator('#restart').click();
+  await expect(page.locator('#summary')).toBeHidden();
   await expect(page.locator('#progress')).toHaveText('Sointu 1 / 4');
   await page.locator('#settings summary').click();
   await page.getByRole('button', { name: '3 · Kaikki yhdessä', exact: true }).click();
