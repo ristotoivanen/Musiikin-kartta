@@ -8,14 +8,14 @@
 <style>
 :root{color-scheme:light dark;--bg:#f3f5f3;--panel:#fff;--ink:#182620;--muted:#46584e;--line:#84988b;--accent:#195b42;--active:#e0f1e5;--focus:#245ea8}
 @media(prefers-color-scheme:dark){:root{--bg:#131c18;--panel:#202d26;--ink:#f1f5f2;--muted:#c2d2c8;--line:#829a8b;--accent:#a0e0bd;--active:#304d3e;--focus:#a9c8ff}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.5 system-ui,sans-serif}main{max-width:43rem;margin:auto;padding:1rem}h1,h2,h3,p{overflow-wrap:anywhere}h1{font-size:1.5rem;line-height:1.2;margin:.6rem 0}h2{font-size:1.35rem;line-height:1.3;margin:0 0 .5rem}p{margin:.5rem 0}a{color:var(--accent)}.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:1rem;margin:1rem 0;min-width:0}.muted{color:var(--muted);font-size:.9rem}.choices{display:flex;flex-wrap:wrap;gap:.5rem;margin:.75rem 0}.choices button{flex:1 1 9rem;min-width:0}button,summary{font:inherit;color:inherit;cursor:pointer;min-height:44px}button{border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:.6rem .75rem;overflow-wrap:anywhere;text-align:left;touch-action:manipulation}button[aria-pressed=true]{border:2px solid var(--accent);background:var(--active);font-weight:650}button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--focus);outline-offset:3px}.play{background:var(--accent);color:var(--bg);font-weight:bold;text-align:center;width:100%;min-height:52px;margin:.8rem 0 .1rem}.beats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,3.9rem),1fr));gap:.35rem;margin:.75rem 0}.beat{border:2px solid var(--line);border-radius:8px;text-align:center;min-width:0;padding:.5rem .12rem;overflow-wrap:anywhere}.beat b{display:block;font-size:1.3rem}.beat small{display:block;font-size:.75rem;min-height:1.2em}.beat.clap:not(.on){border-style:solid;border-color:var(--accent)}#exercise[data-lesson=pulse] .beat:not(.clap):not(.on){border-style:dashed}.beat.on{background:var(--active);border-color:var(--accent)}.beat.on small{font-weight:700}.beat .count{font-size:.8rem}.sub{display:flex;justify-content:space-evenly;gap:.2rem}.sub span{display:block;min-width:0}.sub .now{font-weight:900;text-decoration:underline;text-underline-offset:.2em}.beat .mark{font-size:.8rem;min-height:1.2em;color:var(--accent)}.clap-guide{margin:.75rem 0 .25rem}.clap-guide p{margin:.25rem 0}.clap-current{font-weight:700;font-size:1.1rem}.clap-nav{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:.5rem;margin:.6rem 0}.clap-nav button{padding:.25rem;text-align:center;font-size:1.5rem}.clap-nav p{text-align:center;margin:0;overflow-wrap:anywhere}.next-guide{color:var(--muted);font-size:.9rem}.chord{font-weight:bold;text-align:center;min-height:1.5em}.back{display:inline-block;padding:.4rem 0}.tag{font-size:.76rem;letter-spacing:.04em;color:var(--muted)}details{border-top:1px solid var(--line);margin-top:.8rem;padding-top:.3rem}summary{padding:.45rem 0}#status{min-height:1.5em;margin-top:.4rem}[hidden]{display:none!important}audio{width:100%}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.5 system-ui,sans-serif}main{max-width:43rem;margin:auto;padding:1rem}h1,h2,h3,p{overflow-wrap:anywhere}h1{font-size:1.5rem;line-height:1.2;margin:.6rem 0}h2{font-size:1.35rem;line-height:1.3;margin:0 0 .5rem}p{margin:.5rem 0}a{color:var(--accent)}.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:1rem;margin:1rem 0;min-width:0}.muted{color:var(--muted);font-size:.9rem}.choices{display:flex;flex-wrap:wrap;gap:.5rem;margin:.75rem 0}.choices button{flex:1 1 9rem;min-width:0}button,summary{font:inherit;color:inherit;cursor:pointer;min-height:44px}button{border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:.6rem .75rem;overflow-wrap:anywhere;text-align:left;touch-action:manipulation}button[aria-pressed=true]{border:2px solid var(--accent);background:var(--active);font-weight:650}button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--focus);outline-offset:3px}.play{background:var(--accent);color:var(--bg);font-weight:bold;text-align:center;width:100%;min-height:52px;margin:.8rem 0 .1rem}.beats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,3.9rem),1fr));gap:.35rem;margin:.75rem 0}.beat{border:2px solid var(--line);border-radius:8px;text-align:center;min-width:0;padding:.5rem .12rem;overflow-wrap:anywhere}.beat b{display:block;font-size:1.3rem}.beat small{display:block;font-size:.75rem;min-height:1.2em}.beat.clap:not(.on){border-style:solid;border-color:var(--accent)}#exercise[data-lesson=pulse] .beat:not(.clap):not(.on){border-style:dashed}.beat.on{background:var(--active);border-color:var(--accent)}.beat.on small{font-weight:700}.beat .count{font-size:.8rem}.sub{display:flex;justify-content:space-evenly;gap:.2rem}.sub span{display:block;min-width:0}.sub .now{font-weight:900;text-decoration:underline;text-underline-offset:.2em}.beat .mark{font-size:.8rem;min-height:1.2em;color:var(--accent)}.clap-guide{margin:.75rem 0 .25rem}.clap-guide p{margin:.25rem 0}.clap-current{font-weight:700;font-size:1.1rem}.clap-nav{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:.5rem;margin:.6rem 0}.clap-nav button{padding:.25rem;text-align:center;font-size:1.5rem}.clap-nav p{text-align:center;margin:0;overflow-wrap:anywhere}.clap-middle{display:flex;flex-direction:column;align-items:center;gap:.25rem;min-width:0}.clap-nav #clap-all{font-size:.9rem;max-width:100%;padding:.35rem .7rem;line-height:1.3}.next-guide{color:var(--muted);font-size:.9rem}.chord{font-weight:bold;text-align:center;min-height:1.5em}.back{display:inline-block;padding:.4rem 0}.tag{font-size:.76rem;letter-spacing:.04em;color:var(--muted)}details{border-top:1px solid var(--line);margin-top:.8rem;padding-top:.3rem}summary{padding:.45rem 0}#status{min-height:1.5em;margin-top:.4rem}[hidden]{display:none!important}audio{width:100%}
 @media(max-width:22rem){.panel{padding:.75rem}main{padding:.75rem}.beat{padding:.4rem .05rem}.beat b{font-size:1.05rem}.beat small,.beat .mark{font-size:.65rem}}
 
 </style>
 </head>
 <body><main>
 <a class="back" href="../oppi/kitara/index.html">← Kitaran perusteisiin</a>
-<p class="tag">KATSELMOITAVA PROTOTYYPPI v0.5</p>
+<p class="tag">KATSELMOITAVA PROTOTYYPPI v0.6</p>
 <h1>Perustaitojen minitunnit</h1>
 <div class="choices" role="group" aria-label="Valitse harjoitus" id="lessons" hidden>
 <button type="button" data-lesson="pulse" aria-pressed="true">Löydä pulssi ja ykkönen</button>
@@ -41,7 +41,7 @@
 <div class="beats" id="beats" aria-hidden="true"></div>
 <div class="clap-nav" id="clap-nav" role="group" aria-label="Taputuskuvion valinta">
 <button type="button" id="clap-prev" aria-label="Edellinen taputuskuvio">‹</button>
-<p id="clap-position" class="muted">1 / 6</p>
+<div class="clap-middle"><p id="clap-position" class="muted">1 / 4</p><button type="button" id="clap-all" aria-pressed="true">Kaikki iskut</button></div>
 <button type="button" id="clap-forward" aria-label="Seuraava taputuskuvio">›</button>
 </div>
 <p class="chord" id="chord-now" aria-hidden="true" hidden></p>
@@ -51,7 +51,7 @@
 <p id="recovery" hidden><a href="../assets/audio/osa-1/pulssi-ja-komppi.m4a">Avaa alkuperäinen äänite</a></p>
 <details id="brushing" hidden><summary>ⓘ Knoppitieto: Harjaaminen</summary><p>Aluksi voit pyyhkäistä kieliä tasaisesti. Myöhemmin voit painottaa alasvedolla matalampia ja ylösvedolla ohuempia kieliä. Sitä ei vielä tarvitse osata.</p></details>
 </section>
-<noscript><section class="panel"><h2>Löydä pulssi ja ykkönen</h2><p>Naputa jalalla jokainen isku ja laske neljään. Taputa ensin kaikilla iskuilla, sitten 1:llä ja 3:lla, taas kaikilla, sitten 2:lla ja 4:llä, taas kaikilla ja lopuksi ykkösellä. Vaihda kuviota, kun olet valmis. Pidä sama jalalla naputettava pulssi koko ajan.</p><h2>Pidä komppikäsi liikkeessä</h2><p>Vaimenna ensin kielet. Liikuta kättä alas numeroilla ja ylös ja-tavuilla. Kokeile sitten yhdellä tutulla soinnulla ja kahdella soinnulla. Interaktiivinen harjoittelu vaatii JavaScriptin. Voit kuunnella koko alkuperäisen äänitteen.</p><audio controls preload="none"><source src="../assets/audio/osa-1/pulssi-ja-komppi.m4a" type="audio/mp4"><source src="../assets/audio/osa-1/pulssi-ja-komppi.wav" type="audio/wav"></audio><p><a href="../oppi/rytmi/pulssi-ja-komppi.html">Pulssi ja komppi</a></p></section></noscript>
+<noscript><section class="panel"><h2>Löydä pulssi ja ykkönen</h2><p>Naputa jalalla jokainen isku ja laske neljään. Kokeile neljää taputuskuviota: kaikki iskut, 1 ja 3, 2 ja 4 tai vain ykkönen. Palaa tarvittaessa kaikkiin iskuihin. Vaihda kuviota, kun olet valmis. Pidä sama jalalla naputettava pulssi koko ajan.</p><h2>Pidä komppikäsi liikkeessä</h2><p>Vaimenna ensin kielet. Liikuta kättä alas numeroilla ja ylös ja-tavuilla. Kokeile sitten yhdellä tutulla soinnulla ja kahdella soinnulla. Interaktiivinen harjoittelu vaatii JavaScriptin. Voit kuunnella koko alkuperäisen äänitteen.</p><audio controls preload="none"><source src="../assets/audio/osa-1/pulssi-ja-komppi.m4a" type="audio/mp4"><source src="../assets/audio/osa-1/pulssi-ja-komppi.wav" type="audio/wav"></audio><p><a href="../oppi/rytmi/pulssi-ja-komppi.html">Pulssi ja komppi</a></p></section></noscript>
 <a class="back" href="../oppi/kitara/index.html">← Kitaran perusteisiin</a>
 </main>
 <script>
@@ -62,9 +62,7 @@ const beat=60/84,bar=4*beat;
 const clapPatterns=[
 {beats:[1,2,3,4],name:'kaikilla iskuilla',short:'kaikki iskut'},
 {beats:[1,3],name:'iskuilla 1 ja 3',short:'1 ja 3'},
-{beats:[1,2,3,4],name:'kaikilla iskuilla',short:'kaikki iskut'},
 {beats:[2,4],name:'iskuilla 2 ja 4',short:'2 ja 4'},
-{beats:[1,2,3,4],name:'kaikilla iskuilla',short:'kaikki iskut'},
 {beats:[1],name:'ykkösellä',short:'vain 1'}
 ];
 let clapIndex=0,pendingClap=null,changeAtBar=null,lastClapKey=null;
@@ -89,23 +87,23 @@ $('clap-next').textContent=pendingClap===null?'Valitse taputuskuvio nuolilla.':'
 $('clap-guide').dataset.pattern=String(clapIndex);
 $('clap-guide').dataset.pending=pendingClap===null?'':String(pendingClap);
 $('clap-position').textContent=String(clapIndex+1)+' / '+String(clapPatterns.length);
+$('clap-all').setAttribute('aria-pressed',String((pendingClap===null?clapIndex:pendingClap)===0));
 for(const [i,cell] of Array.from($('beats').children).entries()){
 const clap=pattern.beats.includes(i+1);
 cell.classList.toggle('clap',clap);
 cell.querySelector('small').textContent=clap?'Taputa':'Vain jalka';
 }
 }
-function selectClap(direction){
-const base=pendingClap===null?clapIndex:pendingClap;
-const next=(base+direction+clapPatterns.length)%clapPatterns.length;
+function selectClap(direction,direct=null){
 const elapsed=phase==='playing'&&context?context.currentTime-started:-1;
+if(elapsed>=0)paintClaps(elapsed);
+const base=pendingClap===null?clapIndex:pendingClap;
+const target=direct===null?(base+direction+clapPatterns.length)%clapPatterns.length:direct;
 if(elapsed>=0){
-paintClaps(elapsed);
-const target=( (pendingClap===null?clapIndex:pendingClap)+direction+clapPatterns.length)%clapPatterns.length;
 pendingClap=target===clapIndex?null:target;
 changeAtBar=pendingClap===null?null:Math.floor((elapsed+0.000001)/bar)+1;
 }else{
-clapIndex=next;pendingClap=null;changeAtBar=null;
+clapIndex=target;pendingClap=null;changeAtBar=null;
 }
 paintClaps(elapsed);
 }
@@ -143,7 +141,7 @@ $('stages').hidden=!strum;$('brushing').hidden=!strum;$('clap-guide').hidden=str
 $('modes').hidden=strum&&stage==='muted';
 $('chord-now').hidden=!(strum&&stage==='change');
 if(!strum){
-$('instruction').textContent='Naputa jalalla jokainen isku ja laske neljään. Taputa käsillä vain merkityillä iskuilla. Vaihda taputuskuviota nuolilla, kun olet valmis.';
+$('instruction').textContent='Naputa jalalla jokainen isku ja laske neljään. Taputa käsillä vain merkityillä iskuilla. Vaihda taputuskuviota nuolilla, kun olet valmis. Kaikki iskut -painikkeella palaat perusrytmiin.';
 $('basic').textContent='Pelkkä pulssi';$('model').textContent='Kitaran mukana';
 $('hint').textContent=mode==='basic'?'Pidä jalalla tasainen pulssi, vaikka taputus vaihtuu.':'Pidä sama pulssi kitaran mukana, vaikka taputus vaihtuu.';
 $('pattern-text').textContent='Ykkönen aloittaa uuden tahdin. Sen ei tarvitse olla voimakkain isku.';
@@ -218,6 +216,7 @@ for(const b of document.querySelectorAll('[data-stage]'))b.addEventListener('cli
 for(const b of document.querySelectorAll('[data-mode]'))b.addEventListener('click',()=>{if(mode===b.dataset.mode)return;stop();mode=b.dataset.mode;render();});
 $('clap-prev').addEventListener('click',()=>selectClap(-1));
 $('clap-forward').addEventListener('click',()=>selectClap(1));
+$('clap-all').addEventListener('click',()=>selectClap(0,0));
 $('play').addEventListener('click',()=>{if(phase==='playing'||phase==='loading')stop();else void start();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stop('Pysäytetty. Aloita uudelleen, kun olet valmis.');});
 window.addEventListener('pagehide',()=>stop());
