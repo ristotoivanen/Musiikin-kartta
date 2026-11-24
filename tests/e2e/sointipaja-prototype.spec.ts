@@ -246,3 +246,27 @@ test('root choice alone is neutral, wrong chord remains marked after switching r
   await expect(answers.locator('button')).toHaveCount(0);
   await expect(roots.locator('[aria-pressed="true"]')).toHaveCount(0);
 });
+
+test('root and chord choices have usable equal widths on desktop and mobile', async ({ page }) => {
+  await page.getByRole('button', {name:/Taso 2 ·/}).click();
+  const roots=page.locator('#roots');
+  const answers=page.locator('#answers');
+  for(const width of [780,390,320]){
+    await page.setViewportSize({width,height:1000});
+    await roots.getByRole('button',{name:'D',exact:true}).click();
+    await expect(answers.locator('button')).toHaveText(['D','Dm','D7']);
+    for(const group of [roots,answers]){
+      const sizes=await group.locator('button').evaluateAll(buttons=>buttons.map(button=>{
+        const {width,height}=button.getBoundingClientRect();
+        return {width,height};
+      }));
+      expect(sizes.length).toBeGreaterThan(0);
+      for(const size of sizes){
+        expect(size.width).toBeGreaterThanOrEqual(48);
+        expect(size.height).toBeGreaterThanOrEqual(48);
+        expect(size.width).toBeCloseTo(sizes[0].width,0);
+      }
+    }
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+  }
+});
