@@ -492,6 +492,15 @@ def training_page(topics, apps, study, registry, counts):
     return ''.join(out)
 
 
+# Otelautaopas BETA (issue #193): rinnakkainen kokeilu, ei oppimisrekisterin työkalu eikä osa aiheiden apuvälineitä.
+BETA_TOOL = '''  <section class="mode-tool" id="otelautaopas-beta" aria-labelledby="otelautaopas-beta-otsikko">
+    <h2 id="otelautaopas-beta-otsikko">Otelautaopas <span class="mode-badge">BETA</span></h2>
+    <p class="mode-desc">Kokeiluversio, jossa Soinnut-näkymä on uudistettu: sointulaadut suoraan valittavissa, triadit neljällä kieliryhmällä ja duuri–molli-vaihto. Nykyinen Otelautaopas toimii rinnalla.</p>
+    <p><a class="mode-action" href="otelautaopas-beta.html#soinnut">Avaa Otelautaopas BETA</a></p>
+  </section>
+'''
+
+
 def toolkit_page(topics, apps, registry):
     section = {s['id']: s for s in registry['osiot']}['pakki']
     by_slug = {t['slug']: t for t in topics}
@@ -523,6 +532,8 @@ def toolkit_page(topics, apps, registry):
                            f'<a href="oppi/{topic["slug"]}/index.html">{esc(topic["title"])}</a>.</span></li>\n')
             out.append('    </ul>\n')
         out.append('  </section>\n')
+        if app['id'] == 'tyokalu:otelautaopas':
+            out.append(BETA_TOOL)
     out.append('</main>\n\n')
     out.append(FOOT)
     return ''.join(out)
