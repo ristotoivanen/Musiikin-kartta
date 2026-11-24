@@ -328,3 +328,45 @@ test('levels 3 and 4: new chords, complete review, and theory spelling', async (
   }
   await expect(page.locator('#next-level')).toBeHidden();
 });
+
+
+// Oikeat näytteet ja Web Audio, ei route.abort()-mockia. Kaiutinääni ei ole CI:n todennettavissa.
+test('real samples: automatic C model sound, manual replay and arpeggio', async ({page})=>{
+  test.setTimeout(45000);
+  await page.addInitScript(()=>{
+    const records: {duration:number;peak:number;state:string}[]=[];
+    (window as unknown as {sointipajaRealAudio:typeof records}).sointipajaRealAudio=records;
+    const original=AudioBufferSourceNode.prototype.start;
+    AudioBufferSourceNode.prototype.start=function(when?:number,offset?:number,duration?:number){
+      const result=original.call(this,when,offset,duration);
+      const buffer=this.buffer;
+      if(buffer){
+        const data=buffer.getChannelData(0);
+        let peak=0;
+        for(let i=0;i<data.length;i+=8)peak=Math.max(peak,Math.abs(data[i]));
+        records.push({duration:buffer.duration,peak,state:this.context.state});
+      }
+      return result;
+    };
+  });
+  await page.reload();
+  const count=()=>page.evaluate(()=>(window as unknown as {sointipajaRealAudio:unknown[]}).sointipajaRealAudio.length);
+  await page.locator('#answers').getByRole('button',{name:'C',exact:true}).click();
+  await expect(page.locator('#audio-status')).toHaveText('Sointu soi.',{timeout:12000});
+  await expect.poll(count).toBe(5);
+  const samples=await page.evaluate(()=>(window as unknown as {sointipajaRealAudio:{duration:number;peak:number;state:string}[]}).sointipajaRealAudio);
+  for(const sample of samples){
+    expect(sample.duration).toBeGreaterThan(1);
+    expect(sample.peak).toBeGreaterThan(.001);
+    expect(sample.state).toBe('running');
+  }
+  await page.locator('#stop').click();
+  await page.locator('#listen').click();
+  await expect(page.locator('#audio-status')).toHaveText('Sointu soi.',{timeout:12000});
+  await expect.poll(count).toBe(10);
+  await page.locator('#stop').click();
+  await page.locator('#arpeggio').click();
+  await expect(page.locator('#audio-status')).toHaveText('Sointu rakentuu kieli kerrallaan.',{timeout:12000});
+  await expect.poll(count).toBe(15);
+  await page.locator('#stop').click();
+});

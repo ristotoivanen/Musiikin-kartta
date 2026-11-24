@@ -3,9 +3,11 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Sointipaja – Tasot 1–4</title>
-<link rel="stylesheet" href="assets/otelauta.css">
-<link rel="stylesheet" href="assets/harjoittelija/app.css">
+<title>Sointipaja (beta) – Musiikin kartta</title>
+<link rel="stylesheet" href="assets/otelauta.css?v=36a704ebe6">
+<link rel="stylesheet" href="assets/harjoittelija/app.css?v=41991f8ecc">
+<link rel="stylesheet" href="assets/paavalikko.css?v=4e5c7fbf95">
+<link rel="stylesheet" href="assets/osiot.css?v=b2e71fa651">
 <style>
 main.practice-main {max-width: 700px; padding: 14px 10px 30px}
 .proto {padding: clamp(8px,2vw,20px); margin: 8px 0; background:var(--panel);border:1px solid var(--line);border-radius:14px}
@@ -116,10 +118,23 @@ main.practice-main {max-width: 700px; padding: 14px 10px 30px}
 </style>
 </head>
 <body>
-<main class="practice-main">
-<a href="kitaraharjoittelija.html?polku=soinnut">← Nykyinen harjoitus</a>
-<p class="eyebrow">SOINTIPAJA · TASOJEN 1–4 DEMO · #48</p>
-<h1>Sointipaja</h1>
+<a class="mode-skip" href="#sisalto">Siirry sisältöön</a>
+<header class="site-top">
+  <nav class="main-nav" aria-label="Päävalikko">
+    <a class="brand" href="index.html">Musiikin <span>kartta</span></a>
+    <ul>
+      <li><a href="index.html">Opi &amp; oivalla</a></li>
+      <li><a href="musapelit.html" aria-current="true">Musapelit</a></li>
+      <li><a href="kitaratreeni.html">Kitaratreeni</a></li>
+      <li><a href="soittopakki.html">Soittopakki</a></li>
+    </ul>
+  </nav>
+</header>
+<main class="practice-main" id="sisalto">
+<a href="musapelit.html#aihe-soinnut">← Musapelit: Soinnut ja harmonia</a>
+<p class="eyebrow">SOINTIPAJA · TASOT 1–4</p>
+<h1>Sointipaja <span class="mode-badge">beta</span></h1>
+<p class="tools-note">Kokeiluversio. <a href="kitaraharjoittelija.html?polku=soinnut">Avaa myös aiempi Tunnista avoin sointu -harjoitus.</a></p>
 <noscript><p>Kokeilu tarvitsee JavaScriptin. <a href="oppi/soinnut/">Sointujen teoria</a> on käytettävissä myös ilman sitä.</p></noscript>
 <p id="load-error" role="status" hidden>Harjoituksen lataus ei onnistunut. <a href="sointipaja-prototyyppi.html">Kokeile uudelleen</a> tai <a href="kitaraharjoittelija.html?polku=soinnut">avaa nykyinen harjoitus</a>.</p>
 <section class="proto chord-journey" aria-label="Avosointujen tunnistus" id="prototype" hidden>
@@ -229,7 +244,7 @@ main.practice-main {max-width: 700px; padding: 14px 10px 30px}
 </details>
 </section>
 <p><a href="oppi/soinnut/">Soinnut ja harmonia – Ydinopinnot</a></p>
-<p class="tools-note">Ääninäytteet: <a href="assets/audio/soinnut/LAHTEET.md">Meta Steel Guitar, CC0 1.0</a>. Erillinen tasojen 1–4 demo (#187:n yhteinen otelauta), ei korvaa nykyistä harjoitusta. Harjoitustulokset säilyvät tämän sivuistunnon ajan. Peliennätykset tallennetaan paikallisesti selaimeen, jos tallennus on käytettävissä.</p>
+<p class="tools-note">Ääninäytteet: <a href="assets/audio/soinnut/LAHTEET.md">Meta Steel Guitar, CC0 1.0</a>. Beta-versio, ei korvaa aiempaa harjoitusta. Harjoitustulokset säilyvät tämän sivuistunnon ajan. Peliennätykset tallennetaan paikallisesti selaimeen, jos tallennus on käytettävissä.</p>
 </main>
 <script src="assets/otelauta.js" onerror="document.getElementById('load-error').hidden=false"></script>
 <script src="assets/sointipaja-levels.js"></script>
