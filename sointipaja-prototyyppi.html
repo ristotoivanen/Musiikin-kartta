@@ -1,0 +1,877 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Sointipaja (beta) – Musiikin kartta</title>
+<link rel="stylesheet" href="assets/otelauta.css?v=36a704ebe6">
+<link rel="stylesheet" href="assets/harjoittelija/app.css?v=41991f8ecc">
+<link rel="stylesheet" href="assets/paavalikko.css?v=4e5c7fbf95">
+<link rel="stylesheet" href="assets/osiot.css?v=b2e71fa651">
+<style>
+main.practice-main {max-width: 700px; padding: 14px 10px 30px}
+.proto {padding: clamp(8px,2vw,20px); margin: 8px 0; background:var(--panel);border:1px solid var(--line);border-radius:14px}
+.proto h2,.proto h3,.proto p {margin: 6px 0}
+.proto .toolbar {display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:8px 0}
+.proto fieldset {min-width:0;border:0;padding:0;margin:8px 0}
+.proto fieldset label {display:inline-flex;align-items:center;gap:5px;min-height:44px;margin-right:12px}
+.proto button {touch-action:manipulation}
+.proto [hidden] {display:none!important}
+.proto .question-head {display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.proto .question-head h2 {margin:0}
+.proto #board {min-width:0; margin:8px 0; overflow-x:auto; overscroll-behavior-x:contain}
+.proto .chord-neck {position:relative;width:100%;min-width:222px;height:304px;isolation:isolate;background:#182c36;border-radius:9px;overflow:hidden}
+.proto .chord-neck svg {position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.proto .chord-neck .rail-bg {position:absolute;inset:0 auto 0 0;background:#182c36;box-shadow:inset -1px 0 #48606b;pointer-events:none}
+.proto .chord-neck .rail-label {position:absolute;transform:translate(-50%,-50%);color:#dce9eb;font-weight:700;font-size:15px;white-space:nowrap}
+.proto .chord-neck .mute {color:#ffe08a}
+.proto .chord-neck .mark {position:absolute;transform:translate(-50%,-50%);width:44px;height:44px;min-height:44px;padding:0;display:grid;place-items:center;border:0;background:transparent;color:#f1f9f8;font-weight:750;line-height:1;border-radius:50%;touch-action:manipulation;z-index:1}
+.proto .chord-neck .mark::before {content:"";position:absolute;inset:5px;border-radius:50%;background:#6d4aff;border:1px solid #cbbdff;z-index:-1}
+.proto .chord-neck .mark.open::before {background:#243d46;border:2px solid #b9e6db}
+.proto .chord-neck .mark.sounding {color:#10292b}
+.proto .chord-neck .mark.sounding::before {background:#9fe4c3;border:2px solid #f2fff9}
+.proto .chord-neck .mark.sounding::after {content:"";position:absolute;inset:1px;border:2px solid #9fe4c3;border-radius:50%}
+.proto .chord-neck .mark:focus-visible {outline-offset:-1px}
+.proto .chord-neck .mark.open {font-size:13px}
+.proto .chord-answers {display:grid;grid-template-columns:repeat(auto-fit,minmax(58px,1fr));gap:6px;margin:8px 0}
+.proto .chord-answers button {min-width:0;min-height:48px;font-size:18px}
+.proto .answer-label {font-size:13px;color:var(--muted);font-weight:650}
+.proto #roots {display:grid;grid-template-columns:repeat(7,minmax(44px,1fr));align-items:center;gap:6px;width:100%;max-width:484px;margin:5px 0 10px}
+.proto #roots button {box-sizing:border-box;width:100%;min-width:44px;min-height:48px;padding:6px 4px;font-size:18px;font-weight:750;text-align:center}
+.proto #roots button:disabled {opacity:.38;cursor:default}
+.proto #roots button:disabled:hover {background:transparent}
+.proto .root-legend {font-size:12px;color:var(--muted)}
+.proto .root-answers button[aria-pressed=true] {background:#4b2fd6;color:#fff;border-color:#b9e6db}
+.proto .root-answers button[aria-disabled=true] {cursor:default}
+.proto #root-hint {min-height:48px;display:flex;align-items:center;margin:8px 0}
+.proto #root-choice:not([hidden]) + #answers {display:flex;flex-wrap:wrap;gap:6px;width:100%;max-width:100%}
+.proto #root-choice:not([hidden]) + #answers button {box-sizing:border-box;flex:0 0 auto;width:64px;min-width:64px;padding:6px 8px;font-weight:750}
+.proto #root-choice:not([hidden]) + #answers:empty {display:none}
+.proto #root-choice:not([hidden]) + #answers:not(:empty) {min-height:48px}
+@media(max-width:480px){.proto #roots,.proto #root-choice:not([hidden]) + #answers {gap:4px}.proto #root-choice:not([hidden]) + #answers button {flex-basis:48px;width:48px;min-width:48px;padding-inline:4px}}
+@media(max-width:410px){.proto #roots {grid-template-columns:repeat(4,minmax(44px,1fr));max-width:284px}}
+.proto .chord-answers button[aria-disabled=true] {cursor:default}
+.proto .chord-answers button.wrong {color:#ffe08a;opacity:1}
+.proto .chord-answers button.right {background:#9fe4c3;color:#16121f}
+.proto .feedback {margin:6px 0;min-height:2.5em}
+.proto #audio-status {min-height:1.5em;font-size:13px;color:var(--muted)}
+.proto #audio-status.is-error {color:#ffe08a}
+.proto #next {width:100%}
+.proto .notes {font-size:14px;line-height:1.5}
+.proto .caption {font-size:13px;color:var(--muted);text-align:center}
+.proto #settings {margin-top:10px}
+.proto summary {color:var(--lavender)}
+.proto :focus-visible {outline:3px solid #ffe08a;outline-offset:2px}
+.proto .exercise-grid {display:block}
+.proto .chord-answers button.right::after {content:" ✓"}
+.proto .chord-answers button.wrong::after {content:" ×"}
+.proto .toolbar button {flex:1 1 auto;min-width:0;min-height:44px}
+.proto .toolbar button[aria-pressed=true] {border-color:#9fe4c3;box-shadow:inset 0 0 0 1px #9fe4c3}
+.proto .chord-neck .mark.revealed:not(.open) {font-size:12px}
+.proto .chord-neck .mark.revealed:not(.open)::before {background:#4b2fd6}
+.proto .chord-neck .mark.revealed.sounding:not(.open)::before {background:#9fe4c3}
+.proto #explain {border-top:1px solid var(--line);padding-top:6px;margin:8px 0}
+.proto #note-detail {min-height:1.5em;font-size:14px}
+.proto #next {margin:4px 0 8px}
+.proto #load-error {border-left:3px solid var(--wrong);padding:8px 12px}
+.proto .chord-answers button[aria-disabled=true]:not(.right):not(.wrong) {opacity:.8}
+.proto .chord-answers button.wrong {text-decoration:none;border-color:#ffe08a}
+.proto .feedback strong {font-weight:750}
+.proto .level-switch-note {font-size:12px;margin:0 0 6px}
+.proto .level-head {border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:10px}
+.proto #level-title {font-size:clamp(16px,3vw,20px)}
+.proto #level-progress {font-size:12px;color:var(--muted)}
+.proto .round-steps {display:flex;gap:5px;flex-wrap:wrap;margin:8px 0}
+.proto .round-step {flex:1 1 120px;border:1px solid var(--line);border-radius:7px;padding:5px 8px;font-size:12px;color:var(--muted)}
+.proto .round-step[aria-current=step] {color:var(--text);border-color:var(--lavender);font-weight:750}
+.proto .round-step.done::after {content:" ✓";color:#9fe4c3}
+.proto #round-results ul {padding-left:20px}
+.proto #feedback:empty,.proto #audio-status:empty {display:none}
+.proto #summary .toolbar button {min-height:44px}
+.proto #round-context {font-weight:650}
+.proto #challenge-setup fieldset {border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+.proto #challenge-setup fieldset label {display:flex;align-items:center;gap:10px;margin:0;min-height:44px;cursor:pointer}
+.proto #challenge-setup input[type=checkbox] {width:20px;height:20px;flex:none;accent-color:#8d70ff}
+.proto #challenge-setup select {box-sizing:border-box;width:100%;min-height:44px;font:inherit;padding:8px}
+.proto .challenge-settings {display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+.proto .challenge-settings label {display:block;font-weight:650;font-size:14px}
+.proto .challenge-metrics {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}
+.proto .challenge-metrics div {border:1px solid var(--line);border-radius:8px;padding:8px;min-width:0}
+.proto .challenge-metrics span {display:block;font-size:12px;color:var(--muted)}
+.proto .challenge-metrics strong {font-size:clamp(20px,4vw,28px);font-variant-numeric:tabular-nums}
+.proto #challenge-progress {width:100%;height:8px;accent-color:var(--good)}
+.proto #challenge-lock {font-weight:750;color:var(--wrong);min-height:1.5em}
+.proto #challenge-feedback {min-height:1.5em;font-weight:650}
+.proto .challenge-result-score {font-size:36px;font-weight:800;color:var(--good);font-variant-numeric:tabular-nums}
+.proto .challenge-results {display:grid;grid-template-columns:1fr auto;gap:8px;margin:12px 0}
+.proto .challenge-results dt,.proto .challenge-results dd {margin:0}
+.proto #prototype-mode {margin-top:0}
+.proto #challenge-start {width:100%;margin-top:8px}
+.proto #challenge-stop {min-height:44px}
+.proto.challenge-active #roots button[aria-disabled=true]:not(:disabled),.proto.challenge-active #answers button[aria-disabled=true]:not(.wrong) {opacity:.6}
+.proto.challenge-active .chord-neck .mark {cursor:default;pointer-events:none}
+.proto.challenge-active #root-choice:not([hidden]) + #answers button {width:auto;min-width:64px;flex-basis:auto;padding-inline:10px}
+@media(max-width:480px){.proto.challenge-active #root-choice:not([hidden]) + #answers button {min-width:48px}}
+@media(max-width:350px){.proto .challenge-settings {grid-template-columns:1fr}}
+
+@media(max-width:365px){.proto .toolbar button {font-size:13px;padding-inline:6px}.proto .chord-answers {gap:4px;grid-template-columns:repeat(auto-fit,minmax(50px,1fr))}}
+</style>
+</head>
+<body>
+<a class="mode-skip" href="#sisalto">Siirry sisältöön</a>
+<header class="site-top">
+  <nav class="main-nav" aria-label="Päävalikko">
+    <a class="brand" href="index.html">Musiikin <span>kartta</span></a>
+    <ul>
+      <li><a href="index.html">Opi &amp; oivalla</a></li>
+      <li><a href="musapelit.html" aria-current="true">Musapelit</a></li>
+      <li><a href="kitaratreeni.html">Kitaratreeni</a></li>
+      <li><a href="soittopakki.html">Soittopakki</a></li>
+    </ul>
+  </nav>
+</header>
+<main class="practice-main" id="sisalto">
+<a href="musapelit.html#aihe-soinnut">← Musapelit: Soinnut ja harmonia</a>
+<p class="eyebrow">SOINTIPAJA · TASOT 1–4</p>
+<h1>Sointipaja <span class="mode-badge">beta</span></h1>
+<p class="tools-note">Kokeiluversio. <a href="kitaraharjoittelija.html?polku=soinnut">Avaa myös aiempi Tunnista avoin sointu -harjoitus.</a></p>
+<noscript><p>Kokeilu tarvitsee JavaScriptin. <a href="oppi/soinnut/">Sointujen teoria</a> on käytettävissä myös ilman sitä.</p></noscript>
+<p id="load-error" role="status" hidden>Harjoituksen lataus ei onnistunut. <a href="sointipaja-prototyyppi.html">Kokeile uudelleen</a> tai <a href="kitaraharjoittelija.html?polku=soinnut">avaa nykyinen harjoitus</a>.</p>
+<section class="proto chord-journey" aria-label="Avosointujen tunnistus" id="prototype" hidden>
+<div class="toolbar" id="prototype-mode" role="group" aria-label="Sointipajan tila">
+<button type="button" id="mode-practice" aria-pressed="true">Harjoittele</button>
+<button type="button" id="mode-challenge" aria-pressed="false">Pelaa · Sointuhaaste</button>
+</div>
+<section id="challenge-setup" hidden aria-labelledby="challenge-heading">
+<h2 id="challenge-heading" tabindex="-1">Sointuhaaste</h2>
+<p>Tunnista mahdollisimman monta sointua ennen ajan loppumista. Väärä vastaus lukitsee valinnat neljäksi sekunniksi, mutta kello käy.</p>
+<fieldset><legend>Valitse tasojen uudet soinnut</legend><div id="challenge-levels"></div></fieldset>
+<p id="challenge-pool"></p>
+<div class="challenge-settings">
+<label>Peliaika<select id="challenge-duration"><option value="30">30 sekuntia</option><option value="60" selected>1 minuutti</option><option value="120">2 minuuttia</option><option value="180">3 minuuttia</option></select></label>
+
+</div>
+<p id="challenge-best" class="tools-note"></p>
+<p class="tools-note">Pelin aloittaminen päättää keskeneräisen harjoituksen. Palatessa taso alkaa alusta. Pelissä ei soiteta mallia automaattisesti. Voit aina palata ajattomaan harjoitteluun.</p>
+<button type="button" class="primary" id="challenge-start">Aloita peli</button>
+<p id="challenge-setup-note" role="status"></p>
+</section>
+<section id="challenge-live" hidden aria-label="Sointuhaasteen tilanne">
+<div class="question-head"><h2>Sointuhaaste</h2><button id="challenge-stop" type="button">Keskeytä peli</button></div>
+<div class="challenge-metrics">
+<div><span>Aikaa jäljellä</span><strong id="challenge-time">01:00</strong></div>
+<div><span>Oikein</span><strong id="challenge-score">0</strong></div>
+<div><span>Virheet</span><strong id="challenge-errors">0</strong></div>
+</div>
+<progress id="challenge-progress" aria-label="Peliaikaa jäljellä" max="60" value="60"></progress>
+<p id="challenge-lock" aria-hidden="true"></p>
+<p id="challenge-feedback" role="status" aria-live="polite"></p>
+</section>
+<section id="challenge-result" hidden aria-labelledby="challenge-result-heading">
+<h2 id="challenge-result-heading" tabindex="-1">Aika loppui!</h2>
+<p class="challenge-result-score" id="challenge-result-score"></p>
+<p id="challenge-result-config"></p>
+<dl class="challenge-results">
+<dt>Oikein ensimmäisellä yrityksellä</dt><dd id="challenge-result-first"></dd>
+<dt>Väärät vastaukset</dt><dd id="challenge-result-errors"></dd>
+<dt>Aikarangaistukset yhteensä</dt><dd id="challenge-result-penalty"></dd>
+<dt>Oma ennätys</dt><dd id="challenge-result-best"></dd>
+</dl>
+<p id="challenge-result-record" role="status"></p>
+<p id="challenge-result-review"></p>
+<div class="toolbar">
+<button id="challenge-replay" type="button" class="primary">Pelaa uudelleen</button>
+<button id="challenge-config" type="button">Muuta asetuksia</button>
+<button id="challenge-return" type="button">Harjoittele</button>
+</div>
+</section>
+<header class="level-head" id="practice-head">
+<div id="level-picker" class="toolbar" role="group" aria-label="Valitse taso"></div>
+<p class="tools-note level-switch-note">Voit vaihtaa tasoa vapaasti. Vaihto aloittaa valitun tason alusta.</p>
+<div class="question-head"><h2 id="level-title">Taso 1 · Seitsemän tavallista avosointua</h2><span id="level-progress"></span></div>
+<div id="round-steps" class="round-steps" role="group" aria-label="Kierrokset"></div>
+<p id="round-context" class="tools-note"></p>
+</header>
+<div id="round">
+<div class="question-head"><h2 id="question" tabindex="-1">Mikä sointu?</h2><span id="progress"></span></div>
+<p id="practice-instruction">Katso otetta ja valitse soinnun nimi.</p>
+<div class="exercise-grid">
+<div id="board"></div>
+<p class="caption">Rengastettu kirjain = vapaa · ● painettu · × ei soiteta</p>
+<div id="root-choice" hidden>
+<p class="answer-label">1. Valitse perussävelen kirjain</p>
+<div id="roots" class="root-answers" role="group" aria-label="Valitse perussävel" aria-describedby="root-legend"></div>
+<p id="root-legend" class="root-legend">Himmeisiin kirjaimiin ei kuulu sointuja tässä kierroksessa.</p>
+<p id="type-label" class="answer-label">2. Valitse sointu</p>
+</div>
+<div class="chord-answers" id="answers" role="group" aria-label="Valitse soinnun nimi"></div>
+<p id="root-hint" class="tools-note" hidden>Valitse ensin perussävel.</p>
+<p id="feedback" class="feedback" role="status" aria-live="polite"></p>
+<button type="button" class="primary" id="next" hidden>Seuraava sointu →</button>
+<div class="toolbar" id="practice-audio" role="group" aria-label="Kuuntelu">
+<button type="button" id="listen" aria-pressed="false">▶ Kuuntele sointu</button>
+<button type="button" id="arpeggio" aria-pressed="false">Kieli kerrallaan</button>
+<button type="button" id="stop" disabled>Pysäytä</button>
+</div>
+<p id="audio-status" role="status" aria-live="polite"></p>
+<div id="explain" hidden>
+<h3>Tutki sointua</h3>
+<p id="notes" class="notes"></p>
+<p id="contrast" class="tools-note" hidden></p>
+<p id="note-detail" role="status" aria-live="polite">Paina otteen merkkejä ja kuuntele säveliä.</p>
+<p class="tools-note">Kokeile samaa otetta omalla kitaralla.</p>
+</div>
+</div>
+</div>
+<div id="summary" hidden>
+<h2 id="done-heading" tabindex="-1"></h2>
+<p id="result"></p>
+<div id="round-results"></div>
+<p id="difficult" class="tools-note"></p>
+<div class="toolbar" role="group" aria-label="Jatka harjoittelua">
+<button type="button" class="primary" id="continue" hidden>Seuraava kierros →</button>
+<button type="button" class="primary" id="next-level" hidden>Siirry seuraavaan tasoon →</button>
+<button type="button" id="restart">Harjoittele taso uudelleen</button>
+<button type="button" id="retry-round" hidden>Harjoittele kierros uudelleen</button>
+</div>
+<p id="future" class="tools-note" hidden>Seuraavat tasot ovat suunnitteilla.</p>
+</div>
+<details id="settings">
+<summary>Harjoittele vapaasti</summary>
+<p class="tools-note">Voit harjoitella mitä tahansa kierrosta ilman etenemislukkoja. Valinta keskeyttää nykyisen tason ja aloittaa erillisen harjoituksen. Keskeneräisen tason tulokset eivät säily.</p>
+<div id="free-rounds" class="toolbar" role="group" aria-label="Valitse kierros"></div>
+<button type="button" id="start-level">Aloita koko taso alusta</button>
+</details>
+</section>
+<p><a href="oppi/soinnut/">Soinnut ja harmonia – Ydinopinnot</a></p>
+<p class="tools-note">Ääninäytteet: <a href="assets/audio/soinnut/LAHTEET.md">Meta Steel Guitar, CC0 1.0</a>. Beta-versio, ei korvaa aiempaa harjoitusta. Harjoitustulokset säilyvät tämän sivuistunnon ajan. Peliennätykset tallennetaan paikallisesti selaimeen, jos tallennus on käytettävissä.</p>
+</main>
+<script src="assets/otelauta.js" onerror="document.getElementById('load-error').hidden=false"></script>
+<script src="assets/sointipaja-levels.js"></script>
+<script src="assets/sointipaja-challenge.js"></script>
+<script>
+(() => {
+'use strict';
+if (!globalThis.MusicMapFretboard?.neckSurface || !globalThis.SointipajaLevelModel || !globalThis.SointipajaChallenge) { document.getElementById('load-error').hidden=false; return; }
+// Kokeilua varten kopioitu olemassa oleva, sivukohtainen näytesoitin sellaisenaan
+// assets/sointuharjoitus.js @ 9526b701e5d63a5af4bd2407ca65b71e9a60fd27. Ei uusi äänimoottori.
+// Integraatiossa sovitaan yhteinen rajapinta, eikä tätä kopiota jätetä ylläpidettäväksi.
+const base = new URL('assets/audio/soinnut/', location.href);
+  const formats = new Audio().canPlayType('audio/mp4; codecs="mp4a.40.2"') ? ['m4a', 'ogg'] : ['ogg', 'm4a'];
+  const buffers = new Map();
+  let audio;
+  let session;
+
+  function showStatus(status, message, error = false) {
+    status.textContent = message;
+    status.classList.toggle('is-error', error);
+  }
+
+  function stop(message) {
+    const last = session;
+    if (!last) return;
+    session = null;
+    clearTimeout(last.timeout);
+    cancelAnimationFrame(last.frame);
+    last.abort.abort();
+    if (last.bus && audio.state !== 'closed') {
+      const now = audio.currentTime;
+      const cutoff = now + 0.025;
+      last.bus.gain.setValueAtTime(1, now);
+      last.bus.gain.linearRampToValueAtTime(0, cutoff);
+      for (const { source, envelope, when, end } of last.sources) {
+        if (end > now && audio.state !== 'closed') source.stop(when > now ? 0 : Math.min(end, cutoff));
+        if (audio.state !== 'running') {
+          source.disconnect();
+          envelope.disconnect();
+        }
+      }
+      if (audio.state !== 'running') last.bus.disconnect();
+    }
+    delete last.trigger.dataset.playing;
+    if (last.trigger.hasAttribute('aria-pressed')) last.trigger.setAttribute('aria-pressed','false');
+    last.onPosition?.(-1);
+    last.onStop?.();
+    if (message) showStatus(last.status, message);
+  }
+
+  function context() {
+    if (!audio || audio.state === 'closed') {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) throw new Error('Web Audio ei ole käytettävissä');
+      audio = new AudioContextClass();
+      audio.addEventListener('statechange', () => {
+        if (session?.bus && audio.state !== 'running') stop('Kuuntelu keskeytyi. Voit kuunnella uudelleen.');
+      });
+    }
+    return audio;
+  }
+
+  function decode(ctx, data) {
+    // Vanhempi Safari tukee vain takaisinkutsumuotoa.
+    return new Promise((resolve, reject) => {
+      const result = ctx.decodeAudioData(data, resolve, reject);
+      result?.then?.(resolve, reject);
+    });
+  }
+
+  async function sample(ctx, pitch, signal) {
+    if (buffers.has(pitch)) return buffers.get(pitch);
+    const [string, note] = pitch.split(':');
+    const file = `INSGuitarSteel_String${string}_Vel02_${note}_01`;
+    let failure;
+    for (const format of formats) {
+      try {
+        const response = await fetch(new URL(`${file}.${format}`, base), { signal });
+        if (!response.ok) throw new Error(`${pitch}: HTTP ${response.status}`);
+        const buffer = await decode(ctx, await response.arrayBuffer());
+        if (signal.aborted) throw signal.reason;
+        buffers.set(pitch, buffer);
+        return buffer;
+      } catch (error) {
+        if (signal.aborted) throw error;
+        failure = error;
+      }
+    }
+    throw failure;
+  }
+
+  function schedule(own, buffer, { at, duration, gain, fade = duration > 2 ? 0.55 : 0.22 }) {
+    const when = own.start + at;
+    const end = when + duration + 0.02;
+    const source = audio.createBufferSource();
+    source.buffer = buffer;
+    const envelope = audio.createGain();
+    envelope.gain.setValueAtTime(0.0001, when);
+    envelope.gain.linearRampToValueAtTime(gain, when + 0.014);
+    envelope.gain.setValueAtTime(gain, when + duration - fade);
+    envelope.gain.exponentialRampToValueAtTime(0.0001, when + duration);
+    source.connect(envelope).connect(own.bus);
+    const event = { source, envelope, when, end };
+    own.sources.add(event);
+    source.onended = () => {
+      source.disconnect();
+      envelope.disconnect();
+      own.sources.delete(event);
+      if (!own.sources.size) own.bus.disconnect();
+    };
+    source.start(when);
+    source.stop(end);
+  }
+
+  async function play(trigger, status, plan, { label = 'Kuuntelu käynnissä.', onPosition, onStop, onStart } = {}) {
+    stop();
+    const own = { trigger, status, onPosition, onStop, abort: new AbortController(), sources: new Set() };
+    session = own;
+    if (trigger.hasAttribute('aria-pressed')) trigger.setAttribute('aria-pressed','true');
+    showStatus(status, 'Ladataan kitaran ääninäytteitä…');
+    own.timeout = setTimeout(() => {
+      if (session !== own) return;
+      stop();
+      showStatus(status, 'Äänen käynnistys kesti liian kauan. Kokeile uudelleen.', true);
+    }, 12000);
+
+    let ctx;
+    try {
+      // Käyttäjäeleen aikana, ennen yhtään odotusta. audioSession on valinnainen Safari-rajapinta.
+      try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch { /* valinnainen */ }
+      ctx = context();
+      await ctx.resume();
+    } catch {
+      if (session === own) {
+        stop();
+        showStatus(status, 'Ääntä ei saatu käynnistettyä. Kokeile uudelleen.', true);
+      }
+      return;
+    }
+    if (session !== own) return;
+    try {
+      const pitches = [...new Set(plan.map(event => event.pitch))];
+      const loaded = await Promise.all(pitches.map(pitch => sample(ctx, pitch, own.abort.signal)));
+      if (session !== own) return;
+      if (ctx.state !== 'running' || trigger.closest('details:not([open])')) {
+        stop('Kuuntelu keskeytyi. Voit kuunnella uudelleen.');
+        return;
+      }
+      clearTimeout(own.timeout);
+      const loadedByPitch = new Map(pitches.map((pitch, index) => [pitch, loaded[index]]));
+      own.bus = ctx.createGain();
+      own.bus.connect(ctx.destination);
+      own.start = ctx.currentTime + 0.10;
+      const end = Math.max(...plan.map(event => event.at + event.duration + 0.02));
+      for (const event of plan) schedule(own, loadedByPitch.get(event.pitch), event);
+      trigger.dataset.playing = '';
+      showStatus(status, label);
+      // Kutsu vasta kun Web Audio -lähteet on ladattu ja käynnistys ajastettu.
+      // Epäonnistunut lataus tai keskeytynyt toisto ei avaa tunnistuksen vastaamista.
+      onStart?.();
+      function followClock() {
+        if (session !== own) return;
+        const elapsed = ctx.currentTime - own.start;
+        if (elapsed >= end) {
+          stop('Esimerkki päättyi. Voit kuunnella uudelleen.');
+          return;
+        }
+        onPosition?.(elapsed);
+        own.frame = requestAnimationFrame(followClock);
+      }
+      followClock();
+    } catch {
+      if (session === own) {
+        stop();
+        showStatus(status, 'Ääniä ei voitu ladata. Kokeile uudelleen.', true);
+      }
+    }
+  }
+
+  const silence = () => stop('Kuuntelu keskeytyi. Voit kuunnella uudelleen.');
+  window.addEventListener('pagehide', silence);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) silence();
+  });
+  document.addEventListener('toggle', event => {
+    const details = event.target;
+    if (session && details instanceof HTMLDetailsElement && !details.open && details.contains(session.trigger)) silence();
+  }, true);
+
+
+const grips = {"C":[0,1,0,2,3,null],"G":[3,0,0,0,2,3],"D":[2,3,2,0,null,null],"Em":[0,0,0,2,2,0],"Am":[0,1,2,2,0,null],"E":[0,0,1,2,2,0],"A":[0,2,2,2,0,null],"Dm":[1,3,2,0,null,null],"D7":[2,1,2,0,null,null],"A7":[0,2,0,2,0,null],"E7":[0,0,1,0,2,0],"B7":[2,0,2,1,2,null],"C7":[0,1,3,2,3,null],"G7":[1,0,0,0,2,3],"Am7":[0,1,0,2,0,null],"Em7":[0,0,0,0,2,0],"Dm7":[1,1,2,0,null,null],"Cmaj7":[0,0,0,2,3,null],"Fmaj7":[0,1,2,3,null,null],"Dsus2":[0,3,2,0,null,null],"Dsus4":[3,3,2,0,null,null],"Asus2":[0,0,2,2,0,null],"Asus4":[0,3,2,2,0,null],"Cadd9":[3,3,0,2,3,null]};
+const strings = globalThis.MusicMapFretboard.STRING_NAMES;
+const longStrings = ['ohut e','B','G','D','A','paksu E'];
+const sampleStrings = ['HighE','B','G','D','A','LowE'];
+const chrom = ['C','Cs','D','Ds','E','F','Fs','G','Gs','A','As','B'];
+const open = globalThis.MusicMapFretboard.OPEN_PITCHES;
+const {levels,orderFor}=globalThis.SointipajaLevelModel;
+let levelIndex=0, level=levels[levelIndex];
+const major=[0,4,7], minor=[0,3,7], dominant7=[0,4,7,10], minor7=[0,3,7,10], major7=[0,4,7,11], sus2=[0,2,7], sus4=[0,5,7], add9=[0,4,7,14];
+const chords = {
+  C:{root:0,intervals:major}, G:{root:7,intervals:major}, D:{root:2,intervals:major},
+  Em:{root:4,intervals:minor}, Am:{root:9,intervals:minor}, E:{root:4,intervals:major}, A:{root:9,intervals:major},
+  Dm:{root:2,intervals:minor}, D7:{root:2,intervals:dominant7}, A7:{root:9,intervals:dominant7}, E7:{root:4,intervals:dominant7},
+  B7:{root:11,intervals:dominant7}, C7:{root:0,intervals:dominant7,spell:{10:'B♭'},omitted:[7]}, G7:{root:7,intervals:dominant7},
+  Am7:{root:9,intervals:minor7}, Em7:{root:4,intervals:minor7}, Dm7:{root:2,intervals:minor7},
+  Cmaj7:{root:0,intervals:major7}, Fmaj7:{root:5,intervals:major7},
+  Dsus2:{root:2,intervals:sus2}, Dsus4:{root:2,intervals:sus4}, Asus2:{root:9,intervals:sus2}, Asus4:{root:9,intervals:sus4}, Cadd9:{root:0,intervals:add9},
+};
+const contrasts={
+  D:'D-duurissa on suuri terssi F♯. Dm:ssä se vaihtuu F:ksi, D7:ssä mukaan tulee C.',
+  Dm:'D-duurin F♯ vaihtuu F:ksi: pieni terssi tekee soinnusta mollin.',
+  D7:'D-duurin sävelten D, F♯ ja A lisäksi mukana on C, pieni septimi.',
+  A:'A-duurissa on C♯. A7:ssä mukaan tulee G, pieni septimi.',
+  A7:'A-duurin sävelten A, C♯ ja E lisäksi mukana on G, pieni septimi.',
+  E:'E-duurissa on G♯. E7:ssä mukaan tulee D, pieni septimi.',
+  E7:'E-duurin sävelten E, G♯ ja B lisäksi mukana on D, pieni septimi.',
+  Am:'Am:ssä on C, kun A-duurissa on C♯.',
+  Em:'Em:ssä on G, kun E-duurissa on G♯.',
+  B7:'B-duurin sävelten B, D♯ ja F♯ lisäksi A on pieni septimi.',
+  C7:'C7:n pieni septimi on B♭. Tästä tavallisesta avoimesta otteesta puuttuu kvintti G, mutta perussävel, suuri terssi ja pieni septimi säilyvät.',
+  G7:'G-duurin sävelten G, B ja D lisäksi F on pieni septimi.',
+  Am7:'Am-soinnun A, C ja E lisäksi G on pieni septimi.',
+  Em7:'Em-soinnun E, G ja B lisäksi D on pieni septimi.',
+  Dm7:'Dm-soinnun D, F ja A lisäksi C on pieni septimi.',
+  Cmaj7:'C-duurin sävelten C, E ja G lisäksi B on suuri septimi. C7:ssä se olisi B♭.',
+  Fmaj7:'F-duurin sävelten F, A ja C lisäksi E on suuri septimi.',
+  Dsus2:'D-duurin terssi F♯ korvautuu suurella sekunnilla E. Sus-soinnussa ei ole terssiä.',
+  Dsus4:'D-duurin terssi F♯ korvautuu kvartilla G. Sus-soinnussa ei ole terssiä.',
+  Asus2:'A-duurin terssi C♯ korvautuu suurella sekunnilla B. Sus-soinnussa ei ole terssiä.',
+  Asus4:'A-duurin terssi C♯ korvautuu kvartilla D. Sus-soinnussa ei ole terssiä.',
+  Cadd9:'C-duurin C, E ja G säilyvät; mukaan tulee D, nooni. Septimiä ei lisätä.'
+};
+const names = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+const byId = id => document.getElementById(id);
+const el = (tag,text,cls) => {const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
+let roundIndex=0, mode='level', order=[], index=0, answered=false, mistakes=0, firstTry=0, wrong=new Set();
+let results=[], missed={}, previous=null;
+let current, rootChoice=null;
+let challengeView='practice', game=null, gameConfig=null, gameTimer=null, gameOptions=[], lastLock=false, practiceInterrupted=false;
+const challengeModel=globalThis.SointipajaChallenge;
+const challengeGroups=challengeModel.cohorts(levels);
+const inGame=()=>challengeView==='play';
+const audioStatus=byId('audio-status'), stopButton=byId('stop');
+const pitch = (s,f) => open[s]+f;
+const spelledName = pc => chords[current].spell?.[pc] || names[pc];
+const nameOf = n => spelledName(n%12)+(Math.floor(n/12)-1);
+const roles={0:'perussävel',2:'suuri sekunti',3:'pieni terssi',4:'suuri terssi',5:'puhdas kvartti',7:'kvintti',10:'pieni septimi',11:'suuri septimi',14:'suuri nooni'};
+const roleOf = n => {const def=chords[current],pc=(n-def.root+12)%12;return roles[def.intervals.find(i=>i%12===pc)] || 'sointusävel';};
+const sampleOf = (s,f) => {const n=pitch(s,f);return sampleStrings[s]+':'+chrom[n%12]+(Math.floor(n/12)-1);};
+function voiced() {return grips[current].flatMap((f,s)=>f===null?[]:[{s,f}]).reverse();}
+function highlight(indices) {document.querySelectorAll('#board .mark').forEach(b=>b.classList.toggle('sounding',indices.includes(Number(b.dataset.string))));}
+function listen(trigger, mode, string, toggle=false) {
+  if(toggle&&session?.trigger===trigger){stop('Kuuntelu pysäytetty.');return;}
+  const positions=mode==='single'?voiced().filter(p=>p.s===string):voiced();
+  if(!positions.length)return;
+  const step=mode==='arpeggio' ? .45 : mode==='chord' ? .027 : 0;
+  // Arpeggio: anna kielten soida päällekkäin ja sammua luonnollisesti yhdessä.
+  // Ei luuppia eikä sävelen keinotekoista pidentämistä.
+  const arpeggioEnd=(positions.length-1)*step+1.5;
+  const gain=mode==='single' ? .40 : mode==='arpeggio' ? .16 : .19;
+  const plan=positions.map(({s,f},i)=>({
+    pitch:sampleOf(s,f),at:i*step,
+    duration:mode==='arpeggio'?arpeggioEnd-i*step:mode==='chord'?2.15:1.35,
+    gain,...(mode==='arpeggio'?{fade:.55}:{})
+  }));
+  if(answered&&mode==='single'){
+    const {s,f}=positions[0];const n=pitch(s,f);
+    byId('note-detail').textContent=longStrings[s]+'-kieli, '+(f===0?'vapaa':f+'. nauha')+' · '+nameOf(n)+' · '+roleOf(n)+'.';
+  }
+  void play(trigger,audioStatus,plan,{
+    label:mode==='single'?'Kieli soi.':mode==='arpeggio'?'Sointu rakentuu kieli kerrallaan.':'Sointu soi.',
+    onPosition: t=>highlight(t<0?[]:positions.filter((_,i)=>t>=plan[i].at&&t<plan[i].at+plan[i].duration).map(p=>p.s)),
+    onStop:()=>{if(document.activeElement===stopButton)byId('listen').focus();stopButton.disabled=true;highlight([]);}
+  });
+  stopButton.disabled=!session;
+}
+function marker(s,f) {
+  const b=el(inGame()?'span':'button',f===0?strings[s]:'●','mark'+(f===0?' open':''));b.dataset.string=s;b.dataset.fret=f;
+  const label=longStrings[s]+'-kieli, '+(f===0?'vapaa':f+'. nauha');
+  if(inGame()){b.setAttribute('role','img');b.setAttribute('aria-label',label);}
+  else {b.type='button';b.setAttribute('aria-label',label+', kuuntele'+(answered?', '+nameOf(pitch(s,f)):''));b.addEventListener('click',()=>listen(b,'single',s,true));}
+  return b;
+}
+let neckObserver;
+function renderBoard(){
+  // #187:n yhteinen kaulapinta. Kaikki kielet piirretään normaalisti myös silloin,
+  // kun jokin niistä jätetään soittamatta. Vain × kertoo soittamatta jättämisestä.
+  const library=globalThis.MusicMapFretboard;
+  const frets=grips[current], count=5;
+  const rail=library.neckStyle.rail, row=44, firstY=42, height=304;
+  const board=el('div',undefined,'chord-neck');
+  board.setAttribute('role','group');
+  board.setAttribute('aria-label','Otelauta, nauhat 0–5, ohut e ylhäällä');
+  board.style.minWidth=(rail+count*44+4)+'px';
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('aria-hidden','true');
+  const railBg=el('div',undefined,'rail-bg');railBg.style.width=rail+'px';
+  board.append(railBg,svg);
+  const items=[];
+  function place(n,f,y){n.style.top=y+'px';items.push({n,f});board.append(n);}
+  for(let s=0;s<6;s++){
+    const f=frets[s],y=firstY+s*row;
+    if(f===0){place(marker(s,0),0,y);continue;}
+    const label=el('span',strings[s]+(f===null?' ×':''),'rail-label'+(f===null?' mute':''));
+    label.setAttribute('aria-label',longStrings[s]+'-kieli'+(f===null?', ei soiteta':''));
+    place(label,0,y);
+    if(f!==null)place(marker(s,f),f,y);
+  }
+  // Satula ja painikkeet eivät kutistu mobiilissa: vain nauhavälin leveys joustaa.
+  // Näin sama kaulapinta ja paikkalogiikka voivat palvella myöhemmin pidempiäkin alueita.
+  let lastWidth=0;
+  function layout(){
+    const width=board.clientWidth;
+    if(!width||width===lastWidth)return;
+    lastWidth=width;
+    const cell=(width-rail-4)/count;
+    svg.setAttribute('viewBox','0 0 '+width+' '+height);
+    svg.innerHTML=library.neckSurface({count,cell,row,firstY})+
+      '<text x="'+(rail/2)+'" y="'+(firstY-row*.46-10)+'" fill="#afc1c9" font-size="12" font-weight="550" text-anchor="middle">0</text>';
+    for(const {n,f} of items)n.style.left=(f===0?rail/2:rail+(f-.5)*cell)+'px';
+  }
+  neckObserver?.disconnect();
+  byId('board').replaceChildren(board);
+  layout();
+  if(typeof ResizeObserver!=='undefined'){
+    neckObserver=new ResizeObserver(layout);
+    neckObserver.observe(board);
+  }
+}
+function groupedAnswers(){return inGame()||levelIndex>=1;}
+const rootLetters=['C','D','E','F','G','A','B'];
+// Valintaryhmä määräytyy kirjoitusasusta, ei enharmonisesta sävelkorkeudesta.
+const rootLetter = name => name[0];
+function rootsForRound(){
+  return rootLetters.filter(letter=>roundDef().options.some(n=>rootLetter(n)===letter));
+}
+function choicesForRoot(letter){
+  return roundDef().options.filter(n=>rootLetter(n)===letter);
+}
+function renderChordChoices(options){
+  const buttons=options.map(n=>{const b=el('button',n);b.type='button';b.addEventListener('click',()=>select(n));return b;});
+  byId('answers').replaceChildren(...buttons);
+  updateAnswers();
+}
+function chooseRoot(root){
+  if((inGame()&&!canPlayGame())||answered||rootChoice===root||!rootsForRound().includes(root))return;
+  rootChoice=root;
+  byId('root-hint').hidden=true;
+  renderChordChoices(choicesForRoot(root));
+}
+function renderAnswers(){
+  rootChoice=null;
+  const grouped=groupedAnswers();
+  byId('root-choice').hidden=!grouped;
+  byId('root-hint').hidden=!grouped;
+  byId('roots').replaceChildren();
+  if(!grouped){renderChordChoices(roundDef().options);return;}
+  const available=rootsForRound();
+  // Kiinteä diatoninen valintarivi, sama järjestys jokaisessa kierroksessa.
+  const roots=rootLetters.map(root=>{
+    const b=el('button',root);b.type='button';b.dataset.root=root;
+    b.disabled=!available.includes(root);
+    b.setAttribute('aria-pressed','false');b.setAttribute('aria-disabled',String(b.disabled));
+    b.addEventListener('click',()=>chooseRoot(root));return b;
+  });
+  byId('roots').replaceChildren(...roots);
+  renderChordChoices([]);
+}
+function updateAnswers(){
+  const locked=inGame()&&lastLock;
+  for(const b of byId('roots').children){
+    b.setAttribute('aria-pressed',String(b.dataset.root===rootChoice));
+    b.setAttribute('aria-disabled',String(answered||locked||b.disabled));
+  }
+  for(const b of byId('answers').children){const n=b.textContent;
+    b.classList.toggle('right',answered&&n===current);b.classList.toggle('wrong',wrong.has(n));
+    b.setAttribute('aria-disabled',String(answered||locked||wrong.has(n)));
+    b.setAttribute('aria-label',n+(answered&&n===current?', oikein':wrong.has(n)?', väärä vastaus':''));
+  }
+}
+function select(name){
+  if(inGame()){submitGame(name);return;}
+  if(answered||wrong.has(name)||!roundDef().options.includes(name)||(groupedAnswers()&&rootLetter(name)!==rootChoice))return;
+  const feedback=byId('feedback');
+  if(name!==current){wrong.add(name);mistakes++;feedback.className='feedback bad';feedback.textContent='Ei aivan. Tarkista otteen avoimet ja painetut kielet.';updateAnswers();return;}
+  answered=true;if(!wrong.size)firstTry++;else missed[current]=(missed[current]||0)+1;
+  feedback.className='feedback good';
+  feedback.replaceChildren(el('strong','Oikein!'),document.createTextNode(' Tämä on '+current+'-sointu.'));
+  const {root,intervals}=chords[current];
+  byId('notes').textContent='Sointusävelet: '+intervals.map(n=>spelledName((root+n)%12)).join(' – ')+'. Otteessa soi matalasta korkeaan: '+voiced().map(({s,f})=>nameOf(pitch(s,f))).join(' · ')+'.';
+  byId('contrast').hidden=levelIndex===0||!contrasts[current];byId('contrast').textContent=contrasts[current]||'';
+  byId('note-detail').textContent='Paina otteen merkkejä ja kuuntele säveliä.';
+  byId('explain').hidden=false;byId('next').hidden=false;
+  byId('next').textContent=index===order.length-1?'Kierroksen tulos →':'Seuraava sointu →';
+  updateAnswers();for(const b of byId('board').querySelectorAll('.mark')){
+    const fret=Number(b.dataset.fret),n=pitch(Number(b.dataset.string),fret);
+    b.classList.add('revealed');if(fret!==0)b.textContent=spelledName(n%12);
+    b.setAttribute('aria-label',b.getAttribute('aria-label')+', '+nameOf(n)+', '+roleOf(n));
+  }
+  updateHeader();listen(byId('listen'),'chord');
+}
+function roundDef(){return inGame()?{options:gameOptions}:level.rounds[roundIndex];}
+function totalQuestions(){return level.rounds.reduce((n,r)=>n+r.targets.length*r.repeats,0);}
+function updateHeader(){
+  byId('level-title').textContent='Taso '+(levelIndex+1)+' · '+level.title;
+  for(const [i,b] of Array.from(byId('level-picker').children).entries())b.setAttribute('aria-pressed',String(i===levelIndex));
+  const completed=mode==='level'?results.reduce((n,r)=>n+r.total,0)+(index<order.length?index+(answered?1:0):0):0;
+  byId('level-progress').textContent=mode==='level'?completed+'/'+totalQuestions()+' tehtävää ratkaistu':'Vapaa harjoittelu';
+  const steps=level.rounds.map((r,i)=>{
+    const item=el('span',(i+1)+' · '+r.title,'round-step');
+    if(i===roundIndex)item.setAttribute('aria-current','step');
+    if(mode==='level'&&results.some(x=>x.id===r.id))item.classList.add('done');
+    return item;
+  });
+  byId('round-steps').replaceChildren(...steps);
+  byId('round-context').textContent=mode==='free'?'Vapaa harjoittelu · '+roundDef().title:'Kierros '+(roundIndex+1)+' / '+level.rounds.length+' · '+roundDef().title;
+}
+function renderSummary(focus){
+  neckObserver?.disconnect();
+  byId('round').hidden=true;byId('summary').hidden=false;
+  const result={id:roundDef().id,title:roundDef().title,total:order.length,firstTry,mistakes,missed:{...missed}};
+  if(mode==='level')results.push(result);
+  const final=mode==='level'&&roundIndex===level.rounds.length-1;
+  const shown=final?results:[result];
+  const total=shown.reduce((n,r)=>n+r.total,0),first=shown.reduce((n,r)=>n+r.firstTry,0),errors=shown.reduce((n,r)=>n+r.mistakes,0);
+  byId('done-heading').textContent=final?'Taso '+(levelIndex+1)+' valmis':mode==='free'?'Harjoituskierros valmis':'Kierros '+(roundIndex+1)+' valmis';
+  byId('result').textContent=first+'/'+total+' oikein ensimmäisellä yrityksellä. '+errors+' väärää valintaa. Kaikki '+total+' tehtävää ratkaistu.';
+  const report=shown.map(r=>el('li',r.title+': '+r.firstTry+'/'+r.total+' oikein ensimmäisellä yrityksellä.'));
+  const list=el('ul');list.append(...report);byId('round-results').replaceChildren(list);
+  const misses={};for(const r of shown)for(const [n,c] of Object.entries(r.missed))misses[n]=(misses[n]||0)+c;
+  const difficult=Object.entries(misses).sort((a,b)=>b[1]-a[1]).map(([n,c])=>n+' ('+c+')');
+  byId('difficult').textContent=difficult.length?'Kertaa vielä: '+difficult.join(', ')+'. Luku kertoo tehtävät, joissa tarvitsit uuden yrityksen.':'Kaikki tehtävät oikein ensimmäisellä yrityksellä.';
+  byId('continue').hidden=mode!=='level'||final;
+  byId('retry-round').hidden=mode!=='free';
+  byId('restart').textContent=final?'Harjoittele taso uudelleen':'Aloita koko taso alusta';
+  byId('next-level').hidden=!final||levelIndex>=levels.length-1;
+  byId('future').hidden=!final||levelIndex<levels.length-1;
+  updateHeader();
+  if(focus)byId('done-heading').focus();
+}
+function show(focus=false){
+  stop();audioStatus.textContent='';audioStatus.classList.remove('is-error');highlight([]);answered=false;wrong=new Set();
+  if(index>=order.length){renderSummary(focus);return;}
+  current=order[index];byId('summary').hidden=true;byId('round').hidden=false;
+  byId('progress').textContent='Sointu '+(index+1)+' / '+order.length;
+  byId('feedback').textContent='';byId('feedback').className='feedback';byId('explain').hidden=true;byId('next').hidden=true;
+  renderAnswers();renderBoard();updateHeader();if(focus)byId('question').focus();
+}
+function startRound(i,kind,focus=true){
+  roundIndex=i;mode=kind;
+  order=orderFor(roundDef(),Math.random,kind==='level'?previous:null);
+  index=0;mistakes=0;firstTry=0;missed={};
+  byId('settings').open=false;show(focus);
+}
+function reset(focus=false){results=[];previous=null;startRound(0,'level',focus);}
+function startFree(i){results=[];previous=null;startRound(i,'free');}
+byId('listen').addEventListener('click',e=>listen(e.currentTarget,'chord',undefined,true));
+byId('arpeggio').addEventListener('click',e=>listen(e.currentTarget,'arpeggio',undefined,true));
+stopButton.addEventListener('click',()=>{stop('Kuuntelu pysäytetty.');byId('listen').focus();});
+byId('next').addEventListener('click',()=>{if(answered){previous=current;index++;show(true);}});
+byId('restart').addEventListener('click',()=>reset(true));
+byId('continue').addEventListener('click',()=>{if(mode==='level'&&roundIndex<level.rounds.length-1)startRound(roundIndex+1,'level');});
+byId('retry-round').addEventListener('click',()=>startFree(roundIndex));
+byId('start-level').addEventListener('click',()=>reset(true));
+function renderFreeRounds(){
+  const buttons=level.rounds.map((r,i)=>{const b=el('button',(i+1)+' · '+r.title);b.type='button';b.addEventListener('click',()=>startFree(i));return b;});
+  byId('free-rounds').replaceChildren(...buttons);
+}
+function chooseLevel(i,focus=true){
+  if(challengeView!=='practice'||i<0||i>=levels.length)return;
+  levelIndex=i;level=levels[i];renderFreeRounds();reset(focus);
+}
+for(const [i,l] of levels.entries()){
+  const b=el('button','Taso '+(i+1));b.type='button';b.setAttribute('aria-label','Taso '+(i+1)+' · '+l.title);
+  b.addEventListener('click',()=>{if(i!==levelIndex)chooseLevel(i);});byId('level-picker').append(b);
+}
+byId('next-level').addEventListener('click',()=>chooseLevel(levelIndex+1));
+
+function selection(){
+  const ids=Array.from(byId('challenge-levels').querySelectorAll('input:checked')).map(b=>b.value);
+  const duration=Number(byId('challenge-duration').value),penalty=4;
+  return {ids,duration,penalty,pool:challengeModel.poolFor(challengeGroups,ids)};
+}
+function recordStorage(){
+  try{return window.localStorage;}catch{return null;}
+}
+function refreshChallengeSetup(){
+  const c=selection();
+  byId('challenge-pool').textContent=c.pool.length+' eri sointua pelissä.';
+  byId('challenge-start').disabled=c.pool.length<2;
+  const best=challengeModel.readRecord(recordStorage(),challengeModel.recordKey(c.ids,c.duration,c.penalty));
+  byId('challenge-best').textContent=best===null?'Ei tallennettua ennätystä näillä asetuksilla.':'Oma ennätys näillä asetuksilla: '+best+' pistettä.';
+}
+function stopGameTimer(){if(gameTimer!==null){clearInterval(gameTimer);gameTimer=null;}}
+function setChallengeView(view){
+  challengeView=view;
+  const practice=view==='practice',playing=view==='play';
+  byId('mode-practice').setAttribute('aria-pressed',String(practice));
+  byId('mode-challenge').setAttribute('aria-pressed',String(!practice));
+  byId('prototype').classList.toggle('challenge-active',playing);
+  byId('practice-head').hidden=!practice;
+  byId('settings').hidden=!practice;
+  byId('practice-audio').hidden=!practice;
+  byId('practice-instruction').hidden=!practice;
+  byId('challenge-setup').hidden=view!=='setup';
+  byId('challenge-live').hidden=!playing;
+  byId('challenge-result').hidden=view!=='result';
+  if(!practice){byId('summary').hidden=true;byId('round').hidden=!playing;byId('progress').hidden=true;byId('next').hidden=true;byId('explain').hidden=true;byId('audio-status').textContent='';}
+  else {byId('progress').hidden=false;}
+}
+function openChallenge(note=''){
+  stop();stopGameTimer();game=null;lastLock=false;
+  setChallengeView('setup');
+  byId('challenge-setup-note').textContent=note;
+  refreshChallengeSetup();
+  byId('challenge-heading').focus();
+}
+function returnPractice(){
+  if(challengeView==='practice')return;
+  stopGameTimer();game=null;lastLock=false;
+  const interrupted=practiceInterrupted;practiceInterrupted=false;
+  setChallengeView('practice');
+  // Aiempi harjoitus voidaan palauttaa, jos pelin asetuksissa vain käytiin.
+  // Pelin käynnistys muuttaa jaettua tehtävänäkymää; tällöin aloitetaan taso alusta.
+  if(interrupted){reset(true);}
+  else {
+    if(index>=order.length){byId('summary').hidden=false;byId('round').hidden=true;byId('done-heading').focus();}
+    else {byId('summary').hidden=true;byId('round').hidden=false;byId('explain').hidden=!answered;byId('next').hidden=!answered;byId('question').focus();}
+  }
+}
+function gameNow(){return performance.now();}
+function renderGameQuestion(state){
+  current=state.current;answered=false;wrong=new Set(state.wrong);lastLock=state.phase==='locked';
+  byId('feedback').textContent='';byId('feedback').className='feedback';
+  renderAnswers();renderBoard();
+}
+function displayGameState(state){
+  const seconds=Math.ceil(state.remainingMs/1000);
+  byId('challenge-time').textContent=String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');
+  byId('challenge-score').textContent=String(state.score);
+  byId('challenge-errors').textContent=String(state.errors);
+  byId('challenge-progress').value=state.remainingMs/1000;
+  byId('challenge-lock').textContent=state.phase==='locked'?'Lukitus · '+Math.ceil(state.lockMs/1000)+' s':'';
+}
+function finishGame(state){
+  if(!inGame())return;
+  stopGameTimer();neckObserver?.disconnect();lastLock=false;
+  setChallengeView('result');
+  const c=gameConfig;
+  const record=challengeModel.saveRecord(recordStorage(),challengeModel.recordKey(c.ids,c.duration,c.penalty),state.score);
+  byId('challenge-result-score').textContent=state.score+' pistettä';
+  byId('challenge-result-config').textContent=c.duration+' s · Tasot '+c.ids.map(id=>challengeGroups.findIndex(g=>g.id===id)+1).join(', ')+' · '+c.penalty+' s virhelukitus';
+  byId('challenge-result-first').textContent=String(state.firstTry);
+  byId('challenge-result-errors').textContent=String(state.errors);
+  byId('challenge-result-penalty').textContent=new Intl.NumberFormat('fi-FI',{maximumFractionDigits:1}).format(state.penaltyMs/1000)+' s';
+  byId('challenge-result-best').textContent=record.saved?String(record.best):record.previous===null?'Ei tallennettu':String(record.previous);
+  byId('challenge-result-record').textContent=!record.saved?'Ennätystä ei voitu tallentaa selaimeen.':record.newRecord?'Uusi oma ennätys!':'';
+  const misses=Object.entries(state.missed).sort((a,b)=>b[1]-a[1]).map(([name,n])=>name+' ('+n+')');
+  byId('challenge-result-review').textContent=misses.length?'Kertaa erityisesti: '+misses.join(', ')+'.':'Ei vääriä vastauksia.';
+  game=null;
+  byId('challenge-result-heading').focus();
+}
+function syncGame(){
+  if(!inGame()||!game)return null;
+  const state=game.state(gameNow());
+  displayGameState(state);
+  if(state.phase==='finished'){finishGame(state);return null;}
+  const locked=state.phase==='locked';
+  if(locked!==lastLock){
+    lastLock=locked;updateAnswers();
+    if(!locked)byId('challenge-feedback').textContent='Voit yrittää uudelleen.';
+  }
+  return state;
+}
+function canPlayGame(){return syncGame()?.phase==='playing';}
+function submitGame(name){
+  if(!canPlayGame()||rootLetter(name)!==rootChoice||!gameOptions.includes(name))return;
+  const outcome=game.submit(name,gameNow());
+  if(!outcome.accepted){syncGame();return;}
+  const state=outcome.state;
+  if(state.phase==='finished'){finishGame(state);return;}
+  if(outcome.correct){
+    renderGameQuestion(state);displayGameState(state);
+    byId('challenge-feedback').textContent='Oikein! Seuraava sointu.';
+    byId('roots').querySelector('button:not(:disabled)')?.focus({preventScroll:true});
+  }else{
+    wrong=new Set(state.wrong);lastLock=true;
+    updateAnswers();displayGameState(state);
+    byId('challenge-feedback').textContent='Väärin. Valinnat lukittu '+gameConfig.penalty+' sekunniksi. Yritä samaa sointua uudelleen lukituksen jälkeen.';
+  }
+}
+function startChallenge(config){
+  if(config.pool.length<2)return;
+  stop();stopGameTimer();practiceInterrupted=true;
+  gameConfig={...config,ids:[...config.ids],pool:[...config.pool]};
+  gameOptions=gameConfig.pool;
+  lastLock=false;
+  setChallengeView('play');
+  byId('challenge-progress').max=config.duration;
+  byId('challenge-feedback').textContent='Peli alkoi.';
+  // Ensimmäinen ote näkyy ennen kuin ajastimen ensimmäinen päivitys suoritetaan.
+  game=challengeModel.createGame({pool:gameOptions,duration:config.duration,penalty:config.penalty,now:gameNow(),orderFor});
+  renderGameQuestion(game.state(gameNow()));
+  syncGame();
+  byId('question').focus();
+  gameTimer=setInterval(syncGame,100);
+}
+for(const [i,g] of challengeGroups.entries()){
+  const label=el('label'),input=el('input');
+  input.type='checkbox';input.value=g.id;input.checked=i<2;
+  input.addEventListener('change',refreshChallengeSetup);
+  label.append(input,document.createTextNode('Taso '+(i+1)+' · '+g.title+' ('+g.names.length+' sointua)'));
+  byId('challenge-levels').append(label);
+}
+byId('challenge-duration').addEventListener('change',refreshChallengeSetup);
+byId('mode-challenge').addEventListener('click',()=>{if(challengeView==='practice')openChallenge();});
+byId('mode-practice').addEventListener('click',returnPractice);
+byId('challenge-start').addEventListener('click',()=>startChallenge(selection()));
+byId('challenge-stop').addEventListener('click',()=>openChallenge('Peli keskeytettiin. Tulosta ei tallennettu.'));
+byId('challenge-replay').addEventListener('click',()=>{if(gameConfig)startChallenge(gameConfig);});
+byId('challenge-config').addEventListener('click',()=>openChallenge());
+byId('challenge-return').addEventListener('click',returnPractice);
+document.addEventListener('visibilitychange',()=>{if(inGame())syncGame();});
+window.addEventListener('pagehide',()=>{if(inGame())openChallenge('Peli keskeytettiin sivulta poistuttaessa.');});
+
+try {byId('prototype').hidden=false;chooseLevel(0,false);} catch(error) {console.error('Sointipajan lataus epäonnistui',error);byId('prototype').hidden=true;byId('load-error').hidden=false;}
+})();
+</script>
+</body>
+</html>

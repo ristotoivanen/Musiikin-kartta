@@ -47,7 +47,7 @@ test.describe('Kolme oppimistapaa ja Soittopakki', () => {
     await filter.getByRole('link', { name: /Soinnut ja harmonia/ }).click();
     await expect(page).toHaveURL(/#aihe-soinnut$/);
     const topic = page.locator('#aihe-soinnut');
-    await expect(topic.locator('.game-card')).toHaveCount(2);
+    await expect(topic.locator('.game-card')).toHaveCount(3);
     await expect(topic.getByRole('link', { name: /Tunnista avoin sointu/ })).toBeVisible();
     const chord = topic.getByRole('link', { name: /Mikä sointu tulee\?/ });
     await expect(chord).toContainText('06 Soinnut ja harmonia · 08 Kappaleet ja oma musiikki');
@@ -59,7 +59,7 @@ test.describe('Kolme oppimistapaa ja Soittopakki', () => {
     await page.goBack();
     await expect(page.locator('#aihe-soinnut')).toBeVisible();
     await filter.getByRole('link', { name: /Kaikki pelit/ }).click();
-    await expect(page.locator('#pelit .game-card')).toHaveCount(7);
+    await expect(page.locator('#pelit .game-card')).toHaveCount(9);
   });
 
   test('Musapeleistä avattu kuuntelutehtävä palaa Musapeleihin', async ({ page }) => {
@@ -424,7 +424,7 @@ test.describe('Pääosiot puhelimessa, näppäimistöllä, ilman JavaScriptiä j
     test.use({ javaScriptEnabled: false });
     test('F: pelit, aiherajaus ja harjoitukset toimivat ilman JavaScriptiä', async ({ page }) => {
       await page.goto('/musapelit.html');
-      await expect(page.locator('#pelit .game-card')).toHaveCount(7);
+      await expect(page.locator('#pelit .game-card')).toHaveCount(9);
       await expect(page.locator('#pelit .game-card').first()).toBeVisible();
       // Aiherajaus on CSS:n :target, ei JavaScript.
       await page.goto('/musapelit.html#aihe-soinnut');
@@ -466,7 +466,7 @@ test.describe('Pääosiot puhelimessa, näppäimistöllä, ilman JavaScriptiä j
     await page.goto('/musapelit.html#aihe-otelauta');
     await page.emulateMedia({ media: 'print' });
     await expect(page.locator('.game-filter')).toBeHidden();
-    await expect(page.locator('#pelit .game-card')).toHaveCount(7);
+    await expect(page.locator('#pelit .game-card')).toHaveCount(9);
     await expect(page.locator('#pelit')).toBeVisible();
   });
 
@@ -508,3 +508,18 @@ test.describe('Pääosiot puhelimessa, näppäimistöllä, ilman JavaScriptiä j
     });
   }
 });
+
+ test('Sointipaja beta löytyy Musapeleistä ja palaa samaan aiheeseen', async ({page})=>{
+  await page.goto('/musapelit.html#aihe-soinnut');
+  const card=page.locator('#aihe-soinnut').getByRole('link',{name:/Sointipaja/});
+  await expect(card.locator('.mode-badge')).toHaveText('beta');
+  await card.click();
+  await expect(page).toHaveURL(/sointipaja-prototyyppi\.html\?aihe=aihe-soinnut&tapa=pelit$/);
+  await expect(page.locator('h1 .mode-badge')).toHaveText('beta');
+  await expect(page.locator('#prototype')).toBeVisible();
+  await page.locator('#mode-challenge').click();
+  await expect(page.locator('#challenge-setup')).toBeVisible();
+  await page.getByRole('link',{name:'← Musapelit: Soinnut ja harmonia',exact:true}).click();
+  await expect(page).toHaveURL(/musapelit\.html#aihe-soinnut$/);
+  await expect(page.locator('#aihe-soinnut').getByRole('link',{name:/Tunnista avoin sointu/})).toBeVisible();
+ });

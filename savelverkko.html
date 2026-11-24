@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Sävelverkko · Musiikin kartta</title>
+<link rel="stylesheet" href="assets/savelverkko.css?v=603a55bc3e">
+<link rel="stylesheet" href="assets/paavalikko.css?v=4e5c7fbf95">
+</head>
+<body>
+<header class="site-top">
+  <nav class="main-nav" aria-label="Päävalikko">
+    <a class="brand" href="index.html">Musiikin <span>kartta</span></a>
+    <ul>
+      <li><a href="index.html">Opi &amp; oivalla</a></li>
+      <li><a href="musapelit.html" aria-current="true">Musapelit</a></li>
+      <li><a href="kitaratreeni.html">Kitaratreeni</a></li>
+      <li><a href="soittopakki.html">Soittopakki</a></li>
+    </ul>
+  </nav>
+</header>
+<main class="app">
+  <header><a href="musapelit.html#aihe-otelauta">← Otelaudan musapelit</a>
+    <h1>Sävel<span>verkko</span></h1>
+    <p>Löydä tutulle sävelelle uusi paikka kitaran otelaudalta.</p>
+  </header>
+  <section class="instrument" aria-label="Sävelverkko">
+    <div class="toolbar">
+      <label class="setting">Harjoitus<select id="mode">
+        <option value="tutki">Tutki verkkoa</option><option value="sama-korkeus">Etsi sama korkeus</option>
+        <option value="oktaavi">Etsi oktaavit</option><option value="muisti">Rakenna muistista</option>
+      </select></label>
+      <label class="setting" id="explore-setting">Näkymä<select id="explore-view">
+        <option value="full">Koko verkko</option><option value="unison">Seuraa samaa korkeutta</option>
+        <option value="octave">Seuraa oktaavikuviota</option>
+      </select></label>
+      <label id="order-setting" class="setting" hidden>Säveljärjestys<select id="order">
+        <option value="random">Arvottu</option><option value="ordered">C–D–E–F–G–A–B</option>
+      </select></label>
+      <div class="setting"><span id="range-label">Nauhat</span><div class="seg" role="group" aria-labelledby="range-label">
+        <button id="short" type="button" aria-pressed="true">0–12</button><button id="long" type="button" aria-pressed="false">0–24</button>
+      </div></div>
+      <button class="sound" id="mute" type="button" aria-pressed="true">Ääni päällä</button>
+    </div>
+    <div id="task-area" class="pad task">
+      <div class="task-head"><h2 id="heading">C otelaudalla</h2><span id="meter"></span></div>
+      <p id="instruction"></p>
+      <ul id="directions" class="direction-list" aria-label="Tämän lähtöpaikan oktaavit" hidden></ul>
+      <div id="round-result" class="round-result" role="status" aria-atomic="true" hidden>
+        <span class="tick" aria-hidden="true">✓</span>
+        <div><strong id="result-title"></strong><small id="result-count"></small></div>
+      </div>
+      <div id="picker" class="notes" role="group" aria-label="Harjoiteltava sävel"></div><p id="trace-caption" role="status" hidden></p>
+    </div>
+    <div id="board-panel">
+      <div class="board-shell">
+        <div id="board-scroll" class="board-scroll" role="group" aria-label="Kitaran otelauta tabulatuurijärjestyksessä, ohut e ylimpänä ja paksu E alimpana. Siirry nuolinäppäimillä ja soita Enterillä tai välilyönnillä."><div id="board-track"></div></div>
+      </div>
+      <div class="board-nav"><span id="viewport"></span><div id="jumps" role="group" aria-label="Siirry nauhalle">
+        <button type="button" data-jump="0">0</button><button type="button" data-jump="12">12</button><button type="button" data-jump="24">24</button></div>
+        <div class="legend"><span id="key-unison"><i></i>Sama korkeus</span><span id="key-octave"><i class="oct"></i>Oktaavi</span><span id="key-previous" hidden><i class="old"></i>Edellinen kuvio</span></div>
+      </div>
+      <div class="pad under">
+        <div id="feedback" role="status" aria-live="polite"></div>
+        <div id="neighbors" class="neighbors" role="group" aria-label="Vertaa valittuun säveleen"></div>
+        <div class="actions"><button id="next" class="primary" hidden>Seuraava tehtävä</button><button id="same-note" hidden>Sama sävel uudelleen</button><button id="play">Kuuntele verkko</button><button id="hint" hidden>Vihje</button><button id="reveal" hidden>Näytä vastaus</button><button id="all" hidden>Näytä koko verkko</button><button id="reset" hidden>Aloita alusta</button><button id="guitar">Kokeile kitaralla</button></div>
+      </div>
+    </div>
+    <section id="guitar-panel" class="pad guitar" hidden aria-labelledby="guitar-title"><h3 id="guitar-title">Soita omalla kitaralla</h3><p id="guitar-task"></p>
+      <div class="actions"><button id="reference">Kuuntele vertailusävel</button><button class="primary" id="check">Tarkista paikat</button><button id="back">Palaa laudalle</button></div><p id="answer" role="status"></p>
+    </section>
+  </section>
+  <section id="info" class="info" aria-label="Lisätiedot">
+    <details id="places"><summary>Sävelpaikat korkeuksittain</summary><div id="groups"></div></details>
+    <details><summary>Miten luen otelautaa?</summary><div class="help"><p>Kielet ovat kuten tabulatuurissa. Ylhäältä alas järjestys on e, B, G, D, A, E. Ohut e on ylimpänä ja paksu E alimpana. Valitse vapaa kieli napauttamalla sen kirjainta satulan vasemmalta puolelta. Esimerkiksi A/0 tarkoittaa vapaata A-kieltä. Merkintä A/3 tarkoittaa A-kielen 3. nauhaa.</p><p>Yhtenäisen vihreän viivan päissä soi yhtä korkea sävel. Keltaisen katkoviivan päissä on yhden oktaavin ero. Tutkitun pisteen rengas näyttää lähtöpaikan.</p><p>Kun siirryt kaksi kieltä kohti ohuempia, oktaavi löytyy paksulta E- tai A-kieleltä aloittaessa kaksi nauhaa oikealta. D- tai G-kieleltä aloittaessa matka ylittää G–B-välin ja tarvitset kolme nauhaa. Takaisinpäin käännät molemmat suunnat.</p><p>Katso soittimellasi käytettävissä olevat nauhat, jos tutkit 0–24-aluetta. Ääni on selaimen tuottama vertailuääni.</p></div></details>
+  </section>
+<p><a href="oppi/otelauta/otelauta.html">Otelauta ja oktaavimuodot · teoria ja soittoharjoitukset</a></p>
+  <noscript><p>Sävelverkon pelaamiseen tarvitaan JavaScript.</p></noscript>
+</main>
+<script src="assets/otelauta.js"></script>
+<script src="assets/savelverkko.js"></script></body></html>

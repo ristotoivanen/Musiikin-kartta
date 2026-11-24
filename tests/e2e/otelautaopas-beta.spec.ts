@@ -126,7 +126,7 @@ test.describe('Otelautaopas BETA', () => {
   test('otelaudalla ei ole tallaa ja kielten paksuudet kasvavat ohuesta paksuun', async ({ page }) => {
     await page.goto(PAGE + '#soinnut');
     await expect(page.locator('#board svg')).not.toContainText('Talla');
-    const widths = await page.locator('#board svg line[stroke="#b9b9c4"]').evaluateAll(nodes =>
+    const widths = await page.locator('#board svg line[stroke="#b9b9c4"], #board svg line[stroke="#c4d2d3"]').evaluateAll(nodes =>
       nodes.filter(n => n.getAttribute('y1') === n.getAttribute('y2')).map(n => Number(n.getAttribute('stroke-width'))));
     expect(widths).toHaveLength(6);
     expect(widths).toEqual([...widths].sort((a, b) => a - b));

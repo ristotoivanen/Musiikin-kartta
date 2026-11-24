@@ -1,0 +1,45 @@
+name: Sointipaja beta integration QA
+on:
+  push:
+    branches: [chatgpt/48-beta-integraatio]
+permissions:
+  contents: write
+concurrency:
+  group: sointipaja-beta-integraatio
+  cancel-in-progress: false
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/chatgpt/48-beta-integraatio'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate sections from registry
+        run: |
+          python3 tools/oppimiskartta/rakenna-osiot.py
+          python3 tools/oppimiskartta/rakenna-osiot.py --tarkista
+          git diff --name-only
+          python3 - <<'PY'
+          import subprocess
+          changed=set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())
+          allowed={'musapelit.html','assets/oppimistapa.js','sointipaja-prototyyppi.html'}
+          assert changed <= allowed, f'Unexpected generated changes: {changed-allowed}'
+          PY
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npx playwright install --with-deps chromium webkit
+      - run: npx playwright test tests/e2e/sointipaja-prototype.spec.ts tests/e2e/sointipaja-challenge.spec.ts tests/e2e/osiot.spec.ts tests/e2e/musapelit-142.spec.ts tests/e2e/savelverkko.spec.ts --workers=2
+      - run: npx playwright test tests/e2e/sointipaja-prototype.spec.ts tests/e2e/sointipaja-challenge.spec.ts tests/e2e/osiot.spec.ts tests/e2e/musapelit-142.spec.ts tests/e2e/savelverkko.spec.ts --config=playwright.musapelit-142-webkit.config.ts --workers=2
+      - name: Persist generated files on this integration branch only
+        run: |
+          git add musapelit.html assets/oppimistapa.js sointipaja-prototyyppi.html
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "build(#48): regenerate beta game registry outputs"
+            git push origin HEAD:chatgpt/48-beta-integraatio
+          fi
