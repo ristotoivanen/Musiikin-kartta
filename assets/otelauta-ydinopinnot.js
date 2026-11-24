@@ -343,19 +343,41 @@ export function landmarkReason(string, fret) {
   return `Se on ${countWords(Math.abs(distance), 'nauha', 'nauhaa')} ${name}:n ${distance > 0 ? 'yläpuolella' : 'alapuolella'} (${at}).`;
 }
 
+/**
+ * Kiintopistetehtävien tavoiteosuus: alussa kiintopisteet opitaan (≈ 75 %), myöhemmin painopiste
+ * siirtyy niiden välissä olevien sävelten päättelyyn (≈ 20 %). Kiintopisteitä kysytään aina.
+ */
+export const LANDMARK_PHASE = 4;
+export function landmarkShare(index) {
+  return index < LANDMARK_PHASE ? 0.75 : 0.2;
+}
+
+/** Onko tehtävän vastaus kiintopisteessä (nauha 0, 3, 5, 7 tai 12)? */
+export function isLandmarkRound(round) {
+  if (round.type === 'nimea') return LANDMARKS.includes(round.at[1]);
+  return positionsOf(round.note, [round.string]).some(position => LANDMARKS.includes(position.fret));
+}
+
 export function generateRootRound(rand, index = 0, history = []) {
   const types = history.slice(-2).map(round => round.type);
   const type = types.length === 2 && types[0] === types[1] ? (types[0] === 'etsi' ? 'nimea' : 'etsi') : pick(rand, ['etsi', 'nimea']);
   const last = history.at(-1);
+  const wantLandmark = rand() < landmarkShare(index);
+  const preferred = (pool, landmark) => {
+    const matching = pool.filter(round => isLandmarkRound(round) === landmark);
+    return matching.length ? matching : pool;
+  };
   if (type === 'nimea') {
-    const options = ALL_POSITIONS.filter(position => ROOT_STRINGS.includes(position.string) && position.fret > 0 &&
-      NATURALS.includes(noteName(position.midi)) && !(last?.at && samePosition(last.at, [position.string, position.fret])));
-    const position = pick(rand, options);
-    return Object.freeze({ type, at: Object.freeze([position.string, position.fret]) });
+    const pool = ALL_POSITIONS.filter(position => ROOT_STRINGS.includes(position.string) && position.fret > 0 &&
+      NATURALS.includes(noteName(position.midi)) && !(last?.at && samePosition(last.at, [position.string, position.fret])))
+      .map(position => Object.freeze({ type, at: Object.freeze([position.string, position.fret]) }));
+    return pick(rand, preferred(pool, wantLandmark));
   }
-  const chromatic = index >= CHROMATIC_FROM && rand() < 0.4;
-  const notes = (chromatic ? ACCIDENTALS : NATURALS).filter(note => note !== last?.note);
-  return Object.freeze({ type, note: pick(rand, notes), string: pick(rand, ROOT_STRINGS) });
+  const string = pick(rand, ROOT_STRINGS);
+  const chromatic = index >= CHROMATIC_FROM && !wantLandmark && rand() < 0.4;
+  const pool = (chromatic ? ACCIDENTALS : NATURALS).filter(note => note !== last?.note)
+    .map(note => Object.freeze({ type, note, string }));
+  return pick(rand, chromatic ? pool : preferred(pool, wantLandmark));
 }
 
 export function rootAnswer(round) {
@@ -379,13 +401,18 @@ export function rootHint(round) {
   return `Vihje: ${text}`;
 }
 
-export function checkRootName(round, name) {
+/**
+ * Väärä nimi ei paljasta vastausta eikä lähimmän kiintopisteen sävelnimeä: ensimmäinen virhe neuvoo
+ * menetelmän, toinen kertoo vain, mistä nauhasta kannattaa laskea.
+ */
+export function checkRootName(round, name, attempt = 1) {
   const correct = rootAnswer(round);
   const [string, fret] = round.at;
   if (name === correct) return { ok: true, kind: 'oikein', message: `Oikein. ${capital(longPosition(string, fret))} on ${correct}. ${landmarkReason(string, fret)}` };
+  if (attempt <= 1) return { ok: false, kind: 'vaara', message: `Ei ${name}. Lähde lähimmästä kiintopisteestä ja laske nauhat siitä.` };
   const mark = nearestLandmark(fret);
-  const at = mark === 0 ? 'vapaa kieli' : `${mark}. nauha`;
-  return { ok: false, kind: 'vaara', message: `Ei ${name}. Lähin kiintopiste: ${at} on ${noteName(pitchAt(string, mark))}.` };
+  const at = mark === 0 ? 'vapaasta kielestä' : `${mark}. nauhasta`;
+  return { ok: false, kind: 'vaara', message: `Ei ${name}. Laske ${at}. Muista: E–F ja B–C ovat vierekkäin.` };
 }
 
 export function checkRootFind(round, string, fret) {
@@ -729,14 +756,11 @@ function setFeedback(shell, result) {
   shell.feedback.textContent = result.message;
   if (result.ok === undefined) delete shell.feedback.dataset.tulos;
   else shell.feedback.dataset.tulos = result.ok ? 'oikein' : 'yrita';
-  // Ennen ensimmäistä palautetta paneeli on laudan alla eikä peitä mitään.
-  shell.panel.classList.add('is-tahmea');
 }
 
 function clearFeedback(shell) {
   shell.feedback.textContent = '';
   delete shell.feedback.dataset.tulos;
-  shell.panel.classList.remove('is-tahmea');
 }
 
 async function sound(shell, notes, { force = false } = {}) {
@@ -974,7 +998,8 @@ function setupRoot(root, shell) {
   function chooseName(name, choice) {
     if (state.solved || round.type !== 'nimea' || choice.getAttribute('aria-disabled') === 'true') return;
     sound(shell, [{ midi: pitchAt(...round.at) }]);
-    const result = checkRootName(round, name);
+    state.misses = (state.misses ?? 0) + 1;
+    const result = checkRootName(round, name, state.misses);
     setFeedback(shell, result);
     if (!result.ok) {
       choice.setAttribute('aria-disabled', 'true');
@@ -1048,7 +1073,11 @@ function setupFindAll(root, shell) {
         if (found.size === all.length) return;
         const result = checkFindAll(target, found, string, fret, level);
         setFeedback(shell, result);
-        if (!result.ok) return;
+        if (!result.ok) {
+          // Kompakti palaute napautetussa kohdassa: näkyy, vaikka tekstipalaute olisi laudan alla.
+          if (result.kind === 'vaara') board.mark(string, fret, { kind: 'yritys', text: noteName(pitchAt(string, fret)), label: `kokeiltu, ${noteName(pitchAt(string, fret))}` });
+          return;
+        }
         found.set(`${string}${fret}`, { string, fret, midi: pitchAt(string, fret) });
         board.mark(string, fret, { kind: 'oikein', text: pitchName(pitchAt(string, fret)), label: `löydetty, ${pitchName(pitchAt(string, fret))}` });
         drawList();

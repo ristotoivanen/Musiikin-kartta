@@ -277,7 +277,7 @@ test.describe('03 · Etsi perussävel E- ja A-kieleltä', () => {
         const wrong = ['C', 'D', 'E', 'F', 'G', 'A', 'B'].find(other => other !== name)!;
         const names = root.getByRole('group', { name: 'Sävelen nimi' });
         await names.getByRole('button', { name: wrong, exact: true }).click();
-        await expect(feedback(root)).toContainText(`Ei ${wrong}. Lähin kiintopiste:`);
+        await expect(feedback(root)).toHaveText(`Ei ${wrong}. Lähde lähimmästä kiintopisteestä ja laske nauhat siitä.`);
         await names.getByRole('button', { name, exact: true }).click();
         await expect(feedback(root)).toContainText(`on ${name}.`);
       } else {
@@ -342,7 +342,7 @@ test('aihesivun neljä harjoitusta toimivat samalla sivulla toisistaan riippumat
   expect(await noHorizontalScroll(page)).toBe(true);
 });
 
-for (const width of [320, 360, 390]) {
+for (const width of [320, 375, 390, 402, 430]) {
   test(`${width} px: kuusi kieltä mahtuu, solut vähintään 44 × 44 px, ei sivun vaakavieritystä`, async ({ page }) => {
     await page.setViewportSize({ width, height: 700 });
     await page.goto(topicPath);
@@ -358,7 +358,8 @@ for (const width of [320, 360, 390]) {
       expect(await noHorizontalScroll(page), slug).toBe(true);
       const root = exercise(page, kind);
       const frame = root.locator('.otelauta-kehys');
-      expect(await frame.evaluate(node => node.scrollWidth <= node.clientWidth + 1), slug).toBe(true);
+      // Laudan levitys kapeaan näkymään tehdään ResizeObserverilla ensimmäisen asettelun jälkeen.
+      await expect.poll(() => frame.evaluate(node => node.scrollWidth <= node.clientWidth + 1), { message: slug }).toBe(true);
       const box = await frame.boundingBox();
       expect(box!.x, slug).toBeGreaterThanOrEqual(0);
       expect(box!.x + box!.width, slug).toBeLessThanOrEqual(width);
@@ -369,18 +370,86 @@ for (const width of [320, 360, 390]) {
   });
 }
 
-test('palautepaneeli pysyy näkyvissä pitkän laudan alaosaa napautettaessa (360 × 640)', async ({ page }) => {
-  await page.setViewportSize({ width: 360, height: 640 });
-  await page.goto('/oppi/otelauta/sama-savel-toiselta-kielelta.html');
-  const root = exercise(page, 'unisono');
-  await cell(root, 'E', 12).scrollIntoViewIfNeeded();
-  await cell(root, 'E', 12).click();
-  await expect(feedback(root)).toBeInViewport();
-  await cell(root, 'E', 1).scrollIntoViewIfNeeded();
-  await cell(root, 'E', 1).click();
-  await expect(feedback(root)).toBeInViewport();
-  await expect(feedback(root)).toContainText('liian matala');
-});
+/**
+ * Auditointi PR #179 (24.11.2026): palautepaneeli ei saa peittää otelautaa, merkittyjä paikkoja,
+ * kuuntelu- ja toimintopainikkeita eikä fokusta. Jokainen olennainen kohde vieritetään näkyviin ja
+ * sen keskipisteessä on oltava kohde itse (elementFromPoint), ei paneeli tai muu elementti.
+ */
+async function obscured(root: Locator) {
+  return root.evaluate(async (section: Element) => {
+    const panel = section.querySelector('.otelauta-paneeli')!;
+    const board = section.querySelector('.otelauta-lauta')!;
+    const targets = [
+      ...section.querySelectorAll('.otelauta-lauta button'),
+      ...section.querySelectorAll('.otelauta-sovellus button:not([hidden])'),
+      ...section.querySelectorAll('.otelauta-sovellus select'),
+    ].filter(node => (node as HTMLElement).offsetParent !== null);
+    const problems: string[] = [];
+    const panelBox = panel.getBoundingClientRect();
+    const boardBox = board.getBoundingClientRect();
+    if (panelBox.top < boardBox.bottom - 1 && panelBox.bottom > boardBox.top + 1) problems.push('paneeli leikkaa otelautaa');
+    for (const target of targets) {
+      target.scrollIntoView({ block: 'center', inline: 'nearest' });
+      await new Promise(resolve => requestAnimationFrame(() => resolve(null)));
+      const box = target.getBoundingClientRect();
+      const x = box.left + box.width / 2;
+      const y = box.top + box.height / 2;
+      const hit = document.elementFromPoint(x, y);
+      if (!hit || !(hit === target || target.contains(hit))) {
+        problems.push(`${(target as HTMLElement).getAttribute('aria-label') ?? target.textContent?.trim()} peittyy: ${hit?.className || hit?.tagName}`);
+      }
+    }
+    return problems;
+  });
+}
+
+for (const [label, width, height] of [['pysty 390 × 640', 390, 640], ['pysty 320 × 568', 320, 568], ['vaaka 844 × 390', 844, 390]] as const) {
+  test(`palautepaneeli ei peitä otelautaa eikä olennaisia kohteita (${label})`, async ({ page }) => {
+    await page.setViewportSize({ width, height });
+    // 01: väärä ja oikea yritys, lähtösävel, valittu paikka.
+    await page.goto('/oppi/otelauta/sama-savel-toiselta-kielelta.html');
+    let root = exercise(page, 'unisono');
+    await cell(root, 'E', 9).click();
+    await cell(root, 'E', 5).click();
+    await expect(feedback(root)).toHaveText('Oikein. Molemmat ovat A2.');
+    expect(await obscured(root), '01').toEqual([]);
+    await next(root).click();
+    await cell(root, 'E', 12).click();
+    expect(await obscured(root), '01 uusi').toEqual([]);
+    // 02: vaihe B, kolme paikkaa ja kuuntelupainikkeet.
+    await page.goto('/oppi/otelauta/kuule-oktaavi.html');
+    root = exercise(page, 'oktaavi');
+    await root.getByRole('button', { name: 'Yhtä korkea' }).click();
+    await expect(root.locator('button.is-paikka')).toHaveCount(3);
+    expect(await obscured(root), '02 B').toEqual([]);
+    // 03: väärä nimi tai väärä paikka.
+    await page.goto('/oppi/otelauta/perussavel-e-ja-a-kielelta.html');
+    root = exercise(page, 'perussavel');
+    await cell(root, 'A', 11).click();
+    await root.getByRole('button', { name: 'Vihje' }).click();
+    expect(await obscured(root), '03').toEqual([]);
+    // 04: löydöt ja väärä yritys koko laudalla.
+    await page.goto('/oppi/otelauta/liiku-otelaudalla.html');
+    root = exercise(page, 'liiku');
+    await root.getByLabel('Laajuus').selectOption('kaikki');
+    const target = (await prompt(root).textContent())!.match(/^Etsi kaikki (\S+)-sävelet/)![1];
+    const positions = findPositions(target, 'kaikki');
+    for (const position of positions.slice(0, 3)) await cell(root, position.string, position.fret).click();
+    const wrong = positionsOf(FIND_LEVELS.kaikki.notes.find(note => note !== target)!)[5];
+    await cell(root, wrong.string, wrong.fret).click();
+    await expect(root.locator('button.is-yritys')).toHaveCount(1);
+    expect(await obscured(root), '04').toEqual([]);
+    // Näppäimistöfokus: viimeinen laudan ruutu ei jää minkään alle.
+    await cell(root, 'e', 12).focus();
+    const focusVisible = await cell(root, 'e', 12).evaluate(node => {
+      const box = node.getBoundingClientRect();
+      const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+      return hit === node || node.contains(hit);
+    });
+    expect(focusVisible).toBe(true);
+    expect(await noHorizontalScroll(page)).toBe(true);
+  });
+}
 
 for (const [label, width, size] of [['200 % tekstikoko', 360, '200%'], ['400 %:n reflow (320 px)', 320, '100%']] as const) {
   test(`${label}: sivu rivittyy ja laudan kaikki kielet ovat saavutettavissa`, async ({ page }) => {

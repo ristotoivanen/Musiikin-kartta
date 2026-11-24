@@ -84,11 +84,14 @@ export function checkOctavePlace(round: OctaveRound, index: number): CheckResult
 export function landmarkList(string: StringId): string;
 export function nearestLandmark(fret: number): number;
 export function landmarkReason(string: StringId, fret: number): string;
+export const LANDMARK_PHASE: number;
+export function landmarkShare(index: number): number;
+export function isLandmarkRound(round: RootRound): boolean;
 export function generateRootRound(rand: () => number, index?: number, history?: readonly RootRound[]): RootRound;
 export function rootAnswer(round: RootRound): string | number[];
 export function rootPrompt(round: RootRound): string;
 export function rootHint(round: RootRound): string;
-export function checkRootName(round: RootRound, name: string): CheckResult;
+export function checkRootName(round: RootRound, name: string, attempt?: number): CheckResult;
 export function checkRootFind(round: RootRound, string: StringId, fret: number): CheckResult;
 
 export function generateFindTarget(rand: () => number, level: string, history?: readonly string[]): string;

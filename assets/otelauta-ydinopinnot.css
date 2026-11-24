@@ -102,19 +102,11 @@
 .otelauta-harjoitus .otelauta-toissijainen { border-color: transparent; background: none; color: var(--muted); font-weight: 600; }
 .otelauta-tila-huomautus { margin: .2rem 0 .5rem; color: #ffd6b3; font-size: .9rem; }
 .otelauta-vaihto { margin: .2rem 0 0; }
-/* Palaute ja seuraava toiminto pysyvät näkyvissä pitkän laudan alla puhelimessa. */
-/* Paneeli tarttuu näkymän alareunaan vasta, kun siinä on palautetta (skripti asettaa is-tahmea).
- * Ei :has(:empty) -valitsinta: WebKit ei päivittänyt sitä tekstin vaihtuessa. */
-.otelauta-paneeli {
-  position: static;
-  bottom: 0;
-  z-index: 1;
-  margin-inline: -.25rem;
-  padding: .1rem .25rem .2rem;
-  background: var(--panel);
-}
-.otelauta-paneeli.is-tahmea { position: sticky; box-shadow: 0 -.5rem .6rem -.4rem rgba(0, 0, 0, .55); }
-.otelauta-lauta td > button { scroll-margin-block: 4rem 10rem; }
+/* Palautepaneeli vierii sivun mukana laudan alla eikä asetu laudan päälle (auditointi PR #179,
+ * 24.11.2026: tahmea paneeli peitti valitun paikan, lähtösävelen ja löydöt). Välitön palaute
+ * näkyy myös napautetussa ruudussa. */
+.otelauta-paneeli { margin-top: .2rem; }
+.otelauta-lauta td > button { scroll-margin-block: 1rem; }
 .otelauta-tehtava:focus { outline: none; }
 .otelauta-tehtava:focus-visible { outline: 2px solid #75e5c6; outline-offset: 3px; }
 .otelauta-palaute {

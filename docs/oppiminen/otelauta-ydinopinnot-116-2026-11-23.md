@@ -54,7 +54,7 @@ Määrä perustuu tavoitteisiin: kolme perustaitoa (unisono naapurikielellä, ok
 |---|---|---|---|
 | **01 Sama sävel toiselta kieleltä** · `harjoitus:sama-savel-toiselta-kielelta` | Ensin opettava esimerkki (vapaa A → E 5). Sitten arvotaan lähtöpaikka ja naapurikieli **molempiin suuntiin** kaikista 82 kelvollisesta tehtävästä (joista 18 ylittää G–B-välin). G–B-poikkeus vähintään joka neljännessä tehtävässä; sama lähtöpaikka ei toistu kolmen tehtävän sisällä eikä sama korkeus peräkkäin. | ”Oikein. Molemmat ovat A2.” Virhe: ”B2 – liian korkea. Siirry kaksi nauhaa alemmas.” Oktaavi nimetään oktaaviksi, väärä kieli ohjataan oikealle kielelle. Vihje kertoo säännön (5 nauhaa, G–B 4) ja suunnan, ei paikkaa. | ”Etsi ensin kitaralta, tarkista sitten ruudulta”; kieliparien vertailu korvalla. |
 | **02 Kuule ja löydä oktaavi** · `harjoitus:kuule-oktaavi` | Arvotaan lähtösävel 35 kelvollisesta paikasta, suhde (−12 / 0 / +12) ja kolme paikkaa eri kielillä. A: kuuntele ja valitse suhde. B: valitse paikka laudalta tai painikkeella. Vastaus ei näy ennen ratkaisua: paikkojen saavutettavat nimet ovat ”paikka 1–3”. | Suhteen jälkeen kerrotaan oikea suhde; paikan jälkeen kaikkien kolmen korkeus ja siirto lähtösävelestä (”kaksi kieltä ohuemmalle, kaksi nauhaa ylemmäs”). Paikkoja voi napauttaa ja verrata. | Soita lähtösävel ja kokeile paikkoja ennen vastaamista. |
-| **03 Etsi perussävel E- ja A-kieleltä** · `harjoitus:perussavel-e-ja-a-kielelta` | Arvotaan vuorotellen (ei kolmesti samaa tyyppiä) *etsi* (kaikki 12 sävelnimeä, ♯/♭ vasta tehtävästä 5 alkaen) ja *nimeä* (luonnolliset sävelet nauhoilla 1–12). | ”Oikein. Paksun E-kielen 8. nauha on C. Löydät sen B:n vierestä (7. nauha).” Väärä nimi: ”Ei B. Lähin kiintopiste: 7. nauha on B.” Vihje näyttää kiintopisteet (0 · 3 · 5 · 7 · 12) ja ♯/♭-sävelen naapurit. | Soita perussävel ennen sointua. |
+| **03 Etsi perussävel E- ja A-kieleltä** · `harjoitus:perussavel-e-ja-a-kielelta` | Arvotaan vuorotellen (ei kolmesti samaa tyyppiä) *etsi* (kaikki 12 sävelnimeä, ♯/♭ vasta tehtävästä 5 alkaen) ja *nimeä* (luonnolliset sävelet nauhoilla 1–12). Tehtäväjakauma ks. 3.4. | ”Oikein. Paksun E-kielen 8. nauha on C. Löydät sen B:n vierestä (7. nauha).” Väärä nimi ei paljasta vastausta: 1. virhe ”Lähde lähimmästä kiintopisteestä ja laske nauhat siitä.”, 2. virhe ”Laske 7. nauhasta. Muista: E–F ja B–C ovat vierekkäin.” Vihje näyttää kiintopisteet ja ♯/♭-sävelen naapurit. | Soita perussävel ennen sointua. |
 | **04 Kaikki saman sävelen paikat** · `harjoitus:liiku-otelaudalla` | Laajuus: E- ja A-kieli (luonnolliset) / kaikki kuusi kieltä / myös ♯ ja ♭. Kohdesävel arvotaan, ei samaa kahden peräkkäisen sisällä. Paikkojen määrä lasketaan ohjelmallisesti. | Jokainen löytö: korkeus ja ”sama korkeus kuin A 5” / ”uusi korkeus”; lista korkeuksittain. Vihje kolmessa vaiheessa: millä kielellä → päättely löydetystä paikasta (unisono tai tuttu oktaavimuoto) tai kiintopisteistä → vasta lopuksi merkintä. | Soita paikat matalimmasta korkeimpaan ja sano korkeus. |
 
 ### 3.3 Miksi vaikeustaso sopii 1–2 vuotta soittaneelle
@@ -64,7 +64,19 @@ Määrä perustuu tavoitteisiin: kolme perustaitoa (unisono naapurikielellä, ok
 - **Vaihtelu estää ulkoa muistamisen:** sama tehtävä ei toistu peräkkäin, ja vastausjärjestys on satunnainen.
 - **Ei pistejärjestelmää eikä pakollista etenemistä.** Taso valitaan yhdellä valinnalla.
 
-### 3.4 Mitä tulos ei mittaa
+### 3.4 Harjoituksen 03 tehtäväjakauma (auditoinnin korjaus 24.11.2026)
+
+Auditointi havaitsi, että vanhassa generaattorissa nimeä-tehtävistä 4/7 = **57 %** osui kiintopisteisiin (0, 3, 5, 7, 12) koko harjoituksen ajan. Kiintopisteiden oppiminen on tarpeen, mutta pysyvä enemmistö jätti niiden välissä olevien sävelten päättelyn vähemmälle.
+
+| Vaihe | Kiintopistetehtävien tavoiteosuus | Mitattu (200 siementä × 20 tehtävää) | Perustelu |
+|---|---|---|---|
+| Tehtävät 1–4 | 75 % | 78 % | Kiintopisteet opitaan ensin: ne ovat päättelyn lähtökohta. |
+| Tehtävästä 5 alkaen | 20 % | 20 % | Painopiste siirtyy välisävelten päättelyyn (”B:n vieressä”, ”kaksi nauhaa A:n alapuolella”); kiintopisteitä kerrataan edelleen. |
+| 20 tehtävän jakso yhteensä | – | 31 % | |
+
+♯/♭-sävelet tulevat mukaan vasta tehtävästä 5, eivätkä ne koskaan ole kiintopisteitä. Testit: `tests/otelauta-ydinopinnot.test.ts` (osuudet, kiintopisteitä yhä myöhemmissä tehtävissä, virhepalaute ei sisällä sävelnimiä vakiomuistutusta lukuun ottamatta).
+
+### 3.5 Mitä tulos ei mittaa
 
 Virtuaalivalinta ei todista paikan löytämistä oikealta kitaralta, sormitusta tai soittotekniikkaa. 02:n tekstiversio on nimetty päättelyksi (”päättelet korkeuden sävelmerkinnästä, se ei harjoita kuulemista”). Pitkäaikaista oppimista ei ole tutkittu.
 
@@ -90,7 +102,15 @@ Lähtötilanne: 320 px:ssä kuusi kieltä noin 38 px leveinä (alle projektin 44
 | Tahaton vaakavieritys | todennäköinen | ei | ei (testattu 320/360/390) |
 | 200 % suurennus | vierittyy | toimii | toimii: sarakkeet pysyvät ≥ 44 px, nauhanumerosarake kasvaa |
 
-Toteutus: nauhanumerosarake kapeni (1,4 rem), ja ≤ 480 px:n näytöllä skripti levittää laudan 4 px:n päähän näkymän reunoista kortin ja sivun reunatäytteiden yli (ResizeObserver, mitataan kääreestä). Lisäksi palaute ja ”Uusi tehtävä” -painike pysyvät näkyvissä laudan alla tahmeassa paneelissa, kun palautetta on. Laudan painikkeilla on `scroll-margin`, jottei näppäimistöfokus jää paneelin alle.
+Toteutus: nauhanumerosarake kapeni (1,4 rem), ja ≤ 480 px:n näytöllä skripti levittää laudan 4 px:n päähän näkymän reunoista kortin ja sivun reunatäytteiden yli (ResizeObserver, mitataan kääreestä). **Palautepaneeli (auditoinnin korjaus 24.11.2026):** auditoinnin (iOS Simulator, 24.11.2026) mukaan tahmea paneeli peitti valitun paikan, lähtösävelen ja löydöt etenkin vaaka-asennossa. Vertailu:
+
+| Vaihtoehto | Arvio |
+|---|---|
+| A. Normaalisti vierivä paneeli laudan alla | Ei peitä mitään. Pitkä teksti voi jäädä näkymän alle ylimpiä nauhoja napautettaessa. |
+| B. Kompakti palaute | Napautettu ruutu näyttää jo korkeuden (oikein / kokeiltu / löydetty), myös 04:n väärät yritykset. |
+| C. Laudan yläpuolelle varattu tila | Ei peitä, mutta jää näkymän ulkopuolelle alempia nauhoja napautettaessa; vie pystytilaa laudalta. |
+
+**Valittu A + B** (sama pysty- ja vaaka-asennossa): paneeli vierii sivun mukana laudan alla, ja välitön palaute näkyy napautetussa ruudussa. Ei automaattista vieritystä. Regressiotesti tarkistaa `elementFromPoint`-menetelmällä, ettei mikään laudan ruutu, merkintä, kuuntelu- tai toimintopainike eikä fokus jää minkään alle (320 × 568, 390 × 640, 844 × 390).
 
 ## 5. Aihesivu
 
@@ -101,13 +121,16 @@ Toteutus: nauhanumerosarake kapeni (1,4 rem), ja ≤ 480 px:n näytöllä skript
 
 ## 6. Tekniset muutokset ja yhteensovitus Sävelkorva-työn (PR #178) kanssa
 
-| Tiedosto | Tämä PR (#179) | PR #178 (tarkistettu 23.11.2026) |
-|---|---|---|
-| `tools/oppimiskartta/aiheet.json` | Vain Otelauta-lohko | Vain Sävelkorva-lohko → eri kohdat; yhdistyy normaalisti |
-| `tools/oppimiskartta/rakenna.py` | 6 riviä `render()`: `data-otelautaharjoitus` lataa oman CSS:n ja moduulin | Ei muutoksia |
-| `tests/oppimiskartta-kokonaisuudet.test.ts`, `tests/e2e/aihesivut.spec.ts`, `aihelista.spec.ts`, `lukumerkinnat.spec.ts` | Kovakoodattu ”vain Rytmi ja Soinnut” → luetaan aiheet.json:n `progress_text`-aiheista | Muuttaa samoja rivejä (lisää todennäköisesti `korva` listaan) → **tekstikonflikti odotettavissa**: valitse tämän PR:n aiheet.json-pohjainen muoto, joka kattaa molemmat aiheet |
-| `tests/e2e/ydinopinnot-yhteinen-ui.spec.ts` | Ei muutoksia | Muuttaa |
-| `index.html`, `oppi/` | Generoitu | Generoitu → regeneroi yhdistämisen jälkeen (`npm run build:oppimiskartta`), älä yhdistä käsin |
-| `assets/otelauta-ydinopinnot.{js,css,d.ts}`, `tools/oppimiskartta/sisallot/otelauta/*`, `tests/otelauta-ydinopinnot.test.ts`, `tests/e2e/otelauta-ydinopinnot.spec.ts`, `playwright.otelauta-ydinopinnot-webkit.config.ts`, `.github/workflows/otelauta-ydinopinnot-qa.yml` | Uudet, vain tämän työn | – |
+**Korjaus 24.11.2026:** aiempi väite, ettei PR #178 muuta `rakenna.py`-tiedostoa, oli virheellinen (tarkistettu PR #178:n alkuvaiheessa; myöhemmät commitit lisäsivät muutoksen). Tarkistettu PR #178:n HEAD `b6ff787` ja koeyhdistäminen tähän haaraan väliaikaisessa työpuussa (ei pushattu):
 
-Yhteistä Otelautaopasta (`assets/otelauta.js`), Kitaraharjoittelijaa tai äänimoottoria ei muutettu. PR #178:n keskeneräisiä muutoksia ei ole tuotu tähän haaraan.
+| Tiedosto | Tämä PR (#179) | PR #178 | Koeyhdistämisen tulos ja ratkaisuperiaate |
+|---|---|---|---|
+| `tools/oppimiskartta/rakenna.py` | `data-otelautaharjoitus` → `otelauta-ydinopinnot.css/.js` | `data-melodiaharjoitus` → `melodia-ydinopinnot.css/.js` | **Konflikti** script-lohkossa. Säilytä **molemmat** CSS- ja JS-latauslohkot; kumpikin ehto on itsenäinen. |
+| `tests/oppimiskartta-kokonaisuudet.test.ts` | Laskurimäärä aiheet.json:n `progress_text`-aiheista | Kovakoodattu `toHaveLength(3)` | **Konflikti.** Valitse aiheet.json-pohjainen muoto (kattaa Rytmin, Sävelkorvan, Otelaudan ja Soinnut). |
+| `tests/e2e/aihesivut.spec.ts`, `aihelista.spec.ts`, `lukumerkinnat.spec.ts` | `legacyCounted` aiheet.json:sta | Lista `['rytmi', 'korva', 'soinnut']` | **Konflikti.** Valitse aiheet.json-pohjainen muoto. |
+| `tools/oppimiskartta/aiheet.json` | Otelauta-lohko | Sävelkorva-lohko | Yhdistyi automaattisesti |
+| `index.html` | Generoitu | Generoitu | Yhdistyi automaattisesti, mutta regeneroi aina (`npm run build:oppimiskartta`) ja tarkista `--tarkista`. |
+| `tests/e2e/ydinopinnot-yhteinen-ui.spec.ts`, `assets/audio/soinnut/LAHTEET.md` | – | Muutettu | Ei päällekkäisyyttä |
+| Omat tiedostot (`assets/otelauta-ydinopinnot.*`, `sisallot/otelauta/*`, omat testit, WebKit-konfiguraatio, QA-työnkulku) | Uudet | – | Ei päällekkäisyyttä |
+
+Yhteistä Otelautaopasta (`assets/otelauta.js`), Kitaraharjoittelijaa tai äänimoottoria ei muutettu. PR #178:n muutoksia ei ole tuotu tähän haaraan, eikä PR:iä ole yhdistetty.

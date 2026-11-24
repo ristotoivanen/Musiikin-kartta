@@ -1,11 +1,11 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
-  ACCIDENTALS, ALL_POSITIONS, CHROMATIC_FROM, FIND_LEVELS, LANDMARKS, MAX_FRET, NATURALS, NOTE_NAMES,
+  ACCIDENTALS, ALL_POSITIONS, CHROMATIC_FROM, LANDMARK_PHASE, FIND_LEVELS, LANDMARKS, MAX_FRET, NATURALS, NOTE_NAMES,
   OCTAVE_RELATIONS, ROOT_STRINGS, STRINGS, UNISON_EXAMPLE,
   checkFindAll, checkOctavePlace, checkOctaveRelation, checkRootFind, checkRootName, checkUnison, createRandom,
   crossesGB, findHint, findPositions, frequency, generateFindTarget, generateOctaveRound, generateRootRound,
-  generateUnisonRound, landmarkReason, mysteryPitch, nearestLandmark, noteName, octaveGroups, octaveReferences,
+  generateUnisonRound, isLandmarkRound, landmarkReason, landmarkShare, mysteryPitch, nearestLandmark, noteName, octaveGroups, octaveReferences,
   pitchAt, pitchName, positionsOf, relationWords, rootAnswer, shapeWords, shortPosition, unisonAnswer,
   unisonCandidates, unisonPrompt,
 } from '../assets/otelauta-ydinopinnot.js';
@@ -294,9 +294,37 @@ describe('03 · Etsi perussävel E- ja A-kieleltä', () => {
     expect([...frets].filter(fret => !LANDMARKS.includes(fret)).length).toBeGreaterThanOrEqual(7);
   });
 
+  it('tehtäväjakauma: alussa kiintopisteet, myöhemmin niiden välissä olevien sävelten päättely', () => {
+    expect(LANDMARK_PHASE).toBe(4);
+    expect(landmarkShare(0)).toBe(0.75);
+    expect(landmarkShare(LANDMARK_PHASE)).toBe(0.2);
+    // Vanha jakauma: nimeä-tehtävistä 4/7 = 57 % kiintopisteissä.
+    const naturals = ALL_POSITIONS.filter(item => ROOT_STRINGS.includes(item.string) && item.fret > 0 && NATURALS.includes(noteName(item.midi)));
+    expect(naturals.filter(item => LANDMARKS.includes(item.fret)).length / naturals.length).toBeCloseTo(4 / 7, 5);
+    const early = all.flatMap(history => history.slice(0, LANDMARK_PHASE));
+    const late = all.flatMap(history => history.slice(LANDMARK_PHASE));
+    const share = (list: RootRound[]) => list.filter(isLandmarkRound).length / list.length;
+    expect(share(early)).toBeGreaterThan(0.6);
+    expect(share(late)).toBeGreaterThan(0.1);
+    expect(share(late)).toBeLessThan(0.3);
+    // Kiintopisteitä kysytään yhä myöhemminkin.
+    expect(late.some(isLandmarkRound)).toBe(true);
+  });
+
   it('palaute opettaa päättelyn', () => {
     expect(checkRootName({ type: 'nimea', at: ['E', 8] }, 'C').message).toBe('Oikein. Paksun E-kielen 8. nauha on C. Löydät sen B:n vierestä (7. nauha).');
-    expect(checkRootName({ type: 'nimea', at: ['E', 8] }, 'B')).toMatchObject({ ok: false, message: 'Ei B. Lähin kiintopiste: 7. nauha on B.' });
+    // Virhepalaute ei paljasta vastausta eikä kiintopisteen sävelnimeä.
+    expect(checkRootName({ type: 'nimea', at: ['E', 8] }, 'B')).toMatchObject({ ok: false, message: 'Ei B. Lähde lähimmästä kiintopisteestä ja laske nauhat siitä.' });
+    expect(checkRootName({ type: 'nimea', at: ['E', 8] }, 'B', 2)).toMatchObject({ ok: false, message: 'Ei B. Laske 7. nauhasta. Muista: E–F ja B–C ovat vierekkäin.' });
+    for (const position of ALL_POSITIONS.filter(item => ROOT_STRINGS.includes(item.string) && item.fret > 0 && NATURALS.includes(noteName(item.midi)))) {
+      const round = { type: 'nimea' as const, at: [position.string, position.fret] as const };
+      for (const wrong of NATURALS.filter(name => name !== noteName(position.midi))) {
+        for (const attempt of [1, 2, 3]) {
+          const message = checkRootName(round, wrong, attempt).message.replace(`Ei ${wrong}.`, '').replace('Muista: E–F ja B–C ovat vierekkäin.', '');
+          expect(message, `${position.string} ${position.fret}`).not.toMatch(/[A-G]/);
+        }
+      }
+    }
     expect(checkRootFind({ type: 'etsi', note: 'F♯', string: 'A' }, 'A', 9).message).toBe('Oikein. A-kielen 9. nauha on F♯. Se on kaksi nauhaa E:n yläpuolella (7. nauha).');
     expect(checkRootFind({ type: 'etsi', note: 'D', string: 'E' }, 'E', 8).message).toBe('E 8 on C. D on ylempänä.');
     expect(checkRootFind({ type: 'etsi', note: 'D', string: 'E' }, 'A', 5)).toMatchObject({ ok: false, kind: 'vaara-kieli' });
