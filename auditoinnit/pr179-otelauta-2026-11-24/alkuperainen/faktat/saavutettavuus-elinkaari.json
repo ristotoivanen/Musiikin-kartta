@@ -1,0 +1,218 @@
+{
+ "lifecycle": {
+  "hasRoot": 1,
+  "rapid": {
+   "starts": 4,
+   "ctxEvents": 4,
+   "busRamps": 0,
+   "sample": [
+    [
+     "resume",
+     "suspended"
+    ],
+    [
+     "start",
+     1,
+     440,
+     0,
+     0.04
+    ],
+    [
+     "stop",
+     1,
+     0,
+     1.59
+    ],
+    [
+     "stop",
+     1,
+     0,
+     0.04
+    ],
+    [
+     "resume",
+     "running"
+    ],
+    [
+     "start",
+     2,
+     440,
+     0,
+     0.04
+    ],
+    [
+     "stop",
+     2,
+     0,
+     1.59
+    ],
+    [
+     "stop",
+     2,
+     0.029,
+     0.069
+    ],
+    [
+     "resume",
+     "running"
+    ],
+    [
+     "start",
+     3,
+     440,
+     0.029,
+     0.069
+    ],
+    [
+     "stop",
+     3,
+     0.029,
+     1.619
+    ],
+    [
+     "ended",
+     1,
+     0.041
+    ],
+    [
+     "stop",
+     3,
+     0.055,
+     0.095
+    ],
+    [
+     "resume",
+     "running"
+    ]
+   ]
+  },
+  "closeMid": [
+   [
+    "start",
+    5,
+    440,
+    3.143,
+    3.183
+   ],
+   [
+    "stop",
+    5,
+    3.143,
+    4.733
+   ],
+   [
+    "stop",
+    5,
+    3.445,
+    3.485
+   ],
+   [
+    "ended",
+    5,
+    3.486
+   ]
+  ],
+  "hiddenMid": [],
+  "afterReturn": {
+   "starts": 0,
+   "ctxState": "ok"
+  },
+  "soundOff": {
+   "startsOnCellTap": 0,
+   "startsOnListenButton": 1
+  },
+  "nextMid": [],
+  "pagehide": [
+   "bus-ramp 0 0.03",
+   "stop 7 11.979 12.019",
+   "ended 7 12.019"
+  ]
+ },
+ "a11y": {
+  "gridRole": "grid",
+  "tdRoles": null,
+  "cellNames": [
+   "vapaa paksu E-kieli",
+   "vapaa A-kieli",
+   "paksun E-kielen 1. nauha"
+  ],
+  "headers": [
+   "Nauha",
+   "E",
+   "A"
+  ],
+  "tabStops": 1,
+  "focusAfterKeys": [
+   "A",
+   "12",
+   "A-kielen 12. nauha"
+  ],
+  "statusAfterEnter": "A 12 on A. Tällä kielellä E on alempana.",
+  "liveRegions": [
+   [
+    "otelauta-palaute",
+    "polite"
+   ],
+   [
+    "otelauta-aanitila",
+    "polite"
+   ]
+  ],
+  "focusStyle": [
+   "solid",
+   "3px",
+   "rgb(117, 229, 198)"
+  ],
+  "focusObscured": []
+ },
+ "contrast": {
+  "light": {
+   "tehtävälause": 14.09,
+   "palaute": 15.68,
+   "kierros": 8.46,
+   "Lähtösävel-painike": 12.36,
+   "suhdepainike (poissa käytöstä)": 12.36,
+   "paikkapainike": 10.41,
+   "Uusi tehtävä": 8.5,
+   "nauhanumero": 7.81,
+   "kielen otsikko": 8.46,
+   "laudan merkki (paikka/oikein)": 13.01,
+   "huomautus": 9.42,
+   "kitaravinkki": 8.46
+  },
+  "dark": {
+   "tehtävälause": 14.09,
+   "palaute": 15.68,
+   "kierros": 8.46,
+   "Lähtösävel-painike": 12.36,
+   "suhdepainike (poissa käytöstä)": 12.36,
+   "paikkapainike": 10.41,
+   "Uusi tehtävä": 8.5,
+   "nauhanumero": 7.81,
+   "kielen otsikko": 8.46,
+   "laudan merkki (paikka/oikein)": 13.01,
+   "huomautus": 9.42,
+   "kitaravinkki": 8.46
+  }
+ },
+ "forced": {
+  "matches": true,
+  "mark": [
+   [
+    "is-lahto",
+    "solid",
+    "2px"
+   ],
+   [
+    "is-oikein",
+    "solid",
+    "2px"
+   ],
+   [
+    "is-yritys",
+    "solid",
+    "2px"
+   ]
+  ]
+ }
+}

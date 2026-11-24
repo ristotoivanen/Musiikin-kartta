@@ -1,0 +1,2573 @@
+{
+ "viewport": [
+  390,
+  844
+ ],
+ "ex01": [
+  {
+   "text": "Vapaa A-kieli soi A2. Sama A2 löytyy paksulta E-kieleltä viisi nauhaa ylempää. Valitse se.",
+   "from": [
+    "A",
+    0
+   ],
+   "to": "E",
+   "answer": 5,
+   "adj": true,
+   "label": "A2",
+   "right": "Oikein. Molemmat ovat A2.",
+   "tulos": "oikein",
+   "freq": [
+    110
+   ],
+   "expectedFreq": 110,
+   "gbMention": false,
+   "isGB": false
+  },
+  {
+   "text": "G-kielen 2. nauha soi A3. Etsi sama A3 D-kieleltä.",
+   "from": [
+    "G",
+    2
+   ],
+   "to": "D",
+   "answer": 7,
+   "adj": true,
+   "label": "A3",
+   "wrong": "B♭3 – liian korkea. Siirry yksi nauha alemmas.",
+   "wrongTulos": "yrita",
+   "right": "Oikein. Molemmat ovat A3.",
+   "tulos": "oikein",
+   "freq": [
+    220
+   ],
+   "expectedFreq": 220,
+   "gbMention": false,
+   "isGB": false
+  },
+  {
+   "text": "G-kielen 12. nauha soi G4. Etsi sama G4 B-kieleltä.",
+   "from": [
+    "G",
+    12
+   ],
+   "to": "B",
+   "answer": 8,
+   "adj": true,
+   "label": "G4",
+   "right": "Oikein. Molemmat ovat G4. G- ja B-kielen väli on neljä nauhaa.",
+   "tulos": "oikein",
+   "freq": [
+    392
+   ],
+   "expectedFreq": 392,
+   "gbMention": true,
+   "isGB": true
+  },
+  {
+   "text": "Ohuen e-kielen 4. nauha soi A♭4. Etsi sama A♭4 B-kieleltä.",
+   "from": [
+    "e",
+    4
+   ],
+   "to": "B",
+   "answer": 9,
+   "adj": true,
+   "label": "A♭4",
+   "wrong": "A4 – liian korkea. Siirry yksi nauha alemmas.",
+   "wrongTulos": "yrita",
+   "wrongString": "E 3: G2. Etsi B-kieleltä.",
+   "right": "Oikein. Molemmat ovat A♭4.",
+   "tulos": "oikein",
+   "freq": [
+    415.3
+   ],
+   "expectedFreq": 415.3,
+   "gbMention": false,
+   "isGB": false
+  },
+  {
+   "text": "B-kielen 6. nauha soi F4. Etsi sama F4 G-kieleltä.",
+   "from": [
+    "B",
+    6
+   ],
+   "to": "G",
+   "answer": 10,
+   "adj": true,
+   "label": "F4",
+   "right": "Oikein. Molemmat ovat F4. G- ja B-kielen väli on neljä nauhaa.",
+   "tulos": "oikein",
+   "freq": [
+    349.23
+   ],
+   "expectedFreq": 349.23,
+   "gbMention": true,
+   "isGB": true
+  },
+  {
+   "text": "G-kielen 4. nauha soi B3. Etsi sama B3 D-kieleltä.",
+   "from": [
+    "G",
+    4
+   ],
+   "to": "D",
+   "answer": 9,
+   "adj": true,
+   "label": "B3",
+   "wrong": "C4 – liian korkea. Siirry yksi nauha alemmas.",
+   "wrongTulos": "yrita",
+   "right": "Oikein. Molemmat ovat B3.",
+   "tulos": "oikein",
+   "freq": [
+    246.94
+   ],
+   "expectedFreq": 246.94,
+   "gbMention": false,
+   "isGB": false
+  },
+  {
+   "text": "D-kielen 4. nauha soi F♯3. Etsi sama F♯3 A-kieleltä.",
+   "from": [
+    "D",
+    4
+   ],
+   "to": "A",
+   "answer": 9,
+   "adj": true,
+   "label": "F♯3",
+   "right": "Oikein. Molemmat ovat F♯3.",
+   "tulos": "oikein",
+   "freq": [
+    185
+   ],
+   "expectedFreq": 185,
+   "gbMention": false,
+   "isGB": false
+  },
+  {
+   "text": "G-kielen 8. nauha soi E♭4. Etsi sama E♭4 B-kieleltä.",
+   "from": [
+    "G",
+    8
+   ],
+   "to": "B",
+   "answer": 4,
+   "adj": true,
+   "label": "E♭4",
+   "wrong": "E4 – liian korkea. Siirry yksi nauha alemmas.",
+   "wrongTulos": "yrita",
+   "right": "Oikein. Molemmat ovat E♭4. G- ja B-kielen väli on neljä nauhaa.",
+   "tulos": "oikein",
+   "freq": [
+    311.13
+   ],
+   "expectedFreq": 311.13,
+   "gbMention": true,
+   "isGB": true
+  },
+  {
+   "text": "G-kielen 2. nauha soi A3. Etsi sama A3 D-kieleltä.",
+   "from": [
+    "G",
+    2
+   ],
+   "to": "D",
+   "answer": 7,
+   "adj": true,
+   "label": "A3",
+   "wrongString": "E 3: G2. Etsi D-kieleltä.",
+   "right": "Oikein. Molemmat ovat A3.",
+   "tulos": "oikein",
+   "freq": [
+    220
+   ],
+   "expectedFreq": 220,
+   "gbMention": false,
+   "isGB": false
+  },
+  {
+   "text": "Vapaa A-kieli soi A2. Etsi sama A2 paksulta E-kieleltä.",
+   "from": [
+    "A",
+    0
+   ],
+   "to": "E",
+   "answer": 5,
+   "adj": true,
+   "label": "A2",
+   "wrong": "B♭2 – liian korkea. Siirry yksi nauha alemmas.",
+   "wrongTulos": "yrita",
+   "right": "Oikein. Molemmat ovat A2.",
+   "tulos": "oikein",
+   "freq": [
+    110
+   ],
+   "expectedFreq": 110,
+   "gbMention": false,
+   "isGB": false
+  },
+  {
+   "text": "D-kielen 7. nauha soi A3. Etsi sama A3 A-kieleltä.",
+   "from": [
+    "D",
+    7
+   ],
+   "to": "A",
+   "answer": 12,
+   "adj": true,
+   "label": "A3",
+   "right": "Oikein. Molemmat ovat A3.",
+   "tulos": "oikein",
+   "freq": [
+    220
+   ],
+   "expectedFreq": 220,
+   "gbMention": false,
+   "isGB": false
+  },
+  {
+   "text": "G-kielen 5. nauha soi C4. Etsi sama C4 B-kieleltä.",
+   "from": [
+    "G",
+    5
+   ],
+   "to": "B",
+   "answer": 1,
+   "adj": true,
+   "label": "C4",
+   "wrong": "C♯4 – liian korkea. Siirry yksi nauha alemmas.",
+   "wrongTulos": "yrita",
+   "right": "Oikein. Molemmat ovat C4. G- ja B-kielen väli on neljä nauhaa.",
+   "tulos": "oikein",
+   "freq": [
+    261.63
+   ],
+   "expectedFreq": 261.63,
+   "gbMention": true,
+   "isGB": true
+  },
+  {
+   "text": "B-kielen 7. nauha soi F♯4. Etsi sama F♯4 G-kieleltä.",
+   "from": [
+    "B",
+    7
+   ],
+   "to": "G",
+   "answer": 11,
+   "adj": true,
+   "label": "F♯4",
+   "right": "Oikein. Molemmat ovat F♯4. G- ja B-kielen väli on neljä nauhaa.",
+   "tulos": "oikein",
+   "freq": [
+    369.99
+   ],
+   "expectedFreq": 369.99,
+   "gbMention": true,
+   "isGB": true
+  },
+  {
+   "text": "A-kielen 10. nauha soi G3. Etsi sama G3 D-kieleltä.",
+   "from": [
+    "A",
+    10
+   ],
+   "to": "D",
+   "answer": 5,
+   "adj": true,
+   "label": "G3",
+   "wrong": "A♭3 – liian korkea. Siirry yksi nauha alemmas.",
+   "wrongTulos": "yrita",
+   "wrongString": "E 3: G2. Etsi D-kieleltä.",
+   "right": "Oikein. Molemmat ovat G3.",
+   "tulos": "oikein",
+   "freq": [
+    196
+   ],
+   "expectedFreq": 196,
+   "gbMention": false,
+   "isGB": false
+  },
+  {
+   "text": "B-kielen 12. nauha soi B4. Etsi sama B4 ohuelta e-kieleltä.",
+   "from": [
+    "B",
+    12
+   ],
+   "to": "e",
+   "answer": 7,
+   "adj": true,
+   "label": "B4",
+   "right": "Oikein. Molemmat ovat B4.",
+   "tulos": "oikein",
+   "freq": [
+    493.88
+   ],
+   "expectedFreq": 493.88,
+   "gbMention": false,
+   "isGB": false
+  },
+  {
+   "text": "D-kielen 11. nauha soi C♯4. Etsi sama C♯4 G-kieleltä.",
+   "from": [
+    "D",
+    11
+   ],
+   "to": "G",
+   "answer": 6,
+   "adj": true,
+   "label": "C♯4",
+   "wrong": "D4 – liian korkea. Siirry yksi nauha alemmas.",
+   "wrongTulos": "yrita",
+   "right": "Oikein. Molemmat ovat C♯4.",
+   "tulos": "oikein",
+   "freq": [
+    277.18
+   ],
+   "expectedFreq": 277.18,
+   "gbMention": false,
+   "isGB": false
+  },
+  {
+   "text": "G-kielen 12. nauha soi G4. Etsi sama G4 B-kieleltä.",
+   "from": [
+    "G",
+    12
+   ],
+   "to": "B",
+   "answer": 8,
+   "adj": true,
+   "label": "G4",
+   "right": "Oikein. Molemmat ovat G4. G- ja B-kielen väli on neljä nauhaa.",
+   "tulos": "oikein",
+   "freq": [
+    392
+   ],
+   "expectedFreq": 392,
+   "gbMention": true,
+   "isGB": true
+  },
+  {
+   "text": "B-kielen 1. nauha soi C4. Etsi sama C4 G-kieleltä.",
+   "from": [
+    "B",
+    1
+   ],
+   "to": "G",
+   "answer": 5,
+   "adj": true,
+   "label": "C4",
+   "wrong": "C♯4 – liian korkea. Siirry yksi nauha alemmas.",
+   "wrongTulos": "yrita",
+   "right": "Oikein. Molemmat ovat C4. G- ja B-kielen väli on neljä nauhaa.",
+   "tulos": "oikein",
+   "freq": [
+    261.63
+   ],
+   "expectedFreq": 261.63,
+   "gbMention": true,
+   "isGB": true
+  },
+  {
+   "text": "D-kielen 8. nauha soi B♭3. Etsi sama B♭3 G-kieleltä.",
+   "from": [
+    "D",
+    8
+   ],
+   "to": "G",
+   "answer": 3,
+   "adj": true,
+   "label": "B♭3",
+   "wrongString": "E 3: G2. Etsi G-kieleltä.",
+   "right": "Oikein. Molemmat ovat B♭3.",
+   "tulos": "oikein",
+   "freq": [
+    233.08
+   ],
+   "expectedFreq": 233.08,
+   "gbMention": false,
+   "isGB": false
+  },
+  {
+   "text": "Ohuen e-kielen 2. nauha soi F♯4. Etsi sama F♯4 B-kieleltä.",
+   "from": [
+    "e",
+    2
+   ],
+   "to": "B",
+   "answer": 7,
+   "adj": true,
+   "label": "F♯4",
+   "wrong": "G4 – liian korkea. Siirry yksi nauha alemmas.",
+   "wrongTulos": "yrita",
+   "right": "Oikein. Molemmat ovat F♯4.",
+   "tulos": "oikein",
+   "freq": [
+    369.99
+   ],
+   "expectedFreq": 369.99,
+   "gbMention": false,
+   "isGB": false
+  },
+  {
+   "text": "G-kielen 9. nauha soi E4. Etsi sama E4 B-kieleltä.",
+   "from": [
+    "G",
+    9
+   ],
+   "to": "B",
+   "answer": 5,
+   "adj": true,
+   "label": "E4",
+   "right": "Oikein. Molemmat ovat E4. G- ja B-kielen väli on neljä nauhaa.",
+   "tulos": "oikein",
+   "freq": [
+    329.63
+   ],
+   "expectedFreq": 329.63,
+   "gbMention": true,
+   "isGB": true
+  },
+  {
+   "text": "Ohuen e-kielen 6. nauha soi B♭4. Etsi sama B♭4 B-kieleltä.",
+   "from": [
+    "e",
+    6
+   ],
+   "to": "B",
+   "answer": 11,
+   "adj": true,
+   "label": "B♭4",
+   "wrong": "B4 – liian korkea. Siirry yksi nauha alemmas.",
+   "wrongTulos": "yrita",
+   "right": "Oikein. Molemmat ovat B♭4.",
+   "tulos": "oikein",
+   "freq": [
+    466.16
+   ],
+   "expectedFreq": 466.16,
+   "gbMention": false,
+   "isGB": false
+  },
+  {
+   "text": "G-kielen 3. nauha soi B♭3. Etsi sama B♭3 D-kieleltä.",
+   "from": [
+    "G",
+    3
+   ],
+   "to": "D",
+   "answer": 8,
+   "adj": true,
+   "label": "B♭3",
+   "right": "Oikein. Molemmat ovat B♭3.",
+   "tulos": "oikein",
+   "freq": [
+    233.08
+   ],
+   "expectedFreq": 233.08,
+   "gbMention": false,
+   "isGB": false
+  },
+  {
+   "text": "Paksun E-kielen 12. nauha soi E3. Etsi sama E3 A-kieleltä.",
+   "from": [
+    "E",
+    12
+   ],
+   "to": "A",
+   "answer": 7,
+   "adj": true,
+   "label": "E3",
+   "wrong": "F3 – liian korkea. Siirry yksi nauha alemmas.",
+   "wrongTulos": "yrita",
+   "wrongString": "D 3: F3. Etsi A-kieleltä.",
+   "right": "Oikein. Molemmat ovat E3.",
+   "tulos": "oikein",
+   "freq": [
+    164.81
+   ],
+   "expectedFreq": 164.81,
+   "gbMention": false,
+   "isGB": false
+  },
+  {
+   "text": "B-kielen 5. nauha soi E4. Etsi sama E4 G-kieleltä.",
+   "from": [
+    "B",
+    5
+   ],
+   "to": "G",
+   "answer": 9,
+   "adj": true,
+   "label": "E4",
+   "right": "Oikein. Molemmat ovat E4. G- ja B-kielen väli on neljä nauhaa.",
+   "tulos": "oikein",
+   "freq": [
+    329.63
+   ],
+   "expectedFreq": 329.63,
+   "gbMention": true,
+   "isGB": true
+  },
+  {
+   "text": "G-kielen 7. nauha soi D4. Etsi sama D4 B-kieleltä.",
+   "from": [
+    "G",
+    7
+   ],
+   "to": "B",
+   "answer": 3,
+   "adj": true,
+   "label": "D4",
+   "wrong": "E♭4 – liian korkea. Siirry yksi nauha alemmas.",
+   "wrongTulos": "yrita",
+   "right": "Oikein. Molemmat ovat D4. G- ja B-kielen väli on neljä nauhaa.",
+   "tulos": "oikein",
+   "freq": [
+    293.66
+   ],
+   "expectedFreq": 293.66,
+   "gbMention": true,
+   "isGB": true
+  },
+  {
+   "text": "A-kielen 5. nauha soi D3. Etsi sama D3 D-kieleltä.",
+   "from": [
+    "A",
+    5
+   ],
+   "to": "D",
+   "answer": 0,
+   "adj": true,
+   "label": "D3",
+   "right": "Oikein. Molemmat ovat D3.",
+   "tulos": "oikein",
+   "freq": [
+    146.83
+   ],
+   "expectedFreq": 146.83,
+   "gbMention": false,
+   "isGB": false
+  },
+  {
+   "text": "A-kielen 4. nauha soi C♯3. Etsi sama C♯3 paksulta E-kieleltä.",
+   "from": [
+    "A",
+    4
+   ],
+   "to": "E",
+   "answer": 9,
+   "adj": true,
+   "label": "C♯3",
+   "wrong": "D3 – liian korkea. Siirry yksi nauha alemmas.",
+   "wrongTulos": "yrita",
+   "right": "Oikein. Molemmat ovat C♯3.",
+   "tulos": "oikein",
+   "freq": [
+    138.59
+   ],
+   "expectedFreq": 138.59,
+   "gbMention": false,
+   "isGB": false
+  },
+  {
+   "text": "Ohuen e-kielen 7. nauha soi B4. Etsi sama B4 B-kieleltä.",
+   "from": [
+    "e",
+    7
+   ],
+   "to": "B",
+   "answer": 12,
+   "adj": true,
+   "label": "B4",
+   "wrongString": "E 3: G2. Etsi B-kieleltä.",
+   "right": "Oikein. Molemmat ovat B4.",
+   "tulos": "oikein",
+   "freq": [
+    493.88
+   ],
+   "expectedFreq": 493.88,
+   "gbMention": false,
+   "isGB": false
+  },
+  {
+   "text": "G-kielen 9. nauha soi E4. Etsi sama E4 B-kieleltä.",
+   "from": [
+    "G",
+    9
+   ],
+   "to": "B",
+   "answer": 5,
+   "adj": true,
+   "label": "E4",
+   "wrong": "F4 – liian korkea. Siirry yksi nauha alemmas.",
+   "wrongTulos": "yrita",
+   "right": "Oikein. Molemmat ovat E4. G- ja B-kielen väli on neljä nauhaa.",
+   "tulos": "oikein",
+   "freq": [
+    329.63
+   ],
+   "expectedFreq": 329.63,
+   "gbMention": true,
+   "isGB": true
+  },
+  {
+   "text": "B-kielen 4. nauha soi E♭4. Etsi sama E♭4 G-kieleltä.",
+   "from": [
+    "B",
+    4
+   ],
+   "to": "G",
+   "answer": 8,
+   "adj": true,
+   "label": "E♭4",
+   "right": "Oikein. Molemmat ovat E♭4. G- ja B-kielen väli on neljä nauhaa.",
+   "tulos": "oikein",
+   "freq": [
+    311.13
+   ],
+   "expectedFreq": 311.13,
+   "gbMention": true,
+   "isGB": true
+  },
+  {
+   "text": "Vapaa A-kieli soi A2. Etsi sama A2 paksulta E-kieleltä.",
+   "from": [
+    "A",
+    0
+   ],
+   "to": "E",
+   "answer": 5,
+   "adj": true,
+   "label": "A2",
+   "wrong": "B♭2 – liian korkea. Siirry yksi nauha alemmas.",
+   "wrongTulos": "yrita",
+   "right": "Oikein. Molemmat ovat A2.",
+   "tulos": "oikein",
+   "freq": [
+    110
+   ],
+   "expectedFreq": 110,
+   "gbMention": false,
+   "isGB": false
+  },
+  {
+   "text": "Ohuen e-kielen 7. nauha soi B4. Etsi sama B4 B-kieleltä.",
+   "from": [
+    "e",
+    7
+   ],
+   "to": "B",
+   "answer": 12,
+   "adj": true,
+   "label": "B4",
+   "right": "Oikein. Molemmat ovat B4.",
+   "tulos": "oikein",
+   "freq": [
+    493.88
+   ],
+   "expectedFreq": 493.88,
+   "gbMention": false,
+   "isGB": false
+  },
+  {
+   "text": "G-kielen 4. nauha soi B3. Etsi sama B3 B-kieleltä.",
+   "from": [
+    "G",
+    4
+   ],
+   "to": "B",
+   "answer": 0,
+   "adj": true,
+   "label": "B3",
+   "wrong": "C4 – liian korkea. Siirry yksi nauha alemmas.",
+   "wrongTulos": "yrita",
+   "wrongString": "E 3: G2. Etsi B-kieleltä.",
+   "right": "Oikein. Molemmat ovat B3. G- ja B-kielen väli on neljä nauhaa.",
+   "tulos": "oikein",
+   "freq": [
+    246.94
+   ],
+   "expectedFreq": 246.94,
+   "gbMention": true,
+   "isGB": true
+  },
+  {
+   "text": "A-kielen 8. nauha soi F3. Etsi sama F3 D-kieleltä.",
+   "from": [
+    "A",
+    8
+   ],
+   "to": "D",
+   "answer": 3,
+   "adj": true,
+   "label": "F3",
+   "right": "Oikein. Molemmat ovat F3.",
+   "tulos": "oikein",
+   "freq": [
+    174.61
+   ],
+   "expectedFreq": 174.61,
+   "gbMention": false,
+   "isGB": false
+  },
+  {
+   "text": "Ohuen e-kielen 3. nauha soi G4. Etsi sama G4 B-kieleltä.",
+   "from": [
+    "e",
+    3
+   ],
+   "to": "B",
+   "answer": 8,
+   "adj": true,
+   "label": "G4",
+   "wrong": "A♭4 – liian korkea. Siirry yksi nauha alemmas.",
+   "wrongTulos": "yrita",
+   "right": "Oikein. Molemmat ovat G4.",
+   "tulos": "oikein",
+   "freq": [
+    392
+   ],
+   "expectedFreq": 392,
+   "gbMention": false,
+   "isGB": false
+  },
+  {
+   "text": "A-kielen 4. nauha soi C♯3. Etsi sama C♯3 paksulta E-kieleltä.",
+   "from": [
+    "A",
+    4
+   ],
+   "to": "E",
+   "answer": 9,
+   "adj": true,
+   "label": "C♯3",
+   "right": "Oikein. Molemmat ovat C♯3.",
+   "tulos": "oikein",
+   "freq": [
+    138.59
+   ],
+   "expectedFreq": 138.59,
+   "gbMention": false,
+   "isGB": false
+  },
+  {
+   "text": "B-kielen 7. nauha soi F♯4. Etsi sama F♯4 G-kieleltä.",
+   "from": [
+    "B",
+    7
+   ],
+   "to": "G",
+   "answer": 11,
+   "adj": true,
+   "label": "F♯4",
+   "wrong": "G4 – liian korkea. Siirry yksi nauha alemmas.",
+   "wrongTulos": "yrita",
+   "right": "Oikein. Molemmat ovat F♯4. G- ja B-kielen väli on neljä nauhaa.",
+   "tulos": "oikein",
+   "freq": [
+    369.99
+   ],
+   "expectedFreq": 369.99,
+   "gbMention": true,
+   "isGB": true
+  },
+  {
+   "text": "Vapaa ohut e-kieli soi E4. Etsi sama E4 B-kieleltä.",
+   "from": [
+    "e",
+    0
+   ],
+   "to": "B",
+   "answer": 5,
+   "adj": true,
+   "label": "E4",
+   "wrongString": "E 3: G2. Etsi B-kieleltä.",
+   "right": "Oikein. Molemmat ovat E4.",
+   "tulos": "oikein",
+   "freq": [
+    329.63
+   ],
+   "expectedFreq": 329.63,
+   "gbMention": false,
+   "isGB": false
+  },
+  {
+   "text": "A-kielen 1. nauha soi B♭2. Etsi sama B♭2 paksulta E-kieleltä.",
+   "from": [
+    "A",
+    1
+   ],
+   "to": "E",
+   "answer": 6,
+   "adj": true,
+   "label": "B♭2",
+   "wrong": "B2 – liian korkea. Siirry yksi nauha alemmas.",
+   "wrongTulos": "yrita",
+   "right": "Oikein. Molemmat ovat B♭2.",
+   "tulos": "oikein",
+   "freq": [
+    116.54
+   ],
+   "expectedFreq": 116.54,
+   "gbMention": false,
+   "isGB": false
+  }
+ ],
+ "ex02": [
+  {
+   "prompt": "Kuuntele lähtösävel (C4) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 261.63,
+   "fMys": 261.63,
+   "rel": "sama",
+   "preNames": [],
+   "relFeedback": "Oikein: yhtä korkea. Missä se soi?",
+   "places": [
+    "1 · e 8",
+    "2 · B 1",
+    "3 · E 8"
+   ],
+   "idx": 1,
+   "placeFeedback": "Oikein. Paikka 2, B 1: C4 (lähtösävelestä yksi kieli ohuemmalle, neljä nauhaa alemmas).",
+   "placeTulos": "oikein",
+   "pairFreqs": [
+    [
+     261.63,
+     0
+    ],
+    [
+     261.63,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (E♭4) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 311.13,
+   "fMys": 622.25,
+   "rel": "ylempi",
+   "preNames": [],
+   "relFeedback": "Oikein: oktaavia korkeampi. Missä se soi?",
+   "places": [
+    "1 · E 11",
+    "2 · e 11",
+    "3 · B 4"
+   ],
+   "idx": 1,
+   "placeFeedback": "Oikein. Paikka 2, e 11: E♭5 (lähtösävelestä kaksi kieltä ohuemmalle, kolme nauhaa ylemmäs).",
+   "placeTulos": "oikein",
+   "pairFreqs": [
+    [
+     311.13,
+     0
+    ],
+    [
+     622.25,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (F3) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 174.61,
+   "fMys": 349.23,
+   "rel": "ylempi",
+   "preNames": [],
+   "relFeedback": "Arvoitussävel oli oktaavia korkeampi. Missä se soi?",
+   "places": [
+    "1 · D 3",
+    "2 · E 1",
+    "3 · G 10"
+   ],
+   "idx": 2,
+   "placeFeedback": "Oikein. Paikka 3, G 10: F4 (lähtösävelestä kaksi kieltä ohuemmalle, kaksi nauhaa ylemmäs).",
+   "placeTulos": "oikein",
+   "pairFreqs": [
+    [
+     174.61,
+     0
+    ],
+    [
+     349.23,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (G3) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 196,
+   "fMys": 98,
+   "rel": "alempi",
+   "preNames": [],
+   "relFeedback": "Oikein: oktaavia matalampi. Missä se soi?",
+   "places": [
+    "1 · B 8",
+    "2 · E 3",
+    "3 · D 5"
+   ],
+   "idx": 1,
+   "placeFeedback": "Oikein. Paikka 2, E 3: G2 (lähtösävelestä kolme kieltä paksummalle, kolme nauhaa ylemmäs).",
+   "placeTulos": "oikein",
+   "pairFreqs": [
+    [
+     196,
+     0
+    ],
+    [
+     98,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (C♯4) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 277.18,
+   "fMys": 138.59,
+   "rel": "alempi",
+   "preNames": [],
+   "relFeedback": "Oikein: oktaavia matalampi. Missä se soi?",
+   "places": [
+    "1 · A 4",
+    "2 · e 9",
+    "3 · G 6"
+   ],
+   "idx": 0,
+   "placeFeedback": "Paikka 2 on C♯5, oktaavia korkeampi kuin lähtösävel. Arvoitussävel oli paikka 1, A 4 (C♯3).",
+   "placeTulos": "yrita",
+   "pairFreqs": [
+    [
+     277.18,
+     0
+    ],
+    [
+     138.59,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (G3) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 196,
+   "fMys": 196,
+   "rel": "sama",
+   "preNames": [],
+   "relFeedback": "Oikein: yhtä korkea. Missä se soi?",
+   "places": [
+    "1 · G 12",
+    "2 · D 5",
+    "3 · E 3"
+   ],
+   "idx": 1,
+   "placeFeedback": "Oikein. Paikka 2, D 5: G3 (lähtösävelestä yksi kieli ohuemmalle, viisi nauhaa alemmas).",
+   "placeTulos": "oikein",
+   "pairFreqs": [
+    [
+     196,
+     0
+    ],
+    [
+     196,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (B3) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 246.94,
+   "fMys": 493.88,
+   "rel": "ylempi",
+   "preNames": [],
+   "relFeedback": "Arvoitussävel oli oktaavia korkeampi. Missä se soi?",
+   "places": [
+    "1 · A 2",
+    "2 · G 4",
+    "3 · B 12"
+   ],
+   "idx": 2,
+   "placeFeedback": "Oikein. Paikka 3, B 12: B4 (lähtösävelestä kaksitoista nauhaa ylemmäs).",
+   "placeTulos": "oikein",
+   "pairFreqs": [
+    [
+     246.94,
+     0
+    ],
+    [
+     493.88,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (B♭3) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 233.08,
+   "fMys": 233.08,
+   "rel": "sama",
+   "preNames": [],
+   "relFeedback": "Oikein: yhtä korkea. Missä se soi?",
+   "places": [
+    "1 · G 3",
+    "2 · E 6",
+    "3 · e 6"
+   ],
+   "idx": 0,
+   "placeFeedback": "Oikein. Paikka 1, G 3: B♭3 (lähtösävelestä yksi kieli ohuemmalle, viisi nauhaa alemmas).",
+   "placeTulos": "oikein",
+   "pairFreqs": [
+    [
+     233.08,
+     0
+    ],
+    [
+     233.08,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (D4) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 293.66,
+   "fMys": 146.83,
+   "rel": "alempi",
+   "preNames": [],
+   "relFeedback": "Oikein: oktaavia matalampi. Missä se soi?",
+   "places": [
+    "1 · e 10",
+    "2 · D 12",
+    "3 · E 10"
+   ],
+   "idx": 2,
+   "placeFeedback": "Oikein. Paikka 3, E 10: D3 (lähtösävelestä neljä kieltä paksummalle, seitsemän nauhaa ylemmäs).",
+   "placeTulos": "oikein",
+   "pairFreqs": [
+    [
+     293.66,
+     0
+    ],
+    [
+     146.83,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (A♭3) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 207.65,
+   "fMys": 103.83,
+   "rel": "alempi",
+   "preNames": [],
+   "relFeedback": "Oikein: oktaavia matalampi. Missä se soi?",
+   "places": [
+    "1 · B 9",
+    "2 · E 4",
+    "3 · G 1"
+   ],
+   "idx": 1,
+   "placeFeedback": "Paikka 3 on A♭3, yhtä korkea kuin lähtösävel. Arvoitussävel oli paikka 2, E 4 (A♭2).",
+   "placeTulos": "yrita",
+   "pairFreqs": [
+    [
+     207.65,
+     0
+    ],
+    [
+     103.83,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (A3) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 220,
+   "fMys": 440,
+   "rel": "ylempi",
+   "preNames": [],
+   "relFeedback": "Arvoitussävel oli oktaavia korkeampi. Missä se soi?",
+   "places": [
+    "1 · B 10",
+    "2 · D 7",
+    "3 · E 5"
+   ],
+   "idx": 0,
+   "placeFeedback": "Oikein. Paikka 1, B 10: A4 (lähtösävelestä yksi kieli ohuemmalle, kahdeksan nauhaa ylemmäs).",
+   "placeTulos": "oikein",
+   "pairFreqs": [
+    [
+     220,
+     0
+    ],
+    [
+     440,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (E3) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 164.81,
+   "fMys": 164.81,
+   "rel": "sama",
+   "preNames": [],
+   "relFeedback": "Oikein: yhtä korkea. Missä se soi?",
+   "places": [
+    "1 · A 7",
+    "2 · vapaa e",
+    "3 · vapaa E"
+   ],
+   "idx": 0,
+   "placeFeedback": "Oikein. Paikka 1, A 7: E3 (lähtösävelestä yksi kieli ohuemmalle, viisi nauhaa alemmas).",
+   "placeTulos": "oikein",
+   "pairFreqs": [
+    [
+     164.81,
+     0
+    ],
+    [
+     164.81,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (C4) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 261.63,
+   "fMys": 130.81,
+   "rel": "alempi",
+   "preNames": [],
+   "relFeedback": "Oikein: oktaavia matalampi. Missä se soi?",
+   "places": [
+    "1 · D 10",
+    "2 · e 8",
+    "3 · E 8"
+   ],
+   "idx": 2,
+   "placeFeedback": "Oikein. Paikka 3, E 8: C3 (lähtösävelestä neljä kieltä paksummalle, seitsemän nauhaa ylemmäs).",
+   "placeTulos": "oikein",
+   "pairFreqs": [
+    [
+     261.63,
+     0
+    ],
+    [
+     130.81,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (B♭3) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 233.08,
+   "fMys": 116.54,
+   "rel": "alempi",
+   "preNames": [],
+   "relFeedback": "Oikein: oktaavia matalampi. Missä se soi?",
+   "places": [
+    "1 · D 8",
+    "2 · B 11",
+    "3 · E 6"
+   ],
+   "idx": 2,
+   "placeFeedback": "Oikein. Paikka 3, E 6: B♭2 (lähtösävelestä kolme kieltä paksummalle, kolme nauhaa ylemmäs).",
+   "placeTulos": "oikein",
+   "pairFreqs": [
+    [
+     233.08,
+     0
+    ],
+    [
+     116.54,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (E♭4) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 311.13,
+   "fMys": 622.25,
+   "rel": "ylempi",
+   "preNames": [],
+   "relFeedback": "Arvoitussävel oli oktaavia korkeampi. Missä se soi?",
+   "places": [
+    "1 · e 11",
+    "2 · B 4",
+    "3 · E 11"
+   ],
+   "idx": 0,
+   "placeFeedback": "Paikka 2 on E♭4, yhtä korkea kuin lähtösävel. Arvoitussävel oli paikka 1, e 11 (E♭5).",
+   "placeTulos": "yrita",
+   "pairFreqs": [
+    [
+     311.13,
+     0
+    ],
+    [
+     622.25,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (F3) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 174.61,
+   "fMys": 174.61,
+   "rel": "sama",
+   "preNames": [],
+   "relFeedback": "Oikein: yhtä korkea. Missä se soi?",
+   "places": [
+    "1 · A 8",
+    "2 · e 1",
+    "3 · E 1"
+   ],
+   "idx": 0,
+   "placeFeedback": "Oikein. Paikka 1, A 8: F3 (lähtösävelestä yksi kieli paksummalle, viisi nauhaa ylemmäs).",
+   "placeTulos": "oikein",
+   "pairFreqs": [
+    [
+     174.61,
+     0
+    ],
+    [
+     174.61,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (A3) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 220,
+   "fMys": 440,
+   "rel": "ylempi",
+   "preNames": [],
+   "relFeedback": "Oikein: oktaavia korkeampi. Missä se soi?",
+   "places": [
+    "1 · e 5",
+    "2 · E 5",
+    "3 · G 2"
+   ],
+   "idx": 0,
+   "placeFeedback": "Oikein. Paikka 1, e 5: A4 (lähtösävelestä kolme kieltä ohuemmalle, kaksi nauhaa alemmas).",
+   "placeTulos": "oikein",
+   "pairFreqs": [
+    [
+     220,
+     0
+    ],
+    [
+     440,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (C4) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 261.63,
+   "fMys": 523.25,
+   "rel": "ylempi",
+   "preNames": [],
+   "relFeedback": "Oikein: oktaavia korkeampi. Missä se soi?",
+   "places": [
+    "1 · E 8",
+    "2 · G 5",
+    "3 · e 8"
+   ],
+   "idx": 2,
+   "placeFeedback": "Oikein. Paikka 3, e 8: C5 (lähtösävelestä yksi kieli ohuemmalle, seitsemän nauhaa ylemmäs).",
+   "placeTulos": "oikein",
+   "pairFreqs": [
+    [
+     261.63,
+     0
+    ],
+    [
+     523.25,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (E3) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 164.81,
+   "fMys": 82.41,
+   "rel": "alempi",
+   "preNames": [],
+   "relFeedback": "Arvoitussävel oli oktaavia matalampi. Missä se soi?",
+   "places": [
+    "1 · D 2",
+    "2 · vapaa E",
+    "3 · vapaa e"
+   ],
+   "idx": 1,
+   "placeFeedback": "Oikein. Paikka 2, vapaa E: E2 (lähtösävelestä kaksitoista nauhaa alemmas).",
+   "placeTulos": "oikein",
+   "pairFreqs": [
+    [
+     164.81,
+     0
+    ],
+    [
+     82.41,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (C4) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 261.63,
+   "fMys": 261.63,
+   "rel": "sama",
+   "preNames": [],
+   "relFeedback": "Oikein: yhtä korkea. Missä se soi?",
+   "places": [
+    "1 · A 3",
+    "2 · D 10",
+    "3 · e 8"
+   ],
+   "idx": 1,
+   "placeFeedback": "Paikka 3 on C5, oktaavia korkeampi kuin lähtösävel. Arvoitussävel oli paikka 2, D 10 (C4).",
+   "placeTulos": "yrita",
+   "pairFreqs": [
+    [
+     261.63,
+     0
+    ],
+    [
+     261.63,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (F♯3) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 185,
+   "fMys": 369.99,
+   "rel": "ylempi",
+   "preNames": [],
+   "relFeedback": "Oikein: oktaavia korkeampi. Missä se soi?",
+   "places": [
+    "1 · D 4",
+    "2 · E 2",
+    "3 · B 7"
+   ],
+   "idx": 2,
+   "placeFeedback": "Oikein. Paikka 3, B 7: F♯4 (lähtösävelestä kolme kieltä ohuemmalle, kaksi nauhaa alemmas).",
+   "placeTulos": "oikein",
+   "pairFreqs": [
+    [
+     185,
+     0
+    ],
+    [
+     369.99,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (G3) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 196,
+   "fMys": 98,
+   "rel": "alempi",
+   "preNames": [],
+   "relFeedback": "Oikein: oktaavia matalampi. Missä se soi?",
+   "places": [
+    "1 · E 3",
+    "2 · e 3",
+    "3 · vapaa G"
+   ],
+   "idx": 0,
+   "placeFeedback": "Oikein. Paikka 1, E 3: G2 (lähtösävelestä kaksi kieltä paksummalle, kaksi nauhaa alemmas).",
+   "placeTulos": "oikein",
+   "pairFreqs": [
+    [
+     196,
+     0
+    ],
+    [
+     98,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (F3) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 174.61,
+   "fMys": 174.61,
+   "rel": "sama",
+   "preNames": [],
+   "relFeedback": "Arvoitussävel oli yhtä korkea. Missä se soi?",
+   "places": [
+    "1 · e 1",
+    "2 · D 3",
+    "3 · E 1"
+   ],
+   "idx": 1,
+   "placeFeedback": "Oikein. Paikka 2, D 3: F3 (lähtösävelestä yksi kieli ohuemmalle, viisi nauhaa alemmas).",
+   "placeTulos": "oikein",
+   "pairFreqs": [
+    [
+     174.61,
+     0
+    ],
+    [
+     174.61,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (B♭3) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 233.08,
+   "fMys": 116.54,
+   "rel": "alempi",
+   "preNames": [],
+   "relFeedback": "Oikein: oktaavia matalampi. Missä se soi?",
+   "places": [
+    "1 · E 6",
+    "2 · e 6",
+    "3 · D 8"
+   ],
+   "idx": 0,
+   "placeFeedback": "Oikein. Paikka 1, E 6: B♭2 (lähtösävelestä kolme kieltä paksummalle, kolme nauhaa ylemmäs).",
+   "placeTulos": "oikein",
+   "pairFreqs": [
+    [
+     233.08,
+     0
+    ],
+    [
+     116.54,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (E♭4) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 311.13,
+   "fMys": 311.13,
+   "rel": "sama",
+   "preNames": [],
+   "relFeedback": "Oikein: yhtä korkea. Missä se soi?",
+   "places": [
+    "1 · E 11",
+    "2 · e 11",
+    "3 · G 8"
+   ],
+   "idx": 2,
+   "placeFeedback": "Paikka 1 on E♭3, oktaavia matalampi kuin lähtösävel. Arvoitussävel oli paikka 3, G 8 (E♭4).",
+   "placeTulos": "yrita",
+   "pairFreqs": [
+    [
+     311.13,
+     0
+    ],
+    [
+     311.13,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (D4) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 293.66,
+   "fMys": 146.83,
+   "rel": "alempi",
+   "preNames": [],
+   "relFeedback": "Oikein: oktaavia matalampi. Missä se soi?",
+   "places": [
+    "1 · G 7",
+    "2 · vapaa D",
+    "3 · e 10"
+   ],
+   "idx": 1,
+   "placeFeedback": "Oikein. Paikka 2, vapaa D: D3 (lähtösävelestä kaksi kieltä paksummalle, kolme nauhaa alemmas).",
+   "placeTulos": "oikein",
+   "pairFreqs": [
+    [
+     293.66,
+     0
+    ],
+    [
+     146.83,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (C♯4) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 277.18,
+   "fMys": 554.37,
+   "rel": "ylempi",
+   "preNames": [],
+   "relFeedback": "Arvoitussävel oli oktaavia korkeampi. Missä se soi?",
+   "places": [
+    "1 · D 11",
+    "2 · E 9",
+    "3 · e 9"
+   ],
+   "idx": 2,
+   "placeFeedback": "Oikein. Paikka 3, e 9: C♯5 (lähtösävelestä yksi kieli ohuemmalle, seitsemän nauhaa ylemmäs).",
+   "placeTulos": "oikein",
+   "pairFreqs": [
+    [
+     277.18,
+     0
+    ],
+    [
+     554.37,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (A3) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 220,
+   "fMys": 110,
+   "rel": "alempi",
+   "preNames": [],
+   "relFeedback": "Oikein: oktaavia matalampi. Missä se soi?",
+   "places": [
+    "1 · G 2",
+    "2 · E 5",
+    "3 · B 10"
+   ],
+   "idx": 1,
+   "placeFeedback": "Oikein. Paikka 2, E 5: A2 (lähtösävelestä yksi kieli paksummalle, seitsemän nauhaa alemmas).",
+   "placeTulos": "oikein",
+   "pairFreqs": [
+    [
+     220,
+     0
+    ],
+    [
+     110,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (F3) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 174.61,
+   "fMys": 87.31,
+   "rel": "alempi",
+   "preNames": [],
+   "relFeedback": "Oikein: oktaavia matalampi. Missä se soi?",
+   "places": [
+    "1 · D 3",
+    "2 · E 1",
+    "3 · e 1"
+   ],
+   "idx": 1,
+   "placeFeedback": "Oikein. Paikka 2, E 1: F2 (lähtösävelestä yksi kieli paksummalle, seitsemän nauhaa alemmas).",
+   "placeTulos": "oikein",
+   "pairFreqs": [
+    [
+     174.61,
+     0
+    ],
+    [
+     87.31,
+     0.8
+    ]
+   ]
+  },
+  {
+   "prompt": "Kuuntele lähtösävel (B♭3) ja arvoitussävel. Onko arvoitussävel matalampi, yhtä korkea vai korkeampi?",
+   "fRef": 233.08,
+   "fMys": 233.08,
+   "rel": "sama",
+   "preNames": [],
+   "relFeedback": "Oikein: yhtä korkea. Missä se soi?",
+   "places": [
+    "1 · E 6",
+    "2 · D 8",
+    "3 · B 11"
+   ],
+   "idx": 1,
+   "placeFeedback": "Paikka 3 on B♭4, oktaavia korkeampi kuin lähtösävel. Arvoitussävel oli paikka 2, D 8 (B♭3).",
+   "placeTulos": "yrita",
+   "pairFreqs": [
+    [
+     233.08,
+     0
+    ],
+    [
+     233.08,
+     0.8
+    ]
+   ]
+  }
+ ],
+ "ex03": [
+  {
+   "text": "Etsi E A-kieleltä.",
+   "frets": [
+    7
+   ],
+   "right": "Oikein. A-kielen 7. nauha on E. Se on kiintopiste.",
+   "tulos": "oikein",
+   "pickedFret": 7
+  },
+  {
+   "text": "Mikä sävel soi A-kielen 2. nauhalla?",
+   "note": "B",
+   "at": [
+    "A",
+    2
+   ],
+   "right": "Oikein. A-kielen 2. nauha on B. Löydät sen C:n vierestä (3. nauha).",
+   "tulos": "oikein"
+  },
+  {
+   "text": "Mikä sävel soi paksun E-kielen 3. nauhalla?",
+   "note": "G",
+   "at": [
+    "E",
+    3
+   ],
+   "right": "Oikein. Paksun E-kielen 3. nauha on G. Se on kiintopiste.",
+   "tulos": "oikein"
+  },
+  {
+   "text": "Etsi E paksulta E-kieleltä.",
+   "frets": [
+    0,
+    12
+   ],
+   "right": "Oikein. Paksun E-kielen 12. nauha on E. Se on kiintopiste.",
+   "tulos": "oikein",
+   "pickedFret": 12
+  },
+  {
+   "text": "Etsi C♯ paksulta E-kieleltä.",
+   "frets": [
+    9
+   ],
+   "wrong": "E 1 on F. C♯ on ylempänä.",
+   "right": "Oikein. Paksun E-kielen 9. nauha on C♯. Se on kaksi nauhaa B:n yläpuolella (7. nauha).",
+   "tulos": "oikein",
+   "pickedFret": 9
+  },
+  {
+   "text": "Mikä sävel soi paksun E-kielen 8. nauhalla?",
+   "note": "C",
+   "at": [
+    "E",
+    8
+   ],
+   "right": "Oikein. Paksun E-kielen 8. nauha on C. Löydät sen B:n vierestä (7. nauha).",
+   "tulos": "oikein"
+  },
+  {
+   "text": "Mikä sävel soi A-kielen 7. nauhalla?",
+   "note": "E",
+   "at": [
+    "A",
+    7
+   ],
+   "wrong": "Ei C. Lähin kiintopiste: 7. nauha on E.",
+   "right": "Oikein. A-kielen 7. nauha on E. Se on kiintopiste.",
+   "tulos": "oikein"
+  },
+  {
+   "text": "Etsi D paksulta E-kieleltä.",
+   "frets": [
+    10
+   ],
+   "wrong": "E 1 on F. D on ylempänä.",
+   "right": "Oikein. Paksun E-kielen 10. nauha on D. Se on kaksi nauhaa E:n alapuolella (12. nauha).",
+   "tulos": "oikein",
+   "pickedFret": 10
+  },
+  {
+   "text": "Mikä sävel soi A-kielen 10. nauhalla?",
+   "note": "G",
+   "at": [
+    "A",
+    10
+   ],
+   "right": "Oikein. A-kielen 10. nauha on G. Se on kaksi nauhaa A:n alapuolella (12. nauha).",
+   "tulos": "oikein"
+  },
+  {
+   "text": "Mikä sävel soi A-kielen 2. nauhalla?",
+   "note": "B",
+   "at": [
+    "A",
+    2
+   ],
+   "wrong": "Ei C. Lähin kiintopiste: 3. nauha on C.",
+   "right": "Oikein. A-kielen 2. nauha on B. Löydät sen C:n vierestä (3. nauha).",
+   "tulos": "oikein"
+  },
+  {
+   "text": "Etsi E paksulta E-kieleltä.",
+   "frets": [
+    0,
+    12
+   ],
+   "wrong": "E 1 on F. E on alempana.",
+   "right": "Oikein. Paksun E-kielen 12. nauha on E. Se on kiintopiste.",
+   "tulos": "oikein",
+   "pickedFret": 12
+  },
+  {
+   "text": "Mikä sävel soi paksun E-kielen 5. nauhalla?",
+   "note": "A",
+   "at": [
+    "E",
+    5
+   ],
+   "right": "Oikein. Paksun E-kielen 5. nauha on A. Se on kiintopiste.",
+   "tulos": "oikein"
+  },
+  {
+   "text": "Etsi C paksulta E-kieleltä.",
+   "frets": [
+    8
+   ],
+   "right": "Oikein. Paksun E-kielen 8. nauha on C. Löydät sen B:n vierestä (7. nauha).",
+   "tulos": "oikein",
+   "pickedFret": 8
+  },
+  {
+   "text": "Etsi E♭ paksulta E-kieleltä.",
+   "frets": [
+    11
+   ],
+   "wrong": "E 1 on F. E♭ on ylempänä.",
+   "right": "Oikein. Paksun E-kielen 11. nauha on E♭. Löydät sen E:n vierestä (12. nauha).",
+   "tulos": "oikein",
+   "pickedFret": 11
+  },
+  {
+   "text": "Mikä sävel soi A-kielen 12. nauhalla?",
+   "note": "A",
+   "at": [
+    "A",
+    12
+   ],
+   "right": "Oikein. A-kielen 12. nauha on A. Se on kiintopiste.",
+   "tulos": "oikein"
+  },
+  {
+   "text": "Mikä sävel soi paksun E-kielen 5. nauhalla?",
+   "note": "A",
+   "at": [
+    "E",
+    5
+   ],
+   "wrong": "Ei C. Lähin kiintopiste: 5. nauha on A.",
+   "right": "Oikein. Paksun E-kielen 5. nauha on A. Se on kiintopiste.",
+   "tulos": "oikein"
+  },
+  {
+   "text": "Etsi D A-kieleltä.",
+   "frets": [
+    5
+   ],
+   "wrong": "A 1 on B♭. D on ylempänä.",
+   "right": "Oikein. A-kielen 5. nauha on D. Se on kiintopiste.",
+   "tulos": "oikein",
+   "pickedFret": 5
+  },
+  {
+   "text": "Mikä sävel soi A-kielen 10. nauhalla?",
+   "note": "G",
+   "at": [
+    "A",
+    10
+   ],
+   "right": "Oikein. A-kielen 10. nauha on G. Se on kaksi nauhaa A:n alapuolella (12. nauha).",
+   "tulos": "oikein"
+  },
+  {
+   "text": "Mikä sävel soi paksun E-kielen 10. nauhalla?",
+   "note": "D",
+   "at": [
+    "E",
+    10
+   ],
+   "wrong": "Ei C. Lähin kiintopiste: 12. nauha on E.",
+   "right": "Oikein. Paksun E-kielen 10. nauha on D. Se on kaksi nauhaa E:n alapuolella (12. nauha).",
+   "tulos": "oikein"
+  },
+  {
+   "text": "Etsi B♭ paksulta E-kieleltä.",
+   "frets": [
+    6
+   ],
+   "wrong": "E 1 on F. B♭ on ylempänä.",
+   "right": "Oikein. Paksun E-kielen 6. nauha on B♭. Löydät sen A:n vierestä (5. nauha).",
+   "tulos": "oikein",
+   "pickedFret": 6
+  },
+  {
+   "text": "Etsi C paksulta E-kieleltä.",
+   "frets": [
+    8
+   ],
+   "right": "Oikein. Paksun E-kielen 8. nauha on C. Löydät sen B:n vierestä (7. nauha).",
+   "tulos": "oikein",
+   "pickedFret": 8
+  },
+  {
+   "text": "Mikä sävel soi paksun E-kielen 5. nauhalla?",
+   "note": "A",
+   "at": [
+    "E",
+    5
+   ],
+   "wrong": "Ei C. Lähin kiintopiste: 5. nauha on A.",
+   "right": "Oikein. Paksun E-kielen 5. nauha on A. Se on kiintopiste.",
+   "tulos": "oikein"
+  },
+  {
+   "text": "Mikä sävel soi A-kielen 7. nauhalla?",
+   "note": "E",
+   "at": [
+    "A",
+    7
+   ],
+   "right": "Oikein. A-kielen 7. nauha on E. Se on kiintopiste.",
+   "tulos": "oikein"
+  },
+  {
+   "text": "Etsi B A-kieleltä.",
+   "frets": [
+    2
+   ],
+   "right": "Oikein. A-kielen 2. nauha on B. Löydät sen C:n vierestä (3. nauha).",
+   "tulos": "oikein",
+   "pickedFret": 2
+  },
+  {
+   "text": "Etsi D paksulta E-kieleltä.",
+   "frets": [
+    10
+   ],
+   "right": "Oikein. Paksun E-kielen 10. nauha on D. Se on kaksi nauhaa E:n alapuolella (12. nauha).",
+   "tulos": "oikein",
+   "pickedFret": 10
+  },
+  {
+   "text": "Mikä sävel soi A-kielen 12. nauhalla?",
+   "note": "A",
+   "at": [
+    "A",
+    12
+   ],
+   "right": "Oikein. A-kielen 12. nauha on A. Se on kiintopiste.",
+   "tulos": "oikein"
+  },
+  {
+   "text": "Mikä sävel soi A-kielen 10. nauhalla?",
+   "note": "G",
+   "at": [
+    "A",
+    10
+   ],
+   "right": "Oikein. A-kielen 10. nauha on G. Se on kaksi nauhaa A:n alapuolella (12. nauha).",
+   "tulos": "oikein"
+  },
+  {
+   "text": "Etsi A♭ A-kieleltä.",
+   "frets": [
+    11
+   ],
+   "right": "Oikein. A-kielen 11. nauha on A♭. Löydät sen A:n vierestä (12. nauha).",
+   "tulos": "oikein",
+   "pickedFret": 11
+  },
+  {
+   "text": "Etsi D paksulta E-kieleltä.",
+   "frets": [
+    10
+   ],
+   "wrong": "E 1 on F. D on ylempänä.",
+   "right": "Oikein. Paksun E-kielen 10. nauha on D. Se on kaksi nauhaa E:n alapuolella (12. nauha).",
+   "tulos": "oikein",
+   "pickedFret": 10
+  },
+  {
+   "text": "Mikä sävel soi A-kielen 5. nauhalla?",
+   "note": "D",
+   "at": [
+    "A",
+    5
+   ],
+   "right": "Oikein. A-kielen 5. nauha on D. Se on kiintopiste.",
+   "tulos": "oikein"
+  },
+  {
+   "text": "Mikä sävel soi A-kielen 3. nauhalla?",
+   "note": "C",
+   "at": [
+    "A",
+    3
+   ],
+   "wrong": "Ei D. Lähin kiintopiste: 3. nauha on C.",
+   "right": "Oikein. A-kielen 3. nauha on C. Se on kiintopiste.",
+   "tulos": "oikein"
+  },
+  {
+   "text": "Etsi A A-kieleltä.",
+   "frets": [
+    0,
+    12
+   ],
+   "wrong": "A 1 on B♭. A on alempana.",
+   "right": "Oikein. A-kielen 12. nauha on A. Se on kiintopiste.",
+   "tulos": "oikein",
+   "pickedFret": 12
+  },
+  {
+   "text": "Mikä sävel soi A-kielen 8. nauhalla?",
+   "note": "F",
+   "at": [
+    "A",
+    8
+   ],
+   "right": "Oikein. A-kielen 8. nauha on F. Löydät sen E:n vierestä (7. nauha).",
+   "tulos": "oikein"
+  },
+  {
+   "text": "Etsi D paksulta E-kieleltä.",
+   "frets": [
+    10
+   ],
+   "right": "Oikein. Paksun E-kielen 10. nauha on D. Se on kaksi nauhaa E:n alapuolella (12. nauha).",
+   "tulos": "oikein",
+   "pickedFret": 10
+  },
+  {
+   "text": "Etsi G A-kieleltä.",
+   "frets": [
+    10
+   ],
+   "wrong": "A 1 on B♭. G on ylempänä.",
+   "right": "Oikein. A-kielen 10. nauha on G. Se on kaksi nauhaa A:n alapuolella (12. nauha).",
+   "tulos": "oikein",
+   "pickedFret": 10
+  },
+  {
+   "text": "Mikä sävel soi paksun E-kielen 12. nauhalla?",
+   "note": "E",
+   "at": [
+    "E",
+    12
+   ],
+   "right": "Oikein. Paksun E-kielen 12. nauha on E. Se on kiintopiste.",
+   "tulos": "oikein"
+  },
+  {
+   "text": "Etsi E♭ paksulta E-kieleltä.",
+   "frets": [
+    11
+   ],
+   "right": "Oikein. Paksun E-kielen 11. nauha on E♭. Löydät sen E:n vierestä (12. nauha).",
+   "tulos": "oikein",
+   "pickedFret": 11
+  },
+  {
+   "text": "Mikä sävel soi A-kielen 5. nauhalla?",
+   "note": "D",
+   "at": [
+    "A",
+    5
+   ],
+   "right": "Oikein. A-kielen 5. nauha on D. Se on kiintopiste.",
+   "tulos": "oikein"
+  },
+  {
+   "text": "Etsi B♭ A-kieleltä.",
+   "frets": [
+    1
+   ],
+   "right": "Oikein. A-kielen 1. nauha on B♭. Löydät sen A:n vierestä (vapaa kieli).",
+   "tulos": "oikein",
+   "pickedFret": 1
+  },
+  {
+   "text": "Etsi C A-kieleltä.",
+   "frets": [
+    3
+   ],
+   "right": "Oikein. A-kielen 3. nauha on C. Se on kiintopiste.",
+   "tulos": "oikein",
+   "pickedFret": 3
+  }
+ ],
+ "ex04": [
+  {
+   "level": "ea",
+   "note": "E",
+   "shown": 3,
+   "expected": 3,
+   "lastWrong": "E 1 on F. Tällä kielellä E on alempana.",
+   "final": "E3, sama korkeus kuin E 12. Kaikki 3 löytyi! Korkeudet: E2 × 1, E3 × 2. Valmis laajempaan? Valitse laajuudeksi kaikki kuusi kieltä.",
+   "done": true,
+   "groups": [
+    "E2: vapaa E",
+    "E3: E 12, A 7"
+   ]
+  },
+  {
+   "level": "ea",
+   "note": "C",
+   "shown": 2,
+   "expected": 2,
+   "hints": [
+    "Vihje: C löytyy vielä paksulta E-kieleltä.",
+    "Vihje: kiintopisteet paksulla E-kielellä: 0 E · 3 G · 5 A · 7 B · 12 E.",
+    "Vihje: tutki merkittyä paikkaa E 8."
+   ],
+   "final": "C3, sama korkeus kuin E 8. Kaikki 2 löytyi! Korkeudet: C3 × 2. Valmis laajempaan? Valitse laajuudeksi kaikki kuusi kieltä.",
+   "done": true,
+   "groups": [
+    "C3: E 8, A 3"
+   ]
+  },
+  {
+   "level": "ea",
+   "note": "B",
+   "shown": 2,
+   "expected": 2,
+   "final": "B2, sama korkeus kuin E 7. Kaikki 2 löytyi! Korkeudet: B2 × 2. Valmis laajempaan? Valitse laajuudeksi kaikki kuusi kieltä.",
+   "done": true,
+   "groups": [
+    "B2: E 7, A 2"
+   ]
+  },
+  {
+   "level": "ea",
+   "note": "A",
+   "shown": 3,
+   "expected": 3,
+   "lastWrong": "Vapaa A on jo löydetty.",
+   "final": "A3, uusi korkeus. Kaikki 3 löytyi! Korkeudet: A2 × 2, A3 × 1. Valmis laajempaan? Valitse laajuudeksi kaikki kuusi kieltä.",
+   "done": true,
+   "groups": [
+    "A2: E 5, vapaa A",
+    "A3: A 12"
+   ]
+  },
+  {
+   "level": "ea",
+   "note": "D",
+   "shown": 2,
+   "expected": 2,
+   "final": "D3, sama korkeus kuin E 10. Kaikki 2 löytyi! Korkeudet: D3 × 2. Valmis laajempaan? Valitse laajuudeksi kaikki kuusi kieltä.",
+   "done": true,
+   "groups": [
+    "D3: E 10, A 5"
+   ]
+  },
+  {
+   "level": "ea",
+   "note": "G",
+   "shown": 2,
+   "expected": 2,
+   "hints": [
+    "Vihje: G löytyy vielä paksulta E-kieleltä.",
+    "Vihje: kiintopisteet paksulla E-kielellä: 0 E · 3 G · 5 A · 7 B · 12 E.",
+    "Vihje: tutki merkittyä paikkaa E 3."
+   ],
+   "lastWrong": "A 11 on A♭. Tällä kielellä G on alempana.",
+   "final": "G3, uusi korkeus. Kaikki 2 löytyi! Korkeudet: G2 × 1, G3 × 1. Valmis laajempaan? Valitse laajuudeksi kaikki kuusi kieltä.",
+   "done": true,
+   "groups": [
+    "G2: E 3",
+    "G3: A 10"
+   ]
+  },
+  {
+   "level": "ea",
+   "note": "E",
+   "shown": 3,
+   "expected": 3,
+   "final": "E3, sama korkeus kuin E 12. Kaikki 3 löytyi! Korkeudet: E2 × 1, E3 × 2. Valmis laajempaan? Valitse laajuudeksi kaikki kuusi kieltä.",
+   "done": true,
+   "groups": [
+    "E2: vapaa E",
+    "E3: E 12, A 7"
+   ]
+  },
+  {
+   "level": "ea",
+   "note": "F",
+   "shown": 2,
+   "expected": 2,
+   "lastWrong": "A 9 on F♯. Tällä kielellä F on alempana.",
+   "final": "F3, uusi korkeus. Kaikki 2 löytyi! Korkeudet: F2 × 1, F3 × 1. Valmis laajempaan? Valitse laajuudeksi kaikki kuusi kieltä.",
+   "done": true,
+   "groups": [
+    "F2: E 1",
+    "F3: A 8"
+   ]
+  },
+  {
+   "level": "ea",
+   "note": "C",
+   "shown": 2,
+   "expected": 2,
+   "final": "C3, sama korkeus kuin E 8. Kaikki 2 löytyi! Korkeudet: C3 × 2. Valmis laajempaan? Valitse laajuudeksi kaikki kuusi kieltä.",
+   "done": true,
+   "groups": [
+    "C3: E 8, A 3"
+   ]
+  },
+  {
+   "level": "ea",
+   "note": "G",
+   "shown": 2,
+   "expected": 2,
+   "hints": [
+    "Vihje: G löytyy vielä paksulta E-kieleltä.",
+    "Vihje: kiintopisteet paksulla E-kielellä: 0 E · 3 G · 5 A · 7 B · 12 E.",
+    "Vihje: tutki merkittyä paikkaa E 3."
+   ],
+   "final": "G3, uusi korkeus. Kaikki 2 löytyi! Korkeudet: G2 × 1, G3 × 1. Valmis laajempaan? Valitse laajuudeksi kaikki kuusi kieltä.",
+   "done": true,
+   "groups": [
+    "G2: E 3",
+    "G3: A 10"
+   ]
+  },
+  {
+   "level": "ea",
+   "note": "E",
+   "shown": 3,
+   "expected": 3,
+   "lastWrong": "E 1 on F. Tällä kielellä E on alempana.",
+   "final": "E3, sama korkeus kuin E 12. Kaikki 3 löytyi! Korkeudet: E2 × 1, E3 × 2. Valmis laajempaan? Valitse laajuudeksi kaikki kuusi kieltä.",
+   "done": true,
+   "groups": [
+    "E2: vapaa E",
+    "E3: E 12, A 7"
+   ]
+  },
+  {
+   "level": "ea",
+   "note": "D",
+   "shown": 2,
+   "expected": 2,
+   "final": "D3, sama korkeus kuin E 10. Kaikki 2 löytyi! Korkeudet: D3 × 2. Valmis laajempaan? Valitse laajuudeksi kaikki kuusi kieltä.",
+   "done": true,
+   "groups": [
+    "D3: E 10, A 5"
+   ]
+  },
+  {
+   "level": "kaikki",
+   "note": "F",
+   "shown": 6,
+   "expected": 6,
+   "lastWrong": "G 11 on F♯. Tällä kielellä F on alempana.",
+   "final": "F4, sama korkeus kuin G 10 ja B 6. Kaikki 6 löytyi! Korkeudet: F2 × 1, F3 × 2, F4 × 3.",
+   "done": true,
+   "groups": [
+    "F2: E 1",
+    "F3: A 8, D 3",
+    "F4: G 10, B 6, e 1"
+   ]
+  },
+  {
+   "level": "kaikki",
+   "note": "C",
+   "shown": 6,
+   "expected": 6,
+   "hints": [
+    "Vihje: C löytyy vielä paksulta E-kieleltä.",
+    "Vihje: kiintopisteet paksulla E-kielellä: 0 E · 3 G · 5 A · 7 B · 12 E.",
+    "Vihje: tutki merkittyä paikkaa E 8."
+   ],
+   "final": "C5, uusi korkeus. Kaikki 6 löytyi! Korkeudet: C3 × 2, C4 × 3, C5 × 1.",
+   "done": true,
+   "groups": [
+    "C3: E 8, A 3",
+    "C4: D 10, G 5, B 1",
+    "C5: e 8"
+   ]
+  },
+  {
+   "level": "kaikki",
+   "note": "G",
+   "shown": 7,
+   "expected": 7,
+   "lastWrong": "E 4 on A♭. Tällä kielellä G on alempana.",
+   "final": "G4, sama korkeus kuin G 12 ja B 8. Kaikki 7 löytyi! Korkeudet: G2 × 1, G3 × 3, G4 × 3.",
+   "done": true,
+   "groups": [
+    "G2: E 3",
+    "G3: A 10, D 5, vapaa G",
+    "G4: G 12, B 8, e 3"
+   ]
+  },
+  {
+   "level": "kaikki",
+   "note": "B",
+   "shown": 7,
+   "expected": 7,
+   "lastWrong": "E 8 on C. Tällä kielellä B on alempana.",
+   "final": "B4, sama korkeus kuin B 12. Kaikki 7 löytyi! Korkeudet: B2 × 2, B3 × 3, B4 × 2.",
+   "done": true,
+   "groups": [
+    "B2: E 7, A 2",
+    "B3: D 9, G 4, vapaa B",
+    "B4: B 12, e 7"
+   ]
+  },
+  {
+   "level": "kaikki",
+   "note": "C",
+   "shown": 6,
+   "expected": 6,
+   "lastWrong": "B 2 on C♯. Tällä kielellä C on alempana.",
+   "final": "C5, uusi korkeus. Kaikki 6 löytyi! Korkeudet: C3 × 2, C4 × 3, C5 × 1.",
+   "done": true,
+   "groups": [
+    "C3: E 8, A 3",
+    "C4: D 10, G 5, B 1",
+    "C5: e 8"
+   ]
+  },
+  {
+   "level": "kaikki",
+   "note": "D",
+   "shown": 7,
+   "expected": 7,
+   "hints": [
+    "Vihje: D löytyy vielä paksulta E-kieleltä.",
+    "Vihje: kiintopisteet paksulla E-kielellä: 0 E · 3 G · 5 A · 7 B · 12 E.",
+    "Vihje: tutki merkittyä paikkaa E 10."
+   ],
+   "lastWrong": "E 11 on E♭. Tällä kielellä D on alempana.",
+   "final": "D5, uusi korkeus. Kaikki 7 löytyi! Korkeudet: D3 × 3, D4 × 3, D5 × 1.",
+   "done": true,
+   "groups": [
+    "D3: E 10, A 5, vapaa D",
+    "D4: D 12, G 7, B 3",
+    "D5: e 10"
+   ]
+  },
+  {
+   "level": "kaikki",
+   "note": "F",
+   "shown": 6,
+   "expected": 6,
+   "final": "F4, sama korkeus kuin G 10 ja B 6. Kaikki 6 löytyi! Korkeudet: F2 × 1, F3 × 2, F4 × 3.",
+   "done": true,
+   "groups": [
+    "F2: E 1",
+    "F3: A 8, D 3",
+    "F4: G 10, B 6, e 1"
+   ]
+  },
+  {
+   "level": "kaikki",
+   "note": "A",
+   "shown": 7,
+   "expected": 7,
+   "final": "A4, sama korkeus kuin B 10. Kaikki 7 löytyi! Korkeudet: A2 × 2, A3 × 3, A4 × 2.",
+   "done": true,
+   "groups": [
+    "A2: E 5, vapaa A",
+    "A3: A 12, D 7, G 2",
+    "A4: B 10, e 5"
+   ]
+  },
+  {
+   "level": "kaikki",
+   "note": "G",
+   "shown": 7,
+   "expected": 7,
+   "lastWrong": "Vapaa G on jo löydetty.",
+   "final": "G4, sama korkeus kuin G 12 ja B 8. Kaikki 7 löytyi! Korkeudet: G2 × 1, G3 × 3, G4 × 3.",
+   "done": true,
+   "groups": [
+    "G2: E 3",
+    "G3: A 10, D 5, vapaa G",
+    "G4: G 12, B 8, e 3"
+   ]
+  },
+  {
+   "level": "kaikki",
+   "note": "E",
+   "shown": 8,
+   "expected": 8,
+   "hints": [
+    "Vihje: E löytyy vielä paksulta E-kieleltä.",
+    "Vihje: kiintopisteet paksulla E-kielellä: 0 E · 3 G · 5 A · 7 B · 12 E.",
+    "Vihje: tutki merkittyä paikkaa vapaa E."
+   ],
+   "final": "E5, uusi korkeus. Kaikki 8 löytyi! Korkeudet: E2 × 1, E3 × 3, E4 × 3, E5 × 1.",
+   "done": true,
+   "groups": [
+    "E2: vapaa E",
+    "E3: E 12, A 7, D 2",
+    "E4: G 9, B 5, vapaa e",
+    "E5: e 12"
+   ]
+  },
+  {
+   "level": "kaikki",
+   "note": "A",
+   "shown": 7,
+   "expected": 7,
+   "lastWrong": "E 6 on B♭. Tällä kielellä A on alempana.",
+   "final": "A4, sama korkeus kuin B 10. Kaikki 7 löytyi! Korkeudet: A2 × 2, A3 × 3, A4 × 2.",
+   "done": true,
+   "groups": [
+    "A2: E 5, vapaa A",
+    "A3: A 12, D 7, G 2",
+    "A4: B 10, e 5"
+   ]
+  },
+  {
+   "level": "kaikki",
+   "note": "G",
+   "shown": 7,
+   "expected": 7,
+   "final": "G4, sama korkeus kuin G 12 ja B 8. Kaikki 7 löytyi! Korkeudet: G2 × 1, G3 × 3, G4 × 3.",
+   "done": true,
+   "groups": [
+    "G2: E 3",
+    "G3: A 10, D 5, vapaa G",
+    "G4: G 12, B 8, e 3"
+   ]
+  },
+  {
+   "level": "kromaattinen",
+   "note": "B♭",
+   "shown": 6,
+   "expected": 6,
+   "final": "B♭4, sama korkeus kuin B 11. Kaikki 6 löytyi! Korkeudet: B♭2 × 2, B♭3 × 2, B♭4 × 2.",
+   "done": true,
+   "groups": [
+    "B♭2: E 6, A 1",
+    "B♭3: D 8, G 3",
+    "B♭4: B 11, e 6"
+   ]
+  },
+  {
+   "level": "kromaattinen",
+   "note": "E♭",
+   "shown": 6,
+   "expected": 6,
+   "hints": [
+    "Vihje: E♭ löytyy vielä paksulta E-kieleltä.",
+    "Vihje: kiintopisteet paksulla E-kielellä: 0 E · 3 G · 5 A · 7 B · 12 E.",
+    "Vihje: tutki merkittyä paikkaa E 11."
+   ],
+   "lastWrong": "B 5 on E. Tällä kielellä E♭ on alempana.",
+   "final": "E♭5, uusi korkeus. Kaikki 6 löytyi! Korkeudet: E♭3 × 3, E♭4 × 2, E♭5 × 1.",
+   "done": true,
+   "groups": [
+    "E♭3: E 11, A 6, D 1",
+    "E♭4: G 8, B 4",
+    "E♭5: e 11"
+   ]
+  },
+  {
+   "level": "kromaattinen",
+   "note": "E",
+   "shown": 8,
+   "expected": 8,
+   "final": "E5, uusi korkeus. Kaikki 8 löytyi! Korkeudet: E2 × 1, E3 × 3, E4 × 3, E5 × 1.",
+   "done": true,
+   "groups": [
+    "E2: vapaa E",
+    "E3: E 12, A 7, D 2",
+    "E4: G 9, B 5, vapaa e",
+    "E5: e 12"
+   ]
+  },
+  {
+   "level": "kromaattinen",
+   "note": "C♯",
+   "shown": 6,
+   "expected": 6,
+   "lastWrong": "B 3 on D. Tällä kielellä C♯ on alempana.",
+   "final": "C♯5, uusi korkeus. Kaikki 6 löytyi! Korkeudet: C♯3 × 2, C♯4 × 3, C♯5 × 1.",
+   "done": true,
+   "groups": [
+    "C♯3: E 9, A 4",
+    "C♯4: D 11, G 6, B 2",
+    "C♯5: e 9"
+   ]
+  },
+  {
+   "level": "kromaattinen",
+   "note": "F",
+   "shown": 6,
+   "expected": 6,
+   "lastWrong": "E 2 on F♯. Tällä kielellä F on alempana.",
+   "final": "F4, sama korkeus kuin G 10 ja B 6. Kaikki 6 löytyi! Korkeudet: F2 × 1, F3 × 2, F4 × 3.",
+   "done": true,
+   "groups": [
+    "F2: E 1",
+    "F3: A 8, D 3",
+    "F4: G 10, B 6, e 1"
+   ]
+  },
+  {
+   "level": "kromaattinen",
+   "note": "C",
+   "shown": 6,
+   "expected": 6,
+   "hints": [
+    "Vihje: C löytyy vielä paksulta E-kieleltä.",
+    "Vihje: kiintopisteet paksulla E-kielellä: 0 E · 3 G · 5 A · 7 B · 12 E.",
+    "Vihje: tutki merkittyä paikkaa E 8."
+   ],
+   "lastWrong": "G 6 on C♯. Tällä kielellä C on alempana.",
+   "final": "C5, uusi korkeus. Kaikki 6 löytyi! Korkeudet: C3 × 2, C4 × 3, C5 × 1.",
+   "done": true,
+   "groups": [
+    "C3: E 8, A 3",
+    "C4: D 10, G 5, B 1",
+    "C5: e 8"
+   ]
+  },
+  {
+   "level": "kromaattinen",
+   "note": "E",
+   "shown": 8,
+   "expected": 8,
+   "lastWrong": "G 10 on F. Tällä kielellä E on alempana.",
+   "final": "E5, uusi korkeus. Kaikki 8 löytyi! Korkeudet: E2 × 1, E3 × 3, E4 × 3, E5 × 1.",
+   "done": true,
+   "groups": [
+    "E2: vapaa E",
+    "E3: E 12, A 7, D 2",
+    "E4: G 9, B 5, vapaa e",
+    "E5: e 12"
+   ]
+  },
+  {
+   "level": "kromaattinen",
+   "note": "F♯",
+   "shown": 6,
+   "expected": 6,
+   "final": "F♯4, sama korkeus kuin G 11 ja B 7. Kaikki 6 löytyi! Korkeudet: F♯2 × 1, F♯3 × 2, F♯4 × 3.",
+   "done": true,
+   "groups": [
+    "F♯2: E 2",
+    "F♯3: A 9, D 4",
+    "F♯4: G 11, B 7, e 2"
+   ]
+  },
+  {
+   "level": "kromaattinen",
+   "note": "F",
+   "shown": 6,
+   "expected": 6,
+   "final": "F4, sama korkeus kuin G 10 ja B 6. Kaikki 6 löytyi! Korkeudet: F2 × 1, F3 × 2, F4 × 3.",
+   "done": true,
+   "groups": [
+    "F2: E 1",
+    "F3: A 8, D 3",
+    "F4: G 10, B 6, e 1"
+   ]
+  },
+  {
+   "level": "kromaattinen",
+   "note": "C",
+   "shown": 6,
+   "expected": 6,
+   "hints": [
+    "Vihje: C löytyy vielä paksulta E-kieleltä.",
+    "Vihje: kiintopisteet paksulla E-kielellä: 0 E · 3 G · 5 A · 7 B · 12 E.",
+    "Vihje: tutki merkittyä paikkaa E 8."
+   ],
+   "lastWrong": "B 2 on C♯. Tällä kielellä C on alempana.",
+   "final": "C5, uusi korkeus. Kaikki 6 löytyi! Korkeudet: C3 × 2, C4 × 3, C5 × 1.",
+   "done": true,
+   "groups": [
+    "C3: E 8, A 3",
+    "C4: D 10, G 5, B 1",
+    "C5: e 8"
+   ]
+  },
+  {
+   "level": "kromaattinen",
+   "note": "C♯",
+   "shown": 6,
+   "expected": 6,
+   "final": "C♯5, uusi korkeus. Kaikki 6 löytyi! Korkeudet: C♯3 × 2, C♯4 × 3, C♯5 × 1.",
+   "done": true,
+   "groups": [
+    "C♯3: E 9, A 4",
+    "C♯4: D 11, G 6, B 2",
+    "C♯5: e 9"
+   ]
+  },
+  {
+   "level": "kromaattinen",
+   "note": "B♭",
+   "shown": 6,
+   "expected": 6,
+   "final": "B♭4, sama korkeus kuin B 11. Kaikki 6 löytyi! Korkeudet: B♭2 × 2, B♭3 × 2, B♭4 × 2.",
+   "done": true,
+   "groups": [
+    "B♭2: E 6, A 1",
+    "B♭3: D 8, G 3",
+    "B♭4: B 11, e 6"
+   ]
+  }
+ ],
+ "notes": [
+  {
+   "ex": 1,
+   "tehtavia": 40,
+   "parit": [
+    "AD",
+    "AE",
+    "BG",
+    "Be",
+    "DG"
+   ],
+   "suunnat": [
+    "paksummalle",
+    "ohuemmalle"
+   ],
+   "gb": 14
+  },
+  {
+   "ex": 2,
+   "tehtavia": 30,
+   "suhteet": {
+    "alempi": 12,
+    "sama": 9,
+    "ylempi": 9
+   },
+   "paikkaindeksit": [
+    9,
+    12,
+    9
+   ],
+   "vuotavatNimet": 0
+  },
+  {
+   "ex": 3,
+   "tehtavia": 40,
+   "tyypit": {
+    "etsi": 20,
+    "nimea": 20
+   },
+   "ylennysAlennus": [
+    "C♯",
+    "E♭",
+    "B♭",
+    "A♭"
+   ],
+   "nimeaKiintopisteella": [
+    12,
+    20
+   ]
+  },
+  {
+   "ex": 4,
+   "tehtavia": 36
+  }
+ ],
+ "errors": []
+}
