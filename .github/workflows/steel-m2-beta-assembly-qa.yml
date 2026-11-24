@@ -1,0 +1,45 @@
+name: Steel M2 Beta Assembly QA
+
+on:
+  push:
+    branches:
+      - chatgpt/m2-steel-beta-assembly-20261122
+
+permissions:
+  contents: read
+
+concurrency:
+  group: steel-m2-beta-assembly-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  integration:
+    name: Beta assembly, exact assets and browser regressions
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install pinned dependencies
+        run: npm ci
+      - name: Run lint, typecheck, all unit tests, and build
+        run: npm run check
+      - name: Exact source hash and M2-only integration regressions
+        run: npx vitest run tests/m2-steel-beta-assembly.test.ts tests/ensimmaiset-nelja-iskua.test.ts
+      - name: Install browsers
+        run: npx playwright install --with-deps chromium webkit
+      - name: Steel-composed Chromium desktop/phone regression
+        run: npx playwright test tests/e2e/ensimmaiset-nelja-iskua-steel.spec.ts --project=desktop --project=phone --workers=2
+      - name: Steel M2 WebKit desktop/phone regression
+        run: npx playwright test tests/e2e/ensimmaiset-nelja-iskua-steel.spec.ts --config=playwright.webkit-m2-assembly.config.ts --workers=2
+      - name: Preserve failure traces only
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: steel-m2-beta-assembly-qa-failure
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 7
