@@ -70,10 +70,10 @@ test('Musapelien aiherajaukset ja saavutettavat nimet säilyvät', async ({ page
   await expect(filter).toBeVisible();
   await expect(filter.locator('a')).toHaveCount(5);
   for (const [anchor, accessibleName] of [
-    ['#pelit', /Kaikki pelit.*8 peliä/],
+    ['#pelit', /Kaikki pelit.*9 peliä/],
     ['#aihe-korva', /04 Sävelkorva ja melodia.*4 peliä/],
     ['#aihe-otelauta', /05 Otelauta.*2 peliä/],
-    ['#aihe-soinnut', /06 Soinnut ja harmonia.*2 peliä/],
+    ['#aihe-soinnut', /06 Soinnut ja harmonia.*3 peliä/],
     ['#aihe-kappaleet', /08 Kappaleet ja oma musiikki.*1 peli/],
   ] as const) {
     await expect(filter.locator(`a[href="${anchor}"]`)).toHaveAccessibleName(accessibleName);
