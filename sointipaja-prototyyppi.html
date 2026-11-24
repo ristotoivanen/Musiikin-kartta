@@ -53,6 +53,7 @@ main.practice-main {max-width: 700px; padding: 14px 10px 30px}
 .proto #root-choice:not([hidden]) + #answers:not(:empty) {min-height:48px}
 @media(max-width:480px){.proto #roots,.proto #root-choice:not([hidden]) + #answers {gap:4px}}
 @media(max-width:369px){.proto #roots {grid-template-columns:repeat(4,minmax(44px,1fr));max-width:284px}}
+@media(max-width:229px){.proto #roots {grid-template-columns:repeat(3,minmax(44px,1fr));max-width:184px}}
 .proto .chord-answers button[aria-disabled=true] {cursor:default}
 .proto .chord-answers button.wrong {color:#ffe08a;opacity:1}
 .proto .chord-answers button.right {background:#9fe4c3;color:#16121f}
@@ -109,7 +110,7 @@ main.practice-main {max-width: 700px; padding: 14px 10px 30px}
 .proto .challenge-metrics span {display:block;font-size:12px;color:var(--muted)}
 .proto .challenge-metrics strong {font-size:clamp(20px,4vw,28px);font-variant-numeric:tabular-nums}
 .proto #challenge-progress {width:100%;height:8px;accent-color:var(--good)}
-.proto #challenge-lock {font-weight:750;color:var(--wrong);min-height:1.5em}
+.proto #challenge-lock {font-weight:750;color:var(--wrong);min-height:1.7em}
 .proto #challenge-feedback {min-height:3.4em;font-weight:650}
 .proto .challenge-result-score {font-size:36px;font-weight:800;color:var(--good);font-variant-numeric:tabular-nums}
 .proto .challenge-results {display:grid;grid-template-columns:1fr auto;gap:8px;margin:12px 0}
