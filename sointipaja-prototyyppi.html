@@ -106,8 +106,10 @@ main.practice-main {max-width: 700px; padding: 14px 10px 30px}
 .proto #prototype-mode {margin-top:0}
 .proto #challenge-start {width:100%;margin-top:8px}
 .proto #challenge-stop {min-height:44px}
-.proto .challenge-active #roots button[aria-disabled=true]:not(:disabled),.proto .challenge-active #answers button[aria-disabled=true]:not(.wrong) {opacity:.6}
-.proto .challenge-active .chord-neck .mark {cursor:default;pointer-events:none}
+.proto.challenge-active #roots button[aria-disabled=true]:not(:disabled),.proto.challenge-active #answers button[aria-disabled=true]:not(.wrong) {opacity:.6}
+.proto.challenge-active .chord-neck .mark {cursor:default;pointer-events:none}
+.proto.challenge-active #root-choice:not([hidden]) + #answers button {width:auto;min-width:64px;flex-basis:auto;padding-inline:10px}
+@media(max-width:480px){.proto.challenge-active #root-choice:not([hidden]) + #answers button {min-width:48px}}
 @media(max-width:350px){.proto .challenge-settings {grid-template-columns:1fr}}
 
 @media(max-width:365px){.proto .toolbar button {font-size:13px;padding-inline:6px}.proto .chord-answers {gap:4px;grid-template-columns:repeat(auto-fit,minmax(50px,1fr))}}
@@ -135,7 +137,7 @@ main.practice-main {max-width: 700px; padding: 14px 10px 30px}
 <label>Virhelukitus<select id="challenge-penalty"><option value="3">3 sekuntia</option><option value="4" selected>4 sekuntia</option><option value="5">5 sekuntia</option></select></label>
 </div>
 <p id="challenge-best" class="tools-note"></p>
-<p class="tools-note">Pelin aloittaminen päättää keskeneräisen harjoituskierroksen. Pelissä ei soiteta mallia automaattisesti. Voit aina palata ajattomaan harjoitteluun.</p>
+<p class="tools-note">Pelin aloittaminen päättää keskeneräisen harjoituksen. Palatessa taso alkaa alusta. Pelissä ei soiteta mallia automaattisesti. Voit aina palata ajattomaan harjoitteluun.</p>
 <button type="button" class="primary" id="challenge-start">Aloita peli</button>
 <p id="challenge-setup-note" role="status"></p>
 </section>
@@ -227,7 +229,7 @@ main.practice-main {max-width: 700px; padding: 14px 10px 30px}
 </details>
 </section>
 <p><a href="oppi/soinnut/">Soinnut ja harmonia – Ydinopinnot</a></p>
-<p class="tools-note">Ääninäytteet: <a href="assets/audio/soinnut/LAHTEET.md">Meta Steel Guitar, CC0 1.0</a>. Erillinen tasojen 1–4 demo (#187:n yhteinen otelauta), ei korvaa nykyistä harjoitusta. Tulokset säilyvät tämän sivuistunnon ajan.</p>
+<p class="tools-note">Ääninäytteet: <a href="assets/audio/soinnut/LAHTEET.md">Meta Steel Guitar, CC0 1.0</a>. Erillinen tasojen 1–4 demo (#187:n yhteinen otelauta), ei korvaa nykyistä harjoitusta. Harjoitustulokset säilyvät tämän sivuistunnon ajan. Peliennätykset tallennetaan paikallisesti selaimeen, jos tallennus on käytettävissä.</p>
 </main>
 <script src="assets/otelauta.js" onerror="document.getElementById('load-error').hidden=false"></script>
 <script src="assets/sointipaja-levels.js"></script>
@@ -740,7 +742,6 @@ function setChallengeView(view){
 }
 function openChallenge(note=''){
   stop();stopGameTimer();game=null;lastLock=false;
-  neckObserver?.disconnect();
   setChallengeView('setup');
   byId('challenge-setup-note').textContent=note;
   refreshChallengeSetup();
