@@ -153,9 +153,9 @@ test.describe('Oppimiskartan navigointi ja paluu', () => {
     await page.locator('#aihe-soinnut').click();
     await expect(page).toHaveURL('/oppi/soinnut/index.html');
     const chordMap = page.getByRole('link', { name: 'Tutki sointukarttaa' });
-    await expect(chordMap).toHaveAttribute('href', '../../otelautaharjoittelija.html?aihe=aihe-soinnut#soinnut');
+    await expect(chordMap).toHaveAttribute('href', '../../otelautaopas-beta.html?aihe=aihe-soinnut#soinnut');
     await chordMap.click();
-    await expect(page).toHaveURL('/otelautaharjoittelija.html?aihe=aihe-soinnut#soinnut');
+    await expect(page).toHaveURL('/otelautaopas-beta.html?aihe=aihe-soinnut#soinnut');
     await expect(page.getByRole('button', { name: 'Soinnut', exact: true })).toHaveAttribute('aria-pressed', 'true');
     await page.getByRole('link', { name: 'Takaisin aiheeseen' }).click();
     await expect(page).toHaveURL('/oppi/soinnut/index.html');
@@ -504,7 +504,7 @@ test.describe('Vanhat osoitteet ja osioiden välinen jatkuvuus', () => {
       await mainNav(page).getByRole('link', { name: LABELS.pakki }).click();
       await expect(page).toHaveURL(/\/soittopakki\.html$/);
       await page.getByRole('link', { name: 'Avaa Otelautaopas', exact: true }).click();
-      await expect(page).toHaveURL(/\/otelautaharjoittelija\.html$/);
+      await expect(page).toHaveURL(/\/otelautaopas-beta\.html$/);
       await expect(mainNav(page).getByRole('link', { name: LABELS.pakki })).toHaveAttribute('aria-current', 'true');
       await expect(page.getByRole('navigation', { name: 'Otelautaopas' })).toHaveCount(0);
       await expect(page.getByRole('heading', { name: 'Tutki otelautaa' })).toBeInViewport();

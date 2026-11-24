@@ -28,21 +28,22 @@ const advanced = (page: Page) => page.locator('#beta-level [data-level="advanced
 const OPEN = [64, 59, 55, 50, 45, 40];
 
 test.describe('Otelautaopas BETA', () => {
-  test('löytyy Soittopakista BETA-merkinnällä ja nykyinen Otelautaopas säilyy rinnalla', async ({ page }) => {
+  test('Soittopakin Otelautaopas on tämä sivu BETA-merkinnällä; vanha sivu ei ole Soittopakissa', async ({ page }) => {
     await page.goto('/soittopakki.html');
-    const beta = page.locator('#otelautaopas-beta');
-    await expect(beta.getByRole('heading', { level: 2 })).toContainText('BETA');
-    await expect(page.locator('#otelautaopas').getByRole('link', { name: 'Avaa Otelautaopas', exact: true })).toHaveAttribute('href', 'otelautaharjoittelija.html');
-    await beta.getByRole('link', { name: 'Avaa Otelautaopas BETA' }).click();
-    await expect(page).toHaveURL(/otelautaopas-beta\.html#soinnut$/);
+    const tool = page.locator('#otelautaopas');
+    await expect(tool.getByRole('heading', { level: 2 })).toHaveText('Otelautaopas BETA');
+    await expect(page.locator('#otelautaopas-beta')).toHaveCount(0);
+    await expect(page.locator('a[href^="otelautaharjoittelija.html"]')).toHaveCount(0);
+    await expect(tool.getByRole('link', { name: 'Sointukartta' })).toHaveAttribute('href', 'otelautaopas-beta.html#soinnut');
+    await expect(tool.getByRole('link', { name: 'Oktaavit' })).toHaveAttribute('href', 'otelautaopas-beta.html?toonikka=A#oktaavit');
+    await tool.getByRole('link', { name: 'Avaa Otelautaopas', exact: true }).click();
+    await expect(page).toHaveURL(/otelautaopas-beta\.html$/);
     await expect(page.locator('.beta-badge')).toHaveText('BETA');
-    await expect(page.locator('.beta-note')).toHaveCount(0);
     await expect(page.getByRole('navigation', { name: 'Päävalikko' }).getByRole('link', { name: 'Soittopakki' })).toHaveAttribute('aria-current', 'true');
-    // Nykyinen opas toimii ennallaan vanhoine valikkoineen.
+    await expect(page.getByRole('button', { name: 'Soinnut', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    // Vanha osoite toimii yhä.
     await page.goto('/otelautaharjoittelija.html#soinnut');
     await expect(page.locator('#chord-group')).toBeVisible();
-    await expect(page.locator('#chord-beta')).toHaveCount(0);
-    await expect(page.locator('.beta-badge')).toHaveCount(0);
   });
 
   test('Soinnut on ensimmäinen välilehti ja avautuu oletuksena ilman osoitteen osaa', async ({ page }) => {

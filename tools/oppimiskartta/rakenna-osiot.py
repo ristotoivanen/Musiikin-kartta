@@ -40,7 +40,7 @@ TOOLS = ('valine', 'taito', 'kuvaus')
 TOOL_SCRIPT = 'assets/oppimistapa.js'
 # Työkalusivut, joilla Takaisin aiheeseen -linkki palaa oppimistapaan (?tapa=…). Ensikeikan sivun
 # skriptilinkki lisätään käännöksessä (vite.ensikeikka.config.ts).
-TOOL_PAGES = ('riffikaiku.html', 'kitaraharjoittelija.html', 'otelautaharjoittelija.html')
+TOOL_PAGES = ('riffikaiku.html', 'kitaraharjoittelija.html', 'otelautaharjoittelija.html', 'otelautaopas-beta.html')
 NAV = re.compile(r'(?P<indent>[ \t]*)<nav class="main-nav" aria-label="Päävalikko">.*?</nav>', re.S)
 GENERATED = '<!-- Muodostettu komennolla python3 tools/oppimiskartta/rakenna-osiot.py. Älä muokkaa käsin. -->'
 
@@ -161,8 +161,8 @@ def validate(config, registry):
             for href in links:
                 if not href or not (ROOT / page_path(href)).exists():
                     errors.append(f'{name}: osoitetta {href} ei ole')
-                elif urlsplit(href).fragment and page_path(href) == 'otelautaharjoittelija.html':
-                    if urlsplit(href).fragment not in {'soinnut', 'oktaavit'}:
+                elif urlsplit(href).fragment and page_path(href) in ('otelautaharjoittelija.html', 'otelautaopas-beta.html'):
+                    if urlsplit(href).fragment not in {'soinnut', 'oktaavit', 'asteikot'}:
                         errors.append(f'{name}: Otelautaoppaassa ei ole näkymää #{urlsplit(href).fragment}')
                 elif urlsplit(href).fragment and urlsplit(href).fragment not in ids_in(page_path(href)):
                     errors.append(f'{name}: ankkuria {href} ei ole')
@@ -329,7 +329,7 @@ TOOL_LABELS = {'oikea kitara': 'Oikea kitara', 'virtuaalikitara': 'Virtuaalikita
 
 
 def badge(app):
-    return ' <span class="mode-badge">beta</span>' if app['saatavuus'] == 'beta' else ''
+    return f' <span class="mode-badge">{esc(app.get("merkki", "beta"))}</span>' if app['saatavuus'] == 'beta' else ''
 
 
 def switch(topic, current, counts, registry):
@@ -492,15 +492,6 @@ def training_page(topics, apps, study, registry, counts):
     return ''.join(out)
 
 
-# Otelautaopas BETA (issue #193): rinnakkainen kokeilu, ei oppimisrekisterin työkalu eikä osa aiheiden apuvälineitä.
-BETA_TOOL = '''  <section class="mode-tool" id="otelautaopas-beta" aria-labelledby="otelautaopas-beta-otsikko">
-    <h2 id="otelautaopas-beta-otsikko">Otelautaopas <span class="mode-badge">BETA</span></h2>
-    <p class="mode-desc">Kokeiluversio, jossa Soinnut-näkymä on uudistettu: sointulaadut suoraan valittavissa, triadit neljällä kieliryhmällä ja duuri–molli-vaihto. Nykyinen Otelautaopas toimii rinnalla.</p>
-    <p><a class="mode-action" href="otelautaopas-beta.html#soinnut">Avaa Otelautaopas BETA</a></p>
-  </section>
-'''
-
-
 def toolkit_page(topics, apps, registry):
     section = {s['id']: s for s in registry['osiot']}['pakki']
     by_slug = {t['slug']: t for t in topics}
@@ -532,8 +523,6 @@ def toolkit_page(topics, apps, registry):
                            f'<a href="oppi/{topic["slug"]}/index.html">{esc(topic["title"])}</a>.</span></li>\n')
             out.append('    </ul>\n')
         out.append('  </section>\n')
-        if app['id'] == 'tyokalu:otelautaopas':
-            out.append(BETA_TOOL)
     out.append('</main>\n\n')
     out.append(FOOT)
     return ''.join(out)

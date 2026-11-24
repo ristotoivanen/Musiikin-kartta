@@ -234,7 +234,7 @@ test.describe('Kolme oppimistapaa ja Soittopakki', () => {
     await expect(topic).toHaveAttribute('open', '');
     await expect(topic.getByRole('link', { name: /Etsi sama sävel kaikilta kieliltä/ })).toHaveAttribute('href', 'oppi/otelauta/etsi-sama-savel.html?tapa=kitara');
     const helper = topic.getByRole('link', { name: 'Otelautaopas · Oktaavit' });
-    await expect(helper).toHaveAttribute('href', 'otelautaharjoittelija.html?toonikka=A&aihe=aihe-otelauta&tapa=kitara#oktaavit');
+    await expect(helper).toHaveAttribute('href', 'otelautaopas-beta.html?toonikka=A&aihe=aihe-otelauta&tapa=kitara#oktaavit');
     await helper.click();
     await expect(page.getByRole('button', { name: 'Oktaavit', exact: true })).toHaveAttribute('aria-pressed', 'true');
     await page.getByRole('link', { name: 'Takaisin: Kitaratreeni: Otelauta' }).click();
@@ -265,7 +265,7 @@ test.describe('Kolme oppimistapaa ja Soittopakki', () => {
 
   test('Soittopakki näyttää vain käytettävissä olevat työkalut', async ({ page }) => {
     await page.goto('/soittopakki.html');
-    await expect(page.getByRole('heading', { level: 2 })).toHaveText(['Otelautaopas', 'Otelautaopas BETA', 'Viritin']);
+    await expect(page.getByRole('heading', { level: 2 })).toHaveText(['Otelautaopas BETA', 'Viritin']);
     await expect(page.getByText('Metronomi')).toHaveCount(0);
     await expect(page.getByRole('link', { name: 'Avaa Riffiharjoitus ja viritin' })).toHaveAttribute('href', 'riffikaiku.html?tila=harjoitus');
     await page.getByRole('link', { name: 'Sointukartta' }).click();
