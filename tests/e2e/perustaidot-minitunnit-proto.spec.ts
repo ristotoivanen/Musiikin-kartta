@@ -204,6 +204,7 @@ test('taputus vain numeroiskuilla, ja-tavut näkyvät kompin hahmottamiseksi', a
   await expect(page.locator('#strum-hand')).toContainText('Ja-tavuilla ei taputeta');
   await expect(page.locator('.beat')).toHaveCount(4);
   await expect(page.locator('.half b')).toHaveText(['1', 'ja', '2', 'ja', '3', 'ja', '4', 'ja']);
+  await expect(page.locator('.half .foot')).toHaveText(['Jalka alas ↓', 'Jalka ylös ↑', 'Jalka alas ↓', 'Jalka ylös ↑', 'Jalka alas ↓', 'Jalka ylös ↑', 'Jalka alas ↓', 'Jalka ylös ↑']);
   await expect(page.locator('.half.tap-target b')).toHaveText(['1', '2', '3', '4']);
   const next = page.getByRole('button', { name: 'Seuraava taputuskuvio' });
   const guide = page.locator('#clap-guide');
@@ -214,6 +215,7 @@ test('taputus vain numeroiskuilla, ja-tavut näkyvät kompin hahmottamiseksi', a
   await next.click();
   await expect(page.locator('.half.tap-target b')).toHaveText(['1']);
   await expect(page.locator('.half.tap-target b').filter({hasText:'ja'})).toHaveCount(0);
+  await expect(page.locator('.half .foot')).toHaveCount(8);
   await page.getByRole('button', { name: 'Peruspulssi' }).click();
   await expect(page.locator('.half.tap-target b')).toHaveText(['1', '2', '3', '4']);
   await page.locator('#play').click();
