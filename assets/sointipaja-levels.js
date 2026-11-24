@@ -16,8 +16,8 @@
   }, {
     id:'open-2', title:'Molli ja seiskasoinnut',
     rounds:[
-      {id:'d-family', title:'D, Dm ja D7', targets:['D','Dm','D7'], options:['D','Dm','D7'], repeats:2},
-      {id:'ae-family', title:'A7 ja E7 sekä tutut vertailusoinnut', targets:['A','A7','E','E7'], options:['A','Am','A7','E','Em','E7'], repeats:2},
+      {id:'new-chords', title:'Neljä uutta sointua', targets:newChords, options:['D','Dm','D7','A','A7','E','E7'], repeats:2},
+      {id:'mixed', title:'Uudet ja tutut soinnut', targets:cumulative, options:cumulative, repeats:1},
       {id:'cumulative', title:'Kaikki yksitoista sointua', targets:cumulative, options:cumulative, repeats:1},
     ],
   }];
