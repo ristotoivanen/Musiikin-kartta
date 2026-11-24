@@ -19,7 +19,7 @@ test('yksi harjoituskortti, valinnan mukaan muuttuvat ohjeet ja yksi toistopaini
   await expect(page.locator('#instruction')).toContainText('valitse tuttu sointu');
   await expect(page.locator('#clap-current')).toHaveText('Soita kaikilla iskuilla');
   await expect(page.locator('.half.tap-target .tap-label')).toHaveText(['Soita','Soita','Soita','Soita']);
-  await expect(page.locator('.half:not(.tap-target) .tap-label')).toHaveText(['Ilmassa','Ilmassa','Ilmassa','Ilmassa']);
+  await expect(page.locator('.half:not(.tap-target) .tap-label')).toHaveText(['Ei osumaa','Ei osumaa','Ei osumaa','Ei osumaa']);
   await expect(page.locator('#brushing')).toBeVisible();
 });
 
@@ -238,7 +238,7 @@ test('taputus vain numeroiskuilla, ja-tavut näkyvät kompin hahmottamiseksi', a
   await expect(guide).toHaveAttribute('data-pattern', '2');
   await expect(page.locator('.half.tap-target b')).toHaveText(['2', '4']);
   await expect(page.locator('.half.tap-target .tap-label')).toHaveText(['Soita', 'Soita']);
-  await expect(page.locator('.half:not(.tap-target) .tap-label')).toHaveText(Array(6).fill('Ilmassa'));
+  await expect(page.locator('.half:not(.tap-target) .tap-label')).toHaveText(Array(6).fill('Ei osumaa'));
   await expect(page.locator('.half .direction')).toHaveText(['↓', '↑', '↓', '↑', '↓', '↑', '↓', '↑']);
   await page.getByRole('button', { name: 'Seuraava soittokuvio' }).click();
   await expect(guide).toHaveAttribute('data-pattern', '3', {timeout: 4000});
