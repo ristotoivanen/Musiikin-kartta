@@ -296,9 +296,9 @@ function highlight(indices) {document.querySelectorAll('#board .mark').forEach(b
 function listen(trigger, mode, string) {
   const positions=mode==='single'?voiced().filter(p=>p.s===string):voiced();
   if(!positions.length)return;
-  const step=mode==='arpeggio'?.42:mode==='chord'?.027:0;
-  const duration=mode==='arpeggio'?.85:mode==='chord'?2.15:1.35;
-  const gain=mode==='single'?.40:mode==='arpeggio'?.27:.19;
+  const step=mode==='arpeggio' ? .58 : mode==='chord' ? .027 : 0;
+  const duration=mode==='arpeggio' ? .52 : mode==='chord' ? 2.15 : 1.35;
+  const gain=mode==='single' ? .40 : mode==='arpeggio' ? .27 : .19;
   const plan=positions.map(({s,f},i)=>({pitch:sampleOf(s,f),at:i*step,duration,gain}));
   void play(trigger,audioStatus,plan,{
     label:mode==='single'?'Kieli soi.':mode==='arpeggio'?'Kielet soivat järjestyksessä.':'Sointu soi.',
@@ -354,7 +354,7 @@ function select(name){
   if(byId('auto').checked)listen(byId('listen'),'chord');
 }
 function show(focus=false){
-  stop();audioStatus.textContent='';highlight([]);answered=false;wrong=new Set();
+  stop();audioStatus.textContent='';audioStatus.classList.remove('is-error');highlight([]);answered=false;wrong=new Set();
   if(index>=order.length){
     byId('round').hidden=true;byId('summary').hidden=false;
     byId('result').textContent='Tunnistit kaikki '+count+' sointua. '+(mistakes?'Vääriä valintoja yhteensä '+mistakes+'.':'Kaikki oikein ensimmäisellä yrityksellä.');
@@ -373,7 +373,7 @@ stopButton.addEventListener('click',()=>{stop('Kuuntelu pysäytetty.');byId('lis
 byId('next').addEventListener('click',()=>{if(answered){index++;show(true);}});
 byId('restart').addEventListener('click',()=>reset(true));
 document.querySelectorAll('[name=count]').forEach(b=>b.addEventListener('change',()=>{count=Number(b.value);reset();}));
-document.querySelectorAll('[name=view]').forEach(b=>b.addEventListener('change',()=>{view=b.value;stop();audioStatus.textContent='';if(index<order.length)renderBoard();}));
+document.querySelectorAll('[name=view]').forEach(b=>b.addEventListener('change',()=>{view=b.value;stop();audioStatus.textContent='';audioStatus.classList.remove('is-error');if(index<order.length)renderBoard();}));
 byId('prototype').hidden=false;reset();
 })();
 </script>
