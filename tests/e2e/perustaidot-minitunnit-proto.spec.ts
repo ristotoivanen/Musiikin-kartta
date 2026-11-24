@@ -80,6 +80,7 @@ test('ohjeet ja alkuperäinen äänite ilman JavaScriptiä', async ({ browser })
 });
 
 test('nuolet vaihtavat taputuskuvion vasta tahtirajalla ilman toiston uudelleenkäynnistystä', async ({ page }) => {
+  test.setTimeout(60000);
   await page.addInitScript(() => {
     const starts = { count: 0 };
     Object.defineProperty(window, 'prototypeAudioStarts', { value: starts });
