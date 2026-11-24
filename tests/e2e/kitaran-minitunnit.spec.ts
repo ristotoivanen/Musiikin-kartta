@@ -323,3 +323,25 @@ test('suora ankkuri avaa harjoitusosion ja skriptivirhe jättää ohjeet näkyvi
   await expect(page.locator('#minitunti-fallback')).toBeVisible();
   await expect(page.locator('#exercise')).toBeHidden();
 });
+
+test('minitunnit käyttävät Ydinopintojen yhteistä plus–miinus-avausta', async ({ page }) => {
+  await page.goto(url);
+  const section = page.locator('#perustaitojen-minitunnit');
+  const heading = section.locator(':scope > summary');
+  await expect(section).toHaveClass(/\bstudy-unit\b/);
+  await expect(section.locator(':scope > .study-unit-body')).toHaveCount(1);
+  await expect(heading.locator('.study-unit-title')).toHaveText('Perustaitojen minitunnit');
+  await expect(section.locator('[data-unit-progress]')).toHaveCount(0);
+  const marker = () => heading.evaluate(el => getComputedStyle(el, '::after').content);
+  expect(await marker()).toContain('+');
+  await heading.focus();
+  await page.keyboard.press('Enter');
+  await expect(section).toHaveAttribute('open', '');
+  expect(await marker()).toContain('−');
+  await expect(page.locator('#exercise')).toBeVisible();
+  await expect(page.locator('#exercise')).toHaveAttribute('data-state', 'idle');
+  await page.keyboard.press('Enter');
+  await expect(section).not.toHaveAttribute('open', '');
+  expect(await marker()).toContain('+');
+  await expect(page.locator('#exercise')).toBeHidden();
+});

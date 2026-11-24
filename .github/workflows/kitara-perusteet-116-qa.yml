@@ -19,5 +19,7 @@ jobs:
       - run: python3 tools/oppimiskartta/rakenna.py --tarkista
       - run: npm run typecheck
       - run: npm test
-      - run: npx playwright install --with-deps chromium
-      - run: npx playwright test tests/e2e/kitaran-lahtosivu.spec.ts tests/e2e/kitaran-otelaudan-geometria-144.spec.ts tests/e2e/kitaran-minitunnit.spec.ts --workers=3
+      - if: ${{ !cancelled() }}
+        run: npx playwright install --with-deps chromium
+      - if: ${{ !cancelled() }}
+        run: npx playwright test tests/e2e/kitaran-lahtosivu.spec.ts tests/e2e/kitaran-otelaudan-geometria-144.spec.ts tests/e2e/kitaran-minitunnit.spec.ts --workers=3
