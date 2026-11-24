@@ -79,41 +79,71 @@ test('ohjeet ja alkuperäinen äänite ilman JavaScriptiä', async ({ browser })
   }
 });
 
-test('taputuskuviot ja kahden tahdin palautus vaihtuvat ilman äänen pysäyttämistä', async ({ page }) => {
-  test.setTimeout(110000);
+test('nuolet vaihtavat taputuskuvion vasta tahtirajalla ilman toiston uudelleenkäynnistystä', async ({ page }) => {
+  await page.addInitScript(() => {
+    const starts = { count: 0 };
+    Object.defineProperty(window, 'prototypeAudioStarts', { value: starts });
+    const original = AudioBufferSourceNode.prototype.start;
+    AudioBufferSourceNode.prototype.start = function (...args: Parameters<AudioBufferSourceNode['start']>) {
+      starts.count++;
+      return original.apply(this, args);
+    };
+  });
   await page.goto(url);
   const guide = page.locator('#clap-guide');
   const card = page.locator('#exercise');
   const labels = page.locator('.beat small');
+  const next = page.getByRole('button', { name: 'Seuraava taputuskuvio' });
+  const prev = page.getByRole('button', { name: 'Edellinen taputuskuvio' });
   await expect(labels).toHaveText(['Taputa', 'Taputa', 'Taputa', 'Taputa']);
+  await next.click();
+  await expect(guide).toHaveAttribute('data-pattern', '1');
+  await expect(labels).toHaveText(['Taputa', 'Vain jalka', 'Taputa', 'Vain jalka']);
   await page.locator('#play').click();
   await expect(card).toHaveAttribute('data-state', 'playing', { timeout: 15000 });
-  await expect(guide).toHaveAttribute('data-bar', '4', { timeout: 12000 });
-  await expect(page.locator('#clap-next')).toHaveText('Seuraavassa tahdissa: 1 ja 3');
+  await expect(page.locator('.beat.on')).toHaveCount(1);
+  // Kuvio ei vaihdu itsestään edes yli neljän tahdin jälkeen.
+  await page.waitForTimeout(12000);
+  await expect(guide).toHaveAttribute('data-pattern', '1');
+  await expect(card).toHaveAttribute('data-state', 'playing');
+  await expect(page.locator('.beat.on')).toHaveCount(1);
+  await next.click();
+  await expect(guide).toHaveAttribute('data-pattern', '2', { timeout: 4000 });
   await expect(labels).toHaveText(['Taputa', 'Taputa', 'Taputa', 'Taputa']);
-  const patterns = [
-    ['1', ['Taputa', 'Vain jalka', 'Taputa', 'Vain jalka']],
-    ['2', ['Taputa', 'Taputa', 'Taputa', 'Taputa']],
-    ['3', ['Vain jalka', 'Taputa', 'Vain jalka', 'Taputa']],
-    ['4', ['Taputa', 'Taputa', 'Taputa', 'Taputa']],
-    ['5', ['Taputa', 'Vain jalka', 'Vain jalka', 'Vain jalka']],
-    ['0', ['Taputa', 'Taputa', 'Taputa', 'Taputa']]
-  ] as const;
-  for (const [index, expected] of patterns) {
-    await expect(guide).toHaveAttribute('data-pattern', index, { timeout: 15000 });
-    await expect(labels).toHaveText([...expected]);
-    if (index === '2') {
-      await expect(guide).toHaveAttribute('data-bar', '2', { timeout: 5000 });
-      await expect(page.locator('#clap-next')).toHaveText('Seuraavassa tahdissa: 2 ja 4');
-      await expect(labels).toHaveText(['Taputa', 'Taputa', 'Taputa', 'Taputa']);
-    }
-    await expect(card).toHaveAttribute('data-state', 'playing');
-  }
+  await next.click();
+  await expect(guide).toHaveAttribute('data-pattern', '3', { timeout: 4000 });
+  await expect(labels).toHaveText(['Vain jalka', 'Taputa', 'Vain jalka', 'Taputa']);
+  await prev.click();
+  await expect(guide).toHaveAttribute('data-pattern', '2', { timeout: 4000 });
+  await expect(card).toHaveAttribute('data-state', 'playing');
+  await expect.poll(() => page.evaluate(() => (window as unknown as { prototypeAudioStarts: { count: number } }).prototypeAudioStarts.count)).toBe(1);
   await page.locator('#play').click();
   await expect(card).toHaveAttribute('data-state', 'idle');
-  await expect(guide).toHaveAttribute('data-pattern', '0');
-  await page.getByRole('button', { name: 'Kitaran mukana' }).click();
-  await expect(labels).toHaveText(['Taputa', 'Taputa', 'Taputa', 'Taputa']);
+  await expect(guide).toHaveAttribute('data-pattern', '2');
   await page.getByRole('button', { name: 'Pidä komppikäsi liikkeessä' }).click();
   await expect(guide).toBeHidden();
+  await expect(page.locator('#clap-nav')).toBeHidden();
+});
+
+test('odottava taputusvalinta peruutetaan palaamalla nykyiseen kuvioon', async ({ page }) => {
+  await page.goto(url);
+  await page.locator('#play').click();
+  await expect(page.locator('#exercise')).toHaveAttribute('data-state', 'playing', { timeout: 15000 });
+  await expect(page.locator('.beat.on').first()).toBeVisible();
+  // Molemmat painallukset samassa JS-tehtävässä, jotta tahtiraja ei voi osua väliin.
+  await page.evaluate(() => {
+    document.getElementById('clap-forward')?.click();
+  });
+  const guide = page.locator('#clap-guide');
+  // Varmista peruutus erillisellä atomisella sarjalla alkaen valitusta kuviosta.
+  await expect(guide).toHaveAttribute('data-pattern', '1', { timeout: 4000 });
+  await page.evaluate(() => {
+    document.getElementById('clap-forward')?.click();
+    document.getElementById('clap-prev')?.click();
+  });
+  await expect(guide).toHaveAttribute('data-pending', '');
+  await expect(guide).toHaveAttribute('data-pattern', '1');
+  await page.waitForTimeout(3200);
+  await expect(guide).toHaveAttribute('data-pattern', '1');
+  await expect(page.locator('#exercise')).toHaveAttribute('data-state', 'playing');
 });
