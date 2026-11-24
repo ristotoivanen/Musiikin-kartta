@@ -12,6 +12,8 @@
 }
 .savelnimiopinto button {
   min-block-size: 44px;
+  min-inline-size: 44px;
+  touch-action: manipulation;
   max-inline-size: 100%;
   padding: .45rem .7rem;
   border: 1px solid var(--muted);
@@ -31,8 +33,12 @@
   background: color-mix(in srgb, var(--panel), var(--accent) 14%);
 }
 .savelnimiopinto button:hover:not(:disabled) { border-color: var(--accent); }
-.savelnimi-tila { color: var(--muted); }
-.savelnimi-tila:empty { margin: 0; }
+/* Tilarivi varaa yhden rivin, jotta sisältö ei hyppää kuuntelun alkaessa tai päättyessä. */
+.savelnimi-tila { color: var(--muted); min-block-size: 1.75em; min-block-size: 1lh; margin-block: .25rem; }
+/* Kaksoisnapautus ei zoomaa; nipistyszoomaus ja vieritys säilyvät. */
+.study-inline button, .study-inline summary, .study-unit > summary, .savelnimiopinto summary, .done-toggle {
+  touch-action: manipulation;
+}
 .savelnimi-selitys > summary {
   display: list-item;
   align-content: center;

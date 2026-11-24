@@ -324,7 +324,12 @@ for (const colorScheme of ['light', 'dark'] as const) {
         const skip = slug === chord ? root.getByText('Huomaa, mikä muuttui') : root.locator('.study-knoppi > summary');
         await skip.first().click();
         expect(await page.evaluate(() => document.documentElement.scrollWidth), slug).toBeLessThanOrEqual(width);
-        expect(await root.getByRole('button').evaluateAll(buttons => Math.min(...buttons.map(button => button.getBoundingClientRect().height)))).toBeGreaterThanOrEqual(44);
+        const sizes = await root.getByRole('button').evaluateAll(buttons => buttons.filter(button => button.getClientRects().length)
+          .map(button => ({ name: button.textContent?.trim(), w: button.getBoundingClientRect().width, h: button.getBoundingClientRect().height })));
+        for (const size of sizes) {
+          expect(size.h, `${slug} ${size.name} korkeus @${width}`).toBeGreaterThanOrEqual(44);
+          expect(size.w, `${slug} ${size.name} leveys @${width}`).toBeGreaterThanOrEqual(44);
+        }
       }
     }
   });
@@ -350,4 +355,58 @@ test.describe('ilman JavaScriptiä', () => {
     await page.locator('#valinta-savelet-ja-intervallit').click();
     await expect(page.locator('audio[controls]')).toBeVisible();
   });
+});
+
+test('painikkeet eivät zoomaa kaksoisnapautuksella, mutta nipistys ja vieritys säilyvät', async ({ page }) => {
+  for (const slug of [chord, route, intervals]) {
+    await page.goto(anchored(slug));
+    const root = card(page, slug);
+    await expect(root).toHaveAttribute('open');
+    for (const button of await root.getByRole('button').all()) {
+      if (await button.isVisible()) await expect(button, await button.textContent() ?? '').toHaveCSS('touch-action', 'manipulation');
+    }
+    await expect(root.locator(':scope > summary')).toHaveCSS('touch-action', 'manipulation');
+    // Nipistyszoomaus on sallittu: viewport ei estä sitä, eikä sivun kosketuskäyttäytymistä ole rajattu.
+    await expect(page.locator('meta[name="viewport"]')).not.toHaveAttribute('content', /user-scalable=no|maximum-scale/);
+    await expect(page.locator('body')).not.toHaveCSS('touch-action', 'none');
+  }
+});
+
+test('tilarivi ei siirrä sisältöä kuuntelun alkaessa, päättyessä tai keskeytyessä', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await traceAudio(page);
+  const checks: [string, string, (root: ReturnType<typeof card>) => ReturnType<typeof card>, (root: ReturnType<typeof card>) => ReturnType<typeof card>][] = [
+    [intervals, '3. nauha', root => root.getByRole('button', { name: '3. nauha', exact: true }), root => root.getByText('Paljasta intervallin nimi')],
+    [route, 'reitti', root => root.getByRole('button', { name: 'Aloita C:stä' }), root => root.getByText('Kokeile myös kitaralla')],
+    [chord, 'sointu', root => root.getByRole('button', { name: 'Kuuntele D', exact: true }), root => root.getByText('Huomaa, mikä muuttui')],
+  ];
+  for (const [slug, name, action, probe] of checks) {
+    await page.goto(anchored(slug));
+    const root = card(page, slug);
+    await expect(root).toHaveAttribute('open');
+    const before = (await probe(root).boundingBox())!.y + await page.evaluate(() => scrollY);
+    await action(root).click();
+    await expect(root.locator('[data-aanitila]').first()).not.toBeEmpty();
+    const during = (await probe(root).boundingBox())!.y + await page.evaluate(() => scrollY);
+    expect(during, `${name}: sisältö hyppäsi kuuntelun alkaessa`).toBe(before);
+    await root.getByRole('button', { name: 'Pysäytä' }).first().click();
+    const after = (await probe(root).boundingBox())!.y + await page.evaluate(() => scrollY);
+    expect(after, `${name}: sisältö hyppäsi pysäytettäessä`).toBe(before);
+  }
+});
+
+test('toistuvat nopeat painallukset jättävät vain yhden kuuntelun ja Pysäytä nollaa tilan', async ({ page }) => {
+  await traceAudio(page);
+  await page.goto(anchored(route));
+  const root = card(page, route);
+  await expect(root).toHaveAttribute('open');
+  const c = root.getByRole('button', { name: 'Aloita C:stä' });
+  const d = root.getByRole('button', { name: 'Aloita D:stä' });
+  for (const button of [c, c, d, c, d, d]) await button.click({ delay: 0 });
+  await expect(root.locator('[data-playing]')).toHaveCount(1);
+  await expect(d).toHaveAttribute('aria-pressed', 'true');
+  await expect(c).toHaveAttribute('aria-pressed', 'false');
+  await expect(root.locator('[data-reitin-keskisavel]')).toHaveText('D♭');
+  await page.evaluate(() => document.querySelector<HTMLElement>('.study-inline[open] [data-pysayta]')?.click());
+  await expect(root.locator('[data-playing]')).toHaveCount(0);
 });
