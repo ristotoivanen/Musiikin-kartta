@@ -34,8 +34,11 @@ main.practice-main {max-width: 700px; padding: 14px 10px 30px}
 .proto .chord-answers {display:grid;grid-template-columns:repeat(auto-fit,minmax(58px,1fr));gap:6px;margin:8px 0}
 .proto .chord-answers button {min-width:0;min-height:48px;font-size:18px}
 .proto .answer-label {font-size:13px;color:var(--muted);font-weight:650}
-.proto #roots {display:flex;flex-wrap:wrap;align-items:center;gap:6px;width:100%;margin:5px 0 10px}
-.proto #roots button {box-sizing:border-box;flex:0 0 64px;width:64px;min-width:64px;min-height:48px;padding:6px 8px;font-size:18px;font-weight:750;text-align:center}
+.proto #roots {display:grid;grid-template-columns:repeat(7,minmax(44px,1fr));align-items:center;gap:6px;width:100%;max-width:484px;margin:5px 0 10px}
+.proto #roots button {box-sizing:border-box;width:100%;min-width:44px;min-height:48px;padding:6px 4px;font-size:18px;font-weight:750;text-align:center}
+.proto #roots button:disabled {opacity:.38;cursor:default}
+.proto #roots button:disabled:hover {background:transparent}
+.proto .root-legend {font-size:12px;color:var(--muted)}
 .proto .root-answers button[aria-pressed=true] {background:#4b2fd6;color:#fff;border-color:#b9e6db}
 .proto .root-answers button[aria-disabled=true] {cursor:default}
 .proto #root-hint {min-height:48px;display:flex;align-items:center;margin:8px 0}
@@ -43,7 +46,8 @@ main.practice-main {max-width: 700px; padding: 14px 10px 30px}
 .proto #root-choice:not([hidden]) + #answers button {box-sizing:border-box;flex:0 0 auto;width:64px;min-width:64px;padding:6px 8px;font-weight:750}
 .proto #root-choice:not([hidden]) + #answers:empty {display:none}
 .proto #root-choice:not([hidden]) + #answers:not(:empty) {min-height:48px}
-@media(max-width:480px){.proto #roots,.proto #root-choice:not([hidden]) + #answers {gap:4px}.proto #roots button,.proto #root-choice:not([hidden]) + #answers button {flex-basis:48px;width:48px;min-width:48px;padding-inline:4px}}
+@media(max-width:480px){.proto #roots,.proto #root-choice:not([hidden]) + #answers {gap:4px}.proto #root-choice:not([hidden]) + #answers button {flex-basis:48px;width:48px;min-width:48px;padding-inline:4px}}
+@media(max-width:410px){.proto #roots {grid-template-columns:repeat(4,minmax(44px,1fr));max-width:284px}}
 .proto .chord-answers button[aria-disabled=true] {cursor:default}
 .proto .chord-answers button.wrong {color:#ffe08a;opacity:1}
 .proto .chord-answers button.right {background:#9fe4c3;color:#16121f}
@@ -109,7 +113,8 @@ main.practice-main {max-width: 700px; padding: 14px 10px 30px}
 <p class="caption">Rengastettu kirjain = vapaa · ● painettu · × ei soiteta</p>
 <div id="root-choice" hidden>
 <p class="answer-label">1. Valitse perussävel</p>
-<div id="roots" class="root-answers" role="group" aria-label="Valitse perussävel"></div>
+<div id="roots" class="root-answers" role="group" aria-label="Valitse perussävel" aria-describedby="root-legend"></div>
+<p id="root-legend" class="root-legend">Himmeät perussävelet eivät kuulu tähän kierrokseen.</p>
 <p id="type-label" class="answer-label">2. Valitse sointu</p>
 </div>
 <div class="chord-answers" id="answers" role="group" aria-label="Valitse soinnun nimi"></div>
@@ -479,9 +484,12 @@ function renderAnswers(){
   byId('root-hint').hidden=!grouped;
   byId('roots').replaceChildren();
   if(!grouped){renderChordChoices(roundDef().options);return;}
-  const roots=rootsForRound().map(root=>{
+  const available=rootsForRound();
+  // Kiinteä diatoninen valintarivi, sama järjestys jokaisessa kierroksessa.
+  const roots=[0,2,4,5,7,9,11].map(root=>{
     const b=el('button',names[root]);b.type='button';b.dataset.root=String(root);
-    b.setAttribute('aria-pressed','false');b.setAttribute('aria-disabled','false');
+    b.disabled=!available.includes(root);
+    b.setAttribute('aria-pressed','false');b.setAttribute('aria-disabled',String(b.disabled));
     b.addEventListener('click',()=>chooseRoot(root));return b;
   });
   byId('roots').replaceChildren(...roots);
@@ -490,7 +498,7 @@ function renderAnswers(){
 function updateAnswers(){
   for(const b of byId('roots').children){
     b.setAttribute('aria-pressed',String(Number(b.dataset.root)===rootChoice));
-    b.setAttribute('aria-disabled',String(answered));
+    b.setAttribute('aria-disabled',String(answered||b.disabled));
   }
   for(const b of byId('answers').children){const n=b.textContent;
     b.classList.toggle('right',answered&&n===current);b.classList.toggle('wrong',wrong.has(n));
