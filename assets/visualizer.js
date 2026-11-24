@@ -61,7 +61,7 @@ import { createChordsBeta } from './soinnut-beta.js';
   const betaPanel = $('chord-beta');
   const betaPad = $('chord-pad');
   const betaDetails = $('chord-details');
-  const rootField = $('root-field');
+  const betaNav = $('beta-nav');
   let chordsBeta = null;
   let ready = false;
 
@@ -95,6 +95,9 @@ import { createChordsBeta } from './soinnut-beta.js';
     const url = new URL(location.href);
     url.searchParams.set('toonikka', CHROM[rootPC]);
     url.searchParams.set('asteikko', scaleId);
+    if (betaNav) {
+      if (level === 'advanced') url.searchParams.set('taso', 'laaja'); else url.searchParams.delete('taso');
+    }
     if (view === 'chords' && chordsBeta) {
       chordsBeta.writeParams(url.searchParams);
     } else if (view === 'chords') {
@@ -104,7 +107,7 @@ import { createChordsBeta } from './soinnut-beta.js';
     } else {
       url.searchParams.delete('sointu');
       url.searchParams.delete('ote');
-      ['kielet', 'nro', 'taso'].forEach(name => url.searchParams.delete(name));
+      ['kielet', 'nro'].forEach(name => url.searchParams.delete(name));
     }
     url.hash = view === 'octaves' ? 'oktaavit' : view === 'chords' ? 'soinnut' : '';
     history.replaceState(null, '', url.pathname + url.search + url.hash);
@@ -116,12 +119,9 @@ import { createChordsBeta } from './soinnut-beta.js';
     scaleField.hidden = next !== 'scale';
     rootLabel.textContent = next === 'chords' ? 'Soinnun perussävel'
       : next === 'octaves' ? 'Näytettävä sävel' : 'Kotisävel';
-    // BETA: Soinnut-näkymässä perussävel valitaan suorilla painikkeilla, ei valikosta.
-    if (chordsBeta) {
-      if (rootField) rootField.hidden = next === 'chords';
-      chordsBeta.setActive(next === 'chords');
-    }
-    scaleSettings.hidden = next !== 'scale';
+    // BETA: sävel ja asteikko valitaan suorilla painikkeilla (betaNav), ei valikoista.
+    if (chordsBeta) chordsBeta.setActive(next === 'chords');
+    scaleSettings.hidden = next !== 'scale' || (betaNav && level === 'basic');
     chordSettings.hidden = next !== 'chords';
     octaveSettings.hidden = next !== 'octaves';
     if (updateUrl) syncUrl();
@@ -334,7 +334,49 @@ import { createChordsBeta } from './soinnut-beta.js';
     updateScrollHint();
   }
 
+  // --- Otelautaopas BETA: yhteinen sävel- ja asteikkonavigointi sekä Perus/Laaja-näkymä ---------
+  const NATURAL_ROOTS = new Set([0, 2, 4, 5, 7, 9, 11]);
+  const BASIC_SCALES = new Set(['mp', 'majp']);
+  const capital = text => text[0].toUpperCase() + text.slice(1);
+  let level = 'basic';
+
+  function buildBetaNav() {
+    $('beta-roots').innerHTML = CHROM.map((name, pc) =>
+      '<button type="button" data-root="' + pc + '"' + (NATURAL_ROOTS.has(pc) ? '' : ' data-adv') +
+      ' aria-pressed="false">' + name + '</button>').join('');
+    const scaleButton = id => '<button type="button" data-scale="' + id + '"' + (BASIC_SCALES.has(id) ? '' : ' data-adv') +
+      ' aria-pressed="false">' + capital(SCALES[id].name) + '</button>';
+    $('beta-pent').innerHTML = ['mp', 'majp'].map(scaleButton).join('');
+    $('beta-modes').innerHTML = ['ionian', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'aeolian', 'locrian'].map(scaleButton).join('');
+    betaNav.addEventListener('click', event => {
+      const button = event.target.closest('button');
+      if (!button) return;
+      if (button.dataset.level) level = button.dataset.level;
+      else if (button.dataset.root !== undefined) { rootPC = Number(button.dataset.root); chordsBeta?.rootChanged(); }
+      else if (button.dataset.scale) scaleId = button.dataset.scale;
+      else return;
+      syncUrl();
+      render();
+    });
+  }
+
+  function applyBetaLevel() {
+    const advanced = level === 'advanced';
+    if (!advanced) {
+      if (!NATURAL_ROOTS.has(rootPC)) rootPC -= 1;
+      if (!BASIC_SCALES.has(scaleId)) scaleId = ['ionian', 'lydian', 'mixolydian'].includes(scaleId) ? 'majp' : 'mp';
+    }
+    betaNav.querySelectorAll('[data-adv]').forEach(element => { element.hidden = !advanced; });
+    $('beta-scale-block').hidden = view !== 'scale';
+    scaleSettings.hidden = view !== 'scale' || !advanced;
+    $('beta-root-label').textContent = rootLabel.textContent;
+    betaNav.querySelectorAll('[data-level]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.level === level)));
+    betaNav.querySelectorAll('[data-root]').forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.root) === rootPC)));
+    betaNav.querySelectorAll('[data-scale]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.scale === scaleId)));
+  }
+
   function render() {
+    if (betaNav) applyBetaLevel();
     rootSelect.value = String(rootPC);
     scaleSelect.value = scaleId;
     Object.entries(legends).forEach(([name, element]) => { element.hidden = name !== view; });
@@ -352,12 +394,15 @@ import { createChordsBeta } from './soinnut-beta.js';
       panel: betaPanel, board, pad: betaPad, details: betaDetails,
       getRoot: () => rootPC,
       setRoot: pitchClass => { rootPC = pitchClass; },
-      fretCount, automatic,
+      fretCount, automatic, level: () => level,
       change: render,
       summary: ({ title: heading, notes }) => { title.textContent = heading; notesLabel.textContent = notes; },
       afterRender: grip => { updateScrollHint(); if (grip) revealPositions(board, '.grip-notes'); },
     });
     chordsBeta.readParams(params);
+    buildBetaNav();
+    level = params.get('taso') === 'laaja' || chordsBeta.needsAdvanced || !BASIC_SCALES.has(scaleId) ||
+      !NATURAL_ROOTS.has(rootPC) ? 'advanced' : 'basic';
   } else {
     updateChordOptions();
   }
