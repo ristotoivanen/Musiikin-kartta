@@ -90,8 +90,8 @@ main.practice-main {max-width: 700px; padding: 14px 10px 30px}
 .proto #challenge-setup fieldset {border:1px solid var(--line);border-radius:8px;padding:8px 12px}
 .proto #challenge-setup fieldset label {display:flex;align-items:center;gap:10px;margin:0;min-height:44px;cursor:pointer}
 .proto #challenge-setup input[type=checkbox] {width:20px;height:20px;flex:none;accent-color:#8d70ff}
-.proto #challenge-setup select {width:100%;min-height:44px}
-.proto .challenge-settings {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.proto #challenge-setup select {box-sizing:border-box;width:100%;min-height:44px;font:inherit;padding:8px}
+.proto .challenge-settings {display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
 .proto .challenge-settings label {display:block;font-weight:650;font-size:14px}
 .proto .challenge-metrics {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}
 .proto .challenge-metrics div {border:1px solid var(--line);border-radius:8px;padding:8px;min-width:0}
@@ -129,12 +129,12 @@ main.practice-main {max-width: 700px; padding: 14px 10px 30px}
 </div>
 <section id="challenge-setup" hidden aria-labelledby="challenge-heading">
 <h2 id="challenge-heading" tabindex="-1">Sointuhaaste</h2>
-<p>Tunnista mahdollisimman monta sointua ennen ajan loppumista. Väärä vastaus lukitsee valinnat hetkeksi, mutta kello käy.</p>
+<p>Tunnista mahdollisimman monta sointua ennen ajan loppumista. Väärä vastaus lukitsee valinnat neljäksi sekunniksi, mutta kello käy.</p>
 <fieldset><legend>Valitse tasojen uudet soinnut</legend><div id="challenge-levels"></div></fieldset>
 <p id="challenge-pool"></p>
 <div class="challenge-settings">
 <label>Peliaika<select id="challenge-duration"><option value="30">30 sekuntia</option><option value="60" selected>1 minuutti</option><option value="120">2 minuuttia</option><option value="180">3 minuuttia</option></select></label>
-<label>Virhelukitus<select id="challenge-penalty"><option value="3">3 sekuntia</option><option value="4" selected>4 sekuntia</option><option value="5">5 sekuntia</option></select></label>
+
 </div>
 <p id="challenge-best" class="tools-note"></p>
 <p class="tools-note">Pelin aloittaminen päättää keskeneräisen harjoituksen. Palatessa taso alkaa alusta. Pelissä ei soiteta mallia automaattisesti. Voit aina palata ajattomaan harjoitteluun.</p>
@@ -710,7 +710,7 @@ byId('next-level').addEventListener('click',()=>chooseLevel(levelIndex+1));
 
 function selection(){
   const ids=Array.from(byId('challenge-levels').querySelectorAll('input:checked')).map(b=>b.value);
-  const duration=Number(byId('challenge-duration').value),penalty=Number(byId('challenge-penalty').value);
+  const duration=Number(byId('challenge-duration').value),penalty=4;
   return {ids,duration,penalty,pool:challengeModel.poolFor(challengeGroups,ids)};
 }
 function recordStorage(){
@@ -845,7 +845,6 @@ for(const [i,g] of challengeGroups.entries()){
   byId('challenge-levels').append(label);
 }
 byId('challenge-duration').addEventListener('change',refreshChallengeSetup);
-byId('challenge-penalty').addEventListener('change',refreshChallengeSetup);
 byId('mode-challenge').addEventListener('click',()=>{if(challengeView==='practice')openChallenge();});
 byId('mode-practice').addEventListener('click',returnPractice);
 byId('challenge-start').addEventListener('click',()=>startChallenge(selection()));
