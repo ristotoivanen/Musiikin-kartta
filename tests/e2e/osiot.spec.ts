@@ -510,12 +510,13 @@ test.describe('Pääosiot puhelimessa, näppäimistöllä, ilman JavaScriptiä j
   }
 });
 
- test('Sointipaja beta löytyy Musapeleistä ja palaa samaan aiheeseen', async ({page})=>{
+ test('Sointupaja beta löytyy Musapeleistä ja palaa samaan aiheeseen', async ({page})=>{
   await page.goto('/musapelit.html#aihe-soinnut');
-  const card=page.locator('#aihe-soinnut').getByRole('link',{name:/Sointipaja/});
+  const card=page.locator('#aihe-soinnut').getByRole('link',{name:/Sointupaja/});
   await expect(card.locator('.mode-badge')).toHaveText('beta');
   await card.click();
   await expect(page).toHaveURL(/sointipaja-prototyyppi\.html\?aihe=aihe-soinnut&tapa=pelit$/);
+  await expect(page.locator('h1')).toHaveText('Sointupaja beta');
   await expect(page.locator('h1 .mode-badge')).toHaveText('beta');
   await expect(page.locator('#prototype')).toBeVisible();
   await page.locator('#mode-challenge').click();
