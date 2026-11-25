@@ -499,8 +499,8 @@ def toolkit_page(topics, apps, registry):
     out = [head('Soittopakki', section['kuvaus']).replace('{nav}', main_nav('soittopakki.html', registry, '  '))]
     out.append('<main class="mode-main" id="sisalto">\n')
     out.append('  <div class="mode-intro">\n  <h1>Soittopakki</h1>\n'
-               '  <p class="mode-lead">Apuvälineet soittamiseen ja tutkimiseen. Käytä niitä itsenäisesti tai avaa ne '
-               'harjoituksen yhteydessä Kitaratreenistä, jolloin näkymä on valmiiksi rajattu aiheeseen.</p>\n  </div>\n')
+               '  <p class="mode-lead">Apuvälineet soittamiseen ja tutkimiseen. Käytä niitä itsenäisesti tai '
+               'harjoitusten tukena.</p>\n  </div>\n')
     for app in (a for a in apps.values() if 'pakki' in a['tavat'] and a['saatavuus'] != 'suunniteltu'):
         tool_id = app['id'].partition(':')[2]
         out.append(f'  <section class="mode-tool" id="{tool_id}" aria-labelledby="{tool_id}-otsikko">\n')
@@ -513,7 +513,8 @@ def toolkit_page(topics, apps, registry):
         else:
             out.append(f'    <p><a class="mode-action" href="{esc(app["osoite"])}">Avaa {esc(app["nimi"])}</a></p>\n')
         views = app.get('nakymat', [])
-        if views:
+        # Otelautaopas avataan Soittopakista kokonaisena; rajatut näkymät säilyvät harjoituksissa.
+        if views and tool_id != 'otelautaopas':
             out.append('    <h3 class="mode-sub">Avaa valmiiksi rajattu näkymä</h3>\n')
             out.append('    <ul class="mode-list" role="list">\n')
             for view in views:
