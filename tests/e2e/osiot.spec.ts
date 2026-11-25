@@ -269,7 +269,15 @@ test.describe('Kolme oppimistapaa ja Soittopakki', () => {
     await expect(page.getByRole('heading', { level: 2 })).toHaveText(['Otelautaopas BETA', 'Viritin']);
     await expect(page.getByText('Metronomi')).toHaveCount(0);
     await expect(page.getByRole('link', { name: 'Avaa Riffiharjoitus ja viritin' })).toHaveAttribute('href', 'riffikaiku.html?tila=harjoitus');
-    await page.getByRole('link', { name: 'Sointukartta' }).click();
+    const guide = page.locator('#otelautaopas');
+    await expect(guide.getByRole('link')).toHaveCount(1);
+    await expect(guide.getByRole('heading', { level: 3 })).toHaveCount(0);
+    const openGuide = guide.getByRole('link', { name: 'Avaa Otelautaopas', exact: true });
+    await expect(openGuide).toHaveAttribute('href', 'otelautaopas-beta.html');
+    await openGuide.click();
+    await expect(page).toHaveURL(/otelautaopas-beta\.html$/);
+    // Suora vanha osoite toimii yhä, vaikka pikavalintaa ei enää näytetä Soittopakissa.
+    await page.goto('/otelautaopas-beta.html#soinnut');
     await expect(page.getByRole('button', { name: 'Soinnut', exact: true })).toHaveAttribute('aria-pressed', 'true');
   });
 
