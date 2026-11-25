@@ -129,14 +129,14 @@ test.describe('01 · Sama sävel toiselta kieleltä', () => {
     const root = exercise(page, 'unisono');
     await expect(root.locator('[data-otelauta-tila]')).toBeHidden();
     await expect(root.locator('[data-otelauta-teksti]')).toBeHidden();
-    await expect(prompt(root)).toHaveText('Vapaa A-kieli soi A2. Sama A2 löytyy paksulta E-kieleltä viisi nauhaa ylempää. Valitse se.');
+    await expect(prompt(root)).toHaveText('Vapaa A-kieli soi A2. Sama A2 löytyy paksulta E-kieleltä viisi nauhaa kohti tallaa. Valitse se.');
     await expect(root.locator('.otelauta-kierros')).toHaveText('Esimerkki');
     await expect(cell(root, 'A', 0)).toHaveAccessibleName('vapaa A-kieli, lähtösävel A2');
     await cell(root, 'E', 7).click();
-    await expect(feedback(root)).toHaveText('B2 – liian korkea. Siirry kaksi nauhaa alemmas.');
-    // Suunta ja nauhamäärä näkyvät myös napautetussa ruudussa (satula ylhäällä: ↑ = alemmas).
+    await expect(feedback(root)).toHaveText('B2 – liian korkea. Siirry kaksi nauhaa kohti satulaa.');
+    // Suunta ja nauhamäärä näkyvät myös napautetussa ruudussa (satula ylhäällä: ↑ = kohti satulaa).
     await expect(cell(root, 'E', 7)).toHaveText('↑2');
-    await expect(cell(root, 'E', 7)).toHaveAccessibleName(/siirry kaksi nauhaa alemmas/);
+    await expect(cell(root, 'E', 7)).toHaveAccessibleName(/siirry kaksi nauhaa kohti satulaa/);
     await cell(root, 'E', 5).click();
     await expect(feedback(root)).toHaveText('Oikein. Molemmat ovat A2.');
     await expect.poll(() => frequencies(page)).toEqual([hz(47), hz(45)]);
@@ -325,7 +325,7 @@ test.describe('04 · Liiku otelaudalla', () => {
       await expect(prompt(root)).toContainText(`Niitä on ${positions.length}.`);
       const wrong = positionsOf(FIND_LEVELS[level].notes.find(note => note !== target)!, FIND_LEVELS[level].strings)[0];
       await cell(root, wrong.string, wrong.fret).click();
-      await expect(feedback(root)).toContainText(`Tällä kielellä ${target} on`);
+      await expect(feedback(root)).toContainText(`Tällä kielellä ${target} löytyy`);
       await root.getByRole('button', { name: 'Vihje' }).click();
       await expect(feedback(root)).toContainText(`Vihje: ${target} löytyy vielä`);
       for (const position of positions) await cell(root, position.string, position.fret).click();
@@ -580,6 +580,54 @@ test.describe('palaute aktiivisen vastausalueen lähellä (390 × 664)', () => {
       }
     });
   }
+
+  test('04: viimeinen löytö (valmistuminen) ei siirrä napautettua ruutua eikä jätä sitä ruudun ulkopuolelle', async ({ page }) => {
+    await page.goto('/oppi/otelauta/liiku-otelaudalla.html');
+    const root = exercise(page, 'liiku');
+    const target = (await prompt(root).textContent())!.match(/^Etsi kaikki (\S+)-sävelet/)![1];
+    const all = findPositions(target, 'ea');
+    // Viimeiseksi laudan alimpana oleva paikka: valmistuminen näyttää uudet painikkeet laudan yläpuolella.
+    const ordered = [...all].sort((a, b) => a.fret - b.fret);
+    for (const position of ordered.slice(0, -1)) await cell(root, position.string, position.fret).click();
+    const last = ordered.at(-1)!;
+    const tapped = cell(root, last.string, last.fret);
+    await tapped.evaluate(node => node.scrollIntoView({ block: 'center' }));
+    const before = await tapped.evaluate(node => node.getBoundingClientRect().top);
+    await tapped.click();
+    await expect(root.locator('.otelauta-laskuri')).toHaveText(`✓ Kaikki ${all.length} löytyi`);
+    await expect(root.getByRole('button', { name: '▶ Kuuntele löydetyt' })).toBeVisible();
+    const after = await tapped.evaluate(node => node.getBoundingClientRect().top);
+    expect(Math.abs(after - before)).toBeLessThanOrEqual(1);
+    await expect(tapped).toBeInViewport();
+  });
+
+  test('02: paikan valinta laudan alaosasta kertoo tuloksen ruudussa ja laudan alla, ruutu ei siirry', async ({ page }) => {
+    await page.goto('/oppi/otelauta/kuule-oktaavi.html');
+    const root = exercise(page, 'oktaavi');
+    await root.getByRole('button', { name: 'Yhtä korkea' }).click();
+    const places = await root.locator('button.is-paikka').evaluateAll(nodes => nodes.map(node => [node.getAttribute('data-kieli'), Number(node.getAttribute('data-nauha'))] as [string, number]));
+    const [string, fret] = places.sort((a, b) => b[1] - a[1])[0];
+    const tapped = cell(root, string, fret);
+    await tapped.evaluate(node => node.scrollIntoView({ block: 'center' }));
+    const before = await tapped.evaluate(node => node.getBoundingClientRect().top);
+    await tapped.click();
+    const after = await tapped.evaluate(node => node.getBoundingClientRect().top);
+    expect(Math.abs(after - before)).toBeLessThanOrEqual(1);
+    await expect(tapped.locator('.otelauta-merkki')).toHaveText(/^[✓✗]/);
+    await expect(tapped).toHaveAccessibleName(/valittu, (oikein|väärin)/);
+    const note = root.locator('.otelauta-lautahuomio');
+    await expect(note).toHaveText(/^[✓✗] Paikka \d: /);
+    await expect(note).toBeInViewport();
+    // Ennen valintaa ei vastausta eikä tulosriviä.
+  });
+
+  test('02: tulosrivi on piilossa ennen paikan valintaa', async ({ page }) => {
+    await page.goto('/oppi/otelauta/kuule-oktaavi.html');
+    const root = exercise(page, 'oktaavi');
+    await expect(root.locator('.otelauta-lautahuomio')).toBeHidden();
+    await root.getByRole('button', { name: 'Yhtä korkea' }).click();
+    await expect(root.locator('.otelauta-lautahuomio')).toBeHidden();
+  });
 
   test('Uusi tehtävä laudan alta tuo uuden tehtävälauseen näkyviin ja fokukseen', async ({ page }) => {
     await page.goto('/oppi/otelauta/sama-savel-toiselta-kielelta.html');

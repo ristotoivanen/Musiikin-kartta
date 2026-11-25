@@ -140,13 +140,13 @@ export function positionsOfPitch(midi, strings = STRINGS.map(string => string.id
 
 const samePosition = (a, b) => Boolean(a && b) && a[0] === b[0] && a[1] === b[1];
 
-/** Siirron kuvaus kahden paikan välillä, esim. "kaksi kieltä ohuemmalle, kaksi nauhaa ylemmäs". */
+/** Siirron kuvaus kahden paikan välillä, esim. "kaksi kieltä ohuemmalle, kaksi nauhaa kohti tallaa". */
 export function shapeWords(from, to) {
   const strings = stringInfo(to[0]).index - stringInfo(from[0]).index;
   const frets = to[1] - from[1];
   const parts = [];
   if (strings) parts.push(`${countWords(Math.abs(strings), 'kieli', 'kieltä')} ${strings > 0 ? 'ohuemmalle' : 'paksummalle'}`);
-  parts.push(frets ? `${countWords(Math.abs(frets), 'nauha', 'nauhaa')} ${frets > 0 ? 'ylemmäs' : 'alemmas'}` : 'sama nauha');
+  parts.push(frets ? `${countWords(Math.abs(frets), 'nauha', 'nauhaa')} ${frets > 0 ? 'kohti tallaa' : 'kohti satulaa'}` : 'sama nauha');
   return parts.join(', ');
 }
 
@@ -201,14 +201,14 @@ export function unisonPrompt(round, example = false) {
   const [string, fret] = round.from;
   const pitch = pitchName(pitchAt(string, fret));
   const to = stringInfo(round.to);
-  if (example) return `${capital(longPosition(string, fret))} soi ${pitch}. Sama ${pitch} löytyy ${to.from} viisi nauhaa ylempää. Valitse se.`;
+  if (example) return `${capital(longPosition(string, fret))} soi ${pitch}. Sama ${pitch} löytyy ${to.from} viisi nauhaa kohti tallaa. Valitse se.`;
   return `${capital(longPosition(string, fret))} soi ${pitch}. Etsi sama ${pitch} ${to.from}.`;
 }
 
 export function unisonHint(round) {
   const thicker = stringInfo(round.to).index < stringInfo(round.from[0]).index;
   const gap = crossesGB(round) ? 'neljä' : 'viisi';
-  return `Vihje: ${crossesGB(round) ? 'G- ja B-kielen välillä' : 'naapurikielellä'} sama korkeus on ${gap} nauhaa ${thicker ? 'ylempänä paksummalla' : 'alempana ohuemmalla'} kielellä.`;
+  return `Vihje: ${crossesGB(round) ? 'G- ja B-kielen välillä' : 'naapurikielellä'} sama korkeus on ${gap} nauhaa ${thicker ? 'kohti tallaa paksummalla' : 'kohti satulaa ohuemmalla'} kielellä.`;
 }
 
 export function checkUnison(round, string, fret) {
@@ -234,7 +234,7 @@ export function checkUnison(round, string, fret) {
   return {
     ok: false,
     kind: 'eri',
-    message: `${pitchName(tapped)} – liian ${diff > 0 ? 'korkea' : 'matala'}. Siirry ${countWords(Math.abs(diff), 'nauha', 'nauhaa')} ${diff > 0 ? 'alemmas' : 'ylemmäs'}.`,
+    message: `${pitchName(tapped)} – liian ${diff > 0 ? 'korkea' : 'matala'}. Siirry ${countWords(Math.abs(diff), 'nauha', 'nauhaa')} ${diff > 0 ? 'kohti satulaa' : 'kohti tallaa'}.`,
   };
 }
 
@@ -417,7 +417,7 @@ export function checkRootName(round, name, attempt = 1) {
   const mark = nearestLandmark(fret);
   const at = mark === 0 ? 'vapaa kieli' : `${mark}. nauha`;
   const steps = Math.abs(fret - mark);
-  return { ok: false, kind: 'vaara', message: `Ei ${name}. Lähin kiintopiste on ${at}; kysytty paikka on siitä ${countWords(steps, 'nauha', 'nauhaa')} ${fret > mark ? 'ylempänä' : 'alempana'}. Muista: E–F ja B–C ovat vierekkäin.` };
+  return { ok: false, kind: 'vaara', message: `Ei ${name}. Lähin kiintopiste on ${at}; kysytty paikka on siitä ${countWords(steps, 'nauha', 'nauhaa')} ${fret > mark ? 'kohti tallaa' : 'kohti satulaa'}. Muista: E–F ja B–C ovat vierekkäin.` };
 }
 
 export function checkRootFind(round, string, fret) {
@@ -430,7 +430,7 @@ export function checkRootFind(round, string, fret) {
     return { ok: true, kind: 'oikein', message: `Oikein. ${capital(longPosition(string, fret))} on ${round.note}. ${landmarkReason(string, fret)}` };
   }
   const nearest = rootAnswer(round).reduce((best, candidate) => Math.abs(candidate - fret) < Math.abs(best - fret) ? candidate : best);
-  return { ok: false, kind: 'eri', message: `${capital(shortPosition(string, fret))} on ${noteName(midi)}. ${round.note} on ${nearest > fret ? 'ylempänä' : 'alempana'}.` };
+  return { ok: false, kind: 'eri', message: `${capital(shortPosition(string, fret))} on ${noteName(midi)}. ${round.note} löytyy ${nearest > fret ? 'kohti tallaa' : 'kohti satulaa'}.` };
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -474,7 +474,7 @@ export function checkFindAll(target, found, string, fret, level = 'kaikki') {
   if (noteName(midi) !== target) {
     const frets = all.filter(position => position.string === string).map(position => position.fret);
     const nearest = frets.reduce((best, candidate) => Math.abs(candidate - fret) < Math.abs(best - fret) ? candidate : best);
-    return { ok: false, kind: 'vaara', message: `${capital(shortPosition(string, fret))} on ${noteName(midi)}. Tällä kielellä ${target} on ${nearest > fret ? 'ylempänä' : 'alempana'}.` };
+    return { ok: false, kind: 'vaara', message: `${capital(shortPosition(string, fret))} on ${noteName(midi)}. Tällä kielellä ${target} löytyy ${nearest > fret ? 'kohti tallaa' : 'kohti satulaa'}.` };
   }
   const key = `${string}${fret}`;
   if (found.has(key)) return { ok: false, kind: 'jo', message: `${capital(shortPosition(string, fret))} on jo löydetty.` };
@@ -762,10 +762,10 @@ function exerciseShell(root) {
   return shell;
 }
 
-/** Suuntamerkki ruutuun: satula on ruudulla ylhäällä, joten ↑ = alemmas kohti satulaa. */
+/** Suuntamerkki ruutuun: satula on ruudulla ylhäällä, joten ↑ = kohti satulaa ja ↓ = kohti tallaa (fyysinen suunta, ei sävelkorkeus). */
 function towards(fret, targets) {
   const nearest = targets.reduce((best, candidate) => Math.abs(candidate - fret) < Math.abs(best - fret) ? candidate : best);
-  return nearest < fret ? { arrow: '↑', words: 'alempana kohti satulaa' } : { arrow: '↓', words: 'ylempänä kohti runkoa' };
+  return nearest < fret ? { arrow: '↑', words: 'kohti satulaa' } : { arrow: '↓', words: 'kohti tallaa' };
 }
 
 /**
@@ -774,10 +774,21 @@ function towards(fret, targets) {
  * selaimen omaa vierityksen ankkurointia; CSS:ssä overflow-anchor: none estää kaksinkertaisen siirron).
  */
 function setFeedback(shell, result, anchor = null) {
+  keepAnchored(anchor, () => {
+    shell.feedback.textContent = result.message;
+    if (result.ok === undefined) delete shell.feedback.dataset.tulos;
+    else shell.feedback.dataset.tulos = result.ok ? 'oikein' : 'yrita';
+  });
+}
+
+/**
+ * Ajaa muutoksen ja kompensoi vierityksen niin, että napautettu ruutu (anchor) pysyy paikallaan.
+ * Kaikki napautuksen aiheuttamat asettelumuutokset (palaute, ratkaisun jälkeiset painikkeet) tehdään
+ * yhden mittauksen sisällä, jotta ratkaisuhetken painikkeet eivät siirrä ruutua.
+ */
+function keepAnchored(anchor, change) {
   const before = anchor?.getBoundingClientRect().top;
-  shell.feedback.textContent = result.message;
-  if (result.ok === undefined) delete shell.feedback.dataset.tulos;
-  else shell.feedback.dataset.tulos = result.ok ? 'oikein' : 'yrita';
+  change();
   if (anchor) {
     const delta = anchor.getBoundingClientRect().top - before;
     if (Math.abs(delta) > 0.5) window.scrollBy(0, delta);
@@ -836,22 +847,25 @@ function setupUnison(root, shell) {
     onSelect: (string, fret, cell) => {
       sound(shell, [{ midi: pitchAt(string, fret) }]);
       if (state.solved) return;
-      const result = checkUnison(round, string, fret);
-      setFeedback(shell, result, cell);
-      if (!result.ok) {
-        const pitch = pitchName(pitchAt(string, fret));
-        if (result.kind === 'eri') {
-          // Suunta ja nauhamäärä näkyvät siinä ruudussa, jota oppija juuri napautti.
-          const diff = pitchAt(string, fret) - pitchAt(...round.from);
-          board.mark(string, fret, { kind: 'yritys', text: `${diff > 0 ? '↑' : '↓'}${Math.abs(diff)}`, label: `kokeiltu, ${pitch}, siirry ${countWords(Math.abs(diff), 'nauha', 'nauhaa')} ${diff > 0 ? 'alemmas' : 'ylemmäs'}` });
-        } else if (result.kind !== 'lahto') {
-          board.mark(string, fret, { kind: 'yritys', text: pitch, label: `kokeiltu, ${pitch}` });
-        }
-        return;
-      }
-      solve(string, fret);
+      keepAnchored(cell, () => answerUnison(string, fret, cell));
     },
   });
+  function answerUnison(string, fret, cell) {
+    const result = checkUnison(round, string, fret);
+    setFeedback(shell, result, cell);
+    if (!result.ok) {
+      const pitch = pitchName(pitchAt(string, fret));
+      if (result.kind === 'eri') {
+        // Suunta ja nauhamäärä näkyvät siinä ruudussa, jota oppija juuri napautti.
+        const diff = pitchAt(string, fret) - pitchAt(...round.from);
+        board.mark(string, fret, { kind: 'yritys', text: `${diff > 0 ? '↑' : '↓'}${Math.abs(diff)}`, label: `kokeiltu, ${pitch}, siirry ${countWords(Math.abs(diff), 'nauha', 'nauhaa')} ${diff > 0 ? 'kohti satulaa' : 'kohti tallaa'}` });
+      } else if (result.kind !== 'lahto') {
+        board.mark(string, fret, { kind: 'yritys', text: pitch, label: `kokeiltu, ${pitch}` });
+      }
+      return;
+    }
+    solve(string, fret);
+  }
   const listen = button('▶ Lähtösävel');
   const hint = button('Vihje');
   const show = button('Näytä vastaus', { className: 'otelauta-toissijainen' });
@@ -928,6 +942,7 @@ function setupOctave(root, shell) {
       return choice;
     }));
   const placeRow = el('div', { className: 'otelauta-toiminnot', role: 'group', 'aria-label': 'Missä arvoitussävel soi?' });
+  const boardNote = el('p', { className: 'otelauta-lautahuomio', 'aria-hidden': 'true', hidden: true });
   const textToggle = button('Ei ääntä? Tekstiversio', { className: 'otelauta-linkki', 'aria-pressed': 'false' });
   const modeNote = el('p', { className: 'otelauta-tila-huomautus', hidden: true, text: 'Tekstiversio: päättelet korkeuden sävelmerkinnästä. Se ei harjoita kuulemista.' });
 
@@ -947,6 +962,8 @@ function setupOctave(root, shell) {
     shell.counter.textContent = `Tehtävä ${history.length}`;
     shell.prompt.textContent = promptText();
     clearFeedback(shell);
+    boardNote.hidden = true;
+    boardNote.textContent = '';
     for (const choice of relationRow.querySelectorAll('button')) {
       choice.removeAttribute('aria-disabled');
       choice.setAttribute('aria-pressed', 'false');
@@ -980,21 +997,32 @@ function setupOctave(root, shell) {
   function choosePlace(index, cell = null) {
     if (state.step !== 'paikka') return;
     state.step = 'valmis';
-    const result = checkOctavePlace(round, index);
-    setFeedback(shell, result, cell);
-    const ref = pitchAt(...round.ref);
-    round.places.forEach(({ position }, other) => {
-      const midi = pitchAt(...position);
-      board.mark(...position, {
-        kind: other === round.answer ? 'oikein' : 'paljastettu',
-        text: pitchName(midi),
-        label: `paikka ${other + 1}, ${pitchName(midi)}, ${relationWords(midi - ref)}${other === round.answer ? ', arvoitussävel' : ''}`,
+    keepAnchored(cell, () => {
+      const result = checkOctavePlace(round, index);
+      setFeedback(shell, result, cell);
+      const ref = pitchAt(...round.ref);
+      round.places.forEach(({ position }, other) => {
+        const midi = pitchAt(...position);
+        const chosen = other === index;
+        // Valittu paikka kertoo tuloksen itse ruudussa (✓/✗ + sävel), myös ilman väriä ja laudan alaosassa.
+        const verdict = chosen ? (other === round.answer ? '✓' : '✗') : '';
+        board.mark(...position, {
+          kind: other === round.answer ? 'oikein' : 'paljastettu',
+          text: `${verdict}${pitchName(midi)}`,
+          label: `paikka ${other + 1}, ${pitchName(midi)}, ${relationWords(midi - ref)}${other === round.answer ? ', arvoitussävel' : ''}${chosen ? (other === round.answer ? ', valittu, oikein' : ', valittu, väärin') : ''}`,
+        });
       });
+      // Lyhyt tulosrivi laudan alla: näkyy, kun oppija työskentelee laudan alaosassa. Pidempi selitys on palautteessa.
+      const picked = pitchAt(...round.places[index].position);
+      boardNote.textContent = index === round.answer
+        ? `✓ Paikka ${index + 1}: ${pitchName(picked)}, ${relationWords(picked - ref)}.`
+        : `✗ Paikka ${index + 1}: ${pitchName(picked)}, ${relationWords(picked - ref)}. Oikea: paikka ${round.answer + 1}.`;
+      boardNote.hidden = false;
+      for (const place of placeRow.querySelectorAll('button')) place.setAttribute('aria-disabled', 'true');
+      shell.prompt.textContent = 'Napauta paikkoja ja vertaa korkeuksia.';
+      sound(shell, [{ midi: ref }, { midi: mysteryPitch(round), at: 0.8 }]);
+      showNext(shell, true);
     });
-    for (const place of placeRow.querySelectorAll('button')) place.setAttribute('aria-disabled', 'true');
-    shell.prompt.textContent = 'Napauta paikkoja ja vertaa korkeuksia.';
-    sound(shell, [{ midi: ref }, { midi: mysteryPitch(round), at: 0.8 }]);
-    showNext(shell, true);
   }
 
   listenRef.addEventListener('click', () => sound(shell, [{ midi: pitchAt(...round.ref) }], { force: true }));
@@ -1013,7 +1041,7 @@ function setupOctave(root, shell) {
   });
   wireNext(shell, start);
   shell.actions.append(placeRow, shell.next);
-  shell.app.append(shell.header, modeNote, listenRow, relationRow, shell.panel, board.element, el('div', { className: 'otelauta-toiminnot otelauta-alatoiminnot' }, shell.nextBottom), el('p', { className: 'otelauta-vaihto' }, textToggle));
+  shell.app.append(shell.header, modeNote, listenRow, relationRow, shell.panel, board.element, boardNote, el('div', { className: 'otelauta-toiminnot otelauta-alatoiminnot' }, shell.nextBottom), el('p', { className: 'otelauta-vaihto' }, textToggle));
   start();
 }
 
@@ -1027,19 +1055,21 @@ function setupRoot(root, shell) {
     onSelect: (string, fret, cell) => {
       sound(shell, [{ midi: pitchAt(string, fret) }]);
       if (state.solved || round.type !== 'etsi') return;
-      const result = checkRootFind(round, string, fret);
-      setFeedback(shell, result, cell);
-      if (!result.ok) {
-        const name = noteName(pitchAt(string, fret));
-        if (result.kind === 'eri') {
-          const way = towards(fret, rootAnswer(round));
-          board.mark(string, fret, { kind: 'yritys', text: `${name}${way.arrow}`, label: `kokeiltu, ${name}, ${round.note} on ${way.words}` });
-        } else {
-          board.mark(string, fret, { kind: 'yritys', text: name, label: `kokeiltu, ${name}` });
+      keepAnchored(cell, () => {
+        const result = checkRootFind(round, string, fret);
+        setFeedback(shell, result, cell);
+        if (!result.ok) {
+          const name = noteName(pitchAt(string, fret));
+          if (result.kind === 'eri') {
+            const way = towards(fret, rootAnswer(round));
+            board.mark(string, fret, { kind: 'yritys', text: `${name}${way.arrow}`, label: `kokeiltu, ${name}, ${round.note} löytyy ${way.words}` });
+          } else {
+            board.mark(string, fret, { kind: 'yritys', text: name, label: `kokeiltu, ${name}` });
+          }
+          return;
         }
-        return;
-      }
-      solve(string, fret);
+        solve(string, fret);
+      });
     },
   });
   const names = el('div', { className: 'otelauta-nimet', role: 'group', 'aria-label': 'Sävelen nimi' },
@@ -1140,22 +1170,25 @@ function setupFindAll(root, shell) {
         sound(shell, [{ midi: pitchAt(string, fret) }]);
         const all = findPositions(target, level);
         if (found.size === all.length) return;
-        const result = checkFindAll(target, found, string, fret, level);
-        setFeedback(shell, result, cell);
-        if (!result.ok) {
-          // Kompakti palaute napautetussa kohdassa: sävelnimi ja suunta lähimpään etsittävään.
-          if (result.kind === 'vaara') {
-            const name = noteName(pitchAt(string, fret));
-            const way = towards(fret, all.filter(position => position.string === string).map(position => position.fret));
-            board.mark(string, fret, { kind: 'yritys', text: `${name}${way.arrow}`, label: `kokeiltu, ${name}, tällä kielellä ${target} on ${way.words}` });
+        // Palaute, löytö ja valmistumisen painikkeet yhden vierityskompensoinnin sisällä: napautettu ruutu ei siirry.
+        keepAnchored(cell, () => {
+          const result = checkFindAll(target, found, string, fret, level);
+          setFeedback(shell, result, cell);
+          if (!result.ok) {
+            // Kompakti palaute napautetussa kohdassa: sävelnimi ja suunta lähimpään etsittävään.
+            if (result.kind === 'vaara') {
+              const name = noteName(pitchAt(string, fret));
+              const way = towards(fret, all.filter(position => position.string === string).map(position => position.fret));
+              board.mark(string, fret, { kind: 'yritys', text: `${name}${way.arrow}`, label: `kokeiltu, ${name}, tällä kielellä ${target} löytyy ${way.words}` });
+            }
+            return;
           }
-          return;
-        }
-        found.set(`${string}${fret}`, { string, fret, midi: pitchAt(string, fret) });
-        board.mark(string, fret, { kind: 'oikein', text: pitchName(pitchAt(string, fret)), label: `löydetty, ${pitchName(pitchAt(string, fret))}` });
-        drawList();
-        lastCell = cell;
-        if (result.kind === 'valmis') complete();
+          found.set(`${string}${fret}`, { string, fret, midi: pitchAt(string, fret) });
+          board.mark(string, fret, { kind: 'oikein', text: pitchName(pitchAt(string, fret)), label: `löydetty, ${pitchName(pitchAt(string, fret))}` });
+          drawList();
+          lastCell = cell;
+          if (result.kind === 'valmis') complete();
+        });
       },
     });
     boardSlot.replaceChildren(board.element);

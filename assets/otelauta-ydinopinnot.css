@@ -111,6 +111,8 @@
 .otelauta-sovellus .otelauta-palaute { min-height: 3.2em; }
 .otelauta-laskuri { margin: .5rem 0 .2rem; font-weight: 800; }
 .otelauta-laskuri.is-valmis { color: #9fe4c3; }
+.otelauta-lautahuomio { margin: .5rem 0 .2rem; font-weight: 800; line-height: 1.35; }
+.otelauta-lautahuomio[hidden] { display: none; }
 .otelauta-lauta td > button { scroll-margin-block: 1rem; }
 .otelauta-tehtava:focus { outline: none; }
 .otelauta-tehtava:focus-visible { outline: 2px solid #75e5c6; outline-offset: 3px; }

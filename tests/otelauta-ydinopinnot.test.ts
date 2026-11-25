@@ -7,7 +7,7 @@ import {
   crossesGB, findHint, findPositions, frequency, generateFindTarget, generateOctaveRound, generateRootRound,
   generateUnisonRound, isLandmarkRound, landmarkReason, landmarkShare, mysteryPitch, nearestLandmark, noteName, octaveGroups, octaveReferences,
   pitchAt, pitchName, positionsOf, relationWords, rootAnswer, shapeWords, shortPosition, unisonAnswer,
-  unisonCandidates, unisonPrompt,
+  unisonCandidates, unisonHint, unisonPrompt,
 } from '../assets/otelauta-ydinopinnot.js';
 import type { FretPosition, OctaveRound, RootRound, UnisonRound } from '../assets/otelauta-ydinopinnot.js';
 
@@ -71,9 +71,9 @@ describe('vakiovire, sävelet, oktaavit ja taajuudet', () => {
   });
 
   it('siirron kuvaus kertoo kielten ja nauhojen suunnan', () => {
-    expect(shapeWords(['E', 5], ['D', 7])).toBe('kaksi kieltä ohuemmalle, kaksi nauhaa ylemmäs');
-    expect(shapeWords(['E', 5], ['G', 2])).toBe('kolme kieltä ohuemmalle, kolme nauhaa alemmas');
-    expect(shapeWords(['B', 3], ['G', 7])).toBe('yksi kieli paksummalle, neljä nauhaa ylemmäs');
+    expect(shapeWords(['E', 5], ['D', 7])).toBe('kaksi kieltä ohuemmalle, kaksi nauhaa kohti tallaa');
+    expect(shapeWords(['E', 5], ['G', 2])).toBe('kolme kieltä ohuemmalle, kolme nauhaa kohti satulaa');
+    expect(shapeWords(['B', 3], ['G', 7])).toBe('yksi kieli paksummalle, neljä nauhaa kohti tallaa');
   });
 
   it('positionsOf löytää jokaisen 12 sävelnimen kaikki paikat', () => {
@@ -116,14 +116,14 @@ describe('01 · Sama sävel toiselta kieleltä', () => {
         if (fret === answer.fret) expect(result.message).toBe(`Oikein. Molemmat ovat ${pitchName(answer.midi)}.${crossesGB(round) ? ' G- ja B-kielen väli on neljä nauhaa.' : ''}`);
         const diff = pitchAt(round.to, fret) - answer.midi;
         if (diff && diff % 12 === 0) expect(result.kind).toBe('oktaavi');
-        if (diff && diff % 12) expect(result.message).toContain(diff > 0 ? 'alemmas' : 'ylemmäs');
+        if (diff && diff % 12) expect(result.message).toContain(diff > 0 ? 'kohti satulaa' : 'kohti tallaa');
       }
     }
   });
 
   it('opettava esimerkki on ensin: vapaa A → E 5', () => {
     expect(unisonAnswer(UNISON_EXAMPLE)).toMatchObject({ string: 'E', fret: 5, midi: 45 });
-    expect(unisonPrompt(UNISON_EXAMPLE, true)).toBe('Vapaa A-kieli soi A2. Sama A2 löytyy paksulta E-kieleltä viisi nauhaa ylempää. Valitse se.');
+    expect(unisonPrompt(UNISON_EXAMPLE, true)).toBe('Vapaa A-kieli soi A2. Sama A2 löytyy paksulta E-kieleltä viisi nauhaa kohti tallaa. Valitse se.');
     expect(checkUnison(UNISON_EXAMPLE, 'E', 5).message).toBe('Oikein. Molemmat ovat A2.');
   });
 
@@ -315,8 +315,8 @@ describe('03 · Etsi perussävel E- ja A-kieleltä', () => {
     expect(checkRootName({ type: 'nimea', at: ['E', 8] }, 'C').message).toBe('Oikein. Paksun E-kielen 8. nauha on C. Löydät sen B:n vierestä (7. nauha).');
     // Virhepalaute ei paljasta vastausta eikä kiintopisteen sävelnimeä.
     expect(checkRootName({ type: 'nimea', at: ['E', 8] }, 'B')).toMatchObject({ ok: false, message: 'Ei B. Päättele lähimmästä kiintopisteestä ja laske nauhat siitä.' });
-    expect(checkRootName({ type: 'nimea', at: ['E', 8] }, 'B', 2)).toMatchObject({ ok: false, message: 'Ei B. Lähin kiintopiste on 7. nauha; kysytty paikka on siitä yksi nauha ylempänä. Muista: E–F ja B–C ovat vierekkäin.' });
-    expect(checkRootName({ type: 'nimea', at: ['A', 10] }, 'F', 2).message).toContain('kysytty paikka on siitä kaksi nauhaa alempana');
+    expect(checkRootName({ type: 'nimea', at: ['E', 8] }, 'B', 2)).toMatchObject({ ok: false, message: 'Ei B. Lähin kiintopiste on 7. nauha; kysytty paikka on siitä yksi nauha kohti tallaa. Muista: E–F ja B–C ovat vierekkäin.' });
+    expect(checkRootName({ type: 'nimea', at: ['A', 10] }, 'F', 2).message).toContain('kysytty paikka on siitä kaksi nauhaa kohti satulaa');
     // N3: kiintopisteessä ei ohjata päättelemään samasta kohdasta, vaan muistamaan tai käyttämään Vihjettä.
     for (const at of [['E', 12], ['A', 5], ['E', 3]] as const) {
       for (const attempt of [1, 2]) {
@@ -334,7 +334,7 @@ describe('03 · Etsi perussävel E- ja A-kieleltä', () => {
       }
     }
     expect(checkRootFind({ type: 'etsi', note: 'F♯', string: 'A' }, 'A', 9).message).toBe('Oikein. A-kielen 9. nauha on F♯. Se on kaksi nauhaa E:n yläpuolella (7. nauha).');
-    expect(checkRootFind({ type: 'etsi', note: 'D', string: 'E' }, 'E', 8).message).toBe('E 8 on C. D on ylempänä.');
+    expect(checkRootFind({ type: 'etsi', note: 'D', string: 'E' }, 'E', 8).message).toBe('E 8 on C. D löytyy kohti tallaa.');
     // Oikea sävelnimi väärällä kielellä tunnustetaan, mutta kielirajaus pysyy.
     expect(checkRootFind({ type: 'etsi', note: 'D', string: 'E' }, 'A', 5)).toMatchObject({ ok: false, kind: 'toinen-kieli', message: 'Sekin on D, mutta etsi paksulta E-kieleltä.' });
     expect(checkRootFind({ type: 'etsi', note: 'D', string: 'E' }, 'A', 4)).toMatchObject({ ok: false, kind: 'vaara-kieli' });
@@ -397,7 +397,7 @@ describe('04 · Liiku otelaudalla', () => {
       }
     }
     expect(findHint('G', new Map([['E3', { string: 'E', fret: 3, midi: 43 }]]), 'kaikki', 2).message)
-      .toBe('Vihje: lähde paikasta E 3. Oktaavi on kaksi kieltä ohuemmalle, kaksi nauhaa ylemmäs.');
+      .toBe('Vihje: lähde paikasta E 3. Oktaavi on kaksi kieltä ohuemmalle, kaksi nauhaa kohti tallaa.');
   });
 
   it('kohdesävelet vaihtelevat eivätkä toistu kahden tehtävän sisällä', () => {
@@ -497,5 +497,31 @@ describe('sisältölähteet ja muodostetut sivut', () => {
       expect(page, slug).not.toContain('otelauta-ydinopinnot');
       expect(page, slug).toContain('Merkitse ');
     }
+  });
+});
+
+describe('suuntasanasto: fyysinen suunta (satula/talla) ja sävelkorkeus erillään', () => {
+  const banned = /ylemmäs|alemmas|ylempänä|alempana|ylempää|alempaa/;
+  it('01: väärän vastauksen viestit käyttävät satulaa ja tallaa, ei ylempää/alempaa', () => {
+    const round = { from: ['A', 0], to: 'E' } as UnisonRound;
+    for (const fret of Array.from({ length: 13 }, (_, index) => index)) {
+      const message = checkUnison(round, 'E', fret).message;
+      expect(message).not.toMatch(banned);
+    }
+    expect(checkUnison(round, 'E', 2).message).toBe('F♯2 – liian matala. Siirry kolme nauhaa kohti tallaa.');
+    expect(checkUnison(round, 'E', 9).message).toBe('C♯3 – liian korkea. Siirry neljä nauhaa kohti satulaa.');
+  });
+  it('03 ja 04: virheviestit eivät käytä ylempää/alempaa', () => {
+    for (const fret of [1, 2, 4, 6, 8, 10, 11]) {
+      expect(checkRootName({ type: 'nimea', at: ['A', fret] }, 'X', 2).message).not.toMatch(banned);
+      expect(checkRootFind({ type: 'etsi', note: 'F', string: 'A' }, 'A', fret).message).not.toMatch(banned);
+      expect(checkFindAll('E', new Map(), 'E', fret).message).not.toMatch(banned);
+    }
+    expect(checkRootFind({ type: 'etsi', note: 'F', string: 'A' }, 'A', 5).message).toBe('A 5 on D. F löytyy kohti tallaa.');
+  });
+  it('02: siirtojen kuvaus ja vihje', () => {
+    expect(shapeWords(['E', 5], ['D', 7])).not.toMatch(banned);
+    expect(unisonHint({ from: ['A', 0], to: 'E' } as UnisonRound)).toContain('kohti tallaa paksummalla');
+    expect(unisonHint({ from: ['E', 5], to: 'A' } as UnisonRound)).toContain('kohti satulaa ohuemmalla');
   });
 });
