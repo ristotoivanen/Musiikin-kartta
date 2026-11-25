@@ -1,0 +1,23 @@
+name: Sointupaja mobile release QA
+on:
+  push:
+    branches: [chatgpt/48-mobiili-julkaisu-qa-v3]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify generated sections
+        run: python3 tools/oppimiskartta/rakenna-osiot.py --tarkista
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npx playwright install --with-deps chromium webkit
+      - run: npx playwright test tests/e2e/sointipaja-prototype.spec.ts tests/e2e/sointipaja-challenge.spec.ts tests/e2e/sointipaja-mobiiliasettelu.spec.ts tests/e2e/osiot.spec.ts tests/e2e/musapelit-142.spec.ts tests/e2e/savelverkko.spec.ts --workers=2
+      - run: npx playwright test tests/e2e/sointipaja-prototype.spec.ts tests/e2e/sointipaja-challenge.spec.ts tests/e2e/sointipaja-mobiiliasettelu.spec.ts tests/e2e/osiot.spec.ts tests/e2e/musapelit-142.spec.ts tests/e2e/savelverkko.spec.ts --config=playwright.musapelit-142-webkit.config.ts --workers=2
