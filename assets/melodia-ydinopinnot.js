@@ -86,9 +86,17 @@ const CHORD_TONES = new Set(['G', 'B', 'D']);
 // Liike asteikon askelina ja sen paino: askeleet yleisimpiä, hypyt enintään kvintti.
 const MOVES = Object.freeze([[0, 1], [1, 4], [-1, 4], [2, 2], [-2, 2], [3, 1], [-3, 1], [4, 1], [-4, 1]]);
 
+// Satunnaislukufunktion paluuarvo muutetaan väliin [0, 1). Virheellinen arvo (NaN, ääretön tai
+// välin ulkopuolinen) ei saa tuottaa tyhjää tehtävää, joten se rajataan tai korvataan nollalla.
+function unit(random) {
+  const value = Number(random());
+  if (!Number.isFinite(value)) return 0;
+  return Math.min(Math.max(value, 0), 1 - Number.EPSILON);
+}
+
 function weighted(items, random) {
   const total = items.reduce((sum, [, weight]) => sum + weight, 0);
-  let roll = random() * total;
+  let roll = unit(random) * total;
   for (const [value, weight] of items) {
     roll -= weight;
     if (roll < 0) return value;
@@ -104,19 +112,79 @@ export function moveProblem(previous, current, next, { semitones = true } = {}) 
   if (Math.abs(step) > 7) return 'liian suuri hyppy';
   if (!semitones && Math.abs(step) === 1) return 'puoliaskel';
   if (step === 0 && before === 0 && previous) return 'kolme samaa';
-  // Kaksi samansuuntaista hyppyä vain murtosointuna (esim. G–B–D, B–D–G), yhteensä enintään seksti.
+  // Kaksi samansuuntaista hyppyä (vähintään pieni terssi) vain, jos ne yhdessä kattavat enintään
+  // pienen sekstin (8 puoliaskelta). Tällöin ne ovat käytännössä murtosointu, esim. G–B–D tai B–D–G.
   if (Math.abs(before) >= 3 && Math.abs(step) >= 3 && Math.sign(step) === Math.sign(before) && Math.abs(before + step) > 8) return 'kaksi hyppyä liian laajalle';
   // Kvartin tai kvintin hypyn jälkeen melodia palaa askeleella vastakkaiseen suuntaan.
   if (Math.abs(before) >= 5 && (step === 0 || Math.sign(step) === Math.sign(before) || Math.abs(step) > 2)) return 'hyppy ilman paluuta';
   return null;
 }
 
-export function generateMelody({ length, pool, start = null, semitones = true, endOnChordTone = false }, random = Math.random) {
+// Tason kaikki vaatimukset yhdessä paikassa: sekä arvonta että vararatkaisu hyväksyvät melodian
+// vain, jos tämä palauttaa null. Palauttaa ensimmäisen rikotun vaatimuksen kuvauksen.
+export function melodyProblem(melody, { length, pool, start = null, semitones = true, endOnChordTone = false }) {
+  const ids = POOLS[pool];
+  if (!Array.isArray(melody) || !melody.length) return 'tyhjä melodia';
+  if (melody.length !== length) return `pituus ${melody.length}, vaadittu ${length}`;
+  for (const id of melody) if (!ids?.includes(id)) return `sävel ${id} ei kuulu säveljoukkoon`;
+  if (start && melody[0] !== start) return `lähtösävel ${melody[0]}, vaadittu ${start}`;
+  if (endOnChordTone && !CHORD_TONES.has(NOTES[melody.at(-1)].name)) return 'ei pääty sointusäveleen';
+  for (let index = 1; index < melody.length; index++) {
+    const problem = moveProblem(melody[index - 2] ?? null, melody[index - 1], melody[index], { semitones });
+    if (problem) return `siirtymä ${index}: ${problem}`;
+  }
+  // Enintään yksi toistettu sävel koko melodiassa.
+  if (melody.filter((id, index) => index && id === melody[index - 1]).length > 1) return 'useampi kuin yksi toistettu sävel';
+  // Pidemmässä melodiassa on vähintään kaksi eri liikettä (ylös, alas, sama), joten se ei ole pelkkä nousu tai lasku.
+  if (length >= 4 && new Set(contourOf(melody)).size < 2) return 'vain yhdenlaisia liikkeitä';
+  return null;
+}
+
+// Kaikki tason sallitut melodiat, aina samassa järjestyksessä (syvyyshaku). Vararatkaisun ja
+// testien perusta; tasot ovat pieniä (enintään 10 säveltä, 5 säveltä pitkä melodia).
+const allowedCache = new Map();
+export function allowedMelodies(level) {
+  const key = JSON.stringify([level.length, level.pool, level.start ?? null, level.semitones ?? true, level.endOnChordTone ?? false]);
+  if (allowedCache.has(key)) return allowedCache.get(key);
+  const ids = POOLS[level.pool];
+  const found = [];
+  const extend = notes => {
+    if (notes.length === level.length) {
+      if (!melodyProblem(notes, level)) found.push(notes);
+      return;
+    }
+    for (const id of ids) {
+      const prefix = [...notes, id];
+      const index = prefix.length - 1;
+      if (index && moveProblem(prefix[index - 2] ?? null, prefix[index - 1], id, { semitones: level.semitones ?? true })) continue;
+      extend(prefix);
+    }
+  };
+  for (const first of level.start ? [level.start] : ids) if (ids.includes(first)) extend([first]);
+  allowedCache.set(key, Object.freeze(found));
+  return allowedCache.get(key);
+}
+
+// Vararatkaisu, kun arvonta ei tuota sallittua melodiaa: valitaan tason sallituista melodioista
+// (satunnaisluvulla, mutta aina sallittu). Jos taso ei salli yhtään melodiaa, ei palauteta
+// virheellistä tehtävää vaan heitetään virhe.
+export function fallbackMelody(level, random = Math.random, avoid = null) {
+  const allowed = allowedMelodies(level);
+  if (!allowed.length) throw new RangeError(`Tasolle ei ole sallittua melodiaa: ${JSON.stringify(level)}`);
+  const others = avoid ? allowed.filter(melody => melody.join() !== avoid.join()) : allowed;
+  const pool = others.length ? others : allowed;
+  return [...pool[Math.min(pool.length - 1, Math.floor(unit(random) * pool.length))]];
+}
+
+export const MELODY_ATTEMPTS = 500;
+
+export function generateMelody(level, random = Math.random, attempts = MELODY_ATTEMPTS) {
+  const { length, pool, start = null, semitones = true } = level;
   const ids = POOLS[pool];
   const chordStarts = ids.filter(id => CHORD_TONES.has(NOTES[id].name));
-  for (let attempt = 0; attempt < 500; attempt++) {
-    const choices = random() < 0.6 ? chordStarts : ids;
-    const first = start ?? choices[Math.min(choices.length - 1, Math.floor(random() * choices.length))];
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    const choices = unit(random) < 0.6 ? chordStarts : ids;
+    const first = start ?? choices[Math.floor(unit(random) * choices.length)];
     const notes = [first];
     let repeats = 0;
     for (let index = 1; index < length; index++) {
@@ -131,29 +199,28 @@ export function generateMelody({ length, pool, start = null, semitones = true, e
       if (move === 0) repeats++;
       notes.push(ids[here + move]);
     }
-    if (notes.length !== length) continue;
-    if (endOnChordTone && !CHORD_TONES.has(NOTES[notes.at(-1)].name)) continue;
-    // Pidemmässä melodiassa suunta vaihtuu vähintään kerran.
-    if (length >= 4 && new Set(contourOf(notes)).size < 2) continue;
-    return notes;
+    if (!melodyProblem(notes, level)) return notes;
   }
-  return ids.slice(0, length);
+  return fallbackMelody(level, random);
 }
 
-// Uusi tehtävä ei ole sama kuin edellinen.
+// Uusi tehtävä ei ole sama kuin edellinen. Jos arvonta ei onnistu poikkeamaan edellisestä
+// (esim. poikkeava satunnaislukujakauma), valitaan toinen sallittu melodia.
 export function freshMelody(level, previous, random = Math.random) {
-  let melody;
   for (let attempt = 0; attempt < 20; attempt++) {
-    melody = generateMelody(level, random);
+    const melody = generateMelody(level, random);
     if (!previous || melody.join() !== previous.join()) return melody;
   }
-  return melody;
+  return fallbackMelody(level, random, previous);
 }
 
-// Arvo uusi tehtävä niin, ettei sama toistu heti peräkkäin.
+// Arvo uusi tehtävä niin, ettei sama toistu heti peräkkäin. Edellinen jätetään pois vaihtoehdoista
+// ja loput arvotaan tasaisesti (ei siirretä edellisen osumaa viereiselle, mikä kaksinkertaistaisi sen todennäköisyyden).
 export function pickIndex(length, previous = -1, random = Math.random) {
-  const index = Math.min(length - 1, Math.floor(random() * length));
-  return length > 1 && index === previous ? (index + 1) % length : index;
+  const excluded = length > 1 && previous >= 0 && previous < length;
+  const choices = excluded ? length - 1 : length;
+  const index = Math.floor(unit(random) * choices);
+  return excluded && index >= previous ? index + 1 : index;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -226,10 +293,11 @@ export function shapePoints(melody, { step = 44, unit = 4, pad = 8 } = {}) {
 }
 
 // ---------------------------------------------------------------------------------------------
-// 02 · Kotiin vai kesken? Saman melodian kaksi loppua: toinen palaa kotisävel G:hen, toinen jää
-// kesken. Melodiat on kirjoitettu G-duuriin (jokaisessa C, osassa myös F♯), ja loput on valittu
-// niin, että koti-G kuulostaa valmiimmalta myös ilman tukiääntä. Ei loppuja E:hen (voi kuulostaa
-// e-mollin kodilta) eikä B:hen (G-soinnun terssi, liian vakaa vertailuun).
+// 02 · Kotiin vai kesken? Saman melodian kaksi loppua: toinen palaa kotisävel G:hen, toinen päättyy
+// johonkin muuhun G-duurin säveleen. Kuulokokemus on vertaileva, ei yksiselitteisesti oikea tai
+// väärä. Melodiat on kirjoitettu G-duuriin (jokaisessa C, osassa myös F♯). Ei loppuja E:hen (voi
+// kuulostaa e-mollin kodilta) eikä B:hen (G-soinnun terssi, liian vakaa vertailuun). Kahdeksaa
+// melodiaparia ei muuteta ilman omistajan kuuntelutestiä (pareja 4 ja 8 arvioidaan erikseen).
 export const ENDING_PHRASES = Object.freeze([
   { start: ['G3', 'B3', 'D4', 'C4', 'A3', 'B3'], koti: 'G3', kesken: 'A3' },
   { start: ['D4', 'G4', 'Fs4', 'E4', 'C4', 'E4'], koti: 'G4', kesken: 'Fs4' },
@@ -249,19 +317,47 @@ export function endingRound(index) {
   return { phrase, order, versions: order.map(kind => [...phrase.start, phrase[kind]]) };
 }
 
-const OPEN_TEXT = Object.freeze({
-  A: 'jää A:han, askeleen G:n yläpuolelle, ja odottaa vielä paluuta.',
-  C: 'jää C:hen, joka tässä melodiassa pyrkii vielä jatkamaan alaspäin.',
-  'F♯': 'jää F♯:ään, puoliaskeleen G:n alapuolelle, ja vetää vahvasti kotiin.',
-  D: 'pysähtyy D:hen. Se sopii G-sointuun, mutta jättää melodian kysymykseksi.',
-});
+// Uusi kierros: eri melodia kuin edellisellä (ei pelkkää loppujen järjestyksen vaihtoa), jonka
+// jälkeen loppujen järjestys arvotaan erikseen. Palauttaa kierrosindeksin 0–15.
+export function pickRound(previous = -1, random = Math.random) {
+  const phrase = pickIndex(ENDING_PHRASES.length, previous < 0 ? -1 : Math.floor(previous / 2), random);
+  return phrase * 2 + (unit(random) < 0.5 ? 0 : 1);
+}
 
+// Eteneminen ei riipu valitusta lopusta: ensimmäiset kaksi tarkistettua vertailua soivat
+// tukiäänellä, seuraavat ilman. Uudelleenkuuntelu ja saman tehtävän toistuva tarkistus eivät
+// kasvata määrää; sen kirjaa kutsuja kerran tehtävää kohden (Tarkista valinta lukitaan).
+export const SUPPORTED_COMPARISONS = 2;
+export const endingLevel = checked => checked >= SUPPORTED_COMPARISONS ? 1 : 0;
+
+// Musiikillinen kuvaus lopusta, joka ei palaa G:hen. Ei ehdottomia väitteitä: kuvaus kertoo sävelen
+// etäisyyden kyseisen melodian kotisäveleen G ja sen, miltä se voi kuulostaa tässä melodiassa.
+const OPEN_ENDINGS = Object.freeze({
+  A: { into: 'A:han', character: 'voi kuulostaa pysähdykseltä, josta melodia vielä jatkaisi' },
+  C: { into: 'C:hen', character: 'voi kuulostaa vakaalta pysähdykseltä, vaikka se ei ole kotisävel' },
+  'F♯': { into: 'F♯:ään', character: 'voi vetää voimakkaasti kotisäveleen' },
+  D: { into: 'D:hen', character: 'sopii G-sointuun, mutta voi jättää melodian odottamaan jatkoa' },
+});
+const SPAN_WORDS = Object.freeze({ 1: 'puoliaskeleen', 2: 'askeleen', 5: 'kvartin', 7: 'kvintin' });
+
+// Lopun etäisyys melodian kotisäveleen G, esim. "askeleen G:n yläpuolelle". Oktaavi (G3 tai G4)
+// on kyseisen melodian oma, joten suunta lasketaan sen mukaan eikä sävelnimestä.
+export function endingSpan(phrase) {
+  const difference = NOTES[phrase.kesken].midi - NOTES[phrase.koti].midi;
+  return `${SPAN_WORDS[Math.abs(difference)]} G:n ${difference > 0 ? 'yläpuolelle' : 'alapuolelle'}`;
+}
+
+// Vertaileva palaute: ei oikein/väärin-arviota. Kertoo valitun lopun, kumpi palaa G:hen ja miten
+// toinen loppu eroaa. Kaikki päättelyt tehdään vain tästä melodiasta.
 export function endingFeedback(round, answer) {
   const home = round.order.indexOf('koti');
   const open = 1 - home;
-  const rest = `Loppu ${open + 1} ${OPEN_TEXT[NOTES[round.phrase.kesken].name]}`;
-  if (answer === home) return { correct: true, text: `Oikein! Loppu ${home + 1} palaa kotisävel G:hen ja kuulostaa siksi tässä valmiimmalta. ${rest}` };
-  return { correct: false, text: `Tässä melodiassa loppu ${home + 1} kuulostaa valmiimmalta: se palaa kotisävel G:hen. ${rest}` };
+  const ending = OPEN_ENDINGS[NOTES[round.phrase.kesken].name];
+  const other = `Loppu ${open + 1} päättyy ${ending.into}, ${endingSpan(round.phrase)}, ja ${ending.character}.`;
+  const choice = answer === home
+    ? `Loppu ${home + 1} oli sinun valintasi. Se palaa G:hen, melodian suunniteltuun kotisäveleen.`
+    : `Loppu ${open + 1} oli sinun valintasi. Loppu ${home + 1} palaa G:hen, melodian suunniteltuun kotisäveleen.`;
+  return { chosen: answer, home, text: `${choice} ${other} Kuuntele vielä, miten loput eroavat toisistaan.` };
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -277,11 +373,68 @@ export function checkEcho(motif, chosen) {
   return { correct: steps.every(step => step.ok), steps };
 }
 
+// Sama sävelnimi eri oktaavissa (esim. G3 ja G4) on eri sävelkorkeus ja siksi väärä vastaus, mutta
+// pelkkä nimi ("kuului G, soitit G") ei kerro sitä. Palauttaa tarkennuksen vain silloin, kun
+// annettu sävel on sama nimi eri oktaavissa; muuten null. Sävelkorkeuden vertailu on midi-luvuissa.
+export const OCTAVE_WORDS = Object.freeze({ 1: 'oktaavia', 2: 'kaksi oktaavia' });
+export function octaveHint(expected, given) {
+  if (!expected || !given || expected === given || NOTES[expected].name !== NOTES[given].name) return null;
+  const difference = NOTES[given].midi - NOTES[expected].midi;
+  if (difference % 12 !== 0) return null;
+  const higher = difference > 0;
+  const octaves = Math.abs(difference) / 12;
+  const phrase = `${OCTAVE_WORDS[octaves] ?? `${octaves} oktaavia`} ${higher ? 'korkeampi' : 'matalampi'}`;
+  return { higher, octaves, phrase, text: `${capitalize(phrase)}.` };
+}
+
 export function echoFeedback(motif, chosen) {
   const { correct, steps } = checkEcho(motif, chosen);
   if (correct) return `Oikein! ${names(motif)}. Soita sama oikealla kitaralla.`;
-  const right = steps.filter(step => step.ok).length;
-  return `${right}/${steps.length} oikein. ${capitalize(COUNT_WORDS[steps.length - right])} sävelessä oli eroa.`;
+  const wrong = steps.filter(step => !step.ok);
+  const octaves = wrong.filter(step => octaveHint(step.expected, step.given)).length;
+  const base = `${steps.length - wrong.length}/${steps.length} oikein. ${capitalize(COUNT_WORDS[wrong.length])} sävelessä oli eroa.`;
+  if (!octaves) return base;
+  return `${base} ${octaves === wrong.length
+    ? (octaves === 1 ? 'Sävelnimi oli oikein, mutta oktaavi eri.' : 'Sävelnimet olivat oikein, mutta oktaavit eri.')
+    : 'Osassa sävelnimi oli oikein, mutta oktaavi eri.'}`;
+}
+
+// Vastausketju: vain säveltoisto, joka on oikeasti ehtinyt kuulua, kirjautuu vastaukseen.
+// Painallus saa ensin tiketin (press); se vahvistetaan (confirm) vasta, kun soitin on todennut
+// äänen alkaneen. Vanhentunut tiketti ei kirjaudu: uusi painallus mitätöi aiemmat, uusi tehtävä
+// (reset) mitätöi kaikki ja tarkistuksen jälkeen (lock) ketju ei enää muutu. Vahvistukset
+// hyväksytään vain painallusjärjestyksessä.
+export function createEchoChain(size = 3) {
+  let generation = 0;
+  let pressed = 0;
+  let confirmed = 0;
+  let total = 0;
+  let locked = false;
+  let notes = [];
+  let width = size;
+  return {
+    reset(nextSize = width) {
+      generation++;
+      pressed = 0;
+      confirmed = 0;
+      total = 0;
+      locked = false;
+      notes = [];
+      width = nextSize;
+    },
+    lock() { locked = true; },
+    press(id) { return { generation, serial: ++pressed, id }; },
+    confirm(ticket) {
+      if (locked || ticket.generation !== generation || ticket.serial <= confirmed || ticket.serial !== pressed) return false;
+      confirmed = ticket.serial;
+      total++;
+      notes = recentNotes([...notes, ticket.id], width);
+      return true;
+    },
+    // Montako painallusta on kirjautunut tässä tehtävässä (testausta ja tilatietoa varten).
+    get count() { return total; },
+    get notes() { return [...notes]; },
+  };
 }
 
 // Kitaran paikat ruudukkona: kielet ohuimmasta paksuimpaan (kuten tabulatuurissa), nauhat 0–3.
@@ -353,10 +506,19 @@ const MESSAGES = Object.freeze({
 const STOP_LABEL = '<span aria-hidden="true">■</span> Pysäytä';
 const LEVEL_TEXT = Object.freeze({ ylos: ' Seuraavaksi hieman vaikeampi.', alas: ' Seuraavaksi hieman helpompi.' });
 
+// Napautetun yksittäisen sävelen toisto alkaa lyhyellä viiveellä (muut toistot: 0,10 s), ja sävel
+// katsotaan kuulluksi vasta, kun äänikello on edennyt näin paljon sen alusta ilman keskeytystä
+// (vahvistuma 12 ms + varaa). Pelkkä painallus tai ajastettu Web Audio -kutsu ei riitä todisteeksi.
+export const TAP_LEAD = 0.03;
+export const AUDIBLE_AFTER = 0.05;
+const SAMPLE_TIMEOUT_MS = 20000;
+
 function createPlayer(base) {
   // AAC ensin, jos selain ilmoittaa tukevansa sitä. Verkko- tai purkuvirhe kokeilee toista muotoa.
   const formats = new Audio().canPlayType('audio/mp4; codecs="mp4a.40.2"') ? ['m4a', 'ogg'] : ['ogg', 'm4a'];
   const buffers = new Map();
+  // Käynnissä olevat lataukset: sama näyte ladataan kerran, vaikka sitä pyytäisivät esilataus ja painallus.
+  const loading = new Map();
   let audio;
   let session = null;
 
@@ -410,25 +572,58 @@ function createPlayer(base) {
     });
   }
 
-  async function sample(ctx, pitch, signal) {
-    if (buffers.has(pitch)) return buffers.get(pitch);
+  // Lataus ei kuulu yksittäiselle toistolle: keskeytetty toisto lopettaa vain odottamisen, ja
+  // valmistunut näyte jää välimuistiin seuraavaa painallusta varten. Virhe poistaa latauksen
+  // luettelosta, jolloin seuraava painallus yrittää uudelleen.
+  function load(ctx, pitch) {
+    if (buffers.has(pitch)) return Promise.resolve(buffers.get(pitch));
+    if (loading.has(pitch)) return loading.get(pitch);
     const [string, id] = pitch.split(':');
     const file = `INSGuitarSteel_String${string}_Vel02_${id}_01`;
-    let failure;
-    for (const format of formats) {
-      try {
-        const response = await fetch(new URL(`${file}.${format}`, base), { signal });
-        if (!response.ok) throw new Error(`${pitch}: HTTP ${response.status}`);
-        const buffer = await decode(ctx, await response.arrayBuffer());
-        if (signal.aborted) throw signal.reason;
-        buffers.set(pitch, buffer);
-        return buffer;
-      } catch (error) {
-        if (signal.aborted) throw error;
-        failure = error;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), SAMPLE_TIMEOUT_MS);
+    const request = (async () => {
+      let failure;
+      for (const format of formats) {
+        try {
+          const response = await fetch(new URL(`${file}.${format}`, base), { signal: controller.signal });
+          if (!response.ok) throw new Error(`${pitch}: HTTP ${response.status}`);
+          const buffer = await decode(ctx, await response.arrayBuffer());
+          buffers.set(pitch, buffer);
+          return buffer;
+        } catch (error) {
+          failure = error;
+          if (controller.signal.aborted) break;
+        }
       }
-    }
-    throw failure;
+      throw failure;
+    })().finally(() => {
+      clearTimeout(timer);
+      loading.delete(pitch);
+    });
+    loading.set(pitch, request);
+    return request;
+  }
+
+  // Odota latausta, mutta lopeta odotus heti, kun toisto keskeytetään.
+  function until(promise, signal) {
+    return new Promise((resolve, reject) => {
+      if (signal.aborted) {
+        reject(signal.reason ?? new Error('keskeytetty'));
+        return;
+      }
+      const onAbort = () => reject(signal.reason ?? new Error('keskeytetty'));
+      signal.addEventListener('abort', onAbort, { once: true });
+      promise.then(resolve, reject).finally(() => signal.removeEventListener('abort', onAbort));
+    });
+  }
+
+  // Esilataa näytteet välimuistiin (käyttäjän eleestä, ei sivun latauksessa). Epäonnistunut
+  // esilataus ei näy oppijalle; painallus yrittää samaa näytettä uudelleen.
+  function preload(pitches) {
+    let ctx;
+    try { ctx = context(); } catch { return; }
+    for (const pitch of new Set(pitches)) load(ctx, pitch).catch(() => {});
   }
 
   function schedule(own, buffer, { at, duration, gain }) {
@@ -456,8 +651,10 @@ function createPlayer(base) {
   }
 
   // toggle: saman painikkeen painallus soiton aikana pysäyttää (Kuuntele ↔ Pysäytä).
+  // onStart: ääni on ladattu ja ajastettu. onAudible: äänikello on edennyt audibleAfter sekuntia
+  // ensimmäisen sävelen alusta ilman keskeytystä (sävel on ehtinyt kuulua); kutsutaan enintään kerran.
   // onPosition(sekunnit) kertoo toistokohdan; -1 = toisto päättyi.
-  async function play(trigger, status, plan, { toggle = false, onStart, onStop, onPosition } = {}) {
+  async function play(trigger, status, plan, { toggle = false, onStart, onAudible, onStop, onPosition, lead = 0.1, audibleAfter = AUDIBLE_AFTER } = {}) {
     if (toggle && session?.trigger === trigger) {
       stop();
       return;
@@ -492,7 +689,7 @@ function createPlayer(base) {
     if (session !== own) return;
     try {
       const pitches = [...new Set(plan.map(event => event.pitch))];
-      const loaded = await Promise.all(pitches.map(pitch => sample(ctx, pitch, own.abort.signal)));
+      const loaded = await Promise.all(pitches.map(pitch => until(load(ctx, pitch), own.abort.signal)));
       if (session !== own) return;
       if (ctx.state !== 'running' || trigger.closest('details:not([open])')) {
         stop(MESSAGES.interrupted);
@@ -503,18 +700,23 @@ function createPlayer(base) {
       const byPitch = new Map(pitches.map((pitch, index) => [pitch, loaded[index]]));
       own.bus = ctx.createGain();
       own.bus.connect(ctx.destination);
-      own.start = ctx.currentTime + 0.10;
+      own.start = ctx.currentTime + lead;
       const end = planEnd(plan) + 0.02;
       for (const event of plan) schedule(own, byPitch.get(event.pitch), event);
       show(status);
       // Vasta kun äänet on ladattu ja ajastettu: epäonnistunut lataus ei avaa vastaamista.
       onStart?.();
+      let audible = !onAudible;
       const follow = () => {
         if (session !== own) return;
         const elapsed = ctx.currentTime - own.start;
         if (elapsed >= end) {
           stop();
           return;
+        }
+        if (!audible && elapsed >= audibleAfter && ctx.state === 'running') {
+          audible = true;
+          onAudible();
         }
         onPosition?.(elapsed);
         own.frame = requestAnimationFrame(follow);
@@ -537,7 +739,7 @@ function createPlayer(base) {
     if (session && details instanceof HTMLDetailsElement && !details.open && details.contains(session.trigger)) silence();
   }, true);
 
-  return { play, stop, show };
+  return { play, stop, show, preload };
 }
 
 // Vastauksen jälkeen painike lukitaan aria-disabled-tilaan eikä disabled-tilaan, jotta juuri
@@ -604,21 +806,29 @@ function element(tag, className, text) {
 
 // Vertailu kortteina: ylhäällä kuultu malli, alla oppijan vastaus (”sinä”). Merkinnät vain vastauksessa.
 // Kortit rivittyvät, joten pitkäkin kulku mahtuu kapeaan näkymään ja suurennettuna.
+// heardNote / yoursNote / hint ovat valinnaisia lisärivejä (esim. kitaran paikka ja oktaavi), joita
+// näytetään vain, kun ne tarvitaan. Ne sisältyvät myös kortin saavutettavaan nimeen.
 function compareCards(caption, items) {
   const list = element('ol', 'melodia-vertailu');
   list.setAttribute('aria-label', caption);
-  list.append(...items.map(({ number, heard, heardText, yours, yoursText, ok }) => {
+  list.append(...items.map(({ number, heard, heardText, heardNote, yours, yoursText, yoursNote, hint, ok }) => {
     const item = element('li', yours ? (ok ? 'is-oikein' : 'is-virhe') : '');
     item.append(element('span', 'melodia-vertailu-nro', number));
     const top = element('span', 'melodia-kuului');
     top.append(...heard);
+    if (heardNote) top.append(element('span', 'melodia-pieni-teksti', capitalize(heardNote)));
     item.append(top);
     if (yours) {
       const bottom = element('span', 'melodia-sina');
-      bottom.append(element('span', 'melodia-pieni-teksti', 'sinä'), ...yours, element('span', 'melodia-merkki', ok ? '✓' : '✗'));
+      bottom.append(element('span', 'melodia-pieni-teksti', 'sinä'), ...yours);
+      if (yoursNote) bottom.append(element('span', 'melodia-pieni-teksti', capitalize(yoursNote)));
+      if (hint) bottom.append(element('span', 'melodia-oktaavi', hint.text));
+      bottom.append(element('span', 'melodia-merkki', ok ? '✓' : '✗'));
       item.append(bottom);
     }
-    item.setAttribute('aria-label', `${number}: kuului ${heardText}${yours ? `, ${ok ? 'oikein' : `vastasit ${yoursText}`}` : ''}`);
+    const heardName = heardNote ? `${heardText}, ${heardNote}` : heardText;
+    const yoursName = [yoursText, yoursNote, hint?.phrase].filter(Boolean).join(', ');
+    item.setAttribute('aria-label', `${number}: kuului ${heardName}${yours ? `, ${ok ? 'oikein' : `vastasit ${yoursName}`}` : ''}`);
     return item;
   }));
   return list;
@@ -745,25 +955,26 @@ function setupEndings(section, player) {
   const flow = setupFlow(section, player);
   const answers = [...section.querySelectorAll('[data-loppu]')];
   const check = section.querySelector('[data-melodia-tarkista]');
-  let state = { level: 0, streak: 0 };
+  // Eteneminen ei riipu valinnasta: vain tarkistettujen vertailujen määrä (vain tämän sivun muistissa).
+  const progress = { checked: 0 };
   let index = -1;
   let round = null;
   let selected = null;
   let playing = -1;
   let checked = false;
-  const drone = () => LEVELS.koti[state.level].drone;
+  const drone = () => LEVELS.koti[endingLevel(progress.checked)].drone;
 
   // Soiva ja valittu ovat eri tiloja: soiva = data-soi + ”▶ soi”, valittu = aria-pressed + ”✓ valittu”.
+  // Tarkistuksen jälkeen kotiin palaava loppu nimetään (”palaa G:hen”) ilman oikein/väärin-merkintää.
   const paint = () => answers.forEach((button, which) => {
     const parts = [];
-    if (checked && round.order[which] === 'koti') parts.push('✓ valmiimpi');
-    else if (checked && which === selected) parts.push('✗ valintasi');
-    else if (which === selected) parts.push('✓ valittu');
+    if (which === selected) parts.push('✓ valittu');
+    if (checked && round.order[which] === 'koti') parts.push('palaa G:hen');
     if (which === playing) parts.push('▶ soi');
     button.querySelector('[data-loppu-tila]').textContent = parts.join(' · ');
     button.toggleAttribute('data-soi', which === playing);
     button.setAttribute('aria-pressed', String(which === selected));
-    button.classList.toggle('is-valmiimpi', checked && round.order[which] === 'koti');
+    button.classList.toggle('is-kotiin', checked && round.order[which] === 'koti');
   });
   const follow = which => time => {
     const now = time < 0 ? -1 : which;
@@ -774,13 +985,13 @@ function setupEndings(section, player) {
   };
 
   flow.newTask = () => {
-    index = pickIndex(ENDING_ROUNDS, index);
+    index = pickRound(index);
     round = endingRound(index);
     selected = null;
     playing = -1;
     checked = false;
     flow.task.hidden = true;
-    flow.info.textContent = drone() ? 'Matala G soi taustalla kotisävelen tukena.' : 'Ilman tukiääntä.';
+    flow.info.textContent = drone() ? 'Matala G soi taustalla tukiäänenä.' : 'Ilman tukiääntä.';
     check.hidden = true;
     lock([check], false);
     flow.reset();
@@ -806,16 +1017,17 @@ function setupEndings(section, player) {
     });
   });
   check.addEventListener('click', () => {
+    // Sama tehtävä tarkistetaan ja lasketaan vain kerran.
     if (checked || selected === null) return;
     checked = true;
+    progress.checked++;
     const result = endingFeedback(round, selected);
-    state = adapt(state, result.correct, LEVELS.koti.length);
     lock([check], true);
-    const change = state.change === 'ylos' ? ' Seuraavaksi ilman tukiääntä.'
-      : state.change === 'alas' ? ' Seuraavaksi tukiääni taas mukana.' : '';
-    flow.answered(result.text + change, result.correct);
+    const change = progress.checked === SUPPORTED_COMPARISONS ? ' Seuraavaksi ilman tukiääntä.' : '';
+    // Vertaileva palaute ei ole virhe eikä onnistuminen, joten se näytetään aina neutraalina.
+    flow.answered(result.text + change, true);
     flow.shape.replaceChildren(...round.versions.map((notes, which) => element('li', '',
-      `Loppu ${which + 1}: ${names(notes)}${round.order[which] === 'koti' ? ' (kotiin)' : ''}`)));
+      `Loppu ${which + 1}: ${names(notes)}${round.order[which] === 'koti' ? ' (palaa G:hen)' : ''}`)));
     paint();
   });
   section.querySelector('[data-koti-savel]')?.addEventListener('click', event => {
@@ -833,19 +1045,21 @@ function setupEcho(section, player) {
   const own = section.querySelector('[data-etsi-oma]');
   let state = { level: 0, streak: 0 };
   let motif = null;
-  let history = [];
+  // Vastausketjussa on vain sävelet, jotka ovat ehtineet kuulua (ks. createEchoChain).
+  const chain = createEchoChain();
   let tried = [];
   let checked = false;
   let pool = null;
 
   const draw = () => {
-    const chosen = recentNotes(history, motif.length);
+    const chosen = chain.notes;
     slots.replaceChildren(...motif.map((_, index) => {
       const id = chosen[index];
       const item = element('li', id ? '' : 'is-empty', id ? NOTES[id].name : '?');
       item.setAttribute('aria-label', `Sävel ${index + 1}: ${id ? `${NOTES[id].name}, ${position(id)}` : 'ei vielä soitettu'}`);
       return item;
     }));
+    slots.dataset.kuultu = String(chain.count);
     check.hidden = chosen.length !== motif.length;
     lock([check, solution], checked);
   };
@@ -879,11 +1093,14 @@ function setupEcho(section, player) {
         button.dataset.paikka = id;
         button.setAttribute('aria-label', `${NOTES[id].name}, ${position(id)}`);
         button.addEventListener('click', () => {
-          player.play(button, flow.status, singleNotePlan(id));
-          // Tarkistuksen jälkeen paikkoja voi yhä kuunnella, mutta tarkistettu vastaus pysyy.
-          if (checked) return;
-          history = recentNotes([...history, id], motif.length);
-          draw();
+          // Painallus saa tiketin; se kirjautuu vastausketjuun vasta, kun sävel on ehtinyt kuulua.
+          // Keskeytynyt, epäonnistunut tai vanhentunut painallus ei kirjaudu. Tarkistuksen jälkeen
+          // paikkoja voi yhä kuunnella, mutta tarkistettu vastaus pysyy.
+          const ticket = checked ? null : chain.press(id);
+          player.play(button, flow.status, singleNotePlan(id), {
+            lead: TAP_LEAD,
+            onAudible: ticket && (() => { if (chain.confirm(ticket)) draw(); }),
+          });
         });
         line.append(button);
       }
@@ -893,15 +1110,22 @@ function setupEcho(section, player) {
   };
   const reveal = (text, correct, steps) => {
     checked = true;
+    chain.lock();
     flow.answered(text, correct);
     const answered = steps[0].given !== undefined;
     flow.shape.replaceChildren(
-      compareCards('Sävelkulku: kuultu ja soittamasi', steps.map((step, index) => ({
-        number: `Sävel ${index + 1}`,
-        heard: [element('strong', '', NOTES[step.expected].name)], heardText: NOTES[step.expected].name,
-        yours: answered ? [element('strong', '', step.given ? NOTES[step.given].name : '–')] : null,
-        yoursText: step.given ? NOTES[step.given].name : 'ei säveltä', ok: step.ok,
-      }))),
+      compareCards('Sävelkulku: kuultu ja soittamasi', steps.map((step, index) => {
+        // Sama sävelnimi eri oktaavissa: näytä tarkennus (kitaran paikka ja oktaavi) vain tällä kortilla.
+        const hint = answered && step.given ? octaveHint(step.expected, step.given) : null;
+        return {
+          number: `Sävel ${index + 1}`,
+          heard: [element('strong', '', NOTES[step.expected].name)], heardText: NOTES[step.expected].name,
+          heardNote: hint ? position(step.expected) : null,
+          yours: answered ? [element('strong', '', step.given ? NOTES[step.given].name : '–')] : null,
+          yoursText: step.given ? NOTES[step.given].name : 'ei säveltä',
+          yoursNote: hint ? position(step.given) : null, hint, ok: step.ok,
+        };
+      })),
       element('p', 'melodia-pieni', `Kitaralla: ${motif.map(position).join(' → ')}`));
     markBoard(motif);
     draw();
@@ -910,7 +1134,7 @@ function setupEcho(section, player) {
   flow.newTask = () => {
     const level = LEVELS.etsi[state.level];
     motif = freshMelody(level, motif);
-    history = [];
+    chain.reset(motif.length);
     tried = [];
     checked = false;
     flow.task.hidden = true;
@@ -925,13 +1149,17 @@ function setupEcho(section, player) {
     draw();
   };
   flow.listen.addEventListener('click', () => {
+    // Esilataa käyttäjän eleestä (ei sivun latauksessa) ensin kuultavan melodian sävelet ja sitten koko
+    // nykyinen sävelalue samaan näytevälimuistiin.
+    player.preload([...motif, ...POOLS[pool]].map(id => NOTES[id].sample));
     player.play(flow.listen, flow.status, melodyPlan(motif, TIMING.etsi), {
       toggle: true, onStart: () => { flow.task.hidden = false; },
     });
   });
   check.addEventListener('click', () => {
     if (checked) return;
-    tried = recentNotes(history, motif.length);
+    // Arvioidaan täsmälleen näkyvä ja vahvistettu vastausketju.
+    tried = chain.notes;
     const result = checkEcho(motif, tried);
     state = adapt(state, result.correct, LEVELS.etsi.length);
     reveal(echoFeedback(motif, tried) + (LEVEL_TEXT[state.change] ?? ''), result.correct, result.steps);

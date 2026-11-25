@@ -10,7 +10,11 @@
 .melodia-ydin .study-knoppi h3 { margin: 0 0 .5rem; }
 
 .melodia-toiminnot { display: flex; flex-wrap: wrap; gap: .5rem; margin: .85rem 0 .35rem; }
+/* touch-action: manipulation: nopea toistuva napautus ei käynnistä selaimen kaksoisnapautuszoomia
+ * (K1, auditointi 2.1: kaksi nopeaa Alas-napautusta suurensi Safarin näkymän). Nipistyszoom ja
+ * muut saavutettavuustoiminnot säilyvät, eikä viewport-määritystä rajata. */
 .melodia-ydin button {
+  touch-action: manipulation;
   min-height: 44px;
   max-width: 100%;
   padding: .45rem .95rem;
@@ -126,7 +130,9 @@
 .melodia-vertailu-nro { color: var(--muted); font-size: .72rem; font-weight: 700; }
 .melodia-kuului strong, .melodia-sina strong { font-size: 1.1rem; }
 .melodia-sina { display: grid; justify-items: center; gap: .05rem; padding-top: .2rem; border-top: 1px solid var(--line); }
-.melodia-pieni-teksti { color: var(--muted); font-size: .7rem; }
+.melodia-pieni-teksti { max-width: 8.5rem; color: var(--muted); font-size: .7rem; overflow-wrap: anywhere; }
+/* Oktaavitarkennus näkyy vain kortilla, jossa sama sävelnimi oli eri oktaavissa. */
+.melodia-oktaavi { max-width: 8.5rem; font-size: .75rem; font-weight: 700; }
 .melodia-vertailu .melodia-merkki { font-size: .9rem; font-weight: 800; line-height: 1; }
 .melodia-vertailu li.is-oikein .melodia-merkki { color: #9fe4c3; }
 .melodia-vertailu li.is-virhe { border: 2px dashed #ffe08a; }
@@ -142,7 +148,8 @@
 .melodia-loput button { display: grid; justify-items: center; gap: .1rem; }
 .melodia-loppu-nimi { font-size: 1.05rem; }
 .melodia-loppu-tila { min-height: 1.1em; font-size: .82rem; font-weight: 600; }
-.melodia-loput button.is-valmiimpi { border: 2px solid #9fe4c3; }
+/* Tarkistuksen jälkeen G:hen palaava loppu erottuu reunuksella ja tekstillä (”palaa G:hen”); ei arvosteleva merkintä. */
+.melodia-loput button.is-kotiin { border: 2px solid var(--accent); }
 
 /* 03: oikean kulun paikat numeroidaan ruudukkoon vastauksen tai ratkaisun jälkeen. */
 .melodia-otelauta button { position: relative; }
