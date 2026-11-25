@@ -12,6 +12,7 @@ test.describe('Kolme oppimistapaa ja Soittopakki', () => {
     await mainNav(page).getByRole('link', { name: 'Opi & oivalla' }).click();
     await expect(page).toHaveURL(/index\.html$/);
     await page.goto('/oppi/savelnimet/index.html');
+    await page.locator('#aiemmat > summary').click();
     await page.getByRole('link', { name: /Sävelet ja intervallit/ }).first().click();
     await expect(page).toHaveURL(/oppi\/savelnimet\/savelet-ja-intervallit\.html$/);
     await expect(page.getByRole('heading', { level: 1 })).toContainText('intervallit');

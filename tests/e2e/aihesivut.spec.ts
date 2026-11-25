@@ -24,6 +24,7 @@ test('pääaiheen kortti avaa oman sivunsa ja selaimen paluu löytää kortin', 
   await card.press('Enter');
   await expect(page).toHaveURL(topicPath);
   await expect(page.getByRole('heading', { level: 1, name: topicName })).toBeVisible();
+  await page.locator('#aiemmat > summary').click();
   await page.getByRole('link', { name: /^Sävelet ja intervallit/ }).click();
   await expect(page).toHaveURL(intervalsPath);
   await expect(page.getByRole('heading', { level: 1, name: 'Sävelet ja intervallit' })).toBeVisible();
@@ -38,6 +39,7 @@ test('pääaiheen kortti avaa oman sivunsa ja selaimen paluu löytää kortin', 
 
 test('oppitunneilla on oma sisältö, toimiva ääni ja reitit aiheeseen', async ({ page }) => {
   await page.goto(topicPath);
+  await page.locator('#aiemmat > summary').click();
   await page.getByRole('link', { name: /Kitaran kielet ja sointumerkinnät/ }).click();
   await expect(page).toHaveURL(guitarPath);
   await expect(page.getByRole('img', { name: /^C: paksu E-kieli/ })).toBeVisible();
@@ -439,6 +441,7 @@ test('ristiinlinkitys avaa saman opetussivun ja takaisinpaluu säilyttää läht
   await expect(page).toHaveURL('/oppi/kitara/index.html');
   await expect(page.locator('[data-study-total]')).toHaveCount(0);
   await page.goto(topicPath);
+  await page.locator('#aiemmat > summary').click();
   const guitarCard = page.locator('#valinta-kitaran-kielet-ja-sointumerkinnat');
   await expect(guitarCard.locator('[data-study-status]')).toHaveText('✓ Tehty');
   await expect(page.locator('[data-study-total]')).toHaveText('1/3 sisältöä tehty');
@@ -542,6 +545,7 @@ test.describe('Oppimiskartta ilman JavaScriptiä', () => {
     await page.locator('#aihe-nuotit').click();
     await expect(page).toHaveURL(topicPath);
     await expect(page.locator('[data-study-total]')).toBeHidden();
+    await page.locator('#aiemmat > summary').click();
     await page.locator('#valinta-savelet-ja-intervallit').click();
     await expect(page).toHaveURL(intervalsPath);
     await expect(page.locator('audio[controls]')).toBeVisible();
