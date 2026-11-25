@@ -1,10 +1,11 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
-  BASS_GAIN, COUNT_WORDS, ICON, ENDING_PHRASES, ENDING_ROUNDS, HOME_TONE_PLAN, LEVELS, NOTES, POOLS, SAMPLE_SECONDS, TIMING, VERSION_GAP,
-  adapt, boardRows, directionPoints, shapePoints, bothEndingsPlan, checkContour, checkEcho, contourFeedback, contourOf, direction, echoFeedback,
-  endingFeedback, endingRound, freshMelody, generateMelody, melodyPlan, moveKind, moveProblem, names, pickIndex, planEnd,
-  position, recentNotes, singleNotePlan, versionPlan,
+  AUDIBLE_AFTER, BASS_GAIN, COUNT_WORDS, ICON, ENDING_PHRASES, ENDING_ROUNDS, HOME_TONE_PLAN, LEVELS, MELODY_ATTEMPTS, NOTES, POOLS, SAMPLE_SECONDS,
+  SUPPORTED_COMPARISONS, TAP_LEAD, TIMING, VERSION_GAP,
+  adapt, allowedMelodies, boardRows, createEchoChain, directionPoints, shapePoints, bothEndingsPlan, checkContour, checkEcho, contourFeedback, contourOf,
+  direction, echoFeedback, endingFeedback, endingLevel, endingRound, endingSpan, fallbackMelody, freshMelody, generateMelody, melodyPlan, melodyProblem,
+  moveKind, moveProblem, names, octaveHint, pickIndex, pickRound, planEnd, position, recentNotes, singleNotePlan, versionPlan,
 // @ts-expect-error Testattu selainmoduuli palvellaan suoraan JavaScriptinä.
 } from '../assets/melodia-ydinopinnot.js';
 
@@ -226,18 +227,100 @@ describe('02 · Kotiin vai kesken?', () => {
     }
   });
 
-  it('palaute kertoo, kumpi loppu palaa kotiin ja mihin toinen jää; ei yleissääntöä', () => {
-    const round = endingRound(1); // ensimmäinen melodia, kesken-loppu ensin
+  it('K2: kahdeksan melodiaparia on ennallaan (parien 4 ja 8 tonaalisuus arvioidaan myöhemmin kuuntelutestissä)', () => {
+    expect((ENDING_PHRASES as { start: string[]; koti: string; kesken: string }[]).map(phrase => [phrase.start.join(' '), phrase.koti, phrase.kesken])).toEqual([
+      ['G3 B3 D4 C4 A3 B3', 'G3', 'A3'],
+      ['D4 G4 Fs4 E4 C4 E4', 'G4', 'Fs4'],
+      ['G3 A3 B3 G3 C4 B3 A3', 'G3', 'D4'],
+      ['B3 C4 D4 B3 E4 D4 C4', 'G3', 'A3'],
+      ['G4 Fs4 E4 D4 C4 B3 A3', 'G3', 'C4'],
+      ['G3 B3 D4 C4 E4 D4 E4 Fs4', 'G4', 'D4'],
+      ['G3 D4 C4 B3 C4 A3', 'G3', 'D4'],
+      ['E4 C4 A3 B3 D4 C4 B3', 'G3', 'A3'],
+    ]);
+  });
+
+  it('K2: palaute on vertaileva, nimeää valitun lopun ja sen, kumpi palaa G:hen; ei oikein/väärin-arviota', () => {
+    const round = endingRound(1); // ensimmäinen melodia, kesken-loppu (A) ensin, koti-loppu toisena
     expect(round.order).toEqual(['kesken', 'koti']);
-    expect(endingFeedback(round, 1)).toEqual({ correct: true,
-      text: 'Oikein! Loppu 2 palaa kotisävel G:hen ja kuulostaa siksi tässä valmiimmalta. Loppu 1 jää A:han, askeleen G:n yläpuolelle, ja odottaa vielä paluuta.' });
-    expect(endingFeedback(round, 0)).toEqual({ correct: false,
-      text: 'Tässä melodiassa loppu 2 kuulostaa valmiimmalta: se palaa kotisävel G:hen. Loppu 1 jää A:han, askeleen G:n yläpuolelle, ja odottaa vielä paluuta.' });
+    // Käyttäjä valitsi G:hen palaavan lopun.
+    expect(endingFeedback(round, 1).text).toBe('Loppu 2 oli sinun valintasi. Se palaa G:hen, melodian suunniteltuun kotisäveleen. '
+      + 'Loppu 1 päättyy A:han, askeleen G:n yläpuolelle, ja voi kuulostaa pysähdykseltä, josta melodia vielä jatkaisi. Kuuntele vielä, miten loput eroavat toisistaan.');
+    // Käyttäjä valitsi toisen lopun: ei virheilmoitusta, vain vertailu.
+    expect(endingFeedback(round, 0).text).toBe('Loppu 1 oli sinun valintasi. Loppu 2 palaa G:hen, melodian suunniteltuun kotisäveleen. '
+      + 'Loppu 1 päättyy A:han, askeleen G:n yläpuolelle, ja voi kuulostaa pysähdykseltä, josta melodia vielä jatkaisi. Kuuntele vielä, miten loput eroavat toisistaan.');
+    expect(Object.keys(endingFeedback(round, 0)).sort()).toEqual(['chosen', 'home', 'text']);
     for (let index = 0; index < ENDING_ROUNDS; index++) {
+      const current = endingRound(index);
+      const home = current.order.indexOf('koti');
       for (const answer of [0, 1]) {
-        const { text } = endingFeedback(endingRound(index), answer);
-        expect(text).toMatch(/tässä/i);
-        expect(text).not.toMatch(/aina|kaikki musiikki|vain silloin/i);
+        const result = endingFeedback(current, answer);
+        expect(result.chosen).toBe(answer);
+        expect(result.home).toBe(home);
+        expect(result.text, `${index}/${answer}`).toContain(`Loppu ${answer + 1} oli sinun valintasi.`);
+        expect(result.text).toContain(`Loppu ${home + 1} palaa G:hen, melodian suunniteltuun kotisäveleen`.replace(`Loppu ${home + 1} palaa`, answer === home ? 'Se palaa' : `Loppu ${home + 1} palaa`));
+        expect(result.text).toContain(`Loppu ${2 - home} päättyy `);
+        expect(result.text).toContain(endingSpan(current.phrase));
+        expect(result.text.endsWith('Kuuntele vielä, miten loput eroavat toisistaan.')).toBe(true);
+        // Ei arvottavia eikä ehdottomia väitteitä (kuulokokemus ei ole yksiselitteisesti oikea tai väärä).
+        expect(result.text).not.toMatch(/oikein|väärin|virhe|✓|✗|valmiimp|keskeneräi|aina|kaikki musiikki|vain silloin|täytyy|pitää/i);
+        // Jokainen G:stä poikkeava loppu kuvataan ehdollisesti.
+        expect(result.text).toMatch(/voi |sopii /);
+        expect(result.text.split(/[.!?]/).filter(Boolean).length).toBeLessThanOrEqual(5);
+      }
+    }
+  });
+
+  it('K2: sävelkohtaiset kuvaukset ovat musiikillisesti täsmällisiä jokaisen melodian oman G:n mukaan', () => {
+    expect((ENDING_PHRASES as { koti: string; kesken: string }[]).map(phrase => endingSpan(phrase))).toEqual([
+      'askeleen G:n yläpuolelle', 'puoliaskeleen G:n alapuolelle', 'kvintin G:n yläpuolelle', 'askeleen G:n yläpuolelle',
+      'kvartin G:n yläpuolelle', 'kvartin G:n alapuolelle', 'kvintin G:n yläpuolelle', 'askeleen G:n yläpuolelle',
+    ]);
+    for (const phrase of ENDING_PHRASES as { koti: string; kesken: string }[]) {
+      const difference = notes[phrase.kesken].midi - notes[phrase.koti].midi;
+      expect(endingSpan(phrase)).toContain(difference > 0 ? 'yläpuolelle' : 'alapuolelle');
+    }
+    // Sävelnimen taivutus ja kuvaus vastaavat toisiaan (kierros = melodia * 2 + järjestys).
+    const open = (phrase: number) => endingFeedback(endingRound(phrase * 2), 0).text;
+    expect(open(0)).toContain('Loppu 2 päättyy A:han, askeleen G:n yläpuolelle');
+    expect(open(1)).toContain('Loppu 2 päättyy F♯:ään, puoliaskeleen G:n alapuolelle, ja voi vetää voimakkaasti kotisäveleen');
+    expect(open(4)).toContain('Loppu 2 päättyy C:hen, kvartin G:n yläpuolelle, ja voi kuulostaa vakaalta pysähdykseltä, vaikka se ei ole kotisävel');
+    expect(open(5)).toContain('Loppu 2 päättyy D:hen, kvartin G:n alapuolelle, ja sopii G-sointuun');
+    expect(open(6)).toContain('Loppu 2 päättyy D:hen, kvintin G:n yläpuolelle, ja sopii G-sointuun');
+  });
+
+  it('K2: eteneminen riippuu vain tarkistettujen vertailujen määrästä, ei valitusta lopusta', () => {
+    expect(SUPPORTED_COMPARISONS).toBe(2);
+    expect([0, 1, 2, 3, 10].map(endingLevel)).toEqual([0, 0, 1, 1, 1]);
+    expect([0, 1, 2, 3].map(count => LEVELS.koti[endingLevel(count)].drone)).toEqual([true, true, false, false]);
+    // Palaute ei vaikuta etenemiseen: kumpikin valinta tuottaa saman tuloksen ilman oikein/väärin-tietoa.
+    const round = endingRound(0);
+    expect(Object.keys(endingFeedback(round, 0))).toEqual(Object.keys(endingFeedback(round, 1)));
+    expect(endingLevel.length).toBe(1);
+  });
+
+  it('K6: kierros vaihtaa melodian eikä pelkkää loppujen järjestystä; jokainen kierros ja järjestys esiintyy', () => {
+    const seen = new Set<number>();
+    const random = seeded(7);
+    let previous = -1;
+    for (let step = 0; step < 4000; step++) {
+      const next = pickRound(previous, random) as number;
+      expect(next).toBeGreaterThanOrEqual(0);
+      expect(next).toBeLessThan(ENDING_ROUNDS);
+      if (previous >= 0) expect(Math.floor(next / 2), `${previous} → ${next}`).not.toBe(Math.floor(previous / 2));
+      seen.add(next);
+      previous = next;
+    }
+    expect(seen.size).toBe(ENDING_ROUNDS);
+    // Poikkeavat satunnaisluvut eivät riko ehtoa.
+    for (const odd of [() => 0, () => 0.999999999, () => 1, () => NaN, () => -3, () => Infinity]) {
+      let last = -1;
+      for (let step = 0; step < 20; step++) {
+        const next = pickRound(last, odd) as number;
+        expect(next).toBeGreaterThanOrEqual(0);
+        expect(next).toBeLessThan(ENDING_ROUNDS);
+        if (last >= 0) expect(Math.floor(next / 2)).not.toBe(Math.floor(last / 2));
+        last = next;
       }
     }
   });
@@ -442,15 +525,353 @@ describe('aihesivu ja tunnisteet', () => {
     }
   });
 
-  it('02 ei väitä, että melodia olisi valmis vain kotisäveleen päättyessään', () => {
+  it('K2/K3: 02 ei väitä loppua ehdottomasti valmiiksi, ja ennen ensimmäistä yritystä näkyvä teksti ei paljasta ratkaisua', () => {
     const source = read('tools/oppimiskartta/sisallot/korva/kotiin-vai-kesken.html');
-    expect(source).toContain('Kaikki musiikki ei kuitenkaan pääty kotisäveleen');
-    expect(source).not.toMatch(/vain silloin|on aina|päättyy aina/);
+    const optional = source.match(/<details class="study-knoppi">[\s\S]*?<\/details>/)![0];
+    // Ehdoton väite ja kotisävelselitys kuuluvat vain vapaaehtoiseen ⓘ-lisätietoon.
+    expect(optional).toContain('Kaikki musiikki ei pääty kotisäveleen');
+    expect(source).not.toMatch(/vain silloin|on aina|päättyy aina|kuulostaa niissä valmiimmalta/);
+    const visible = source.replace(optional, '');
+    expect(visible).not.toMatch(/kotisäve|G-duur|palaa G|kesken jäävä|tukiäänenä kotisävel/i);
+    const note = source.match(/<section class="note">([\s\S]*?)<\/section>/)![1];
+    expect(note).toContain('Melodian viimeinen sävel voi muuttaa sen tunnelmaa. Tässä harjoituksessa pääset vertailemaan, miten erilaiset lopetukset vaikuttavat siihen, miltä melodia tuntuu.');
+    // Vanha tukiäänen etenemisteksti ei jää voimaan.
+    expect(source).not.toMatch(/peräkkäisen oikean vastauksen/);
+    expect(source).toContain('Kahden ensimmäisen vertailun jälkeen tukiääni jää pois');
+  });
+
+  it('K3: myös 01:n ja 03:n näkyvät ”Mitä opit?” -tekstit kertovat tavoitteen ilman ratkaisua; ilman JavaScriptiä sisältö säilyy', () => {
+    for (const slug of lessons) {
+      const source = read(`tools/oppimiskartta/sisallot/korva/${slug}.html`);
+      const html = read(`oppi/korva/${slug}.html`);
+      const note = source.match(/<section class="note">([\s\S]*?)<\/section>/)![1];
+      expect(note, slug).toContain('<h2>Mitä opit?</h2>');
+      // Ei sävelnimiä, kitaran paikkoja eikä vastauksia näkyvässä tavoitetekstissä.
+      expect(note.replace(/<h2>.*?<\/h2>/, ''), slug).not.toMatch(/\b[A-G]♯?\b|nauha|kieli(?!\w)/);
+      const flat = (text: string) => text.replace(/\s+/g, ' ');
+      expect(flat(html), slug).toContain(flat(note.trim()));
+    }
+    // Käyttöohjeet säilyvät: ohje ja vastauksen vaihe näkyvät ilman piilotusta.
+    for (const slug of lessons) expect(read(`oppi/korva/${slug}.html`), slug).toContain('class="melodia-ohje"');
+  });
+
+  it('K1: harjoituspainikkeilla on touch-action: manipulation, eikä sivun suurentamista estetä viewport-määrityksellä', () => {
+    const css = read('assets/melodia-ydinopinnot.css');
+    const rule = css.match(/\.melodia-ydin button \{([^}]*)\}/)![1];
+    expect(rule).toMatch(/touch-action:\s*manipulation/);
+    // Ei estetä nipistyszoomia: ei touch-action: none eikä pan-only -rajausta missään harjoitustyylissä.
+    expect(css).not.toMatch(/touch-action:\s*(none|pan-[xy]|pinch)/);
+    for (const file of ['oppi/korva/index.html', ...lessons.map(slug => `oppi/korva/${slug}.html`)]) {
+      const viewport = read(file).match(/<meta name="viewport" content="([^"]+)"/)![1];
+      expect(viewport, file).toBe('width=device-width, initial-scale=1');
+      expect(viewport).not.toMatch(/user-scalable|maximum-scale|minimum-scale/);
+    }
   });
 
   it('muiden aiheiden sivut eivät lataa melodiamoduulia', () => {
     for (const file of ['oppi/rytmi/index.html', 'oppi/soinnut/index.html', 'oppi/soinnut/kuule-ja-kokoa-sointu.html', 'oppi/savelnimet/index.html', 'oppi/otelauta/index.html']) {
       expect(read(file), file).not.toContain('melodia-ydinopinnot');
     }
+  });
+});
+
+// ---------------------------------------------------------------------------------------------
+// K6 · Generaattorin poikkeuspolut (auditoinnin 140 000 melodian normaaliajo ei todista näitä)
+
+const generatorLevels = (Object.entries(LEVELS) as [string, Level[]][]).filter(([name]) => name !== 'koti')
+  .flatMap(([exercise, levels]) => levels.map((level, index) => ({ label: `${exercise} taso ${index + 1}`, level })));
+// Poikkeavat satunnaislukujakaumat: vakiot, rajat, virheelliset arvot ja vuorottelu.
+const oddRandoms: [string, () => number][] = [
+  ['aina 0', () => 0], ['aina 0,999999999', () => 0.999999999], ['aina 1 (rajan yli)', () => 1], ['aina NaN', () => NaN],
+  ['aina negatiivinen', () => -3], ['aina ääretön', () => Infinity], ['aina 0,5', () => 0.5],
+  ['vuorottelee 0 ja 1', (() => { let calls = 0; return () => calls++ % 2; })()],
+  ['kasvava jono', (() => { let value = 0; return () => (value = (value + 0.0137) % 1); })()],
+];
+
+describe('K6 · melodyProblem ja sallittujen melodioiden joukko', () => {
+  const level: Level = { length: 4, pool: 'gbe', semitones: true, endOnChordTone: false };
+
+  it('tunnistaa jokaisen vaatimuksen rikkomisen', () => {
+    expect(melodyProblem(['G3', 'B3', 'B3', 'D4'], level)).toBeNull();
+    expect(melodyProblem([], level)).toBe('tyhjä melodia');
+    expect(melodyProblem(['G3', 'A3', 'B3'], level)).toMatch(/pituus 3/);
+    expect(melodyProblem(['G3', 'A3', 'B3', 'D3'], level)).toMatch(/ei kuulu säveljoukkoon/);
+    expect(melodyProblem(['G3', 'A3', 'B3', 'C4'], { ...level, start: 'B3' })).toMatch(/lähtösävel G3, vaadittu B3/);
+    expect(melodyProblem(['G3', 'A3', 'B3', 'A3'], { ...level, endOnChordTone: true })).toBe('ei pääty sointusäveleen');
+    expect(melodyProblem(['G3', 'A3', 'B3', 'B3'], { ...level, endOnChordTone: true })).toBeNull();
+    expect(melodyProblem(['G3', 'B3', 'C4', 'Fs4'], level)).toMatch(/tritonus/);
+    expect(melodyProblem(['B3', 'C4', 'D4', 'C4'], { ...level, semitones: false })).toMatch(/puoliaskel/);
+    expect(melodyProblem(['B3', 'C4', 'D4', 'C4'], level)).toBeNull();
+    // Enintään yksi toistettu sävel ja ei kolmea samaa.
+    expect(melodyProblem(['G3', 'G3', 'A3', 'A3'], level)).toBe('useampi kuin yksi toistettu sävel');
+    expect(melodyProblem(['G3', 'G3', 'G3', 'A3'], level)).toMatch(/kolme samaa/);
+    // Pidemmässä melodiassa vähintään kaksi eri liikettä; pelkkä nousu ei kelpaa.
+    expect(melodyProblem(['G3', 'A3', 'B3', 'C4'], level)).toBe('vain yhdenlaisia liikkeitä');
+    expect(melodyProblem(['G3', 'A3', 'B3'], { ...level, length: 3 })).toBeNull();
+  });
+
+  it('dokumentaatio vastaa toteutusta: murtosointu ja suunnanvaihto', () => {
+    // Kaksi samansuuntaista hyppyä kattaa enintään pienen sekstin (8 puoliaskelta).
+    expect(moveProblem('B3', 'D4', 'G4')).toBeNull(); // 3 + 5 = 8
+    expect(moveProblem('G3', 'B3', 'D4')).toBeNull(); // 4 + 3 = 7
+    expect(moveProblem('G3', 'B3', 'E4')).toBe('kaksi hyppyä liian laajalle'); // 4 + 5 = 9
+    // Suunnanvaihto = vähintään kaksi eri liikettä (ylös/alas/sama), ei välttämättä ylös ja alas.
+    expect(contourOf(['G3', 'B3', 'B3', 'D4'])).toEqual(['ylos', 'sama', 'ylos']);
+    expect(melodyProblem(['G3', 'B3', 'B3', 'D4'], level)).toBeNull();
+    expect(melodyProblem(['D4', 'C4', 'B3', 'A3'], level)).toBe('vain yhdenlaisia liikkeitä');
+  });
+
+  for (const { label, level: current } of generatorLevels) {
+    it(`${label}: sallittuja melodioita on, ja arvonnan tulokset kuuluvat joukkoon`, () => {
+      const allowed = allowedMelodies(current) as string[][];
+      expect(allowed.length).toBeGreaterThan(5);
+      const keys = new Set(allowed.map(melody => melody.join()));
+      expect(keys.size).toBe(allowed.length);
+      for (const melody of allowed) expect(melodyProblem(melody, current), melody.join()).toBeNull();
+      for (const melody of sample(current, 1500, 11)) expect(keys.has(melody.join()), melody.join()).toBe(true);
+    });
+  }
+});
+
+describe('K6 · pakotettu vararatkaisu', () => {
+  for (const { label, level } of generatorLevels) {
+    it(`${label}: ilman onnistuvia arvontakierroksia tulos täyttää kaikki vaatimukset`, () => {
+      const seen = new Set<string>();
+      for (let step = 0; step < 300; step++) {
+        const melody = generateMelody(level, seeded(step + 1), 0) as string[];
+        expect(melodyProblem(melody, level), melody.join()).toBeNull();
+        expect(melody).toHaveLength(level.length);
+        if (level.start) expect(melody[0]).toBe(level.start);
+        if (level.endOnChordTone) expect(['G', 'B', 'D']).toContain(notes[melody.at(-1)!].name);
+        if (level.semitones === false) melody.slice(1).forEach((id, at) => expect(Math.abs(semis(melody[at], id))).not.toBe(1));
+        seen.add(melody.join());
+      }
+      // Vararatkaisu ei jää yhteen kiinteään melodiaan (paitsi jos taso sallii vain muutaman).
+      expect(seen.size).toBeGreaterThanOrEqual(Math.min(10, (allowedMelodies(level) as string[][]).length));
+    });
+  }
+
+  it('entinen vararatkaisu (taulukon alku) olisi rikkonut vaatimuksia, uusi ei', () => {
+    const old = (level: Level) => (POOLS[level.pool] as string[]).slice(0, level.length);
+    // Pelkkä pooliin alusta otettu pätkä: nousu ilman suunnanvaihtoa tai pääte ilman sointusäveltä.
+    expect(melodyProblem(old(LEVELS.suunta[1]), LEVELS.suunta[1])).not.toBeNull();
+    expect(melodyProblem(old(LEVELS.etsi[2]), LEVELS.etsi[2])).not.toBeNull();
+    for (const { level } of generatorLevels) expect(melodyProblem(fallbackMelody(level, () => 0.3), level)).toBeNull();
+  });
+
+  it('virheellinen taso ei tuota virheellistä tai tyhjää tehtävää vaan virheen', () => {
+    expect(() => generateMelody({ length: 3, pool: 'gb', start: 'E4' }, Math.random, 0)).toThrow(RangeError);
+    expect(() => generateMelody({ length: 3, pool: 'gb', start: 'E4' }, () => 0.5)).toThrow(RangeError);
+    // Säveljoukon ulkopuolinen lähtösävel ei ole koskaan sallittu, eikä sen vuoksi palauteta tyhjää tai virheellistä melodiaa.
+    expect(() => fallbackMelody({ length: 3, pool: 'gbe', start: 'D3' })).toThrow(RangeError);
+    expect(() => generateMelody({ length: 1, pool: 'gb', start: 'G3', endOnChordTone: true }, () => 0.5)).not.toThrow();
+  });
+
+  it('arvonnan yrityskierrokset ovat rajalliset: poikkeava jakauma päätyy vararatkaisuun eikä jää silmukkaan', () => {
+    expect(MELODY_ATTEMPTS).toBeGreaterThan(0);
+    for (const [name, random] of oddRandoms) {
+      for (const { label, level } of generatorLevels) {
+        const melody = generateMelody(level, random) as string[];
+        expect(melodyProblem(melody, level), `${name} · ${label}: ${melody.join()}`).toBeNull();
+      }
+    }
+  });
+});
+
+describe('K6 · vaatimukset poikkeavilla satunnaisluvuilla', () => {
+  it('lähtösävel (03 taso 1), loppusävel, puoliaskelrajoite ja pituus säilyvät kaikilla jakaumilla ja siemenillä', () => {
+    for (const [name, random] of [...oddRandoms, ...[1, 2, 3, 4, 5, 6].map(seed => [`siemen ${seed}`, seeded(seed)] as [string, () => number])]) {
+      for (let round = 0; round < 40; round++) {
+        const first = generateMelody(LEVELS.etsi[0], random) as string[];
+        expect(first[0], name).toBe('G3');
+        expect(first).toHaveLength(3);
+        const noSemitone = generateMelody(LEVELS.suunta[0], random) as string[];
+        noSemitone.slice(1).forEach((id, at) => expect(Math.abs(semis(noSemitone[at], id)), name).not.toBe(1));
+        for (const level of [LEVELS.suunta[2], LEVELS.etsi[2], LEVELS.etsi[3]] as Level[]) {
+          const melody = generateMelody(level, random) as string[];
+          expect(['G', 'B', 'D'], `${name} ${melody.join()}`).toContain(notes[melody.at(-1)!].name);
+          expect(melody).toHaveLength(level.length);
+        }
+      }
+    }
+  });
+
+  it('peräkkäiset tehtävät vaihtuvat kaikilla jakaumilla ja kaikilla tasoilla', { timeout: 60000 }, () => {
+    for (const [name, random] of [...oddRandoms, ['siemen 5', seeded(5)] as [string, () => number]]) {
+      for (const { label, level } of generatorLevels) {
+        let previous: string[] | null = null;
+        for (let round = 0; round < 12; round++) {
+          const melody = freshMelody(level, previous, random) as string[];
+          expect(melodyProblem(melody, level), `${name} · ${label}`).toBeNull();
+          if (previous) expect(melody.join(), `${name} · ${label} kierros ${round}`).not.toBe(previous.join());
+          previous = melody;
+        }
+      }
+    }
+  });
+
+  it('pickIndex jakautuu tasaisesti edellisen ulkopuolelle eikä siirrä sen osumaa viereiselle', () => {
+    for (const [length, previous] of [[8, 3], [8, 0], [8, 7], [16, 5], [2, 0], [5, -1]] as [number, number][]) {
+      const counts = new Array(length).fill(0);
+      const total = 12000 - (12000 % (previous >= 0 ? length - 1 : length));
+      for (let step = 0; step < total; step++) counts[pickIndex(length, previous, () => (step + 0.5) / total)]++;
+      if (previous >= 0) expect(counts[previous]).toBe(0);
+      const others = counts.filter((_, index) => index !== previous);
+      // Täysin tasainen jakauma: jokainen muu vaihtoehto saa yhtä monta osumaa (vanha toteutus kaksinkertaisti seuraavan).
+      expect(new Set(others).size, `${length}/${previous}: ${counts}`).toBe(1);
+    }
+    for (const [name, random] of oddRandoms) {
+      const index = pickIndex(8, 2, random) as number;
+      expect(Number.isInteger(index), name).toBe(true);
+      expect(index).toBeGreaterThanOrEqual(0);
+      expect(index).toBeLessThan(8);
+      expect(index, name).not.toBe(2);
+    }
+    expect(pickIndex(1, 0)).toBe(0);
+    expect(pickIndex(5, -1, () => 1)).toBe(4);
+  });
+});
+
+// ---------------------------------------------------------------------------------------------
+// K4 · Oktaavipalaute
+
+describe('K4 · sama sävelnimi eri oktaavissa', () => {
+  it('tarkennus annetaan vain, kun sävelnimi on sama mutta sävelkorkeus eri', () => {
+    expect(octaveHint('G3', 'G4')).toMatchObject({ higher: true, octaves: 1, phrase: 'oktaavia korkeampi', text: 'Oktaavia korkeampi.' });
+    expect(octaveHint('G4', 'G3')).toMatchObject({ higher: false, octaves: 1, phrase: 'oktaavia matalampi', text: 'Oktaavia matalampi.' });
+    expect(octaveHint('E3', 'E4')?.text).toBe('Oktaavia korkeampi.');
+    expect(octaveHint('E4', 'E3')?.text).toBe('Oktaavia matalampi.');
+    expect(octaveHint('D3', 'D4')?.text).toBe('Oktaavia korkeampi.');
+    expect(octaveHint('D4', 'D3')?.text).toBe('Oktaavia matalampi.');
+    // Ei tarkennusta samalle sävelelle, eri sävelnimelle eikä tyhjälle vastaukselle.
+    expect(octaveHint('G3', 'G3')).toBeNull();
+    expect(octaveHint('G3', 'A3')).toBeNull();
+    expect(octaveHint('G3', null)).toBeNull();
+    expect(octaveHint(null, 'G3')).toBeNull();
+  });
+
+  it('kaikki samannimiset sävelparit: suunta ja oktaaviluku johdetaan sävelkorkeudesta', () => {
+    const ids = Object.keys(notes);
+    const pairs = ids.flatMap(a => ids.filter(b => a !== b).map(b => [a, b] as const));
+    const sameName = pairs.filter(([a, b]) => notes[a].name === notes[b].name);
+    expect(sameName.length).toBeGreaterThan(0);
+    for (const [a, b] of pairs) {
+      const hint = octaveHint(a, b);
+      if (notes[a].name !== notes[b].name) {
+        expect(hint, `${a}→${b}`).toBeNull();
+      } else {
+        const difference = notes[b].midi - notes[a].midi;
+        expect(Math.abs(difference % 12), `${a}→${b}`).toBe(0);
+        expect(hint!.higher).toBe(difference > 0);
+        expect(hint!.octaves).toBe(Math.abs(difference) / 12);
+        expect(hint!.text).toMatch(/^(Oktaavia|Kaksi oktaavia) (korkeampi|matalampi)\.$/);
+      }
+    }
+    // Pelkästään sävelkorkeus ratkaisee oikeellisuuden: G3 ja G4 ovat eri vastaukset.
+    expect(checkEcho(['G3'], ['G4']).correct).toBe(false);
+    expect(checkEcho(['E3', 'G3'], ['E4', 'G3']).steps.map((step: { ok: boolean }) => step.ok)).toEqual([false, true]);
+  });
+
+  it('kaikissa sävelvarastoissa samannimiset sävelet erottuvat kielen ja nauhan paikasta', () => {
+    for (const pool of Object.values(POOLS) as string[][]) {
+      const byName = new Map<string, string[]>();
+      for (const id of pool) byName.set(notes[id].name, [...(byName.get(notes[id].name) ?? []), id]);
+      for (const ids of byName.values()) {
+        expect(new Set(ids.map(id => position(id))).size, ids.join()).toBe(ids.length);
+        for (const id of ids) for (const other of ids) if (id !== other) expect(octaveHint(id, other)).not.toBeNull();
+      }
+    }
+    expect([position('G3'), position('G4')]).toEqual(['G-kieli, vapaa', 'ohut e-kieli, 3. nauha']);
+    expect([position('E3'), position('E4')]).toEqual(['D-kieli, 2. nauha', 'ohut e-kieli, vapaa']);
+  });
+
+  it('yhteenvetopalaute kertoo oktaaviero vain silloin, kun se on tarpeen', () => {
+    const motif = ['G3', 'A3', 'B3'];
+    expect(echoFeedback(motif, ['G4', 'A3', 'B3'])).toBe('2/3 oikein. Yhdessä sävelessä oli eroa. Sävelnimi oli oikein, mutta oktaavi eri.');
+    expect(echoFeedback(motif, ['G4', 'B3', 'B3'])).toBe('1/3 oikein. Kahdessa sävelessä oli eroa. Osassa sävelnimi oli oikein, mutta oktaavi eri.');
+    expect(echoFeedback(['G3', 'E3', 'B3'], ['G4', 'E4', 'B3'])).toBe('1/3 oikein. Kahdessa sävelessä oli eroa. Sävelnimet olivat oikein, mutta oktaavit eri.');
+    // Tavallinen virhe ilman samaa sävelnimeä ei saa oktaavimainintaa.
+    expect(echoFeedback(motif, ['A3', 'A3', 'B3'])).toBe('2/3 oikein. Yhdessä sävelessä oli eroa.');
+    expect(echoFeedback(motif, motif)).toBe('Oikein! G → A → B. Soita sama oikealla kitaralla.');
+  });
+});
+
+// ---------------------------------------------------------------------------------------------
+// K5 · Vastausketju ja kuultu ääni
+
+describe('K5 · vastausketjuun kirjautuu vain kuultu sävel', () => {
+  it('painallus ei kirjaudu ennen vahvistusta; vahvistettu sävel kirjautuu', () => {
+    const chain = createEchoChain(3);
+    const ticket = chain.press('G3');
+    expect(chain.notes).toEqual([]);
+    expect(chain.count).toBe(0);
+    expect(chain.confirm(ticket)).toBe(true);
+    expect(chain.notes).toEqual(['G3']);
+    expect(chain.count).toBe(1);
+  });
+
+  it('keskeytynyt painallus (uusi painallus ennen vahvistusta) ei kirjaudu, vaikka vahvistus tulisi myöhässä', () => {
+    const chain = createEchoChain(3);
+    const first = chain.press('B3'); // lataus kesken
+    const second = chain.press('C4'); // seuraava painallus keskeyttää edellisen
+    expect(chain.confirm(second)).toBe(true);
+    expect(chain.confirm(first)).toBe(false); // myöhässä saapunut vanha tapahtuma
+    expect(chain.notes).toEqual(['C4']);
+    expect(chain.count).toBe(1);
+  });
+
+  it('järjestys säilyy: vanhempi vahvistus ei mene uudemman edelle eikä kirjaudu kahdesti', () => {
+    const chain = createEchoChain(3);
+    const a = chain.press('G3');
+    expect(chain.confirm(a)).toBe(true);
+    expect(chain.confirm(a)).toBe(false);
+    const b = chain.press('A3');
+    const c = chain.press('B3');
+    expect(chain.confirm(c)).toBe(true);
+    expect(chain.confirm(b)).toBe(false);
+    expect(chain.notes).toEqual(['G3', 'B3']);
+  });
+
+  it('vain viimeisimmät N sävelt säilyvät ja vapaa tapailu jatkuu', () => {
+    const chain = createEchoChain(3);
+    for (const id of ['D3', 'G3', 'A3', 'B3', 'D4']) chain.confirm(chain.press(id));
+    expect(chain.notes).toEqual(['A3', 'B3', 'D4']);
+    expect(chain.count).toBe(5);
+    chain.reset(4);
+    for (const id of ['G3', 'A3', 'B3', 'C4', 'D4']) chain.confirm(chain.press(id));
+    expect(chain.notes).toEqual(['A3', 'B3', 'C4', 'D4']);
+  });
+
+  it('vanhentunut tapahtuma ei pääse uuden tehtävän vastausketjuun', () => {
+    const chain = createEchoChain(3);
+    const stale = chain.press('G3');
+    chain.reset(3);
+    expect(chain.confirm(stale)).toBe(false);
+    expect(chain.notes).toEqual([]);
+    expect(chain.count).toBe(0);
+    // Uuden tehtävän oma painallus kirjautuu normaalisti, vaikka sen tiketin numero olisi sama kuin vanhan.
+    const fresh = chain.press('A3');
+    expect(chain.confirm(stale)).toBe(false);
+    expect(chain.confirm(fresh)).toBe(true);
+    expect(chain.notes).toEqual(['A3']);
+  });
+
+  it('tarkistuksen jälkeen ketju lukittuu: vahvistukset eivät muuta tarkistettua vastausta', () => {
+    const chain = createEchoChain(3);
+    for (const id of ['G3', 'A3', 'B3']) chain.confirm(chain.press(id));
+    const late = chain.press('C4');
+    chain.lock();
+    expect(chain.confirm(late)).toBe(false);
+    expect(chain.notes).toEqual(['G3', 'A3', 'B3']);
+    chain.reset(3);
+    expect(chain.confirm(chain.press('D4'))).toBe(true);
+  });
+
+  it('sävel katsotaan kuulluksi vasta lyhyen kuuluvan ajan jälkeen; napautus alkaa nopeasti', () => {
+    // Näyte vaimenee 25 ms:ssa pysäytyksestä ja vahvistuu 12 ms:ssa; kuultu = vähintään tämän verran soinut.
+    expect(AUDIBLE_AFTER).toBeGreaterThanOrEqual(0.04);
+    expect(AUDIBLE_AFTER).toBeLessThan(0.15);
+    expect(TAP_LEAD).toBeLessThan(0.1);
+    expect(TAP_LEAD).toBeGreaterThan(0);
   });
 });
