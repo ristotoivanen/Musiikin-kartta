@@ -1,6 +1,6 @@
 # Uusintakatselmointi – PR #205 auditointikorjaukset
 
-Pohja: riippumaton auditointi 24.11.2026 (muuttamaton, `auditointi-2026-11-24-2308/`). Korjauscommit `1414ffe`, kuuntelukoesivu `6248930` (HEAD). Beta ennallaan `794d203`.
+Pohja: [riippumaton auditointi 24.11.2026](../auditointi-2026-11-24-2308/raportti.md), arkistoitu alkuperäisessä muodossa. Korjauscommit `1414ffe`, kuuntelukoesivu `6248930` (HEAD). Beta ennallaan `794d203`.
 
 ## Löydösten tila
 
@@ -36,7 +36,7 @@ Menetelmä: sama synteesi ja kaavat kuin `savelnimet-aanet.js`, näytteet M4A:st
 
 Tulkinta: leikkautumista ei ole (huiput ≤ −16 dBFS). Lopetus-D:n −0,2 dB johtuu täysalueisesta RMS:stä, jossa D2-basso hallitsee; puhelinkaiutinsuodatuksella lopetus on +11,7 dB komppia voimakkaampi, eli kyse ei ole teknisestä virheestä. Melodian keskimmäinen nuotti on eri vaihtoehdoissa 4,2–6,3 dB (täysi), 13–16 dB (puhelin) komppia voimakkaampi. Koko miksaus on hiljainen (RMS −31…−38 dBFS); se on mahdollinen oikea ongelma vain kuulokokeen perusteella. **Miksausta ei muutettu.** Kuulonvaraista arviota en ole tehnyt.
 
-Valmisteltu kuuntelukoe: `testit/savelnimet-miksaus/` (A nykyinen, B kaikki +6 dB, C lopetus-D +4 dB, D komppi +3 dB, sekä riffi- ja melodiavaihtoehdot). Sivu on väliaikainen ja erillisessä commitissa `6248930`.
+Uusintakatselmointia varten valmisteltiin kuuntelukoe (A nykyinen, B kaikki +6 dB, C lopetus-D +4 dB, D komppi +3 dB sekä riffi- ja melodiavaihtoehdot). Koesivun historiallinen versio on commitissa `6248930`. Sivu poistettiin viimeistelyssä.
 
 ## Testitulokset (HEAD `6248930`, koodi = `1414ffe`)
 
@@ -52,16 +52,34 @@ Valmisteltu kuuntelukoe: `testit/savelnimet-miksaus/` (A nykyinen, B kaikki +6 d
 | iPhone 16 Pro -simulaattori (iOS 27.2 Safari, paikallinen palvelin) | kaksoisnapautus kaikissa kolmessa harjoituksessa, nopeat toistuvat painallukset, riffivalinnat, tilarivin ilmestyminen, sulkeminen kesken toiston, uudelleenavaus, tumma teema, vaaka. Keskittymistila/paluu: ei ajettu uudelleen simulaattorissa (E2E-testi läpi, muuttumaton koodi). Nipistyszoomausta ei voitu ohjata simulaattorilla – tarkistettu vain säännöin. Pienempi iPhone ei ollut turvallisesti vapaana |
 | VoiceOver / Android / fyysinen iPhone | ei tehty |
 
-Kuvakaappaukset: `kuvakaappaukset/`; ennen-kuvat `../auditointi-2026-11-24-2308/kuvakaappaukset/`.
+Uusintakatselmoinnin kuvakaappaukset ovat kansiossa `kuvakaappaukset/`. Ennen-kuvat säilyvät alkuperäisen auditoinnin paikallisessa aineistossa.
 
 ## Rinnakkaiset PR:t
 
 Beta `794d203` ennallaan. `git merge-tree`: HEAD + beta ei konfliktia; #178 (b6ff787) ja #179 (97a49fe) konfliktoivat yhä vain `rakenna.py`:ssä (ei uusia tiedostoja konfliktissa korjausten takia). #110 (eed5e7e) ennallaan: viisi konfliktia, jotka ovat betassa. Korjaukset eivät koske generaattoria tai yhteistä tyyliä. Mitään ei yhdistetty eikä rebasettu.
 
-## Avoimet asiat omistajalle
+## Uusintakatselmoinnin avoimet asiat ennen puhelinkoetta
 
 1. Kuuntelukoe (miksaus A–D) fyysisellä iPhonella; päätös miksausmuutoksesta.
 2. Yhteisen `touch-action`-korjauksen erillinen PR.
 3. `practice.spec.ts:89`:n korjaus omana tehtävänään (issueta ei löytynyt; ei luotu uutta).
 4. Kuuntelukoesivun poisto ennen betaa.
 5. Fyysinen iPhone, Android, VoiceOver, oikea kitara.
+
+
+## Omistajan puhelinkoe ja viimeistelyn päätös 25.11.2026
+
+**Omistajan puhelinkoe hyväksytty.** Omistaja raportoi, että korjatussa toteutuksessa kaikki kolme Ydinopintoa, kuuntelut, melodia- ja riffiharjoitukset sekä mobiilikäytettävyys toimivat hyvin fyysisellä puhelimella. Puhelimen mallia, käyttöjärjestelmää, selainversiota ja äänireittiä ei yksilöity. Tämän perusteella **SN-04-N03 on käsitelty**. Hyväksytty miksaus säilytetään ja väliaikainen kuuntelukoesivu on poistettu. Oppituntisisältö, harjoitussovellus ja äänitiedostot ovat samat kuin viimeistelyn lähtöcommitissa `4c43124`.
+
+| Auditoinnin havainto | Lopputila PR #205:ssä |
+| --- | --- |
+| SN-01–SN-03 | Korjattu Sävelnimet-aiheessa. Kaksoisnapautuksen zoom, kosketuskohteen molemmat mitat ja tilarivin vakaus on katettu uusintakatselmoinnissa. Muiden aiheiden yhteinen zoom-korjaus on erillinen. |
+| SN-04 | Omistaja hyväksyi kuuntelun fyysisellä puhelimella. Nykyinen miksaus on hyväksytty. |
+| SN-05–SN-07 | Aiemmat tekstikorjaukset on tarkistettu ja säilytetty. |
+| SN-08 sekä yhteinen otsikkorakenne | Kokeiltu-kuvakkeen löydettävyys on käyttäjätestausidea ja otsikkohierarkia yhteisen komponentin havainto. Molemmat jäävät tämän aiheen rajauksen ulkopuolelle. |
+| SN-09 | Vanhat tallennustunnisteet säilyvät. Testiportti ja Ensikeikan koontitiedoston hash ovat dokumentoituja teknisiä sivuhavaintoja. |
+| SN-10 | Betalla toistuva Kitaraharjoittelijan epävakaa Opettele-testi jää erilliseen työhön. |
+
+VoiceOveria, Android/Chromea, TalkBackia eikä erillisiä kokeita oikealla kitaralla ole todennettu. Myös puhelimen lukitus ja taustalta paluu sekä kattava numeerinen kontrastimittaus jäävät avoimiksi. Omistajan puhelinkoe ei yksilöinyt näitä kokeita.
+
+**Suositus on hyväksyä #205 betaan omistajan erillisellä yhdistämisluvalla**, kun viimeistelyn regressiot ja ajantasaisen betan yhteensopivuus on todettu. Androidin ja VoiceOverin kokeet jäävät avoimeksi ennen tuotantohyväksyntää. Erillinen kitarakoe täydentää näyttöä soittokokeiluista.
