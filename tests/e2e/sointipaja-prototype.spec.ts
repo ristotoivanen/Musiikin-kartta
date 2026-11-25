@@ -250,7 +250,7 @@ test('root choice alone is neutral, wrong chord remains marked after switching r
   await expect(roots.locator('[aria-pressed="true"]')).toHaveCount(0);
 });
 
-test('root and chord choices have usable equal widths on desktop and mobile', async ({ page }) => {
+test('root choices have equal widths and chord choices usable touch targets on desktop and mobile', async ({ page }) => {
   await page.getByRole('button', {name:/Taso 2 ·/}).click();
   const roots=page.locator('#roots');
   const answers=page.locator('#answers');
@@ -267,7 +267,8 @@ test('root and chord choices have usable equal widths on desktop and mobile', as
       for(const size of sizes){
         expect(size.width).toBeGreaterThanOrEqual(44);
         expect(size.height).toBeGreaterThanOrEqual(48);
-        expect(size.width).toBeCloseTo(sizes[0].width,0);
+        // Perussävelet ovat samanlevyisiä; sointujen leveys mukautuu nimen pituuteen (ei ylivuotoa).
+        if(group===roots)expect(size.width).toBeCloseTo(sizes[0].width,0);
       }
     }
     expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
