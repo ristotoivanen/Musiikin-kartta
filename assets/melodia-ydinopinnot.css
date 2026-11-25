@@ -129,6 +129,7 @@
 }
 .melodia-vertailu-nro { color: var(--muted); font-size: .72rem; font-weight: 700; }
 .melodia-kuului strong, .melodia-sina strong { font-size: 1.1rem; }
+.melodia-kuului { display: grid; justify-items: center; gap: .05rem; }
 .melodia-sina { display: grid; justify-items: center; gap: .05rem; padding-top: .2rem; border-top: 1px solid var(--line); }
 .melodia-pieni-teksti { max-width: 8.5rem; color: var(--muted); font-size: .7rem; overflow-wrap: anywhere; }
 /* Oktaavitarkennus näkyy vain kortilla, jossa sama sävelnimi oli eri oktaavissa. */

@@ -861,7 +861,11 @@ test.describe('K4 · sama sävelnimi eri oktaavissa', () => {
     expect((await labels(p.cards))[at]).toBe(expected);
     // Näkyvä tarkennus vain tällä kortilla: kuultu paikka, oma paikka ja oktaavi.
     const card = p.cards.nth(at);
-    await expect(card.locator('.melodia-kuului')).toContainText(`G${melodia.position(third[at]).charAt(0).toUpperCase()}${melodia.position(third[at]).slice(1)}`);
+    const capital = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+    // Nimi ja paikka ovat omilla riveillään (ei "GG-kieli" -yhdistelmää).
+    await expect(card.locator('.melodia-kuului strong')).toHaveText('G');
+    await expect(card.locator('.melodia-kuului .melodia-pieni-teksti')).toHaveText(capital(melodia.position(third[at])));
+    expect(await card.locator('.melodia-kuului').evaluate(node => getComputedStyle(node).display)).toBe('grid');
     await expect(card.locator('.melodia-sina')).toContainText(melodia.position(swapped).charAt(0).toUpperCase() + melodia.position(swapped).slice(1));
     await expect(card.locator('.melodia-oktaavi')).toHaveText(`Oktaavia ${higher ? 'korkeampi' : 'matalampi'}.`);
     await expect(card.locator('.melodia-sina .melodia-merkki')).toHaveText('✗');
