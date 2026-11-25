@@ -864,6 +864,16 @@ function syncGame(){
   return state;
 }
 function canPlayGame(){return syncGame()?.phase==='playing';}
+const lockMessage=()=>'Väärin. Valinnat lukittu '+gameConfig.penalty+' sekunniksi. Yritä samaa sointua uudelleen lukituksen jälkeen.';
+// Varaa palautealueelle pisimmän viestin (lukitusviesti) korkeus nykyisellä fontilla ja leveydellä,
+// jotta rivitys (2 tai 3 riviä) ei siirrä otelautaa tai vastauksia lukituksen alkaessa ja päättyessä.
+function reserveGameFeedback(){
+  const f=byId('challenge-feedback'),keep=f.textContent;
+  f.style.minHeight='';f.textContent=lockMessage();
+  const need=f.offsetHeight;
+  f.textContent=keep;f.style.minHeight=need+'px';
+}
+window.addEventListener('resize',()=>{if(inGame())reserveGameFeedback();});
 function submitGame(name){
   if(!canPlayGame()||rootLetter(name)!==rootChoice||!gameOptions.includes(name))return;
   const outcome=game.submit(name,gameNow());
@@ -877,7 +887,7 @@ function submitGame(name){
   }else{
     wrong=new Set(state.wrong);lastLock=true;
     updateAnswers();displayGameState(state);
-    byId('challenge-feedback').textContent='Väärin. Valinnat lukittu '+gameConfig.penalty+' sekunniksi. Yritä samaa sointua uudelleen lukituksen jälkeen.';
+    byId('challenge-feedback').textContent=lockMessage();
   }
 }
 function startChallenge(config){
@@ -889,6 +899,7 @@ function startChallenge(config){
   setChallengeView('play');
   byId('challenge-progress').max=config.duration;
   byId('challenge-feedback').textContent='Peli alkoi.';
+  reserveGameFeedback();
   // Ensimmäinen ote näkyy ennen kuin ajastimen ensimmäinen päivitys suoritetaan.
   game=challengeModel.createGame({pool:gameOptions,duration:config.duration,penalty:config.penalty,now:gameNow(),orderFor});
   renderGameQuestion(game.state(gameNow()));

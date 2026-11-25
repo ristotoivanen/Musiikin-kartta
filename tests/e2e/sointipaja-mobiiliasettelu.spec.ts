@@ -108,7 +108,9 @@ test('Seuraava palauttaa uuden tehtävän näkyviin, vaikka sivu olisi vieritett
   expect((await box(page, '#next'))!.bottom).toBeLessThanOrEqual(VIEW.height);
 });
 
-test('Sointuhaaste: virheen neljän sekunnin lukitus ei siirrä otelautaa, perussäveliä tai sointuja', async ({ page }) => {
+// Toinen arvo simuloi leveämpää fonttia (esim. CI:n Linux-fontti), jolla lukitusviesti rivittyy kolmelle riville.
+for (const letterSpacing of ['0', '0.08em']) test('Sointuhaaste: virheen neljän sekunnin lukitus ei siirrä otelautaa, perussäveliä tai sointuja (kirjainväli ' + letterSpacing + ')', async ({ page }) => {
+  await page.addStyleTag({ content: 'body{letter-spacing:' + letterSpacing + '}' });
   await page.clock.install();
   await page.locator('#mode-challenge').click();
   await page.locator('#challenge-duration').selectOption('60');
