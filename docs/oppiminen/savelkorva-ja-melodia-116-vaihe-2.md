@@ -1,7 +1,7 @@
 # #116, vaihe 2: Sävelkorva ja melodia – inventaario ja Ydinopinnot
 
 **Tila:** KATSELMOITAVA TOTEUTUS (Draft-PR). Ei omistajan pedagogista hyväksyntää, beta-yhdistämistä eikä julkaisua.
-**Päiväys:** 25.11.2026, versio 2.2 (korjaukset K1–K6 versiolla 2.1 tehdyn auditoinnin jälkeen; versio 2.1 23.11.2026, pedagogisen auditoinnin ja omistajan käyttäjätestin jälkeen). **Lähtö-SHA:** `beta` @ `454aee5882346c1834a41ee6f786c6195680cb06`.
+**Päiväys:** 26.11.2026, versio 2.3 (loppukorjaukset K7–K9; versio 2.2 25.11.2026, korjaukset K1–K6 versiolla 2.1 tehdyn auditoinnin jälkeen; versio 2.1 23.11.2026, pedagogisen auditoinnin ja omistajan käyttäjätestin jälkeen). **Lähtö-SHA:** `beta` @ `454aee5882346c1834a41ee6f786c6195680cb06`.
 **Haara:** `claude/116-savelkorva-ydinopinnot`.
 **Lähteet:** [#116](https://github.com/ristotoivanen/Musiikin-kartta/issues/116) ja sen omistajakommentit 19.–23.11.2026, [#115](https://github.com/ristotoivanen/Musiikin-kartta/issues/115), avoimen Draft-PR:n [#146](https://github.com/ristotoivanen/Musiikin-kartta/pull/146) inventaarioehdotus (`docs/oppiminen/sisaltoinventaario-115-2026-11-21.md`, ei betassa), [suunnittelu- ja PR-katselmointiohje](../suunnittelu/suunnittelu-ja-pr-katselmointi.md), Rytmin ja Sointujen hyväksytty Ydinopinnot-toteutus betassa.
 
@@ -73,7 +73,7 @@ Ydinopinnot on omistajan 20.11. linjauksen mukaan lyhyt, opettava poikkileikkaus
 | **Esimerkit** | Sääntöpohjainen generaattori: tasolla 1 kolme säveltä ilman puoliaskelia, tasolla 2 neljä säveltä puoliaskelineen (B–C, F♯–G), tasolla 3 viisi säveltä sointusävelellä päättyen. Lähtösävel vaihtelee (G3–G4). Otoksessa 170 / 600 / 900 erilaista melodiaa. | 8 käsin kirjoitettua G-duurimelodiaa, kullakin koti-loppu (G) ja kesken-loppu (A, C, D tai F♯), 16 kierrosta (järjestys vaihtelee). Taso 1: matala G tukiäänenä; taso 2: ilman tukiääntä. | Generaattori: taso 1 kolme säveltä vapaalta G-kieleltä (5 paikkaa G/B), taso 2 kolme säveltä vaihtuvalla lähtösävelellä (8 paikkaa G/B/e), taso 3 neljä ja taso 4 viisi säveltä (10 paikkaa D/G/B/e). |
 | **Tehtävä** | Merkitse vaihdot ↑ / ↓ / = -näppäimillä (⌫ poistaa), Tarkista ilmestyy, kun kaikki on merkitty. | Kuuntele molemmat (soiva loppu korostuu), valitse Loppu 1 tai 2. Erikseen ▶ 1, ▶ 2 ja ▶ Kotisävel G. | Tapaile otelautaruudukossa (ohuin kieli ylimpänä kuten tabulatuurissa); viimeksi soitetut sävelet tarkistetaan. Vaihtoehtoisesti: soita oikealla kitaralla ja paina ”Soitin kitaralla – näytä ratkaisu”. |
 | **Palaute** | Lyhyt: ”Oikein! ↑ ↓ =” tai ”2/4 oikein. Vaihto 2: kuului ↓ alas, vastasit ↑ ylös.” Melodian muoto korkeuseroina ja nuolina, virhekohta ✗:llä. Sävelnimet ja kitaran paikat avattavissa. | **Versiosta 2.2 vertaileva:** ”Loppu 1 oli sinun valintasi. Loppu 2 palaa G:hen, melodian suunniteltuun kotisäveleen. … Kuuntele vielä, miten loput eroavat toisistaan.” Ei oikein/väärin-merkintöjä. Molempien loppujen sävelet. | ”3/4 oikein. Sävel 3: kuului A, soitit B.” Kulku kitaran paikkoina, virheellinen sävel ✗:llä. |
-| **Vaikeus** | Kaksi peräkkäistä oikeaa → seuraava taso; kaksi peräkkäistä virhettä → edellinen. Ei pisteitä, ei lukkoja; ensimmäinen tehtävä on aina helpoin. | **Versiosta 2.2:** ei arviointia. Kaksi ensimmäistä tarkistettua vertailua tukiäänellä, sen jälkeen ilman (ks. v2.2). | Sama kuin 01; ”näytä ratkaisu” ei vaikuta tasoon. |
+| **Vaikeus** | Kaksi peräkkäistä oikeaa → seuraava taso; kaksi peräkkäistä virhettä → edellinen. Ei pisteitä, ei lukkoja; ensimmäinen tehtävä on aina helpoin. | **Versiosta 2.2:** ei arviointia. Kaksi ensimmäistä tarkistettua vertailua tukiäänellä, sen jälkeen ilman (ks. v2.2); versiosta 2.3 tila lukitaan tehtävän alussa (K8). | Sama kuin 01; ”näytä ratkaisu” ei vaikuta tasoon. |
 | **Soveltaminen** | ⓘ askel/hyppy kitaralla. | ⓘ F♯→G kitaralla. | Oikean kitaran polku ja ⓘ Riffikaiku. |
 
 **Kaikissa:** vain Kuuntele näkyy aluksi; tehtävä ilmestyy, kun ääni on alkanut soida. Sama painike pysäyttää (■ Pysäytä). Seuraava arpoo uuden tehtävän (ei sama kahdesti peräkkäin) ja soittaa sen heti saman painalluksen aikana. Vastaus pysyy vain JavaScriptin muistissa ennen tarkistusta. Vastauksen jälkeen valinnat lukitaan `aria-disabled`-tilaan, jotta näppäimistöfokus ei putoa. Tavallinen soitto ei tuota tilaviestejä; vain lataus (jos kestää), keskeytys ja virheet kerrotaan.
@@ -135,6 +135,35 @@ Yhteinen kulku kaikissa: **Kuuntele → kokeile tai valitse → Tarkista → pal
 6. Sivustonlaajuinen kaksoisnapautuszoom (muiden sivujen painikkeet ja linkit ilman `touch-action: manipulation`) on kirjattu **erilliseksi jatkokehitystarpeeksi**; tässä PR:ssä sitä ei laajennettu.
 
 **PR #179:n yhteensopivuus:** `git merge-tree` PR #178 (v2.2) ↔ PR #179 (`97a49fe`): sama viisi tekstimuotoista ristiriitaa kuin ennen v2.2:ta (`tests/e2e/aihelista.spec.ts`, `aihesivut.spec.ts`, `lukumerkinnat.spec.ts`, `tests/oppimiskartta-kokonaisuudet.test.ts`, `tools/oppimiskartta/rakenna.py`). v2.2:n omat muutokset eivät koske yhtään PR #179:n tiedostoa, joten ristiriitoja ei tullut lisää eikä semanttisia ristiriitoja havaittu. Ristiriitoja ei ratkaistu, eikä PR #179:ää muutettu.
+
+### Versio 2.3: loppukorjaukset K7–K9 (26.11.)
+
+**Lähtö:** PR #178 @ `5df1558`. Rajattu korjauskierros: ei muutoksia melodiapareihin, vapaaseen tapailuun, vaikeustasoihin, käyttöliittymän rakenteeseen, yhteiseen äänimoottoriin eikä PR #179:ään.
+
+| | Havainto | Korjaus |
+|---|---|---|
+| **K7** | 03:n Tarkista saattoi arvioida vanhan vastausketjun, kun viimeisin painallus odotti vielä äänen vahvistusta. | Ketju tietää odotuksen (`createEchoChain.pending`). Tarkista on odotuksen ajan `aria-disabled` (fokus säilyy), ja käsittelijäkin torjuu painalluksen. Odotus päättyy vahvistukseen tai siihen, että **juuri sen** toisto päättyy kuulumatta (`settle`: keskeytys, latausvirhe, aikakatkaisu); vanhempi tapahtuma ei vapauta uudemman lukitusta. Ruudunlukijalle painikkeen kuvaus ”Odottaa, että viimeksi soitettu sävel ehtii kuulua.” ilman erillisiä kuulutuksia. Himmennys näkyy vasta, jos odotus kestää yli 0,25 s. Tapailua ei rajoiteta, eikä 50 ms:n vahvistusraja muuttunut. |
+| **K8** | 02:n tukiääni hävisi heti toisen vertailun tarkistamisen jälkeen, vaikka infoteksti väitti sen soivan (auditoinnin SK-AUD-013, vahvistettu Web Audio -tapahtumista). | Kuunteluolosuhde lukitaan uuden tehtävän alussa ja sama arvo ohjaa sekä infotekstiä että molempien loppujen ja ”Kuuntele molemmat” -toiston ajastusta. Kaksi ensimmäistä tehtävää tukiäänellä, kolmas ilman; eteneminen ei riipu valitusta lopusta. |
+| **K9** | 02:n vertaileva palaute näytettiin onnistumisen vihreällä. | Palaute on neutraali (`is-neutraali`, aiheen perustekstiväri). ”✓ valittu”, ”▶ soi”, ”palaa G:hen” ja palauteteksti ennallaan. 01:n ja 03:n oikeellisuusvärit ennallaan. |
+
+**Muutetut tiedostot (v2.3):** `assets/melodia-ydinopinnot.js`, `assets/melodia-ydinopinnot.css`, generoidut `oppi/korva/*.html` (versiotunnisteet), `tests/melodia-ydinopinnot.test.ts`, `tests/e2e/savelkorva-ydinopinnot.spec.ts`, tämä dokumentti.
+
+**Uudet testit:** Vitest: odotustilan asettuminen ja vapautuminen, vanhentunut tiketti, uusi tehtävä ja lukitus. Playwright: nopea tarkistus, hidas lataus (fokus ja kuvaus), keskeytys, latausvirhe, 12 s aikakatkaisu, vanhempi vs. uudempi painallus, tehtävän vaihtuminen, tukiäänen säilyminen kolmen tehtävän yli (ajastettujen lähteiden määrä) ja neutraali väri. v2.2:n testi ”Tarkista arvioi näkyvän ketjun, vaikka seuraava sävel on latautumassa” kuvasi nyt korjatun käytöksen ja korvattiin K7-testeillä. Vastakoe: vanhaa lähdekoodia vastaan 8/9 uudesta Playwright-testistä kaatuu (latausvirhetesti läpäisee, koska vanha koodi ei lukinnut mitään).
+
+**Testitulokset (v2.3, paikallinen macOS):**
+
+| Komento / ajo | Tulos |
+|---|---|
+| `npm run check` | OK; Vitest 44 tiedostoa, 771 testiä läpi |
+| `npx vitest run tests/melodia-ydinopinnot.test.ts` | 77 läpi |
+| `npx playwright test tests/e2e/savelkorva-ydinopinnot.spec.ts` (Chromium: desktop + phone-emulaatio) | 75 läpi, 3 ohitettu |
+| `npx playwright test --config=playwright.savelkorva-116-webkit.config.ts` (macOS-WebKit: Desktop Safari + iPhone 13 -emulaatio, mukaan lukien Alt+Tab-näppäimistöhaara) | 75 läpi, 3 ohitettu |
+| `aihelista`, `aihesivut`, `lukumerkinnat`, `ydinopinnot-yhteinen-ui` (Chromium) | 242 läpi |
+| `rakenna.py --tarkista`, `tools/linkit/tarkista-linkit.py` | OK (120 sivua, 2959 viittausta, 0 ongelmaa) |
+
+K1–K6:n regressiotestit läpäisevät. Äänitestit todentavat Web Audio -ajastuksen, eivät kuultua ääntä.
+
+**Avoimet (v2.3):** omistajan kuuntelutesti (parit 4 ja 8), Xcode iOS Simulator ja fyysinen iPhone (mukaan lukien kaksoisnapautuszoom ja K7:n lukituksen tuntuma), VoiceOver, oikea kitara, koko `npx playwright test` -regressio, yhdistämisristiriita PR #179:n kanssa.
 
 ### Melodioiden säännöt (01 ja 03)
 
