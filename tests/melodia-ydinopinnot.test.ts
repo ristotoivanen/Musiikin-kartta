@@ -875,3 +875,58 @@ describe('K5 · vastausketjuun kirjautuu vain kuultu sävel', () => {
     expect(TAP_LEAD).toBeGreaterThan(0);
   });
 });
+
+describe('K7 · odottavan painalluksen aikana vanhaa ketjua ei tarkisteta', () => {
+  const full = () => {
+    const chain = createEchoChain(3);
+    for (const id of ['G3', 'A3', 'B3']) chain.confirm(chain.press(id));
+    return chain;
+  };
+
+  it('painallus asettaa odotuksen ja vahvistus vapauttaa sen', () => {
+    const chain = full();
+    expect(chain.pending).toBe(false);
+    const ticket = chain.press('C4');
+    expect(chain.pending).toBe(true);
+    expect(chain.notes).toEqual(['G3', 'A3', 'B3']);
+    expect(chain.confirm(ticket)).toBe(true);
+    expect(chain.pending).toBe(false);
+    expect(chain.notes).toEqual(['A3', 'B3', 'C4']);
+  });
+
+  it('kuulumatta päättynyt toisto (keskeytys, latausvirhe, aikakatkaisu) vapauttaa odotuksen eikä muuta ketjua', () => {
+    const chain = full();
+    const ticket = chain.press('C4');
+    expect(chain.settle(ticket)).toBe(true);
+    expect(chain.pending).toBe(false);
+    expect(chain.notes).toEqual(['G3', 'A3', 'B3']);
+    expect(chain.settle(ticket)).toBe(false);
+  });
+
+  it('vanhentunut tapahtuma ei vapauta uudemman painalluksen odotusta', () => {
+    const chain = full();
+    const first = chain.press('C4');
+    const second = chain.press('D4');
+    expect(chain.settle(first)).toBe(false);
+    expect(chain.confirm(first)).toBe(false);
+    expect(chain.pending).toBe(true);
+    expect(chain.confirm(second)).toBe(true);
+    expect(chain.pending).toBe(false);
+  });
+
+  it('uusi tehtävä ja tarkistus poistavat odotuksen; vanha tiketti ei koske uutta tehtävää', () => {
+    const chain = full();
+    const stale = chain.press('C4');
+    chain.reset(3);
+    expect(chain.pending).toBe(false);
+    const fresh = chain.press('G3');
+    expect(chain.settle(stale)).toBe(false);
+    expect(chain.pending).toBe(true);
+    expect(chain.settle(fresh)).toBe(true);
+    chain.press('A3');
+    chain.lock();
+    expect(chain.pending).toBe(false);
+    chain.press('B3');
+    expect(chain.pending).toBe(false);
+  });
+});

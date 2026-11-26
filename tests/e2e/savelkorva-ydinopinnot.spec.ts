@@ -600,6 +600,79 @@ test.describe('02 · Kotiin vai kesken?', () => {
   });
 });
 
+test.describe('K8 ja K9 · 02:n kuunteluolosuhde ja neutraali palaute', () => {
+  test('tukiääni säilyy koko tehtävän ajan; kolmas tehtävä alkaa ilman, valinnasta riippumatta', async ({ page }) => {
+    await recordAudio(page);
+    await seedPage(page, 22);
+    const random = mulberry(22);
+    let index = melodia.pickRound(-1, random);
+    let round = melodia.endingRound(index);
+    await page.goto('/oppi/korva/kotiin-vai-kesken.html');
+    const p = parts(page, 'koti');
+    const answers = p.section.locator('[data-loppu]');
+    // Tukiääni näkyy ajastuksissa yhtenä lisälähteenä versiota kohden.
+    const expectPlays = async (drone: boolean) => {
+      const length = round.versions[0].length;
+      await expect(p.info).toHaveText(drone ? 'Matala G soi taustalla tukiäänenä.' : 'Ilman tukiääntä.');
+      await clearLog(page);
+      await p.listen.click();
+      await scheduled(page, 2 * (length + (drone ? 1 : 0)));
+      await p.listen.click(); // pysäytä
+      await clearLog(page);
+      await answers.nth(0).click();
+      await scheduled(page, length + (drone ? 1 : 0));
+    };
+    const checkOther = async () => {
+      await answers.nth(1 - round.order.indexOf('koti')).click();
+      await p.check.click();
+    };
+    const advance = async () => {
+      index = melodia.pickRound(index, random);
+      round = melodia.endingRound(index);
+      await p.next.click();
+      // Seuraava soittaa uuden tehtävän heti: pysäytä se ennen omia mittauksia.
+      await expect(p.task).toBeVisible();
+      await p.listen.click();
+    };
+    await p.listen.click();
+    await expect(p.task).toBeVisible();
+    await p.listen.click();
+    for (const task of [1, 2]) {
+      await expectPlays(true);
+      await checkOther();
+      // Tarkistuksen jälkeen sama tehtävä soi yhä samoissa olosuhteissa.
+      await expectPlays(true);
+      if (task === 2) await expect(p.feedback).toContainText('Seuraavaksi ilman tukiääntä.');
+      await advance();
+    }
+    await expectPlays(false);
+    await checkOther();
+    await expectPlays(false);
+  });
+
+  test('vertaileva palaute on neutraali: ei onnistumisen vihreää eikä virheväriä; valinta ja G-merkintä säilyvät', async ({ page }) => {
+    await seedPage(page, 23);
+    const random = mulberry(23);
+    const round = melodia.endingRound(melodia.pickRound(-1, random));
+    await page.goto('/oppi/korva/kotiin-vai-kesken.html');
+    const p = parts(page, 'koti');
+    const answers = p.section.locator('[data-loppu]');
+    const home = round.order.indexOf('koti');
+    await p.listen.click();
+    await expect(p.task).toBeVisible();
+    await answers.nth(home).click();
+    await p.check.click();
+    await expect(p.feedback).toHaveText(melodia.endingFeedback(round, home).text);
+    await expect(p.feedback).toHaveClass(/is-neutraali/);
+    await expect(p.feedback).not.toHaveClass(/is-answered|is-error/);
+    const colors = await p.feedback.evaluate(node => ({ own: getComputedStyle(node).color, section: getComputedStyle(node.closest('.melodia-ydin')!).color }));
+    expect(colors.own).not.toBe('rgb(159, 228, 195)');
+    expect(colors.own).not.toBe('rgb(255, 224, 138)');
+    expect(colors.own).toBe(colors.section);
+    await expect(answers.nth(home).locator('[data-loppu-tila]')).toContainText('✓ valittu · palaa G:hen');
+  });
+});
+
 test.describe('03 · Kuule ja etsi kitaralta', () => {
   test('tapailu, lyhyt palaute ja Kuului/Sinä-vertailu, Näytä sävelkulku ja laajeneva sävelalue', async ({ page }) => {
     await recordAudio(page);
@@ -1033,22 +1106,130 @@ test.describe('K5 · vain kuultu sävel kirjautuu vastausketjuun', () => {
     await expect(p.status).toHaveText('');
   });
 
-  test('Tarkista arvioi näkyvän ja vahvistetun ketjun, vaikka seuraava sävel on vielä latautumassa', async ({ page }) => {
-    const { gate, first, slow, p, chain, slots, key, open } = await prepare(page, 47);
+  // K7: odottavan painalluksen aikana näkyvä ketju on vanha, joten Tarkista on lukittu.
+  const pressNow = (page: Page, id: string) =>
+    page.evaluate(note => (document.querySelector(`[data-paikka="${note}"]`) as HTMLElement).click(), id);
+  async function expectLocked(p: ReturnType<typeof parts>) {
+    await expect(p.check).toHaveAttribute('aria-disabled', 'true');
+    // Käsittelijäkin torjuu vanhan ketjun tarkistuksen, vaikka painallus pääsisi perille.
+    await p.check.dispatchEvent('click');
+    await expect(p.feedback).toHaveText('');
+    await expect(p.next).toBeHidden();
+  }
+
+  test('K7: nopea tarkistus heti painalluksen jälkeen ei arvioi vanhaa ketjua', async ({ page }) => {
+    const { first, p, chain, open, slow, gate } = await prepare(page, 47);
+    gate.release(slow);
+    await open();
+    await tap(page, melodia.POOLS.gb); // kaikki näytteet välimuistiin
+    await tap(page, first);
+    await expect(p.check).not.toHaveAttribute('aria-disabled', 'true');
+    // Painallus ja tarkistus samassa tehtävässä: vahvistus ei ole voinut ehtiä väliin.
+    const next = melodia.POOLS.gb.find((id: string) => id !== first.at(-1));
+    const during = await page.evaluate(id => {
+      (document.querySelector(`[data-paikka="${id}"]`) as HTMLElement).click();
+      const check = document.querySelector('[data-melodia-tarkista]') as HTMLElement;
+      const locked = check.getAttribute('aria-disabled');
+      check.click();
+      return { locked, feedback: document.querySelector('[data-melodia-palaute]')!.textContent };
+    }, next);
+    expect(during).toEqual({ locked: 'true', feedback: '' });
+    await expect(chain).toHaveAttribute('data-kuultu', String(melodia.POOLS.gb.length + first.length + 1));
+    await expect(p.check).not.toHaveAttribute('aria-disabled', 'true');
+    await p.check.click();
+    await expect(p.feedback).toHaveText(melodia.echoFeedback(first, [...first.slice(1), next]));
+  });
+
+  test('K7: hidas lataus lukitsee Tarkista-painikkeen, fokus ja tilatieto säilyvät, vahvistus vapauttaa', async ({ page }) => {
+    const { gate, first, slow, p, chain, open } = await prepare(page, 48);
     await open();
     await tap(page, first);
-    await expect(p.check).toBeVisible();
-    // Neljäs painallus jää lataukseen, ja Tarkista painetaan ennen sen kuulumista.
-    await key(slow).click();
+    await p.check.focus();
+    await pressNow(page, slow);
+    await expectLocked(p);
+    await expect(p.check).toBeFocused();
+    await expect(p.check).toHaveAccessibleDescription('Odottaa, että viimeksi soitettu sävel ehtii kuulua.');
+    gate.release(slow);
+    await expect(chain).toHaveAttribute('data-kuultu', String(first.length + 1));
+    await expect(p.check).not.toHaveAttribute('aria-disabled', 'true');
+    await expect(p.check).toHaveAccessibleDescription('');
+    await expect(p.check).toBeFocused();
+    await p.check.click();
+    await expect(p.feedback).toHaveText(melodia.echoFeedback(first, [...first.slice(1), slow]));
+  });
+
+  test('K7: keskeytys vapauttaa Tarkista-painikkeen, eikä myöhässä latautunut sävel muuta ketjua', async ({ page }) => {
+    const { gate, first, slow, p, chain, open } = await prepare(page, 49);
+    await open();
+    await tap(page, first);
+    await pressNow(page, slow);
+    await expectLocked(p);
+    await page.evaluate(() => window.dispatchEvent(new Event('pagehide')));
+    await expect(p.status).toHaveText('Kuuntelu keskeytyi. Voit kuunnella uudelleen.');
+    await expect(p.check).not.toHaveAttribute('aria-disabled', 'true');
+    gate.release(slow);
+    await page.waitForTimeout(500);
+    await expect(chain).toHaveAttribute('data-kuultu', String(first.length));
     await p.check.click();
     await expect(p.feedback).toHaveText(melodia.echoFeedback(first, first));
-    await expect(slots).toHaveText(first.map(id => melodia.NOTES[id].name));
+  });
+
+  test('K7: latausvirhe vapauttaa Tarkista-painikkeen aiemmin kuullulle ketjulle', async ({ page }) => {
+    const { gate, first, slow, p, open } = await prepare(page, 50);
     gate.release(slow);
-    await page.waitForTimeout(700);
-    // Tarkistuksen jälkeen myöhässä saapunut sävel ei muuta tarkistettua vastausta.
-    await expect(slots).toHaveText(first.map(id => melodia.NOTES[id].name));
-    await expect(chain).toHaveAttribute('data-kuultu', String(first.length));
-    await expect(p.yours.locator('.melodia-merkki')).toHaveText(first.map(() => '✓'));
+    gate.fail(slow);
+    await open();
+    await tap(page, first);
+    await pressNow(page, slow);
+    await expect(p.status).toHaveText('Ääniä ei voitu ladata. Kokeile uudelleen.');
+    await expect(p.check).not.toHaveAttribute('aria-disabled', 'true');
+    await p.check.click();
+    await expect(p.feedback).toHaveText(melodia.echoFeedback(first, first));
+  });
+
+  test('K7: latauksen aikakatkaisu vapauttaa Tarkista-painikkeen', async ({ page }) => {
+    const { first, slow, p, open } = await prepare(page, 51);
+    await open();
+    await tap(page, first);
+    await pressNow(page, slow);
+    await expectLocked(p);
+    await expect(p.status).toHaveText('Äänen käynnistys kesti liian kauan. Kokeile uudelleen.', { timeout: 15000 });
+    await expect(p.check).not.toHaveAttribute('aria-disabled', 'true');
+  });
+
+  test('K7: vanhempi painallus ei vapauta uudemman lukitusta', async ({ page }) => {
+    const { gate, first, slow, p, chain, open } = await prepare(page, 52);
+    const second: string = melodia.POOLS.gb.find((id: string) => !first.includes(id) && id !== slow)!;
+    expect(second).toBeTruthy();
+    gate.hold(second);
+    await open();
+    await tap(page, first);
+    await pressNow(page, slow);
+    await pressNow(page, second);
+    await expectLocked(p);
+    gate.release(slow);
+    await page.waitForTimeout(500);
+    await expectLocked(p);
+    gate.release(second);
+    await expect(chain).toHaveAttribute('data-kuultu', String(first.length + 1));
+    await expect(p.check).not.toHaveAttribute('aria-disabled', 'true');
+  });
+
+  test('K7: tehtävän vaihtuminen odotuksen aikana: uuden tehtävän Tarkista toimii omasta ketjustaan', async ({ page }) => {
+    const { gate, first, slow, p, chain, open } = await prepare(page, 53);
+    await open();
+    await tap(page, first);
+    await pressNow(page, slow);
+    await expectLocked(p);
+    await p.section.getByRole('button', { name: 'Näytä sävelkulku' }).click();
+    await p.next.click();
+    gate.release(slow);
+    await expect(p.task).toBeVisible();
+    await expect(chain).toHaveAttribute('data-kuultu', '0');
+    await expect(p.check).toBeHidden();
+    await tap(page, ['G3', 'A3', 'B3']);
+    await expect(p.check).toBeVisible();
+    await expect(p.check).not.toHaveAttribute('aria-disabled', 'true');
   });
 
   test('esilataus alkaa vasta käyttäjän eleestä, hyödyntää näytevälimuistia eikä lataa samaa näytettä kahdesti', async ({ page }) => {
