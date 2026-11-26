@@ -403,13 +403,16 @@ export function echoFeedback(motif, chosen) {
 // Painallus saa ensin tiketin (press); se vahvistetaan (confirm) vasta, kun soitin on todennut
 // äänen alkaneen. Vanhentunut tiketti ei kirjaudu: uusi painallus mitätöi aiemmat, uusi tehtävä
 // (reset) mitätöi kaikki ja tarkistuksen jälkeen (lock) ketju ei enää muutu. Vahvistukset
-// hyväksytään vain painallusjärjestyksessä.
+// hyväksytään vain painallusjärjestyksessä. pending = viimeisin painallus odottaa vielä: sen aikana
+// näkyvä ketju on vanha, joten sitä ei saa tarkistaa. Odotus päättyy vahvistukseen tai siihen, että
+// juuri sen toisto päättyy kuulumatta (settle); vanhempi tiketti ei vapauta uudemman odotusta.
 export function createEchoChain(size = 3) {
   let generation = 0;
   let pressed = 0;
   let confirmed = 0;
   let total = 0;
   let locked = false;
+  let waiting = false;
   let notes = [];
   let width = size;
   return {
@@ -419,18 +422,34 @@ export function createEchoChain(size = 3) {
       confirmed = 0;
       total = 0;
       locked = false;
+      waiting = false;
       notes = [];
       width = nextSize;
     },
-    lock() { locked = true; },
-    press(id) { return { generation, serial: ++pressed, id }; },
+    lock() {
+      locked = true;
+      waiting = false;
+    },
+    press(id) {
+      waiting = !locked;
+      return { generation, serial: ++pressed, id };
+    },
     confirm(ticket) {
       if (locked || ticket.generation !== generation || ticket.serial <= confirmed || ticket.serial !== pressed) return false;
       confirmed = ticket.serial;
+      waiting = false;
       total++;
       notes = recentNotes([...notes, ticket.id], width);
       return true;
     },
+    // Tiketin toisto päättyi (keskeytys, latausvirhe, aikakatkaisu tai uusi toisto) ilman vahvistusta.
+    // Palauttaa true vain, jos tämä vapautti odotuksen.
+    settle(ticket) {
+      if (!waiting || ticket.generation !== generation || ticket.serial !== pressed) return false;
+      waiting = false;
+      return true;
+    },
+    get pending() { return waiting; },
     // Montako painallusta on kirjautunut tässä tehtävässä (testausta ja tilatietoa varten).
     get count() { return total; },
     get notes() { return [...notes]; },
@@ -854,17 +873,19 @@ function setupFlow(section, player) {
   flow.names = flow.reveal.querySelector('[data-melodia-savelet]');
   flow.reset = () => {
     flow.feedback.textContent = '';
-    flow.feedback.classList.remove('is-error', 'is-answered');
+    flow.feedback.classList.remove('is-error', 'is-answered', 'is-neutraali');
     flow.reveal.hidden = true;
     flow.shape.replaceChildren();
     flow.names?.replaceChildren();
     if (document.activeElement === flow.next) flow.listen.focus();
     flow.next.hidden = true;
   };
+  // correct: true/false = oikeellisuuspalaute (01 ja 03), null = vertaileva, neutraali palaute (02).
   flow.answered = (text, correct) => {
     flow.feedback.textContent = text;
-    flow.feedback.classList.add('is-answered');
-    flow.feedback.classList.toggle('is-error', !correct);
+    flow.feedback.classList.toggle('is-neutraali', correct === null);
+    flow.feedback.classList.toggle('is-answered', correct !== null);
+    flow.feedback.classList.toggle('is-error', correct === false);
     flow.reveal.hidden = false;
     flow.next.hidden = false;
   };
@@ -962,7 +983,9 @@ function setupEndings(section, player) {
   let selected = null;
   let playing = -1;
   let checked = false;
-  const drone = () => LEVELS.koti[endingLevel(progress.checked)].drone;
+  // Kuunteluolosuhde lukitaan tehtävän alussa: saman tehtävän uudelleenkuuntelu soi aina samoin,
+  // vaikka tarkistettujen vertailujen määrä kasvaa kesken tehtävän.
+  let drone = true;
 
   // Soiva ja valittu ovat eri tiloja: soiva = data-soi + ”▶ soi”, valittu = aria-pressed + ”✓ valittu”.
   // Tarkistuksen jälkeen kotiin palaava loppu nimetään (”palaa G:hen”) ilman oikein/väärin-merkintää.
@@ -991,14 +1014,15 @@ function setupEndings(section, player) {
     playing = -1;
     checked = false;
     flow.task.hidden = true;
-    flow.info.textContent = drone() ? 'Matala G soi taustalla tukiäänenä.' : 'Ilman tukiääntä.';
+    drone = LEVELS.koti[endingLevel(progress.checked)].drone;
+    flow.info.textContent = drone ? 'Matala G soi taustalla tukiäänenä.' : 'Ilman tukiääntä.';
     check.hidden = true;
     lock([check], false);
     flow.reset();
     paint();
   };
   flow.listen.addEventListener('click', () => {
-    const { plan, marks } = bothEndingsPlan(round, drone());
+    const { plan, marks } = bothEndingsPlan(round, drone);
     player.play(flow.listen, flow.status, plan, {
       toggle: true,
       onStart: () => { flow.task.hidden = false; },
@@ -1013,7 +1037,7 @@ function setupEndings(section, player) {
         check.hidden = false;
         paint();
       }
-      player.play(button, flow.status, versionPlan(round.versions[which], drone()), { onPosition: follow(which) });
+      player.play(button, flow.status, versionPlan(round.versions[which], drone), { onPosition: follow(which) });
     });
   });
   check.addEventListener('click', () => {
@@ -1025,7 +1049,7 @@ function setupEndings(section, player) {
     lock([check], true);
     const change = progress.checked === SUPPORTED_COMPARISONS ? ' Seuraavaksi ilman tukiääntä.' : '';
     // Vertaileva palaute ei ole virhe eikä onnistuminen, joten se näytetään aina neutraalina.
-    flow.answered(result.text + change, true);
+    flow.answered(result.text + change, null);
     flow.shape.replaceChildren(...round.versions.map((notes, which) => element('li', '',
       `Loppu ${which + 1}: ${names(notes)}${round.order[which] === 'koti' ? ' (palaa G:hen)' : ''}`)));
     paint();
@@ -1050,6 +1074,12 @@ function setupEcho(section, player) {
   let tried = [];
   let checked = false;
   let pool = null;
+  // Tarkista-painikkeen kuvaus ruudunlukijalle odotuksen ajaksi. Painike pysyy fokusoitavana
+  // (aria-disabled), eikä jokaisesta napautuksesta kuuluteta erillistä viestiä.
+  const waitHint = element('span', '', 'Odottaa, että viimeksi soitettu sävel ehtii kuulua.');
+  waitHint.id = 'melodia-etsi-odotus';
+  waitHint.hidden = true;
+  check.after(waitHint);
 
   const draw = () => {
     const chosen = chain.notes;
@@ -1061,7 +1091,12 @@ function setupEcho(section, player) {
     }));
     slots.dataset.kuultu = String(chain.count);
     check.hidden = chosen.length !== motif.length;
-    lock([check, solution], checked);
+    const waiting = chain.pending;
+    lock([check], checked || waiting);
+    lock([solution], checked);
+    check.toggleAttribute('data-odottaa', waiting);
+    if (waiting) check.setAttribute('aria-describedby', waitHint.id);
+    else check.removeAttribute('aria-describedby');
   };
   // Oikean kulun järjestysnumerot ruudukon paikoille (sama paikka voi olla kulussa useasti).
   const markBoard = melody => {
@@ -1097,9 +1132,11 @@ function setupEcho(section, player) {
           // Keskeytynyt, epäonnistunut tai vanhentunut painallus ei kirjaudu. Tarkistuksen jälkeen
           // paikkoja voi yhä kuunnella, mutta tarkistettu vastaus pysyy.
           const ticket = checked ? null : chain.press(id);
+          if (ticket) draw();
           player.play(button, flow.status, singleNotePlan(id), {
             lead: TAP_LEAD,
             onAudible: ticket && (() => { if (chain.confirm(ticket)) draw(); }),
+            onStop: ticket && (() => { if (chain.settle(ticket)) draw(); }),
           });
         });
         line.append(button);
@@ -1157,7 +1194,8 @@ function setupEcho(section, player) {
     });
   });
   check.addEventListener('click', () => {
-    if (checked) return;
+    // Odottavan painalluksen aikana näkyvä ketju on vanha, joten sitä ei arvioida.
+    if (checked || chain.pending || chain.notes.length !== motif.length) return;
     // Arvioidaan täsmälleen näkyvä ja vahvistettu vastausketju.
     tried = chain.notes;
     const result = checkEcho(motif, tried);

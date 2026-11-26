@@ -34,6 +34,9 @@
 .melodia-ydin button:disabled { opacity: .6; cursor: default; }
 .melodia-ydin button[aria-disabled="true"] { cursor: default; }
 .melodia-ydin button[aria-disabled="true"]:not([aria-pressed="true"]) { opacity: .6; }
+/* Tarkista odottaa viimeksi soitettua säveltä: lukitus on heti voimassa, himmennys vasta, jos odotus
+   kestää (nopeassa tapailussa painike ei välky). */
+.melodia-ydin button[data-odottaa] { transition: opacity 0s linear .25s; }
 .melodia-ydin button:disabled:hover { border-color: #71638c; background: #2d2444; }
 .melodia-ydin button[data-playing] { border-color: var(--accent); background: #234133; box-shadow: inset 0 0 0 1px currentColor; }
 .melodia-ydin .melodia-ensisijainen[data-playing],
@@ -108,6 +111,7 @@
 .melodia-palaute:empty { min-height: 0; margin: 0; }
 .melodia-palaute.is-answered { color: #9fe4c3; }
 .melodia-palaute.is-answered.is-error { color: #ffe08a; }
+.melodia-palaute.is-neutraali { color: var(--text); }
 
 .melodia-kaari { margin-top: .5rem; }
 .melodia-kaari h3 { margin: 0 0 .45rem; }
