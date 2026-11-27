@@ -1,11 +1,19 @@
 # Issue #9: D2 ja sovellusvaihto (PR #181 B7) – korjauskoe
 
+> **Tulos (lisätty 24.11.2026):** korjaus (PR #182, `446a143`) hyväksyttiin fyysisellä iPhonella 24.11.:
+> B7 kolmesti, sovellusvaihto latauksen aikana, sovellusvaihto + akustinen versio, lukitus 10 s ja 60 s, mykistykset,
+> äänenvoimakkuus ja sointunäyttö toimivat (omistaja: "Kaikki toimi hyvin. Ei ollut mitään ongelmaa."). PR #182
+> yhdistettiin `release/issue9-d2`:een ja PR #181 betaan (`9526b70`). Testaamatta jääneet kohdat: [`README.md`](README.md).
+
 ## Laitehavainto (PR #181, fyysinen iPhone, 23.11.2026)
 
 Lukitustestit B1–B6 ja D2:n aiemmat toiminnot toimivat. B7: Safarista toiseen sovellukseen ~20 s ja takaisin →
 toisto etenee näytöllä, mutta ääntä ei kuulu. Versionvaihto ei palauta ääntä.
 
-## Juurisyy (koodista ja simulaattorista; laitteella vahvistamatta)
+## Juurisyy (koodista ja simulaattorista)
+
+Juurisyytä ei mitattu laitteella suoraan (sivu ei näe iOS:n äänettömyyttä). Korjauksen jälkeen oire ei toistunut
+laitteella, mikä tukee päätelmää.
 
 1. Sivun piiloutuessa `hide` pysäyttää D2:n. Paluun jälkeen Soita näkee kontekstin tilassa `running`, joten se ei kutsu
    `resume()`a eikä palautusta. Kellovahti on nollattu piiloutumisessa (tila `unknown`), joten D6-palautus ei käynnisty.
@@ -43,6 +51,10 @@ tarvittaessa suspend → resume). B1–B6 on siksi testattava uudelleen.
   104–133 Mt (huippu 174), ei kasvua.
 
 ## Fyysinen iPhone-testi (laitetesti.md B1–B7 + nämä)
+
+Tulos 24.11.: kohdat 1–4 hyväksytty, lukitus 10 s ja 60 s (B1, B2) hyväksytty, mykistykset ja äänenvoimakkuus
+toimivat (kohdan 6 säilyminen sovellusvaihdon yli ei erikseen kirjattu). Kohdat 5 (sovellusvaihto + lukitus),
+7 (kaiutin/kuulokkeet) ja 8:n B3–B6 jäivät kirjaamatta.
 
 1. **B7:** soita 30 s → toinen sovellus 20 s → takaisin → Soita kerran. Odotus: ääni kuuluu 1–2 s:ssa samasta kohdasta.
 2. Sama 3 kertaa peräkkäin.

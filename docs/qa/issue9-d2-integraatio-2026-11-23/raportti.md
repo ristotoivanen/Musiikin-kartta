@@ -1,5 +1,10 @@
 # Issue #9: D2-soittimen integraatio, lukituspalautus ja julkaisuvalmistelu (23.11.2026)
 
+> **Tila 24.11.2026 (lisätty jälkikäteen):** tämä raportti kuvaa tilannetta ennen laitetestiä ja PR #182:ta, ja se
+> säilytetään historiana. Fyysinen iPhone-testi tehtiin: `33e74e3`:ssa B1–B6 toimivat ja B7 (sovellusvaihto)
+> epäonnistui; korjaus PR #182 (`446a143`) hyväksyttiin laitteella 24.11., ja D2 yhdistettiin betaan (`9526b70`).
+> Ajantasainen tila, todisteiden luokittelu ja tuotannon jatko: [`README.md`](README.md).
+
 Haara `release/issue9-d2` = ajantasainen beta (`454aee5`) + D2-ketju (#155 → #165 → #172 → #176 → #180, `4c0ee06`)
 + yksi integraatiocommit. Alkuperäiset PR:t ja commitit ovat palautuspisteinä ennallaan. Ei mergejä, ei julkaisuja.
 
@@ -46,7 +51,11 @@ jäädytetty `currentTime` tilassa running → pysähtyy kohtaan ja palautuu, ko
 ja yksi soitto, epäonnistunut palautus → viesti ja uudelleenkäynnistys samasta kohdasta, sivun piilotus,
 versionvaihto kesken palautuksen). Mutaatiotarkistus: palautus pois → 4/5 lukitustestiä kaatuu.
 
-**Ei hyväksytty:** lukituspalautus vaatii fyysisen iPhone-testin (`laitetesti.md`).
+**Ei hyväksytty (23.11.):** lukituspalautus vaatii fyysisen iPhone-testin (`laitetesti.md`).
+
+**Päivitys 24.11.:** laitteella B1–B6 toimivat `33e74e3`:ssa. PR #182 muutti lukituksen jälkeisen polun (konteksti
+uusitaan seuraavasta Soita-painalluksesta); sen jälkeen lukitus 10 s ja 60 s hyväksyttiin laitteella. B3–B6 ovat
+uusimatta PR #182:n jälkeen (`README.md`).
 
 ## 3. Sointunäytön ajoitus: vertailu
 
@@ -98,7 +107,7 @@ song-volume-scales) käyttävät nyt `?soitin=vanha`; D2:n vastineet käyttäjä
 `tests/e2e/song-d2-kaytto.spec.ts` (oletus ilman parametreja, kytkennät, versionvaihto ja sen säilyminen,
 sointukartan osa- ja tahtihyppy, äänenvoimakkuus, MP3-lataus kesken toiston).
 
-**Tekemättä:** fyysinen iPhone-testi (lukitus), Cloudflare-esikatselun e2e oikeaa palvelua vasten (vain bundlen ja
+**Tekemättä (23.11.):** fyysinen iPhone-testi (lukitus), Cloudflare-esikatselun e2e oikeaa palvelua vasten (vain bundlen ja
 MP3:ien tarkistus sekä simulaattorin käsitesti), WebKit-Playwright koko sarjalle.
 
 ## 6. Tuotanto (vaihe C, vain valmistelu)
@@ -113,3 +122,6 @@ kokonaisuutena D2:n mukana.** Kokeiltu ja suositeltu tapa: D2:n commitit poimita
 - Tulos: kappaleharjoittelijan bundle sama kuin integraatiossa; HTML eroaa mainista vain cache-tunnisteissa;
   Vitest 537/537 läpi (mainin oma testijoukko + D2:n testit). Playwright-sarjaa ei vielä ajettu tälle haaralle.
 - Palautuspiste: `68b8a77` (main), tuotannon nykyinen bundle `app.js?v=d9c5fc9d089b`.
+
+**Päivitys 24.11.:** kokeiluhaarasta puuttuu PR #182 (`446a143`), joten se on vanhentunut. Poimittavat commitit ja
+ehdot: `README.md` (Tuotantoon siirto). Tuotanto vaatii omistajan erillisen GO:n.

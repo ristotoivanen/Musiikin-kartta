@@ -1,5 +1,10 @@
 # Issue #9: D2-integraation viimeinen fyysinen iPhone-testi
 
+> **Tulos (lisätty 24.11.2026):** ajettu 23.11. PR #181:n esikatselusta (`33e74e3`): A ja B1–B6 toimivat, **B7
+> epäonnistui** (sovellusvaihdon jälkeen ei ääntä) → korjaus `sovellusvaihto.md` / PR #182. PR #182:n uusintatesti
+> hyväksyttiin 24.11. B3–B6 on uusimatta PR #182:n jälkeen. Ohje säilyy sellaisenaan seuraavia laitetestejä varten.
+> Tila: [`README.md`](README.md).
+
 Testattava versio: integraatio-PR:n kiinnitetty Cloudflare-esikatselu (linkki ja bundle PR:n kuvauksessa).
 **Ei parametreja:** D2 on oletussoitin. Testaa tavallisella osoitteella, kuten käyttäjä.
 
