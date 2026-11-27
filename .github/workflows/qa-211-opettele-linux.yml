@@ -1,0 +1,67 @@
+name: QA 211 Opettele Linux
+on:
+  push:
+    branches: [qa/211-opettele-linux]
+    paths:
+      - '.github/workflows/qa-211-opettele-linux.yml'
+permissions:
+  contents: read
+env:
+  BASE: 9d5ad0c9981ff80ca91166474c9523a29b352a7f
+jobs:
+  baseline:
+    if: github.ref == 'refs/heads/qa/211-opettele-linux'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BASE }}
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          path: .qa
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Verify baseline and install
+        run: |
+          test "$(git rev-parse HEAD)" = "$BASE"
+          cat /etc/os-release
+          node --version
+          npm ci
+          npx playwright --version
+          npx playwright install --with-deps chromium
+          node -e 'const {chromium}=require("@playwright/test"); (async()=>{const b=await chromium.launch(); console.log("Chromium:", b.version()); await b.close();})()'
+          git diff --exit-code HEAD
+      - name: Reproduce with unmodified app and assertion
+        run: |
+          mkdir -p qa-211-results
+          test "$(grep -c 'vihjeet=always&alku=0&loppu=5' tests/e2e/practice.spec.ts)" = 1
+          for c in '0 0 vapaa' '1 5 painettu' '0 5 sekoitettu'; do
+            set -- $c
+            spec=tests/e2e/zz211-$3.spec.ts
+            sed "s/vihjeet=always&alku=0&loppu=5/vihjeet=always\&alku=$1\&loppu=$2/" tests/e2e/practice.spec.ts > $spec
+            grep -n 'vihjeet=always' $spec
+            for p in desktop phone; do
+              echo "=== $3 / $p"
+              npx playwright test $spec --grep 'Opettele näyttää oikean kohdan' --project=$p --repeat-each=30 --workers=3 --retries=0 --trace=off --reporter=line > qa-211-results/$3-$p.log 2>&1 || true
+              tail -n 5 qa-211-results/$3-$p.log
+              echo "passed/failed:"; grep -E '^ +[0-9]+ (passed|failed|flaky|skipped)' qa-211-results/$3-$p.log || true
+              grep -E '^ +(Expected|Received)( string)?:' qa-211-results/$3-$p.log | sort | uniq -c | sort -rn | head -n 16 || true
+              grep -E 'practice|zz211.*:[0-9]+:[0-9]+$|^ +> [0-9]+ \|' qa-211-results/$3-$p.log | grep -E '> [0-9]+ \|' | sed 's/^ *//' | sort | uniq -c || true
+            done
+            rm $spec
+          done
+      - name: Inspect what the unmodified UI shows
+        run: |
+          cp .qa/qa/211/diag.spec.ts tests/e2e/zz211-diag.spec.ts
+          npx playwright test tests/e2e/zz211-diag.spec.ts --workers=1 --trace=off --reporter=line 2>&1 | tee qa-211-results/diag.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qa-211-baseline
+          path: qa-211-results/
+          retention-days: 14
