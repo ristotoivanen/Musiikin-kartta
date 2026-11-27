@@ -34,13 +34,31 @@ test.describe('Otelautaopas BETA', () => {
     await expect(tool.getByRole('heading', { level: 2 })).toHaveText('Otelautaopas BETA');
     await expect(page.locator('#otelautaopas-beta')).toHaveCount(0);
     await expect(page.locator('a[href^="otelautaharjoittelija.html"]')).toHaveCount(0);
-    await expect(tool.getByRole('link', { name: 'Sointukartta' })).toHaveAttribute('href', 'otelautaopas-beta.html#soinnut');
-    await expect(tool.getByRole('link', { name: 'Oktaavit' })).toHaveAttribute('href', 'otelautaopas-beta.html?toonikka=A#oktaavit');
-    await tool.getByRole('link', { name: 'Avaa Otelautaopas', exact: true }).click();
+    // Kortissa on vain päälinkki; päällekkäiset pikavalinnat poistettiin (PR #209).
+    await expect(tool.getByRole('link')).toHaveCount(1);
+    await expect(tool.getByRole('heading', { level: 3 })).toHaveCount(0);
+    for (const removed of ['Asteikot ja moodit', 'Sointukartta', 'Oktaavit']) {
+      await expect(tool.getByRole('link', { name: removed })).toHaveCount(0);
+    }
+    const open = tool.getByRole('link', { name: 'Avaa Otelautaopas', exact: true });
+    await expect(open).toHaveAttribute('href', 'otelautaopas-beta.html');
+    await open.click();
     await expect(page).toHaveURL(/otelautaopas-beta\.html$/);
     await expect(page.locator('.beta-badge')).toHaveText('BETA');
     await expect(page.getByRole('navigation', { name: 'Päävalikko' }).getByRole('link', { name: 'Soittopakki' })).toHaveAttribute('aria-current', 'true');
     await expect(page.getByRole('button', { name: 'Soinnut', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    // Poistettujen pikavalintojen rajatut näkymät toimivat yhä suorista osoitteista.
+    for (const [query, view, title] of [
+      ['?toonikka=A&asteikko=mp#asteikot', 'Asteikot', 'A-mollipentatoninen'],
+      ['#soinnut', 'Soinnut', null],
+      ['?toonikka=A#oktaavit', 'Oktaavit', 'A · sijainnit otelaudalla'],
+    ] as const) {
+      await page.goto('about:blank');
+      await page.goto(PAGE + query);
+      await expect(page.getByRole('button', { name: view, exact: true }), query).toHaveAttribute('aria-pressed', 'true');
+      if (title) await expect(page.locator('#selection-title'), query).toContainText(title);
+      else await expect(panel(page), query).toBeVisible();
+    }
     // Vanha osoite toimii yhä.
     await page.goto('/otelautaharjoittelija.html#soinnut');
     await expect(page.locator('#chord-group')).toBeVisible();
