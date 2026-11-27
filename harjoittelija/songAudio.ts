@@ -56,7 +56,112 @@ export const MAX_DRIFT_SECONDS = 0.12;
 /** Saman raidan korjauskelausten vähimmäisväli. */
 export const MIN_DRIFT_FIX_INTERVAL_MS = 2000;
 /** HTMLMediaElement.HAVE_FUTURE_DATA: raidalla on dataa soida eteenpäin. */
-const HAVE_FUTURE_DATA = 3;
+export const HAVE_FUTURE_DATA = 3;
+/**
+ * Pakotettu tahdistus ei kirjoita currentTime-arvoa, jos raita on jo tätä lähempänä kohdetta (s).
+ * iPhonella tarpeeton nollakelaus käynnisti latauksen vain kitaralle ja laululle, jolloin säestys
+ * lähti muita myöhemmin (fyysinen iPhone ja simulaattori 22.11.2026, issue #9).
+ */
+export const ALIGN_EPSILON_SECONDS = 0.001;
+/**
+ * Soita-painalluksen tahdistus kelaa raidan vain, jos se on säestyksestä enemmän kuin jatkuvan toiston
+ * korjausraja (MAX_DRIFT_SECONDS). Tauolla raidat ovat yhtä paljon erossa kuin ne soivat (käynnistyksen
+ * jäännös, simulaattorissa 10–45 ms), eikä jatkuva toisto korjaisi sitä. iOS-simulaattorissa (22.11.2026)
+ * 10–40 ms:n tahdistuskelaus tauon jälkeen jätti kelatut raidat kuitenkin 0,45–0,8 s jälkeen, koska
+ * kelattu raita pysähteli toiston alussa, vaikka kelaus oli valmis ja readyState 4.
+ * Käyttäjän kelaus ja raidan päälle kytkentä tahdistetaan edelleen tarkasti.
+ */
+export const START_ALIGN_TOLERANCE_SECONDS = MAX_DRIFT_SECONDS;
+/**
+ * Käynnistyksen jälkeinen aika, jona tahdistin ei tee korjauskelauksia. Raitojen kellot heittelevät
+ * ensimmäisen sekunnin aikana ennen kuin toisto vakiintuu. iPhonella yksittäinen korjauskelaus tässä
+ * vaiheessa (0,56–0,69 s toiston alusta) jätti kelatun raidan soimaan 0,1–1,5 s väärästä kohdasta,
+ * vaikka currentTime näytti oikeaa (issue #9). Pidätyksen jälkeen todellinen drift korjataan kuten ennen.
+ */
+export const STARTUP_SETTLE_MS = 1500;
+/** Kuinka kauan Soita odottaa, että kaikilla raidoilla on dataa, ennen kuin toisto aloitetaan silti. */
+export const START_READY_TIMEOUT_MS = 4000;
+
+/** Raidan tila, jota valmiuden odotus käyttää (testattavissa ilman selainta). */
+export interface ReadyMedia {
+  readonly readyState: number;
+  readonly seeking?: boolean;
+  readonly error: unknown;
+  play(): Promise<void> | void;
+  pause(): void;
+  addEventListener(type: string, listener: () => void): void;
+  removeEventListener(type: string, listener: () => void): void;
+}
+
+/**
+ * Voiko raita lähteä soimaan heti: sillä on dataa eikä kelaus ole kesken.
+ * Kesken oleva kelaus ratkaisee: iOS-simulaattorissa (22.11.2026) tauon jälkeinen tahdistuskelaus oli
+ * vielä kesken play()-kutsun aikaan, vaikka readyState oli 4, ja kelatut raidat jäivät 0,5–0,8 s jälkeen.
+ */
+export function trackReady(element: Pick<ReadyMedia, 'readyState' | 'seeking'>): boolean {
+  return element.readyState >= HAVE_FUTURE_DATA && !element.seeking;
+}
+
+/** Voivatko kaikki raidat lähteä soimaan yhtä aikaa. */
+export function tracksReady(elements: readonly Pick<ReadyMedia, 'readyState' | 'seeking'>[]): boolean {
+  return elements.every(trackReady);
+}
+
+/**
+ * Käynnistää datan latauksen kaikille valmistumattomille raidoille samalla käyttäjän painalluksella.
+ *
+ * preload="metadata"-raita ei lataa dataa ennen play()- tai kelauskutsua. play() painalluksen aikana
+ * myös sallii iOS:llä raidan myöhemmän käynnistyksen ilman uutta painallusta. Raita pysäytetään heti,
+ * joten mitään ei kuulu: keskeytynyt play()-lupaus (AbortError) on odotettu. Myös kesken kelauksen
+ * oleva raita käsitellään näin, koska sekin käynnistetään vasta odotuksen jälkeen.
+ */
+export function startLoading(elements: readonly ReadyMedia[]): number {
+  let started = 0;
+  for (const element of elements) {
+    if (trackReady(element)) continue;
+    try {
+      const pending = element.play();
+      element.pause();
+      if (pending && typeof pending.catch === 'function') pending.catch(() => { /* pause() keskeyttää: odotettu */ });
+      started++;
+    } catch { /* play() voi heittää vanhoissa selaimissa: lataus jatkuu muuten */ }
+  }
+  return started;
+}
+
+/**
+ * Odottaa, että kaikilla raidoilla on dataa (readyState >= HAVE_FUTURE_DATA) eikä kelaus ole kesken.
+ * Latausvirhe keskeyttää heti. 'ohitettu', jos uudempi painallus, tauko tai versionvaihto on ohittanut odotuksen.
+ */
+export function waitForTracksReady(elements: readonly ReadyMedia[], timeoutMs: number, cancelled: () => boolean,
+  timers: { set: (fn: () => void, ms: number) => unknown; clear: (id: unknown) => void } = {
+    set: (fn, ms) => setTimeout(fn, ms), clear: id => clearTimeout(id as ReturnType<typeof setTimeout>) },
+): Promise<'valmis' | 'virhe' | 'aikakatkaisu' | 'ohitettu'> {
+  return new Promise(resolve => {
+    const events = ['loadeddata', 'canplay', 'canplaythrough', 'seeked', 'error'];
+    let settled = false;
+    let poll: unknown = null;
+    const deadline = timers.set(() => finish('aikakatkaisu'), timeoutMs);
+    function finish(result: 'valmis' | 'virhe' | 'aikakatkaisu' | 'ohitettu') {
+      if (settled) return;
+      settled = true;
+      timers.clear(deadline);
+      if (poll !== null) timers.clear(poll);
+      for (const element of elements) for (const name of events) element.removeEventListener(name, check);
+      resolve(result);
+    }
+    function check() {
+      if (cancelled()) finish('ohitettu');
+      else if (elements.some(element => element.error)) finish('virhe');
+      else if (tracksReady(elements)) finish('valmis');
+    }
+    // Peruutus ei tuota tapahtumaa, joten tilaa tarkistetaan myös lyhyin väliajoin.
+    const tick = () => { check(); if (!settled) poll = timers.set(tick, 50); };
+    for (const element of elements) for (const name of events) element.addEventListener(name, check);
+    check();
+    if (!settled) poll = timers.set(tick, 50);
+  });
+}
 
 export interface DriftState {
   /** Raidan ja säestyksen aikaero sekunteina (itseisarvo). */
@@ -130,12 +235,24 @@ export interface AlignableMedia {
  */
 export class StemAligner {
   private lastFix = new WeakMap<object, number>();
+  private holdUntil = -Infinity;
   constructor(public latency = initialSeekLatency()) {}
 
-  /** Palauttaa true, jos raita kelattiin. force = toiston alku, käyttäjän kelaus tai raidan päälle kytkentä. */
-  align(master: AlignableMedia, stem: AlignableMedia, force = false, now = performance.now()): boolean {
+  /**
+   * Pidättää korjauskelaukset hetkeen until (performance.now) asti, esimerkiksi toiston alun
+   * vakiintumisen ajaksi. Pakotettu tahdistus (käyttäjän kelaus, raidan päälle kytkentä) tehdään silti.
+   */
+  hold(until: number) { this.holdUntil = until; }
+
+  /**
+   * Palauttaa true, jos raita kelattiin. force = toiston alku, käyttäjän kelaus tai raidan päälle kytkentä.
+   * tolerance = ero (s), jota pienempää ei kelata (toiston alussa START_ALIGN_TOLERANCE_SECONDS).
+   */
+  align(master: AlignableMedia, stem: AlignableMedia, force = false, now = performance.now(),
+    tolerance = ALIGN_EPSILON_SECONDS): boolean {
     if (stem.readyState < 1 || master.readyState < 1) return false;
     if (!force && (stem.paused || master.paused)) return false;
+    if (!force && now < this.holdUntil) return false;
     const signed = stem.currentTime - master.currentTime;
     const drift = Math.abs(signed);
     const atLoopBoundary = master.loop && Number.isFinite(master.duration) &&
@@ -151,6 +268,8 @@ export class StemAligner {
     }
     let target = master.currentTime + (running ? this.latency : 0);
     if (Number.isFinite(stem.duration)) target = Math.min(target, Math.max(0, stem.duration - 0.05));
+    // Raita on jo kohdassa: kelaus olisi tarpeeton, ja iPhonella se käynnistäisi vain tämän raidan latauksen.
+    if (Math.abs(stem.currentTime - target) < Math.max(tolerance, ALIGN_EPSILON_SECONDS)) return false;
     try { stem.currentTime = target; } catch { return false; /* metadata kesken */ }
     if (running) this.lastFix.set(stem, now);
     else this.lastFix.delete(stem);

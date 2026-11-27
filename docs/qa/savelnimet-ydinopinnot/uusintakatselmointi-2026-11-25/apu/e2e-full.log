@@ -1,0 +1,76 @@
+
+> test:e2e
+> playwright test --workers=4 --reporter=dot
+
+
+Running 1298 tests using 4 workers
+····················································°°·°°·······················
+·······························°°·····························#144 FULL-SITE 320px / 200% / JS=true: {"before":{"boardWidth":144.28125,"minClearance":1.359375,"scrollWidth":320},"after":{"boardWidth":193.875,"minClearance":5.8125,"scrollWidth":320}}
+·#144 FULL-SITE 360px / 200% / JS=true: {"before":{"boardWidth":181.09375,"minClearance":4.671875,"scrollWidth":360},"after":{"boardWidth":233.875,"minClearance":9.40625,"scrollWidth":360}}
+·#144 FULL-SITE 390px / 200% / JS=true: {"before":{"boardWidth":208.6875,"minClearance":7.15625,"scrollWidth":390},"after":{"boardWidth":263.875,"minClearance":12.109375,"scrollWidth":390}}
+··#144 FULL-SITE 320px / 200% / JS=false: {"before":{"boardWidth":144.28125,"minClearance":1.359375,"scrollWidth":320},"after":{"boardWidth":193.875,"minClearance":5.8125,"scrollWidth":320}}
+··#144 FULL-SITE 360px / 200% / JS=false: {"before":{"boardWidth":181.09375,"minClearance":4.671875,"scrollWidth":360},"after":{"boardWidth":233.875,"minClearance":9.40625,"scrollWidth":360}}
+·#144 FULL-SITE 390px / 200% / JS=false: {"before":{"boardWidth":208.6875,"minClearance":7.15625,"scrollWidth":390},"after":{"boardWidth":263.875,"minClearance":12.109375,"scrollWidth":390}}
+···········
+································································°···············
+················································································
+················································································
+················································································
+················································································
+················································································
+···························································°·····°°·············
+····°··································································#144 FULL-SITE 320px / 200% / JS=true: {"before":{"boardWidth":144.28125,"minClearance":1.359375,"scrollWidth":320},"after":{"boardWidth":193.875,"minClearance":5.8125,"scrollWidth":320}}
+·#144 FULL-SITE 360px / 200% / JS=true: {"before":{"boardWidth":181.09375,"minClearance":4.671875,"scrollWidth":360},"after":{"boardWidth":233.875,"minClearance":9.40625,"scrollWidth":360}}
+·#144 FULL-SITE 390px / 200% / JS=true: {"before":{"boardWidth":208.6875,"minClearance":7.15625,"scrollWidth":390},"after":{"boardWidth":263.875,"minClearance":12.109375,"scrollWidth":390}}
+··#144 FULL-SITE 320px / 200% / JS=false: {"before":{"boardWidth":144.28125,"minClearance":1.359375,"scrollWidth":320},"after":{"boardWidth":193.875,"minClearance":5.8125,"scrollWidth":320}}
+·#144 FULL-SITE 360px / 200% / JS=false: {"before":{"boardWidth":181.09375,"minClearance":4.671875,"scrollWidth":360},"after":{"boardWidth":233.875,"minClearance":9.40625,"scrollWidth":360}}
+··#144 FULL-SITE 390px / 200% / JS=false: {"before":{"boardWidth":208.6875,"minClearance":7.15625,"scrollWidth":390},"after":{"boardWidth":263.875,"minClearance":12.109375,"scrollWidth":390}}
+··
+········································································°·······
+······°···············°·····································°················°·°
+···························°································°°°°°°°°°°°°°°°·····
+················°°°°°°°°···············°·············°°°°°·················°····
+···············································································F
+···································°···················°························
+··················
+
+  1) [phone] › tests/e2e/practice.spec.ts:89:3 › vihjeet ja harjoittelutavat › Opettele näyttää oikean kohdan heti ja kertoo, ettei kyse ole testistä 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  locator('.practice-board .target button')
+    Expected: [32m"E"[39m
+    Received: [31m"[7m6 · Epaksuin[27mE"[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveText" with timeout 5000ms[22m
+    [2m  - waiting for locator('.practice-board .target button')[22m
+    [2m    9 × locator resolved to <button type="button" data-fret="0" tabindex="-1" data-string="5" aria-label="paksu E-kieli, vapaa kieli, vastaus E">…</button>[22m
+    [2m      - unexpected value "6 · EpaksuinE"[22m
+
+
+       96 |       const { string, fret, name } = await noteAnswer(page);
+       97 |       await expect(targets(page)).toHaveAttribute('data-string', String(string)); await expect(targets(page)).toHaveAttribute('data-fret', String(fret));
+    >  98 |       await expect(targets(page)).toHaveText(name);
+          |                                   ^
+       99 |       await targets(page).click();
+      100 |       await page.getByRole('button', { name: 'Seuraava kysymys' }).click();
+      101 |     }
+        at /Users/ristotoivanen/src/Musiikin-kartta/worktrees/audit-pr205/tests/e2e/practice.spec.ts:98:35
+
+    Error Context: test-results/practice-vihjeet-ja-harjoi-c2c97-too-ettei-kyse-ole-testistä-phone/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/practice-vihjeet-ja-harjoi-c2c97-too-ettei-kyse-ole-testistä-phone/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/practice-vihjeet-ja-harjoi-c2c97-too-ettei-kyse-ole-testistä-phone/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [phone] › tests/e2e/practice.spec.ts:89:3 › vihjeet ja harjoittelutavat › Opettele näyttää oikean kohdan heti ja kertoo, ettei kyse ole testistä 
+  50 skipped
+  1247 passed (12.5m)
+exit 1

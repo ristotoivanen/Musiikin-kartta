@@ -1,6 +1,8 @@
+// Issue #9: kappaleharjoittelijan oletussoitin on D2 (tests/e2e/song-d2*.spec.ts). Tämä tiedosto on vanhan
+// mediaelementtisoittimen (?soitin=vanha, palautusvaihtoehto) regressiotesti.
 import { test, expect, type Page } from '@playwright/test';
 
-const SONG = '/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta';
+const SONG = '/kitaraharjoittelija.html?soitin=vanha&kappale=yksi-sointu-kaksi-askelta';
 
 /** Ei oikeaa äänentoistoa: play-kutsut lasketaan. */
 async function mockPlayback(page: Page) {

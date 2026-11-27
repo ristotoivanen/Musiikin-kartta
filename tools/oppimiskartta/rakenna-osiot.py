@@ -40,7 +40,7 @@ TOOLS = ('valine', 'taito', 'kuvaus')
 TOOL_SCRIPT = 'assets/oppimistapa.js'
 # Työkalusivut, joilla Takaisin aiheeseen -linkki palaa oppimistapaan (?tapa=…). Ensikeikan sivun
 # skriptilinkki lisätään käännöksessä (vite.ensikeikka.config.ts).
-TOOL_PAGES = ('riffikaiku.html', 'kitaraharjoittelija.html', 'otelautaharjoittelija.html')
+TOOL_PAGES = ('riffikaiku.html', 'kitaraharjoittelija.html', 'otelautaharjoittelija.html', 'otelautaopas-beta.html')
 NAV = re.compile(r'(?P<indent>[ \t]*)<nav class="main-nav" aria-label="Päävalikko">.*?</nav>', re.S)
 GENERATED = '<!-- Muodostettu komennolla python3 tools/oppimiskartta/rakenna-osiot.py. Älä muokkaa käsin. -->'
 
@@ -161,8 +161,8 @@ def validate(config, registry):
             for href in links:
                 if not href or not (ROOT / page_path(href)).exists():
                     errors.append(f'{name}: osoitetta {href} ei ole')
-                elif urlsplit(href).fragment and page_path(href) == 'otelautaharjoittelija.html':
-                    if urlsplit(href).fragment not in {'soinnut', 'oktaavit'}:
+                elif urlsplit(href).fragment and page_path(href) in ('otelautaharjoittelija.html', 'otelautaopas-beta.html'):
+                    if urlsplit(href).fragment not in {'soinnut', 'oktaavit', 'asteikot'}:
                         errors.append(f'{name}: Otelautaoppaassa ei ole näkymää #{urlsplit(href).fragment}')
                 elif urlsplit(href).fragment and urlsplit(href).fragment not in ids_in(page_path(href)):
                     errors.append(f'{name}: ankkuria {href} ei ole')
@@ -329,7 +329,7 @@ TOOL_LABELS = {'oikea kitara': 'Oikea kitara', 'virtuaalikitara': 'Virtuaalikita
 
 
 def badge(app):
-    return ' <span class="mode-badge">beta</span>' if app['saatavuus'] == 'beta' else ''
+    return f' <span class="mode-badge">{esc(app.get("merkki", "beta"))}</span>' if app['saatavuus'] == 'beta' else ''
 
 
 def switch(topic, current, counts, registry):
@@ -499,8 +499,8 @@ def toolkit_page(topics, apps, registry):
     out = [head('Soittopakki', section['kuvaus']).replace('{nav}', main_nav('soittopakki.html', registry, '  '))]
     out.append('<main class="mode-main" id="sisalto">\n')
     out.append('  <div class="mode-intro">\n  <h1>Soittopakki</h1>\n'
-               '  <p class="mode-lead">Apuvälineet soittamiseen ja tutkimiseen. Käytä niitä itsenäisesti tai avaa ne '
-               'harjoituksen yhteydessä Kitaratreenistä, jolloin näkymä on valmiiksi rajattu aiheeseen.</p>\n  </div>\n')
+               '  <p class="mode-lead">Apuvälineet soittamiseen ja tutkimiseen. Käytä niitä itsenäisesti tai '
+               'harjoitusten tukena.</p>\n  </div>\n')
     for app in (a for a in apps.values() if 'pakki' in a['tavat'] and a['saatavuus'] != 'suunniteltu'):
         tool_id = app['id'].partition(':')[2]
         out.append(f'  <section class="mode-tool" id="{tool_id}" aria-labelledby="{tool_id}-otsikko">\n')
@@ -513,7 +513,8 @@ def toolkit_page(topics, apps, registry):
         else:
             out.append(f'    <p><a class="mode-action" href="{esc(app["osoite"])}">Avaa {esc(app["nimi"])}</a></p>\n')
         views = app.get('nakymat', [])
-        if views:
+        # Otelautaopas avataan Soittopakista kokonaisena; rajatut näkymät säilyvät harjoituksissa.
+        if views and tool_id != 'otelautaopas':
             out.append('    <h3 class="mode-sub">Avaa valmiiksi rajattu näkymä</h3>\n')
             out.append('    <ul class="mode-list" role="list">\n')
             for view in views:

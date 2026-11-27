@@ -107,9 +107,41 @@
       "title": "Sävelnimet ja sointumerkinnät",
       "back_label": "Sävelnimiin ja sointumerkintöihin",
       "summary": "Kielten nimet, intervallit ja sointukaaviot.",
-      "lead": "Lue kitaran sointukarttaa ja nimeä sävelet. Mittaa sävelten välejä nauhoina ja kuuntele, miten yksi sävel muuttaa soinnun.",
+      "lead": "Kuuntele, mitä sointumerkin lisäys muuttaa, tutki ylennystä ja alennusta kitaralla ja nimeä sävelten välejä.",
+      "layout": "kokonaisuudet",
+      "legacy": {
+        "id": "aiemmat",
+        "title": "Aiemmat oppitunnit ja harjoitukset",
+        "intro": "Syvennä sävelnimien ja intervallien tuntemusta aiemmissa sisällöissä. Suoritusmerkintäsi säilyvät."
+      },
       "groups": [
         {
+          "id": "ydinopinnot",
+          "title": "Ydinopinnot",
+          "kind": "harjoitus",
+          "attempts": true,
+          "inline": true,
+          "goal": "Kokeile haluamassasi järjestyksessä. Kitaraa ei tarvita.",
+          "lessons": [
+            {
+              "standalone": "mita-sointumerkki-kertoo",
+              "title": "Mitä sointumerkki kertoo?",
+              "goal": "Kuuntele, miten sus4, 7 ja maj7 muuttavat sointua."
+            },
+            {
+              "standalone": "mita-ylennys-ja-alennus-tarkoittavat",
+              "title": "Mitä ♯ ja ♭ tarkoittavat?",
+              "goal": "Kulje C:n ja D:n välillä ja tutki, miksi samalla nauhalla on kaksi sävelnimeä."
+            },
+            {
+              "standalone": "mita-intervallit-tarkoittavat",
+              "title": "Mitä intervallit tarkoittavat?",
+              "goal": "Tutki sävelvälejä, etsi sama väli A:sta ja muokkaa riffiä."
+            }
+          ]
+        },
+        {
+          "legacy": true,
           "title": "Merkinnät ja sävelvälit",
           "lessons": [
             {
@@ -264,7 +296,7 @@
         },
         {
           "title": "Tutki otelautakarttaa",
-          "href": "otelautaharjoittelija.html"
+          "href": "otelautaopas-beta.html#oktaavit"
         }
       ],
       "related": [
@@ -415,7 +447,7 @@
         },
         {
           "title": "Tutki sointukarttaa",
-          "href": "otelautaharjoittelija.html#soinnut"
+          "href": "otelautaopas-beta.html#soinnut"
         }
       ],
       "related": [
@@ -462,7 +494,7 @@
         },
         {
           "title": "Näytä asteikot otelaudalla",
-          "href": "otelautaharjoittelija.html"
+          "href": "otelautaopas-beta.html#asteikot"
         }
       ],
       "related": [

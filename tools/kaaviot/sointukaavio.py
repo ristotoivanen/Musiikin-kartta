@@ -43,7 +43,7 @@ def root_pc(name):
     return pc % 12
 
 
-def svg(name, frets, fingers=None, kuvaus=None, alku=None):
+def svg(name, frets, fingers=None, kuvaus=None, alku=None, korostus=None):
     fingers = fingers or [None] * 6
     pc = root_pc(name)
     fretted = [f for f in frets if f]
@@ -98,17 +98,20 @@ def svg(name, frets, fingers=None, kuvaus=None, alku=None):
             out.append(f'<circle class="{"open root-open" if is_root[s] else "open"}" cx="{x(s)}" cy="18" r="4.5"/>')
             continue
         if not (barre and f == barre[0] and barre[1] <= s <= barre[2] and not is_root[s]):
-            out.append(f'<circle class="{"root" if is_root[s] else "tone"}" cx="{x(s)}" cy="{y(f)}" r="6.5"/>')
+            cls = 'root' if is_root[s] else 'tone'
+            if 6 - s == korostus:
+                cls += ' muuttuva-savel'
+            out.append(f'<circle class="{cls}" cx="{x(s)}" cy="{y(f)}" r="6.5"/>')
         if fingers[s]:
             out.append(f'<text class="finger" x="{x(s)}" y="118">{fingers[s]}</text>')
     out.append('</svg>')
     return ''.join(out)
 
 
-def figure(name, ote, sormet=None, kuvaus=None, merkinta=True, alku=None):
+def figure(name, ote, sormet=None, kuvaus=None, merkinta=True, alku=None, korostus=None):
     frets = parse(ote)
     fingers = [f if f else None for f in parse(sormet)] if sormet else None
-    body = svg(name, frets, fingers, kuvaus, alku)
+    body = svg(name, frets, fingers, kuvaus, alku, korostus)
     note = f'<code>{html.escape(ote.strip())}</code>' if merkinta else ''
     return f'<figure class="chord-diagram"><figcaption>{html.escape(name)}</figcaption>{body}{note}</figure>'
 
