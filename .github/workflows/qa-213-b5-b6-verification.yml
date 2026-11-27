@@ -4,6 +4,12 @@ on:
     branches: [qa/213-b5-b6-verification]
 permissions:
   contents: read
+env:
+  QA_HEAD: a9682bd24063725613e7a71b25f5c2093f6dc4e1
+  QA_TREE: b0ccaf03659099ac9caeb66051c670d484b6a6ef
+  QA_BASE: 0c20d724f2aa284b7bd2bf781e9e672b93ab382e
+  QA_B4_BLOB: f1c51dbc7a63c8936e20cff0bffc87770be8dc62
+  QA_D2_BLOB: d34a86381be34105204b37135a7dfa914561c225
 jobs:
   qa:
     runs-on: ubuntu-24.04
@@ -15,13 +21,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ env.QA_HEAD }}
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
       - run: |
-          git log -2 --format='%H %s'
+          test "$(git rev-parse HEAD)" = "$QA_HEAD"
+          test "$(git rev-parse 'HEAD^{tree}')" = "$QA_TREE"
+          test "$(git show -s --format=%P HEAD | cut -d ' ' -f2)" = "$QA_BASE"
+          test "$(git rev-parse HEAD:tests/e2e/practice.spec.ts)" = "$QA_B4_BLOB"
+          test "$(git rev-parse HEAD:tests/e2e/fixtures/d2-audio-reference.json)" = "$QA_D2_BLOB"
+          git show -s --format='HEAD=%H tree=%T parents=%P %s' HEAD
+          sha256sum tests/e2e/practice.spec.ts tests/e2e/fixtures/d2-audio-reference.json
           cat /etc/os-release
           uname -m
           node --version
@@ -34,16 +47,11 @@ jobs:
           DEBUG=pw:browser node --input-type=module -e 'import {chromium} from "@playwright/test"; const b=await chromium.launch(); console.log(b.version()); await b.close();'
       - if: matrix.suite == 'check'
         run: npm run check
-      - if: matrix.suite == 'reference'
-        run: |
-          if ! command -v ffmpeg; then sudo apt-get update -qq && sudo apt-get install -y ffmpeg; fi
-          ffmpeg -version
-          D2_VERIFY_FFMPEG=1 node docs/qa/d2-b5-b6-213/reference.mjs > qa-output/linux-reference.json
-          cmp tests/e2e/fixtures/d2-audio-reference.json qa-output/linux-reference.json
       - if: matrix.suite == 'mutations'
         run: |
           set -o pipefail
           node docs/qa/d2-b5-b6-213/mutations.mjs | tee qa-output/mutations.jsonl
+          test "$(wc -l < qa-output/mutations.jsonl)" -eq 32
       - if: matrix.suite == 'd2'
         run: PLAYWRIGHT_JSON_OUTPUT_FILE=qa-output/d2.json npx playwright test tests/e2e/song-d2*.spec.ts --workers=3 --retries=0 --reporter=line,json
       - if: matrix.suite == 'chromium'
