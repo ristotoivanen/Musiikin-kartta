@@ -1,0 +1,61 @@
+name: QA 213 D2 isolated decoder diagnostics
+on:
+  push:
+    branches: [qa/213-d2-linux]
+    paths:
+      - '.github/workflows/qa-213-d2-decoder.yml'
+      - 'tools/qa-213/d2-decoder.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  decoder:
+    if: github.ref == 'refs/heads/qa/213-d2-linux'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: 07d81265bd4c499e2e3792e39d1ec8188f88c7e7
+          path: baseline
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: baseline/package-lock.json
+      - name: Install unchanged baseline dependencies and Chromium
+        working-directory: baseline
+        run: |
+          test "$(git rev-parse HEAD)" = 07d81265bd4c499e2e3792e39d1ec8188f88c7e7
+          git diff --exit-code HEAD
+          cat /etc/os-release
+          uname -m
+          node --version
+          npm ci
+          npx playwright --version
+          npx playwright install --with-deps chromium
+      - name: Install FFmpeg reference decoders
+        run: |
+          if ! command -v ffmpeg; then sudo apt-get update -qq && sudo apt-get install -y ffmpeg; fi
+          ffmpeg -version
+          ffmpeg -hide_banner -decoders | grep -E 'mp3(float)?[[:space:]]'
+      - name: Run isolated decoder comparison on all six MP3 files
+        run: |
+          mkdir -p qa-213-decoder-results
+          set -o pipefail
+          node tools/qa-213/d2-decoder.mjs baseline qa-213-decoder-results 2>&1 | tee qa-213-decoder-results/run.log
+      - name: Confirm baseline tracked files unchanged
+        if: always()
+        working-directory: baseline
+        run: git diff --exit-code HEAD
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qa-213-d2-decoder-results
+          path: qa-213-decoder-results/
+          retention-days: 14
+          if-no-files-found: warn
