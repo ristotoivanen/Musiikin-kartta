@@ -23,7 +23,7 @@ Korjaus on rajattu Sävelnimet-sivuille, koska kokonaisuudet.css:n muutos vaihta
 
 ## Miksausanalyysi (ohjelmallinen, ei kuuloarvio)
 
-Menetelmä: sama synteesi ja kaavat kuin `savelnimet-aanet.js`, näytteet M4A:sta; puhelinkaiuttimen jäljittely: kaksi 350 Hz ylipäästöä + 9 kHz alipäästö (`apu/mix2.mjs`).
+Menetelmä: sama synteesi ja kaavat kuin `savelnimet-aanet.js`, näytteet M4A:sta; puhelinkaiuttimen jäljittely: kaksi 350 Hz ylipäästöä + 9 kHz alipäästö ([apu/mix2.mjs](apu/mix2.mjs)).
 
 | Esimerkki | Huippu | RMS (aktiivinen) | Kitara/komppi dB nuotti kerrallaan, täysi / puhelin |
 |---|---|---|---|
@@ -52,7 +52,7 @@ Uusintakatselmointia varten valmisteltiin kuuntelukoe (A nykyinen, B kaikki +6 d
 | iPhone 16 Pro -simulaattori (iOS 27.2 Safari, paikallinen palvelin) | kaksoisnapautus kaikissa kolmessa harjoituksessa, nopeat toistuvat painallukset, riffivalinnat, tilarivin ilmestyminen, sulkeminen kesken toiston, uudelleenavaus, tumma teema, vaaka. Keskittymistila/paluu: ei ajettu uudelleen simulaattorissa (E2E-testi läpi, muuttumaton koodi). Nipistyszoomausta ei voitu ohjata simulaattorilla – tarkistettu vain säännöin. Pienempi iPhone ei ollut turvallisesti vapaana |
 | VoiceOver / Android / fyysinen iPhone | ei tehty |
 
-Uusintakatselmoinnin kuvakaappaukset ovat kansiossa `kuvakaappaukset/`. Ennen-kuvat säilyvät alkuperäisen auditoinnin paikallisessa aineistossa.
+Uusintakatselmoinnin kuvakaappaukset: [jalkeen-01-sointu-kaksoisnapautus](kuvakaappaukset/jalkeen-01-sointu-kaksoisnapautus.png), [jalkeen-02-kaksoisnapautus-ei-zoomia-vakaa](kuvakaappaukset/jalkeen-02-kaksoisnapautus-ei-zoomia-vakaa.png), [jalkeen-03-riffi-painikkeet-44px-kaksoisnapautus](kuvakaappaukset/jalkeen-03-riffi-painikkeet-44px-kaksoisnapautus.png), [jalkeen-03-tilarivin-tila-varattu](kuvakaappaukset/jalkeen-03-tilarivin-tila-varattu.png), [jalkeen-vaaka-tumma-suljettu-kesken-toiston](kuvakaappaukset/jalkeen-vaaka-tumma-suljettu-kesken-toiston.png). Ennen-kuvat: [alkuperäisen auditoinnin kuvakaappaukset](../auditointi-2026-11-24-2308/raportti.md#kuvakaappaukset).
 
 ## Rinnakkaiset PR:t
 

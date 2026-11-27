@@ -1,0 +1,38 @@
+Auditoinnin 24.11.2026 testiajojen tulosrivit (commit 5ea8cdf). Raakalokeja ei arkistoitu.
+
+## check.log
+> check
+> npm run lint && npm test && npm run build
+> lint
+> eslint harjoittelija riffikaiku ensikeikka functions tests *.ts *.js
+> test
+> vitest run
+ Test Files  50 passed (50)
+      Tests  806 passed (806)
+> build
+> npm run typecheck && vite build && vite build -c vite.riffikaiku.config.ts && vite build -c vite.ensikeikka.config.ts && node tools/trainer-notices.mjs && node tools/riffikaiku-versio.mjs && node tools/versioi-tyylit.mjs && npm run build:oppimiskartta
+> typecheck
+> tsc --noEmit
+> build:oppimiskartta
+> python3 tools/oppimiskartta/rakenna.py
+exit 0
+
+## e2e-chromium.log
+> test:e2e
+> playwright test tests/e2e/savelnimet-ydinopinnot.spec.ts tests/e2e/osiot.spec.ts --workers=3
+  3 skipped
+  101 passed (25.5s)
+exit 0
+
+## e2e-webkit.log
+  34 passed (12.6s)
+exit 0
+
+## e2e-full.log
+> test:e2e
+> playwright test --workers=4 --reporter=list
+  1 failed
+    [phone] › tests/e2e/practice.spec.ts:89:3 › vihjeet ja harjoittelutavat › Opettele näyttää oikean kohdan heti ja kertoo, ettei kyse ole testistä
+  50 skipped
+  1241 passed (10.6m)
+exit 1
