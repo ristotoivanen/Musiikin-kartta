@@ -17,8 +17,8 @@ miksausta ja äänitiedostoja koskevat tuotantotiedostot jäävät tämän testa
   erojen määrä ja etumerkkitarkiste täsmäsivät 108/108 ikkunassa. Poikkeamia oli 72/108 ikkunassa,
   suurin ero `0.000030547380447387695` ja suurin RMS `0.000021573458052207395`.
   Liukulukudekooderin `mp3float` ero oli nolla 108/108 ikkunassa. Pidempi esipurku
-  (8, 32 ja 128 kehystä) ei yleisesti poistanut eroa. Saman kokonaisen tiedoston ja raakapalan
-  toistopurut olivat keskenään bittitarkkoja.
+  (8, 32 ja 128 kehystä) ei yleisesti poistanut eroa. Koko tiedoston ja yhden
+  raakapalan toistopurut olivat kummassakin tapauksessa bittitarkkoja kaikilla kuudella raidalla.
   [Tutkimuslähde](https://github.com/ristotoivanen/Musiikin-kartta/blob/84a6a80/tools/qa-213/d2-decoder.mjs) ·
   [Tutkimusajo](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/46036454996)
 - Betalla `9d5ad0c9981ff80ca91166474c9523a29b352a7f`, macOS 27.2.1 arm64, Playwrightin
@@ -47,7 +47,7 @@ sovellusbundlea eikä käytä D2:n jäsentäjää, palasuunnittelua, kalibrointi
 Testi lukee lukitut tavu- ja PCM-koordinaatit ja hakee viiveen yksikäsitteisen osuman antavasta
 kitaran ikkunasta. Tiedostojen SHA-256 tarkistetaan ennen PCM-vertailuja.
 
-**Eräkohtainen SHA-256.** Jokaisella versiolla, raidalla, ikkunalla ja kanavalla on oma vektori.
+**Erotusvektorin SHA-256.** Jokaisella versiolla, raidalla, ikkunalla ja kanavalla on oma vektori.
 Kanava 0 on vasen ja 1 oikea. Näytteet ovat ikkunan alusta loppuun nousevassa absoluuttisessa
 näytejärjestyksessä. Jokaisesta näytteestä lasketaan JavaScriptin binary64-erotus
 `Float32(palanäyte) − Float32(kokopurkunäyte)`. Jokainen erotus, myös nolla, kirjoitetaan
@@ -115,3 +115,73 @@ ajossa. Kolme erillistä MP3-pyyntöä tehtiin ennen toistokohdan 2 s rajaa, yks
   kiinteän pisteen etumerkkivektorien SHA-256-osuman ja liukulukupurun nollaeron kaikissa
   136 kanavaikkunassa. Kiinteän pisteen erovektoreista poikkeavia oli 76, nollavektoreita 60.
   [Ajo](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/46045369965)
+- **Projektin check.** Ubuntu 24.04 ja macOS 27.2.1. Lint, 806/806 yksikkötestiä, typecheck
+  ja build läpi kummassakin. [Linux-ajo](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/46045106473/job/140662289946)
+- **Kohdennetut D2-testit.** Linuxin Playwright Chromium 141: 42/42. Macin Playwright
+  Chromium 141: 42/42. Macin asennettu Google Chrome 158: 42/42. Jokainen sarja sisältää
+  desktop- ja phone-profiilin. [Linux-ajo](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/46045106473/job/140662289602)
+
+| B6:n kohdennettu ajo | Desktop-aloitus | Desktop-latausaste | Desktop yli 2 s | Phone-aloitus | Phone-latausaste | Phone yli 2 s |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Ubuntu, Playwright Chromium 141 | 6,960 s | 8,388 % | 8,873 s | 7,001 s | 8,378 % | 8,899 s |
+| macOS, Playwright Chromium 141 | 6,951 s | 8,353 % | 8,835 s | 6,971 s | 8,353 % | 8,862 s |
+| macOS, Google Chrome 158 | 6,962 s | 8,353 % | 8,843 s | 6,959 s | 8,343 % | 8,866 s |
+
+Ajat lasketaan painalluksesta. Vertailuarvot kuvaavat mitattuja ajoja.
+
+### Mutaatiot
+
+Linuxissa jokainen alla oleva muutos hylättiin tarkoitetussa tarkistuksessa molemmilla
+profiileilla, yhteensä **26/26** odotettua hylkäystä. Puhtaat kontrollit sisältyvät
+42/42 kohdennettuun D2-ajoon. [Mutaatioajo](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/46045466890)
+
+| Mutaatio | Hylkäävä tarkistus |
+| --- | --- |
+| `alignment` | Kitaran PCM poikkeaa yhden näytteen kohdistusvirheen jälkeen |
+| `decoder-delay` | D2:n viive 0, riippumaton viive 529 |
+| `length-missing`, `length-extra` | Palan näytemäärä |
+| `seam` | Tavalliseen saumaan syntyy yhden kehyksen aukko |
+| `tail-stop` | Loopin loppupala soisi kehyksen liian pitkään |
+| `mp3-wrong`, `mp3-corrupt` | D2:n tallentaman kitararaidan SHA-256 |
+| `pool-copy` | Toistoaltaassa kanavan 1 näyte 1000 poikkeaa |
+| `slow-wait` | Toisto ei ala muun latauksen jatkuessa |
+| `slow-stall` | Toistokohta jää alle 2 sekunnin |
+| `pcm-step` | Kanavan 0 näyte 481000 poikkeaa yksinään |
+| `decoder-pattern` | Tuntemattoman erotusvektorin SHA-256 |
+
+`pcm-step` lisäsi yhteen D2:n PCM-näytteeseen arvon `1/131072`
+(noin 0,0000076294 eli neljännes 16-bittisestä kvantisointiaskeleesta).
+`decoder-pattern` muutti vastaavasti riippumattoman kokopurkuvertailun yhtä näytettä,
+PCM:n bittitarkkuustarkistuksen jälkeen. Tuntemattoman vektorin raportti oli sama
+molemmissa profiileissa.
+
+```json
+{
+  "sha256": "70cb5bf1b8e4b2e3cdcad46b4318fdf106b13d0e95e5976fe256d5aa49adc264",
+  "count": 19161,
+  "max": 0.00003053247928619385,
+  "rms": 0.000019281193866202562,
+  "first": 480000
+}
+```
+
+### Koko Chromium-regressio
+
+Linuxissa Playwrightin Chromium 141 (desktop ja phone, kolme työntekijää, ei retry-ajoja)
+`1294 läpi / 0 epäonnistunutta / 50 ennestään ohitettua`. Kesto 16,2 min.
+[Linux-ajo](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/46045106473/job/140662289909)
+
+macOS 27.2.1 arm64:n asennetulla Google Chrome 158.0.8127.38:lla
+`1293 läpi / 1 epäonnistunut / 50 ennestään ohitettua`. Kesto 14,5 min.
+Ainoa epäonnistuminen oli desktop-profiilin B4, `tests/e2e/practice.spec.ts:89`.
+Avoimen G-kielen odotettu teksti oli `G` ja saatu teksti `3 · GG`.
+[Erillinen B4-seuranta #211](https://github.com/ristotoivanen/Musiikin-kartta/issues/211)
+
+Kohdennetun ja laajan ajon testikoodi vastaa committia `ebd5a31`. Referenssiaineisto
+on sisällöltään sama ja tiiviimmin muotoiltu commitista `66c63fb` alkaen.
+Puhdas ajo käytti Gitissä ollutta sovellusbundlea. Check ajettiin omassa työpuussa.
+`npm run check:song-audio` läpäisi 10/10 MP3-tiedoston tarkistusta.
+
+Fyysinen laite, korvakuuntelu ja käyttäjäkokeet ovat tässä QA-korjauksessa testaamatta.
+Tulokset koskevat dekoodausta, Web Audio -ajastusta ja työpöytä- sekä puhelinemulaation
+käyttäjäkulkua.
