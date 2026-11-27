@@ -1,6 +1,6 @@
 # #116, vaihe 2: Sävelkorva ja melodia – inventaario ja Ydinopinnot
 
-**Tila:** KATSELMOITAVA TOTEUTUS (Draft-PR). Ei omistajan pedagogista hyväksyntää, beta-yhdistämistä eikä julkaisua.
+**Tila:** KATSELMOITAVA TOTEUTUS (Draft-PR). Ominaisuuskehitys jäädytetty 27.11.2026; omistaja on testannut version 2.3. Ei beta-yhdistämistä eikä julkaisua (odottaa omistajan yhdistämislupaa).
 **Päiväys:** 26.11.2026, versio 2.3 (loppukorjaukset K7–K9; versio 2.2 25.11.2026, korjaukset K1–K6 versiolla 2.1 tehdyn auditoinnin jälkeen; versio 2.1 23.11.2026, pedagogisen auditoinnin ja omistajan käyttäjätestin jälkeen). **Lähtö-SHA:** `beta` @ `454aee5882346c1834a41ee6f786c6195680cb06`.
 **Haara:** `claude/116-savelkorva-ydinopinnot`.
 **Lähteet:** [#116](https://github.com/ristotoivanen/Musiikin-kartta/issues/116) ja sen omistajakommentit 19.–23.11.2026, [#115](https://github.com/ristotoivanen/Musiikin-kartta/issues/115), avoimen Draft-PR:n [#146](https://github.com/ristotoivanen/Musiikin-kartta/pull/146) inventaarioehdotus (`docs/oppiminen/sisaltoinventaario-115-2026-11-21.md`, ei betassa), [suunnittelu- ja PR-katselmointiohje](../suunnittelu/suunnittelu-ja-pr-katselmointi.md), Rytmin ja Sointujen hyväksytty Ydinopinnot-toteutus betassa.
@@ -207,3 +207,11 @@ Kaikissa kahdeksassa melodiassa on C, joka erottaa G-duurin D-duurista, ja osass
 ## 8. Ehdotettu jatko (ei toteutettu)
 
 Samantasoiset syventävät kokonaisuudet Ydinopintojen jälkeen, kukin erillisellä luvalla: **Basso ja sointukierto korvalla** (sisällöt 8–9 + uusi peittämätön bassokierto), **Kotisävel ja sävellaji** (1–4, 6), **Asteet ja välit** (5–7, linkki Intervallimuistiin). Duuri/molli/septimi (10–14) ohjataan ensisijaisesti Sointujen kokonaisuuksiin. Vanhan sisällön näkyvyyden muutos vasta #115:n sisältökohtaisella päätöksellä ja #117:n URL-riippuvuudet huomioiden.
+
+## 9. Beta-yhteensopivuus ja hyväksyntätestaus (27.11.2026)
+
+- **Omistajan käyttäjätesti:** omistaja on testannut version 2.3 (`6f17abf`) ja todennut harjoitusten toimivan odotetusti. Laitetta ja yksittäisiä testikohtia ei ole ilmoitettu.
+- **Jäädytys:** pedagogiikkaa, melodioita ja käyttöliittymää ei muuteta ilman todettua regressiota.
+- **Beta:** `07d8126` yhdistetty kehityshaaraan; ainoa ristiriita `rakenna.py`:ssä. Harjoitusten lähdekoodi ei muuttunut.
+- **Regressio:** uusia PR #178:n aiheuttamia regressioita ei löytynyt. Ennestään olevat epäonnistumiset, vertailut, epävarmuudet ja todentamattomat laitetestit: [QA-raportti](../qa/savelkorva-178-beta-2026-11-27/raportti.md).
+- §7:n kohta 9 (koko regressiotestaus) on tehty. Muut laite- ja kuuntelukohdat ovat avoinna raportin Todentamatta-listan mukaisesti.
