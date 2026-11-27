@@ -8,15 +8,18 @@ permissions:
   contents: read
 env:
   BASE: 9d5ad0c9981ff80ca91166474c9523a29b352a7f
+  FIX: 566f3cff2de622dfb6b0f09fad545e358f6f967a
+  NO_COLOR: '1'
+  FORCE_COLOR: '0'
 jobs:
-  baseline:
+  fixed:
     if: github.ref == 'refs/heads/qa/211-opettele-linux'
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 75
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ env.BASE }}
+          ref: ${{ env.FIX }}
           persist-credentials: false
       - uses: actions/checkout@v4
         with:
@@ -26,42 +29,73 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-      - name: Verify baseline and install
+      - name: Verify fix and install
         run: |
-          test "$(git rev-parse HEAD)" = "$BASE"
+          test "$(git rev-parse HEAD)" = "$FIX"
+          git fetch -q --depth=2 origin "$FIX"
+          echo "changed vs base:"; git fetch -q --depth=1 origin "$BASE"; git diff --stat "$BASE" "$FIX"
           cat /etc/os-release
           node --version
           npm ci
           npx playwright --version
-          npx playwright install --with-deps chromium
-          node -e 'const {chromium}=require("@playwright/test"); (async()=>{const b=await chromium.launch(); console.log("Chromium:", b.version()); await b.close();})()'
-          git diff --exit-code HEAD
-      - name: Reproduce with unmodified app and assertion
-        run: |
+          npx playwright install --with-deps chromium webkit
+          node -e 'const {chromium,webkit}=require("@playwright/test"); (async()=>{for (const t of [chromium,webkit]) { const b=await t.launch(); console.log(t.name(), b.version()); await b.close(); }})()'
+          cp .qa/qa/211/webkit.config.ts playwright.qa211-webkit.config.ts
+          mv .qa "$RUNNER_TEMP/qa"
           mkdir -p qa-211-results
-          test "$(grep -c 'vihjeet=always&alku=0&loppu=5' tests/e2e/practice.spec.ts)" = 1
-          for c in '0 0 vapaa' '1 5 painettu' '0 5 sekoitettu'; do
-            set -- $c
-            spec=tests/e2e/zz211-$3.spec.ts
-            sed "s/vihjeet=always&alku=0&loppu=5/vihjeet=always\&alku=$1\&loppu=$2/" tests/e2e/practice.spec.ts > $spec
-            grep -n 'vihjeet=always' $spec
-            for p in desktop phone; do
-              echo "=== $3 / $p"
-              npx playwright test $spec --grep 'Opettele näyttää oikean kohdan' --project=$p --repeat-each=30 --workers=3 --retries=0 --trace=off --reporter=line > qa-211-results/$3-$p.log 2>&1 || true
-              tail -n 5 qa-211-results/$3-$p.log
-              echo "passed/failed:"; grep -E '^ +[0-9]+ (passed|failed|flaky|skipped)' qa-211-results/$3-$p.log || true
-              grep -E '^ +(Expected|Received)( string)?:' qa-211-results/$3-$p.log | sort | uniq -c | sort -rn | head -n 16 || true
-              grep -E 'practice|zz211.*:[0-9]+:[0-9]+$|^ +> [0-9]+ \|' qa-211-results/$3-$p.log | grep -E '> [0-9]+ \|' | sed 's/^ *//' | sort | uniq -c || true
-            done
-            rm $spec
-          done
-      - name: Inspect what the unmodified UI shows
+      - name: Focused repeats, Chromium desktop and phone
+        if: always()
         run: |
-          cp .qa/qa/211/diag.spec.ts tests/e2e/zz211-diag.spec.ts
-          npx playwright test tests/e2e/zz211-diag.spec.ts --workers=1 --trace=off --reporter=line 2>&1 | tee qa-211-results/diag.log
+          set -o pipefail
+          for area in 'vapaat kielet' 'painetut sävelet' 'sekoitettu alue'; do
+            for p in desktop phone; do
+              echo "=== $area / $p"
+              npx playwright test tests/e2e/practice.spec.ts --grep "kyse ole testistä: $area" --project=$p --repeat-each=30 --workers=3 --retries=0 --trace=retain-on-failure --reporter=line --output="test-results/focus-$p-${area// /_}" 2>&1 | tee "qa-211-results/focus-$p-${area// /_}.log" | tail -n 4
+            done
+          done
+      - name: Trainer specs, Chromium
+        if: always()
+        run: |
+          set -o pipefail
+          specs=$(grep -l 'kitaraharjoittelija' tests/e2e/*.spec.ts)
+          echo "$specs"
+          npx playwright test tests/e2e/practice.spec.ts --workers=3 --reporter=line --output=test-results/practice 2>&1 | tee qa-211-results/practice.log | tail -n 12
+          npx playwright test $specs --workers=3 --reporter=line --output=test-results/trainer 2>&1 | tee qa-211-results/trainer.log | tail -n 25
+      - name: WebKit practice.spec and focused repeats
+        if: always()
+        run: |
+          set -o pipefail
+          npx playwright test -c playwright.qa211-webkit.config.ts --grep 'kyse ole testistä' --repeat-each=30 --workers=3 --retries=0 --reporter=line --output=test-results/webkit-focus 2>&1 | tee qa-211-results/webkit-focus.log | tail -n 12
+      - name: WebKit full practice.spec
+        if: always()
+        run: |
+          set -o pipefail
+          npx playwright test -c playwright.qa211-webkit.config.ts --workers=3 --reporter=line --output=test-results/webkit-practice 2>&1 | tee qa-211-results/webkit-practice.log | tail -n 40
+      - name: WebKit practice.spec on unmodified base (comparison)
+        if: always()
+        run: |
+          git show "$BASE:tests/e2e/practice.spec.ts" > tests/e2e/practice.spec.ts
+          npx playwright test -c playwright.qa211-webkit.config.ts --workers=3 --reporter=line --output=test-results/webkit-base > qa-211-results/webkit-practice-base.log 2>&1 || true
+          tail -n 40 qa-211-results/webkit-practice-base.log
+          git checkout -- tests/e2e/practice.spec.ts
+      - name: Full Chromium regression
+        if: always()
+        run: |
+          set -o pipefail
+          git diff --exit-code HEAD
+          npx playwright test --workers=3 --max-failures=20 --reporter=line --output=test-results/full 2>&1 | tee qa-211-results/full.log | tail -n 30
+      - name: npm run check
+        if: always()
+        run: |
+          set -o pipefail
+          rm playwright.qa211-webkit.config.ts
+          npm run check 2>&1 | tee qa-211-results/check.log | tail -n 30
+          git status --short | tee qa-211-results/check-status.log
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: qa-211-baseline
-          path: qa-211-results/
+          name: qa-211-fixed
+          path: |
+            qa-211-results/
+            test-results/
           retention-days: 14
