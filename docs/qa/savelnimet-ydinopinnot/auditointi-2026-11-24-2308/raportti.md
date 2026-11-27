@@ -18,7 +18,7 @@ Suositus: **GO KORJAUKSIN** omistajan loppukokeeseen; beta-yhdistäminen **GO KO
 
 - Xcode 27.2, iOS 27.2 -simulaattori, **iPhone 16 Pro** (oma instanssi "Sävelnimet #116", koska toinen sessio käytti muita). Simulaattorin Safari, ohjaus `control`-työkalulla (napautus, pyyhkäisy, kuvakaappaus, vaalea/tumma, vaaka/pysty, `open_url`). Pienempää iPhonea ei testattu simulaattorissa (iPhone 17e oli käynnissä toisen session käytössä; kapeus katettiin Playwrightilla 320/360/390 px).
 - Erillinen työkopio `worktrees/audit-pr205` (detached 5ea8cdf), `npm ci`. Portti 8765 oli toisen prosessin käytössä, joten ajoin testit väliaikaisesti toisella portilla (muutos kumottu, ei commitoitu).
-- Node 22, Playwright Chromium/WebKit, `afconvert`, omat Node-skriptit (`apu/`).
+- Node 22, Playwright Chromium/WebKit, `afconvert`, omat Node-skriptit ([apu/](apu/README.md), [testitulokset](apu/testitulokset.txt)).
 
 ## 4. Viisi tärkeintä löydöstä
 
@@ -60,7 +60,7 @@ Suositus: **GO KORJAUKSIN** omistajan loppukokeeseen; beta-yhdistäminen **GO KO
 
 ## 9. Mobiilikäytettävyys
 
-Kuvakaappaukset: `kuvakaappaukset/`. Pysty, vaaka, vaalea ja tumma tarkistettu simulaattorissa; ei vaakavieritystä 320/360/390 px (mitattu). Painikkeet 44 px korkeita; leveysrikkomukset kohdassa SN-02-N01. Syvälinkki `#valinta-…` avaa oikean kortin, sulkeminen pysäyttää äänen, fokus palaa summaryyn ✓. Aiemmat oppitunnit ovat erillinen suljettu osio ✓. Zoomaus: `kuvakaappaukset/ios-02-kaksoisnapautus-zoom.png`.
+Kuvakaappaukset: [luettelo raportin lopussa](#kuvakaappaukset). Pysty, vaaka, vaalea ja tumma tarkistettu simulaattorissa; ei vaakavieritystä 320/360/390 px (mitattu). Painikkeet 44 px korkeita; leveysrikkomukset kohdassa SN-02-N01. Syvälinkki `#valinta-…` avaa oikean kortin, sulkeminen pysäyttää äänen, fokus palaa summaryyn ✓. Aiemmat oppitunnit ovat erillinen suljettu osio ✓. Zoomaus: [kuva](kuvakaappaukset/ios-02-kaksoisnapautus-zoom.png).
 
 ## 10. Musiikillinen faktantarkistustaulukko
 
@@ -124,7 +124,7 @@ Semanttinen huomio: #205 on riippuvainen `sointuharjoitus.css`:stä; sointukaavi
 ## 17. Löydökset vakavuusjärjestyksessä (tarkistettu commit 5ea8cdf, iOS 27.2 Simulator Safari ellei toisin mainita)
 
 **SN-01-M01 – MAJOR – yhteinen komponentti, ennestään betassa, toistuu #205:ssä [H]**
-Toisto: avaa harjoitus 02, napauta "Aloita D:stä" kahdesti nopeasti. Odotus: ei zoomia. Todellinen: sivu zoomautuu ja siirtyy sivuttain (`kuvakaappaukset/ios-02-kaksoisnapautus-zoom.png`). Syy: ei `touch-action: manipulation` painikkeilla (mitattu `auto`). Korjaus: `touch-action: manipulation` Ydinopintojen painikkeille (yhteinen CSS).
+Toisto: avaa harjoitus 02, napauta "Aloita D:stä" kahdesti nopeasti. Odotus: ei zoomia. Todellinen: sivu zoomautuu ja siirtyy sivuttain ([kuva](kuvakaappaukset/ios-02-kaksoisnapautus-zoom.png)). Syy: ei `touch-action: manipulation` painikkeilla (mitattu `auto`). Korjaus: `touch-action: manipulation` Ydinopintojen painikkeille (yhteinen CSS).
 
 **SN-02-N01 – MINOR – #205 [H/L]**
 Melodian C/D (36 px), riffin F (34) ja F♯ (42) alle 44 px leveitä 320–390 px:ssä; korkeus 44. Korjaus: `min-width: 44px`.
@@ -185,3 +185,20 @@ VoiceOver; pienempi iPhone simulaattorissa (laite varattu); kontrastien numeerin
 3. **Ennen yhdistämistä:** SN-01-M01 (tai tietoinen siirto yhteiseen korjaukseen) ja SN-02-N01.
 4. **Myöhemmin:** SN-03–10.
 5. **Avoimet hyväksyntäkriteerit:** fyysinen iPhone/Android, todellinen kuuntelu, VoiceOver, oikea kitara.
+
+## Kuvakaappaukset
+
+- [ios-00-aihesivu](kuvakaappaukset/ios-00-aihesivu.png)
+- [ios-01-avattu](kuvakaappaukset/ios-01-avattu.png)
+- [ios-01-d7-dmaj7](kuvakaappaukset/ios-01-d7-dmaj7.png)
+- [ios-01-kuuntelu-kaynnissa](kuvakaappaukset/ios-01-kuuntelu-kaynnissa.png)
+- [ios-01-mallikuuntelu-dynamic-island](kuvakaappaukset/ios-01-mallikuuntelu-dynamic-island.png)
+- [ios-02-kaksoisnapautus-zoom](kuvakaappaukset/ios-02-kaksoisnapautus-zoom.png)
+- [ios-02-reitti-c](kuvakaappaukset/ios-02-reitti-c.png)
+- [ios-02-syvalinkki](kuvakaappaukset/ios-02-syvalinkki.png)
+- [ios-03-riffi-ja-kosketuskohteet](kuvakaappaukset/ios-03-riffi-ja-kosketuskohteet.png)
+- [ios-03-tersseja](kuvakaappaukset/ios-03-tersseja.png)
+- [ios-03-tumma-tilasiirtyma](kuvakaappaukset/ios-03-tumma-tilasiirtyma.png)
+- [ios-03-vaaka-tumma](kuvakaappaukset/ios-03-vaaka-tumma.png)
+- [ios-03-vaara-vastaus-palaute](kuvakaappaukset/ios-03-vaara-vastaus-palaute.png)
+- [ios-sulkeminen-kesken-toiston](kuvakaappaukset/ios-sulkeminen-kesken-toiston.png)
