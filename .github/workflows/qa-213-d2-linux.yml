@@ -1,0 +1,50 @@
+name: QA 213 D2 Linux baseline (B5-B6)
+on:
+  push:
+    branches: [qa/213-d2-linux]
+    paths:
+      - '.github/workflows/qa-213-d2-linux.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  baseline:
+    if: github.ref == 'refs/heads/qa/213-d2-linux'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 07d81265bd4c499e2e3792e39d1ec8188f88c7e7
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Verify baseline and install
+        run: |
+          test "$(git rev-parse HEAD)" = 07d81265bd4c499e2e3792e39d1ec8188f88c7e7
+          git status --short
+          cat /etc/os-release
+          uname -m
+          node --version
+          npm ci
+          npx playwright --version
+          npx playwright install --with-deps chromium
+          node -e 'const {chromium}=require("@playwright/test"); (async()=>{const b=await chromium.launch(); console.log("Chromium:", b.version()); await b.close();})().catch(e=>{console.error(e);process.exit(1)})'
+          git diff --exit-code HEAD
+      - name: Run B5-B6 unchanged in desktop and phone
+        run: |
+          mkdir -p qa-213-results
+          set -o pipefail
+          PLAYWRIGHT_JSON_OUTPUT_FILE=qa-213-results/results.json npx playwright test tests/e2e/song-d2.spec.ts --grep 'bittitark' --workers=3 --max-failures=20 --reporter=line,json 2>&1 | tee qa-213-results/test.log
+      - name: Verify tracked files after test
+        if: always()
+        run: git diff --exit-code HEAD
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qa-213-d2-linux-baseline
+          path: qa-213-results/
+          retention-days: 14
+          if-no-files-found: warn
