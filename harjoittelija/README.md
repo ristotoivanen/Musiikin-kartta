@@ -163,6 +163,43 @@ toisistaan riippumatta. Lisäksi on valinnainen looppi ja aikajana.
 käynnistyy vain erillisestä Soita kappale -painalluksesta.** Mykistys- ja
 looppiasetukset säilyvät vaihdossa.
 
+### Kappaleen soitin: D2 (issue #9)
+
+Oletussoitin on **D2** (`chunkPlayer.ts`). Raidat puretaan 10 s:n paloina
+(`mp3Layout.ts`, `decodeAudioData` raakakehyksistä, selaimen dekooderiviive
+kalibroidaan latauksessa) kiinteään AudioBuffer-altaaseen (enintään 4 paikkaa ×
+3 raitaa, 46 Mt) ja soitetaan yhteisellä Web Audio -kellolla: raidat ovat
+näytetarkasti tahdissa, tauko, jatko, kelaus ja looppi ovat saumattomia, ja
+kitaran ja laulun kytkentä sekä äänenvoimakkuus ovat GainNode-tasoja.
+Raidat luetaan virtana (`progressiveLoad.ts`), joten soitto alkaa ennen koko
+latausta; soittimen alla näkyy latauksen eteneminen (`DownloadProgressLine.tsx`,
+`downloadProgress.ts`). Kelaus lataamattomaan kohtaan odottaa tavuja.
+
+Näytön lukituksen jälkeen iPhonen AudioContextin kello voi jäädä paikalleen
+tilassa `running` (PR #92, D6). `contextClock.ts` seuraa kelloa näkyvältä
+sivulta: soiton aikana pysähdys pysäyttää toiston kuuluvaan kohtaan ja pyytää
+painamaan Soita; painallus tekee `suspend()` → `resume()` -palautuksen,
+varmistaa kellon etenemisen ja jatkaa samasta kohdasta. Jos palautus ei
+onnistu, soitin ja konteksti luodaan seuraavasta painalluksesta uudelleen
+samaan kohtaan. Sivun piilotus pysäyttää toiston kuten ennenkin.
+
+Osoiteparametrit (palautus- ja testikäyttöön, eivät tavalliselle käyttäjälle):
+
+- `?soitin=vanha`: aiempi mediaelementtisoitin (`songAudio.ts`, `StemAligner`,
+  PR #155:n kylmäkäynnistys). Tarjotaan myös virheilmoituksessa, jos selain ei
+  voi purkaa ääntä D2:lle.
+- `?lataus=koko`: D2 lataa koko version ennen soittoa (ei virtalatausta).
+- `?diag=1`: latauksen vaiheet ja selaimen verkkoluvut soittimen alla.
+- `?valjas=1`: mittausvaljaan koukku `window.__kappaleD1` (selaintesteissä
+  koukku on aina, koska `navigator.webdriver` on tosi).
+
+D1-kokeilu (`bufferPlayer.ts`, koko version purku) ei ole käytössä: sen muisti
+kasvoi jokaisessa versionvaihdossa. Tiedostosta käytetään yhteisiä tyyppejä ja
+`createPlaybackContext()`-funktiota. Mittaukset: `docs/qa/ios-d2-*-2026-11-23/`.
+Testit: `tests/chunkPlayer.test.ts`, `tests/progressiveLoad.test.ts`,
+`tests/downloadProgress.test.ts`, `tests/contextClock.test.ts` ja
+`tests/e2e/song-d2*.spec.ts`. Vanhan soittimen testit käyttävät `?soitin=vanha`.
+
 Soittimen alla oleva **Lataa MP3** -linkki lataa valitun version valmiin
 kokonaisen MP3:n (`…-normaali-kokonainen.mp3` tai `…-akustinen-kokonainen.mp3`)
 tavallisena saman originin linkkinä `download`-attribuutilla. Tiedosto on
@@ -302,6 +339,18 @@ perustuvat iPhonen Safarilla 12.11.2026 tehtyihin mittauksiin (iOS 18.7):
 - **Äänitiedostot tarvitsevat HTTP Range -tuen.** Ilman 206-vastauksia
   selain ei voi kelata lainkaan. Cloudflare Pagesissa sen hoitaa
   `functions/assets/audio/[[path]].ts`.
+- **Toiston aloitus (issue #9, korjausehdokas 22.11.2026).** Soita-painallus
+  ei kelaa raitaa, joka on jo kohdassa tai alle 0,12 s:n päässä säestyksestä.
+  Lataus käynnistetään kaikille raidoille samasta painalluksesta, ja toisto
+  alkaa vasta, kun jokaisella raidalla on dataa eikä kelaus ole kesken
+  (enintään 4 s). Korjauskelaukset pidätetään 1,5 s toiston alusta.
+  Mittaukset ja jäljellä olevat riskit:
+  `docs/qa/ios-kaynnistys-issue9-2026-11-22/raportti.md`.
+
+**Tunnettu rajoitus (simulaattori 22.11.2026, ei vielä todennettu laitteella):**
+tauon jälkeinen jatko ja kelaus kesken soiton voivat jättää raidan kuulumaan
+0,1–1 s väärästä kohdasta. Sama tapahtuu betassa, eikä aloituksen korjaus
+poista sitä.
 
 **Tunnettu rajoitus:** kun raita kytketään iPhonella takaisin päälle kesken
 soiton, se voi nykäistä hetken ja asettua tahtiin vasta yhden korjauksen

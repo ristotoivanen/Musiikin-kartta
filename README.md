@@ -56,6 +56,22 @@ Varsinaiset soittamiseen ja kuunteluun tarkoitetut harjoitukset ovat
 erillisessä [Kitaraharjoittelijassa](kitaraharjoittelija.html)
 sekä oppaan lukujen ääniesimerkeissä.
 
+### Sävelverkko ja yhteinen otelauta
+
+[Sävelverkossa](savelverkko.html) voi tutkia sävelten paikkoja, etsiä saman
+sävelkorkeuden eri kieliltä, yhdistää oktaavipareja ja rakentaa verkon muistista.
+Oppitunti voi avata saman pelin suoraan harjoitukseen parametrilla
+`?harjoitus=sama-korkeus`, `?harjoitus=oktaavi` tai `?harjoitus=muisti`.
+
+Vaakasuoran otelaudan pohja on tiedostossa `assets/otelauta.js`.
+`MusicMapFretboard.neckSurface({ count, cell, row, firstY })` piirtää satulan,
+kielet, nauhat, numerot ja asemamerkit SVG:nä. Mitat ovat piirtoyksikköjä.
+Kielirivi 0 on ohut e, ja `OPEN_PITCHES` antaa rivien soivat MIDI-korkeudet.
+Otelautaopas käyttää pohjaa `renderBoard`-funktion kautta. Kitaraharjoittelija
+ja Riffikaiku käyttävät samaa pintaa `Board`-komponentin painikkeiden alla.
+Sävelverkko piirtää omat yhteysviivansa pinnan päälle. Harjoitus käsittelee
+vastaukset, äänen ja palautteen.
+
 ## Kappaleharjoittelu
 
 **Kappaleharjoittelu** on Kitaraharjoittelijan neljäs oppimispolku.

@@ -3,6 +3,7 @@ import {
   DEFAULT_SONG_VOLUME, MAX_DRIFT_SECONDS, MIN_DRIFT_FIX_INTERVAL_MS, SongGainMixer, TRACK_BALANCE,
   IOS_SEEK_LATENCY_SECONDS, StemAligner, elementVolumeWorks, initialSeekLatency, isIOSDevice, parseSongVolume, songVolumeMode,
   resetSharedSeekLatency, shouldCorrectDrift, trackLevel,
+  HAVE_FUTURE_DATA, START_ALIGN_TOLERANCE_SECONDS, STARTUP_SETTLE_MS, startLoading, tracksReady, waitForTracksReady, type ReadyMedia,
 } from '../harjoittelija/songAudio';
 
 describe('Kappaleharjoittelijan yhteinen äänenvoimakkuus', () => {
@@ -220,3 +221,152 @@ describe('StemAligner', () => {
     expect(aligner.latency).toBe(1.5);
   });
 });
+
+/**
+ * Issue #9, kylmäkäynnistys (fyysinen iPhone ja iOS-simulaattori 22.11.2026): kitaran ja laulun tarpeeton
+ * pakotettu nollakelaus käynnisti latauksen vain niille, säestys lähti muita myöhemmin, ja tahdistimen
+ * yksittäinen korjauskelaus toiston alussa jätti kitaran kuulumaan 0,1–1,5 s väärästä kohdasta.
+ */
+describe('kolmen raidan käynnistys (issue #9)', () => {
+  /** Mediaraita, joka kirjaa currentTime-kirjoitukset. */
+  const tracked = (time: number, extra: Partial<{ paused: boolean; readyState: number }> = {}) => {
+    const writes: number[] = [];
+    let current = time;
+    return {
+      writes, paused: true, seeking: false, readyState: 1, loop: false, duration: 212, ...extra,
+      get currentTime() { return current; },
+      set currentTime(value: number) { writes.push(value); current = value; },
+    };
+  };
+  beforeEach(() => resetSharedSeekLatency());
+
+  it('pakotettu tahdistus ei kelaa raitaa, joka on jo kohdassa (ei nollakelausta)', () => {
+    const aligner = new StemAligner(0);
+    const backing = tracked(0), guitar = tracked(0), vocals = tracked(0);
+    expect(aligner.align(backing, guitar, true, 0)).toBe(false);
+    expect(aligner.align(backing, vocals, true, 0)).toBe(false);
+    expect(guitar.writes).toEqual([]);
+    expect(vocals.writes).toEqual([]);
+  });
+
+  it('pakotettu tahdistus kelaa yhä raidan, joka on eri kohdassa', () => {
+    const aligner = new StemAligner(0);
+    const guitar = tracked(12.3);
+    expect(aligner.align(tracked(60), guitar, true, 0)).toBe(true);
+    expect(guitar.writes).toEqual([60]);
+  });
+
+  it('Soita-painalluksen tahdistus ei kelaa pientä eroa, mutta korjaa todellisen eron', () => {
+    const aligner = new StemAligner(0);
+    expect(START_ALIGN_TOLERANCE_SECONDS).toBe(MAX_DRIFT_SECONDS);
+    // Simulaattorin ft1-ajo: tauolla kitara 21 ms ja laulu 42 ms säestyksen jäljessä.
+    const backing = tracked(9.588), guitar = tracked(9.567), vocals = tracked(9.546);
+    expect(aligner.align(backing, guitar, true, 0, START_ALIGN_TOLERANCE_SECONDS)).toBe(false);
+    expect(aligner.align(backing, vocals, true, 0, START_ALIGN_TOLERANCE_SECONDS)).toBe(false);
+    expect([guitar.writes, vocals.writes]).toEqual([[], []]);
+    // Jatkuvan toiston korjausrajaa suurempi ero kelataan kuten ennen.
+    const behind = tracked(9.2);
+    expect(aligner.align(backing, behind, true, 0, START_ALIGN_TOLERANCE_SECONDS)).toBe(true);
+    expect(behind.writes).toEqual([9.588]);
+    // Ilman toleranssia (käyttäjän kelaus, raidan päälle kytkentä) pienikin ero tahdistetaan tarkasti.
+    expect(aligner.align(backing, guitar, true, 0)).toBe(true);
+    expect(guitar.writes).toEqual([9.588]);
+  });
+
+  it('korjauskelaukset pidätetään toiston alun ajan, mutta todellinen drift korjataan sen jälkeen', () => {
+    const aligner = new StemAligner(0);
+    aligner.hold(STARTUP_SETTLE_MS);
+    // Simulaattorin b2-ajo: kitaran kello 0,358 s, säestyksen 0,172 s (säestys odotti dataa).
+    const backing = tracked(0.172, { paused: false, readyState: 4 });
+    const guitar = tracked(0.358, { paused: false, readyState: 4 });
+    expect(aligner.align(backing, guitar, false, 580)).toBe(false);
+    expect(guitar.writes).toEqual([]);
+    // Pidätyksen jälkeen sama ero korjataan kuten ennen.
+    expect(aligner.align(backing, guitar, false, STARTUP_SETTLE_MS)).toBe(true);
+    expect(guitar.writes).toHaveLength(1);
+  });
+
+  it('pidätys ei estä pakotettua tahdistusta (käyttäjän kelaus, raidan päälle kytkentä)', () => {
+    const aligner = new StemAligner(0);
+    aligner.hold(10_000);
+    const guitar = tracked(3, { paused: true });
+    expect(aligner.align(tracked(45, { paused: false, readyState: 4 }), guitar, true, 100)).toBe(true);
+    expect(guitar.writes).toEqual([45]);
+  });
+
+  /** Raita valmiuden odotusta varten: play() keskeytyy pause()-kutsuun kuten selaimessa. */
+  const loadable = (readyState: number) => {
+    const listeners = new Map<string, Set<() => void>>();
+    const media = {
+      readyState, error: null as unknown, plays: 0, pauses: 0,
+      play() { media.plays++; return Promise.reject(Object.assign(new Error('keskeytetty'), { name: 'AbortError' })); },
+      pause() { media.pauses++; },
+      addEventListener(type: string, fn: () => void) { if (!listeners.has(type)) listeners.set(type, new Set()); listeners.get(type)!.add(fn); },
+      removeEventListener(type: string, fn: () => void) { listeners.get(type)?.delete(fn); },
+      emit(type: string) { for (const fn of [...(listeners.get(type) ?? [])]) fn(); },
+      listenerCount() { return [...listeners.values()].reduce((sum, set) => sum + set.size, 0); },
+    };
+    return media;
+  };
+
+  it('käynnistää latauksen kaikille valmistumattomille raidoille samasta painalluksesta ja pysäyttää ne heti', async () => {
+    const backing = loadable(1), guitar = loadable(4), vocals = loadable(1);
+    expect(tracksReady([backing, guitar, vocals])).toBe(false);
+    expect(startLoading([backing, guitar, vocals] as ReadyMedia[])).toBe(2);
+    expect([backing.plays, guitar.plays, vocals.plays]).toEqual([1, 0, 1]);
+    expect([backing.pauses, guitar.pauses, vocals.pauses]).toEqual([1, 0, 1]);
+    await Promise.resolve(); // AbortError käsitellään eikä jää käsittelemättömäksi.
+  });
+
+  it('kesken oleva kelaus ei ole valmis, vaikka raidalla on dataa (tauon jälkeinen jatko)', async () => {
+    vi.useFakeTimers();
+    try {
+      // Simulaattori 22.11.2026: tauon jälkeinen tahdistuskelaus oli kesken, readyState 4.
+      const backing = loadable(4), guitar = Object.assign(loadable(4), { seeking: true }), vocals = Object.assign(loadable(4), { seeking: true });
+      expect(tracksReady([backing, guitar, vocals])).toBe(false);
+      expect(startLoading([backing, guitar, vocals] as ReadyMedia[])).toBe(2);
+      expect([backing.plays, guitar.plays, vocals.plays]).toEqual([0, 1, 1]);
+      const result = waitForTracksReady([backing, guitar, vocals] as ReadyMedia[], 4000, () => false);
+      guitar.seeking = false; guitar.emit('seeked');
+      await vi.advanceTimersByTimeAsync(10);
+      vocals.seeking = false; vocals.emit('seeked');
+      await expect(result).resolves.toBe('valmis');
+      expect([backing, guitar, vocals].map(track => track.listenerCount())).toEqual([0, 0, 0]);
+    } finally { vi.useRealTimers(); }
+  });
+
+  it('odottaa, että jokaisella raidalla on dataa, ja siivoaa kuuntelijat', async () => {
+    vi.useFakeTimers();
+    try {
+      const tracks = [loadable(1), loadable(4), loadable(1)];
+      const result = waitForTracksReady(tracks as ReadyMedia[], 4000, () => false);
+      tracks[0].readyState = HAVE_FUTURE_DATA; tracks[0].emit('canplay');
+      await vi.advanceTimersByTimeAsync(100);
+      tracks[2].readyState = 4; tracks[2].emit('canplay');
+      await expect(result).resolves.toBe('valmis');
+      expect(tracks.map(track => track.listenerCount())).toEqual([0, 0, 0]);
+    } finally { vi.useRealTimers(); }
+  });
+
+  it('valmiuden odotus päättyy aikakatkaisuun, latausvirheeseen tai uudempaan painallukseen', async () => {
+    vi.useFakeTimers();
+    try {
+      const slow = [loadable(1)];
+      const timeout = waitForTracksReady(slow as ReadyMedia[], 4000, () => false);
+      await vi.advanceTimersByTimeAsync(4000);
+      await expect(timeout).resolves.toBe('aikakatkaisu');
+
+      const broken = loadable(1);
+      const failure = waitForTracksReady([broken] as ReadyMedia[], 4000, () => false);
+      broken.error = { code: 4 }; broken.emit('error');
+      await expect(failure).resolves.toBe('virhe');
+
+      let superseded = false;
+      const cancelled = waitForTracksReady([loadable(1)] as ReadyMedia[], 4000, () => superseded);
+      superseded = true;
+      await vi.advanceTimersByTimeAsync(60);
+      await expect(cancelled).resolves.toBe('ohitettu');
+    } finally { vi.useRealTimers(); }
+  });
+});
+

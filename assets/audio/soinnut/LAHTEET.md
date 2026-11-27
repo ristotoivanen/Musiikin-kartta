@@ -123,3 +123,55 @@ Jos ensimmäisen muodon lataus tai purku epäonnistuu, käytetään toista.
 AAC-muoto ei yksin todista toimivuutta iPhonessa tai Safarissa. Fyysinen iPhone/Safari-kuuntelu
 (alku, kesto, häivytys, äänenvoimakkuus, äänetön tila, lukitus ja taustalta paluu) on erillinen
 hyväksyntäehto (#116).
+
+
+## Sointipajan tasojen 3–4 lisänäytteet (#48)
+
+Alkuperäiset OGG-tiedostot samasta kiinnitetystä Meta Steel Guitar -commitista 514c926efecdb3c7812bf00eedf8e5c8d61dd681; lähde- ja kohde-Git-blobit identtiset. Julkaisijan SHA-256:
+
+| Kieli / nauha | Sävel | Perusnimi | SHA-256 (OGG) |
+|---|---|---|---|
+| D / 1 | D♯3 | INSGuitarSteel_StringD_Vel02_Ds3_01 | 951a016cabcda492eed51b8a1d09b1183cb3b73b120bf7c88431d2ec1aca9bfd |
+| G / 3 | B♭3 | INSGuitarSteel_StringG_Vel02_As3_01 | a14225590cf32a782d6b4f07a48d05df28323b40903ac0fee706d08983f83021 |
+| D / 3 | F3 | INSGuitarSteel_StringD_Vel02_F3_01 | 52436f0c7d8f3b073d4d7833c63353eff1a52d9269f2d0394a64902602ee3198 |
+
+Tarvitaan B7-, C7- ja Fmaj7-otteisiin. AAC tehdään alkuperäisestä WAV:stä (ei OGG:stä eikä transponoinnilla) skriptillä tools/aanet/tuo-sointipaja-34.py: WAV-arkiston CRC32, 48 kHz mono, 5 s, loppuhäivytys 0,4 s, FFmpeg AAC 96 kbit/s, ffprobe-tarkistus. AAC-tiedostojen toteutunut tila ja tarkisteet tarkistetaan CI-ajosta; ennen sitä AAC-yhteensopivuutta ei väitetä todennetuksi. Fyysinen kuuntelu avoin.
+
+
+## Sävelnimet ja sointumerkinnät · Ydinopinnot (#116)
+
+Sointu-, reitti- ja intervalliharjoitukset käyttävät 15 Meta Steel Guitar
+`Vel02`-kielinäytettä. Lähteen CC0 1.0 -lisenssi on kuvattu yllä.
+Kaikki kitarasävelet soitetaan äänitetyltä kieleltä alkuperäisessä
+sävelkorkeudessa. C♯3 ja D♭3 käyttävät samaa A-kielen 4. nauhan näytettä.
+
+| Äänitetty kieli | Käytetyt sävelet |
+| --- | --- |
+| A | A2, C3, **C♯3 / D♭3**, **D3** |
+| D | D3, F3, **F♯3**, **A3**, D4 |
+| G | A3 |
+| B | C4, C♯4, D4 |
+| Ohut e | F♯4, G4 |
+
+Lihavoidut neljä näytettä lisättiin kumpaankin tiedostomuotoon.
+OGG-tiedostot saatiin muuttamattomina Meta Open Soundin commitista
+`514c926efecdb3c7812bf00eedf8e5c8d61dd681` ja tarkistettiin julkaisijan
+`SHA256SUMS`-tiedostoa sekä PR #157:n näyteinventaariota vasten.
+AAC-LC tehtiin saman aineiston `meta-steel-guitar-v1.0.0`-julkaisun
+alkuperäisistä 24-bittisistä stereo-WAV-tiedostoista. WAV-tiedostot
+tarkistettiin ZIP:n CRC32:n ja paketin oman `SHA256SUMS`-tiedoston avulla.
+Käsittely käytti `tools/aanet/soinnut-naytteet.py`:n muunnosta
+(48 kHz mono, 5 s, 0,4 s loppuhäivytys, macOS `afconvert`, AAC 96 kbit/s).
+Muiden näytteiden tiedostot ovat ennallaan.
+
+| Tiedoston perusnimi | Alkuperäinen OGG SHA-256 | Alkuperäinen WAV SHA-256 | Muunnettu M4A SHA-256 |
+| --- | --- | --- | --- |
+| `INSGuitarSteel_StringA_Vel02_Cs3_01` | `d22d662bf9c63c97dce30b4e481c5804ec897b6b149da8085e093803571c52c5` | `2703463c1a97bbe441219cf71be3805d1c22432d2acddcbfdc25fa4044920482` | `b5e589dc6b224acf7244e677c241cfe0a125cf69318617dda352d6f416f8226c` |
+| `INSGuitarSteel_StringA_Vel02_D3_01` | `0745d090f11986db4a7c1f63aa45b9ad30c4b51e26504f4028ec68406899e5ed` | `ca5d6427ce50d792d65f66fd49e16a654615f211df1627c765edbe97bf367530` | `96c65f15994bfebccd70c184af13fbb486dac769d3cd0f0e08a1224011c7e549` |
+| `INSGuitarSteel_StringD_Vel02_Fs3_01` | `f373b9107b3292b59c43860f9be08387ece67c8f4a70a174a6b1f113887b4bd5` | `0e78d99abdd42b2c5e5ca4ed3ba0ada94710734233846f27007ec325724dd0fb` | `516ab6844974c873a35de5edb9338fd0e8a44a69d4d1dcbe1a25563354c8f515` |
+| `INSGuitarSteel_StringD_Vel02_A3_01` | `9757cc4f4e2aceb4c615b4c2eac2806e035195f0a4793e115ee3d45e1a70d31f` | `a4118765b43ee361051d42ed9d2e85882d4601c4b9b61311352358074252aea7` | `e9ac20df96f0eae346e6819cc4d9d6eaea3028a27379b7486606e9cbbcef7f1d` |
+
+Säestysten D-basso, bassorumpu, virveli ja hi-hat muodostetaan
+`assets/savelnimet-aanet.js`:ssä tapahtumapohjaisella synteesillä
+96 BPM:n tempossa. Oikeat kitaranäytteet soittavat melodian, riffin ja
+melodiaharjoituksen D-lopetussoinnun.

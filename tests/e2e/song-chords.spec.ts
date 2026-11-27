@@ -1,6 +1,8 @@
+// Issue #9: kappaleharjoittelijan oletussoitin on D2 (tests/e2e/song-d2*.spec.ts). Tämä tiedosto on vanhan
+// mediaelementtisoittimen (?soitin=vanha, palautusvaihtoehto) regressiotesti.
 import { test, expect, type Page } from '@playwright/test';
 
-const ACOUSTIC_LINK = '/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen';
+const ACOUSTIC_LINK = '/kitaraharjoittelija.html?soitin=vanha&kappale=yksi-sointu-kaksi-askelta-akustinen';
 
 /** Soinnut ja sanat on oletuksena suljettu. */
 async function openChart(page: Page) {
@@ -338,7 +340,7 @@ test.describe('Seuraavan kappaleenosan sointuennakko', () => {
   // Säkeistö 1:n 7. ja viimeinen tahti sekä kertosäkeen alku (songChart.ts:n tahtirajat).
   const versions = [
     { version: 'acoustic', link: ACOUSTIC_LINK, bar7: 36, lastBar: 39.4, beforeChorus: 42.9, chorus: 43 },
-    { version: 'normal', link: '/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-normaali',
+    { version: 'normal', link: '/kitaraharjoittelija.html?soitin=vanha&kappale=yksi-sointu-kaksi-askelta-normaali',
       bar7: 35.2, lastBar: 38.6, beforeChorus: 41.9, chorus: 42 },
   ] as const;
 
@@ -435,7 +437,7 @@ test.describe('Sointumerkintöjen esitystapa', () => {
   const jump = (page: Page) => panel(page).getByRole('combobox', { name: 'Harjoiteltava osa' });
 
   for (const [version, link] of [['acoustic', ACOUSTIC_LINK],
-    ['normal', '/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-normaali']] as const) {
+    ['normal', '/kitaraharjoittelija.html?soitin=vanha&kappale=yksi-sointu-kaksi-askelta-normaali']] as const) {
     test(`${version}: power-soinnut näkyvät tahtikartassa, soivassa soinnussa ja ennakossa ajoituksen muuttumatta`, async ({ page }, testInfo) => {
       await page.goto(link);
       await openChart(page);

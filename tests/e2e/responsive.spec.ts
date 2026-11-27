@@ -18,11 +18,11 @@ type Sample = { visible: boolean; gone?: boolean; key: string; scrollLeft: numbe
  */
 function playingSample(scope: string): Promise<Sample> {
   return pageRef.evaluate(scope => {
-    const cell = document.querySelector(scope + ' .practice-board td.playing');
+    const cell = document.querySelector(scope + ' .practice-board :is(th,td).playing');
     if (!cell) return null;
     const box = cell.closest('.fret-scroll') as HTMLElement;
     const frame = box.getBoundingClientRect();
-    const head = box.querySelector('tbody th')!.getBoundingClientRect().width;
+    const head = cell.matches('th.open-fret') ? 0 : box.querySelector('tbody th')!.getBoundingClientRect().width;
     const r = (cell.querySelector('.dot') ?? cell).getBoundingClientRect();
     const button = cell.querySelector('button')!;
     return { visible: r.left >= frame.left + head - 1 && r.right <= frame.left + box.clientWidth + 1,
@@ -319,7 +319,7 @@ test.describe('Harjoitustehtävien vihjeet keskitetään edelleen (ei mallisoitt
     const visibleIn = (selector: string) => page.evaluate(selector => {
       const dot = document.querySelector(selector); if (!dot) return null;
       const box = dot.closest('.fret-scroll') as HTMLElement; const f = box.getBoundingClientRect();
-      const head = box.querySelector('tbody th')!.getBoundingClientRect().width; const r = dot.getBoundingClientRect();
+      const head = dot.closest('th.open-fret') ? 0 : box.querySelector('tbody th')!.getBoundingClientRect().width; const r = dot.getBoundingClientRect();
       return { visible: r.left >= f.left + head - 1 && r.right <= f.left + box.clientWidth + 1, scrollLeft: Math.round(box.scrollLeft), scrollable: box.scrollWidth > box.clientWidth };
     }, selector);
     await page.getByRole('button', { name: 'Näytä vihje', exact: true }).click();
@@ -339,7 +339,7 @@ test.describe('Harjoitustehtävien vihjeet keskitetään edelleen (ei mallisoitt
     await page.getByRole('button', { name: 'Näytä vihje' }).click();
     const r = await page.evaluate(() => {
       const dot = document.querySelector('.practice-board .anchor .dot')!; const box = dot.closest('.fret-scroll') as HTMLElement;
-      const f = box.getBoundingClientRect(); const head = box.querySelector('tbody th')!.getBoundingClientRect().width; const d = dot.getBoundingClientRect();
+      const f = box.getBoundingClientRect(); const head = dot.closest('th.open-fret') ? 0 : box.querySelector('tbody th')!.getBoundingClientRect().width; const d = dot.getBoundingClientRect();
       return d.left >= f.left + head - 1 && d.right <= f.left + box.clientWidth + 1;
     });
     expect(r).toBe(true);

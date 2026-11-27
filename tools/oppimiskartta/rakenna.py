@@ -6,6 +6,7 @@ import hashlib
 import json
 import posixpath
 import re
+import sys
 from dataclasses import dataclass
 from html import escape, unescape
 from html.parser import HTMLParser
@@ -14,10 +15,13 @@ from textwrap import dedent, indent
 from urllib.parse import parse_qs, unquote, urlsplit, urlunsplit
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / 'tools'))
+from kaaviot.sointukaavio import figure as chord_figure
+
 CONFIG = Path(__file__).with_name('aiheet.json')
 GENERATED = '<!-- Muodostettu komennolla npm run build:oppimiskartta. -->'
 VOID = set('area base br col embed hr img input link meta param source track wbr'.split())
-TOOLS = {'kitaraharjoittelija.html', 'otelautaharjoittelija.html', 'riffikaiku.html', 'pelit/ensikeikka/index.html'}
+TOOLS = {'kitaraharjoittelija.html', 'otelautaharjoittelija.html', 'otelautaopas-beta.html', 'riffikaiku.html', 'pelit/ensikeikka/index.html'}
 SLUG = re.compile('[a-z0-9]+(?:-[a-z0-9]+)*')
 
 
@@ -206,7 +210,7 @@ def lesson_pages(topic, item, books, excerpts):
         content = source.read_text(encoding='utf-8').strip()
         if not content:
             raise ValueError(f'{source.name}: oppitunnin sisältö puuttuu')
-        content = chord_placeholders(content, books)
+        content = voicing_placeholders(chord_placeholders(content, books))
         return [Page(path, item['title'], source.relative_to(ROOT).as_posix(), content, item['goal'])]
 
     source, key = part_anchor(item['source'])
@@ -343,6 +347,15 @@ def chord_placeholders(body, books):
     Näin sama ote piirtyy kaikkialla yhdestä lähteestä (tools/kaaviot/sointukaavio.py → book/)."""
     return re.sub(r'^([ ]*)<!-- sointukaaviot:(\S+) ([^\n]+?) -->',
                   lambda match: recap_chord_diagrams(match, books), body, flags=re.MULTILINE)
+
+
+def voicing_placeholders(body):
+    """Piirrä oma ote yhteisellä sointukaaviolla. Korostus on soivan kielen numero."""
+    def diagram(match):
+        space, name, frets, string = match.groups()
+        return space + chord_figure(name, frets, korostus=int(string), kuvaus=f'muuttuva sävel kielellä {string}')
+
+    return re.sub(r'^([ ]*)<!-- sointuote:(\w+) ([x0-9]{6}) ([1-6]) -->$', diagram, body, flags=re.MULTILINE)
 
 
 def recap_fret_notes():
@@ -693,6 +706,7 @@ def render(topic, content, nav, page=None, *, path_items=()):
     stylesheets = ['book/reader.css', 'assets/paavalikko.css', 'assets/oppi.css']
     if recap:
         stylesheets.append('assets/kitara-kertaus.css')
+        stylesheets.append('assets/perustaitojen-minitunnit.css')
     # Rytmin Ydinopinnot (#116): harjoitusten tyylit ja moduuli.
     rhythm_practice = 'data-rytmiharjoitus=' in (page.markup if page else content)
     if rhythm_practice:
@@ -707,10 +721,14 @@ def render(topic, content, nav, page=None, *, path_items=()):
     # Avattavat oppimiskokonaisuudet ja ⓘ Knoppitieto (#116) sekä Soinnut-aiheen kitaranäyteharjoitukset.
     units = getattr(page, 'unit', None) if page else topic.get('layout') == 'kokonaisuudet'
     chord_practice = 'data-sointuharjoitus=' in (page.markup if page else content)
-    if units:
+    if units or recap:
         stylesheets.append('assets/kokonaisuudet.css')
-    if chord_practice:
+    note_practice = 'data-savelnimiopinto=' in (page.markup if page else content)
+    # Yhteisen inline-kortin tyylit ovat alkuperäisen sointupilottitiedoston lopussa.
+    if chord_practice or note_practice:
         stylesheets.append('assets/sointuharjoitus.css')
+    if note_practice:
+        stylesheets.append('assets/savelnimet-ydinopinnot.css')
     styles = '\n'.join(stylesheet(path, output) for path in stylesheets)
     focus_mode = bool(page and getattr(page, 'unit', None) and page.unit.get('inline'))
     back_href = rel(topic['path'], output) if page else rel('index.html', output) + '#' + topic['anchor']
@@ -738,7 +756,10 @@ def render(topic, content, nav, page=None, *, path_items=()):
     # Musapeleistä ja Kitaratreenistä avattu sivu palaa samaan oppimistapaan (?tapa=…), ja aihesivulla
     # näkyy saman aiheen vaihto. Muodostetaan komennolla tools/oppimiskartta/rakenna-osiot.py.
     scripts.append(rel('assets/oppimistapa.js', output))
-    if units:
+    if recap:
+        scripts += [versioned_url(path, output) for path in (
+            'assets/otelauta.js', 'assets/kitara-kertaus.js', 'assets/perustaitojen-minitunnit.js')]
+    if units or recap:
         scripts.append(versioned_url('assets/kokonaisuudet.js', output))
     if chord_practice:
         scripts.append(versioned_url('assets/sointuharjoitus.js', output))
@@ -750,6 +771,8 @@ def render(topic, content, nav, page=None, *, path_items=()):
         scripts += f'\n  <script type="module" src="{versioned_url("assets/rytmi-ydinopinnot.js", output)}"></script>'
     if melody_practice:
         scripts += f'\n  <script type="module" src="{versioned_url("assets/melodia-ydinopinnot.js", output)}"></script>'
+    if note_practice:
+        scripts += f'\n  <script type="module" src="{versioned_url("assets/savelnimet-ydinopinnot.js", output)}"></script>'
     page_class = ' recap-page' if recap else (' study-page--focus' if focus_mode else '')
     # Muiden sivujen yhteinen päävalikko pysyy tavulleen ennallaan.
     header_html = '' if focus_mode else ('  <header class="site-top">\n'

@@ -219,7 +219,7 @@ test.describe('Riffikaiku-peli – virtuaalikitara', () => {
     expect((await audio(page)).opens).toBe(0);
     // Opastettu taso: sävelet ja ehdotetut paikat näkyvät harjoittelussa.
     await expect(page.getByTestId('hint')).toContainText('B3 – C4');
-    await expect(page.locator('.riff-board td.target .dot')).toHaveCount(2);
+    await expect(page.locator('.riff-board :is(th,td).target .dot')).toHaveCount(2);
     await expect(rows(page)).toHaveCount(6);
     const [b, g] = [await rowStyle(page, 1), await rowStyle(page, 2)];
     expect(b.opacity).toBe(1); expect(g.opacity).toBeLessThan(1); expect(b.head).not.toBe(g.head);
@@ -236,10 +236,10 @@ test.describe('Riffikaiku-peli – virtuaalikitara', () => {
     await expect(page.locator('.riff-board .dot')).toHaveCount(0); // vastaukset piilossa
     await expect(count(page)).toHaveText('Ratkaistu 0/2');
     await press(cell(page, 1, 5), isMobile);
-    await expect(page.locator('.riff-board td.wrong .dot')).toHaveText('✗');
+    await expect(page.locator('.riff-board :is(th,td).wrong .dot')).toHaveText('✗');
     await expect(feedback(page)).toHaveText('Väärä sävel. Kokeile uudelleen.');
     await press(cell(page, 1, 0), isMobile);
-    await expect(page.locator('.riff-board td.target .dot')).toHaveText('B3');
+    await expect(page.locator('.riff-board :is(th,td).target .dot')).toHaveText('B3');
     await press(cell(page, 1, 1), isMobile);
     await expect(status(page)).toHaveText('Riffi soitettu loppuun');
     await expect(status(page)).toBeFocused();
@@ -490,7 +490,7 @@ test.describe('Riffiharjoitus – oikea kitara (simuloitu mikrofoni)', () => {
     await expect(page.getByTestId('learn-notes')).toContainText('A3 – G-kieli, 2. nauha');
     expect(await slotTexts(page)).toEqual(['A3', 'A3', 'G3', 'B3']);
     // Ehdotetut paikat järjestysnumeroin; toistuva A3 samassa paikassa yhdistetään (1·2).
-    await expect(page.locator('.riff-board td.target .dot')).toHaveText(['3', '1·2', '4']);
+    await expect(page.locator('.riff-board :is(th,td).target .dot')).toHaveText(['3', '1·2', '4']);
     await clearTones(page);
     await press(cell(page, 2, 2), isMobile);
     expect(await tones(page)).toEqual([57]);
@@ -549,7 +549,7 @@ test.describe('Riffiharjoitus – oikea kitara (simuloitu mikrofoni)', () => {
     await expect(count(page)).toHaveText('Tunnistettu 1/4');
     await page.getByRole('button', { name: 'Näytä seuraava sävel' }).click();
     await expect(feedback(page)).toHaveText('Seuraava sävel (2/4): C4 – B-kieli, 1. nauha.');
-    await expect(page.locator('.riff-board td.target .dot')).toHaveCount(2);
+    await expect(page.locator('.riff-board :is(th,td).target .dot')).toHaveCount(2);
     for (const [i, midi] of [60, 62, 60].entries()) { await pluck(page, midi); await expect(count(page)).toHaveText(`Tunnistettu ${i + 2}/4`); }
     await expect(feedback(page)).toContainText('Mikrofoni kuuli koko riffin oikeassa järjestyksessä: B3 – C4 – D4 – C4');
     expect(await marksOf(page)).toEqual(['found', 'found', 'found', 'found']);
@@ -613,7 +613,7 @@ test.describe('Riffiharjoitus – oikea kitara (simuloitu mikrofoni)', () => {
     await stepButton(page, /Opettele/).click();
     await setMic(page, { frequency: hz(62) });
     await expect(page.getByTestId('learn-heard')).toHaveText('Kuulen nyt: D4');
-    await expect(page.locator('.riff-board td.playing .dot')).toHaveText('D4');
+    await expect(page.locator('.riff-board :is(th,td).playing .dot')).toHaveText('D4');
     await setMic(page, { frequency: hz(64) });
     await expect(page.getByTestId('learn-heard')).toContainText('(ei kuulu tähän riffiin)');
     await setMic(page, { frequency: 0 });

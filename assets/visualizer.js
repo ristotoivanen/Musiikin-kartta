@@ -1,5 +1,6 @@
 /* Otelautakartta: vain visualisointi, ei harjoitustehtäviä tai ääniraitoja. */
 import { getSeventhVoicings, hasSeventhVoicing } from './seventh-voicings.js';
+import { createChordsBeta } from './soinnut-beta.js';
 
 (() => {
   'use strict';
@@ -55,9 +56,21 @@ import { getSeventhVoicings, hasSeventhVoicing } from './seventh-voicings.js';
     octaves: $('octave-legend')
   };
 
+  // Otelautaopas BETA (otelautaopas-beta.html) korvaa vanhan Soinnut-paneelin uudella (assets/soinnut-beta.js).
+  // Vanha sivu ei sisällä #chord-beta-elementtiä ja toimii ennallaan.
+  const betaPanel = $('chord-beta');
+  const betaPad = $('chord-pad');
+  const betaDetails = $('chord-details');
+  const betaNav = $('beta-nav');
+  let chordsBeta = null;
+  let ready = false;
+
   let { rootPC, scaleId } = selectionFromURL(9, 'mp');
-  let view = location.hash === '#oktaavit' ? 'octaves'
-    : location.hash === '#soinnut' ? 'chords' : 'scale';
+  // BETA-sivulla Soinnut avautuu oletuksena; Asteikot-näkymän osoite on #asteikot.
+  const viewFromHash = () => location.hash === '#oktaavit' ? 'octaves'
+    : location.hash === '#soinnut' ? 'chords'
+      : betaNav ? (location.hash === '#asteikot' ? 'scale' : 'chords') : 'scale';
+  let view = viewFromHash();
   // Soinnut eivät riipu muualla valitusta asteikosta.
   const params = new URLSearchParams(location.search);
   const initialQuality = params.get('sointu');
@@ -85,15 +98,21 @@ import { getSeventhVoicings, hasSeventhVoicing } from './seventh-voicings.js';
     const url = new URL(location.href);
     url.searchParams.set('toonikka', CHROM[rootPC]);
     url.searchParams.set('asteikko', scaleId);
-    if (view === 'chords') {
+    if (betaNav) {
+      if (level === 'advanced') url.searchParams.set('taso', 'laaja'); else url.searchParams.delete('taso');
+    }
+    if (view === 'chords' && chordsBeta) {
+      chordsBeta.writeParams(url.searchParams);
+    } else if (view === 'chords') {
       url.searchParams.set('sointu', chordGroup === 'sevenths' ? seventhQuality : triadQuality);
       url.searchParams.set('ote', chordGroup !== 'sevenths' ? chordMode
         : hasSeventhVoicing(seventhQuality) ? formParam(seventhRoot) : 'all');
     } else {
       url.searchParams.delete('sointu');
       url.searchParams.delete('ote');
+      ['kielet', 'nro'].forEach(name => url.searchParams.delete(name));
     }
-    url.hash = view === 'octaves' ? 'oktaavit' : view === 'chords' ? 'soinnut' : '';
+    url.hash = view === 'octaves' ? 'oktaavit' : view === 'chords' ? 'soinnut' : betaNav ? 'asteikot' : '';
     history.replaceState(null, '', url.pathname + url.search + url.hash);
   }
 
@@ -103,7 +122,9 @@ import { getSeventhVoicings, hasSeventhVoicing } from './seventh-voicings.js';
     scaleField.hidden = next !== 'scale';
     rootLabel.textContent = next === 'chords' ? 'Soinnun perussävel'
       : next === 'octaves' ? 'Näytettävä sävel' : 'Kotisävel';
-    scaleSettings.hidden = next !== 'scale';
+    // BETA: sävel ja asteikko valitaan suorilla painikkeilla (betaNav), ei valikoista.
+    if (chordsBeta) chordsBeta.setActive(next === 'chords');
+    scaleSettings.hidden = next !== 'scale' || (betaNav && level === 'basic');
     chordSettings.hidden = next !== 'chords';
     octaveSettings.hidden = next !== 'octaves';
     if (updateUrl) syncUrl();
@@ -316,22 +337,84 @@ import { getSeventhVoicings, hasSeventhVoicing } from './seventh-voicings.js';
     updateScrollHint();
   }
 
+  // --- Otelautaopas BETA: yhteinen sävel- ja asteikkonavigointi sekä Perus/Laaja-näkymä ---------
+  const NATURAL_ROOTS = new Set([0, 2, 4, 5, 7, 9, 11]);
+  const BASIC_SCALES = new Set(['mp', 'majp']);
+  const capital = text => text[0].toUpperCase() + text.slice(1);
+  let level = 'basic';
+
+  function buildBetaNav() {
+    $('beta-roots').innerHTML = CHROM.map((name, pc) =>
+      '<button type="button" data-root="' + pc + '"' + (NATURAL_ROOTS.has(pc) ? '' : ' data-adv') +
+      ' aria-pressed="false">' + name + '</button>').join('');
+    const scaleButton = id => '<button type="button" data-scale="' + id + '"' + (BASIC_SCALES.has(id) ? '' : ' data-adv') +
+      ' aria-pressed="false">' + capital(SCALES[id].name) + '</button>';
+    $('beta-pent').innerHTML = ['mp', 'majp'].map(scaleButton).join('');
+    $('beta-modes').innerHTML = ['ionian', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'aeolian', 'locrian'].map(scaleButton).join('');
+    betaNav.addEventListener('click', event => {
+      const button = event.target.closest('button');
+      if (!button) return;
+      if (button.dataset.level) level = button.dataset.level;
+      else if (button.dataset.root !== undefined) { rootPC = Number(button.dataset.root); chordsBeta?.rootChanged(); }
+      else if (button.dataset.scale) scaleId = button.dataset.scale;
+      else return;
+      syncUrl();
+      render();
+    });
+  }
+
+  function applyBetaLevel() {
+    const advanced = level === 'advanced';
+    if (!advanced) {
+      if (!NATURAL_ROOTS.has(rootPC)) rootPC -= 1;
+      if (!BASIC_SCALES.has(scaleId)) scaleId = ['ionian', 'lydian', 'mixolydian'].includes(scaleId) ? 'majp' : 'mp';
+    }
+    betaNav.querySelectorAll('[data-adv]').forEach(element => { element.hidden = !advanced; });
+    $('beta-scale-block').hidden = view !== 'scale';
+    scaleSettings.hidden = view !== 'scale' || !advanced;
+    $('beta-root-label').textContent = rootLabel.textContent;
+    betaNav.querySelectorAll('[data-level]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.level === level)));
+    betaNav.querySelectorAll('[data-root]').forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.root) === rootPC)));
+    betaNav.querySelectorAll('[data-scale]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.scale === scaleId)));
+  }
+
   function render() {
+    if (betaNav) applyBetaLevel();
     rootSelect.value = String(rootPC);
     scaleSelect.value = scaleId;
     Object.entries(legends).forEach(([name, element]) => { element.hidden = name !== view; });
-    if (view === 'chords') renderChords();
+    if (view === 'chords' && chordsBeta) {
+      chordsBeta.render();
+      if (ready) syncUrl();
+    } else if (view === 'chords') renderChords();
     else if (view === 'octaves') renderOctaves();
     else renderScale();
   }
 
   CHROM.forEach((name, index) => rootSelect.add(new Option(name, String(index))));
-  updateChordOptions();
+  if (betaPanel && betaPad && betaDetails) {
+    chordsBeta = createChordsBeta({
+      panel: betaPanel, board, pad: betaPad, details: betaDetails,
+      getRoot: () => rootPC,
+      setRoot: pitchClass => { rootPC = pitchClass; },
+      fretCount, automatic, level: () => level,
+      change: render,
+      summary: ({ title: heading, notes }) => { title.textContent = heading; notesLabel.textContent = notes; },
+      afterRender: grip => { updateScrollHint(); if (grip) revealPositions(board, '.grip-notes'); },
+    });
+    chordsBeta.readParams(params);
+    buildBetaNav();
+    level = params.get('taso') === 'laaja' || chordsBeta.needsAdvanced || !BASIC_SCALES.has(scaleId) ||
+      !NATURAL_ROOTS.has(rootPC) ? 'advanced' : 'basic';
+  } else {
+    updateChordOptions();
+  }
   pentatonicBoxes.innerHTML = boxOptions('pentatonic');
   threeNoteBoxes.innerHTML = boxOptions('3nps');
 
   rootSelect.addEventListener('change', () => {
     rootPC = Number(rootSelect.value);
+    chordsBeta?.rootChanged();
     gripIndex.full = 0; gripIndex.triad = 0;
     syncUrl();
     render();
@@ -346,45 +429,47 @@ import { getSeventhVoicings, hasSeventhVoicing } from './seventh-voicings.js';
   [pentatonicBoxes, threeNoteBoxes].forEach(group =>
     group.addEventListener('change', render));
   onlyBoxNotes.addEventListener('change', render);
-  chordGroupSelect.addEventListener('change', () => {
-    chordGroup = chordGroupSelect.value;
-    updateChordOptions();
-    syncUrl();
-    render();
-  });
-  qualitySelect.addEventListener('change', () => {
-    if (chordGroup === 'sevenths') {
-      seventhQuality = qualitySelect.value;
-    } else {
-      triadQuality = qualitySelect.value;
-      gripIndex.full = 0; gripIndex.triad = 0;
-    }
-    syncUrl();
-    render();
-  });
-  chordModes.forEach(button => button.addEventListener('click', () => {
-    chordMode = button.dataset.chordMode;
-    syncUrl();
-    render();
-  }));
-  seventhFormButtons.forEach(button => button.addEventListener('click', () => {
-    seventhRoot = Number(button.dataset.seventhRoot);
-    syncUrl();
-    render();
-  }));
-  prevGrip.addEventListener('click', () => {
-    gripIndex[chordMode] = Math.max(0, gripIndex[chordMode] - 1);
-    render();
-  });
-  nextGrip.addEventListener('click', () => {
-    gripIndex[chordMode] += 1;
-    render();
-  });
+  if (!chordsBeta) {
+    chordGroupSelect.addEventListener('change', () => {
+      chordGroup = chordGroupSelect.value;
+      updateChordOptions();
+      syncUrl();
+      render();
+    });
+    qualitySelect.addEventListener('change', () => {
+      if (chordGroup === 'sevenths') {
+        seventhQuality = qualitySelect.value;
+      } else {
+        triadQuality = qualitySelect.value;
+        gripIndex.full = 0; gripIndex.triad = 0;
+      }
+      syncUrl();
+      render();
+    });
+    chordModes.forEach(button => button.addEventListener('click', () => {
+      chordMode = button.dataset.chordMode;
+      syncUrl();
+      render();
+    }));
+    seventhFormButtons.forEach(button => button.addEventListener('click', () => {
+      seventhRoot = Number(button.dataset.seventhRoot);
+      syncUrl();
+      render();
+    }));
+    prevGrip.addEventListener('click', () => {
+      gripIndex[chordMode] = Math.max(0, gripIndex[chordMode] - 1);
+      render();
+    });
+    nextGrip.addEventListener('click', () => {
+      gripIndex[chordMode] += 1;
+      render();
+    });
+  }
 
   window.addEventListener('hashchange', () => {
-    setView(location.hash === '#oktaavit' ? 'octaves'
-      : location.hash === '#soinnut' ? 'chords' : 'scale', false);
+    setView(viewFromHash(), false);
   });
   if (typeof ResizeObserver !== 'undefined') new ResizeObserver(updateScrollHint).observe(board);
   setView(view, false);
+  ready = true;
 })();

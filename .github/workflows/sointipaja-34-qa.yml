@@ -1,0 +1,38 @@
+name: Sointipaja 3–4 isolated QA
+on:
+  push:
+    branches: [chatgpt/48-sointipaja-tasot-3-4]
+permissions:
+  contents: write
+concurrency:
+  group: sointipaja-34
+  cancel-in-progress: false
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/chatgpt/48-sointipaja-tasot-3-4'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build missing original-source AAC samples
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+          python3 tools/aanet/tuo-sointipaja-34.py
+      - name: Persist only three AAC files on this draft branch
+        run: |
+          git add assets/audio/soinnut/INSGuitarSteel_StringD_Vel02_Ds3_01.m4a assets/audio/soinnut/INSGuitarSteel_StringG_Vel02_As3_01.m4a assets/audio/soinnut/INSGuitarSteel_StringD_Vel02_F3_01.m4a
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "audio(#48): original WAV-derived AAC samples"
+            git push origin HEAD:chatgpt/48-sointipaja-tasot-3-4
+          fi
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium webkit
+      - run: npx playwright test tests/e2e/sointipaja-prototype.spec.ts --workers=2
+      - run: npx playwright test tests/e2e/sointipaja-prototype.spec.ts --config=playwright.musapelit-142-webkit.config.ts --workers=2

@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { fretName, music, note, positionKey, positions, stringName, type Position } from './music';
 import type { Area, Mark } from './engine';
 import { accuracy, averageMs, proficiency, type Stat } from './storage';
 import { useFollowScroll } from './followScroll';
 
-const INLAYS = new Set([3, 5, 7, 9, 15, 17, 19, 21]);
-const STRING_LABELS = ['e', 'B', 'G', 'D', 'A', 'E'];
+const INLAYS = new Set(music.neckStyle.markers);
+const STRING_LABELS = music.STRING_NAMES;
 function StringLabel({ string }: { string: number }) {
   return <span className="string-label">
     <span>{string + 1} · <strong>{STRING_LABELS[string]}</strong></span>
@@ -38,8 +38,18 @@ function FretHeader({ min, max }: { min: number; max: number }) {
 export function Board({ area, marks = [], mutedStrings = [], disabled = false, onAnswer, caption = 'Otelauta', follow = 'hints', playback }:
   { area: Area; marks?: Mark[]; mutedStrings?: number[]; disabled?: boolean; onAnswer?: (p: Position) => void; caption?: string;
     follow?: 'hints' | 'playing'; playback?: string | boolean | null }) {
-  const columns = { '--cols': area.max - area.min + 1 } as CSSProperties;
   const { strings, min, max } = area;
+  const firstFret = Math.max(1, min);
+  const fretCount = Math.max(0, max - firstFret + 1);
+  const surface = useMemo(() => {
+    if (!fretCount) return '';
+    const unit = 46;
+    const x = music.neckStyle.rail + (firstFret - 1) * unit;
+    const neck = music.neckSurface({ count: max, cell: unit, row: unit, firstY: unit / 2 });
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${x} 0 ${fretCount * unit} ${6 * unit}" preserveAspectRatio="none">${neck}</svg>`;
+    return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+  }, [firstFret, fretCount, max]);
+  const columns = { '--cols': fretCount, '--neck-surface': surface } as CSSProperties;
   const [cursor, setCursor] = useState({ string: Math.min(...strings), fret: min });
   const viewport = useRef<HTMLDivElement>(null);
   const byKey = new Map(marks.map(m => [positionKey(m), m]));
@@ -48,7 +58,7 @@ export function Board({ area, marks = [], mutedStrings = [], disabled = false, o
     // Tuo vihje tai vastaus näkyviin vierittämällä vain otelautaa, ei koko sivua.
     if (follow !== 'hints') return;
     const box = viewport.current, target = box?.querySelector<HTMLElement>('.target, .anchor');
-    if (box && target) box.scrollLeft += target.getBoundingClientRect().left - box.getBoundingClientRect().left - box.clientWidth / 2 + target.clientWidth / 2;
+    if (box && target && !target.matches('th.open-fret')) box.scrollLeft += target.getBoundingClientRect().left - box.getBoundingClientRect().left - box.clientWidth / 2 + target.clientWidth / 2;
   }, [shown, follow]);
   // Mallisoitossa otelauta alkaa alueen alusta, kun alue vaihtuu, eikä hyppää kotisävelen kohdalle.
   useEffect(() => {
@@ -79,17 +89,18 @@ export function Board({ area, marks = [], mutedStrings = [], disabled = false, o
       {more.right && <span aria-hidden="true"> →</span>}
     </p>}
     <div ref={viewport} className="fret-scroll" tabIndex={0} role="region" aria-label="Otelaudan vastausruudukko">
-    <table className="practice-board" style={columns}><caption>{caption} · ohut e ylhäällä, paksu E alhaalla</caption>
-      <FretHeader min={min} max={max} />
+    <table className="practice-board note-board" style={columns}><caption>{caption} · ohut e ylhäällä, paksu E alhaalla</caption>
+      <FretHeader min={firstFret} max={max} />
       <tbody>{music.OPEN_PITCHES.map((_, string) => <tr key={string} className={strings.includes(string) ? '' : 'unused'} style={stringThickness(string)}>
-        <th scope="row" aria-label={`${string + 1}. kieli: ${stringName[string]}${mutedStrings.includes(string) ? ', ei soiteta' : ''}`}>
+        {min > 0 && <th scope="row" aria-label={`${string + 1}. kieli: ${stringName[string]}${mutedStrings.includes(string) ? ', ei soiteta' : ''}`}>
           <StringLabel string={string} />
           {mutedStrings.includes(string) && <span className="string-muted" aria-hidden="true">×</span>}
-        </th>
+        </th>}
         {positions([string], min, max).map(p => {
           const m = byKey.get(positionKey(p));
           const place = `${stringName[string]}-kieli, ${fretName(p.fret)}`;
-          return <td key={p.fret} className={`${p.fret === 0 ? 'open-fret ' : ''}${m ? (m.kind === 'answer' ? 'target' : m.kind) : ''}`}>
+          const Cell = p.fret === 0 ? 'th' : 'td';
+          return <Cell key={p.fret} scope={p.fret === 0 ? 'row' : undefined} className={`${p.fret === 0 ? 'open-fret ' : ''}${m ? (m.kind === 'answer' ? 'target' : m.kind) : ''}`}>
             <button type="button" data-string={string} data-fret={p.fret}
               tabIndex={focusable.string === string && focusable.fret === p.fret ? 0 : -1} onFocus={() => setCursor(p)}
               onKeyDown={event => {
@@ -102,8 +113,10 @@ export function Board({ area, marks = [], mutedStrings = [], disabled = false, o
               }}
               disabled={disabled || !strings.includes(string)}
               aria-label={place + (m ? `, ${MARK_WORD[m.kind]}${m.label ? ' ' + m.label : ''}` : '')}
-              onClick={() => onAnswer?.(p)}>{m ? <span className="dot">{m.label || '●'}</span> : null}</button>
-          </td>;
+              onClick={() => onAnswer?.(p)}>
+              {p.fret === 0 && <span className="open-string-name"><StringLabel string={string} />{mutedStrings.includes(string) && ' ×'}</span>}
+              {m ? <span className="dot">{m.label || '●'}</span> : null}</button>
+          </Cell>;
         })}</tr>)}</tbody></table>
     </div>
   </div>;

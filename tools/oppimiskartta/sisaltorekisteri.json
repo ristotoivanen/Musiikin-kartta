@@ -45,7 +45,10 @@
     "kitaratreeni.html": "kitara",
     "kitaraharjoittelija.html": "kitara",
     "soittopakki.html": "pakki",
-    "otelautaharjoittelija.html": "pakki"
+    "otelautaharjoittelija.html": "pakki",
+    "otelautaopas-beta.html": "pakki",
+    "savelverkko.html": "pelit",
+    "sointipaja-prototyyppi.html": "pelit"
   },
   "tavat": {
     "pelit": {
@@ -160,6 +163,24 @@
       "tuloksen_laji": null
     },
     {
+      "id": "peli:savelverkko",
+      "nimi": "Sävelverkko",
+      "tavat": [
+        "pelit"
+      ],
+      "aiheet": [
+        "otelauta"
+      ],
+      "osoite": "savelverkko.html",
+      "aiheparametri": true,
+      "kuvaus": "Etsi yhtä korkeat sävelet ja niiden oktaavit. Rakenna lopuksi verkko muistista ja soita se omalla kitaralla.",
+      "taito": "Saman sävelkorkeuden ja oktaavimuotojen löytäminen eri kieliltä",
+      "valine": "virtuaalikitara",
+      "saatavuus": "beta",
+      "tulos": null,
+      "tuloksen_laji": null
+    },
+    {
       "id": "harjoittelija:avosoinnut",
       "nimi": "Tunnista avoin sointu",
       "tavat": [
@@ -177,6 +198,24 @@
       "taito": "Tavallisten avoimien sointuotteiden tunnistaminen",
       "valine": "otelautakuva",
       "saatavuus": "valmis",
+      "tulos": null,
+      "tuloksen_laji": null
+    },
+    {
+      "id": "peli:sointipaja",
+      "nimi": "Sointupaja",
+      "tavat": [
+        "pelit"
+      ],
+      "aiheet": [
+        "soinnut"
+      ],
+      "osoite": "sointipaja-prototyyppi.html",
+      "aiheparametri": true,
+      "kuvaus": "Harjoittele 24 avosointua neljällä tasolla tai haasta itsesi ajastetussa Sointuhaasteessa.",
+      "taito": "Sointuotteiden tunnistaminen ja tunnistamisen sujuvuus",
+      "valine": "virtuaalikitara",
+      "saatavuus": "beta",
       "tulos": null,
       "tuloksen_laji": null
     },
@@ -254,33 +293,34 @@
         "soinnut",
         "asteikot"
       ],
-      "osoite": "otelautaharjoittelija.html",
+      "osoite": "otelautaopas-beta.html",
       "aiheparametri": false,
       "kuvaus": "Näytä asteikot, soinnut ja oktaavit otelaudalla mistä tahansa kotisävelestä.",
       "taito": "Otelaudan hahmottaminen",
       "valine": "näkymä",
-      "saatavuus": "valmis",
+      "saatavuus": "beta",
+      "merkki": "BETA",
       "tulos": null,
       "tuloksen_laji": null,
       "nakymat": [
         {
           "id": "asteikot",
           "nimi": "Asteikot ja moodit",
-          "osoite": "otelautaharjoittelija.html?toonikka=A&asteikko=mp",
+          "osoite": "otelautaopas-beta.html?toonikka=A&asteikko=mp#asteikot",
           "aihe": "asteikot",
           "kuvaus": "A-mollipentatoninen valmiiksi valittuna. Vaihda asteikkoa ja kotisäveltä."
         },
         {
           "id": "soinnut",
           "nimi": "Sointukartta",
-          "osoite": "otelautaharjoittelija.html#soinnut",
+          "osoite": "otelautaopas-beta.html#soinnut",
           "aihe": "soinnut",
           "kuvaus": "Sointuotteet, sointusävelet ja intervallit otelaudalla."
         },
         {
           "id": "oktaavit",
           "nimi": "Oktaavit",
-          "osoite": "otelautaharjoittelija.html?toonikka=A#oktaavit",
+          "osoite": "otelautaopas-beta.html?toonikka=A#oktaavit",
           "aihe": "otelauta",
           "kuvaus": "Saman sävelen paikat eri kielillä oktaavimuotojen avulla."
         }

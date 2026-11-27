@@ -53,7 +53,7 @@ describe('renderBoard ja siirrettävän otteen mykistetyt kielet', () => {
     const svg = renderBoard(G, gmaj7, 17, { grip: gmaj7EShape });
 
     expect(gripMutes(svg)).toEqual([]);
-    expect(count(svg, '<text class="muted-mark" x="49"')).toBe(2);
+    expect(count(svg, '<text class="muted-mark" x="23"')).toBe(2);
     expect(count(svg, 'opacity=".35"')).toBe(2);
     expect(count(svg, 'stroke-dasharray="3 3"')).toBe(4);
   });

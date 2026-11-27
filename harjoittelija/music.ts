@@ -5,6 +5,9 @@ export type Scale = { name: string; base: [number, string][]; add: [number, stri
 export type Box = { strings: number[][]; start: number; end: number; partial?: boolean };
 declare global {
   var MusicMapFretboard: {
+    STRING_NAMES: string[];
+    neckStyle: { rail: number; markers: number[] };
+    neckSurface(options: { count: number; cell: number; row: number; firstY: number; dimmed?: boolean[] }): string;
     OPEN_PITCHES: number[]; CHROM: string[]; SCALES: Record<string, Scale>;
     scaleNotes(scale: Scale): [number, string][];
     noteName(root: number, interval: number, degree: string): string;

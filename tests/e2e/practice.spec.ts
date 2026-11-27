@@ -494,8 +494,8 @@ test.describe('sivuston yhtenäisyys', () => {
     await expect(page).toHaveURL(/osa-11\.html#moodit$/);
     await page.goBack();
     await page.getByRole('navigation', { name: 'Päävalikko' }).getByRole('link', { name: 'Soittopakki' }).click();
-    await page.getByRole('link', { name: 'Avaa Otelautaopas' }).click();
-    await expect(page).toHaveURL(/otelautaharjoittelija\.html$/);
+    await page.getByRole('link', { name: 'Avaa Otelautaopas', exact: true }).click();
+    await expect(page).toHaveURL(/otelautaopas-beta\.html$/);
   });
 });
 

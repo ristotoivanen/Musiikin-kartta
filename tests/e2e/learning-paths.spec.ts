@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 
+// Issue #9: kolme kappaletestiä käyttää vanhaa mediaelementtisoitinta (?soitin=vanha); D2:n vastineet: song-d2-kaytto.spec.ts.
 test.describe('Uudet oppimispolut', () => {
   test('etusivulla näkyy neljä polkua eikä vanhaa pudotusvalikkoa', async ({ page }) => {
     await page.goto('/kitaraharjoittelija.html');
@@ -21,8 +22,11 @@ test.describe('Uudet oppimispolut', () => {
       const file = (el: HTMLMediaElement) => el.getAttribute('src')?.split('/').pop() ?? '';
       HTMLMediaElement.prototype.play = function () { w.__plays.push(file(this)); return Promise.resolve(); };
       HTMLMediaElement.prototype.pause = function () { w.__pauses.push(file(this)); };
+      // Raidoilla on dataa (kuten PR #161): muuten PR #155:n kylmäkäynnistys käynnistää latauksen play()+pause()-parilla,
+      // ja kutsulista riippuisi siitä, ehtiikö headless-selain ladata raidat ennen painallusta.
+      Object.defineProperty(HTMLMediaElement.prototype, 'readyState', { configurable: true, get: () => 4 });
     });
-    await page.goto('/kitaraharjoittelija.html');
+    await page.goto('/kitaraharjoittelija.html?soitin=vanha');
     await page.getByRole('button', { name: /Kappaleharjoittelu/ }).click();
 
     await expect(page.getByRole('heading', { name: 'Yksi sointu, kaksi askelta' })).toBeVisible();
@@ -87,7 +91,7 @@ test.describe('Uudet oppimispolut', () => {
         this.dataset.pauseCount = String(Number(this.dataset.pauseCount ?? '0') + 1);
       };
     });
-    await page.goto('/kitaraharjoittelija.html');
+    await page.goto('/kitaraharjoittelija.html?soitin=vanha');
     await page.getByRole('button', { name: /Kappaleharjoittelu/ }).click();
 
     const version = page.getByRole('combobox', { name: 'Versio' });
@@ -159,7 +163,7 @@ test.describe('Uudet oppimispolut', () => {
 
   test('käyttäjän valitsemaa versiota ei vaihdeta automaattisesti kesken harjoittelun', async ({ page }) => {
     test.setTimeout(60_000); // Useita media- ja sivulatauksia hitaalla CI-ympäristöllä.
-    await page.goto('/kitaraharjoittelija.html');
+    await page.goto('/kitaraharjoittelija.html?soitin=vanha');
     await page.getByRole('button', { name: /Kappaleharjoittelu/ }).click();
     const version = page.getByRole('combobox', { name: 'Versio' });
     await expect(version).toHaveValue('normal');
@@ -175,7 +179,7 @@ test.describe('Uudet oppimispolut', () => {
     await expect(page.locator('.song-player audio').first()).toHaveAttribute('src', /akustinen-saestys\.mp3$/);
 
     // Kappalelinkillä avattu sivu pitää linkin samassa versiossa kuin valinnan.
-    await page.goto('/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-akustinen');
+    await page.goto('/kitaraharjoittelija.html?soitin=vanha&kappale=yksi-sointu-kaksi-askelta-akustinen');
     await version.selectOption('normal');
     await expect(page).toHaveURL(/kappale=yksi-sointu-kaksi-askelta-normaali/);
     await page.reload();
@@ -207,7 +211,7 @@ test.describe('Uudet oppimispolut', () => {
 
     await expect(page.getByRole('heading', { name: 'A-mollipentatoninen · positio 3' })).toBeVisible();
     await expect(page.getByText(/Nauhat 9–13/)).toBeVisible();
-    const marked = page.locator('.practice-board td.target button, .practice-board td.shape button');
+    const marked = page.locator('.practice-board :is(th,td).target button, .practice-board :is(th,td).shape button');
     await expect(marked).toHaveCount(12);
     const notes = await marked.evaluateAll(buttons => buttons.map(button =>
       button.getAttribute('data-string') + ':' + button.getAttribute('data-fret')).sort());
@@ -215,7 +219,7 @@ test.describe('Uudet oppimispolut', () => {
       '0:10', '0:12', '1:10', '1:13', '2:12', '2:9',
       '3:10', '3:12', '4:10', '4:12', '5:10', '5:12',
     ]);
-    await expect(page.locator('.practice-board td.target')).toHaveCount(2);
+    await expect(page.locator('.practice-board :is(th,td).target')).toHaveCount(2);
 
     await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
     await page.getByRole('button', { name: /Harjoiteltu, seuraava vaihe/ }).click();
@@ -294,10 +298,10 @@ test.describe('Uudet oppimispolut', () => {
     await expect(page.getByRole('heading', { name: 'A-mollipentatoninen · positioiden 1 ja 2 yhdistäminen' })).toBeVisible();
     await expect(page.getByText(/Nauhat 5–10/)).toBeVisible();
     await expect(page.locator('.practice-board .dot')).toHaveCount(18);
-    await expect(page.locator('.practice-board td.anchor .dot')).toHaveCount(5);
-    await expect(page.locator('.practice-board td.target .dot')).toHaveCount(4);
+    await expect(page.locator('.practice-board :is(th,td).anchor .dot')).toHaveCount(5);
+    await expect(page.locator('.practice-board :is(th,td).target .dot')).toHaveCount(4);
 
-    const shared = await page.locator('.practice-board td.anchor button, .practice-board td.target button')
+    const shared = await page.locator('.practice-board :is(th,td).anchor button, .practice-board :is(th,td).target button')
       .evaluateAll(buttons => buttons.map(button =>
         button.getAttribute('data-string') + ':' + button.getAttribute('data-fret')).sort());
     expect(shared).toContain('3:7');
@@ -360,7 +364,7 @@ test.describe('Uudet oppimispolut', () => {
     await expect(page.getByRole('heading', { name: 'A-mollipentatoninen · positio 2' })).toBeVisible();
     await expect(page.getByText(/Nauhat 7–10/)).toBeVisible();
     await expect(page.locator('.practice-board .dot')).toHaveCount(12);
-    const boardNotes = () => page.locator('.practice-board td.target button, .practice-board td.shape button')
+    const boardNotes = () => page.locator('.practice-board :is(th,td).target button, .practice-board :is(th,td).shape button')
       .evaluateAll(buttons => buttons.map(button =>
         button.getAttribute('data-string') + ':' + button.getAttribute('data-fret')).sort());
     expect(await boardNotes()).toEqual([
@@ -373,7 +377,7 @@ test.describe('Uudet oppimispolut', () => {
     await expect(page.getByRole('heading', { name: 'Soita muistista' })).toBeVisible();
     await expect(page.locator('.practice-board .dot')).toHaveCount(0);
     await page.getByRole('button', { name: 'Näytä pohjasävelet' }).click();
-    await expect(page.locator('.practice-board td.target button')).toHaveCount(2);
+    await expect(page.locator('.practice-board :is(th,td).target button')).toHaveCount(2);
 
     await page.reload();
     await page.getByRole('button', { name: /Skaalat ja moodit/ }).click();
@@ -454,12 +458,12 @@ test.describe('Uudet oppimispolut', () => {
 
     // Kuuntele ja tutustu: jatkuva mallisoitto ja liikkuva otelautakorostus.
     await page.getByRole('button', { name: '▶ Toista asteikkoa jatkuvasti' }).click();
-    const highlight = page.locator('.practice-board td.playing button');
+    const highlight = page.locator('.practice-board :is(th,td).playing button');
     await expect(highlight).toHaveCount(1);
     await expect(page.getByRole('status')).toContainText('Jatkuva toisto käynnissä · Nyt soi:');
     const initial = await highlight.getAttribute('data-string') + ':' + await highlight.getAttribute('data-fret');
     await expect.poll(async () => {
-      const current = page.locator('.practice-board td.playing button');
+      const current = page.locator('.practice-board :is(th,td).playing button');
       return await current.getAttribute('data-string') + ':' + await current.getAttribute('data-fret');
     }, { timeout: 3500 }).not.toBe(initial);
 
@@ -529,7 +533,7 @@ test.describe('Uudet oppimispolut', () => {
     // Käyttäjä painaa näkyvää segmenttiä; varsinainen radiopainike on sen sisällä.
     const choose = (name: string) => hints.locator('label', { hasText: name }).click();
     // Merkinnät kielinumeroittain (0 = ohut e, 5 = paksu E) ja nauhoittain.
-    const marks = () => page.locator('.practice-board td.target button, .practice-board td.shape button').evaluateAll(buttons =>
+    const marks = () => page.locator('.practice-board :is(th,td).target button, .practice-board :is(th,td).shape button').evaluateAll(buttons =>
       buttons.map(button => ({
         at: button.getAttribute('data-string') + ':' + button.getAttribute('data-fret'),
         label: button.textContent ?? '',
