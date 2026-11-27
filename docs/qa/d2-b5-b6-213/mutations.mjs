@@ -27,7 +27,7 @@ for (const mutation of cases) {
     maxBuffer: 20 * 1024 * 1024,
   });
   if (run.error) throw run.error;
-  const results = report => report.suites.flatMap(suite => [
+  const results = report => (report.suites ?? []).flatMap(suite => [
     ...suite.specs.flatMap(spec => spec.tests.map(test => ({ project: test.projectName, result: test.results[0] }))),
     ...results(suite),
   ]);
