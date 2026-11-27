@@ -1,0 +1,55 @@
+name: QA 213 B5 B6 verification
+on:
+  push:
+    branches: [qa/213-b5-b6-verification]
+permissions:
+  contents: read
+jobs:
+  qa:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [check, reference, mutations, d2, chromium]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: |
+          git log -2 --format='%H %s'
+          cat /etc/os-release
+          uname -m
+          node --version
+          npm ci
+          npx playwright --version
+          mkdir qa-output
+      - if: matrix.suite != 'check'
+        run: |
+          npx playwright install --with-deps chromium
+          DEBUG=pw:browser node --input-type=module -e 'import {chromium} from "@playwright/test"; const b=await chromium.launch(); console.log(b.version()); await b.close();'
+      - if: matrix.suite == 'check'
+        run: npm run check
+      - if: matrix.suite == 'reference'
+        run: |
+          ffmpeg -version
+          D2_VERIFY_FFMPEG=1 node docs/qa/d2-b5-b6-213/reference.mjs > qa-output/linux-reference.json
+          cmp tests/e2e/fixtures/d2-audio-reference.json qa-output/linux-reference.json
+      - if: matrix.suite == 'mutations'
+        run: |
+          set -o pipefail
+          node docs/qa/d2-b5-b6-213/mutations.mjs | tee qa-output/mutations.jsonl
+      - if: matrix.suite == 'd2'
+        run: PLAYWRIGHT_JSON_OUTPUT_FILE=qa-output/d2.json npx playwright test tests/e2e/song-d2*.spec.ts --workers=3 --retries=0 --reporter=line,json
+      - if: matrix.suite == 'chromium'
+        run: PLAYWRIGHT_JSON_OUTPUT_FILE=qa-output/chromium.json npx playwright test --project=desktop --project=phone --workers=3 --retries=0 --reporter=line,json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qa-213-${{ matrix.suite }}
+          path: qa-output/
+          if-no-files-found: ignore
