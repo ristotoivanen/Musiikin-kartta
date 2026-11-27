@@ -1,0 +1,45 @@
+name: QA 213 B1-B3 Linux baseline
+on:
+  push:
+    branches: [qa/213-b1-b3-linux]
+    paths:
+      - '.github/workflows/qa-213-b1-b3-linux.yml'
+permissions:
+  contents: read
+jobs:
+  baseline:
+    if: github.ref == 'refs/heads/qa/213-b1-b3-linux'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 07d81265bd4c499e2e3792e39d1ec8188f88c7e7
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Verify baseline and install
+        run: |
+          test "$(git rev-parse HEAD)" = 07d81265bd4c499e2e3792e39d1ec8188f88c7e7
+          cat /etc/os-release
+          node --version
+          npm ci
+          npx playwright --version
+          npx playwright install --with-deps chromium
+          node -e 'const {chromium}=require("@playwright/test"); (async()=>{const b=await chromium.launch(); console.log("Chromium:", b.version()); await b.close();})()'
+          git diff --exit-code HEAD
+      - name: Run B1-B3 unchanged in desktop and phone
+        run: |
+          mkdir -p qa-213-results
+          set -o pipefail
+          npx playwright test tests/e2e/aihesivut.spec.ts tests/e2e/otelautaopas-beta.spec.ts --grep 'Kitaran perusteet · jokainen askel|ristiinlinkitys avaa saman|Soittopakin Otelautaopas on tämä sivu' --workers=3 --max-failures=20 2>&1 | tee qa-213-results/test.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qa-213-b1-b3-linux-baseline
+          path: |
+            qa-213-results/
+            test-results/
+          retention-days: 14
