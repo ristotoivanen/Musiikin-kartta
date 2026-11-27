@@ -9,17 +9,15 @@ permissions:
 env:
   BASE: 9d5ad0c9981ff80ca91166474c9523a29b352a7f
   FIX: 566f3cff2de622dfb6b0f09fad545e358f6f967a
-  NO_COLOR: '1'
-  FORCE_COLOR: '0'
 jobs:
-  fixed:
+  webkit-side:
     if: github.ref == 'refs/heads/qa/211-opettele-linux'
     runs-on: ubuntu-24.04
-    timeout-minutes: 75
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ env.FIX }}
+          ref: ${{ env.BASE }}
           persist-credentials: false
       - uses: actions/checkout@v4
         with:
@@ -29,73 +27,20 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-      - name: Verify fix and install
+      - name: Install
         run: |
-          test "$(git rev-parse HEAD)" = "$FIX"
-          git fetch -q --depth=2 origin "$FIX"
-          echo "changed vs base:"; git fetch -q --depth=1 origin "$BASE"; git diff --stat "$BASE" "$FIX"
-          cat /etc/os-release
-          node --version
+          test "$(git rev-parse HEAD)" = "$BASE"
           npm ci
-          npx playwright --version
-          npx playwright install --with-deps chromium webkit
-          node -e 'const {chromium,webkit}=require("@playwright/test"); (async()=>{for (const t of [chromium,webkit]) { const b=await t.launch(); console.log(t.name(), b.version()); await b.close(); }})()'
+          npx playwright install --with-deps webkit
           cp .qa/qa/211/webkit.config.ts playwright.qa211-webkit.config.ts
-          mv .qa "$RUNNER_TEMP/qa"
-          mkdir -p qa-211-results
-      - name: Focused repeats, Chromium desktop and phone
-        if: always()
+      - name: Repeat the two other WebKit failures on unmodified base
         run: |
-          set -o pipefail
-          for area in 'vapaat kielet' 'painetut sävelet' 'sekoitettu alue'; do
-            for p in desktop phone; do
-              echo "=== $area / $p"
-              npx playwright test tests/e2e/practice.spec.ts --grep "kyse ole testistä: $area" --project=$p --repeat-each=30 --workers=3 --retries=0 --trace=retain-on-failure --reporter=line --output="test-results/focus-$p-${area// /_}" 2>&1 | tee "qa-211-results/focus-$p-${area// /_}.log" | tail -n 4
-            done
-          done
-      - name: Trainer specs, Chromium
-        if: always()
+          npx playwright test -c playwright.qa211-webkit.config.ts --grep 'nopeat peräkkäiset painallukset|äänikortin valinta' --repeat-each=20 --workers=3 --retries=0 --trace=off --reporter=line > wk.log 2>&1 || true
+          grep -aE '(passed|failed|flaky)( \(|$)|^ +[0-9]+\) \[|Error:|Expected|Received|^ +> +[0-9]+ \|' wk.log | sed 's/\x1b\[[0-9;]*[A-Za-z]//g' | sed -E 's/^ +[0-9]+\) (\[[^]]+\])/FAIL \1/; s/ *─+$//' | sort | uniq -c | sort -rn | head -60
+      - name: Unit test counts on fix
         run: |
-          set -o pipefail
-          specs=$(grep -l 'kitaraharjoittelija' tests/e2e/*.spec.ts)
-          echo "$specs"
-          npx playwright test tests/e2e/practice.spec.ts --workers=3 --reporter=line --output=test-results/practice 2>&1 | tee qa-211-results/practice.log | tail -n 12
-          npx playwright test $specs --workers=3 --reporter=line --output=test-results/trainer 2>&1 | tee qa-211-results/trainer.log | tail -n 25
-      - name: WebKit practice.spec and focused repeats
-        if: always()
-        run: |
-          set -o pipefail
-          npx playwright test -c playwright.qa211-webkit.config.ts --grep 'kyse ole testistä' --repeat-each=30 --workers=3 --retries=0 --reporter=line --output=test-results/webkit-focus 2>&1 | tee qa-211-results/webkit-focus.log | tail -n 12
-      - name: WebKit full practice.spec
-        if: always()
-        run: |
-          set -o pipefail
-          npx playwright test -c playwright.qa211-webkit.config.ts --workers=3 --reporter=line --output=test-results/webkit-practice 2>&1 | tee qa-211-results/webkit-practice.log | tail -n 40
-      - name: WebKit practice.spec on unmodified base (comparison)
-        if: always()
-        run: |
-          git show "$BASE:tests/e2e/practice.spec.ts" > tests/e2e/practice.spec.ts
-          npx playwright test -c playwright.qa211-webkit.config.ts --workers=3 --reporter=line --output=test-results/webkit-base > qa-211-results/webkit-practice-base.log 2>&1 || true
-          tail -n 40 qa-211-results/webkit-practice-base.log
-          git checkout -- tests/e2e/practice.spec.ts
-      - name: Full Chromium regression
-        if: always()
-        run: |
-          set -o pipefail
-          git diff --exit-code HEAD
-          npx playwright test --workers=3 --max-failures=20 --reporter=line --output=test-results/full 2>&1 | tee qa-211-results/full.log | tail -n 30
-      - name: npm run check
-        if: always()
-        run: |
-          set -o pipefail
-          rm playwright.qa211-webkit.config.ts
-          npm run check 2>&1 | tee qa-211-results/check.log | tail -n 30
-          git status --short | tee qa-211-results/check-status.log
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: qa-211-fixed
-          path: |
-            qa-211-results/
-            test-results/
-          retention-days: 14
+          git checkout -q . && rm playwright.qa211-webkit.config.ts && rm -rf .qa
+          git fetch -q --depth=1 origin "$FIX" && git checkout -q "$FIX"
+          npm run check > check.log 2>&1; echo "check exit $?"
+          grep -aE 'Test Files|Tests +[0-9]' check.log
+          git status --short
