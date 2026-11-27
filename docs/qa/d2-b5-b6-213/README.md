@@ -89,3 +89,29 @@ Rajoituksen aikana luetaan käyttöliittymä, latausaste ja toistokohta kuten al
 Erillinen vertailuhaku, SHA-256 ja PCM-purut alkavat vasta verkkorajoituksen poiston,
 kolmen virran valmistumisen ja tauon jälkeen. Ajastuksen ja latauksen tapahtumajärjestys
 tarkistetaan soittimen olemassa olevista tapahtumista.
+
+### Valjaan kontrollimittaus
+
+Betan muuttamattomalla bundlella, macOS 27.2.1 arm64, Node 22.23.5 ja Playwrightin Chromium
+141.0.7390.37. Sama normaaliversion ajo tehtiin tuoreessa selainkontekstissa ilman valjasta ja
+B5-valjaan kanssa. Ajastetut kappalekohdat olivat 0 s ja 10 s, seuraavan palan pituus 10 s,
+sauman aukko tai limitys 0 näytettä ja alivuotoja 0 molemmissa ajoissa. Valjas kirjasi
+kuusi lähdettä. Nämä ovat ajastettuja näytekehyksiä, ja testi vertaa varsinaista allasdataa.
+
+B6:n kylmän verkon kontrollissa puhdas konteksti aloitti ilman Web Audio -valjasta kummassakin
+ajossa. Kolme erillistä MP3-pyyntöä tehtiin ennen toistokohdan 2 s rajaa, yksi raitaa kohti.
+
+| CDP:n välimuistivalinta | Aloitus | Latausaste alussa | Kohta yli 2 s painalluksesta | MP3-pyynnöt |
+| --- | ---: | ---: | ---: | ---: |
+| Oletus, tuore konteksti | 6,927 s | 8,294 % | 8,514 s | 3 |
+| Välimuisti estetty, tuore konteksti | 6,897 s | 8,264 % | 8,510 s | 3 |
+
+## Varmennustulokset
+
+- **Riippumaton Linux-referenssi.** Ubuntu 24.04 x64, Node 22.23.5, Playwright 1.56.1,
+  `chromium_headless_shell-1194/chrome-linux/headless_shell`, Chromium 141.0.7390.37.
+  Linuxissa tuotettu referenssitiedosto täsmäsi tavu tavulta versioituun aineistoon. FFprobe
+  vahvisti kaikkien kuuden tiedoston pakettipaikat. FFmpeg 6.1.1-3ubuntu5 vahvisti
+  kiinteän pisteen etumerkkivektorien SHA-256-osuman ja liukulukupurun nollaeron kaikissa
+  136 kanavaikkunassa. Kiinteän pisteen erovektoreista poikkeavia oli 76, nollavektoreita 60.
+  [Ajo](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/46045369965)
