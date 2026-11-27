@@ -79,10 +79,23 @@ npx playwright test --project=desktop --project=phone --workers=3 --retries=0
 ## Toiston ja verkon mittaus
 
 B5:n Web Audio -valjas välittää natiiville `connect`-, `start`- ja `stop`-kutsulle alkuperäiset
-argumentit puhtaassa ajossa. Ajastuksen aikana se kerää lähde- ja puskuriviitteet sekä aikaleimat.
-PCM luetaan tauolla ja verrataan kokonaiselta ajastetulta osuudelta. Saumassa ja loopissa verrataan
-jokaisen raidan todellisia alku- ja loppukehyksiä. Kolmen erillisen kelauksen jälkeen lyhyen
-loppupalan täytyy käyttää jo aiemmin havaittua allaspaikkaa.
+argumentit puhtaassa ajossa. Se tallentaa `start(when, offset, duration)`-argumentit ja pitää kirjaa
+viimeisestä pysäytysajasta, joka annettiin ennen lähteen päättymistä. Lyhyempi `duration` rajaa
+saumaan ja raitojen synkronointiin käytetyn loppukehyksen. Erikseen merkitty B5:n taukopainallus
+voi pysäyttää lähteet heti. Valjas tunnistaa tämän synkronisen klikkitapahtuman aikana annetun
+heti vaikuttavan pysäytyksen ja säilyttää mitattavan palan aikaisemman ajastuksen. Muulloin
+annettu pysäytys käsitellään lähteen ajastuksena.
+[Web Audio API, lähteen käynnistys ja pysäytys](https://www.w3.org/TR/webaudio/#AudioScheduledSourceNode)
+
+Valjas lukee puskurin muutoslaskurin `start`-hetkellä. `copyToChannel` kasvattaa laskuria
+kirjoituksen jälkeen. Seuratulle puskurille myös uuden kirjoituskelpoisen näkymän pyyntö
+`getChannelData`lla kasvattaa laskuria. Web Audio ottaa lähteen `start`-kutsussa käyttöön senhetkisen
+sisällön ja irrottaa aikaisemmat näkymät. Ajastuksen aikana valjas käsittelee vain metatietoa.
+Tauolla PCM kopioidaan `copyFromChannel`lla synkronisesti, kun ajastushetken ja lukemishetken
+muutoslaskurit täsmäävät. Jos puskuri ehti muuttua, testi hylkää mittauksen ennen PCM-lukua.
+Näin uudelleenkäytetyn paikan myöhemmästä sisällöstä ei synny väärää vertailutulosta. Kolmen
+erillisen kelauksen jälkeen lyhyen loppupalan täytyy käyttää jo aiemmin havaittua allaspaikkaa.
+[Web Audio API, AudioBufferin sisällön käyttöönotto](https://www.w3.org/TR/webaudio/#acquire-the-content)
 
 B6:n kylmässä CDP-ajossa testisivu käyttää tavallista D2-soitinta ilman Web Audio -valjasta.
 Rajoituksen aikana luetaan käyttöliittymä, latausaste ja toistokohta kuten alkuperäisessä testissä.
@@ -185,3 +198,57 @@ Puhdas ajo käytti Gitissä ollutta sovellusbundlea. Check ajettiin omassa työp
 Fyysinen laite, korvakuuntelu ja käyttäjäkokeet ovat tässä QA-korjauksessa testaamatta.
 Tulokset koskevat dekoodausta, Web Audio -ajastusta ja työpöytä- sekä puhelinemulaation
 käyttäjäkulkua.
+
+### PR #215:n katselmointikorjaukset R1–R2
+
+Katselmoitu lähtökohta oli `892b2837cb890fab21e066abdcf1df25237c0ac0`.
+Varmennettu valjaskoodi on `a110355753fc33356ee4e5add1d0f9d102d2b9eb`.
+Referenssitiedoston SHA-256 on kummassakin commitissa
+`39da15509f9114afb19c6b1dea6e2c53d7d743c37c9dc7f12a4cadc5232d2743`.
+Uusien tarkistusten näyte- ja aikarajat ovat samat kuin katselmoidussa testissä.
+
+Uusittu valjaan kontrolli tehtiin macOS 27.2.1 arm64:llä ja Playwright Chromium
+141.0.7390.37:lla. Valjaalla ja ilman valjasta pisteet olivat 0 s ja 10 s,
+seuraavan palan pituus 10 s, ensimmäisessä saumassa aukko tai limitys 0 näytettä
+ja alivuotoja 0. Korjattu valjas kirjasi kuusi lähdettä. PCM kopioitiin varsinaisessa
+B5-testissä vasta tauon jälkeen. B6-verkkokontrollissa kummallakin välimuistivalinnalla
+tehtiin kolme MP3-pyyntöä. Aloitus oli 6,905 s oletusvälimuistilla ja 6,887 s välimuisti
+estettynä, kumpikin tuoreessa kontekstissa. Toistokohta ylitti 2 s yhteyden
+ollessa yhä rajoitettu.
+
+Uudet mutaatiot ajetaan samalla `mutations.mjs`-komennolla kuin aikaisemmat.
+
+| Mutaatio | Mitä muutetaan | Hylkäävä tarkistus |
+| --- | --- | --- |
+| `start-duration` | Ensimmäisen säestyslähteen 10 s:n palan natiiville `start`-kutsulle annetaan 9 s:n kesto. Alkuperäinen `stop` säilyy. | Lyhyt kesto katkaisee ajastetut näytteet. |
+| `later-stop` | Ensimmäisen säestyslähteen alkuperäisen `stop`-kutsun jälkeen tehdään toinen. Se siirtää pysäytystä yhden näytekehyksen aikaisemmaksi. | Uusi pysäytys muuttaa ajastettua näytemäärää. |
+| `pool-reuse` | Jo ajastetun allaspaikan yhdelle näytteelle kirjoitetaan uusi arvo ennen PCM-lukua. | Puskurin muutoslaskuri on eri kuin ajastettaessa. |
+
+[Katselmointikorjausten Linux-ajo](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/46052679736)
+
+| Katselmointikorjausten varmennus | Tulos |
+| --- | --- |
+| Ubuntu 24.04 x64, Node 22.23.5, `npm run check` | Lint, 806/806 yksikkötestiä, typecheck ja build läpi |
+| Ubuntu, Playwright 1.56.1, Chromium 141.0.7390.37 headless shell | D2 42/42, desktop ja phone |
+| Ubuntu, vanhat ja uudet mutaatiot | 16 mutaatiota, 32/32 odotettua hylkäystä |
+| macOS 27.2.1 arm64, Playwright Chromium 141.0.7390.37 headless shell | D2 42/42, desktop ja phone, kolme työntekijää |
+| macOS 27.2.1 arm64, asennettu Google Chrome 158.0.8127.38 | D2 42/42, desktop ja phone, kaksi työntekijää |
+
+Selainten binäärit olivat samat kuin aiemmassa varmennuksessa. Kohdennetun ajon
+komento oli `npx playwright test tests/e2e/song-d2*.spec.ts --workers=3 --retries=0`.
+Asennetun Chromen ensimmäinen ajo jumiutui 41 käynnistetyn testin jälkeen.
+Uusi ajo tehtiin tuoreella testipalvelimella, kahdella työntekijällä ja
+`--global-timeout=300000`-rajalla. Playwrightin retryt olivat pois käytöstä.
+
+R1–R2-varmennus kohdistui katselmoituun PR-pohjaan `9d5ad0c` ja valjaskorjauksiin.
+Beta eteni mittausten aikana committiin `0c20d72`. Muutos koski GitHubin tiedostovertailussa
+yksin B4:n `tests/e2e/practice.spec.ts`-testiä. [B4:n PR #216](https://github.com/ristotoivanen/Musiikin-kartta/pull/216)
+
+Linuxin koko Chromium-regressio ajettiin komennolla
+`npx playwright test --project=desktop --project=phone --workers=3 --retries=0`.
+Tulos oli `1293 läpi / 1 epäonnistunut / 50 ennestään ohitettua` (17,2 min).
+Ainoa epäonnistuminen oli katselmoidun lähtöpohjan tunnettu B4,
+`tests/e2e/practice.spec.ts:89` phone-profiilissa. Vapaan A-kielen odotus oli `A`
+ja toteutunut teksti `5 · AA`. B4-korjaus on tämän ajon jälkeen mitattavasta
+lähtöpohjasta erillisessä betan PR:ssä #216.
+[Linuxin koko regressioajo](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/46052679736/job/140687606344)
