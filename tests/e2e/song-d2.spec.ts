@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 
-import { d2Mutation, installD2AudioProbe, references, snapshotD2Sources, verifyD2Audio, type Version } from './fixtures/d2-audio';
+import { armD2ProbePause, d2Mutation, installD2AudioProbe, references, snapshotD2Sources, verifyD2Audio, type Version } from './fixtures/d2-audio';
 
 // Issue #9 and #213. The native pool and readRange use independently cut MP3 references.
 const SONG = '/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-normaali&soitin=d2';
@@ -48,6 +48,10 @@ test('B5 D2: palapurku, toistoallas, saumat ja raitojen synkronointi', async ({ 
       return sources.length >= count && sources.slice(0, count).every(source => source.stop !== undefined);
     }, count, { timeout: 20000 });
   };
+  const pause = async () => {
+    await page.evaluate(armD2ProbePause);
+    await play.click();
+  };
   for (const version of ['normaali', 'akustinen'] as const satisfies readonly Version[]) {
     const reference = references[version];
     if (version === 'akustinen') await page.locator('#song-version-select').selectOption('acoustic');
@@ -55,7 +59,7 @@ test('B5 D2: palapurku, toistoallas, saumat ja raitojen synkronointi', async ({ 
     await play.click();
     await expect(play).toHaveText(/Tauko/, { timeout: 30000 });
     await observe(6);
-    await play.click();
+    await pause();
     expect(await page.evaluate(snapshotD2Sources, { keys: ['pool-0', 'pool-1'], lengths: [480000, 480000] })).toEqual([]);
 
     // The pool has four slots. Visit three disjoint positions before the short tail and loop.
@@ -65,14 +69,14 @@ test('B5 D2: palapurku, toistoallas, saumat ja raitojen synkronointi', async ({ 
       await slider.fill(String(position));
       await play.click();
       await observe(3);
-      await play.click();
+      await pause();
     }
     await loop.check();
     const priorIds = await beginProbe('tail');
     await slider.fill(String(reference.tail));
     await play.click();
     await observe(6);
-    await play.click();
+    await pause();
     expect(await page.evaluate(snapshotD2Sources, {
       keys: ['pool-tail', 'loop-start'], lengths: [reference.length - reference.tail * 48000, 480000], priorIds,
     })).toEqual([]);

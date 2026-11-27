@@ -4,7 +4,7 @@ export type Track = 'backing' | 'guitar' | 'vocals';
 export type Version = 'normaali' | 'akustinen';
 export type Mutation = '' | 'alignment' | 'decoder-delay' | 'length-missing' | 'length-extra' |
   'seam' | 'tail-stop' | 'mp3-wrong' | 'mp3-corrupt' | 'pool-copy' | 'slow-wait' | 'slow-stall' |
-  'pcm-step' | 'decoder-pattern';
+  'pcm-step' | 'decoder-pattern' | 'start-duration' | 'later-stop' | 'pool-reuse';
 
 type Slice = [from: number, to: number, skip: number];
 type ReferenceWindow = { start: number; count: number; slices: Record<string, Slice>; delta: [string | null, string | null] };
@@ -24,13 +24,20 @@ type AudioHook = { context: AudioContext; player: {
   events: { kind: string; dekooderiviive?: number }[];
   readRange(track: Track, start: number, count: number): Promise<Float32Array[]>;
 } };
-type Source = { track: Track; buffer: AudioBuffer; when: number; offset: number; stop?: number; id: number };
-type Probe = { sources: Source[]; snapshots: Record<string, Float32Array[]>; history: number[]; phase: string };
+type Source = {
+  track: Track; buffer: AudioBuffer; when: number; offset: number; duration?: number;
+  stop?: number; id: number; revision: number;
+};
+type Probe = {
+  sources: Source[]; snapshots: Record<string, Float32Array[]>; history: number[]; phase: string;
+  revisions: WeakMap<AudioBuffer, number>; pauseClick?: Event;
+};
 type TestWindow = Window & typeof globalThis & { __kappaleD1: AudioHook; d2AudioProbe: Probe };
 
 export function installD2AudioProbe(mutation: Mutation) {
   const w = window as unknown as TestWindow;
-  const probe: Probe = { sources: [], snapshots: {}, history: [], phase: 'initial' };
+  const revisions = new WeakMap<AudioBuffer, number>();
+  const probe: Probe = { sources: [], snapshots: {}, history: [], phase: 'initial', revisions };
   w.d2AudioProbe = probe;
   const buffers = new WeakMap<AudioBuffer, number>();
   const create = BaseAudioContext.prototype.createBufferSource;
@@ -47,44 +54,85 @@ export function installD2AudioProbe(mutation: Mutation) {
       return result;
     };
     source.start = function (...args: [when?: number, offset?: number, duration?: number]) {
-      const [when = 0, offset = 0] = args;
+      const [when = 0, offset = 0, duration] = args;
       const hook = w.__kappaleD1;
-      const isPlayer = hook?.context === this.context && this.buffer;
+      const buffer = this.buffer;
+      const isPlayer = hook?.context === this.context && buffer;
+      const first = probe.phase === 'initial' && probe.sources.length === 0;
       const whenToUse = mutation === 'seam' && isPlayer && probe.sources.length >= 3 && probe.phase === 'initial'
         ? when + 1 / 48000 : when;
-      Reflect.apply(start, this, whenToUse !== when ? [whenToUse, offset, ...args.slice(2)] : args);
-      if (!isPlayer || !this.buffer) return;
+      const durationToUse = mutation === 'start-duration' && isPlayer && first ? 9 : duration;
+      const revision = isPlayer ? revisions.get(buffer) ?? 0 : 0;
+      if (isPlayer && !revisions.has(buffer)) revisions.set(buffer, revision);
+      const nativeArgs = durationToUse !== duration ? [whenToUse, offset, durationToUse]
+        : whenToUse !== when ? [whenToUse, offset, ...args.slice(2)] : args;
+      Reflect.apply(start, this, nativeArgs);
+      if (!isPlayer) return;
       const track = (Object.keys(hook.player.inputs) as Track[]).find(track => hook.player.inputs[track] === input);
       if (!track) return;
-      const id = buffers.get(this.buffer) ?? probe.history.length;
-      if (!buffers.has(this.buffer)) {
+      let id = buffers.get(buffer);
+      if (id === undefined) {
+        id = probe.history.length;
         probe.history.push(id);
-        buffers.set(this.buffer, id);
+        buffers.set(buffer, id);
       }
-      observed = { track, buffer: this.buffer, when: whenToUse, offset, id };
+      observed = { track, buffer, when: whenToUse, offset, duration: durationToUse, id, revision };
       probe.sources.push(observed);
     };
     source.stop = function (...args: [when?: number]) {
       const [when] = args;
       const whenToUse = mutation === 'tail-stop' && when !== undefined && probe.phase === 'tail' &&
         probe.sources.length <= 3 ? when + 1 / 48000 : when;
+      const now = this.context.currentTime;
       Reflect.apply(stop, this, whenToUse !== when ? [whenToUse] : args);
-      if (observed && observed.stop === undefined) observed.stop = whenToUse;
+      if (!observed) return;
+      const intentionalPause = probe.pauseClick && probe.pauseClick.eventPhase !== Event.NONE && (when ?? 0) <= now;
+      if (intentionalPause) {
+        if (mutation === 'pool-reuse' && probe.phase === 'initial' && observed === probe.sources[0]) {
+          observed.buffer.copyToChannel(new Float32Array([0.25]), 0, 1000);
+        }
+        return;
+      }
+      // Before the source has stopped, a new stop supersedes the earlier one.
+      const end = Math.min(observed.stop ?? Infinity,
+        observed.when + Math.min(observed.duration ?? Infinity, observed.buffer.duration - observed.offset));
+      if (now >= end) return;
+      const firstStop = observed.stop === undefined;
+      observed.stop = Math.max(now, whenToUse ?? 0);
+      if (mutation === 'later-stop' && firstStop && when !== undefined &&
+          probe.phase === 'initial' && observed === probe.sources[0]) {
+        queueMicrotask(() => source.stop(when - 1 / 48000));
+      }
     };
     return source;
   };
-  if (mutation === 'pool-copy') {
-    const copy = AudioBuffer.prototype.copyToChannel;
-    AudioBuffer.prototype.copyToChannel = function (samples, channel, offset) {
-      if (samples.length === 480000 && channel === 1 && offset === 0) {
-        const damaged = samples.slice();
-        damaged[1000] += 0.125;
-        copy.call(this, damaged, channel, offset);
-      } else {
-        copy.call(this, samples, channel, offset);
-      }
-    };
-  }
+  // Record only metadata on the hot path. Snapshotting can copy after pause
+  // once the original revision of each buffer has been confirmed.
+  const copy = AudioBuffer.prototype.copyToChannel;
+  AudioBuffer.prototype.copyToChannel = function (samples, channel, offset) {
+    if (mutation === 'pool-copy' && samples.length === 480000 && channel === 1 && offset === 0) {
+      const damaged = samples.slice();
+      damaged[1000] += 0.125;
+      samples = damaged;
+    }
+    copy.call(this, samples, channel, offset);
+    revisions.set(this, (revisions.get(this) ?? 0) + 1);
+  };
+  const getChannel = AudioBuffer.prototype.getChannelData;
+  AudioBuffer.prototype.getChannelData = function (channel) {
+    const data = getChannel.call(this, channel);
+    const revision = revisions.get(this);
+    // A new writable view on a tracked buffer could bypass copyToChannel.
+    if (revision !== undefined) revisions.set(this, revision + 1);
+    return data;
+  };
+}
+
+export function armD2ProbePause() {
+  const probe = (window as unknown as TestWindow).d2AudioProbe;
+  document.querySelector('.song-play')!.addEventListener('click', event => {
+    probe.pauseClick = event;
+  }, { capture: true, once: true });
 }
 
 export function snapshotD2Sources({ keys, lengths, priorIds }: { keys: string[]; lengths: number[]; priorIds?: number[] }) {
@@ -101,26 +149,39 @@ export function snapshotD2Sources({ keys, lengths, priorIds }: { keys: string[];
     }
     return rounded;
   };
+  const endFrame = ({ when, stop, duration }: Source) =>
+    frame(Math.min(stop ?? NaN, when + (duration ?? Infinity)));
   if (sources.length !== keys.length * 3) fail('unexpected source count: ' + sources.length);
   for (const [index, key] of keys.entries()) {
     const group = sources.slice(index * 3, index * 3 + 3);
     const starts = new Set(group.map(source => frame(source.when)));
-    const stops = new Set(group.map(source => frame(source.stop ?? NaN)));
+    const stops = new Set(group.map(endFrame));
     if (starts.size !== 1 || stops.size !== 1 || new Set(group.map(source => source.track)).size !== 3) {
       fail(key + ': tracks are not sample-synchronous');
     }
-    if (index > 0 && group[0] && frame(group[0].when) !== frame(sources[index * 3 - 1].stop ?? NaN)) {
+    if (index > 0 && group[0] && frame(group[0].when) !== endFrame(sources[index * 3 - 1])) {
       fail(key + ': seam gap or overlap');
     }
-    for (const { track, buffer, when, offset, stop, id } of group) {
+    for (const source of group) {
+      const { track, buffer, when, offset, stop, id, revision } = source;
+      const label = key + '/' + track;
       const start = frame(offset);
-      const count = frame(stop ?? NaN) - frame(when);
-      if (count !== lengths[index] || start !== 0 || buffer.length !== 480000 ||
-          buffer.numberOfChannels !== 2 || buffer.sampleRate !== 48000) {
-        fail(key + '/' + track + ': wrong scheduled sample count or buffer shape');
+      const stopFrame = frame(stop ?? NaN);
+      const count = stopFrame - frame(when);
+      if (endFrame(source) < stopFrame) {
+        fail(label + ': start duration truncates the scheduled samples');
         continue;
       }
-      if (index === 0 && priorIds && !priorIds.includes(id)) fail(key + '/' + track + ': expected a reused buffer');
+      if (count !== lengths[index] || start !== 0 || buffer.length !== 480000 ||
+          buffer.numberOfChannels !== 2 || buffer.sampleRate !== 48000) {
+        fail(label + ': wrong scheduled sample count or buffer shape');
+        continue;
+      }
+      if (index === 0 && priorIds && !priorIds.includes(id)) fail(label + ': expected a reused buffer');
+      if (probe.revisions.get(buffer) !== revision) {
+        fail(label + ': pool buffer changed before PCM snapshot');
+        continue;
+      }
       probe.snapshots[key + '/' + track] = [0, 1].map(channel => {
         const pcm = new Float32Array(count);
         buffer.copyFromChannel(pcm, channel, start);
