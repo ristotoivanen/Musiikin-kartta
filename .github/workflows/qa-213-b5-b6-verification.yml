@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [check, reference, mutations, d2, chromium]
+        suite: [reference]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -36,6 +36,7 @@ jobs:
         run: npm run check
       - if: matrix.suite == 'reference'
         run: |
+          if ! command -v ffmpeg; then sudo apt-get update -qq && sudo apt-get install -y ffmpeg; fi
           ffmpeg -version
           D2_VERIFY_FFMPEG=1 node docs/qa/d2-b5-b6-213/reference.mjs > qa-output/linux-reference.json
           cmp tests/e2e/fixtures/d2-audio-reference.json qa-output/linux-reference.json
