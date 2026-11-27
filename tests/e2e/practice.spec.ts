@@ -86,24 +86,32 @@ test.describe('vihjeet ja harjoittelutavat', () => {
     expect((await stored(page)).recent[0]).toMatchObject({ first: false, errors: 1, hint: false, input: 'board', item: `notes:5:${fret}` });
   });
 
-  test('Opettele näyttää oikean kohdan heti ja kertoo, ettei kyse ole testistä', async ({ page }) => {
-    await seed(page); await page.goto('/kitaraharjoittelija.html?vihjeet=always&alku=0&loppu=5&vanha=1');
-    await expect(page.getByRole('radio', { name: /Opettele/ })).toBeChecked();
-    await startButton(page).click();
-    for (let i = 0; i < 3; i++) {
-      await expect(targets(page)).toHaveCount(1);
-      await expect(page.getByTestId('hint-note')).toContainText('Opettelutila');
-      const { string, fret, name } = await noteAnswer(page);
-      await expect(targets(page)).toHaveAttribute('data-string', String(string)); await expect(targets(page)).toHaveAttribute('data-fret', String(fret));
-      await expect(targets(page)).toHaveText(name);
-      await targets(page).click();
-      await page.getByRole('button', { name: 'Seuraava kysymys' }).click();
-    }
-    await page.getByRole('button', { name: 'Lopeta harjoitus' }).click();
-    await expect(page.getByTestId('summary-solo')).toHaveText('–'); await expect(page.getByTestId('summary-guided')).toHaveText('3');
-    await expect(page.getByTestId('round-summary')).toContainText('Kaikissa vastauksissa oli vihje');
-    expect((await stored(page)).sessions[0]).toMatchObject({ count: 3, solo: 0, soloFirst: 0, hints: 'always', complete: false });
-  });
+  for (const { area, min, max } of [
+    { area: 'vapaat kielet', min: 0, max: 0 },
+    { area: 'painetut sävelet', min: 1, max: 5 },
+    { area: 'sekoitettu alue', min: 0, max: 5 },
+  ]) {
+    test(`Opettele näyttää oikean kohdan heti ja kertoo, ettei kyse ole testistä: ${area}`, async ({ page }) => {
+      await seed(page); await page.goto(`/kitaraharjoittelija.html?vihjeet=always&alku=${min}&loppu=${max}&vanha=1`);
+      await expect(page.getByRole('radio', { name: /Opettele/ })).toBeChecked();
+      await startButton(page).click();
+      for (let i = 0; i < 3; i++) {
+        await expect(targets(page)).toHaveCount(1);
+        await expect(page.getByTestId('hint-note')).toContainText('Opettelutila');
+        const { string, fret, name } = await noteAnswer(page);
+        await expect(targets(page)).toHaveAttribute('data-string', String(string)); await expect(targets(page)).toHaveAttribute('data-fret', String(fret));
+        expect(fret).toBeGreaterThanOrEqual(min); expect(fret).toBeLessThanOrEqual(max);
+        // Vapaan kielen painikkeessa on myös kielen numero ja nimi, joten sävelnimi luetaan sävelmerkinnästä.
+        await expect(targets(page).locator('.dot')).toHaveText(name);
+        await targets(page).click();
+        await page.getByRole('button', { name: 'Seuraava kysymys' }).click();
+      }
+      await page.getByRole('button', { name: 'Lopeta harjoitus' }).click();
+      await expect(page.getByTestId('summary-solo')).toHaveText('–'); await expect(page.getByTestId('summary-guided')).toHaveText('3');
+      await expect(page.getByTestId('round-summary')).toContainText('Kaikissa vastauksissa oli vihje');
+      expect((await stored(page)).sessions[0]).toMatchObject({ count: 3, solo: 0, soloFirst: 0, hints: 'always', complete: false });
+    });
+  }
 
   test('Vähennä vihjeitä: kolme vastauksella, kolme apupisteellä, loput ilman ja tulokset eroteltuina', async ({ page }) => {
     await seed(page); await page.goto('/kitaraharjoittelija.html?vihjeet=fade&alku=1&loppu=5&vanha=1');
