@@ -249,6 +249,6 @@ Linuxin koko Chromium-regressio ajettiin komennolla
 Tulos oli `1293 läpi / 1 epäonnistunut / 50 ennestään ohitettua` (17,2 min).
 Ainoa epäonnistuminen oli katselmoidun lähtöpohjan tunnettu B4,
 `tests/e2e/practice.spec.ts:89` phone-profiilissa. Vapaan A-kielen odotus oli `A`
-ja toteutunut teksti `5 · AA`. B4-korjaus on tämän ajon jälkeen mitattavasta
-lähtöpohjasta erillisessä betan PR:ssä #216.
+ja toteutunut teksti `5 · AA`. Ajon testattu pohja edelsi betaan yhdistettyä
+B4-korjausta (#216).
 [Linuxin koko regressioajo](https://github.com/ristotoivanen/Musiikin-kartta/actions/runs/46052679736/job/140687606344)
