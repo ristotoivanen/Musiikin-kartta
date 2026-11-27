@@ -101,14 +101,9 @@ Fokustestit: väliaikaisessa betakopiossa Tab-painallukset vaihdettiin Alt+Tab-p
 - Vertailu tehtiin yhdellä koneella. Puhtaalla betalla ei ajettu koko testisarjaa, vain epäonnistuneet testit.
 - Chromium-vertailu puhtaalla betalla tehtiin portissa 8766 `python -m http.server` -palvelimella; WebKit-vertailu projektin omalla palvelimella.
 
-## Suositus erilliseksi issueksi (ei luotu)
+## Seuranta (päivitetty 27.11.)
 
-**Otsikko:** beta: ennestään epäonnistuvat E2E-testit (Chromium ja macOS-WebKit)
-
-1. Päivitä vanhentuneet odotukset tai korjaa sisältö: `aihesivut:123`, `:435`, `otelautaopas-beta:31`, `:73`.
-2. Korjaa `practice:89` vapaan kielen tapaukselle.
-3. Tutki `learning-paths:518`, `song-volume-scales:22`, `visualizer:347`, `ensikeikka-toinen-ilta:294`, `practice:617/690/716`.
-4. Tee fokustestit ja CDP-testit WebKit-yhteensopiviksi (Alt+Tab macOS:ssä, ohitus ilman CDP:tä).
+Yhteiset Chromium-regressiot B1–B6 koordinoidaan issuessa #213 ja B4 (`practice:89`) issuessa #211. Yllä luetellut macOS-WebKit-virheet eivät kuulu niihin. Linux-CI:n tulokset ja jatkojärjestys: [arkistointimuistio](../savelkorva-ydinopinnot/arkistointimuistio.md).
 
 ## Omistajan käyttäjätesti
 

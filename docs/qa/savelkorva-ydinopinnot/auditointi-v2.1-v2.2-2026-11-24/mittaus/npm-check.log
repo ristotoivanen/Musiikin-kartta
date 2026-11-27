@@ -1,0 +1,61 @@
+commit 5df155823253c106af6d1c3d5e9b9499790febce
+
+> check
+> npm run lint && npm test && npm run build
+
+
+> lint
+> eslint harjoittelija riffikaiku ensikeikka functions tests *.ts *.js
+
+
+> test
+> vitest run
+
+
+ RUN  v5.1.0 ~/src/Musiikin-kartta/audit-sk178
+
+
+ Test Files  44 passed (44)
+      Tests  767 passed (767)
+   Start at  16:11:13
+   Duration  19.35s (tests 87%, import 11%, transform 2%)
+
+
+> build
+> npm run typecheck && vite build && vite build -c vite.riffikaiku.config.ts && vite build -c vite.ensikeikka.config.ts && node tools/trainer-notices.mjs && node tools/riffikaiku-versio.mjs && node tools/versioi-tyylit.mjs && npm run build:oppimiskartta
+
+
+> typecheck
+> tsc --noEmit
+
+vite v7.3.8 building client environment for production...
+transforming...
+✓ 62 modules transformed.
+rendering chunks...
+computing gzip size...
+assets/harjoittelija/app.css   30.82 kB │ gzip:   6.47 kB
+assets/harjoittelija/app.js   504.79 kB │ gzip: 130.32 kB │ map: 1,027.49 kB
+✓ built in 389ms
+vite v7.3.8 building client environment for production...
+transforming...
+✓ 56 modules transformed.
+rendering chunks...
+computing gzip size...
+assets/riffikaiku/app.css   48.60 kB │ gzip:   9.54 kB
+assets/riffikaiku/app.js   390.36 kB │ gzip: 102.28 kB │ map: 797.71 kB
+✓ built in 341ms
+vite v7.3.8 building client environment for production...
+transforming...
+✓ 43 modules transformed.
+rendering chunks...
+computing gzip size...
+../pelit/ensikeikka/index.html                   1.34 kB │ gzip:  0.59 kB
+../pelit/ensikeikka/assets/index-BpBVOyuW.css    5.18 kB │ gzip:  1.51 kB
+../pelit/ensikeikka/assets/index-DkcWymn9.js   206.02 kB │ gzip: 67.80 kB
+✓ built in 249ms
+Päivitetty 0 sivua.
+
+> build:oppimiskartta
+> python3 tools/oppimiskartta/rakenna.py
+
+EXIT 0

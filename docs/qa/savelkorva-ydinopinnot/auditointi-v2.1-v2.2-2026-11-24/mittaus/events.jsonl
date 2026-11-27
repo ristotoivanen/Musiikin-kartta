@@ -1,0 +1,367 @@
+{"src": "proxy", "req": "/oppi/korva/ylos-alas-vai-sama.html", "status": 200, "bytes": 6410, "t": 1795509532.619}
+{"src": "proxy", "req": "/oppi/korva/ylos-alas-vai-sama.html", "status": 200, "bytes": 6410, "t": 1795509533.486}
+{"src": "proxy", "req": "/assets/paavalikko.css?v=4e5c7fbf95", "status": 200, "bytes": 4762, "t": 1795509533.68}
+{"src": "proxy", "req": "/assets/oppimiskartta.js", "status": 200, "bytes": 3703, "t": 1795509533.693}
+{"src": "proxy", "req": "/assets/kokonaisuudet.css?v=db6d10a623", "status": 200, "bytes": 6856, "t": 1795509533.705}
+{"src": "proxy", "req": "/assets/melodia-ydinopinnot.css?v=1084092d1f", "status": 200, "bytes": 11436, "t": 1795509533.705}
+{"src": "proxy", "req": "/book/reader.css?v=65711fca9c", "status": 200, "bytes": 15060, "t": 1795509533.714}
+{"src": "proxy", "req": "/assets/oppi.css?v=8a69bdc0e8", "status": 200, "bytes": 5681, "t": 1795509533.716}
+{"src": "proxy", "req": "/assets/oppimistapa.js", "status": 200, "bytes": 11899, "t": 1795509533.93}
+{"src": "proxy", "req": "/assets/edistyminen.js?v=39bccb10a6", "status": 200, "bytes": 23152, "t": 1795509533.951}
+{"src": "proxy", "req": "/assets/kokonaisuudet.js?v=326aed1a00", "status": 200, "bytes": 12236, "t": 1795509534.93}
+{"src": "proxy", "req": "/assets/melodia-ydinopinnot.js?v=e5741a98bb", "status": 200, "bytes": 41876, "t": 1795509534.93}
+{"src": "proxy", "req": "/assets/oppimisikonit.svg", "status": 200, "bytes": 10022, "t": 1795509535.077}
+{"src": "proxy", "req": "/favicon.ico", "status": 200, "bytes": 15172, "t": 1795509535.248}
+{"src": "result", "id": "8016d6db", "out": "Ylös, alas vai sama? – Musiikin kartta | complete | false", "t": 1795509539.858}
+{"src": "page", "type": "click", "trusted": true, "text": "▶ Kuuntele", "pt": 13172, "t": 1795509546.584}
+{"src": "page", "type": "ctx-new", "state": "suspended", "sr": 48000, "pt": 13366, "t": 1795509546.584}
+{"src": "page", "type": "ctx-resume", "state": "suspended", "pt": 13366, "t": 1795509546.584}
+{"src": "page", "type": "ctx-resumed", "state": "running", "sr": 48000, "pt": 13413, "t": 1795509546.584}
+{"src": "page", "type": "ctx-state", "state": "running", "pt": 13418, "t": 1795509546.585}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringHighE_Vel02_Fs4_01.m4a", "status": 200, "bytes": 55999, "t": 1795509546.751}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_D4_01.m4a", "status": 200, "bytes": 56913, "t": 1795509546.758}
+{"src": "page", "type": "fetch", "url": "/assets/audio/soinnut/INSGuitarSteel_StringHighE_Vel02_Fs4_01.m4a", "status": 200, "pt": 13623, "t": 1795509546.89}
+{"src": "page", "type": "fetch", "url": "/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_D4_01.m4a", "status": 200, "pt": 13627, "t": 1795509546.89}
+{"src": "page", "type": "decode-ok", "pitch": "HighE:Fs4", "size": 55999, "dur": 4.856, "sr": 48000, "ch": 1, "pt": 13818, "t": 1795509547.194}
+{"src": "page", "type": "decode-ok", "pitch": "B:D4", "size": 56913, "dur": 5, "sr": 48000, "ch": 1, "pt": 13822, "t": 1795509547.194}
+{"src": "page", "type": "source-start", "pitch": "B:D4", "when": 0.42, "now": 0.32, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 13826, "t": 1795509547.194}
+{"src": "page", "type": "source-start", "pitch": "B:D4", "when": 1.04, "now": 0.32, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 13827, "t": 1795509547.194}
+{"src": "page", "type": "source-start", "pitch": "HighE:Fs4", "when": 1.66, "now": 0.32, "state": "running", "dur": 4.856, "rate": 1, "detune": 0, "pt": 13827, "t": 1795509547.194}
+{"src": "page", "type": "click", "trusted": true, "text": "Alas", "pt": 25583, "t": 1795509558.747}
+{"src": "page", "type": "click", "trusted": true, "text": "Alas", "pt": 25714, "t": 1795509559.052}
+{"src": "result", "id": "7138bac9", "out": {"vp": "width=device-width, initial-scale=1", "ta": ["auto", "auto"], "scale": 1.600000023841858, "w": 251, "vw": 251, "bodyTA": "auto"}, "t": 1795509565.982}
+{"src": "proxy", "req": "/oppi/korva/ylos-alas-vai-sama.html", "status": 200, "bytes": 6410, "t": 1795509577.336}
+{"src": "proxy", "req": "/assets/oppi.css?v=8a69bdc0e8", "status": 200, "bytes": 5681, "t": 1795509577.51}
+{"src": "proxy", "req": "/assets/paavalikko.css?v=4e5c7fbf95", "status": 200, "bytes": 4762, "t": 1795509577.537}
+{"src": "proxy", "req": "/assets/kokonaisuudet.css?v=db6d10a623", "status": 200, "bytes": 6856, "t": 1795509577.542}
+{"src": "proxy", "req": "/book/reader.css?v=65711fca9c", "status": 200, "bytes": 15060, "t": 1795509577.554}
+{"src": "proxy", "req": "/assets/melodia-ydinopinnot.css?v=1084092d1f", "status": 200, "bytes": 11436, "t": 1795509577.565}
+{"src": "proxy", "req": "/assets/oppimiskartta.js", "status": 200, "bytes": 3703, "t": 1795509577.582}
+{"src": "proxy", "req": "/assets/edistyminen.js?v=39bccb10a6", "status": 200, "bytes": 23152, "t": 1795509577.672}
+{"src": "proxy", "req": "/assets/oppimistapa.js", "status": 200, "bytes": 11899, "t": 1795509577.691}
+{"src": "proxy", "req": "/assets/kokonaisuudet.js?v=326aed1a00", "status": 200, "bytes": 12236, "t": 1795509577.724}
+{"src": "proxy", "req": "/assets/melodia-ydinopinnot.js?v=e5741a98bb", "status": 200, "bytes": 41876, "t": 1795509577.732}
+{"src": "proxy", "req": "/assets/oppimisikonit.svg", "status": 200, "bytes": 10022, "t": 1795509577.953}
+{"src": "result", "id": "0e0e3cdb", "out": "1 402 /oppi/korva/ylos-alas-vai-sama.html", "t": 1795509583.425}
+{"src": "page", "type": "click", "trusted": true, "text": "▶ Kuuntele", "pt": 11813, "t": 1795509588.904}
+{"src": "page", "type": "ctx-new", "state": "suspended", "sr": 48000, "pt": 11814, "t": 1795509588.904}
+{"src": "page", "type": "ctx-resume", "state": "suspended", "pt": 11814, "t": 1795509588.904}
+{"src": "page", "type": "ctx-resumed", "state": "running", "sr": 48000, "pt": 11819, "t": 1795509588.904}
+{"src": "page", "type": "ctx-state", "state": "running", "pt": 11820, "t": 1795509588.904}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_B3_01.m4a", "status": 200, "bytes": 58100, "t": 1795509589.006}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_D4_01.m4a", "status": 200, "bytes": 56913, "t": 1795509589.018}
+{"src": "page", "type": "fetch", "url": "/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_B3_01.m4a", "status": 200, "pt": 12039, "t": 1795509589.22}
+{"src": "page", "type": "fetch", "url": "/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_D4_01.m4a", "status": 200, "pt": 12051, "t": 1795509589.22}
+{"src": "page", "type": "decode-ok", "pitch": "B:B3", "size": 58100, "dur": 5, "sr": 48000, "ch": 1, "pt": 12052, "t": 1795509589.221}
+{"src": "page", "type": "decode-ok", "pitch": "B:D4", "size": 56913, "dur": 5, "sr": 48000, "ch": 1, "pt": 12059, "t": 1795509589.222}
+{"src": "page", "type": "source-start", "pitch": "B:D4", "when": 0.324, "now": 0.224, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 12059, "t": 1795509589.224}
+{"src": "page", "type": "source-start", "pitch": "B:B3", "when": 0.944, "now": 0.224, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 12059, "t": 1795509589.225}
+{"src": "page", "type": "source-start", "pitch": "B:D4", "when": 1.564, "now": 0.224, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 12059, "t": 1795509589.226}
+{"src": "page", "type": "click", "trusted": true, "text": "Ylös", "pt": 14997, "t": 1795509592.249}
+{"src": "page", "type": "click", "trusted": true, "text": "⌫ Poista", "pt": 16146, "t": 1795509593.162}
+{"src": "page", "type": "click", "trusted": false, "text": "Alas", "pt": 23108, "t": 1795509600.15}
+{"src": "page", "type": "click", "trusted": false, "text": "Alas", "pt": 23109, "t": 1795509600.151}
+{"src": "result", "id": "5ab98564", "out": ["▶ Kuuntele|||false", "Ylös|Ylös: korkeampi sävel|true|false", "Alas|Alas: matalampi sävel|true|false", "Sama|Sama sävel|true|false", "⌫ Poista|Poista viimeisin||false", "Tarkista|||false", "|Sulje lisätieto ja palaa avauskohtaan||false", "Merkitse kokeilluksi|||false"], "t": 1795509600.287}
+{"src": "page", "type": "click", "trusted": false, "text": "Tarkista", "pt": 28878, "t": 1795509605.931}
+{"src": "result", "id": "7a446abe", "out": {"focus": "BODY:Siirry sisältöön\n  \n    \n      ← Takaisi:", "live": ["polite|status|1/2 oikein. Vaihto 2: kuului ylös, vastasit alas."]}, "t": 1795509606.206}
+{"src": "proxy", "req": "/oppi/korva/kotiin-vai-kesken.html", "status": 200, "bytes": 5671, "t": 1795509626.095}
+{"src": "proxy", "req": "/book/reader.css?v=65711fca9c", "status": 200, "bytes": 15060, "t": 1795509626.258}
+{"src": "proxy", "req": "/assets/paavalikko.css?v=4e5c7fbf95", "status": 200, "bytes": 4762, "t": 1795509626.277}
+{"src": "proxy", "req": "/assets/oppimiskartta.js", "status": 200, "bytes": 3703, "t": 1795509626.292}
+{"src": "proxy", "req": "/assets/kokonaisuudet.css?v=db6d10a623", "status": 200, "bytes": 6856, "t": 1795509626.297}
+{"src": "proxy", "req": "/assets/oppi.css?v=8a69bdc0e8", "status": 200, "bytes": 5681, "t": 1795509626.309}
+{"src": "proxy", "req": "/assets/melodia-ydinopinnot.css?v=1084092d1f", "status": 200, "bytes": 11436, "t": 1795509626.309}
+{"src": "proxy", "req": "/assets/edistyminen.js?v=39bccb10a6", "status": 200, "bytes": 23152, "t": 1795509626.419}
+{"src": "proxy", "req": "/assets/oppimistapa.js", "status": 200, "bytes": 11899, "t": 1795509626.42}
+{"src": "proxy", "req": "/assets/melodia-ydinopinnot.js?v=e5741a98bb", "status": 200, "bytes": 41876, "t": 1795509626.449}
+{"src": "proxy", "req": "/assets/kokonaisuudet.js?v=326aed1a00", "status": 200, "bytes": 12236, "t": 1795509626.455}
+{"src": "proxy", "req": "/assets/oppimisikonit.svg", "status": 200, "bytes": 10022, "t": 1795509626.663}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_D4_01.m4a", "status": 200, "bytes": 56913, "t": 1795509644.501}
+{"src": "page", "type": "click", "trusted": true, "text": "▶ Kuuntele molemmat", "pt": 18504, "t": 1795509644.512}
+{"src": "page", "type": "ctx-new", "state": "suspended", "sr": 48000, "pt": 18523, "t": 1795509644.512}
+{"src": "page", "type": "ctx-resume", "state": "suspended", "pt": 18523, "t": 1795509644.512}
+{"src": "page", "type": "ctx-resumed", "state": "running", "sr": 48000, "pt": 18529, "t": 1795509644.512}
+{"src": "page", "type": "ctx-state", "state": "running", "pt": 18530, "t": 1795509644.512}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringHighE_Vel02_Fs4_01.m4a", "status": 200, "bytes": 55999, "t": 1795509644.522}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_C4_01.m4a", "status": 200, "bytes": 57593, "t": 1795509644.522}
+{"src": "page", "type": "fetch", "url": "/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_D4_01.m4a", "status": 200, "pt": 18809, "t": 1795509644.66}
+{"src": "page", "type": "fetch", "url": "/assets/audio/soinnut/INSGuitarSteel_StringHighE_Vel02_Fs4_01.m4a", "status": 200, "pt": 18828, "t": 1795509644.66}
+{"src": "page", "type": "fetch", "url": "/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_C4_01.m4a", "status": 200, "pt": 18829, "t": 1795509644.66}
+{"src": "page", "type": "decode-ok", "pitch": "B:D4", "size": 56913, "dur": 5, "sr": 48000, "ch": 1, "pt": 18955, "t": 1795509644.66}
+{"src": "page", "type": "decode-ok", "pitch": "HighE:Fs4", "size": 55999, "dur": 4.856, "sr": 48000, "ch": 1, "pt": 18961, "t": 1795509644.66}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringHighE_Vel02_E4_01.m4a", "status": 200, "bytes": 58341, "t": 1795509644.817}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringHighE_Vel02_G4_01.m4a", "status": 200, "bytes": 57226, "t": 1795509644.868}
+{"src": "page", "type": "decode-ok", "pitch": "B:C4", "size": 57593, "dur": 5, "sr": 48000, "ch": 1, "pt": 18965, "t": 1795509644.967}
+{"src": "page", "type": "fetch", "url": "/assets/audio/soinnut/INSGuitarSteel_StringHighE_Vel02_E4_01.m4a", "status": 200, "pt": 19122, "t": 1795509644.967}
+{"src": "page", "type": "decode-ok", "pitch": "HighE:E4", "size": 58341, "dur": 5, "sr": 48000, "ch": 1, "pt": 19129, "t": 1795509644.967}
+{"src": "page", "type": "fetch", "url": "/assets/audio/soinnut/INSGuitarSteel_StringHighE_Vel02_G4_01.m4a", "status": 200, "pt": 19173, "t": 1795509644.967}
+{"src": "page", "type": "decode-ok", "pitch": "HighE:G4", "size": 57226, "dur": 5, "sr": 48000, "ch": 1, "pt": 19181, "t": 1795509644.967}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringLowE_Vel02_G2_01.m4a", "status": 200, "bytes": 53829, "t": 1795509644.967}
+{"src": "page", "type": "fetch", "url": "/assets/audio/soinnut/INSGuitarSteel_StringLowE_Vel02_G2_01.m4a", "status": 200, "pt": 19272, "t": 1795509645.275}
+{"src": "page", "type": "decode-ok", "pitch": "LowE:G2", "size": 53829, "dur": 5, "sr": 48000, "ch": 1, "pt": 19283, "t": 1795509645.276}
+{"src": "page", "type": "source-start", "pitch": "LowE:G2", "when": 0.836, "now": 0.736, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 19284, "t": 1795509645.276}
+{"src": "page", "type": "source-start", "pitch": "B:D4", "when": 0.836, "now": 0.736, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 19284, "t": 1795509645.276}
+{"src": "page", "type": "source-start", "pitch": "HighE:G4", "when": 1.286, "now": 0.736, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 19284, "t": 1795509645.277}
+{"src": "page", "type": "source-start", "pitch": "HighE:Fs4", "when": 1.736, "now": 0.736, "state": "running", "dur": 4.856, "rate": 1, "detune": 0, "pt": 19284, "t": 1795509645.277}
+{"src": "page", "type": "source-start", "pitch": "HighE:E4", "when": 2.186, "now": 0.736, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 19284, "t": 1795509645.277}
+{"src": "page", "type": "source-start", "pitch": "B:C4", "when": 2.636, "now": 0.736, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 19284, "t": 1795509645.277}
+{"src": "page", "type": "source-start", "pitch": "HighE:E4", "when": 3.086, "now": 0.736, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 19284, "t": 1795509645.277}
+{"src": "page", "type": "source-start", "pitch": "HighE:G4", "when": 3.536, "now": 0.736, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 19284, "t": 1795509645.277}
+{"src": "page", "type": "source-start", "pitch": "LowE:G2", "when": 6.036, "now": 0.736, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 19284, "t": 1795509645.277}
+{"src": "page", "type": "source-start", "pitch": "B:D4", "when": 6.036, "now": 0.736, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 19284, "t": 1795509645.277}
+{"src": "page", "type": "source-start", "pitch": "HighE:G4", "when": 6.486, "now": 0.736, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 19284, "t": 1795509645.277}
+{"src": "page", "type": "source-start", "pitch": "HighE:Fs4", "when": 6.936, "now": 0.736, "state": "running", "dur": 4.856, "rate": 1, "detune": 0, "pt": 19284, "t": 1795509645.278}
+{"src": "page", "type": "source-start", "pitch": "HighE:E4", "when": 7.386, "now": 0.736, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 19284, "t": 1795509645.278}
+{"src": "page", "type": "source-start", "pitch": "B:C4", "when": 7.836, "now": 0.736, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 19284, "t": 1795509645.278}
+{"src": "page", "type": "source-start", "pitch": "HighE:E4", "when": 8.286, "now": 0.736, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 19284, "t": 1795509645.278}
+{"src": "page", "type": "source-start", "pitch": "HighE:Fs4", "when": 8.736, "now": 0.736, "state": "running", "dur": 4.856, "rate": 1, "detune": 0, "pt": 19284, "t": 1795509645.278}
+{"src": "page", "type": "click", "trusted": true, "text": "Loppu 1", "pt": 32619, "t": 1795509658.376}
+{"src": "page", "type": "ctx-resume", "state": "running", "pt": 32619, "t": 1795509658.377}
+{"src": "page", "type": "ctx-resumed", "state": "running", "sr": 48000, "pt": 32627, "t": 1795509658.377}
+{"src": "page", "type": "source-start", "pitch": "LowE:G2", "when": 14.18, "now": 14.08, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 32627, "t": 1795509658.377}
+{"src": "page", "type": "source-start", "pitch": "B:D4", "when": 14.18, "now": 14.08, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 32627, "t": 1795509658.377}
+{"src": "page", "type": "source-start", "pitch": "HighE:G4", "when": 14.63, "now": 14.08, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 32627, "t": 1795509658.377}
+{"src": "page", "type": "source-start", "pitch": "HighE:Fs4", "when": 15.08, "now": 14.08, "state": "running", "dur": 4.856, "rate": 1, "detune": 0, "pt": 32627, "t": 1795509658.377}
+{"src": "page", "type": "source-start", "pitch": "HighE:E4", "when": 15.53, "now": 14.08, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 32627, "t": 1795509658.377}
+{"src": "page", "type": "source-start", "pitch": "B:C4", "when": 15.98, "now": 14.08, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 32627, "t": 1795509658.377}
+{"src": "page", "type": "source-start", "pitch": "HighE:E4", "when": 16.43, "now": 14.08, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 32627, "t": 1795509658.377}
+{"src": "page", "type": "source-start", "pitch": "HighE:G4", "when": 16.88, "now": 14.08, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 32627, "t": 1795509658.377}
+{"src": "result", "id": "ee7d3530", "out": ["▶ Kuuntele|pressed=null|playing=false|null", "Ylös|pressed=null|playing=false|Ylös: korkeampi sävel", "Alas|pressed=null|playing=false|Alas: matalampi sävel", "Sama|pressed=null|playing=false|Sama sävel", "⌫ Poista|pressed=null|playing=false|Poista viimeisin", "Tarkista|pressed=null|playing=false|null", "Seuraava melodia →|pressed=null|playing=false|null", "|pressed=null|playing=false|Sulje lisätieto ja palaa avauskohtaan", "Merkitse kokeilluksi|pressed=false|playing=false|null"], "t": 1795509659.588}
+{"src": "page", "type": "click", "trusted": true, "text": "Tarkista valinta", "pt": 42186, "t": 1795509668.077}
+{"src": "proxy", "req": "/oppi/korva/kuule-ja-etsi-kitaralta.html", "status": 200, "bytes": 5520, "t": 1795509677.244}
+{"src": "proxy", "req": "/assets/kokonaisuudet.css?v=db6d10a623", "status": 200, "bytes": 6856, "t": 1795509677.481}
+{"src": "proxy", "req": "/assets/oppi.css?v=8a69bdc0e8", "status": 200, "bytes": 5681, "t": 1795509677.528}
+{"src": "proxy", "req": "/assets/oppimiskartta.js", "status": 200, "bytes": 3703, "t": 1795509677.535}
+{"src": "proxy", "req": "/assets/paavalikko.css?v=4e5c7fbf95", "status": 200, "bytes": 4762, "t": 1795509677.535}
+{"src": "proxy", "req": "/book/reader.css?v=65711fca9c", "status": 200, "bytes": 15060, "t": 1795509677.541}
+{"src": "proxy", "req": "/assets/melodia-ydinopinnot.css?v=1084092d1f", "status": 200, "bytes": 11436, "t": 1795509677.547}
+{"src": "proxy", "req": "/assets/edistyminen.js?v=39bccb10a6", "status": 200, "bytes": 23152, "t": 1795509677.64}
+{"src": "proxy", "req": "/assets/kokonaisuudet.js?v=326aed1a00", "status": 200, "bytes": 12236, "t": 1795509677.69}
+{"src": "proxy", "req": "/assets/melodia-ydinopinnot.js?v=e5741a98bb", "status": 200, "bytes": 41876, "t": 1795509677.695}
+{"src": "proxy", "req": "/assets/oppimistapa.js", "status": 200, "bytes": 11899, "t": 1795509677.699}
+{"src": "proxy", "req": "/assets/oppimisikonit.svg", "status": 200, "bytes": 10022, "t": 1795509677.824}
+{"src": "page", "type": "click", "trusted": true, "text": "▶ Kuuntele", "pt": 7122, "t": 1795509683.958}
+{"src": "page", "type": "ctx-new", "state": "suspended", "sr": 48000, "pt": 7129, "t": 1795509683.958}
+{"src": "page", "type": "ctx-resume", "state": "suspended", "pt": 7129, "t": 1795509683.959}
+{"src": "page", "type": "ctx-resumed", "state": "running", "sr": 48000, "pt": 7132, "t": 1795509683.959}
+{"src": "page", "type": "ctx-state", "state": "running", "pt": 7134, "t": 1795509683.959}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringG_Vel02_A3_01.m4a", "status": 200, "bytes": 56908, "t": 1795509684.061}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringG_Vel02_G3_01.m4a", "status": 200, "bytes": 57365, "t": 1795509684.067}
+{"src": "page", "type": "fetch", "url": "/assets/audio/soinnut/INSGuitarSteel_StringG_Vel02_A3_01.m4a", "status": 200, "pt": 7284, "t": 1795509684.263}
+{"src": "page", "type": "fetch", "url": "/assets/audio/soinnut/INSGuitarSteel_StringG_Vel02_G3_01.m4a", "status": 200, "pt": 7289, "t": 1795509684.263}
+{"src": "page", "type": "decode-ok", "pitch": "G:A3", "size": 56908, "dur": 5, "sr": 48000, "ch": 1, "pt": 7386, "t": 1795509684.263}
+{"src": "page", "type": "decode-ok", "pitch": "G:G3", "size": 57365, "dur": 5, "sr": 48000, "ch": 1, "pt": 7391, "t": 1795509684.263}
+{"src": "page", "type": "source-start", "pitch": "G:G3", "when": 0.356, "now": 0.256, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 7392, "t": 1795509684.263}
+{"src": "page", "type": "source-start", "pitch": "G:A3", "when": 1.056, "now": 0.256, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 7392, "t": 1795509684.264}
+{"src": "page", "type": "source-start", "pitch": "G:G3", "when": 1.756, "now": 0.256, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 7392, "t": 1795509684.264}
+{"src": "page", "type": "click", "trusted": true, "text": "G", "pt": 19954, "t": 1795509697.036}
+{"src": "page", "type": "ctx-resume", "state": "running", "pt": 19954, "t": 1795509697.037}
+{"src": "page", "type": "ctx-resumed", "state": "running", "sr": 48000, "pt": 19958, "t": 1795509697.037}
+{"src": "page", "type": "source-start", "pitch": "G:G3", "when": 12.921, "now": 12.821, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 19959, "t": 1795509697.037}
+{"src": "page", "type": "click", "trusted": true, "text": "C", "pt": 20086, "t": 1795509697.037}
+{"src": "page", "type": "ctx-resume", "state": "running", "pt": 20086, "t": 1795509697.037}
+{"src": "page", "type": "ctx-resumed", "state": "running", "sr": 48000, "pt": 20088, "t": 1795509697.037}
+{"src": "page", "type": "click", "trusted": true, "text": "A", "pt": 20219, "t": 1795509697.037}
+{"src": "page", "type": "ctx-resume", "state": "running", "pt": 20223, "t": 1795509697.037}
+{"src": "page", "type": "ctx-resumed", "state": "running", "sr": 48000, "pt": 20225, "t": 1795509697.037}
+{"src": "page", "type": "fetch-fail", "url": "http://localhost:8766/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_C4_01.m4a", "msg": "AbortError", "pt": 20225, "t": 1795509697.037}
+{"src": "page", "type": "source-start", "pitch": "G:A3", "when": 13.188, "now": 13.088, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 20225, "t": 1795509697.037}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_C4_01.m4a", "status": 200, "bytes": 57593, "t": 1795509697.053}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_D4_01.m4a", "status": 200, "bytes": 56913, "t": 1795509697.249}
+{"src": "page", "type": "click", "trusted": true, "text": "D", "pt": 20335, "t": 1795509697.333}
+{"src": "page", "type": "ctx-resume", "state": "running", "pt": 20336, "t": 1795509697.333}
+{"src": "page", "type": "ctx-resumed", "state": "running", "sr": 48000, "pt": 20336, "t": 1795509697.333}
+{"src": "page", "type": "fetch", "url": "/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_D4_01.m4a", "status": 200, "pt": 20469, "t": 1795509697.333}
+{"src": "page", "type": "decode-ok", "pitch": "B:D4", "size": 56913, "dur": 5, "sr": 48000, "ch": 1, "pt": 20476, "t": 1795509697.333}
+{"src": "page", "type": "source-start", "pitch": "B:D4", "when": 13.433, "now": 13.333, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 20476, "t": 1795509697.333}
+{"src": "page", "type": "click", "trusted": true, "text": "Tarkista", "pt": 27286, "t": 1795509704.327}
+{"src": "proxy", "req": "/oppi/korva/kuule-ja-etsi-kitaralta.html", "status": 200, "bytes": 5520, "t": 1795509959.232}
+{"src": "proxy", "req": "/assets/kokonaisuudet.css?v=db6d10a623", "status": 200, "bytes": 6856, "t": 1795509959.719}
+{"src": "proxy", "req": "/assets/oppi.css?v=8a69bdc0e8", "status": 200, "bytes": 5681, "t": 1795509959.72}
+{"src": "proxy", "req": "/assets/melodia-ydinopinnot.css?v=1084092d1f", "status": 200, "bytes": 11436, "t": 1795509959.721}
+{"src": "proxy", "req": "/assets/oppimiskartta.js", "status": 200, "bytes": 3703, "t": 1795509959.72}
+{"src": "proxy", "req": "/assets/paavalikko.css?v=4e5c7fbf95", "status": 200, "bytes": 4762, "t": 1795509959.725}
+{"src": "proxy", "req": "/book/reader.css?v=65711fca9c", "status": 200, "bytes": 15060, "t": 1795509959.734}
+{"src": "proxy", "req": "/assets/oppimistapa.js", "status": 200, "bytes": 11899, "t": 1795509959.855}
+{"src": "proxy", "req": "/assets/edistyminen.js?v=39bccb10a6", "status": 200, "bytes": 23152, "t": 1795509959.855}
+{"src": "proxy", "req": "/assets/kokonaisuudet.js?v=326aed1a00", "status": 200, "bytes": 12236, "t": 1795509959.864}
+{"src": "proxy", "req": "/assets/melodia-ydinopinnot.js?v=e5741a98bb", "status": 200, "bytes": 41876, "t": 1795509959.873}
+{"src": "proxy", "req": "/assets/oppimisikonit.svg", "status": 200, "bytes": 10022, "t": 1795509960.07}
+{"src": "proxy", "req": "/oppi/korva/kuule-ja-etsi-kitaralta.html", "status": 200, "bytes": 5520, "t": 1795509982.827}
+{"src": "proxy", "req": "/assets/oppimiskartta.js", "status": 200, "bytes": 3703, "t": 1795509983.016}
+{"src": "proxy", "req": "/assets/oppi.css?v=8a69bdc0e8", "status": 200, "bytes": 5681, "t": 1795509983.016}
+{"src": "proxy", "req": "/assets/paavalikko.css?v=4e5c7fbf95", "status": 200, "bytes": 4762, "t": 1795509983.016}
+{"src": "proxy", "req": "/assets/melodia-ydinopinnot.css?v=1084092d1f", "status": 200, "bytes": 11436, "t": 1795509983.023}
+{"src": "proxy", "req": "/book/reader.css?v=65711fca9c", "status": 200, "bytes": 15060, "t": 1795509983.027}
+{"src": "proxy", "req": "/assets/kokonaisuudet.css?v=db6d10a623", "status": 200, "bytes": 6856, "t": 1795509983.027}
+{"src": "result", "id": "9c485c72", "out": "/oppi/korva/kuule-ja-etsi-kitaralta.html", "t": 1795509983.178}
+{"src": "proxy", "req": "/assets/kokonaisuudet.js?v=326aed1a00", "status": 200, "bytes": 12236, "t": 1795509983.243}
+{"src": "proxy", "req": "/assets/edistyminen.js?v=39bccb10a6", "status": 200, "bytes": 23152, "t": 1795509983.245}
+{"src": "proxy", "req": "/assets/oppimistapa.js", "status": 200, "bytes": 11899, "t": 1795509983.259}
+{"src": "proxy", "req": "/assets/melodia-ydinopinnot.js?v=e5741a98bb", "status": 200, "bytes": 41876, "t": 1795509983.271}
+{"src": "proxy", "req": "/assets/oppimisikonit.svg", "status": 200, "bytes": 10022, "t": 1795509983.444}
+{"src": "page", "type": "click", "trusted": true, "text": "▶ Kuuntele", "pt": 6846, "t": 1795509989.584}
+{"src": "page", "type": "ctx-new", "state": "suspended", "sr": 48000, "pt": 7002, "t": 1795509989.584}
+{"src": "page", "type": "ctx-resume", "state": "suspended", "pt": 7002, "t": 1795509989.585}
+{"src": "page", "type": "ctx-state", "state": "running", "pt": 7049, "t": 1795509989.585}
+{"src": "page", "type": "ctx-resumed", "state": "running", "sr": 48000, "pt": 7049, "t": 1795509989.587}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_B3_01.m4a", "status": 200, "bytes": 58100, "t": 1795509990.646}
+{"src": "page", "type": "fetch", "url": "/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_B3_01.m4a", "status": 200, "pt": 8190, "t": 1795509990.771}
+{"src": "page", "type": "decode-ok", "pitch": "B:B3", "size": 58100, "dur": 5, "sr": 48000, "ch": 1, "pt": 8408, "t": 1795509991.076}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringG_Vel02_G3_01.m4a", "status": 200, "bytes": 57365, "t": 1795509991.594}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_C4_01.m4a", "status": 200, "bytes": 57593, "t": 1795509991.6}
+{"src": "page", "type": "fetch", "url": "/assets/audio/soinnut/INSGuitarSteel_StringG_Vel02_G3_01.m4a", "status": 200, "pt": 9132, "t": 1795509991.696}
+{"src": "page", "type": "fetch", "url": "/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_C4_01.m4a", "status": 200, "pt": 9138, "t": 1795509991.697}
+{"src": "page", "type": "decode-ok", "pitch": "G:G3", "size": 57365, "dur": 5, "sr": 48000, "ch": 1, "pt": 9143, "t": 1795509991.697}
+{"src": "page", "type": "decode-ok", "pitch": "B:C4", "size": 57593, "dur": 5, "sr": 48000, "ch": 1, "pt": 9150, "t": 1795509991.697}
+{"src": "page", "type": "source-start", "pitch": "G:G3", "when": 2.095, "now": 2.005, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 9162, "t": 1795509991.697}
+{"src": "page", "type": "source-start", "pitch": "B:C4", "when": 2.795, "now": 2.005, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 9164, "t": 1795509991.697}
+{"src": "page", "type": "source-start", "pitch": "B:B3", "when": 3.495, "now": 2.005, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 9164, "t": 1795509991.697}
+{"src": "page", "type": "click", "trusted": false, "text": "B", "pt": 13105, "t": 1795509995.637}
+{"src": "page", "type": "ctx-resume", "state": "running", "pt": 13105, "t": 1795509995.637}
+{"src": "page", "type": "ctx-resumed", "state": "running", "sr": 48000, "pt": 13108, "t": 1795509995.637}
+{"src": "page", "type": "source-start", "pitch": "B:B3", "when": 6.052, "now": 5.952, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 13108, "t": 1795509995.638}
+{"src": "page", "type": "click", "trusted": false, "text": "C", "pt": 13227, "t": 1795509995.94}
+{"src": "page", "type": "ctx-resume", "state": "running", "pt": 13227, "t": 1795509995.94}
+{"src": "page", "type": "ctx-resumed", "state": "running", "sr": 48000, "pt": 13227, "t": 1795509995.94}
+{"src": "page", "type": "source-start", "pitch": "B:C4", "when": 6.169, "now": 6.069, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 13227, "t": 1795509995.94}
+{"src": "page", "type": "click", "trusted": false, "text": "D", "pt": 13348, "t": 1795509995.94}
+{"src": "page", "type": "ctx-resume", "state": "running", "pt": 13348, "t": 1795509995.941}
+{"src": "page", "type": "ctx-resumed", "state": "running", "sr": 48000, "pt": 13348, "t": 1795509995.941}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_D4_01.m4a", "status": 200, "bytes": 56913, "t": 1795509996.879}
+{"src": "page", "type": "fetch", "url": "/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_D4_01.m4a", "status": 200, "pt": 14417, "t": 1795509997.156}
+{"src": "page", "type": "decode-ok", "pitch": "B:D4", "size": 56913, "dur": 5, "sr": 48000, "ch": 1, "pt": 14422, "t": 1795509997.156}
+{"src": "page", "type": "source-start", "pitch": "B:D4", "when": 7.364, "now": 7.264, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 14422, "t": 1795509997.156}
+{"src": "result", "id": "3170c650", "out": {"slots": ["B", "C", "D"], "status": "", "starts": 3, "fetches": ["D4_01.m4a"], "decodes": 1}, "t": 1795509999.438}
+{"src": "result", "id": "7e28886b", "out": ["G3", "C4", "B3", "D4"], "t": 1795510004.898}
+{"src": "page", "type": "click", "trusted": false, "text": "A", "pt": 33016, "t": 1795510015.71}
+{"src": "page", "type": "ctx-resume", "state": "running", "pt": 33016, "t": 1795510015.71}
+{"src": "page", "type": "ctx-resumed", "state": "running", "sr": 48000, "pt": 33018, "t": 1795510015.711}
+{"src": "page", "type": "click", "trusted": false, "text": "G", "pt": 33139, "t": 1795510015.711}
+{"src": "page", "type": "ctx-resume", "state": "running", "pt": 33148, "t": 1795510015.711}
+{"src": "page", "type": "ctx-resumed", "state": "running", "sr": 48000, "pt": 33149, "t": 1795510015.711}
+{"src": "page", "type": "fetch-fail", "url": "http://localhost:8766/assets/audio/soinnut/INSGuitarSteel_StringG_Vel02_A3_01.m4a", "msg": "AbortError", "pt": 33155, "t": 1795510015.711}
+{"src": "page", "type": "source-start", "pitch": "G:G3", "when": 26.095, "now": 25.995, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 33155, "t": 1795510015.711}
+{"src": "page", "type": "click", "trusted": false, "text": "B", "pt": 33269, "t": 1795510016.005}
+{"src": "page", "type": "ctx-resume", "state": "running", "pt": 33269, "t": 1795510016.006}
+{"src": "page", "type": "ctx-resumed", "state": "running", "sr": 48000, "pt": 33271, "t": 1795510016.006}
+{"src": "page", "type": "source-start", "pitch": "B:B3", "when": 26.212, "now": 26.112, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 33271, "t": 1795510016.006}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringG_Vel02_A3_01.m4a", "status": 200, "bytes": 56908, "t": 1795510016.446}
+{"src": "result", "id": "2ee901ac", "out": {"slots": ["A", "G", "B"], "status": "", "ev": ["fetch-fail:A3_01.m4a", "source-start:G:G3", "source-start:B:B3"], "aInBuffers": 0}, "t": 1795510018.366}
+{"src": "proxy", "req": "/oppi/korva/kotiin-vai-kesken.html", "status": 200, "bytes": 5671, "t": 1795510090.094}
+{"src": "proxy", "req": "/assets/paavalikko.css?v=4e5c7fbf95", "status": 200, "bytes": 4762, "t": 1795510090.527}
+{"src": "proxy", "req": "/assets/oppimiskartta.js", "status": 200, "bytes": 3703, "t": 1795510090.617}
+{"src": "proxy", "req": "/book/reader.css?v=65711fca9c", "status": 200, "bytes": 15060, "t": 1795510090.617}
+{"src": "proxy", "req": "/assets/melodia-ydinopinnot.css?v=1084092d1f", "status": 200, "bytes": 11436, "t": 1795510090.617}
+{"src": "proxy", "req": "/assets/kokonaisuudet.css?v=db6d10a623", "status": 200, "bytes": 6856, "t": 1795510090.621}
+{"src": "proxy", "req": "/assets/edistyminen.js?v=39bccb10a6", "status": 200, "bytes": 23152, "t": 1795510090.765}
+{"src": "proxy", "req": "/assets/oppimistapa.js", "status": 200, "bytes": 11899, "t": 1795510090.765}
+{"src": "proxy", "req": "/assets/kokonaisuudet.js?v=326aed1a00", "status": 200, "bytes": 12236, "t": 1795510090.778}
+{"src": "proxy", "req": "/assets/oppi.css?v=8a69bdc0e8", "status": 200, "bytes": 5681, "t": 1795510090.793}
+{"src": "proxy", "req": "/assets/melodia-ydinopinnot.js?v=e5741a98bb", "status": 200, "bytes": 41876, "t": 1795510090.811}
+{"src": "proxy", "req": "/assets/oppimisikonit.svg", "status": 200, "bytes": 10022, "t": 1795510091.0}
+{"src": "page", "type": "click", "trusted": false, "text": "Loppu 1", "pt": 12149, "t": 1795510102.063}
+{"src": "page", "type": "ctx-new", "state": "suspended", "sr": 48000, "pt": 12236, "t": 1795510102.064}
+{"src": "page", "type": "ctx-resume", "state": "suspended", "pt": 12236, "t": 1795510102.064}
+{"src": "page", "type": "click", "trusted": false, "text": "Tarkista valinta", "pt": 12491, "t": 1795510102.359}
+{"src": "result", "id": "cd31602e", "out": {"tries": 1, "fb": "Tässä melodiassa loppu 2 kuulostaa valmiimmalta: se palaa kotisävel G:hen. Loppu 1 pysähtyy D:hen. Se sopii G-sointuun, mutta jättää melodian kysymykseksi.", "labels": ["Loppu 1 ✗ valintasi|pressed=true|cls=", "Loppu 2 ✓ valmiimpi|pressed=false|cls=is-valmiimpi"], "reveal": ["Loppu 1: G → D → C → B → C → A → D", "Loppu 2: G → D → C → B → C → A → G (kotiin)"]}, "t": 1795510102.422}
+{"src": "proxy", "req": "/oppi/korva/kotiin-vai-kesken.html", "status": 200, "bytes": 5671, "t": 1795510129.566}
+{"src": "proxy", "req": "/assets/paavalikko.css?v=4e5c7fbf95", "status": 200, "bytes": 4762, "t": 1795510129.708}
+{"src": "proxy", "req": "/assets/melodia-ydinopinnot.css?v=1084092d1f", "status": 200, "bytes": 11436, "t": 1795510129.72}
+{"src": "proxy", "req": "/book/reader.css?v=65711fca9c", "status": 200, "bytes": 15060, "t": 1795510129.72}
+{"src": "proxy", "req": "/assets/oppi.css?v=8a69bdc0e8", "status": 200, "bytes": 5681, "t": 1795510129.735}
+{"src": "proxy", "req": "/assets/kokonaisuudet.css?v=db6d10a623", "status": 200, "bytes": 6856, "t": 1795510129.735}
+{"src": "proxy", "req": "/assets/oppimiskartta.js", "status": 200, "bytes": 3703, "t": 1795510129.752}
+{"src": "proxy", "req": "/assets/edistyminen.js?v=39bccb10a6", "status": 200, "bytes": 23152, "t": 1795510129.84}
+{"src": "proxy", "req": "/assets/oppimistapa.js", "status": 200, "bytes": 11899, "t": 1795510129.846}
+{"src": "proxy", "req": "/assets/kokonaisuudet.js?v=326aed1a00", "status": 200, "bytes": 12236, "t": 1795510129.937}
+{"src": "proxy", "req": "/assets/melodia-ydinopinnot.js?v=e5741a98bb", "status": 200, "bytes": 41876, "t": 1795510129.937}
+{"src": "proxy", "req": "/assets/oppimisikonit.svg", "status": 200, "bytes": 10022, "t": 1795510130.07}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_B3_01.m4a", "status": 200, "bytes": 58100, "t": 1795510131.142}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_D4_01.m4a", "status": 200, "bytes": 56913, "t": 1795510131.161}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_C4_01.m4a", "status": 200, "bytes": 57593, "t": 1795510131.161}
+{"src": "page", "type": "click", "trusted": true, "text": "▶ Kuuntele molemmat", "pt": 1615, "t": 1795510131.165}
+{"src": "page", "type": "ctx-new", "state": "suspended", "sr": 48000, "pt": 1700, "t": 1795510131.165}
+{"src": "page", "type": "ctx-resume", "state": "suspended", "pt": 1700, "t": 1795510131.165}
+{"src": "page", "type": "ctx-state", "state": "running", "pt": 1761, "t": 1795510131.165}
+{"src": "page", "type": "ctx-resumed", "state": "running", "sr": 48000, "pt": 1761, "t": 1795510131.165}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringLowE_Vel02_G2_01.m4a", "status": 200, "bytes": 53829, "t": 1795510131.187}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringHighE_Vel02_E4_01.m4a", "status": 200, "bytes": 58341, "t": 1795510131.187}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringG_Vel02_G3_01.m4a", "status": 200, "bytes": 57365, "t": 1795510131.208}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringG_Vel02_A3_01.m4a", "status": 200, "bytes": 56908, "t": 1795510131.297}
+{"src": "page", "type": "fetch", "url": "/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_B3_01.m4a", "status": 200, "pt": 1938, "t": 1795510131.394}
+{"src": "page", "type": "fetch", "url": "/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_D4_01.m4a", "status": 200, "pt": 1950, "t": 1795510131.395}
+{"src": "page", "type": "fetch", "url": "/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_C4_01.m4a", "status": 200, "pt": 1950, "t": 1795510131.395}
+{"src": "page", "type": "fetch", "url": "/assets/audio/soinnut/INSGuitarSteel_StringLowE_Vel02_G2_01.m4a", "status": 200, "pt": 1975, "t": 1795510131.395}
+{"src": "page", "type": "fetch", "url": "/assets/audio/soinnut/INSGuitarSteel_StringHighE_Vel02_E4_01.m4a", "status": 200, "pt": 1975, "t": 1795510131.395}
+{"src": "page", "type": "fetch", "url": "/assets/audio/soinnut/INSGuitarSteel_StringG_Vel02_G3_01.m4a", "status": 200, "pt": 1997, "t": 1795510131.395}
+{"src": "page", "type": "fetch", "url": "/assets/audio/soinnut/INSGuitarSteel_StringG_Vel02_A3_01.m4a", "status": 200, "pt": 2086, "t": 1795510131.395}
+{"src": "page", "type": "decode-ok", "pitch": "B:B3", "size": 58100, "dur": 5, "sr": 48000, "ch": 1, "pt": 2111, "t": 1795510131.395}
+{"src": "page", "type": "decode-ok", "pitch": "B:D4", "size": 56913, "dur": 5, "sr": 48000, "ch": 1, "pt": 2116, "t": 1795510131.395}
+{"src": "page", "type": "decode-ok", "pitch": "B:C4", "size": 57593, "dur": 5, "sr": 48000, "ch": 1, "pt": 2120, "t": 1795510131.395}
+{"src": "page", "type": "decode-ok", "pitch": "LowE:G2", "size": 53829, "dur": 5, "sr": 48000, "ch": 1, "pt": 2124, "t": 1795510131.395}
+{"src": "page", "type": "decode-ok", "pitch": "HighE:E4", "size": 58341, "dur": 5, "sr": 48000, "ch": 1, "pt": 2128, "t": 1795510131.395}
+{"src": "page", "type": "decode-ok", "pitch": "G:G3", "size": 57365, "dur": 5, "sr": 48000, "ch": 1, "pt": 2131, "t": 1795510131.395}
+{"src": "page", "type": "decode-ok", "pitch": "G:A3", "size": 56908, "dur": 5, "sr": 48000, "ch": 1, "pt": 2134, "t": 1795510131.395}
+{"src": "page", "type": "source-start", "pitch": "LowE:G2", "when": 0.399, "now": 0.309, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 2146, "t": 1795510131.395}
+{"src": "page", "type": "source-start", "pitch": "B:B3", "when": 0.399, "now": 0.309, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 2148, "t": 1795510131.396}
+{"src": "page", "type": "source-start", "pitch": "B:C4", "when": 0.849, "now": 0.309, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 2148, "t": 1795510131.396}
+{"src": "page", "type": "source-start", "pitch": "B:D4", "when": 1.299, "now": 0.309, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 2148, "t": 1795510131.396}
+{"src": "page", "type": "source-start", "pitch": "B:B3", "when": 1.749, "now": 0.309, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 2148, "t": 1795510131.396}
+{"src": "page", "type": "source-start", "pitch": "HighE:E4", "when": 2.199, "now": 0.309, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 2148, "t": 1795510131.396}
+{"src": "page", "type": "source-start", "pitch": "B:D4", "when": 2.649, "now": 0.309, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 2148, "t": 1795510131.396}
+{"src": "page", "type": "source-start", "pitch": "B:C4", "when": 3.099, "now": 0.309, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 2148, "t": 1795510131.396}
+{"src": "page", "type": "source-start", "pitch": "G:G3", "when": 3.549, "now": 0.309, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 2148, "t": 1795510131.396}
+{"src": "page", "type": "source-start", "pitch": "LowE:G2", "when": 6.049, "now": 0.309, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 2148, "t": 1795510131.396}
+{"src": "page", "type": "source-start", "pitch": "B:B3", "when": 6.049, "now": 0.309, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 2148, "t": 1795510131.397}
+{"src": "page", "type": "source-start", "pitch": "B:C4", "when": 6.499, "now": 0.309, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 2148, "t": 1795510131.397}
+{"src": "page", "type": "source-start", "pitch": "B:D4", "when": 6.949, "now": 0.309, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 2148, "t": 1795510131.397}
+{"src": "page", "type": "source-start", "pitch": "B:B3", "when": 7.399, "now": 0.309, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 2148, "t": 1795510131.397}
+{"src": "page", "type": "source-start", "pitch": "HighE:E4", "when": 7.849, "now": 0.309, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 2148, "t": 1795510131.397}
+{"src": "page", "type": "source-start", "pitch": "B:D4", "when": 8.299, "now": 0.309, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 2148, "t": 1795510131.397}
+{"src": "page", "type": "source-start", "pitch": "B:C4", "when": 8.749, "now": 0.309, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 2148, "t": 1795510131.397}
+{"src": "page", "type": "source-start", "pitch": "G:A3", "when": 9.199, "now": 0.309, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 2148, "t": 1795510131.397}
+{"src": "page", "type": "click", "trusted": true, "text": "Loppu 2", "pt": 12773, "t": 1795510142.041}
+{"src": "page", "type": "ctx-resume", "state": "running", "pt": 12773, "t": 1795510142.042}
+{"src": "page", "type": "ctx-resumed", "state": "running", "sr": 48000, "pt": 12775, "t": 1795510142.042}
+{"src": "page", "type": "source-start", "pitch": "LowE:G2", "when": 11.044, "now": 10.944, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 12782, "t": 1795510142.042}
+{"src": "page", "type": "source-start", "pitch": "B:B3", "when": 11.044, "now": 10.944, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 12782, "t": 1795510142.042}
+{"src": "page", "type": "source-start", "pitch": "B:C4", "when": 11.494, "now": 10.944, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 12782, "t": 1795510142.042}
+{"src": "page", "type": "source-start", "pitch": "B:D4", "when": 11.944, "now": 10.944, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 12782, "t": 1795510142.042}
+{"src": "page", "type": "source-start", "pitch": "B:B3", "when": 12.394, "now": 10.944, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 12782, "t": 1795510142.042}
+{"src": "page", "type": "source-start", "pitch": "HighE:E4", "when": 12.844, "now": 10.944, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 12782, "t": 1795510142.042}
+{"src": "page", "type": "source-start", "pitch": "B:D4", "when": 13.294, "now": 10.944, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 12782, "t": 1795510142.042}
+{"src": "page", "type": "source-start", "pitch": "B:C4", "when": 13.744, "now": 10.944, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 12782, "t": 1795510142.042}
+{"src": "page", "type": "source-start", "pitch": "G:A3", "when": 14.194, "now": 10.944, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 12782, "t": 1795510142.042}
+{"src": "page", "type": "click", "trusted": true, "text": "Tarkista valinta", "pt": 12888, "t": 1795510142.338}
+{"src": "proxy", "req": "/oppi/korva/kuule-ja-etsi-kitaralta.html", "status": 200, "bytes": 5520, "t": 1795510263.261}
+{"src": "proxy", "req": "/assets/melodia-ydinopinnot.css?v=1084092d1f", "status": 200, "bytes": 11436, "t": 1795510263.439}
+{"src": "proxy", "req": "/book/reader.css?v=65711fca9c", "status": 200, "bytes": 15060, "t": 1795510263.503}
+{"src": "proxy", "req": "/assets/oppi.css?v=8a69bdc0e8", "status": 200, "bytes": 5681, "t": 1795510263.505}
+{"src": "proxy", "req": "/assets/kokonaisuudet.css?v=db6d10a623", "status": 200, "bytes": 6856, "t": 1795510263.468}
+{"src": "proxy", "req": "/assets/paavalikko.css?v=4e5c7fbf95", "status": 200, "bytes": 4762, "t": 1795510263.506}
+{"src": "proxy", "req": "/assets/oppimiskartta.js", "status": 200, "bytes": 3703, "t": 1795510263.507}
+{"src": "proxy", "req": "/assets/kokonaisuudet.js?v=326aed1a00", "status": 200, "bytes": 12236, "t": 1795510263.784}
+{"src": "proxy", "req": "/assets/oppimistapa.js", "status": 200, "bytes": 11899, "t": 1795510263.784}
+{"src": "proxy", "req": "/assets/edistyminen.js?v=39bccb10a6", "status": 200, "bytes": 23152, "t": 1795510263.791}
+{"src": "proxy", "req": "/assets/melodia-ydinopinnot.js?v=e5741a98bb", "status": 200, "bytes": 41876, "t": 1795510263.795}
+{"src": "proxy", "req": "/assets/oppimisikonit.svg", "status": 200, "bytes": 10022, "t": 1795510263.937}
+{"src": "result", "id": "6414a416", "out": {"status": "", "btn": "▶ Kuuntele", "vis": "visible"}, "t": 1795510270.756}
+{"src": "page", "type": "click", "trusted": true, "text": "▶ Kuuntele", "pt": 33169, "t": 1795510296.273}
+{"src": "page", "type": "ctx-new", "state": "suspended", "sr": 48000, "pt": 33325, "t": 1795510296.273}
+{"src": "page", "type": "ctx-resume", "state": "suspended", "pt": 33325, "t": 1795510296.274}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_D4_01.m4a", "status": 200, "bytes": 56913, "t": 1795510296.444}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringG_Vel02_A3_01.m4a", "status": 200, "bytes": 56908, "t": 1795510296.444}
+{"src": "proxy", "req": "/assets/audio/soinnut/INSGuitarSteel_StringG_Vel02_G3_01.m4a", "status": 200, "bytes": 57365, "t": 1795510296.445}
+{"src": "page", "type": "ctx-state", "state": "running", "pt": 33386, "t": 1795510296.566}
+{"src": "page", "type": "ctx-resumed", "state": "running", "sr": 48000, "pt": 33386, "t": 1795510296.566}
+{"src": "page", "type": "fetch", "url": "/assets/audio/soinnut/INSGuitarSteel_StringB_Vel02_D4_01.m4a", "status": 200, "pt": 33587, "t": 1795510296.566}
+{"src": "page", "type": "fetch", "url": "/assets/audio/soinnut/INSGuitarSteel_StringG_Vel02_A3_01.m4a", "status": 200, "pt": 33589, "t": 1795510296.566}
+{"src": "page", "type": "fetch", "url": "/assets/audio/soinnut/INSGuitarSteel_StringG_Vel02_G3_01.m4a", "status": 200, "pt": 33590, "t": 1795510296.566}
+{"src": "page", "type": "decode-ok", "pitch": "B:D4", "size": 56913, "dur": 5, "sr": 48000, "ch": 1, "pt": 33861, "t": 1795510296.89}
+{"src": "page", "type": "decode-ok", "pitch": "G:A3", "size": 56908, "dur": 5, "sr": 48000, "ch": 1, "pt": 33865, "t": 1795510296.89}
+{"src": "page", "type": "decode-ok", "pitch": "G:G3", "size": 57365, "dur": 5, "sr": 48000, "ch": 1, "pt": 33869, "t": 1795510296.89}
+{"src": "page", "type": "source-start", "pitch": "G:G3", "when": 0.463, "now": 0.373, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 33878, "t": 1795510296.89}
+{"src": "page", "type": "source-start", "pitch": "G:A3", "when": 1.163, "now": 0.373, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 33879, "t": 1795510296.89}
+{"src": "page", "type": "source-start", "pitch": "B:D4", "when": 1.863, "now": 0.373, "state": "running", "dur": 5, "rate": 1, "detune": 0, "pt": 33879, "t": 1795510296.89}
+{"src": "result", "id": "a69513da", "out": {"status": "", "btn": "▶ Kuuntele", "vis": "visible", "ctx": "running", "loc": "/oppi/korva/kuule-ja-etsi-kitaralta.html"}, "t": 1795510304.184}

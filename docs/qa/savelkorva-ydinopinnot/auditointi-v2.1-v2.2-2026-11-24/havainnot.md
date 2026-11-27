@@ -1,0 +1,17 @@
+# Työlokin havainnot (kirjataan työn edetessä)
+- [H] SK-AUD-001 (ehdokas MAJOR/MINOR, tarkistettava onko sivustonlaajuinen): H1, kaksi nopeaa napautusta samaan Alas-painikkeeseen laukaisi Safarin tuplanapautuszoomin (visualViewport.scale 1,6, innerWidth 251). touch-action: auto painikkeilla, viewport ei estä zoomia. Kuva: kuvakaappaukset/02-h1-tuplanapautus-zoom.png. Molemmat vastaukset kirjautuivat.
+- Sokkotestin poikkeama: mittausloki paljasti H1:n ensimmäisen melodian sävelet (D4,D4,F#4) ennen vastausta. Muut tehtävät: sävelkentät suodatetaan.
+- [H] H1 ensinäkymä: vain otsikko, 1 virke ja Kuuntele (hyvä). Vastausalue ilmestyy vasta Kuuntele-painalluksen jälkeen. Painikkeet n. 67x54 pt.
+- Esikatselu = b6ff787 (JS+CSS tavu tavulta, HTML eroaa vain Cloudflare-analytiikkaskriptistä).
+- Työkalut: simctl openurl + localhost:8766-välityspalvelin (probe.js) + rc.py + ohjaustyökalun tap/screenshot. idb/maestro ei asennettu.
+- [H] H1 virhepalaute: "1/2 oikein. Vaihto 2: kuului ylös, vastasit alas." + vertailukortit (kuva 03b); ✗ ja katkoviiva, ei vain väri. Seuraava melodia heti tuloksen alla. Kuvat 03, 03b.
+- [H] SK-AUD-002 (ehdokas): H2 "Mitä opit?" -kortti näkyy ennen yritystä ja sanoo "melodiat on rakennettu G-duuriin, joten G:hen palaava loppu kuulostaa niissä valmiimmalta" -> paljastaa säännön ennen kokemusta; ristiriidassa "kotisävelen käsite annetaan kokemuksen jälkeen" -lukitun kanssa.
+- [H] H2: Kuuntele molemmat -> 7 nuottia/melodia @0.45 s, 2. melodia alkaa 6.036 (taukoa ~0.9 s) + basso-G; soi-tila näkyy (vihreä kehys + "▶ soi"), valinta erikseen ("✓ valittu · ▶ soi"). Palaute: "Oikein! Loppu 1 palaa kotisävel G:hen ... Loppu 2 jää F♯:ään ... vetää vahvasti kotiin." Kuva 04.
+- [H] H3 taso 1: ruudukko B ja G, nauhat 0-3, vain 5 nuottipainiketta; neljän sävelen tapailu -> ketju näyttää viimeiset 3; palaute "1/3 oikein. Kahdessa sävelessä oli eroa." + numeroidut paikat (toisto "1·3") + Kitaralla-rivi + Oma kulkusi. Kuva 05.
+- [H] Monivälilehtisyys: vanhat välilehdet vastaavat rc.py:lle -> tarkista location.pathname.
+- [H] SK-01 vahvistettu: H2 väärä valinta -> valittu loppu merkitään "✗ valintasi", palaute "Tässä melodiassa loppu 1 kuulostaa valmiimmalta: se palaa kotisävel G:hen." (väittää kuulokokemuksen). Kuva 06. Soi- ja valmiimpi-tila käyttävät molemmat vihreää kehystä; "✗ valintasi · ▶ soi" rivittyy kahdelle riville (korkeus muuttuu).
+- [H] H3 nopea tapailu: A3 (lataamaton) + G3 + B3 120 ms välein, viive 0,8 s: vastausketju A,G,B; A3:n fetch keskeytyi (fetch-fail), ääni ei soinut -> sävel kirjautui kuulumatta. (mittaus/proxy audio_delay)
+- [L] Generaattori: fallback ids.slice(0,length) rikkoo suunnanvaihdon (taso 3/etsi 4) vain vikasietoisella RNG:llä (0/140000 normaalissa otannassa). "Suunta vaihtuu" -sääntö hyväksyy ylös+sama-kuvion (9,2 % / 11,2 % / 4 %). pickIndex: sama melodiapari vastakkaisessa järjestyksessä 9,4 % (tasajako 6,7 %). H3 taso 1: vain 16 yksilöllistä melodiaa, G3-A3-B3 15 %. H1 suuntakuvioiden arvattavuus.
+- [L] Parit 4 ja 8: ei F♯:a; pari 8 alkaa A-molli-murtosoinnulla E–C–A, loppu A3 = Am-tonika (kesken-loppu voi kuulostaa valmiilta); pari 4 alku BCDE painottuu C:hen. Odottaa kuuntelutestiä.
+- Testit: npm run check EXIT 0 (44 tiedostoa/728 testiä); Chromium e2e 32 pass/2 skip; WebKit 31 pass/1 fail (02 näppäimistö, webkit-desktop :480) -> selvitettävä; rakenna.py --tarkista EXIT 0.
+- PR #179: 178+179 -> 5 tekstiristiriitaa (rakenna.py, 3 testiä, aihelista/aihesivut); kumpikin yhdistyy betaan (9526b70) erikseen puhtaasti. index.html ja aiheet.json auto-merge.

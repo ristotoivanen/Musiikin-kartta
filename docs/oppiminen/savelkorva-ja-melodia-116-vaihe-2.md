@@ -215,3 +215,4 @@ Samantasoiset syventävät kokonaisuudet Ydinopintojen jälkeen, kukin erillisel
 - **Beta:** `07d8126` yhdistetty kehityshaaraan; ainoa ristiriita `rakenna.py`:ssä. Harjoitusten lähdekoodi ei muuttunut.
 - **Regressio:** uusia PR #178:n aiheuttamia regressioita ei löytynyt. Ennestään olevat epäonnistumiset, vertailut, epävarmuudet ja todentamattomat laitetestit: [QA-raportti](../qa/savelkorva-178-beta-2026-11-27/raportti.md).
 - §7:n kohta 9 (koko regressiotestaus) on tehty. Muut laite- ja kuuntelukohdat ovat avoinna raportin Todentamatta-listan mukaisesti.
+- **Arkistointi:** aktiivinen kehitys päätetty 27.11.2026. Päätökset, Linux-CI:n tulokset, avoimet asiat ja jatkojärjestys: [arkistointimuistio](../qa/savelkorva-ydinopinnot/arkistointimuistio.md).

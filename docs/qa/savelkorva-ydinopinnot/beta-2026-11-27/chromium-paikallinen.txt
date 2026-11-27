@@ -1,0 +1,29 @@
+# Chromium, yhdistetty tila 91e7cb2, macOS
+Running 1444 tests using 5 workers
+  1) [desktop] › tests/e2e/aihesivut.spec.ts:123:3 › Kitaran perusteet · jokainen askel ja resurssi löytyy
+  2) [desktop] › tests/e2e/otelautaopas-beta.spec.ts:31:3 › Otelautaopas BETA › Soittopakin Otelautaopas on tämä sivu BETA-merkinnällä; vanha sivu ei ole Soittopakissa
+  3) [desktop] › tests/e2e/practice.spec.ts:89:3 › vihjeet ja harjoittelutavat › Opettele näyttää oikean kohdan heti ja kertoo, ettei kyse ole testistä
+  4) [phone] › tests/e2e/aihesivut.spec.ts:123:3 › Kitaran perusteet · jokainen askel ja resurssi löytyy
+  5) [phone] › tests/e2e/aihesivut.spec.ts:435:1 › ristiinlinkitys avaa saman opetussivun ja takaisinpaluu säilyttää lähtöaiheen
+  6) [desktop] › tests/e2e/aihesivut.spec.ts:435:1 › ristiinlinkitys avaa saman opetussivun ja takaisinpaluu säilyttää lähtöaiheen
+  7) [phone] › tests/e2e/otelautaopas-beta.spec.ts:31:3 › Otelautaopas BETA › Soittopakin Otelautaopas on tämä sivu BETA-merkinnällä; vanha sivu ei ole Soittopakissa
+  8) [phone] › tests/e2e/practice.spec.ts:89:3 › vihjeet ja harjoittelutavat › Opettele näyttää oikean kohdan heti ja kertoo, ettei kyse ole testistä
+  8 failed
+  53 skipped
+  1383 passed (11.4m)
+
+# Samat testit, puhdas beta 07d8126, macOS (yksi ajokerta)
+Running 8 tests using 5 workers
+  1) [phone] › tests/e2e/aihesivut.spec.ts:123:3 › Kitaran perusteet · jokainen askel ja resurssi löytyy
+  2) [desktop] › tests/e2e/aihesivut.spec.ts:123:3 › Kitaran perusteet · jokainen askel ja resurssi löytyy
+  3) [desktop] › tests/e2e/otelautaopas-beta.spec.ts:31:3 › Otelautaopas BETA › Soittopakin Otelautaopas on tämä sivu BETA-merkinnällä; vanha sivu ei ole Soittopakissa
+  4) [desktop] › tests/e2e/practice.spec.ts:89:3 › vihjeet ja harjoittelutavat › Opettele näyttää oikean kohdan heti ja kertoo, ettei kyse ole testistä
+  5) [phone] › tests/e2e/otelautaopas-beta.spec.ts:31:3 › Otelautaopas BETA › Soittopakin Otelautaopas on tämä sivu BETA-merkinnällä; vanha sivu ei ole Soittopakissa
+  6) [desktop] › tests/e2e/aihesivut.spec.ts:435:1 › ristiinlinkitys avaa saman opetussivun ja takaisinpaluu säilyttää lähtöaiheen
+  7) [phone] › tests/e2e/aihesivut.spec.ts:435:1 › ristiinlinkitys avaa saman opetussivun ja takaisinpaluu säilyttää lähtöaiheen
+  7 failed
+  1 passed (40.7s)
+
+# practice.spec.ts Opettele, puhdas beta, --repeat-each=30, desktop + phone
+36 failed 24 passed (1.6m)
+epäonnistumiset, joissa kohde on vapaa kieli: 36 / 36

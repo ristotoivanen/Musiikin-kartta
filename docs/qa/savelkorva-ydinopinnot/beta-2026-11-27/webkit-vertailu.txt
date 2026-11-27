@@ -1,0 +1,49 @@
+# WebKit-vertailu (musapelit-142): full = laaja ajo yhdistetyllä puulla; clean/merged = epäonnistumiset / 3 toistoa
+desktop  aihesivut.spec.ts:123                      full=1 clean=3/3 merged=3/3 | F: ['Error: expect(locator).toHaveCount(expected) failed'] | C: =
+phone    aihesivut.spec.ts:123                      full=1 clean=3/3 merged=3/3 | F: ['Error: expect(locator).toHaveCount(expected) failed'] | C: =
+desktop  aihesivut.spec.ts:435                      full=1 clean=3/3 merged=3/3 | F: ['Test timeout of 30000ms exceeded.'] | C: =
+phone    aihesivut.spec.ts:435                      full=1 clean=3/3 merged=3/3 | F: ['Test timeout of 30000ms exceeded.'] | C: =
+desktop  ensikeikka-toinen-ilta.spec.ts:294         full=1 clean=3/3 merged=3/3 | F: ['Error: page.reload: Page crashed'] | C: =
+phone    ensikeikka-toinen-ilta.spec.ts:294         full=1 clean=3/3 merged=3/3 | F: ['Error: page.reload: Page crashed'] | C: =
+desktop  intervallimuisti.spec.ts:671               full=1 clean=3/3 merged=3/3 | F: ['Error: expect(locator).toBeFocused() failed'] | C: =
+phone    intervallimuisti.spec.ts:671               full=1 clean=3/3 merged=3/3 | F: ['Error: expect(locator).toBeFocused() failed'] | C: =
+phone    learning-paths.spec.ts:518                 full=1 clean=3/3 merged=3/3 | F: ['Error: expect(locator).toHaveCount(expected) failed'] | C: =
+desktop  navigation.spec.ts:290                     full=1 clean=3/3 merged=3/3 | F: ['Error: expect(locator).toBeFocused() failed'] | C: =
+desktop  navigation.spec.ts:68                      full=1 clean=3/3 merged=3/3 | F: ['Error: expect(locator).toBeFocused() failed'] | C: =
+desktop  osiot.spec.ts:191                          full=1 clean=3/3 merged=3/3 | F: ['Error: expect(locator).toBeFocused() failed'] | C: =
+desktop  osiot.spec.ts:385                          full=1 clean=3/3 merged=3/3 | F: ['Error: expect(locator).toBeFocused() failed'] | C: =
+desktop  osiot.spec.ts:418                          full=1 clean=3/3 merged=3/3 | F: ['Error: expect(locator).toBeFocused() failed'] | C: =
+desktop  otelautaopas-beta.spec.ts:31               full=1 clean=3/3 merged=3/3 | F: ['Error: expect(locator).toHaveAttribute(expected) failed'] | C: =
+phone    otelautaopas-beta.spec.ts:31               full=1 clean=3/3 merged=3/3 | F: ['Error: expect(locator).toHaveAttribute(expected) failed'] | C: =
+desktop  otelautaopas-beta.spec.ts:73               full=1 clean=3/3 merged=3/3 | F: ['Error: expect(locator).toHaveAttribute(expected) failed'] | C: =
+phone    otelautaopas-beta.spec.ts:73               full=0 clean=3/3 merged=3/3 | F: [] | C: ['Error: expect(locator).toHaveAttribute(expected) failed']
+desktop  practice.spec.ts:617                       full=1 clean=2/3 merged=3/3 | F: ['Error: expect(locator).toContainText(expected) failed'] | C: =
+phone    practice.spec.ts:617                       full=1 clean=3/3 merged=2/3 | F: ['Error: expect(locator).toContainText(expected) failed'] | C: =
+desktop  practice.spec.ts:690                       full=0 clean=1/3 merged=0/3 | F: [] | C: ['Error: expect(locator).toContainText(expected) failed']
+phone    practice.spec.ts:690                       full=1 clean=0/3 merged=0/3 | F: ['Error: expect(locator).toContainText(expected) failed'] | C: []
+phone    practice.spec.ts:716                       full=1 clean=0/3 merged=0/3 | F: ['Error: expect(locator).toContainText(expected) failed'] | C: []
+desktop  practice.spec.ts:89                        full=0 clean=2/3 merged=3/3 | F: [] | C: ['Error: expect(locator).toHaveText(expected) failed']
+phone    practice.spec.ts:89                        full=1 clean=1/3 merged=3/3 | F: ['Error: expect(locator).toHaveText(expected) failed'] | C: =
+desktop  riffikaiku.spec.ts:164                     full=1 clean=3/3 merged=3/3 | F: ['Error: expect(locator).toBeFocused() failed'] | C: =
+phone    riffikaiku.spec.ts:164                     full=1 clean=3/3 merged=3/3 | F: ['Error: expect(locator).toBeFocused() failed'] | C: =
+desktop  song-d2-sovellusvaihto.spec.ts:97          full=1 clean=3/3 merged=3/3 | F: ['Error: browserContext.newCDPSession: CDP session is only available in Chromium'] | C: =
+phone    song-d2-sovellusvaihto.spec.ts:97          full=1 clean=3/3 merged=3/3 | F: ['Error: browserContext.newCDPSession: CDP session is only available in Chromium'] | C: =
+desktop  song-d2.spec.ts:149                        full=1 clean=3/3 merged=3/3 | F: ['Error: browserContext.newCDPSession: CDP session is only available in Chromium'] | C: =
+phone    song-d2.spec.ts:149                        full=1 clean=3/3 merged=3/3 | F: ['Error: browserContext.newCDPSession: CDP session is only available in Chromium'] | C: =
+desktop  song-d2.spec.ts:187                        full=1 clean=3/3 merged=3/3 | F: ['Error: browserContext.newCDPSession: CDP session is only available in Chromium'] | C: =
+phone    song-d2.spec.ts:187                        full=1 clean=3/3 merged=3/3 | F: ['Error: browserContext.newCDPSession: CDP session is only available in Chromium'] | C: =
+desktop  song-volume-scales.spec.ts:22              full=1 clean=3/3 merged=3/3 | F: ['Error: expect(locator).toHaveAttribute(expected) failed'] | C: =
+desktop  visualizer.spec.ts:347                     full=1 clean=3/3 merged=3/3 | F: ['Error: m7, juuri 8, E-juurinen'] | C: =
+phone    visualizer.spec.ts:347                     full=1 clean=3/3 merged=3/3 | F: ['Error: m7, juuri 8, E-juurinen'] | C: =
+
+# Fokustestit Alt+Tabilla väliaikaisessa betakopiossa
+  5 skipped
+  9 passed (5.5s)
+
+# intervallimuisti-143
+Running 168 tests using 4 workers
+  1) [webkit-desktop-143] › tests/e2e/intervallimuisti.spec.ts:671:1 › monivalinta toimii näppäimistöllä eikä pohjaan jäänyt Enter ohita palautetta
+  2) [webkit-phone-143] › tests/e2e/intervallimuisti.spec.ts:671:1 › monivalinta toimii näppäimistöllä eikä pohjaan jäänyt Enter ohita palautetta
+  2 failed
+  6 skipped
+  160 passed (56.7s)

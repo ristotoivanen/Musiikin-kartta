@@ -1,0 +1,41 @@
+commit b6ff78713ec87fef7a688b0825e327f2fb8ed891
+
+Running 34 tests using 5 workers
+
+[1/34] [desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:182:3 › ilman JavaScriptiä › kaikki 14 aiempaa ja 3 uutta sisältöä löytyvät linkkeinä; ääniohjaimet eivät näy
+[2/34] [desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:110:3 › aihesivu › Ydinopinnot ensin, kolme harjoitusta; aiemmat 14 suljettuna neljässä ryhmässä
+[3/34] [desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:201:3 › 01 · Ylös, alas vai sama? › alussa vain Kuuntele; helppo ensimmäinen tehtävä, palaute ja muoto; kaksi oikeaa pidentää melodiaa
+[4/34] [desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:143:3 › aihesivu › vanhat merkinnät säilyvät eivätkä kuittaa uusia; uusi merkintä tallentuu omaan tunnisteeseensa
+[5/34] [desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:164:3 › aihesivu › aiemmat 14 osoitetta, tunnistetta ja Edellinen/Seuraava-ketju toimivat ennallaan
+[6/34] [desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:300:3 › 01 · Ylös, alas vai sama? › ⌫ poistaa viimeisimmän; Tarkista näkyy vasta, kun kaikki vaihdot on merkitty
+[7/34] [desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:321:3 › 01 · Ylös, alas vai sama? › saman painikkeen toinen painallus pysäyttää äänen heti
+[8/34] [desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:344:3 › 01 · Ylös, alas vai sama? › latausvirhe näkyy, eikä tehtävää avata ilman kuunneltua ääntä
+[9/34] [desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:355:3 › 01 · Ylös, alas vai sama? › näppäimistöllä koko kierros: Enter kuuntelee, Space vastaa, fokus säilyy ja Seuraava palaa Kuuntele-painikkeeseen
+[10/34] [desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:382:3 › 02 · Kotiin vai kesken? › Loppu 1/2 soittaa ja valitsee; valintaa voi vaihtaa; vasta Tarkista valinta tarkistaa
+[11/34] [desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:480:3 › 02 · Kotiin vai kesken? › näppäimistöllä: Space valitsee lopun, Enter tarkistaa ja fokus säilyy
+[12/34] [desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:500:3 › 03 · Kuule ja etsi kitaralta › tapailu, lyhyt palaute ja Kuului/Sinä-vertailu, Näytä sävelkulku ja laajeneva sävelalue
+[13/34] [desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:585:1 › aihesivulla oppitunnin sulkeminen kesken soiton pysäyttää äänen
+[14/34] [desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:620:5 › pienet näytöt ja suurennus › 320 px, 100 % ja 200 % teksti ilman vaakavieritystä; painikkeet vähintään 44 px
+[15/34] [desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:620:5 › pienet näytöt ja suurennus › 360 px, 100 % ja 200 % teksti ilman vaakavieritystä; painikkeet vähintään 44 px
+[16/34] [desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:620:5 › pienet näytöt ja suurennus › 390 px, 100 % ja 200 % teksti ilman vaakavieritystä; painikkeet vähintään 44 px
+[17/34] [desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:647:3 › pienet näytöt ja suurennus › 1280 px ja 400 % teksti: kaikki kolme vastattuna ilman vaakavieritystä
+[18/34] [phone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:110:3 › aihesivu › Ydinopinnot ensin, kolme harjoitusta; aiemmat 14 suljettuna neljässä ryhmässä
+[19/34] [phone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:143:3 › aihesivu › vanhat merkinnät säilyvät eivätkä kuittaa uusia; uusi merkintä tallentuu omaan tunnisteeseensa
+[20/34] [phone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:164:3 › aihesivu › aiemmat 14 osoitetta, tunnistetta ja Edellinen/Seuraava-ketju toimivat ennallaan
+[21/34] [phone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:182:3 › ilman JavaScriptiä › kaikki 14 aiempaa ja 3 uutta sisältöä löytyvät linkkeinä; ääniohjaimet eivät näy
+[22/34] [phone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:201:3 › 01 · Ylös, alas vai sama? › alussa vain Kuuntele; helppo ensimmäinen tehtävä, palaute ja muoto; kaksi oikeaa pidentää melodiaa
+[23/34] [phone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:300:3 › 01 · Ylös, alas vai sama? › ⌫ poistaa viimeisimmän; Tarkista näkyy vasta, kun kaikki vaihdot on merkitty
+[24/34] [phone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:321:3 › 01 · Ylös, alas vai sama? › saman painikkeen toinen painallus pysäyttää äänen heti
+[25/34] [phone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:344:3 › 01 · Ylös, alas vai sama? › latausvirhe näkyy, eikä tehtävää avata ilman kuunneltua ääntä
+[26/34] [phone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:355:3 › 01 · Ylös, alas vai sama? › näppäimistöllä koko kierros: Enter kuuntelee, Space vastaa, fokus säilyy ja Seuraava palaa Kuuntele-painikkeeseen
+[27/34] [phone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:382:3 › 02 · Kotiin vai kesken? › Loppu 1/2 soittaa ja valitsee; valintaa voi vaihtaa; vasta Tarkista valinta tarkistaa
+[28/34] [phone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:480:3 › 02 · Kotiin vai kesken? › näppäimistöllä: Space valitsee lopun, Enter tarkistaa ja fokus säilyy
+[29/34] [phone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:500:3 › 03 · Kuule ja etsi kitaralta › tapailu, lyhyt palaute ja Kuului/Sinä-vertailu, Näytä sävelkulku ja laajeneva sävelalue
+[30/34] [phone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:585:1 › aihesivulla oppitunnin sulkeminen kesken soiton pysäyttää äänen
+[31/34] [phone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:620:5 › pienet näytöt ja suurennus › 320 px, 100 % ja 200 % teksti ilman vaakavieritystä; painikkeet vähintään 44 px
+[32/34] [phone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:620:5 › pienet näytöt ja suurennus › 360 px, 100 % ja 200 % teksti ilman vaakavieritystä; painikkeet vähintään 44 px
+[33/34] [phone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:620:5 › pienet näytöt ja suurennus › 390 px, 100 % ja 200 % teksti ilman vaakavieritystä; painikkeet vähintään 44 px
+[34/34] [phone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:647:3 › pienet näytöt ja suurennus › 1280 px ja 400 % teksti: kaikki kolme vastattuna ilman vaakavieritystä
+  2 skipped
+  32 passed (17.9s)
+EXIT 0

@@ -1,0 +1,7 @@
+tehtävät 1:G3-G3-B3 | 1:G3-D4-C4 | 2:E4-D4-G3 | 2:B3-C4-B3 | 3:D3-E3-E3-D3 | 3:G3-A3-A3-G3 | 4:D4-E4-Fs4-E4-D4
+320x568 taso 5 säveltä · lähtösävel vaihtelee
+320x568 vaakavieritys: false { docW: 320, cw: 320 } | kortit [x,y,w,h]: [[52,981,58,134],[115,981,58,134],[178,981,58,134],[52,1121,58,134],[115,1121,58,134]] | Seuraava [y,h]: [ 929, 44 ] | Tarkista y: 763 | ruudukko [y,h]: [ 404, 216 ]
+320x568 palaute: 1/5 oikein. Neljässä sävelessä oli eroa.
+375x667-SE taso 5 säveltä · lähtösävel vaihtelee
+375x667-SE vaakavieritys: false { docW: 375, cw: 375 } | kortit [x,y,w,h]: [[52,783,58,134],[115,783,58,134],[178,783,58,134],[241,783,58,134],[52,923,58,132]] | Seuraava [y,h]: [ 731, 44 ] | Tarkista y: 644 | ruudukko [y,h]: [ 334, 216 ]
+375x667-SE palaute: 1/5 oikein. Neljässä sävelessä oli eroa.

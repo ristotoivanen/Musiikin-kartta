@@ -1,0 +1,119 @@
+## 1. Sävelfaktat (normaalivire: E2=40 A2=45 D3=50 G3=55 B3=59 e4=64)
+G2   LowE  nauha 3 → MIDI 43 (koodissa 43) nimi G (koodissa G) tunniste OK OK
+D3   D     nauha 0 → MIDI 50 (koodissa 50) nimi D (koodissa D) tunniste OK OK
+E3   D     nauha 2 → MIDI 52 (koodissa 52) nimi E (koodissa E) tunniste OK OK
+G3   G     nauha 0 → MIDI 55 (koodissa 55) nimi G (koodissa G) tunniste OK OK
+A3   G     nauha 2 → MIDI 57 (koodissa 57) nimi A (koodissa A) tunniste OK OK
+B3   B     nauha 0 → MIDI 59 (koodissa 59) nimi B (koodissa B) tunniste OK OK
+C4   B     nauha 1 → MIDI 60 (koodissa 60) nimi C (koodissa C) tunniste OK OK
+D4   B     nauha 3 → MIDI 62 (koodissa 62) nimi D (koodissa D) tunniste OK OK
+E4   HighE nauha 0 → MIDI 64 (koodissa 64) nimi E (koodissa E) tunniste OK OK
+Fs4  HighE nauha 2 → MIDI 66 (koodissa 66) nimi F♯ (koodissa F♯) tunniste OK OK
+G4   HighE nauha 3 → MIDI 67 (koodissa 67) nimi G (koodissa G) tunniste OK OK
+Virheitä: 0
+Välit: B3–C4 1 p.ask; F♯4–G4 1 p.ask; G3–A3 2 p.ask; G3–D4 7 p.ask (kvintti=7)
+
+## 2. Näytetiedostojen olemassaolo (m4a + ogg)
+Kaikki 11 sävelen m4a- ja ogg-tiedostot löytyvät.
+F♯3 (D-kieli 4. nauha) ei ole NOTES-taulussa: true
+
+## 3. Melodiaparit
+Pari 1: alku G B D C A B | koti G3 (-4 ps) | kesken A3 (-2 ps) | käytetyt sävelluokat: ABCDG | sisältää F♯: false | sisältää C: true | alin 55 ylin 62
+Pari 2: alku D G F♯ E C E | koti G4 (+3 ps) | kesken Fs4 (+2 ps) | käytetyt sävelluokat: CDEF♯G | sisältää F♯: true | sisältää C: true | alin 60 ylin 67
+Pari 3: alku G A B G C B A | koti G3 (-2 ps) | kesken D4 (+5 ps) | käytetyt sävelluokat: ABCG | sisältää F♯: false | sisältää C: true | alin 55 ylin 62
+Pari 4: alku B C D B E D C | koti G3 (-5 ps) | kesken A3 (-3 ps) | käytetyt sävelluokat: BCDE | sisältää F♯: false | sisältää C: true | alin 55 ylin 64
+Pari 5: alku G F♯ E D C B A | koti G3 (-2 ps) | kesken C4 (+3 ps) | käytetyt sävelluokat: ABCDEF♯G | sisältää F♯: true | sisältää C: true | alin 55 ylin 67
+Pari 6: alku G B D C E D E F♯ | koti G4 (+1 ps) | kesken D4 (-4 ps) | käytetyt sävelluokat: BCDEF♯G | sisältää F♯: true | sisältää C: true | alin 55 ylin 67
+Pari 7: alku G D C B C A | koti G3 (-2 ps) | kesken D4 (+5 ps) | käytetyt sävelluokat: ABCDG | sisältää F♯: false | sisältää C: true | alin 55 ylin 62
+Pari 8: alku E C A B D C B | koti G3 (-4 ps) | kesken A3 (-2 ps) | käytetyt sävelluokat: ABCDE | sisältää F♯: false | sisältää C: true | alin 55 ylin 64
+Kierroksia 16: vain viimeinen sävel eroaa, loppusävelet eri: true
+Kaikkien kotilopun sävelluokka: G (oikea vastaus on aina G-sävel)
+
+## 4. generateMelody-vararatkaisu 500 epäonnistuneen yrityksen jälkeen
+RNG aina 0 | suunta taso 1: G3 G3 A3 → ok
+RNG aina 0 | suunta taso 2: G3 G3 A3 B3 → ok
+RNG aina 0 | suunta taso 3: G3 A3 B3 C4 D4 → RIKKOO: suunta ei vaihdu
+RNG aina 0 | etsi taso 1: G3 G3 A3 → ok
+RNG aina 0 | etsi taso 2: G3 G3 A3 → ok
+RNG aina 0 | etsi taso 3: D3 D3 E3 G3 → ok
+RNG aina 0 | etsi taso 4: D3 E3 G3 A3 B3 → RIKKOO: suunta ei vaihdu
+RNG aina 0,999999 | suunta taso 1: G4 C4 D4 → ok
+RNG aina 0,999999 | suunta taso 2: G4 C4 D4 G3 → ok
+RNG aina 0,999999 | suunta taso 3: G3 A3 B3 C4 D4 → RIKKOO: suunta ei vaihdu
+RNG aina 0,999999 | etsi taso 1: G3 D4 C4 → ok
+RNG aina 0,999999 | etsi taso 2: G4 C4 D4 → ok
+RNG aina 0,999999 | etsi taso 3: G4 C4 D4 G3 → ok
+RNG aina 0,999999 | etsi taso 4: D3 E3 G3 A3 B3 → RIKKOO: suunta ei vaihdu
+RNG vuorotellen 0 / 0,999 | suunta taso 1: G4 G4 C4 → ok
+RNG vuorotellen 0 / 0,999 | suunta taso 2: G4 G4 C4 D4 → ok
+RNG vuorotellen 0 / 0,999 | suunta taso 3: G3 A3 B3 C4 D4 → RIKKOO: suunta ei vaihdu
+RNG vuorotellen 0 / 0,999 | etsi taso 1: G3 G3 D4 → ok
+RNG vuorotellen 0 / 0,999 | etsi taso 2: G4 G4 C4 → ok
+RNG vuorotellen 0 / 0,999 | etsi taso 3: G4 G4 C4 D4 → ok
+RNG vuorotellen 0 / 0,999 | etsi taso 4: D3 E3 G3 A3 B3 → RIKKOO: suunta ei vaihdu
+
+## 5. Otanta: 20000 melodiaa per taso, siemen 116
+suunta taso 1 (3 säv., gbe, ei ps): yksilöllisiä 178; suunnat ylös 45.1 % alas 46.1 % sama 8.8 %; sääntörikkomuksia 0; ilman suunnanvaihtoa (ei sekä ylös että alas) 0 (0.0 %); vararatkaisun muotoisia 583
+   yleisin suuntakuvio: alasylos 32.9 % (paras vakiovastaus olisi tämä kuvio); eri kuvioita 8
+   yleisin yksittäinen melodia: G4,C4,D4 × 885; ensimmäinen sävel: B3 21%, G4 21%, D4 19%, G3 19%, A3 5%, Fs4 5%, E4 5%, C4 5%
+   viimeinen sävel: D4 22%, E4 18%, A3 14%, C4 13%, B3 13%, G3 10%, Fs4 7%, G4 4%
+suunta taso 2 (4 säv., gbe): yksilöllisiä 917; suunnat ylös 46.5 % alas 46.0 % sama 7.5 %; sääntörikkomuksia 0; ilman suunnanvaihtoa (ei sekä ylös että alas) 1834 (9.2 %); vararatkaisun muotoisia 0
+   yleisin suuntakuvio: alasylosalas 17.1 % (paras vakiovastaus olisi tämä kuvio); eri kuvioita 18
+   yleisin yksittäinen melodia: G3,A3,G3,A3 × 269; ensimmäinen sävel: B3 21%, D4 21%, G3 19%, G4 19%, E4 5%, C4 5%, A3 5%, Fs4 5%
+   viimeinen sävel: C4 17%, D4 16%, B3 15%, E4 14%, A3 12%, Fs4 11%, G3 8%, G4 7%
+suunta taso 3 (5 säv., gbe, loppu sointusävel): yksilöllisiä 1964; suunnat ylös 46.7 % alas 47.3 % sama 6.0 %; sääntörikkomuksia 0; ilman suunnanvaihtoa (ei sekä ylös että alas) 796 (4.0 %); vararatkaisun muotoisia 0
+   yleisin suuntakuvio: alasylosalasylos 9.8 % (paras vakiovastaus olisi tämä kuvio); eri kuvioita 46
+   yleisin yksittäinen melodia: G4,Fs4,G4,Fs4,G4 × 198; ensimmäinen sävel: B3 21%, G3 21%, D4 20%, G4 18%, A3 5%, E4 5%, C4 5%, Fs4 5%
+   viimeinen sävel: D4 35%, B3 34%, G4 15%, G3 15%
+etsi taso 1 (3 säv., gb, alku G3): yksilöllisiä 16; suunnat ylös 68.3 % alas 23.5 % sama 8.2 %; sääntörikkomuksia 0; ilman suunnanvaihtoa (ei sekä ylös että alas) 0 (0.0 %); vararatkaisun muotoisia 3078
+   yleisin suuntakuvio: ylosalas 47.0 % (paras vakiovastaus ); eri kuvioita 4
+   yleisin yksittäinen melodia: G3,A3,B3 × 3078; ensimmäinen sävel: G3 100%
+   viimeinen sävel: B3 31%, C4 27%, G3 18%, A3 16%, D4 9%
+etsi taso 2 (3 säv., gbe): yksilöllisiä 220; suunnat ylös 46.9 % alas 45.8 % sama 7.3 %; sääntörikkomuksia 0; ilman suunnanvaihtoa (ei sekä ylös että alas) 0 (0.0 %); vararatkaisun muotoisia 549
+   yleisin suuntakuvio: alasylos 26.7 % (paras vakiovastaus ); eri kuvioita 8
+   yleisin yksittäinen melodia: G4,Fs4,E4 × 586; ensimmäinen sävel: D4 20%, G3 20%, G4 20%, B3 20%, A3 5%, Fs4 5%, C4 5%, E4 5%
+   viimeinen sävel: D4 17%, B3 17%, E4 15%, C4 14%, A3 12%, Fs4 10%, G3 8%, G4 7%
+etsi taso 3 (4 säv., dgbe, loppu sointusävel): yksilöllisiä 535; suunnat ylös 45.5 % alas 45.4 % sama 9.0 %; sääntörikkomuksia 0; ilman suunnanvaihtoa (ei sekä ylös että alas) 2231 (11.2 %); vararatkaisun muotoisia 0
+   yleisin suuntakuvio: alasylosalas 18.0 % (paras vakiovastaus ); eri kuvioita 18
+   yleisin yksittäinen melodia: D3,E3,A3,G3 × 679; ensimmäinen sävel: G3 19%, D4 16%, B3 15%, D3 14%, G4 13%, E3 5%, C4 5%, Fs4 4%, E4 4%, A3 4%
+   viimeinen sävel: G3 27%, D4 26%, B3 24%, G4 13%, D3 10%
+etsi taso 4 (5 säv., dgbe, loppu sointusävel): yksilöllisiä 2153; suunnat ylös 46.6 % alas 47.6 % sama 5.8 %; sääntörikkomuksia 0; ilman suunnanvaihtoa (ei sekä ylös että alas) 780 (3.9 %); vararatkaisun muotoisia 0
+   yleisin suuntakuvio: ylosalasylosalas 9.4 % (paras vakiovastaus ); eri kuvioita 46
+   yleisin yksittäinen melodia: D3,E3,D3,E3,D3 × 207; ensimmäinen sävel: G3 17%, G4 17%, D4 17%, B3 16%, D3 13%, E3 4%, E4 4%, C4 4%, Fs4 4%, A3 4%
+   viimeinen sävel: B3 28%, D4 27%, G3 23%, G4 13%, D3 9%
+
+## 6. Suunnanvaihto: ylös+sama -kuvio hyväksytään "vaihtuneeksi"
+Esimerkkitarkistus: G3 A3 A3 B3 C4 → contour ylos,sama,ylos,ylos → Set-koko 2 (>=2 hyväksyy)
+
+## 7. Kaksi samansuuntaista hyppyä: hyväksytyt kolmisävelkuviot, jotka eivät ole G-, C- tai Em-sointuja
+Hyväksyttyjä samansuuntaisia kahden hypyn kuvioita: 14; joista ei G/C/Em-murtosointu: 5
+Esimerkkejä: A–C–E, B–D–F♯, E–C–A, F♯–D–B, C–A–E
+
+## 8. freshMelody ja pickIndex
+suunta taso 1: identtinen edellisen kanssa 0/50000
+suunta taso 2: identtinen edellisen kanssa 0/50000
+suunta taso 3: identtinen edellisen kanssa 0/50000
+etsi taso 1: identtinen edellisen kanssa 0/50000
+etsi taso 2: identtinen edellisen kanssa 0/50000
+etsi taso 3: identtinen edellisen kanssa 0/50000
+etsi taso 4: identtinen edellisen kanssa 0/50000
+Vakio-RNG 0,5, edellinen = G3 A3 B3 → palauttaa G3 A3 G3 (sama kuin edellinen: false )
+pickIndex(16): sama kierros peräkkäin 0/400000; sama melodiapari (järjestys vaihtuu) 37528/400000 = 9.4 % (tasajakaumalla 1/15 = 6,7 %)
+Jakauma (osuus %): 6.2 6.3 6.2 6.2 6.2 6.2 6.3 6.2 6.2 6.3 6.2 6.3 6.3 6.3 6.3 6.3
+
+## 9. adapt
+O→taso1 O→taso2(ylos) V→taso2 V→taso1(alas) O→taso1 O→taso2(ylos) O→taso2 O→taso3(ylos) V→taso3 V→taso2(alas) V→taso2
+Taso 1, kaksi virhettä:  {"level":0,"streak":-2,"change":null}
+Ylin taso, kaksi oikeaa:  {"level":2,"streak":2,"change":null}
+
+## 10. H1: vastaaminen ilman kuuntelua (satunnainen vs. vakiovastaus)
+Taso 1: pelkkä "ylös,ylös,.." osuu 12.7 %, pelkkä alas 12.3 %, pelkkä sama 0.0 %; satunnaisarvaus 11.1 %
+Taso 2: pelkkä "ylös,ylös,.." osuu 0.0 %, pelkkä alas 0.0 %, pelkkä sama 0.0 %; satunnaisarvaus 3.7 %
+Taso 3: pelkkä "ylös,ylös,.." osuu 0.0 %, pelkkä alas 0.0 %, pelkkä sama 0.0 %; satunnaisarvaus 1.2 %
+
+## 11. H3 oktaavit: samannimiset eri sävelet joukossa
+gb: ei samannimisiä
+gbe: G: G3/G4
+dgbe: D: D3/D4; E: E3/E4; G: G3/G4
+checkEcho(G3,A3,G3 vs. G4,A3,G3): ["G/G:false","A/A:true","G/G:true"]
+Esimerkki G–C–A–G–A–B → recentNotes(,3): G3 A3 B3
