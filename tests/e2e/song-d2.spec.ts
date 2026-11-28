@@ -1,12 +1,8 @@
 import { test, expect, type Page } from '@playwright/test';
 
-/**
- * Issue #9, D2 (?soitin=d2, kokeilu): kappaleen raidat puretaan 10 s:n paloina kiinteään AudioBuffer-altaaseen.
- * Chromium purkaa MP3:t FFmpegillä, jonka raakakehysten purku on 529 näytettä siirtynyt Applen dekooderiin nähden;
- * soitin mittaa tämän latauksessa. Testi varmistaa oikealla dekooderilla, että soittimen oma palapurku on bittitarkasti
- * sama kuin koko tiedoston purku (alku, kehysrajat, keskikohta, loppu), ja että soitto, tauko ja jatko samasta kohdasta,
- * kelaus, loop ja versionvaihto toimivat ilman, että puskuriallas kasvaa yli rajansa.
- */
+import { armD2ProbePause, d2Mutation, installD2AudioProbe, references, snapshotD2Sources, verifyD2Audio, type Version } from './fixtures/d2-audio';
+
+// Issue #9 and #213. The native pool and readRange use independently cut MP3 references.
 const SONG = '/kitaraharjoittelija.html?kappale=yksi-sointu-kaksi-askelta-normaali&soitin=d2';
 const POOL_LIMIT = 4 * 3 * 480000 * 2 * 4;
 
@@ -22,37 +18,76 @@ const hook = (page: Page) => page.evaluate(() => {
     state: h.player.state, context: h.context.state, events: h.player.events.map(e => e.kind) } : null;
 });
 
-test('D2: palapurku on bittitarkka koko tiedoston purkuun nähden molemmissa versioissa', async ({ page }) => {
+test('B5 D2: palapurku, toistoallas, saumat ja raitojen synkronointi', async ({ page }) => {
   test.setTimeout(90000);
+  await page.addInitScript(installD2AudioProbe, d2Mutation);
+  if (d2Mutation === 'mp3-wrong' || d2Mutation === 'mp3-corrupt') {
+    await page.route('**/*-normaali-kitara.mp3', async route => {
+      const url = route.request().url();
+      const response = await route.fetch(d2Mutation === 'mp3-wrong' ? { url: url.replace('-kitara.mp3', '-laulu.mp3') } : {});
+      const body = await response.body();
+      if (d2Mutation === 'mp3-corrupt') body[body.length - 200] ^= 1;
+      await route.fulfill({ response, body });
+    });
+  }
   await page.goto(SONG);
-  for (const version of ['normaali', 'akustinen']) {
+  const play = page.locator('.song-play');
+  const slider = page.getByRole('slider', { name: 'Siirry kappaleessa' });
+  const loop = page.getByLabel('Soita looppina');
+  const beginProbe = (phase: string) => page.evaluate(phase => {
+    const probe = (window as unknown as { d2AudioProbe: { phase: string; sources: unknown[]; history: number[];
+      snapshots: Record<string, unknown> } }).d2AudioProbe;
+    probe.phase = phase;
+    probe.sources.length = 0;
+    if (phase === 'initial') probe.snapshots = {};
+    return probe.history.slice();
+  }, phase);
+  const observe = async (count: number) => {
+    await page.waitForFunction(count => {
+      const { sources } = (window as unknown as { d2AudioProbe: { sources: { stop?: number }[] } }).d2AudioProbe;
+      return sources.length >= count && sources.slice(0, count).every(source => source.stop !== undefined);
+    }, count, { timeout: 20000 });
+  };
+  const pause = async () => {
+    await page.evaluate(armD2ProbePause);
+    await play.click();
+  };
+  for (const version of ['normaali', 'akustinen'] as const satisfies readonly Version[]) {
+    const reference = references[version];
     if (version === 'akustinen') await page.locator('#song-version-select').selectOption('acoustic');
-    await page.getByRole('button', { name: /Soita kappale/ }).click();
-    await expect(page.getByRole('button', { name: /Tauko/ })).toBeVisible({ timeout: 30000 });
-    const result = await page.evaluate(async version => {
-      const h = (window as unknown as { __kappaleD1: Hook }).__kappaleD1;
-      const names: Record<string, string> = { backing: 'saestys', guitar: 'kitara', vocals: 'laulu' };
-      const out: { track: string; start: number; max: number }[] = [];
-      for (const track of Object.keys(names)) {
-        const url = `/assets/audio/kappaleet/yksi-sointu-kaksi-askelta-${version}/yksi-sointu-kaksi-askelta-${version}-${names[track]}.mp3`;
-        const full = await h.context.decodeAudioData(await (await fetch(url)).arrayBuffer());
-        const length = full.length;
-        for (const start of [0, 575, 576, 1151, 480000, 480001, Math.floor(length / 2), length - 1000]) {
-          const n = Math.min(48000, length - start), part = await h.player.readRange(track, start, n);
-          let max = 0;
-          for (let c = 0; c < full.numberOfChannels; c++) {
-            const ref = full.getChannelData(c);
-            for (let i = 0; i < n; i++) max = Math.max(max, Math.abs(part[c][i] - ref[start + i]));
-          }
-          out.push({ track, start, max });
-        }
-        if (Math.abs(length / full.sampleRate - h.player.duration) > 1e-6) out.push({ track, start: -1, max: length });
-      }
-      return { out, calibrated: h.player.events.some(e => e.kind === 'kalibroitu') };
-    }, version);
-    expect(result.calibrated).toBe(true);
-    expect(result.out.filter(o => o.max !== 0)).toEqual([]);
-    await page.getByRole('button', { name: /Tauko/ }).click();
+    await beginProbe('initial');
+    await play.click();
+    await expect(play).toHaveText(/Tauko/, { timeout: 30000 });
+    await observe(6);
+    await pause();
+    expect(await page.evaluate(snapshotD2Sources, { keys: ['pool-0', 'pool-1'], lengths: [480000, 480000] })).toEqual([]);
+
+    // The pool has four slots. Visit three disjoint positions before the short tail and loop.
+    // Each seek starts playback from that position, so an observed source proves allocation/use.
+    for (const position of [30, 60, 90]) {
+      await beginProbe('reuse');
+      await slider.fill(String(position));
+      await play.click();
+      await observe(3);
+      await pause();
+    }
+    await loop.check();
+    const priorIds = await beginProbe('tail');
+    await slider.fill(String(reference.tail));
+    await play.click();
+    await observe(6);
+    await pause();
+    expect(await page.evaluate(snapshotD2Sources, {
+      keys: ['pool-tail', 'loop-start'], lengths: [reference.length - reference.tail * 48000, 480000], priorIds,
+    })).toEqual([]);
+    await loop.uncheck();
+    const result = await page.evaluate(verifyD2Audio, { reference, mode: 'B5' as const, mutation: d2Mutation });
+    expect(result).toEqual([]);
+    const final = (await hook(page))!;
+    expect(final.bytes).toBeLessThanOrEqual(POOL_LIMIT);
+    expect(final.events).not.toContain('alivuoto');
+    expect(final.events).not.toContain('pala-lyhyt');
+    expect(final.events).not.toContain('virhe');
   }
 });
 
@@ -146,40 +181,50 @@ test('D2: 44,1 kHz:n konteksti kohdistaa palat ruudukkoon ja soi oikeassa tahdis
   expect((b.p - a.p) / (b.t - a.t)).toBeCloseTo(1, 3);
 });
 
-test('D2-ensilataus (kokeilu): hitaalla yhteydellä toisto alkaa ennen koko latausta ja palat ovat bittitarkat', async ({ page }) => {
+test('B6 D2: hidas ensilataus, MP3-tavut ja palapurku', async ({ page }, testInfo) => {
   test.setTimeout(150000);
   const cdp = await page.context().newCDPSession(page);
-  await page.goto(SONG);
-  // Noin 1,5 Mbit/s: kolmen raidan 15 Mt latautuisi noin 80 s, toisto voi alkaa muutamassa sekunnissa.
+  await page.goto(SONG + (d2Mutation === 'slow-wait' ? '&lataus=koko' : ''));
   await cdp.send('Network.enable');
+  await cdp.send('Network.setCacheDisabled', { cacheDisabled: true });
   await cdp.send('Network.emulateNetworkConditions', { offline: false, latency: 150, downloadThroughput: 190000, uploadThroughput: 100000 });
   const play = page.locator('.song-play');
   const started = Date.now();
   await play.click();
-  await expect(play).toHaveText(/Tauko/, { timeout: 60000 });
+  await expect(play, 'slow startup must start before complete download').toHaveText(/Tauko/, { timeout: 60000 });
   const startSeconds = (Date.now() - started) / 1000;
   const progress = () => page.evaluate(() => (window as unknown as { __kappaleD1: { player: { downloadProgress: number } } }).__kappaleD1.player.downloadProgress);
-  expect(await progress()).toBeLessThan(0.5);
-  expect(startSeconds).toBeLessThan(30);
-  await expect.poll(async () => (await hook(page))!.position, { timeout: 20000 }).toBeGreaterThan(2);
-  // Kaikki saapuu lopulta; soitto ei odottanut eikä virheitä.
+  const startProgress = await progress();
+  expect(startProgress, 'slow startup download must be below half').toBeLessThan(0.5);
+  expect(startSeconds, 'slow startup must take less than 30 seconds').toBeLessThan(30);
+  if (d2Mutation === 'slow-stall') await play.click();
+  await expect.poll(async () => (await hook(page))!.position, {
+    timeout: 20000, message: 'slow playback must advance beyond two seconds',
+  }).toBeGreaterThan(2);
+  const advanceSeconds = (Date.now() - started) / 1000;
+
+  // No audio probe, reference fetch, hashing or PCM inspection under the throttle.
+  const accelerated = Date.now();
   await cdp.send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
   await expect.poll(progress, { timeout: 60000 }).toBe(1);
-  const result = await page.evaluate(async () => {
-    const h = (window as unknown as { __kappaleD1: Hook }).__kappaleD1;
-    const url = '/assets/audio/kappaleet/yksi-sointu-kaksi-askelta-normaali/yksi-sointu-kaksi-askelta-normaali-laulu.mp3';
-    const full = await h.context.decodeAudioData(await (await fetch(url)).arrayBuffer());
-    let max = 0;
-    for (const start of [0, 480000, 5000000, full.length - 2000]) {
-      const n = Math.min(48000, full.length - start), part = await h.player.readRange('vocals', start, n);
-      for (let c = 0; c < full.numberOfChannels; c++) { const ref = full.getChannelData(c); for (let i = 0; i < n; i++) max = Math.max(max, Math.abs(part[c][i] - ref[start + i])); }
-    }
-    return { max, events: h.player.events.map(e => e.kind) };
-  });
-  expect(result.max).toBe(0);
-  expect(result.events).toContain('alku-valmis');
-  expect(result.events).not.toContain('virhe');
-  expect(result.events).not.toContain('alivuoto');
+  await expect.poll(() => page.evaluate(() => {
+    const h = (window as unknown as { __kappaleD1: { player: { downloadStatus: { complete: boolean } } } }).__kappaleD1;
+    return h.player.downloadStatus.complete;
+  }), { timeout: Math.max(1, 60000 - (Date.now() - accelerated)) }).toBe(true);
+  await testInfo.attach('startup', { contentType: 'application/json', body: JSON.stringify({ startSeconds, startProgress, advanceSeconds }) });
+
+  await play.click();
+  const events = await page.evaluate(() => (window as unknown as { __kappaleD1: { player: {
+    events: { kind: string; track?: string; virta?: boolean }[];
+  } } }).__kappaleD1.player.events);
+  const kinds = events.map(event => event.kind);
+  expect(kinds.indexOf('alku-valmis')).toBeGreaterThanOrEqual(0);
+  expect(kinds.indexOf('soitto')).toBeGreaterThan(kinds.indexOf('alku-valmis'));
+  expect(events.filter(event => event.kind === 'ladattu' && event.virta).map(event => event.track).sort())
+    .toEqual(['backing', 'guitar', 'vocals']);
+  expect(kinds).not.toContain('virhe');
+  expect(kinds).not.toContain('alivuoto');
+  expect(await page.evaluate(verifyD2Audio, { reference: references.normaali, mode: 'B6' as const, mutation: d2Mutation })).toEqual([]);
 });
 
 const percentOf = async (page: Page) => Number((await page.locator('#song-load-label').textContent())?.match(/\d+/)?.[0] ?? -1);

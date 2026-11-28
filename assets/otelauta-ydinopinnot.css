@@ -1,0 +1,259 @@
+/* Otelauta · Ydinopinnot (#116, vaihe 3). Ladataan vain sivuille, joilla on
+ * [data-otelautaharjoitus] (tools/oppimiskartta/rakenna.py). Värit book/reader.css:n muuttujista;
+ * painikkeet, kortit ja avattavat oppitunnit kuten Rytmin ja Sointujen Ydinopinnoissa.
+ * Sivukohtainen otelauta ei käytä Otelautaoppaan tyylejä (assets/otelauta.css). */
+
+/* Aihesivun avattavat harjoituskortit (sama malli kuin assets/sointuharjoitus.css). */
+.study-units .study-inline-choices { grid-template-rows: none; grid-auto-rows: auto; }
+#ydinopinnot .study-inline-choices { display: flex; flex-direction: column; gap: .5rem; }
+.study-inline-choices > li { display: block; grid-row: auto; min-width: 0; }
+.study-inline { min-width: 0; border: 1px solid #71638c; border-radius: .65rem; }
+.study-inline > summary { grid-template-rows: auto 1fr; border: 0; list-style: none; cursor: pointer; }
+.study-inline > summary::-webkit-details-marker { display: none; }
+.study-inline > summary:hover .study-title { text-decoration: underline; text-underline-offset: .18em; }
+.study-inline > summary:focus-visible { outline: 2px solid #75e5c6; }
+.study-inline .study-arrow::before { color: var(--accent); content: "+"; content: "+" / ""; font-size: 1.3rem; line-height: 1; }
+.study-inline[open] .study-arrow::before { content: "−"; content: "−" / ""; }
+.study-inline[open] > summary {
+  border-bottom: 1px solid #71638c;
+  border-end-start-radius: 0;
+  border-end-end-radius: 0;
+}
+.study-inline-body { padding: 0 clamp(.45rem, 2vw, .875rem) .875rem; min-width: 0; }
+.study-inline-body .done-row, .study-inline-link { margin-block: .75rem 0; }
+.study-inline-link a { display: inline-flex; align-items: center; min-height: 44px; }
+
+/* Harjoituskortti */
+.otelauta-harjoitus {
+  --kortin-reuna: 1rem;
+  margin: 1.1rem 0;
+  padding: .85rem var(--kortin-reuna) 1rem;
+  border-inline-start: .22rem solid var(--gold);
+  border-radius: .65rem;
+  background: var(--panel);
+  min-width: 0;
+}
+.otelauta-harjoitus [hidden] { display: none !important; }
+.study-page .otelauta-harjoitus h2.otelauta-tunniste {
+  margin: 0 0 .55rem;
+  padding-inline-end: 44px;
+  color: var(--accent);
+  font-size: .95rem;
+  font-weight: 800;
+  letter-spacing: .03em;
+}
+.otelauta-harjoitus h3 { margin: 0 0 .35rem; font-size: 1rem; }
+.otelauta-harjoitus.study-knoppi-host .study-knoppi-sisalto { width: 100%; }
+.otelauta-johdanto {
+  margin: .5rem 0 .7rem;
+  padding: .6rem .8rem;
+  border-inline-start: 3px solid #9fe4c3;
+  border-radius: 0 .5rem .5rem 0;
+  background: var(--bg);
+}
+.otelauta-merkinnat, .otelauta-huomautus, .otelauta-ohje, .otelauta-kierros { color: var(--muted); font-size: .9rem; }
+.otelauta-huomautus { margin-block: .5rem; }
+.otelauta-tila { color: #ffd6b3; font-size: .92rem; }
+
+.otelauta-harjoitus button {
+  min-height: 44px;
+  padding: .45rem .95rem;
+  border: 1px solid #71638c;
+  border-radius: .55rem;
+  background: #2d2444;
+  color: var(--text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.otelauta-harjoitus button:hover { border-color: var(--accent); background: #3a2f55; }
+.otelauta-harjoitus button:focus-visible { outline: 3px solid #75e5c6; outline-offset: 2px; }
+.otelauta-harjoitus .otelauta-ensisijainen { border-color: #d6c7ff; background: var(--accent); color: #170f28; }
+.otelauta-harjoitus .otelauta-ensisijainen:hover { background: #d5c6ff; }
+.otelauta-harjoitus button[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px currentColor; }
+.otelauta-harjoitus button[aria-disabled="true"] { opacity: .6; cursor: default; }
+.otelauta-aani[aria-pressed="true"]::before { content: "✓ "; content: "✓ " / ""; }
+.otelauta-aani[aria-pressed="false"] { color: var(--muted); }
+
+.otelauta-sovellus { margin: .9rem 0; }
+.otelauta-toiminnot { display: flex; flex-wrap: wrap; gap: .5rem; margin: .6rem 0; }
+.otelauta-toiminnot:empty { display: none; }
+/* Tehtävä vasemmalla, tehtävänumero ja äänivalinta oikealla; kapealla allekkain. */
+.otelauta-otsake { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: .35rem .75rem; }
+.otelauta-sivupalkki { display: flex; align-items: center; gap: .5rem; margin-inline-start: auto; }
+.otelauta-kierros { color: var(--muted); font-size: .85rem; font-weight: 700; white-space: nowrap; }
+.otelauta-tehtava { flex: 1 1 14rem; margin: 0 0 .4rem; font-size: 1.12rem; font-weight: 800; }
+.otelauta-harjoitus .otelauta-aani { min-height: 44px; padding: .3rem .7rem; font-size: .9rem; }
+.otelauta-kitaravinkki { display: flex; align-items: center; gap: .45rem; margin: .3rem 0 .6rem; color: var(--muted); font-size: .92rem; }
+.otelauta-suhteet button { flex: 1 1 8rem; }
+.otelauta-laajuus { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin: .4rem 0 .6rem; }
+.otelauta-laajuus label { font-weight: 700; }
+.otelauta-laajuus select {
+  min-height: 44px; max-width: 100%; padding: .35rem .6rem;
+  border: 1px solid #71638c; border-radius: .55rem; background: #2d2444; color: var(--text); font: inherit;
+}
+.otelauta-laajuus select:focus-visible { outline: 3px solid #75e5c6; outline-offset: 2px; }
+.otelauta-harjoitus .otelauta-linkki {
+  min-height: 44px; padding-inline: 0; border: 0; background: none; color: var(--accent);
+  font-weight: 600; text-decoration: underline; text-underline-offset: .18em;
+}
+.otelauta-harjoitus .otelauta-linkki:hover { background: none; color: var(--text); }
+.otelauta-harjoitus .otelauta-linkki[aria-pressed="true"] { box-shadow: none; }
+.otelauta-harjoitus .otelauta-toissijainen { border-color: transparent; background: none; color: var(--muted); font-weight: 600; }
+.otelauta-tila-huomautus { margin: .2rem 0 .5rem; color: #ffd6b3; font-size: .9rem; }
+.otelauta-vaihto { margin: .2rem 0 0; }
+/* Palautepaneeli vierii sivun mukana laudan alla eikä asetu laudan päälle (auditointi PR #179,
+ * 24.11.2026: tahmea paneeli peitti valitun paikan, lähtösävelen ja löydöt). Välitön palaute
+ * näkyy myös napautetussa ruudussa. */
+.otelauta-paneeli { margin-top: .2rem; }
+/* Napautettu ruutu pidetään paikallaan skriptillä (setFeedback); selaimen oma ankkurointi on pois
+ * (skripti asettaa sen juurielementille). Varattu korkeus vähentää siirtymiä. */
+.otelauta-sovellus .otelauta-palaute { min-height: 3.2em; }
+.otelauta-laskuri { margin: .5rem 0 .2rem; font-weight: 800; }
+.otelauta-laskuri.is-valmis { color: #9fe4c3; }
+.otelauta-lautahuomio { margin: .5rem 0 .2rem; font-weight: 800; line-height: 1.35; }
+.otelauta-lautahuomio[hidden] { display: none; }
+.otelauta-lauta td > button { scroll-margin-block: 1rem; }
+.otelauta-tehtava:focus { outline: none; }
+.otelauta-tehtava:focus-visible { outline: 2px solid #75e5c6; outline-offset: 3px; }
+.otelauta-palaute {
+  min-height: 1.5em;
+  margin: .6rem 0;
+  padding: .55rem .75rem;
+  border-radius: .5rem;
+  background: var(--bg);
+}
+.otelauta-palaute:empty { padding-block: 0; background: none; }
+.otelauta-palaute[data-tulos="oikein"] { border-inline-start: 4px solid #9fe4c3; }
+.otelauta-palaute[data-tulos="oikein"]::before { content: "✓ "; content: "✓ " / ""; color: #9fe4c3; font-weight: 800; }
+.otelauta-palaute[data-tulos="yrita"] { border-inline-start: 4px solid #ffd6b3; }
+.otelauta-aanitila { margin: 0; color: #ffd6b3; font-size: .9rem; }
+.otelauta-aanitila:empty { display: none; }
+.otelauta-nimet { display: grid; grid-template-columns: repeat(7, minmax(44px, 1fr)); gap: .4rem; margin: .7rem 0; }
+.otelauta-nimet button { padding-inline: .2rem; font-size: 1.1rem; }
+.otelauta-loydot { margin: .4rem 0; padding-inline-start: 1.2rem; }
+.otelauta-loydot:empty { display: none; }
+
+/* Pystysuora otelauta: paksu E vasemmalla, satula ylhäällä kuten sointukaaviossa. */
+.otelauta-laudan-alue { margin: .4rem 0; }
+/* Kapealla näytöllä (≤ 480 px) skripti levittää laudan 4 px:n päähän näkymän reunoista (createBoard/fit),
+ * jolloin kuuden kielen sarakkeet ovat 320 px:ssä vähintään 44 px leveitä. */
+@media (max-width: 480px) {
+  .otelauta-laudan-alue .otelauta-kehys { max-inline-size: none; }
+  .otelauta-laudan-alue .otelauta-lauta { max-width: none; }
+  .otelauta-laudan-alue .otelauta-lauta--kapea { max-width: 15rem; margin-inline: auto; }
+}
+.otelauta-ohje { margin: .2rem 0 .4rem; }
+.otelauta-kehys {
+  max-inline-size: 100%;
+  overflow-x: auto;
+  border-radius: .5rem;
+}
+.otelauta-kehys:focus-visible { outline: 3px solid #75e5c6; outline-offset: 2px; }
+.otelauta-lauta {
+  --kieli: #c9bfd9;
+  --nauha: #7f7296;
+  width: 100%;
+  max-width: 26rem;
+  min-width: calc(1.4rem + var(--kielia, 6) * 44px);
+  margin: 0;
+  border-collapse: collapse;
+  table-layout: fixed;
+  background: #2a2139;
+}
+.otelauta-lauta th, .otelauta-lauta td { padding: 0; border: 0; text-align: center; }
+.otelauta-lauta thead th { padding-block: .2rem; color: var(--muted); font-size: .9rem; font-weight: 800; }
+.otelauta-lauta thead th:first-child, .otelauta-lauta tbody th { width: 1.4rem; }
+/* Kaksikielinen lauta keskitetään; sarakkeet pysyvät leveinä (≥ 44 px). */
+.otelauta-lauta--kapea { max-width: 15rem; margin-inline: auto; }
+.otelauta-lauta tbody th {
+  color: var(--muted);
+  font-size: .78rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05;
+}
+.otelauta-lauta tbody th span { display: block; }
+.otelauta-piste { color: var(--gold); font-size: .7rem; letter-spacing: .05em; }
+.otelauta-lauta tbody tr { border-bottom: 2px solid var(--nauha); }
+.otelauta-lauta tbody tr[data-nauha="0"] { border-bottom: 6px solid #e4dccb; }
+.otelauta-lauta td {
+  height: 44px;
+  background: linear-gradient(to right, transparent calc(50% - var(--paksuus, 1px)), var(--kieli) calc(50% - var(--paksuus, 1px)), var(--kieli) calc(50% + var(--paksuus, 1px)), transparent calc(50% + var(--paksuus, 1px)));
+}
+.otelauta-lauta td.otelauta-kieli-0 { --paksuus: 2px; }
+.otelauta-lauta td.otelauta-kieli-1 { --paksuus: 1.75px; }
+.otelauta-lauta td.otelauta-kieli-2 { --paksuus: 1.5px; }
+.otelauta-lauta td.otelauta-kieli-3 { --paksuus: 1.25px; }
+.otelauta-lauta tbody tr[data-nauha="0"] td { background: none; }
+
+.otelauta-lauta td > button, .otelauta-lauta td > .otelauta-paikka {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.otelauta-harjoitus .otelauta-lauta td > button:hover { background: rgba(181, 163, 255, .14); }
+.otelauta-harjoitus .otelauta-lauta td > button:focus-visible { outline: 3px solid #75e5c6; outline-offset: -3px; }
+.otelauta-merkki {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: min(1.9rem, calc(100% - 4px));
+  height: 1.9rem;
+  padding-inline: .15rem;
+  border-radius: 999px;
+  font-size: .78rem;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+.otelauta-merkki:empty { min-width: 0; height: 0; padding: 0; }
+.is-lahto .otelauta-merkki { border: 2px solid #ffe3b8; background: var(--gold); color: #1d1300; }
+.is-paikka .otelauta-merkki { border: 2px solid var(--accent); background: #2d2444; color: var(--text); }
+.is-oikein .otelauta-merkki { border: 2px solid #d6fff0; background: #9fe4c3; color: #10261c; }
+.is-paljastettu .otelauta-merkki { border: 2px dashed var(--accent); background: #2d2444; color: var(--text); }
+.is-yritys .otelauta-merkki { border: 2px dashed #ffd6b3; background: #3a2a2a; color: #ffe8d6; }
+.is-kysytty .otelauta-merkki { border: 2px solid var(--gold); background: #3a2f1c; color: #ffe3b8; }
+.is-naytetty .otelauta-merkki { border: 2px dotted #d6c7ff; background: #2d2444; color: var(--text); }
+.is-vihje .otelauta-merkki { border: 2px dashed #9fe4c3; background: transparent; color: #9fe4c3; }
+
+/* Kiintopistetaulukko (03) */
+.otelauta-kiintopisteet table { margin: .5rem 0 .8rem; }
+.otelauta-kiintopisteet td { text-align: center; font-weight: 700; }
+
+.otelauta-teksti { margin: .8rem 0; }
+.otelauta-teksti > summary { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent); cursor: pointer; }
+.otelauta-teksti details > summary { display: inline-flex; align-items: center; min-height: 44px; cursor: pointer; }
+.otelauta-kitara {
+  margin: .9rem 0;
+  padding: .65rem .75rem;
+  border: 1px solid var(--line);
+  border-radius: .55rem;
+}
+.otelauta-kitara h3 { display: flex; align-items: center; gap: .45rem; }
+.otelauta-kuvake { width: 22px; height: 22px; flex: 0 0 22px; }
+.otelauta-opit { margin-top: .8rem; }
+
+@media (max-width: 600px) {
+  .study-unit-body:has(> .study-inline-choices) { padding-inline: .25rem; }
+  .study-unit-body:has(> .study-inline-choices) > :is(.study-unit-goal, .study-start) { margin-inline: .5rem; }
+  .study-inline-body { padding-inline: .125rem; }
+  .study-inline-body > .otelauta-harjoitus { --kortin-reuna: .5rem; }
+  .study-inline-body > :is(.otelauta-huomautus, .done-row, .study-inline-link) { margin-inline: .5rem; }
+  .otelauta-nimet { grid-template-columns: repeat(4, minmax(44px, 1fr)); }
+}
+@media (forced-colors: active) {
+  .otelauta-merkki:not(:empty) { border: 2px solid CanvasText; forced-color-adjust: auto; }
+  .otelauta-lauta td { background: none; border-inline: 1px solid CanvasText; }
+}
+@media print {
+  .otelauta-sovellus, .otelauta-tila { display: none !important; }
+  .otelauta-harjoitus { background: none; }
+  .otelauta-teksti, .otelauta-teksti details { display: block; }
+}

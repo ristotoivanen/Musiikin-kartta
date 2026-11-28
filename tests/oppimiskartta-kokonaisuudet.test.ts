@@ -41,10 +41,13 @@ describe('Soinnut ja harmonia: oma oppimiskokonaisuus', () => {
     expect(path.some(id => unitIds.includes(id))).toBe(false);
   });
 
-  it('aiempien sisältöjen oma laskuriteksti on vain Ydinopintoaiheiden laskureissa', () => {
+  it('aiempien sisältöjen oma laskuriteksti on vain Soinnut-aiheen kolmessa laskurissa', () => {
     const attrs = 'data-progress-count="aiemmista sisällöistä tehty" data-progress-done="✓ Aiemmat sisällöt tehty"';
-    // Rytmi, Sävelkorva ja melodia (#116, vaihe 2) sekä Soinnut ja harmonia.
-    expect(read('index.html').match(/data-progress-count=/g)).toHaveLength(3);
+    // Yksi etusivun laskuri jokaista aihetta kohden, jolle aiheet.json antaa progress_text-tekstin
+    // (Rytmi, Soinnut ja #116:n myöhemmät aiheet, kuten Otelauta).
+    const withText = JSON.parse(read('tools/oppimiskartta/aiheet.json')).topics.filter((topic: { progress_text?: unknown }) => topic.progress_text);
+    expect(withText.length).toBeGreaterThanOrEqual(2);
+    expect(read('index.html').match(/data-progress-count=/g)).toHaveLength(withText.length);
     expect(read('index.html')).toMatch(new RegExp(`id="aihe-soinnut"[^]*?<span class="topic-status" ${attrs} hidden>`));
     expect(read('oppi/soinnut/index.html')).toContain(`data-study-total ${attrs} hidden`);
     expect(read('oppi/soinnut/ii-v-i-kahdessa-savellajissa.html').match(new RegExp(`data-boundary-progress( aria-live="polite")? ${attrs} hidden`, 'g'))).toHaveLength(2);

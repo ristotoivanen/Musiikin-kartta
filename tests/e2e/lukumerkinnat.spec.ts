@@ -3,6 +3,9 @@ import { readdirSync, readFileSync } from 'node:fs';
 
 const site = new URL('../../', import.meta.url);
 const read = (path: string) => readFileSync(new URL(path, site), 'utf8');
+// #116: aiheet, joiden laskuri kattaa vain aiemmat sisällöt (aiheet.json progress_text).
+const legacyCounted = new Set((JSON.parse(read('tools/oppimiskartta/aiheet.json')).topics as { slug: string; progress_text?: unknown }[])
+  .filter(topic => topic.progress_text).map(topic => topic.slug));
 const readingKey = 'musiikin-kartta:luvut';
 const chapterRoutes = JSON.parse(
   read('index.html').match(/id="oppimisreitit">([^<]+)/)![1],
@@ -77,8 +80,8 @@ async function expectTopicMark(page: Page, topic: Topic, item: Item, done: boole
   await expect(marker).toBeVisible();
   await expect(marker).toHaveText(done ? '✓ Tehty' : 'Tekemättä');
   await expect(page.locator('[data-study-total]')).toHaveText(
-    // Rytmi ja Sävelkorva: laskuri kattaa vain aiemmat sisällöt kuten Soinnuissa (#116, progress_text).
-    `${done ? 1 : 0}/${topic.pages.length} ${['rytmi', 'korva', 'soinnut'].includes(topic.name) ? 'aiemmista sisällöistä' : 'sisältöä'} tehty`,
+    // Kokonaisuusmallin aiheissa laskuri kattaa vain aiemmat sisällöt (#116, aiheet.json progress_text).
+    `${done ? 1 : 0}/${topic.pages.length} ${legacyCounted.has(topic.name) ? 'aiemmista sisällöistä' : 'sisältöä'} tehty`,
   );
 }
 

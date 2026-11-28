@@ -1,4 +1,9 @@
+import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
+
+// #116: aiheet, joiden laskuri kattaa vain aiemmat sisällöt (aiheet.json progress_text).
+const legacyCounted = new Set((JSON.parse(readFileSync(new URL('../../tools/oppimiskartta/aiheet.json', import.meta.url), 'utf8')).topics as { slug: string; progress_text?: unknown }[])
+  .filter(topic => topic.progress_text).map(topic => topic.slug));
 
 const topicPath = '/oppi/savelnimet/index.html';
 const intervalsPath = '/oppi/savelnimet/savelet-ja-intervallit.html';
@@ -129,7 +134,15 @@ for (const [topicIndex, [anchor, slug, title, backName]] of topics.entries()) {
     await expect(page.getByRole('heading', { level: 1, name: title })).toBeVisible();
     let items = guitarExercises;
     if (slug === 'kitara') {
-      await expect(page.locator('.study-choice, [data-study-total]')).toHaveCount(0);
+      // Pikakertauksen ainoat valintakortit ovat kaksi minituntia (#116, PR #204). Ne ovat oletuksena
+      // kiinni, eikä sivulle muodostu oppimispolun suoritusmittaria tai suoritusmerkintöjä.
+      const minilessons = page.locator('#perustaitojen-minitunnit');
+      await expect(page.locator('.study-choice')).toHaveCount(2);
+      await expect(minilessons.locator('.study-choice .study-title')).toHaveText(['Löydä pulssi ja ykkönen', 'Pulssista komppiin']);
+      await expect(minilessons).not.toHaveAttribute('open');
+      await expect(minilessons.locator('details[data-minitunti]')).toHaveCount(2);
+      await expect(minilessons.locator('details[data-minitunti][open]')).toHaveCount(0);
+      await expect(page.locator('[data-study-total], [data-study-status], [data-study-item], .done-toggle')).toHaveCount(0);
     } else {
       // Aloituskohta voi olla oletuksena suljetun kokonaisuuden sisällä (#116, Rytmin Ydinopinnot).
       const start = page.getByText('Aloita tästä', { exact: true });
@@ -246,8 +259,8 @@ for (const [index, [, slug, title]] of topics.slice(0, -1).entries()) {
     for (const steps of [topSteps(page), bottomSteps(page)]) {
       const progress = steps.locator('[data-boundary-progress]');
       if (slug === 'kitara') await expect(progress).toHaveCount(0);
-      // Rytmi ja Sävelkorva: aiempien sisältöjen laskurin oma teksti kuten Soinnuissa (#116, progress_text).
-      else await expect(progress).toHaveText(`0/${total} ${['rytmi', 'korva', 'soinnut'].includes(slug) ? 'aiemmista sisällöistä' : 'sisältöä'} tehty`);
+      // Kokonaisuusmallin aiheet: aiempien sisältöjen laskurin oma teksti (#116, progress_text).
+      else await expect(progress).toHaveText(`0/${total} ${legacyCounted.has(slug) ? 'aiemmista sisällöistä' : 'sisältöä'} tehty`);
       await steps.getByRole('link', { name: 'Seuraava aihe: ' + nextTitle, exact: true }).click();
       await expect(page).toHaveURL(nextPath);
       await expect(page.getByRole('heading', { level: 1, name: nextTitle, exact: true })).toBeVisible();
@@ -257,7 +270,7 @@ for (const [index, [, slug, title]] of topics.slice(0, -1).entries()) {
     expect(await page.evaluate(key => localStorage.getItem(key), readingKey)).toBeNull();
     await page.goto('/index.html');
     await expect(mapCard).toBeVisible();
-    await expect(mapCard.locator('.topic-status')).toHaveText(['rytmi', 'korva', 'soinnut'].includes(nextSlug) ? /^0\/\d+ aiemmista sisällöistä tehty$/ : /^0\/\d+ sisältöä tehty$/);
+    await expect(mapCard.locator('.topic-status')).toHaveText(legacyCounted.has(nextSlug) ? /^0\/\d+ aiemmista sisällöistä tehty$/ : /^0\/\d+ sisältöä tehty$/);
     await page.reload();
     await expect(mapCard).toBeVisible();
   });
@@ -433,12 +446,71 @@ for (const width of [320, 390, 768, 1024, 1440]) {
 }
 
 test('ristiinlinkitys avaa saman opetussivun ja takaisinpaluu säilyttää lähtöaiheen', async ({ page }) => {
-  await page.goto('/oppi/kitara/index.html');
-  await page.getByRole('link', { name: 'Kitaran kielet ja sointumerkinnät', exact: true }).click();
+  // Soinnut ja harmonia → Tutki myös → Kappaleiden harjoitus Mikä sointu tulee?
+  const sourcePath = '/oppi/soinnut/index.html';
+  const homePath = '/oppi/kappaleet/index.html';
+  const sharedPath = '/oppi/kappaleet/mika-sointu-tulee.html';
+  const sharedId = 'harjoitus:mika-sointu-tulee';
+  const related = page.locator('section.study-group').filter({ has: page.getByRole('heading', { name: 'Tutki myös' }) })
+    .getByRole('link', { name: 'Mikä sointu tulee?', exact: true });
+  const card = page.locator('#valinta-mika-sointu-tulee');
+  const sharedItem = page.locator('main[data-study-item]');
+  const done = page.getByRole('button', { name: '✓ Harjoitus tehty' });
+  const marks = () => page.evaluate(key => JSON.parse(localStorage.getItem(key) ?? '[]'), readingKey);
+
+  await page.goto(sourcePath);
+  await related.click();
+  await expect(page).toHaveURL(sharedPath + '?aihe=aihe-soinnut');
+  await expect(sharedItem).toHaveAttribute('data-study-item', sharedId);
+  await page.getByRole('button', { name: 'Merkitse harjoitus tehdyksi' }).click();
+  await expect(done).toHaveAttribute('aria-pressed', 'true');
+  expect(await marks()).toEqual([sharedId]);
+  await page.goBack();
+  await expect(page).toHaveURL(sourcePath);
+
+  // Käyttöliittymän oma paluulinkki vie lähtöaiheeseen, ei sivun omaan aiheeseen.
+  await related.click();
+  await expect(done).toHaveAttribute('aria-pressed', 'true');
+  await exactBack(page, 'Sointuihin ja harmoniaan').click();
+  await expect(page).toHaveURL(sourcePath);
+
+  // Sama merkintä näkyy sivun omassa aiheessa, ja sen voi poistaa sieltä.
+  await page.goto(homePath);
+  await expect(card.locator('[data-study-status]')).toHaveText('✓ Tehty');
+  await card.click();
+  await expect(page).toHaveURL(sharedPath);
+  await expect(sharedItem).toHaveAttribute('data-study-item', sharedId);
+  await expect(done).toHaveAttribute('aria-pressed', 'true');
+  await done.click();
+  await exactBack(page, 'Kappaleisiin ja omaan musiikkiin').click();
+  await expect(page).toHaveURL(homePath);
+  await expect(card.locator('[data-study-status]')).toHaveText('Tekemättä');
+  expect(await marks()).toEqual([]);
+  await page.goto(sourcePath);
+  await related.click();
+  await expect(page.getByRole('button', { name: 'Merkitse harjoitus tehdyksi' })).toHaveAttribute('aria-pressed', 'false');
+
+  // Toiseen suuntaan: omasta aiheesta tehty merkintä näkyy ristiinlinkin kautta.
+  await page.goto(homePath);
+  await card.click();
+  await page.getByRole('button', { name: 'Merkitse harjoitus tehdyksi' }).click();
+  await page.goBack();
+  await expect(page).toHaveURL(homePath);
+  await expect(card.locator('[data-study-status]')).toHaveText('✓ Tehty');
+  await page.goto(sourcePath);
+  await related.click();
+  await expect(done).toHaveAttribute('aria-pressed', 'true');
+
+  // Vanha Kitaran kielet -oppitunti: sama osoite ja suoritustunniste.
+  await page.goto(topicPath);
+  await page.locator('#aiemmat > summary').click();
+  await page.locator('#valinta-kitaran-kielet-ja-sointumerkinnat').click();
   await expect(page).toHaveURL(guitarPath);
   await page.getByRole('button', { name: 'Merkitse oppitunti tehdyksi' }).click();
+  expect(await marks()).toEqual([sharedId, 'oppitunti:kitaran-kielet-ja-sointumerkinnat']);
   await page.goBack();
-  await expect(page).toHaveURL('/oppi/kitara/index.html');
+  await expect(page).toHaveURL(new RegExp(topicPath));
+  await page.goto('/oppi/kitara/index.html');
   await expect(page.locator('[data-study-total]')).toHaveCount(0);
   await page.goto(topicPath);
   await page.locator('#aiemmat > summary').click();
