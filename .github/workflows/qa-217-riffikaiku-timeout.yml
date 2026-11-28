@@ -1,0 +1,222 @@
+name: "QA 217 Riffikaiku timeout Linux"
+
+# Vain tutkimushaara. Ei yhdistetä. Lukuoikeus, ei retryjä.
+on:
+  push:
+    branches: [qa/217-riffikaiku-timeout-linux]
+
+permissions:
+  contents: read
+
+env:
+  BASE: 9600d05f13ee20ad2a63863e838cdb5b02f140e9
+  CANDIDATE: 4441b25ca5b399cd55e7be97a382b0a13581be9a
+
+jobs:
+  measure:
+    name: measure ${{ matrix.variant }} runner ${{ matrix.runner }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [base, fix]
+        runner: [1, 2, 3]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Check out measured revision
+        run: |
+          cp docs/qa/riffikaiku-ci-timeout-2026-11-28/mittaa.mjs "$RUNNER_TEMP/mittaa.mjs"
+          git checkout --detach "${{ matrix.variant == 'base' && env.BASE || env.CANDIDATE }}"
+          git rev-parse HEAD HEAD^{tree} HEAD:tests/riffikaiku-pipeline.test.ts
+      - run: npm ci
+      - name: Environment
+        run: |
+          node -v; npx vitest --version; nproc; lscpu | grep -E "Model name|Thread|Core"; free -h
+      - name: Repeat measurements (10 isolated, 2 file, 2 full suite)
+        run: node "$RUNNER_TEMP/mittaa.mjs" "${{ matrix.variant }}-runner-${{ matrix.runner }}" 10 2 2
+
+  evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CANDIDATE }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Sample, frame and lastPitchMs equivalence with cost profile
+        run: node docs/qa/riffikaiku-ci-timeout-2026-11-28/vertailu.mjs
+      - name: Mutation experiments
+        run: node docs/qa/riffikaiku-ci-timeout-2026-11-28/mutaatiot.mjs
+      - name: Worktree is unchanged
+        run: git status --porcelain && test -z "$(git status --porcelain)"
+
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CANDIDATE }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Generator and link checks on the untouched checkout
+        run: |
+          python3 tools/oppimiskartta/rakenna.py --tarkista
+          python3 tools/oppimiskartta/rakenna-osiot.py --tarkista
+          python3 tools/linkit/tarkista-linkit.py
+      - name: npm run check
+        run: npm run check
+      - name: Files modified by the build (reported, not committed)
+        if: always()
+        run: git status --porcelain; git diff --stat
+
+  compat-117-static:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CANDIDATE }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run lint && npm run typecheck && npm test
+      - run: python3 tools/oppimiskartta/rakenna.py --tarkista
+      - run: python3 tools/linkit/tarkista-linkit.py
+
+  compat-117-browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CANDIDATE }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test tests/e2e/yhteensopivuus-117.spec.ts --project=desktop --project=phone --retries=0
+
+  compat-117-pdf-source:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CANDIDATE }}
+      - run: python3 tests/issue-117-pdf-sources.py
+
+  pdf-151-static:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CANDIDATE }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run lint && npm run typecheck && npm test
+      - run: python3 tools/oppimiskartta/rakenna.py --tarkista
+      - run: python3 tools/linkit/tarkista-linkit.py
+
+  chromium-regression:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CANDIDATE }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Full Playwright regression (desktop and phone)
+        run: npx playwright test --project=desktop --project=phone --workers=3 --max-failures=20 --retries=0
+
+  webkit-riffikaiku:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Candidate files with QA WebKit config
+        run: |
+          cp playwright.qa-217-webkit.config.ts "$RUNNER_TEMP/webkit.config.ts"
+          git fetch --no-tags --depth=1 origin "$CANDIDATE"
+          git checkout --detach FETCH_HEAD
+          cp "$RUNNER_TEMP/webkit.config.ts" playwright.qa-217-webkit.config.ts
+      - run: npm ci
+      - run: npx playwright install --with-deps webkit
+      - run: npx playwright test --config=playwright.qa-217-webkit.config.ts --workers=2 --retries=0
+
+  pdf-151-fresh:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CANDIDATE }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install Playwright Chromium
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Install PDF inspector
+        run: python3 -m pip install --disable-pip-version-check 'PyMuPDF==1.26.6'
+      - name: Source-assembly and homepage independence regression
+        run: python3 tests/issue-151-pdf.py --source-only
+      - name: Validate against PR #150 original regression, without copying its tests into this PR
+        run: |
+          git fetch --no-tags --depth=1 origin b7441d363ec766d477dbcc12962fe89d7e37fceb
+          git show FETCH_HEAD:tests/issue-117-pdf-sources.py > tests/issue-117-pdf-sources.py
+          python3 tests/issue-117-pdf-sources.py
+      - name: Build a new PDF from the checked-out source tree
+        env:
+          OUTPUT_DIR: ${{ runner.temp }}/issue-151-pdf
+          CHROME_NO_SANDBOX: '1'
+        run: |
+          set -euo pipefail
+          mkdir -p "$OUTPUT_DIR"
+          test ! -e "$OUTPUT_DIR/musiikin-kartta.pdf"
+          CHROME="$(node -p "require('playwright').chromium.executablePath()")" \
+            python3 tools/pdf/rakenna-pdf.py \
+              --out "$OUTPUT_DIR/musiikin-kartta.pdf" \
+              --html "$OUTPUT_DIR/musiikin-kartta.html"
+          python3 tests/issue-151-pdf.py \
+            --pdf "$OUTPUT_DIR/musiikin-kartta.pdf" \
+            --html "$OUTPUT_DIR/musiikin-kartta.html"
+      - name: Upload exact PDF and visual inspection samples
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue-151-fresh-pdf
+          path: ${{ runner.temp }}/issue-151-pdf/
+          if-no-files-found: warn
+          retention-days: 14
