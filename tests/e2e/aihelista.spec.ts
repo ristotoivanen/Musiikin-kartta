@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
 
 const map = '/index.html';
@@ -17,6 +18,9 @@ const list = (page: Page) => page.locator('#oppimisaihelista');
 const toggle = (page: Page) => page.locator('#topic-toggle');
 const topic = (page: Page, id: string) => list(page).locator('#' + id);
 const rhythmProgress = (page: Page) => topic(page, 'aihe-rytmi').locator('.topic-status');
+// #116: aiheet, joiden laskuri kattaa vain aiemmat sisällöt (aiheet.json progress_text).
+const legacyCounted = new Set((JSON.parse(readFileSync(new URL('../../tools/oppimiskartta/aiheet.json', import.meta.url), 'utf8')).topics as { slug: string; progress_text?: unknown }[])
+  .filter(topic => topic.progress_text).map(topic => topic.slug));
 
 async function expectTopics(page: Page, ids: string[]) {
   const links = list(page).getByRole('link');
@@ -126,16 +130,11 @@ test('kaikki teorialuvut tehnyt käyttäjä näkee säilyneet merkinnät ja kesk
   expect(stored.count).toBe(28);
   await page.reload();
   await expect(topic(page, 'aihe-kitara').locator('.topic-status')).toHaveCount(0);
-  await expect(list(page).locator('.topic-status')).toHaveText([
-    // Rytmi: laskuri kattaa vain aiemmat sisällöt kuten Soinnuissa (#116, progress_text).
-    '1/4 aiemmista sisällöistä tehty',
-    '1/3 sisältöä tehty',
-    '6/14 sisältöä tehty',
-    '3/8 sisältöä tehty',
-    '7/18 aiemmista sisällöistä tehty',
-    '3/7 sisältöä tehty',
-    '6/14 sisältöä tehty',
-  ]);
+  // Kokonaisuusmallin aiheissa laskuri kattaa vain aiemmat sisällöt (#116, aiheet.json progress_text).
+  await expect(list(page).locator('.topic-status')).toHaveText(([
+    ['rytmi', '1/4'], ['savelnimet', '1/3'], ['korva', '6/14'], ['otelauta', '3/8'],
+    ['soinnut', '7/18'], ['asteikot', '3/7'], ['kappaleet', '6/14'],
+  ] as const).map(([slug, count]) => `${count} ${legacyCounted.has(slug) ? 'aiemmista sisällöistä' : 'sisältöä'} tehty`));
   expect(await page.evaluate(key => localStorage.getItem(key), readingKey)).toBe(stored.raw);
 });
 

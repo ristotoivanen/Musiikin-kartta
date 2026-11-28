@@ -226,9 +226,52 @@
       "title": "Otelauta",
       "back_label": "Otelautaan",
       "summary": "Sävelten sijainnit, oktaavit ja CAGED.",
-      "lead": "Etsi sama sävel useasta kohdasta. Käytä paksuja kieliä lähtöpisteinä ja tunnista avoimista otteista tutut muodot eri puolilla otelautaa.",
+      "lead": "Missä sävel on kitaralla? Löydä sama sävel toiselta kieleltä, kuule oktaavin ero ja suunnista paksujen E- ja A-kielten avulla. Kokeile lopuksi oikealla kitaralla.",
+      "layout": "kokonaisuudet",
+      "progress_text": {
+        "count": "aiemmista sisällöistä tehty",
+        "done": "✓ Aiemmat sisällöt tehty"
+      },
+      "legacy": {
+        "id": "aiemmat",
+        "title": "Aiemmat oppitunnit ja harjoitukset",
+        "intro": "Kaikki aiemmat oppitunnit ja harjoitukset löytyvät täältä entisillä osoitteillaan. Aiemmat suoritusmerkintäsi säilyvät."
+      },
       "groups": [
         {
+          "id": "ydinopinnot",
+          "title": "Ydinopinnot",
+          "kind": "harjoitus",
+          "attempts": true,
+          "inline": true,
+          "back": "unit",
+          "last": "start",
+          "goal": "Neljä lyhyttä harjoitusta virtuaaliotelaudalla ja oikealla kitaralla. Etene haluamassasi järjestyksessä. ”Kokeiltu” ei ole osaamistesti.",
+          "lessons": [
+            {
+              "standalone": "sama-savel-toiselta-kielelta",
+              "title": "Sama sävel toiselta kieleltä",
+              "goal": "Yhtä korkea sävel naapurikielellä, vaihtuvat tehtävät"
+            },
+            {
+              "standalone": "kuule-oktaavi",
+              "title": "Kuule ja löydä oktaavi",
+              "goal": "Kuule korkeusero ja löydä paikka"
+            },
+            {
+              "standalone": "perussavel-e-ja-a-kielelta",
+              "title": "Etsi perussävel E- ja A-kieleltä",
+              "goal": "Päättele sävel kiintopisteistä"
+            },
+            {
+              "standalone": "liiku-otelaudalla",
+              "title": "Liiku otelaudalla",
+              "goal": "Saman sävelen kaikki paikat ja oktaavit"
+            }
+          ]
+        },
+        {
+          "legacy": true,
           "title": "Sävelten sijainnit ja muodot",
           "lessons": [
             {
