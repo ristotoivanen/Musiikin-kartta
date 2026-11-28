@@ -1,0 +1,74 @@
+name: "QA e2e beta epävakaat"
+
+# Vain tutkimushaara. Ei yhdistetä. Lukuoikeus, ei retryjä.
+# base = muuttamaton beta 9600d05, fix = korjauscommit.
+on:
+  push:
+    branches: [qa/e2e-beta-epavakaat-linux]
+
+permissions:
+  contents: read
+
+jobs:
+  repeat:
+    name: ${{ matrix.suite }} ${{ matrix.variant }} #${{ matrix.runner }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [otelauta-540, practice-webkit, otelautaopas-282]
+        variant: [base, fix]
+        runner: [1, 2]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Check out measured revision
+        run: |
+          cp playwright.qa-webkit.config.ts "$RUNNER_TEMP/webkit.config.ts"
+          git checkout --detach "${{ matrix.variant == 'base' && '9600d05f13ee20ad2a63863e838cdb5b02f140e9' || '7c5e4e48af29d32835ea5a93d7c26a720df7441d' }}"
+          cp "$RUNNER_TEMP/webkit.config.ts" playwright.qa-webkit.config.ts
+          git rev-parse HEAD
+          lscpu | grep "Model name"
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium webkit
+      - if: matrix.suite == 'otelauta-540'
+        run: npx playwright test tests/e2e/otelauta-ydinopinnot.spec.ts:540 --project=desktop --project=phone --workers=3 --retries=0 --repeat-each=60 --reporter=line
+      - if: matrix.suite == 'practice-webkit'
+        run: npx playwright test -c playwright.qa-webkit.config.ts -g "nopeat peräkkäiset|kaksoispainalluksen" --workers=3 --retries=0 --repeat-each=40 --reporter=line
+      - if: matrix.suite == 'otelautaopas-282'
+        run: npx playwright test tests/e2e/otelautaopas-beta.spec.ts -g "duuri–molli-vaihto ei muodosta" --project=desktop --workers=3 --retries=0 --repeat-each=8 --reporter=line
+
+  full:
+    name: full ${{ matrix.suite }} fix
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [chromium, webkit-practice]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Check out measured revision
+        run: |
+          cp playwright.qa-webkit.config.ts "$RUNNER_TEMP/webkit.config.ts"
+          git checkout --detach 7c5e4e48af29d32835ea5a93d7c26a720df7441d
+          cp "$RUNNER_TEMP/webkit.config.ts" playwright.qa-webkit.config.ts
+          git rev-parse HEAD
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium webkit
+      - if: matrix.suite == 'chromium'
+        run: npm run check && npx playwright test --retries=0 --reporter=line
+      - if: matrix.suite == 'webkit-practice'
+        run: npx playwright test -c playwright.qa-webkit.config.ts --workers=3 --retries=0 --reporter=line
