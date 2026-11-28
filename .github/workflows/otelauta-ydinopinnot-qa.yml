@@ -20,12 +20,26 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Lint, typecheck, unit suite and build
-        run: npm run lint && npm run typecheck && npm test && npm run build
+        run: npm run check
       - name: Generated pages and links
         run: |
           python3 tools/oppimiskartta/rakenna.py --tarkista
           python3 tools/oppimiskartta/rakenna-osiot.py --tarkista
           python3 tools/linkit/tarkista-linkit.py
+
+  chromium-otelauta:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Otelauta and shared scroll/focus (desktop and phone)
+        run: npx playwright test tests/e2e/otelauta-ydinopinnot.spec.ts tests/e2e/ydinopinnot-scroll.spec.ts --project=desktop --project=phone --workers=2 --retries=0
 
   chromium-regression:
     runs-on: ubuntu-24.04
@@ -39,7 +53,7 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - name: Full Playwright regression (desktop and phone)
-        run: npx playwright test --workers=3 --max-failures=20
+        run: npx playwright test --project=desktop --project=phone --workers=3 --max-failures=20 --retries=0
 
   webkit:
     runs-on: ubuntu-24.04
@@ -53,4 +67,4 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps webkit
       - name: WebKit desktop and iPhone emulation (Otelauta Ydinopinnot + shared scroll/focus)
-        run: npx playwright test --config=playwright.otelauta-ydinopinnot-webkit.config.ts --workers=2
+        run: npx playwright test --config=playwright.otelauta-ydinopinnot-webkit.config.ts --workers=2 --retries=0
