@@ -1,0 +1,69 @@
+commit 5df155823253c106af6d1c3d5e9b9499790febce
+
+Running 62 tests using 2 workers
+
+[1/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:143:3 › aihesivu › Ydinopinnot ensin, kolme harjoitusta; aiemmat 14 suljettuna neljässä ryhmässä
+[2/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:143:3 › aihesivu › Ydinopinnot ensin, kolme harjoitusta; aiemmat 14 suljettuna neljässä ryhmässä
+[3/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:176:3 › aihesivu › vanhat merkinnät säilyvät eivätkä kuittaa uusia; uusi merkintä tallentuu omaan tunnisteeseensa
+[4/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:176:3 › aihesivu › vanhat merkinnät säilyvät eivätkä kuittaa uusia; uusi merkintä tallentuu omaan tunnisteeseensa
+[5/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:197:3 › aihesivu › aiemmat 14 osoitetta, tunnistetta ja Edellinen/Seuraava-ketju toimivat ennallaan
+[6/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:197:3 › aihesivu › aiemmat 14 osoitetta, tunnistetta ja Edellinen/Seuraava-ketju toimivat ennallaan
+[7/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:215:3 › ilman JavaScriptiä › kaikki 14 aiempaa ja 3 uutta sisältöä löytyvät linkkeinä; ääniohjaimet eivät näy
+[8/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:215:3 › ilman JavaScriptiä › kaikki 14 aiempaa ja 3 uutta sisältöä löytyvät linkkeinä; ääniohjaimet eivät näy
+[9/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:234:3 › 01 · Ylös, alas vai sama? › alussa vain Kuuntele; helppo ensimmäinen tehtävä, palaute ja muoto; kaksi oikeaa pidentää melodiaa
+[10/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:234:3 › 01 · Ylös, alas vai sama? › alussa vain Kuuntele; helppo ensimmäinen tehtävä, palaute ja muoto; kaksi oikeaa pidentää melodiaa
+[11/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:333:3 › 01 · Ylös, alas vai sama? › ⌫ poistaa viimeisimmän; Tarkista näkyy vasta, kun kaikki vaihdot on merkitty
+[12/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:333:3 › 01 · Ylös, alas vai sama? › ⌫ poistaa viimeisimmän; Tarkista näkyy vasta, kun kaikki vaihdot on merkitty
+[13/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:354:3 › 01 · Ylös, alas vai sama? › saman painikkeen toinen painallus pysäyttää äänen heti
+[14/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:354:3 › 01 · Ylös, alas vai sama? › saman painikkeen toinen painallus pysäyttää äänen heti
+[15/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:377:3 › 01 · Ylös, alas vai sama? › latausvirhe näkyy, eikä tehtävää avata ilman kuunneltua ääntä
+[16/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:377:3 › 01 · Ylös, alas vai sama? › latausvirhe näkyy, eikä tehtävää avata ilman kuunneltua ääntä
+[17/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:388:3 › 01 · Ylös, alas vai sama? › näppäimistöllä koko kierros: Enter kuuntelee, Space vastaa, fokus säilyy ja Seuraava palaa Kuuntele-painikkeeseen
+[18/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:388:3 › 01 · Ylös, alas vai sama? › näppäimistöllä koko kierros: Enter kuuntelee, Space vastaa, fokus säilyy ja Seuraava palaa Kuuntele-painikkeeseen
+[19/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:415:3 › 02 · Kotiin vai kesken? › Loppu 1/2 soittaa ja valitsee; valintaa voi vaihtaa; vasta Tarkista valinta tarkistaa
+[20/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:415:3 › 02 · Kotiin vai kesken? › Loppu 1/2 soittaa ja valitsee; valintaa voi vaihtaa; vasta Tarkista valinta tarkistaa
+[21/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:520:3 › 02 · Kotiin vai kesken? › K2: eteneminen riippuu tarkistettujen vertailujen määrästä, ei valitusta lopusta eikä uudelleenkuuntelusta
+[22/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:520:3 › 02 · Kotiin vai kesken? › K2: eteneminen riippuu tarkistettujen vertailujen määrästä, ei valitusta lopusta eikä uudelleenkuuntelusta
+[23/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:570:3 › 02 · Kotiin vai kesken? › K2: ”Mitä opit?” ei paljasta ratkaisua ennen ensimmäistä yritystä, ja ⓘ-lisätieto säilyy vapaaehtoisena
+[24/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:581:3 › 02 · Kotiin vai kesken? › näppäimistöllä: Space valitsee lopun, Enter tarkistaa ja fokus säilyy
+[25/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:604:3 › 03 · Kuule ja etsi kitaralta › tapailu, lyhyt palaute ja Kuului/Sinä-vertailu, Näytä sävelkulku ja laajeneva sävelalue
+[26/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:570:3 › 02 · Kotiin vai kesken? › K2: ”Mitä opit?” ei paljasta ratkaisua ennen ensimmäistä yritystä, ja ⓘ-lisätieto säilyy vapaaehtoisena
+[27/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:581:3 › 02 · Kotiin vai kesken? › näppäimistöllä: Space valitsee lopun, Enter tarkistaa ja fokus säilyy
+[28/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:604:3 › 03 · Kuule ja etsi kitaralta › tapailu, lyhyt palaute ja Kuului/Sinä-vertailu, Näytä sävelkulku ja laajeneva sävelalue
+[29/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:689:1 › aihesivulla oppitunnin sulkeminen kesken soiton pysäyttää äänen
+[30/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:724:5 › pienet näytöt ja suurennus › 320 px, 100 % ja 200 % teksti ilman vaakavieritystä; painikkeet vähintään 44 px
+[31/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:689:1 › aihesivulla oppitunnin sulkeminen kesken soiton pysäyttää äänen
+[32/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:724:5 › pienet näytöt ja suurennus › 320 px, 100 % ja 200 % teksti ilman vaakavieritystä; painikkeet vähintään 44 px
+[33/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:724:5 › pienet näytöt ja suurennus › 360 px, 100 % ja 200 % teksti ilman vaakavieritystä; painikkeet vähintään 44 px
+[34/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:724:5 › pienet näytöt ja suurennus › 360 px, 100 % ja 200 % teksti ilman vaakavieritystä; painikkeet vähintään 44 px
+[35/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:724:5 › pienet näytöt ja suurennus › 390 px, 100 % ja 200 % teksti ilman vaakavieritystä; painikkeet vähintään 44 px
+[36/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:724:5 › pienet näytöt ja suurennus › 390 px, 100 % ja 200 % teksti ilman vaakavieritystä; painikkeet vähintään 44 px
+[37/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:751:3 › pienet näytöt ja suurennus › 1280 px ja 400 % teksti: kaikki kolme vastattuna ilman vaakavieritystä
+[38/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:751:3 › pienet näytöt ja suurennus › 1280 px ja 400 % teksti: kaikki kolme vastattuna ilman vaakavieritystä
+[39/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:773:3 › K1 · nopeat napautukset eivät zoomaa › suuntapainikkeet, lopetusvaihtoehdot ja otelaudan sävelpainikkeet käyttävät touch-action: manipulation -arvoa
+[40/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:773:3 › K1 · nopeat napautukset eivät zoomaa › suuntapainikkeet, lopetusvaihtoehdot ja otelaudan sävelpainikkeet käyttävät touch-action: manipulation -arvoa
+[41/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:795:3 › K1 · nopeat napautukset eivät zoomaa › sivun suurentamista ei estetä: viewport sallii zoomin eikä dokumentti rajaa kosketuseleitä
+[42/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:804:3 › K1 · nopeat napautukset eivät zoomaa › kosketus: kaksi nopeaa Alas-napautusta rekisteröityy molemmat, eikä näkymä suurene
+[43/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:795:3 › K1 · nopeat napautukset eivät zoomaa › sivun suurentamista ei estetä: viewport sallii zoomin eikä dokumentti rajaa kosketuseleitä
+[44/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:825:3 › K4 · sama sävelnimi eri oktaavissa › oktaavivirheen kortilla näkyvät kitaran paikat ja ”oktaavia korkeampi/matalampi”; muilla korteilla ei lisärivejä
+[45/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:804:3 › K1 · nopeat napautukset eivät zoomaa › kosketus: kaksi nopeaa Alas-napautusta rekisteröityy molemmat, eikä näkymä suurene
+[46/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:825:3 › K4 · sama sävelnimi eri oktaavissa › oktaavivirheen kortilla näkyvät kitaran paikat ja ”oktaavia korkeampi/matalampi”; muilla korteilla ei lisärivejä
+[47/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:911:3 › K5 · vain kuultu sävel kirjautuu vastausketjuun › hidas lataus: keskeytynyt painallus ei kirjaudu eikä soi; ladattu seuraava kirjautuu; sama paikka kirjautuu latauksen jälkeen
+[48/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:911:3 › K5 · vain kuultu sävel kirjautuu vastausketjuun › hidas lataus: keskeytynyt painallus ei kirjaudu eikä soi; ladattu seuraava kirjautuu; sama paikka kirjautuu latauksen jälkeen
+[49/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:933:3 › K5 · vain kuultu sävel kirjautuu vastausketjuun › hidas lataus: yksin painettu sävel kirjautuu vasta, kun se on ladattu ja ehtinyt soida
+[50/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:933:3 › K5 · vain kuultu sävel kirjautuu vastausketjuun › hidas lataus: yksin painettu sävel kirjautuu vasta, kun se on ladattu ja ehtinyt soida
+[51/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:949:3 › K5 · vain kuultu sävel kirjautuu vastausketjuun › latausvirhe: sävel ei kirjaudu, virhe näkyy, ja painallus toimii, kun lataus onnistuu
+[52/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:949:3 › K5 · vain kuultu sävel kirjautuu vastausketjuun › latausvirhe: sävel ei kirjaudu, virhe näkyy, ja painallus toimii, kun lataus onnistuu
+[53/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:967:3 › K5 · vain kuultu sävel kirjautuu vastausketjuun › tehtävän vaihtaminen kesken latauksen: vanha painallus ei päädy uuden tehtävän vastausketjuun
+[54/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:967:3 › K5 · vain kuultu sävel kirjautuu vastausketjuun › tehtävän vaihtaminen kesken latauksen: vanha painallus ei päädy uuden tehtävän vastausketjuun
+[55/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:986:3 › K5 · vain kuultu sävel kirjautuu vastausketjuun › harjoituksen sulkeminen kesken latauksen: keskeytys kerrotaan, eikä sävel kirjaudu avattaessa uudelleen
+[56/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:986:3 › K5 · vain kuultu sävel kirjautuu vastausketjuun › harjoituksen sulkeminen kesken latauksen: keskeytys kerrotaan, eikä sävel kirjaudu avattaessa uudelleen
+[57/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:1006:3 › K5 · vain kuultu sävel kirjautuu vastausketjuun › ladattujen näytteiden nopeat painallukset: samassa hetkessä vain viimeisin soi ja kirjautuu; riittävän harvat painallukset kirjautuvat kaikki järjestyksessä
+[58/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:1006:3 › K5 · vain kuultu sävel kirjautuu vastausketjuun › ladattujen näytteiden nopeat painallukset: samassa hetkessä vain viimeisin soi ja kirjautuu; riittävän harvat painallukset kirjautuvat kaikki järjestyksessä
+[59/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:1036:3 › K5 · vain kuultu sävel kirjautuu vastausketjuun › Tarkista arvioi näkyvän ja vahvistetun ketjun, vaikka seuraava sävel on vielä latautumassa
+[60/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:1036:3 › K5 · vain kuultu sävel kirjautuu vastausketjuun › Tarkista arvioi näkyvän ja vahvistetun ketjun, vaikka seuraava sävel on vielä latautumassa
+[61/62] [webkit-iphone] › tests/e2e/savelkorva-ydinopinnot.spec.ts:1054:3 › K5 · vain kuultu sävel kirjautuu vastausketjuun › esilataus alkaa vasta käyttäjän eleestä, hyödyntää näytevälimuistia eikä lataa samaa näytettä kahdesti
+[62/62] [webkit-desktop] › tests/e2e/savelkorva-ydinopinnot.spec.ts:1054:3 › K5 · vain kuultu sävel kirjautuu vastausketjuun › esilataus alkaa vasta käyttäjän eleestä, hyödyntää näytevälimuistia eikä lataa samaa näytettä kahdesti
+  3 skipped
+  59 passed (35.2s)
+EXIT 0

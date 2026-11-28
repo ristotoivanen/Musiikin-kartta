@@ -1,0 +1,12 @@
+A1. Tab Loppu 2:n jälkeen → fokus: "Lisätieto: Kotisävel ja tukiää"
+A2. Alt+Tab Loppu 2:n jälkeen → fokus: "Tarkista valinta"
+A3. Enter Tarkista valinta -painikkeella → fokus pysyy: "Tarkista valinta", palaute: "Tässä melodiassa loppu 1 kuulostaa valmiimmalta: se palaa ko"
+
+B. Siemen 1: tehtävät G3-G3-B3 | G3-D4-C4 | E4-D4-G3
+B1. Taso 2 alkanut: "3 säveltä · lähtösävel vaihtelee"
+B2. Kuultu E4-D4-G3, soitettu E4-D4-G4
+    kortti: "Sävel 1 E sinä E ✓" | aria-label: "Sävel 1: kuului E, oikein" | is-oikein
+    kortti: "Sävel 2 D sinä D ✓" | aria-label: "Sävel 2: kuului D, oikein" | is-oikein
+    kortti: "Sävel 3 G sinä G ✗" | aria-label: "Sävel 3: kuului G, vastasit G" | is-virhe
+B3. Palaute: "2/3 oikein. Yhdessä sävelessä oli eroa." | Kitaralla: ohut e-kieli, vapaa → B-kieli, 3. nauha → G-kieli, vapaa
+B4. Numeroidut paikat: E, ohut e-kieli, vapaa, sävel 1 kulussa [1] ; D, B-kieli, 3. nauha, sävel 2 kulussa [2] ; G, G-kieli, vapaa, sävel 3 kulussa [3]

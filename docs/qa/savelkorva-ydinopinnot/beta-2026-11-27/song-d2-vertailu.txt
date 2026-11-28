@@ -1,0 +1,4 @@
+# song-d2 -poikkeama-arvot, järjestyksessä
+ci-chromium.txt: fe25b8054ac416797dc6d54c33058ac2 (24 arvoa, MD5 arvolistasta)
+run-179.txt: fe25b8054ac416797dc6d54c33058ac2 (24 arvoa, MD5 arvolistasta)
+run-46021006088.log: fe25b8054ac416797dc6d54c33058ac2 (24 arvoa, MD5 arvolistasta)

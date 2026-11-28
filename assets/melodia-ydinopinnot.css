@@ -1,0 +1,210 @@
+/* Sävelkorva ja melodia · Ydinopinnot (#116, vaihe 2). Ladataan vain sivuille, joilla on
+ * [data-melodiaharjoitus] (tools/oppimiskartta/rakenna.py). Värit book/reader.css:n muuttujista;
+ * painikkeet, palaute ja ⓘ-lisätieto kuten Soinnut ja harmonia -aiheen Ydinopinnoissa. */
+
+.melodia-ydin h2 { margin-block: 0 .55rem; font-size: 1.1rem; }
+.melodia-ydin h3 { margin: 1rem 0 .45rem; font-size: 1.05rem; }
+.melodia-ydin [hidden] { display: none !important; }
+.melodia-ydin.study-knoppi-host h2:first-child { padding-inline-end: 44px; }
+.melodia-ydin.study-knoppi-host .study-knoppi-sisalto { width: 100%; }
+.melodia-ydin .study-knoppi h3 { margin: 0 0 .5rem; }
+
+.melodia-toiminnot { display: flex; flex-wrap: wrap; gap: .5rem; margin: .85rem 0 .35rem; }
+/* touch-action: manipulation: nopea toistuva napautus ei käynnistä selaimen kaksoisnapautuszoomia
+ * (K1, auditointi 2.1: kaksi nopeaa Alas-napautusta suurensi Safarin näkymän). Nipistyszoom ja
+ * muut saavutettavuustoiminnot säilyvät, eikä viewport-määritystä rajata. */
+.melodia-ydin button {
+  touch-action: manipulation;
+  min-height: 44px;
+  max-width: 100%;
+  padding: .45rem .95rem;
+  border: 1px solid #71638c;
+  border-radius: .55rem;
+  background: #2d2444;
+  color: var(--text);
+  font: inherit;
+  font-weight: 700;
+  text-align: start;
+  cursor: pointer;
+}
+.melodia-ydin button:hover { border-color: var(--accent); background: #3a2f55; }
+.melodia-ydin .melodia-ensisijainen { border-color: #d6c7ff; background: var(--accent); color: #170f28; }
+.melodia-ydin .melodia-ensisijainen:hover { background: #d5c6ff; }
+.melodia-ydin button:focus-visible { outline: 3px solid #75e5c6; outline-offset: 2px; }
+.melodia-ydin button:disabled { opacity: .6; cursor: default; }
+.melodia-ydin button[aria-disabled="true"] { cursor: default; }
+.melodia-ydin button[aria-disabled="true"]:not([aria-pressed="true"]) { opacity: .6; }
+/* Tarkista odottaa viimeksi soitettua säveltä: lukitus on heti voimassa, himmennys vasta, jos odotus
+   kestää (nopeassa tapailussa painike ei välky). */
+.melodia-ydin button[data-odottaa] { transition: opacity 0s linear .25s; }
+.melodia-ydin button:disabled:hover { border-color: #71638c; background: #2d2444; }
+.melodia-ydin button[data-playing] { border-color: var(--accent); background: #234133; box-shadow: inset 0 0 0 1px currentColor; }
+.melodia-ydin .melodia-ensisijainen[data-playing],
+.melodia-ydin .melodia-ensisijainen[data-playing]:hover { border-color: var(--accent); background: #234133; color: var(--text); }
+.melodia-ydin button[aria-pressed="true"] {
+  border-color: #d8caff; background: var(--accent); color: #171021; box-shadow: inset 0 0 0 1px currentColor;
+}
+
+.melodia-tila { min-height: 1.2em; margin: .35rem 0 0; color: #9fe4c3; font-size: .92rem; }
+.melodia-tila:empty { min-height: 0; margin: 0; }
+.melodia-tila.is-error { color: #ffd6b3; }
+.melodia-ohje { margin-block: 0 .25rem; }
+.melodia-huomautus, .melodia-lahde, .melodia-pieni, .melodia-taso { color: var(--muted); font-size: .9rem; }
+.melodia-taso { margin: 0 0 .5rem; }
+.melodia-pieni { margin: .5rem 0 .25rem; }
+
+.melodia-tehtava {
+  min-width: 0; margin-block: .85rem; padding: .65rem .75rem;
+  border: 1px solid var(--line); border-radius: .55rem;
+}
+
+/* Vastauspaikat: tyhjät näkyvät viivoina, täytetyt nuolina tai sävelniminä. */
+.melodia-ydin ol.melodia-paikat {
+  display: flex; flex-wrap: wrap; gap: .35rem; margin: 0 0 .6rem; padding: 0; list-style: none;
+}
+.melodia-ydin .melodia-seuraava-rivi { margin: .25rem 0 .5rem; }
+.melodia-ydin .melodia-seuraava-rivi:has(> [hidden]) { display: none; }
+.melodia-paikat li {
+  display: grid; place-items: center; min-width: 2.75rem; min-height: 2.75rem; padding: 0 .4rem;
+  border: 1px solid #7b6c97; border-radius: .5rem; background: var(--bg);
+  font-size: 1.25rem; font-weight: 800;
+}
+.melodia-paikat li.is-empty { color: var(--muted); border-style: dashed; font-weight: 400; }
+
+.melodia-napit { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0 0 .6rem; }
+.melodia-napit button { flex: 1 1 5.5rem; text-align: center; }
+/* 01: neljä yhtä leveää näppäintä myös 320 px:ssä; nuoli isona, nimi pienenä. */
+.melodia-suuntanapit { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.melodia-suuntanapit button { display: grid; justify-items: center; gap: 0; min-width: 0; padding: .3rem .1rem; line-height: 1.1; }
+.melodia-suuntanapit button span:first-child { font-size: 1.35rem; }
+.melodia-suuntanapit button span + span { font-size: .8rem; font-weight: 600; }
+.melodia-loput button { flex: 1 1 8rem; min-height: 52px; font-size: 1.05rem; }
+/* 02: parhaillaan soiva loppu korostuu (ei vain värillä: myös reunus ja ▶-merkki). */
+.melodia-loput button[data-soi] { border-color: #75e5c6; box-shadow: inset 0 0 0 2px #75e5c6; }
+.melodia-toissijaiset { margin-top: 0; }
+.melodia-toissijaiset button { min-height: 44px; padding-inline: .75rem; font-weight: 600; }
+
+/* 03: kitaran paikat ruudukkona, ohuin kieli ylimpänä kuten tabulatuurissa. */
+.melodia-otelauta { display: grid; gap: .3rem; margin: 0 0 .25rem; }
+.melodia-otelauta-rivi {
+  display: grid; grid-template-columns: 1.1rem repeat(4, minmax(0, 1fr)); gap: .25rem; align-items: center;
+}
+.melodia-otelauta-otsikko { color: var(--muted); font-size: .8rem; text-align: center; }
+.melodia-kieli { color: var(--muted); font-weight: 800; text-align: center; }
+.melodia-otelauta button { min-width: 0; padding: .3rem .1rem; text-align: center; font-size: 1.1rem; }
+.melodia-tyhja { min-height: 44px; border-block-end: 1px solid var(--line); }
+
+/* Sävelpisteet ja viivat: aika vasemmalta oikealle, korkeampi sävel ylempänä. Ontto piste on
+ * edellinen sävel, täytetty seuraava, joten kulkusuunta erottuu ilman värejä. */
+.melodia-suunta-kuva {
+  width: 2.2rem; height: 1.4rem; flex: 0 0 auto;
+  fill: currentColor; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; overflow: visible;
+}
+.melodia-suunta-kuva .melodia-alku, .melodia-muoto-kuva .melodia-alku { fill: var(--kuva-tausta, #2d2444); stroke-width: 2.5; }
+.melodia-ydin button[aria-pressed="true"] .melodia-suunta-kuva { --kuva-tausta: var(--accent); }
+.melodia-suuntanapit button { gap: .15rem; }
+.melodia-poista-merkki { font-size: 1.35rem; line-height: 1.4rem; }
+.melodia-ydin ol.melodia-paikat li { --kuva-tausta: var(--bg); }
+.melodia-ydin ol.melodia-paikat li .melodia-suunta-kuva { width: 2rem; }
+
+.melodia-palaute { min-height: 1.5em; margin: .5rem 0; color: var(--muted); }
+.melodia-palaute:empty { min-height: 0; margin: 0; }
+.melodia-palaute.is-answered { color: #9fe4c3; }
+.melodia-palaute.is-answered.is-error { color: #ffe08a; }
+.melodia-palaute.is-neutraali { color: var(--text); }
+
+.melodia-kaari { margin-top: .5rem; }
+.melodia-kaari h3 { margin: 0 0 .45rem; }
+.melodia-muoto { display: grid; gap: .6rem; min-width: 0; }
+.melodia-muoto-kuva {
+  display: block; width: 100%; max-width: min(20rem, calc(var(--savelia, 5) * 3.6rem)); height: auto; padding: .4rem; box-sizing: border-box;
+  border-radius: .55rem; background: var(--bg); --kuva-tausta: var(--bg);
+  fill: currentColor; stroke: currentColor; stroke-width: 3; stroke-linecap: round;
+}
+.melodia-muoto-kuva line.is-virhe { stroke: #ffe08a; stroke-dasharray: 5 4; }
+.melodia-muoto-kuva text { fill: #ffe08a; stroke: none; font-size: 11px; font-weight: 800; }
+
+/* Vertailu kortteina: kuultu malli ylhäällä, oma vastaus (”sinä”) alla; ✓/✗ ja katkoreunus, ei pelkkä väri. */
+.melodia-ydin ol.melodia-vertailu { display: flex; flex-wrap: wrap; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+.melodia-vertailu li {
+  display: grid; justify-items: center; align-content: start; gap: .15rem;
+  min-width: 3.6rem; padding: .3rem .35rem; text-align: center;
+  border: 1px solid #7b6c97; border-radius: .5rem; background: var(--panel); --kuva-tausta: var(--panel);
+}
+.melodia-vertailu-nro { color: var(--muted); font-size: .72rem; font-weight: 700; }
+.melodia-kuului strong, .melodia-sina strong { font-size: 1.1rem; }
+.melodia-kuului { display: grid; justify-items: center; gap: .05rem; }
+.melodia-sina { display: grid; justify-items: center; gap: .05rem; padding-top: .2rem; border-top: 1px solid var(--line); }
+.melodia-pieni-teksti { max-width: 8.5rem; color: var(--muted); font-size: .7rem; overflow-wrap: anywhere; }
+/* Oktaavitarkennus näkyy vain kortilla, jossa sama sävelnimi oli eri oktaavissa. */
+.melodia-oktaavi { max-width: 8.5rem; font-size: .75rem; font-weight: 700; }
+.melodia-vertailu .melodia-merkki { font-size: .9rem; font-weight: 800; line-height: 1; }
+.melodia-vertailu li.is-oikein .melodia-merkki { color: #9fe4c3; }
+.melodia-vertailu li.is-virhe { border: 2px dashed #ffe08a; }
+.melodia-vertailu li.is-virhe .melodia-merkki { color: #ffe08a; }
+.melodia-vertailu .melodia-suunta-kuva { width: 1.9rem; }
+.melodia-kaari .melodia-lisa ol, .melodia-loppulista { margin: .3rem 0 0; padding-inline-start: 1.1rem; }
+.melodia-kaari .melodia-lisa ol { padding-inline-start: 0; list-style: none; }
+.melodia-lisa { margin-top: .25rem; }
+.melodia-lisa summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; color: var(--accent); }
+.melodia-kaari .melodia-toiminnot:has(> [hidden]) { display: none; }
+
+/* 02: lopun painike soittaa ja valitsee. Soiva = turkoosi reunus + ”▶ soi”; valittu = täyttö + ”✓ valittu”. */
+.melodia-loput button { display: grid; justify-items: center; gap: .1rem; }
+.melodia-loppu-nimi { font-size: 1.05rem; }
+.melodia-loppu-tila { min-height: 1.1em; font-size: .82rem; font-weight: 600; }
+/* Tarkistuksen jälkeen G:hen palaava loppu erottuu reunuksella ja tekstillä (”palaa G:hen”); ei arvosteleva merkintä. */
+.melodia-loput button.is-kotiin { border: 2px solid var(--accent); }
+
+/* 03: oikean kulun paikat numeroidaan ruudukkoon vastauksen tai ratkaisun jälkeen. */
+.melodia-otelauta button { position: relative; }
+.melodia-otelauta button.is-kulussa { border: 2px solid #9fe4c3; }
+.melodia-numero {
+  position: absolute; inset-block-start: -.45rem; inset-inline-end: -.35rem;
+  min-width: 1.2rem; padding: 0 .2rem; border-radius: .6rem;
+  background: #9fe4c3; color: #102018; font-size: .72rem; font-weight: 800; line-height: 1.2rem;
+}
+
+@media (max-width: 400px) {
+  .melodia-tehtava { padding-inline: .45rem; }
+}
+@media (forced-colors: active) {
+  .melodia-ydin button[aria-pressed="true"], .melodia-loput button[data-soi] { outline: 3px solid Highlight; }
+  .melodia-vertailu li.is-virhe { outline: 3px solid Mark; }
+}
+@media print {
+  .melodia-toiminnot, .melodia-tila, .melodia-tehtava { display: none !important; }
+}
+
+/* Aihesivun harjoituskortti käyttää samaa korttipohjaa ja natiivia avautumista kuin
+ * Soinnut ja harmonia -aiheessa (assets/sointuharjoitus.css). */
+.study-units .study-inline-choices { grid-template-rows: none; grid-auto-rows: auto; }
+.study-inline-choices > li { display: block; grid-row: auto; min-width: 0; }
+.study-inline { min-width: 0; border: 1px solid #71638c; border-radius: .65rem; }
+.study-inline > summary { grid-template-rows: auto 1fr; border: 0; list-style: none; cursor: pointer; }
+.study-inline > summary::-webkit-details-marker { display: none; }
+.study-inline > summary:hover .study-title { text-decoration: underline; text-underline-offset: .18em; }
+.study-inline > summary:focus-visible { outline: 2px solid #75e5c6; }
+.study-inline .study-arrow::before { color: var(--accent); content: "+"; content: "+" / ""; }
+.study-inline[open] .study-arrow::before { content: "−"; content: "−" / ""; }
+.study-inline[open] > summary {
+  border-bottom: 1px solid #71638c;
+  border-end-start-radius: 0;
+  border-end-end-radius: 0;
+}
+.study-inline-body { padding: 0 clamp(.45rem, 2vw, .875rem) .875rem; min-width: 0; }
+.study-inline-body .done-row, .study-inline-link { margin-block: .75rem 0; }
+.study-inline-link a { display: inline-flex; align-items: center; min-height: 44px; }
+@media print {
+  .study-inline .study-arrow::before { content: none; }
+}
+
+@media (max-width: 600px) {
+  .study-unit-body:has(> .study-inline-choices) { padding-inline: .25rem; }
+  .study-unit-body:has(> .study-inline-choices) > :is(.study-unit-goal, .study-start) {
+    margin-inline: .5rem;
+  }
+  .study-inline-body { padding-inline: .125rem; }
+  .study-inline-body > :is(.practice, .note) { padding-inline: .625rem; }
+  .study-inline-body > :is(.melodia-huomautus, .melodia-lahde, .done-row, .study-inline-link) { margin-inline: .5rem; }
+}

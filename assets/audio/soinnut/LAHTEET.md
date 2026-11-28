@@ -3,6 +3,10 @@
 Käyttö: **Soinnut ja harmonia → Ydinopinnot v0.5** ja PR #133:n aiempi G-pilotti.
 Soitin: `assets/sointuharjoitus.js`. Tehtävä #116.
 
+**Käyttö myös: Sävelkorva ja melodia → Ydinopinnot** (#116, vaihe 2), soitin
+`assets/melodia-ydinopinnot.js`. Se käyttää samoja tiedostoja muuttamattomina: G3, A3 (G-kieli),
+B3, C4, D4 (B-kieli), E4, F♯4, G4 (ohut e) ja matala G2 (paksu E). Uusia näytteitä ei tuotu.
+
 ## Lähde ja lisenssi
 
 - **Aineisto:** Meta Open Sound · Meta Steel Guitar, oikeasta teräskielisestä akustisesta kitarasta

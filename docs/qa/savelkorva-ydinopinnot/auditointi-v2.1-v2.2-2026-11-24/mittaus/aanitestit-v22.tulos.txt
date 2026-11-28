@@ -1,0 +1,31 @@
+
+## 5. Näppäimistö (Playwright WebKit / Desktop Safari, macOS). Alt+Tab = fokus seuraavaan painikkeeseen
+[suunta] Enter Kuuntele → fokus: "■ Pysäytä"
+[suunta] Alt+Tab 1× → "Ylös: korkeampi sävel", Space ×2; fokus: "Ylös: korkeampi sävel [aria-disabled]" (vastaus Vaihto 1: ylös …)
+[suunta] Alt+Tab 4× → "Tarkista"
+[suunta] Enter Tarkista → fokus pysyy: "Tarkista [aria-disabled]" | status: "0/2 oikein. Vaihto 1: kuului sama, vastasit ylös; …"
+[suunta] Alt+Tab 1× → "Seuraava melodia →"
+[suunta] Enter Seuraava → fokus: "■ Pysäytä" | uusi tehtävä: "3 säveltä · 2 vaihtoa"
+[suunta] pelkkä Tab Kuuntele-painikkeelta → fokus: "Lisätieto: Askel vai hyppy?" (macOS-Safarin oletus ohittaa painikkeet)
+[koti] Enter Kuuntele → fokus: "■ Pysäytä"
+[koti] Alt+Tab 1× → "Loppu 1 ▶ soi", Space; fokus: "Loppu 1 ✓ valittu"
+[koti] Alt+Tab 2× → "Tarkista valinta"
+[koti] Enter Tarkista → fokus pysyy: "Tarkista valinta [aria-disabled]" | status: "Loppu 1 oli sinun valintasi. Loppu 2 palaa G:hen, …"
+[koti] Alt+Tab 1× → "Seuraava melodia →"
+[koti] Enter Seuraava → fokus: "■ Pysäytä" | uusi tehtävä: "Matala G soi taustalla tukiäänenä."
+[koti] pelkkä Tab Kuuntele-painikkeelta → fokus: "Lisätieto: Kotisävel ja tukiääni" (macOS-Safarin oletus ohittaa painikkeet)
+[etsi] Enter Kuuntele → fokus: "■ Pysäytä"
+[etsi] Enter kolmella ruudukon painikkeella (focus() + Enter); ketju: [B C D]; fokus: "D, B-kieli, 3. nauha"
+[etsi] Alt+Tab 3× → "Tarkista"
+[etsi] Enter Tarkista → fokus pysyy: "Tarkista [aria-disabled]" | status: "1/3 oikein. Kahdessa sävelessä oli eroa.…"
+[etsi] Alt+Tab 2× → "Seuraava sävelkulku →"
+[etsi] Enter Seuraava → fokus: "■ Pysäytä" | uusi tehtävä: "3 säveltä · alkaa vapaalta G-kieleltä"
+[etsi] pelkkä Tab Kuuntele-painikkeelta → fokus: "Lisätieto: Näin tapailet" (macOS-Safarin oletus ohittaa painikkeet)
+
+## 6. Näkymät 320x568 ja 375x667 (WebKit, iPhone 13 -emulaatio; ei simulaattori)
+320x568 suunta: vaakavieritys ei (docW 320) | touch-action painikkeella: manipulation | alle 44 px kohteet: Meta Open Sound · Meta S(234x41) | sivun korkeus 1733
+320x568 koti: vaakavieritys ei (docW 320) | touch-action painikkeella: manipulation | alle 44 px kohteet: Meta Open Sound · Meta S(234x41) | sivun korkeus 1705
+320x568 etsi: vaakavieritys ei (docW 320) | touch-action painikkeella: manipulation | alle 44 px kohteet: Riffikaiussa(82x18), Meta Open Sound · Meta S(234x41) | sivun korkeus 1827
+375x667 suunta: vaakavieritys ei (docW 375) | touch-action painikkeella: manipulation | alle 44 px kohteet: Meta Open Sound · Meta S(316x41) | sivun korkeus 1633
+375x667 koti: vaakavieritys ei (docW 375) | touch-action painikkeella: manipulation | alle 44 px kohteet: Meta Open Sound · Meta S(316x41) | sivun korkeus 1557
+375x667 etsi: vaakavieritys ei (docW 375) | touch-action painikkeella: manipulation | alle 44 px kohteet: Riffikaiussa(82x18), Meta Open Sound · Meta S(316x41) | sivun korkeus 1630

@@ -168,10 +168,48 @@
       "title": "Sävelkorva ja melodia",
       "back_label": "Sävelkorvaan ja melodiaan",
       "summary": "Kotisävel, melodia ja sointujen kuuntelu.",
-      "lead": "Kuuntele, mihin melodia haluaa päättyä. Hyräile kuulemasi ennen kuin etsit säveliä tai sointuja kitaralta.",
+      "lead": "Melodia nousee, laskee ja palaa kotiin. Kuuntele, hyräile ja etsi kuulemasi kitaralta. Aloita Ydinopinnoista. Basson ja sointujen kuuntelu löytyy aiemmista sisällöistä.",
+      "layout": "kokonaisuudet",
+      "progress_text": {
+        "count": "aiemmista sisällöistä tehty",
+        "done": "✓ Aiemmat sisällöt tehty"
+      },
+      "legacy": {
+        "id": "aiemmat",
+        "title": "Aiemmat oppitunnit ja harjoitukset",
+        "intro": "Kaikki aiemmat oppitunnit ja harjoitukset löytyvät täältä entisillä osoitteillaan. Aiemmat suoritusmerkintäsi säilyvät."
+      },
       "groups": [
         {
-          "title": "Kotisävel ja sävelvälit",
+          "id": "ydinopinnot",
+          "title": "Ydinopinnot",
+          "kind": "harjoitus",
+          "attempts": true,
+          "inline": true,
+          "back": "unit",
+          "last": "start",
+          "goal": "Kolme kuuntelutehtävää: melodian suunta, melodian loppu ja sävelkulku kitaralla. Tehtävät pitenevät, kun onnistut. Etene haluamassasi järjestyksessä. ”Kokeiltu” ei ole osaamistesti.",
+          "lessons": [
+            {
+              "standalone": "ylos-alas-vai-sama",
+              "title": "Ylös, alas vai sama?",
+              "goal": "Melodian suunta, 3–5 säveltä"
+            },
+            {
+              "standalone": "kotiin-vai-kesken",
+              "title": "Kotiin vai kesken?",
+              "goal": "Kumpi loppu kuulostaa valmiimmalta?"
+            },
+            {
+              "standalone": "kuule-ja-etsi-kitaralta",
+              "title": "Kuule ja etsi kitaralta",
+              "goal": "Tapaile 3–5 säveltä kitaralta"
+            }
+          ]
+        },
+        {
+          "legacy": true,
+          "title": "Kotisävel ja fraasin loppu",
           "lessons": [
             {
               "source": "osa-2#musiikki-on-kieli",
@@ -180,7 +218,13 @@
             {
               "source": "osa-4#savellajin-tunnistaminen",
               "goal": "Erota G-duurin ja e-mollin kotisävelet, vaikka säveliä ja sointuja on yhteisiä."
-            },
+            }
+          ]
+        },
+        {
+          "legacy": true,
+          "title": "Asteet ja sävelvälit korvalla",
+          "lessons": [
             {
               "source": "osa-7#intervallit",
               "goal": "Kuuntele sävelen suhdetta kotisäveleen ja tunnista kahden sävelen väli."
@@ -188,12 +232,19 @@
           ]
         },
         {
-          "title": "Basso ja soinnut",
+          "legacy": true,
+          "title": "Bassolinjan kuuleminen",
           "lessons": [
             {
               "source": "osa-7#basso",
               "goal": "Seuraa matalinta ääntä ja etsi bassolinja kitaralta."
-            },
+            }
+          ]
+        },
+        {
+          "legacy": true,
+          "title": "Duuri, molli ja septimi korvalla",
+          "lessons": [
             {
               "source": "osa-7#soinnut",
               "goal": "Erota duuri- ja mollisointu kuuntelemalla terssiä."

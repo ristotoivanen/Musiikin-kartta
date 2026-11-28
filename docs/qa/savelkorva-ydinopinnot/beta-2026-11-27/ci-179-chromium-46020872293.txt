@@ -1,0 +1,19 @@
+# PR #179, 800a379, CI-ajo 46020872293 (ubuntu-24.04; beta 07d8126 + #179, ei #178:aa)
+Running 76 tests using 2 workers
+  76 passed (1.7m)
+Running 1408 tests using 3 workers
+  1) [desktop] › tests/e2e/aihesivut.spec.ts:128:3 › Kitaran perusteet · jokainen askel ja resurssi löytyy
+  2) [desktop] › tests/e2e/aihesivut.spec.ts:440:1 › ristiinlinkitys avaa saman opetussivun ja takaisinpaluu säilyttää lähtöaiheen
+  3) [desktop] › tests/e2e/otelauta-ydinopinnot.spec.ts:540:3 › palaute aktiivisen vastausalueen lähellä (390 × 664) › 03 nimeä: palaute sävelnimipainikkeiden alla ilman vieritystä
+  4) [desktop] › tests/e2e/otelautaopas-beta.spec.ts:31:3 › Otelautaopas BETA › Soittopakin Otelautaopas on tämä sivu BETA-merkinnällä; vanha sivu ei ole Soittopakissa
+  5) [desktop] › tests/e2e/song-d2.spec.ts:25:1 › D2: palapurku on bittitarkka koko tiedoston purkuun nähden molemmissa versioissa
+  6) [desktop] › tests/e2e/song-d2.spec.ts:149:1 › D2-ensilataus (kokeilu): hitaalla yhteydellä toisto alkaa ennen koko latausta ja palat ovat bittitarkat
+  7) [phone] › tests/e2e/aihesivut.spec.ts:128:3 › Kitaran perusteet · jokainen askel ja resurssi löytyy
+  8) [phone] › tests/e2e/aihesivut.spec.ts:440:1 › ristiinlinkitys avaa saman opetussivun ja takaisinpaluu säilyttää lähtöaiheen
+  9) [phone] › tests/e2e/otelautaopas-beta.spec.ts:31:3 › Otelautaopas BETA › Soittopakin Otelautaopas on tämä sivu BETA-merkinnällä; vanha sivu ei ole Soittopakissa
+  10) [phone] › tests/e2e/practice.spec.ts:89:3 › vihjeet ja harjoittelutavat › Opettele näyttää oikean kohdan heti ja kertoo, ettei kyse ole testistä
+  11) [phone] › tests/e2e/song-d2.spec.ts:25:1 › D2: palapurku on bittitarkka koko tiedoston purkuun nähden molemmissa versioissa
+  12) [phone] › tests/e2e/song-d2.spec.ts:149:1 › D2-ensilataus (kokeilu): hitaalla yhteydellä toisto alkaa ennen koko latausta ja palat ovat bittitarkat
+  12 failed
+  50 skipped
+  1346 passed (17.7m)

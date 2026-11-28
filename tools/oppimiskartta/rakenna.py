@@ -711,6 +711,10 @@ def render(topic, content, nav, page=None, *, path_items=()):
     rhythm_practice = 'data-rytmiharjoitus=' in (page.markup if page else content)
     if rhythm_practice:
         stylesheets.append('assets/rytmi-ydinopinnot.css')
+    # Sävelkorvan ja melodian Ydinopinnot (#116, vaihe 2): harjoitusten tyylit ja moduuli.
+    melody_practice = 'data-melodiaharjoitus=' in (page.markup if page else content)
+    if melody_practice:
+        stylesheets.append('assets/melodia-ydinopinnot.css')
     interval_recall = page and 'data-intervallimuisti' in page.markup
     if interval_recall:
         stylesheets.append('assets/intervallimuisti.css')
@@ -769,6 +773,8 @@ def render(topic, content, nav, page=None, *, path_items=()):
         scripts += f'\n  <script type="module" src="{url}"></script>'
     if rhythm_practice:
         scripts += f'\n  <script type="module" src="{versioned_url("assets/rytmi-ydinopinnot.js", output)}"></script>'
+    if melody_practice:
+        scripts += f'\n  <script type="module" src="{versioned_url("assets/melodia-ydinopinnot.js", output)}"></script>'
     if note_practice:
         scripts += f'\n  <script type="module" src="{versioned_url("assets/savelnimet-ydinopinnot.js", output)}"></script>'
     if fretboard_practice:
