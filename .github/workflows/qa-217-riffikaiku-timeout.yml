@@ -1,7 +1,7 @@
 name: "QA 217 Riffikaiku timeout Linux"
 
 # Vain tutkimushaara. Ei yhdistetä. Lukuoikeus, ei retryjä.
-# Toinen kierros: ensimmäisen kierroksen (run 46148908019) kahden e2e-virheen kohdistus.
+# Kolmas kierros: toisen kierroksen (run 46150567307) Otelautaopas-aikakatkaisun kohdistus.
 on:
   push:
     branches: [qa/217-riffikaiku-timeout-linux]
@@ -10,8 +10,8 @@ permissions:
   contents: read
 
 jobs:
-  otelauta-540-repeat:
-    name: otelauta-540-repeat ${{ matrix.variant }}
+  otelautaopas-282-repeat:
+    name: otelautaopas-282-repeat ${{ matrix.variant }}
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     strategy:
@@ -34,54 +34,4 @@ jobs:
           git rev-parse HEAD
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: npx playwright test tests/e2e/otelauta-ydinopinnot.spec.ts:540 --project=phone --workers=3 --retries=0 --repeat-each=60
-  practice-209-repeat:
-    name: practice-209-repeat ${{ matrix.variant }}
-    runs-on: ubuntu-24.04
-    timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        variant: [base, fix]
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: npm
-      - name: Check out measured revision
-        run: |
-          cp playwright.qa-217-webkit.config.ts "$RUNNER_TEMP/webkit.config.ts"
-          git checkout --detach "${{ matrix.variant == 'base' && '9600d05f13ee20ad2a63863e838cdb5b02f140e9' || '4441b25ca5b399cd55e7be97a382b0a13581be9a' }}"
-          cp "$RUNNER_TEMP/webkit.config.ts" playwright.qa-217-webkit.config.ts
-          git rev-parse HEAD
-      - run: npm ci
-      - run: npx playwright install --with-deps webkit
-      - run: npx playwright test --config=playwright.qa-217-webkit.config.ts tests/e2e/practice.spec.ts:209 --workers=2 --retries=0 --repeat-each=20
-  chromium-full:
-    name: chromium-full ${{ matrix.variant }}
-    runs-on: ubuntu-24.04
-    timeout-minutes: 60
-    strategy:
-      fail-fast: false
-      matrix:
-        variant: [base, fix]
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: npm
-      - name: Check out measured revision
-        run: |
-          cp playwright.qa-217-webkit.config.ts "$RUNNER_TEMP/webkit.config.ts"
-          git checkout --detach "${{ matrix.variant == 'base' && '9600d05f13ee20ad2a63863e838cdb5b02f140e9' || '4441b25ca5b399cd55e7be97a382b0a13581be9a' }}"
-          cp "$RUNNER_TEMP/webkit.config.ts" playwright.qa-217-webkit.config.ts
-          git rev-parse HEAD
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
-      - run: npx playwright test --project=desktop --project=phone --workers=3 --max-failures=20 --retries=0
+      - run: npx playwright test tests/e2e/otelautaopas-beta.spec.ts:282 --project=desktop --workers=3 --retries=0 --repeat-each=15 --reporter=list
