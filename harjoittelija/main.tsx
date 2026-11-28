@@ -387,7 +387,11 @@ function App() {
         </details>}
     {!inRound && (track === 'legacy' || usesMic(s)) && <MicPanel mic={mic} frame={frame} heard={heard} accepted={accepted} now={now} s={s} change={change} devices={devices}
       locked={busy} calibrating={calibrating} calibration={calibration} onTest={testMic} onStop={closeMic} onCalibrate={calibrate} />}
-    <section className="session-panel" aria-labelledby="session-title" ref={panel}>
+    {/* Kaksoispainalluksen toinen napautus ei ole vastaus: Aloita- ja Seuraava kysymys -painallus vierittää
+        näkymää, ja sama sormi voi osua juuri ilmestyneeseen vastauspainikkeeseen (detail > 1). */}
+    <section className="session-panel" aria-labelledby="session-title" ref={panel} onClickCapture={event => {
+      if (event.detail > 1 && (event.target as Element).closest('.practice-board button, .answer-choices button')) event.stopPropagation();
+    }}>
       <div className="session-top"><h2 id="session-title">{modeTitle(view.mode)}</h2>
         <span data-testid="round-status">{inRound ? `Kysymys ${e.index}${e.total ? ' / ' + e.total : ' · vapaa harjoittelu'} · ${PRACTICE[view.hints].title}${stage}${e.phase === 'paused' && !playing ? ' · tauolla' : ''}` : finished === 'complete' ? 'Kierros valmis' : 'Valmis aloittamaan'}</span></div>
       {!inRound && <>
