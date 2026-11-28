@@ -538,6 +538,9 @@ test.describe('palaute aktiivisen vastausalueen lähellä (390 × 664)', () => {
   });
 
   test('03 nimeä: palaute sävelnimipainikkeiden alla ilman vieritystä', async ({ page }) => {
+    // Arvonnan mukaan silmukka painaa Uusi tehtävä, joka vierittää sivun pehmeästi. Keskeneräinen
+    // vieritys liikuttaisi sivua vielä mittauksen jälkeen. Vähennetyllä liikkeellä vieritys on välitön.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/oppi/otelauta/perussavel-e-ja-a-kielelta.html');
     const root = exercise(page, 'perussavel');
     for (let guard = 0; guard < 12 && !(await prompt(root).textContent())!.startsWith('Mikä sävel'); guard++) {
