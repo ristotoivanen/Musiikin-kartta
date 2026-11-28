@@ -12261,7 +12261,9 @@ function $y() {
         onCalibrate: H
       }
     ),
-    /* @__PURE__ */ a.jsxs("section", { className: "session-panel", "aria-labelledby": "session-title", ref: x, children: [
+    /* @__PURE__ */ a.jsxs("section", { className: "session-panel", "aria-labelledby": "session-title", ref: x, onClickCapture: ($) => {
+      $.detail > 1 && $.target.closest(".practice-board button, .answer-choices button") && $.stopPropagation();
+    }, children: [
       /* @__PURE__ */ a.jsxs("div", { className: "session-top", children: [
         /* @__PURE__ */ a.jsx("h2", { id: "session-title", children: rs(lt.mode) }),
         /* @__PURE__ */ a.jsx("span", { "data-testid": "round-status", children: rt ? `Kysymys ${Ue.index}${Ue.total ? " / " + Ue.total : " · vapaa harjoittelu"} · ${Oa[lt.hints].title}${vr}${Ue.phase === "paused" && !le ? " · tauolla" : ""}` : _e === "complete" ? "Kierros valmis" : "Valmis aloittamaan" })

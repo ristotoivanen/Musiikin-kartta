@@ -228,6 +228,20 @@ test.describe('harjoituskierros', () => {
     expect(errors).toEqual([]);
   });
 
+  test('kaksoispainalluksen toinen napautus ei vastaa otelaudalla', async ({ page }) => {
+    await seed(page); await page.goto('/kitaraharjoittelija.html?alku=0&loppu=0&vanha=1');
+    await startButton(page).click();
+    const { string, fret } = await noteAnswer(page);
+    // detail = 2: saman napautussarjan toinen napautus, esimerkiksi Aloita-painikkeelta alkanut.
+    await cell(page, string, fret).dispatchEvent('click', { detail: 2 });
+    await cell(page, (string + 1) % 6, 0).dispatchEvent('click', { detail: 2 });
+    await expect(cell(page, string, fret)).toBeEnabled();
+    await expect(page.getByTestId('feedback')).toBeEmpty();
+    expect((await stored(page)).recent).toHaveLength(0);
+    await cell(page, string, fret).click();
+    await expect(page.getByTestId('tally')).toContainText('Vastattu 1 · itsenäisesti heti oikein 1/1');
+  });
+
   test('harjoituksen vaihtaminen näyttää vain sen asetukset ja oikean vastaustavan', async ({ page }) => {
     await seed(page); await page.goto('/kitaraharjoittelija.html?vanha=1');
     const mode = page.getByLabel('Harjoitus', { exact: true });

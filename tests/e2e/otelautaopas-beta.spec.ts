@@ -279,8 +279,9 @@ test.describe('Otelautaopas BETA', () => {
     await expect(page.locator('#cb-facts')).toContainText('käännös');
   });
 
-  test('duuri–molli-vaihto ei muodosta negatiivista nauhaa avointen kielten kohdalla', async ({ page }) => {
-    for (const name of ROOTS) {
+  // Yksi testi pohjasäveltä kohti: yhtenä testinä läpikäynti kesti CI-runnerista riippuen yli aikarajan.
+  for (const name of ROOTS) {
+    test(`duuri–molli-vaihto ei muodosta negatiivista nauhaa avointen kielten kohdalla: ${name}`, async ({ page }) => {
       await page.goto(PAGE + '?sointu=maj&ote=triad&taso=laaja#soinnut');
       await root(page, name).click();
       for (const id of ['gbe', 'dgb', 'adg', 'ead']) {
@@ -295,8 +296,8 @@ test.describe('Otelautaopas BETA', () => {
           await pad(page, 'right').click();
         } while (guard++ < 8);
       }
-    }
-  });
+    });
+  }
 
   test('Triadit eivät ole käytössä nelisävelisille soinnuille; koko ote näyttää E- ja A-juuriset otteet', async ({ page }) => {
     await page.goto(PAGE + '?toonikka=C&sointu=maj7&ote=triad&taso=laaja#soinnut');
