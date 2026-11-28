@@ -43,6 +43,23 @@ function guitar(plucks: Pluck[]) {
 const mix = (...sources: ((t: number) => number)[]) => (t: number) => sources.reduce((s, f) => s + f(t), 0);
 const hiss = (amp: number) => (t: number) => { const x = Math.sin(t * 1e7 + 1.7) * 43758.5453; return amp * 2 * (x - Math.floor(x) - .5); };
 
+/**
+ * Laskee signaalin jokaisen näytteen vain kerran. Analyysi-ikkunat (8192 näytettä) menevät 16 ms:n
+ * kehysvälillä (768 näytettä) päällekkäin, joten ilman muistia sama näyte lasketaan noin 11 kertaa.
+ * Toimii vain, kun näyteajat osuvat näytteenottoruudukkoon (esim. 48 kHz) ja enintään ms asti;
+ * muu käyttö kaataa testin eikä palauta väärää näytettä.
+ */
+function sampledOnce(line: (t: number) => number, ms: number, sampleRate = 48000) {
+  const lead = sampleRate; // ensimmäiset ikkunat alkavat ennen hetkeä 0
+  const samples = new Float64Array(lead + ms * sampleRate / 1000 + 1).fill(NaN);
+  return (t: number) => {
+    const position = t * sampleRate, n = Math.round(position), i = n + lead;
+    if (Math.abs(position - n) > 1e-6 || i < 0 || i >= samples.length) throw new Error(`Näyteaikaa ${t} s ei voi muistaa`);
+    if (Number.isNaN(samples[i])) samples[i] = line(t);
+    return samples[i];
+  };
+}
+
 /** Synteettinen äänitulo: AnalyserNode palauttaa signaalin ikkunan [nyt − ikkuna, nyt] pelin kellosta. */
 function fakeInput(clock: ReturnType<typeof fakeClock>, read: () => (t: number) => number, sampleRate = 48000) {
   const context = {
@@ -386,17 +403,19 @@ describe('äänikynnys: kiinteä −40 dBFS vai mitattu kohina', () => {
     expect((await detect(quiet, 1500, .003)).map(p => p.midi)).toEqual([64]);
   });
   it('mitattu kynnys: soiva kieli pysyy havaittuna pidempään (E2 hidas, E4 nopea vaimeneminen)', async () => {
-    const lastPitchMs = async (midi: number, decay: number, minRms: number) => {
+    // Sama signaali ajetaan kummallakin kynnyksellä, joten näytteet lasketaan kerran ja jaetaan.
+    const ring = (midi: number, decay: number) => sampledOnce(guitar([{ at: 0, midi, amp: .06, decay }]), 6000);
+    const lastPitchMs = async (line: (t: number) => number, minRms: number) => {
       const clock = fakeClock();
       let last = 0;
-      const line = guitar([{ at: 0, midi, amp: .06, decay }]);
       const mic = new Microphone(async () => fakeInput(clock, () => line));
       await mic.start('', { ...DETECTION, minRms, onFrame: f => { if (f.status === 'pitch') last = clock.now; } }, () => {});
       clock.run(6000); mic.stop(); vi.unstubAllGlobals(); vi.restoreAllMocks();
       return last;
     };
-    const e2 = [await lastPitchMs(40, 2000, .01), await lastPitchMs(40, 2000, .003)];
-    const e4 = [await lastPitchMs(64, 500, .01), await lastPitchMs(64, 500, .003)];
+    const low = ring(40, 2000), high = ring(64, 500);
+    const e2 = [await lastPitchMs(low, .01), await lastPitchMs(low, .003)];
+    const e4 = [await lastPitchMs(high, .01), await lastPitchMs(high, .003)];
     // Oletuskynnyksellä matala E näkyy selvästi pidempään kuin ohut E (sama ilmiö kuin kokeessa).
     expect(e2[0]).toBeGreaterThan(e4[0] * 2.5);
     // Mitattu kynnys pidentää kumpaakin.
